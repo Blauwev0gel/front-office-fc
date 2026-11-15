@@ -146,8 +146,28 @@ function assignScouts() {
 }
 function scoutWeek() {
   const r = RC(), t = g().club.tier, found = [];
+  // A department audit uses real scout capacity, not a free accuracy bonus.
+  // Audit work is done instead of fresh coverage; the report() function
+  // supplies the same uncertainty, network and competency rules as fieldwork.
+  const audits = Object.entries(g().deptIssues || {}).filter(([key, rec]) =>
+    key.startsWith('recruit:') && rec && rec.choice === 'plan' &&
+    rec.approach === 'audit' && rec.last !== 'blocked' &&
+    F.absWeek() > rec.started && F.absWeek() <= rec.due);
+  const audit = audits.length ? audits[0][1] : null;
+  let auditDone = 0;
   for (const s of scoutsAll()) {
     const a = s.assign; if (!a) continue; a.left--;
+    if (audit && auditDone < 2) {
+      const entries = Object.entries(r.know || {}).filter(([pid, k]) =>
+        r.pool[pid] && k && Number.isFinite(k.sd) && (!a.reg || r.pool[pid].region === a.reg));
+      if (entries.length) {
+        entries.sort((x,y) => y[1].sd - x[1].sd || String(x[0]).localeCompare(String(y[0])));
+        const [pid] = entries[auditDone % entries.length];
+        report(s, r.pool[pid]);
+        auditDone++;
+        continue; // Explicit opportunity cost: no new discovery by this scout.
+      }
+    }
     if (a.type === 'player') { const p = r.pool[a.pid]; if (p) { const k = report(s, p); const x = pipeOf(p.id); if (x && x.stage === 'identified') setStage(x, 'scouted'); found.push({ s, p, k, again: true }); } continue; }
     if (!chance(0.45 + s.at[2] / 50 + (g().push.scouting > 0 || g().push.sporting > 0 ? 0.2 : 0))) continue;
     const fit = chance(0.85), wl = wageLimit(), ma = +man('dof', 'maxAge');

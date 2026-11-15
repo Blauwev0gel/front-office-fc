@@ -146,7 +146,56 @@ function budCost(k) {
 const BUD_D = { first: 'Training, kit and travel', recruit: 'Scouting trips and data', academy: 'Coaching, pitches and food', commercial: 'Sales and activation', marketing: 'Campaigns and content' };
 
 /* ---------- views ---------- */
-function status(dk) { const sc = F.scorecard().find(x => x.k === dk); if (!sc) return { st: 'mid', l: 'Steady', rows: [] }; const bad = sc.rows.filter(r => r.ok === false).length, good = sc.rows.filter(r => r.ok === true).length; return { st: bad ? 'bad' : good ? 'good' : 'mid', l: bad ? bad + ' to fix' : good ? 'Good' : 'Steady', rows: sc.rows }; }
+// Scorecard rows are observations, not a task list. Only evidence-backed concerns
+// become departmental signals; supporting staff vacancies are never mandatory.
+const SIGNALS = {
+  first: {
+    'Squad quality': ['Squad below league standard', 'The current squad compares poorly with the division. Recruitment and coaching may both matter.', 'dof', 'mand', 'recruit'],
+    'xG difference per game': ['Chances going against us', 'Results alone do not explain performance. Review the trend with the head coach.', 'coach', 'talk', 'first'],
+    'Injured': ['Injury list growing', 'Three or more players are unavailable. Ask the coach about workload and medical support.', 'coach', 'talk', 'first']
+  },
+  recruit: {
+    'Scouting network, focus': ['Scouting reach is limited', 'The network is thin in the chosen regions. Revisit scouting priorities and resources.', 'scout', 'mand', 'recruit'],
+    'Scouting accuracy': ['Reports need scrutiny', 'Past estimates differ from the players eventually observed. Review scouting methods before committing more funds.', 'scout', 'talk', 'recruit']
+  },
+  commercial: {
+    'Sponsorship': ['Sponsorship below season start', 'Weekly sponsorship income is below its opening level. Review the commercial offers and commitments.', 'com', 'talk', 'commercial'],
+    'Stadium fill': ['Seats going unsold', 'Average attendance is below 45% of capacity. Price and matchday experience are possible levers, not guaranteed cures.', 'com', 'talk', 'commercial']
+  },
+  marketing: {
+    'Supporter base': ['Supporter base slipping', 'The supporter base has fallen since the season began. Discuss audience and campaign priorities.', 'mkt', 'talk', 'marketing'],
+    'Brand strength': ['Brand losing ground', 'Brand strength is below its starting point. Campaign impact takes time to assess.', 'mkt', 'talk', 'marketing'],
+    'Supporter mood': ['Supporters close to protest', 'Supporter mood is below 35. Results and club decisions may be contributing.', 'mkt', 'talk', 'marketing']
+  },
+  business: {
+    'Player wages vs revenue': ['Wages exceed policy limit', 'The wage-to-revenue ratio exceeds the agreed cap. Finance must weigh savings against sporting ambition.', 'fin', 'mand', 'business'],
+    'Last week': ['Weekly operating deficit', 'Last week cost more than it brought in. A single week does not establish a structural shortfall.', 'fin', 'talk', 'business'],
+    'Cash runway': ['Cash reserves under pressure', 'At the latest weekly burn rate, cash may run out within ten weeks. This is an estimate, not a forecast.', 'fin', 'talk', 'business']
+  }
+};
+function status(dk) {
+  const sc = F.scorecard().find(x => x.k === dk);
+  if (!sc) return { st: 'mid', l: 'Steady', rows: [], issues: [] };
+  const G = g(), played = (G.ss && G.ss.lg) || 0;
+  const issues = [];
+  for (const row of sc.rows) {
+    if (row.ok !== false) continue;
+    const spec = (SIGNALS[dk] || {})[row.l];
+    if (!spec) continue;
+    // Early outcomes are evidence to watch, not failures to assign to a new head.
+    if (played < 4 && (dk === 'commercial' || dk === 'marketing' || row.l === 'xG difference per game')) continue;
+    if (row.l === 'Last week' && played < 4) continue;
+    if (row.l === 'Cash runway' && issues.some(x => x.key === 'Last week')) {
+      const i = issues.findIndex(x => x.key === 'Last week'); issues.splice(i, 1);
+    }
+    if (row.l === 'Last week' && issues.some(x => x.key === 'Cash runway')) continue;
+    issues.push({ key: row.l, title: spec[0], why: spec[1], owner: spec[2], action: spec[3], department: spec[4], evidence: row.l + ': ' + row.v + (row.ref ? ' (' + row.ref + ')' : '') });
+  }
+  const good = sc.rows.some(r => r.ok === true);
+  return { st: issues.length ? 'bad' : good ? 'good' : 'mid',
+    l: issues.length ? issues[0].title : 'No urgent concerns',
+    extra: Math.max(0, issues.length - 1), issues, rows: sc.rows };
+}
 function view(dk) {
   const G = g(), d = DK[dk], X = ensure()[dk], used = X.staff.length, S = status(dk);
   const filled = new Set(X.staff.map(s => s.role));

@@ -30,8 +30,11 @@ Elke nieuwe feature moet minstens één pijler versterken en mag er geen breken.
 | P4 | **Druk voel je, je leest hem niet af.** Druk verschijnt als signalen en stemmen ("The chairman has stopped returning calls"), niet als kale getallen. | `dossiers.js` header, `loop.js` VOICE |
 | P5 | **Kort, mobiel, leesbaar.** 390 px, licht/donker, tikdoelen ≥ 44 px, WCAG AA, max. twee zinnen per blok. | README ground rules, `style.css` |
 | P6 | **Een fictieve, consistente wereld.** Geen echte spelers, clubs of merken. Eén krant (The Gazette), één piramide van 8 niveaus. | README, `engine.js` TIERS/TOWN_* |
+| P7 | **Mensen hebben een eigen wil.** Staf en spelers zijn personages met ambities, ego's en loyaliteit. Ze kunnen je tegenspreken, eigen instincten volgen of vertrekken. | `engine.js` LEAN/pers, `firstteam.js` coach-instinct, `summer2.js` DoF-houding |
+| P8 | **De club is een verhaal.** Elke carrière levert een eigen clubgeschiedenis op (archief, Gazette, legacy). Dat is de beloning voor eindeloos doorspelen. | `G.history`, Gazette-archief, `dossiers.js` |
+| P9 | **Er is geen perfecte keuze.** Elke beslissing is een afweging. Een optie die alles beter maakt is een ontwerpfout. | events/dossiers: opties met kosten en baten |
 
-Alle zes pijlers zijn bevestigd (besluit B5). ❓ Mist er nog een pijler?
+P1 t/m P6 zijn bevestigd (B5) en P7 t/m P9 zijn toegevoegd (B9).
 
 ## 4. Wat het spel IS / IS NIET
 
@@ -118,7 +121,7 @@ Run-in (20–29), Finale (30–34). Beker in week 5/11/17/23/29/33. Na week 34: 
 - Interface in het Engels, maximaal twee zinnen per blok.
 - Visueel: inkt-stijl procedurele portretten, krant-esthetiek (The Gazette), clubkleuren.
 
-❓ Is deze toon wat je wilt vasthouden? Zijn er referenties (games, series, boeken) die het gevoel goed vangen?
+Vastgelegd (B10): droge Britse ironie is de vaste stem van het spel. ❓ Referenties die het gevoel vangen zijn welkom.
 
 ## 8. Technische fundamenten (bindend)
 - **Eén HTML-bestand.** `build.py` plakt `src/*.js` in vaste volgorde + `style.css` in `src/index.html` → `dist/index.html`.
@@ -146,10 +149,9 @@ Aandachtspunten:
 Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na een playtest (B6).
 
 ## 10. Open vragen
-1. Mist er een pijler?
-2. Toon: klopt de droge Britse ironie? Welke referenties vangen het gevoel?
-3. Meters: welke zijn kern? Beslissen we na een playtest (B6).
-4. Monetisatie: blijft open (B4).
+1. Toon-referenties (optioneel).
+2. Meters: welke zijn kern? Beslissen we na een playtest (B6).
+3. Monetisatie: blijft open (B4).
 
 ---
 
@@ -165,3 +167,5 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 | B6 | 15-11-2026 | Over de meters beslissen we pas na een playtest, niet op papier. | Eerst voelen welke overbodig zijn. |
 | B7 | 15-11-2026 | Engels-only. | Geen lokalisatie-architectuur nodig. |
 | B8 | 15-11-2026 | Bij dubbele versies is de nieuwste leidend (zomer v2, academie 3, enz.); ongebruikte oude code wordt opgeruimd. | Minder regressierisico, één waarheid. |
+| B9 | 15-11-2026 | Pijlers toegevoegd: P7 Mensen hebben een eigen wil, P8 De club is een verhaal, P9 Er is geen perfecte keuze. | Aanvulling op het toetsingskader. |
+| B10 | 15-11-2026 | De toon is droge, licht ironische Britse voetbalproza. | De vaste stem van het spel en de Gazette. |

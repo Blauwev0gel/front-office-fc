@@ -173,6 +173,34 @@ const SIGNALS = {
     'Cash runway': ['Cash reserves under pressure', 'At the latest weekly burn rate, cash may run out within ten weeks. This is an estimate, not a forecast.', 'fin', 'talk', 'business']
   }
 };
+// Department follow-up is stored in the save and evaluated against the same
+// evidence as the original signal. A plan does not alter a scorecard or guarantee success.
+function issueRecords() { const G = g(); return G.deptIssues = G.deptIssues || {}; }
+function issueKey(dk, row) { return dk + ':' + row; }
+function issueDecision(dk, key, choice) {
+  const current = status(dk).issues.find(i => i.key === key);
+  if (!current) return { err: 'That concern is no longer current.' };
+  if (!['review', 'accept'].includes(choice)) return { err: 'Unknown decision.' };
+  const G = g(), now = F.absWeek(), rec = issueRecords();
+  rec[issueKey(dk, key)] = {
+    choice, owner: current.owner, started: now, due: now + (choice === 'review' ? 3 : 5),
+    baseline: current.evidence, title: current.title, last: null
+  };
+  return { out: choice === 'accept'
+    ? 'Risk accepted for now. The underlying figures will still be checked in five weeks.'
+    : 'Review agreed with the responsible department. Check the existing levers and return in three weeks.' };
+}
+function issueFollowUp(dk, key, present) {
+  const rec = issueRecords()[issueKey(dk, key)];
+  if (!rec) return null;
+  const now = F.absWeek();
+  if (now < rec.due) return { state: rec.choice === 'accept' ? 'Risk accepted' : 'In progress', note: rec.choice === 'accept'
+    ? 'You have chosen to carry this risk. It has not gone away.'
+    : 'The department is being monitored. No improvement is assumed.', due: rec.due, baseline: rec.baseline };
+  return { state: present ? 'Review due' : 'Improved', note: present
+    ? 'The concern remains. Review the evidence and choose whether to continue or change course.'
+    : 'The original trigger is no longer active. This does not prove which intervention helped.', due: rec.due, baseline: rec.baseline };
+}
 function status(dk) {
   const sc = F.scorecard().find(x => x.k === dk);
   if (!sc) return { st: 'mid', l: 'Steady', rows: [], issues: [] };
@@ -189,7 +217,7 @@ function status(dk) {
       const i = issues.findIndex(x => x.key === 'Last week'); issues.splice(i, 1);
     }
     if (row.l === 'Last week' && issues.some(x => x.key === 'Cash runway')) continue;
-    issues.push({ key: row.l, title: spec[0], why: spec[1], owner: spec[2], action: spec[3], department: spec[4], evidence: row.l + ': ' + row.v + (row.ref ? ' (' + row.ref + ')' : '') });
+    issues.push({ key: row.l, followUp: issueFollowUp(dk, row.l, true), title: spec[0], why: spec[1], owner: spec[2], action: spec[3], department: spec[4], evidence: row.l + ': ' + row.v + (row.ref ? ' (' + row.ref + ')' : '') });
   }
   const good = sc.rows.some(r => r.ok === true);
   return { st: issues.length ? 'bad' : good ? 'good' : 'mid',
@@ -212,5 +240,5 @@ function view(dk) {
 function overview() { return DEPTS.map(d => { const X = ensure()[d.k]; return { k: d.k, t: d.t, head: d.head, s: staff(d.head), status: status(d.k), used: X.staff.length, slots: slots(), staffOn: X.staff.filter(active).length }; }); }
 function budView() { return { cap: budCap(), used: budUsed(), rows: BUD.map(k => ({ k, t: DK[k].t, v: budGet(k), cost: budCost(k), d: BUD_D[k], vacant: !staff(DK[k].head) })) }; }
 
-Object.assign(F, { DEPTS, DEPT: DK, DEPT_ROLES: ROLES, deptEnsure: ensure, deptView: view, deptOverview: overview, deptCands: cands, deptHire: hireStaff, deptLetGo: letGo, deptBudView: budView, deptBudSet: budSet });
+Object.assign(F, { DEPTS, DEPT: DK, DEPT_ROLES: ROLES, deptEnsure: ensure, deptView: view, deptOverview: overview, deptCands: cands, deptHire: hireStaff, deptLetGo: letGo, deptBudView: budView, deptBudSet: budSet, deptIssueDecision: issueDecision, deptIssueFollowUp: issueFollowUp });
 })(FO);

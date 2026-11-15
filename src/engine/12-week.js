@@ -15,6 +15,7 @@ function endWeek() {
   for (const m of G.inbox.filter(m => !m.done)) { const e = EV[m.ev]; const who = e.from === 'board' ? 'The board' : ROLE[e.from] ? (staff(e.from) ? staff(e.from).name : 'Nobody in charge') : 'The club office'; resolve(m, autoIndex(m), who); }
   if (over()) return { sacked: true };
   lapseMeeting();
+  if (F.deptIssueWorkWeekly) F.deptIssueWorkWeekly();
   if (HOOK.recWeekly) { dofWork(); HOOK.recWeekly(); } else { scoutWork(); dofWork(); }
   // matches
   const t = G.club.tier, round = G.divs[t] && G.divs[t].fix[G.week - 1];

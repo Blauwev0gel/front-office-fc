@@ -1,6 +1,6 @@
 // Academy metrics over many seasons with a passive CEO (staff defaults).
 const fs = require('fs'), path = require('path'), vm = require('vm');
-const src = ['engine.js', 'events.js', 'events2.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js'].map(f => fs.readFileSync(path.join(__dirname, '../src', f), 'utf8')).join('\n');
+const src = ['engine.js', 'events.js', 'events2.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js'].map(f => require('./src.js')(f)).join('\n');
 const seasons = +process.argv[2] || 10, runs = +process.argv[3] || 8;
 const rows = [];
 for (let r = 0; r < runs; r++) {

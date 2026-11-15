@@ -4,6 +4,8 @@
 - Check the current branch before changing or pushing code. Use separate
   checkouts or Git worktrees when both tools work locally at the same time.
 - `main` is the shared release branch. Merge work into it when the user asks.
+- `CODEMAP.md` maps systems to files; read it before opening source. `src/engine/`, `src/ui/`
+  and `src/style/` are numbered parts of one file each, joined in order by `build.py`.
 - Edit the source in `src/`, then run `python build.py`. Do not edit generated
   HTML to implement game changes.
 - Every push to `main`, `chatgpt`, or `claude-game` automatically rebuilds and

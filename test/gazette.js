@@ -1,6 +1,6 @@
 // The Gazette: one edition per week, kept for the archive; old saves without editions still load.
 const fs = require('fs'), vm = require('vm');
-const src = ['engine.js', 'events.js', 'events2.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js', 'firstteam.js', 'depts.js', 'levers.js', 'commercial.js', 'marketing.js', 'business.js', 'academy3.js', 'recruitx.js', 'matchtalk.js', 'desk.js', 'loop.js', 'dossiers.js', 'pathway.js', 'matchday.js'].map(f => fs.readFileSync(__dirname + '/../src/' + f, 'utf8')).join('\n');
+const src = ['engine.js', 'events.js', 'events2.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js', 'firstteam.js', 'depts.js', 'levers.js', 'commercial.js', 'marketing.js', 'business.js', 'academy3.js', 'recruitx.js', 'matchtalk.js', 'desk.js', 'loop.js', 'dossiers.js', 'pathway.js', 'matchday.js'].map(f => require('./src.js')(f)).join('\n');
 function boot() { const ctx = { console, module: undefined }; vm.createContext(ctx); vm.runInContext(src + '\n;this.FO=FO;', ctx); return ctx.FO; }
 let fails = 0; const ok = (c, m) => { if (!c) { fails++; console.log('FAIL', m); } else if (process.argv[2]) console.log('ok', m); };
 const FO = boot(); FO.newGame(777); const d = {}; for (const q of FO.DNA) d[q.k] = q.o[0].v; FO.setDNA(d, 'Test United', 'TST', 'Testford', ['#123', '#fff']); for (const r of FO.ROLES) FO.hire(r.id, 1);

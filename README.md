@@ -25,13 +25,15 @@ You can also build locally and open `dist/index.html` in a browser.
 
 | Path | What it is |
 |---|---|
-| `src/` | The source. `engine.js` is the pure game logic (no DOM, runs in Node). The other modules add events, departments, the weekly loop, dossiers, the pathway storyline and match day. `ui.js`, `faces.js` and `style.css` are the interface. |
+| `src/` | The source. `engine/` is the pure game logic (no DOM, runs in Node). The other modules add events, departments, the weekly loop, dossiers, the pathway storyline and match day. `ui/`, `faces.js` and `style/` are the interface. A folder holds the numbered parts of one module; `build.py` joins them in order. |
+| `CODEMAP.md` | Which files and functions belong to which system. Start here. |
 | `build.py` | Joins the source files in order into one page: `dist/index.html`. |
 | `docs/index.html` | Legacy playable snapshot; live deployment now builds from `src/`. |
 | `.github/workflows/pages.yml` | Builds and publishes all three branch versions. |
 | `test/*.js` | Headless tests in Node: simulation, saves, dismissal, pathway, match day and the Gazette. |
 | `test/browser/` | Browser playtests with Playwright and Chrome. |
 | `tools/auditlib.js` | Balance audit helper that plays seasons with different CEO styles. |
+| `tools/codemap.js` | Regenerates the file tables in `CODEMAP.md`. |
 | `design/` | Playable design prototypes: the inbox and match day. |
 
 ## Build and test

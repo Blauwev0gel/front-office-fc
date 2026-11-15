@@ -1,5 +1,5 @@
 const fs = require('fs'), path = require('path'), vm = require('vm');
-const src = ['engine.js', 'events.js', 'events2.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js'].map(f => fs.readFileSync(path.join(__dirname, '../src', f), 'utf8')).join('\n');
+const src = ['engine.js', 'events.js', 'events2.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js'].map(f => require('./src.js')(f)).join('\n');
 const store = {}; const ctx = { console, localStorage: { getItem: k => store[k] || null, setItem: (k, v) => store[k] = v, removeItem: k => delete store[k] } }; vm.createContext(ctx); vm.runInContext(src + '\n;this.FO=FO;', ctx); const FO = ctx.FO;
 FO.newGame(77); const d = {}; for (const q of FO.DNA) d[q.k] = q.o[0].v; FO.setDNA(d, 'T', 'T', 'T', ['#123', '#fff']);
 for (const r of FO.ROLES) FO.hire(r.id, 1); FO.finishStaff(); FO.finishMandates(); FO.preSetTarget('accept'); FO.finishPreseason();

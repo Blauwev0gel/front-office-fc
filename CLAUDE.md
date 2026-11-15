@@ -10,6 +10,9 @@ een idee botst met de bijbel. Communiceer in het Nederlands; de interfacetekst i
 - Alleen het **besluitenlog** onderaan de bijbel is bindend. Punten met ❓ zijn nog open:
   neem daar geen besluit over zonder de eigenaar.
 - `README.md` bevat de ground rules; `AGENTS.md` de branch-afspraken.
+- **`CODEMAP.md`** zegt welke bestanden en functies bij welk systeem horen. Lees die eerst en open daarna
+  alleen de bestanden die je nodig hebt; lees nooit de hele bron. Zoek functies met `grep -rn "function naam" src`.
+  Draai `node tools/codemap.js` als je code verplaatst of een bestand toevoegt.
 
 ## Branches en preview
 - **Al het codewerk gebeurt op `claude-game`** en wordt daarheen gepusht. Controleer de branch vóór elke wijziging.
@@ -41,6 +44,8 @@ We werken in fasen. Sla geen fase over zonder dat de eigenaar dat zegt.
    - Alle toeval via de seeded RNG (`F.rnd`, `ri`, `chance`, …), nooit `Math.random`.
    - Nieuwe state: veilige default of migratie (`VERSION` ophogen + migratie in `load`).
    - Nieuw bestand? Voeg het toe aan de lijst in `build.py`, op de juiste plek in de volgorde.
+   - `src/engine/`, `src/ui/` en `src/style/` zijn genummerde delen van één bestand met één scope; ze zijn
+     alleen geldig na samenvoegen. Houd een deel onder ±40 KB; splits op een functiegrens.
    - UI: 390 px, licht en donker, tikdoelen ≥ 44 px, WCAG AA, max. twee zinnen per tekstblok.
    - Geen echte spelers, clubs of merken.
 5. **Testen** — `python3 build.py`, dan de relevante `node test/*.js`; bij UI-werk de browser-playtest

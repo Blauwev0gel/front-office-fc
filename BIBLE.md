@@ -24,13 +24,13 @@ Elke nieuwe feature moet minstens één pijler versterken en mag er geen breken.
 
 | # | Pijler | Waar het in de code zit |
 |---|---|---|
-| P1 | **Je stuurt mensen, geen spelers.** Invloed loopt via aannemen, mandaten (schuifjes + regels), bevoegdheid en gesprekken. | `engine.js` ROLES/MAND, `desk.js` AUTH, `firstteam.js` talks |
+| P1 | **Je stuurt mensen, geen spelers.** Invloed loopt via aannemen, mandaten (schuifjes + regels), bevoegdheid en gesprekken. | `engine/` ROLES/MAND, `desk.js` AUTH, `firstteam.js` talks |
 | P2 | **Elke beslissing laat een spoor na.** Gevolgen komen later, worden gelogd met hun oorzaak, en je ziet hoe je achterban bewoog. | `pathway.js` (credibility met oorzaak), `loop.js` (backer-diff), `dossiers.js` (heat) |
-| P3 | **De club heeft een identiteit.** Zeven DNA-keuzes bepalen startpositie, doelen van het bestuur en wat "goed" is. Afwijken kost alignment. | `engine.js` DNA, setObjectives, alignment |
+| P3 | **De club heeft een identiteit.** Zeven DNA-keuzes bepalen startpositie, doelen van het bestuur en wat "goed" is. Afwijken kost alignment. | `engine/` DNA, setObjectives, alignment |
 | P4 | **Druk voel je, je leest hem niet af.** Druk verschijnt als signalen en stemmen ("The chairman has stopped returning calls"), niet als kale getallen. | `dossiers.js` header, `loop.js` VOICE |
-| P5 | **Kort, mobiel, leesbaar.** 390 px, licht/donker, tikdoelen ≥ 44 px, WCAG AA, max. twee zinnen per blok. | README ground rules, `style.css` |
-| P6 | **Een fictieve, consistente wereld.** Geen echte spelers, clubs of merken. Eén krant (The Gazette), één piramide van 8 niveaus. | README, `engine.js` TIERS/TOWN_* |
-| P7 | **Mensen hebben een eigen wil.** Staf en spelers zijn personages met ambities, ego's en loyaliteit. Ze kunnen je tegenspreken, eigen instincten volgen of vertrekken. | `engine.js` LEAN/pers, `firstteam.js` coach-instinct, `summer2.js` DoF-houding |
+| P5 | **Kort, mobiel, leesbaar.** 390 px, licht/donker, tikdoelen ≥ 44 px, WCAG AA, max. twee zinnen per blok. | README ground rules, `style/` |
+| P6 | **Een fictieve, consistente wereld.** Geen echte spelers, clubs of merken. Eén krant (The Gazette), één piramide van 8 niveaus. | README, `engine/` TIERS/TOWN_* |
+| P7 | **Mensen hebben een eigen wil.** Staf en spelers zijn personages met ambities, ego's en loyaliteit. Ze kunnen je tegenspreken, eigen instincten volgen of vertrekken. | `engine/` LEAN/pers, `firstteam.js` coach-instinct, `summer2.js` DoF-houding |
 | P8 | **De club is een verhaal.** Elke carrière levert een eigen clubgeschiedenis op (archief, Gazette, legacy). Dat is de beloning voor eindeloos doorspelen. | `G.history`, Gazette-archief, `dossiers.js` |
 | P9 | **Er is geen perfecte keuze.** Elke beslissing is een afweging. Een optie die alles beter maakt is een ontwerpfout. | events/dossiers: opties met kosten en baten |
 
@@ -96,9 +96,9 @@ Run-in (20–29), Finale (30–34). Beker in week 5/11/17/23/29/33. Na week 34: 
 
 | Systeem | Wat de speler ziet/doet | Bestand(en) |
 |---|---|---|
-| Wereld & competitie | 8 divisies, 18 clubs, beker, rivalen die mee-evolueren | `engine.js` |
-| Spelers | 14 attributen, CA/PA, leeftijd, contract, moraal, persoonlijkheid | `engine.js` |
-| Wedstrijdsim | xG-gebaseerd, teamsterkte uit XI + coach-fit | `engine.js`, `matchtalk.js`, `matchday.js` |
+| Wereld & competitie | 8 divisies, 18 clubs, beker, rivalen die mee-evolueren | `engine/` |
+| Spelers | 14 attributen, CA/PA, leeftijd, contract, moraal, persoonlijkheid | `engine/` |
+| Wedstrijdsim | xG-gebaseerd, teamsterkte uit XI + coach-fit | `engine/`, `matchtalk.js`, `matchday.js` |
 | Afdelingen | head + staf, budgetaandeel, KPI-historie, log | `depts.js` |
 | Bevoegdheid (desk) | short leash / normal / free hand per head, foutkans | `desk.js` |
 | Grip | zakt als je niet zelf beslist; tilt of drukt alle heads | `levers.js` |
@@ -114,7 +114,7 @@ Run-in (20–29), Finale (30–34). Beker in week 5/11/17/23/29/33. Na week 34: 
 | Business | seizoensbudget per afdeling, forecast, herfinanciering | `business.js` |
 | Zomer | transferzomer v1 (5 stappen) en v2 (vergadering → brief → ticker → debrief) | `summer.js`, `summer2.js` |
 | Seizoensritme | blokken, bestuursreviews, high-stakes wedstrijden, winterwindow, huur | `season.js` |
-| Presentatie | inkt-portretten, kantoorscène, geluid, Gazette, inbox-mappen | `faces.js`, `ui.js`, `style.css` |
+| Presentatie | inkt-portretten, kantoorscène, geluid, Gazette, inbox-mappen | `faces.js`, `ui/`, `style/` |
 
 ## 7. Toon & stijl
 - Droog, licht ironisch Brits voetbalproza ("Your name is sung. Occasionally in tune.").
@@ -124,8 +124,8 @@ Run-in (20–29), Finale (30–34). Beker in week 5/11/17/23/29/33. Na week 34: 
 Vastgelegd (B10): droge Britse ironie is de vaste stem van het spel. ❓ Referenties die het gevoel vangen zijn welkom.
 
 ## 8. Technische fundamenten (bindend)
-- **Eén HTML-bestand.** `build.py` plakt `src/*.js` in vaste volgorde + `style.css` in `src/index.html` → `dist/index.html`.
-- **Engine zonder DOM.** `engine.js` en de modules draaien in Node; uitbreiding via `FO.HOOK.*`.
+- **Eén HTML-bestand.** `build.py` plakt de modules in `src/` in vaste volgorde in `src/index.html` → `dist/index.html`. Grote modules (`engine/`, `ui/`, `style/`) zijn mappen met genummerde delen. `CODEMAP.md` is de wegwijzer.
+- **Engine zonder DOM.** `engine/` en de modules draaien in Node; uitbreiding via `FO.HOOK.*`.
 - **Deterministisch.** Eigen seeded RNG (`G.rs`); zelfde seed + zelfde acties = zelfde uitkomst.
 - **Saves blijven werken.** Nieuwe state via migratie (`VERSION`, nu 3) of een veilige default.
 - **Publicatie** via GitHub Actions: elke push naar `main`, `claude-game` of `chatgpt` bouwt alle drie de versies. Claude werkt op `claude-game` (preview `/claude/`); release = merge naar `main` op verzoek. `docs/index.html` is een verouderde snapshot.
@@ -139,9 +139,9 @@ Werkt:
 Aandachtspunten:
 1. **`test/audit.js` crasht** (`Cannot read properties of undefined (reading 'pts')`).
 2. **Dubbele generaties naast elkaar:** `summer.js` + `summer2.js`, `academy.js`/`2`/`3`, `events.js` + `events2.js`,
-   `recruit.js` + `recruitx.js`, en in `ui.js` o.a. `vClub`/`vClub2`, `vReview`/`vReview2`, `vRecruit`/`vRecruit2`.
+   `recruit.js` + `recruitx.js`, en in `ui/` o.a. `vClub`/`vClub2`, `vReview`/`vReview2`, `vRecruit`/`vRecruit2`.
    Onduidelijk welke versie leidend is en wat dood is.
-3. **`ui.js` is 1.849 regels** in één blok; het is de grootste risicozone voor regressies.
+3. ~~`ui.js` is 1.849 regels in één blok~~ — opgeknipt in 16 delen (15-11-2026), build byte-identiek.
 4. **Veel meters tegelijk:** bestuursvertrouwen, 4 backers, grip, verborgen druk, credibility (pathway),
    DNA-alignment, actiepunten, plus KPI's per afdeling. Sterk voor P2, maar mogelijk in strijd met P4/P5.
 5. Tab `money` bestaat in de render, maar staat niet in de tabbalk.

@@ -6,7 +6,20 @@ The whole game is one HTML file with vanilla JavaScript.
 
 **Play it live:** https://blauwev0gel.github.io/front-office-fc/
 
-The live site is GitHub Pages, served from `docs/` on `main`. Or open `docs/index.html` in a browser.
+The live site is published by GitHub Actions from the source on three branches:
+
+| Branch | Play | Who works here |
+|---|---|---|
+| `main` | https://blauwev0gel.github.io/front-office-fc/ | Shared release |
+| `chatgpt` | https://blauwev0gel.github.io/front-office-fc/chatgpt/ | Codex / ChatGPT |
+| `claude-game` | https://blauwev0gel.github.io/front-office-fc/claude/ | Claude |
+
+Each push rebuilds all three branches and publishes them together. Wait for
+**Publish game versions** in Actions to finish, then refresh the relevant link.
+The previews have separate browser saves; the main version keeps its existing
+save key. The two preview links start without importing the main save.
+Use separate local checkouts or worktrees for simultaneous work.
+You can also build locally and open `dist/index.html` in a browser.
 
 ## Structure
 
@@ -14,7 +27,8 @@ The live site is GitHub Pages, served from `docs/` on `main`. Or open `docs/inde
 |---|---|
 | `src/` | The source. `engine.js` is the pure game logic (no DOM, runs in Node). The other modules add events, departments, the weekly loop, dossiers, the pathway storyline and match day. `ui.js`, `faces.js` and `style.css` are the interface. |
 | `build.py` | Joins the source files in order into one page: `dist/index.html`. |
-| `docs/index.html` | The current playable build, served live by GitHub Pages. |
+| `docs/index.html` | Legacy playable snapshot; live deployment now builds from `src/`. |
+| `.github/workflows/pages.yml` | Builds and publishes all three branch versions. |
 | `test/*.js` | Headless tests in Node: simulation, saves, dismissal, pathway, match day and the Gazette. |
 | `test/browser/` | Browser playtests with Playwright and Chrome. |
 | `tools/auditlib.js` | Balance audit helper that plays seasons with different CEO styles. |
@@ -31,7 +45,9 @@ node test/pathway.js             # the youth pathway storyline
 python3 test/browser/playtest.py # a run of weeks with real clicks (needs Playwright and Chrome)
 ```
 
-To release: build, run the tests, then copy `dist/index.html` to `docs/index.html` and push to `main`. The live site updates within a minute or two.
+To preview: build, run the relevant tests, and push to your assigned branch.
+To release: merge the approved changes into `main`. GitHub Actions publishes
+the new main version and preserves both previews. No manual HTML copy is needed.
 
 ## Ground rules
 

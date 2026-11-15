@@ -1,7 +1,9 @@
 /* The Front Office · UI (module 1) */
 {
 const F = FO, $ = s => document.querySelector(s), app = $('#app');
-const KEY = 'frontoffice_save_v1';
+// Preview versions share an origin, so keep each branch's save separate.
+const previewBranch = location.pathname.match(/\/front-office-fc\/(chatgpt|claude)(?:\/|$)/)?.[1];
+const KEY = 'frontoffice_save_v1' + (previewBranch ? '_' + previewBranch : '');
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const money = v => F.money(v), r0 = v => Math.round(v);
 const PALETTES = [['#7a1e2b', '#f4e9d8', 'Claret & cream'], ['#0e3b2e', '#f2c14e', 'Green & gold'], ['#1b3a6b', '#ffffff', 'Navy & white'], ['#111111', '#e8e8e8', 'Black & white'], ['#c8102e', '#ffffff', 'Red & white'], ['#4b2a7b', '#e6c35c', 'Purple & gold'], ['#d9601a', '#1a1a1a', 'Orange & black'], ['#2b6cb0', '#f6e05e', 'Sky & yellow']];

@@ -174,3 +174,4 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 | B8 | 15-11-2026 | Bij dubbele versies is de nieuwste leidend (zomer v2, academie 3, enz.); ongebruikte oude code wordt opgeruimd. | Minder regressierisico, één waarheid. |
 | B9 | 15-11-2026 | Pijlers toegevoegd: P7 Mensen hebben een eigen wil, P8 De club is een verhaal, P9 Er is geen perfecte keuze. | Aanvulling op het toetsingskader. |
 | B10 | 15-11-2026 | De toon is droge, licht ironische Britse voetbalproza. | De vaste stem van het spel en de Gazette. |
+| B11 | 15-11-2026 | Deze stand (opgeknipte code, dode code weg, seizoenseinde-crash opgelost) is **V1** (tag `v1.0`): het gemeenschappelijke vertrekpunt voor `main`, `chatgpt` en `claude-game`. | Beide AI-branches werken vanaf dezelfde basis. |

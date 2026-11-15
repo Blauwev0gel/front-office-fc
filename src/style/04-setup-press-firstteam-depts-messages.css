@@ -271,3 +271,16 @@ button.dept.dtile{display:flex;align-items:center;gap:10px;width:100%;text-align
 .archbtn{margin-left:auto;margin-right:6px;min-height:44px;padding:0 12px;border:2px solid var(--hair);border-radius:12px;background:var(--paper);font:800 13px var(--head);color:var(--ink)}
 .ohead .pos{flex:1}
 
+
+/* Department issue meeting: explicitly one full-width column at every viewport. */
+.sheet:has(.dept-issue-choices) { box-sizing:border-box; width:100%; max-width:min(100vw,760px); min-width:0; overflow-x:hidden; }
+.sheet .dept-issue-choices { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; width:100%; max-width:100%; min-width:0; box-sizing:border-box; margin:14px 0; }
+.sheet .dept-issue-choices > .dept-issue-choice {
+  display:block; grid-column:1 / -1; justify-self:stretch; width:100%; max-width:none; min-width:0;
+  height:auto; box-sizing:border-box; margin:0; padding:16px; text-align:left; white-space:normal;
+  border:2px solid var(--ink); border-radius:14px; background:var(--paper); color:var(--ink);
+  font:inherit; cursor:pointer; overflow-wrap:break-word;
+}
+.sheet .dept-issue-choice-title { display:block; font:900 20px/1.2 var(--head); margin-bottom:8px; white-space:normal; }
+.sheet .dept-issue-choice-desc { display:block; font:400 15px/1.5 var(--body); white-space:normal; overflow-wrap:break-word; }
+@media(max-width:760px) { .sheet:has(.dept-issue-choices) { padding-left:16px; padding-right:16px; } }

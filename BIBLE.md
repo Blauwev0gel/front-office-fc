@@ -1,6 +1,6 @@
 # The Front Office — Spelbijbel
 
-> Status: **concept v0.1**, opgesteld uit een analyse van de code op `main` (commit `798ba01`).
+> Status: **concept v0.2** (eerste besluiten genomen 15-11-2026), opgesteld uit een analyse van de code op `main` (commit `798ba01`).
 > Alles hieronder beschrijft wat de code *nu doet*. Punten met **❓** zijn open vragen die we samen
 > beslissen. Pas als een punt besloten is, gaat het naar het besluitenlog onderaan en wordt het bindend.
 
@@ -30,8 +30,11 @@ Elke nieuwe feature moet minstens één pijler versterken en mag er geen breken.
 | P4 | **Druk voel je, je leest hem niet af.** Druk verschijnt als signalen en stemmen ("The chairman has stopped returning calls"), niet als kale getallen. | `dossiers.js` header, `loop.js` VOICE |
 | P5 | **Kort, mobiel, leesbaar.** 390 px, licht/donker, tikdoelen ≥ 44 px, WCAG AA, max. twee zinnen per blok. | README ground rules, `style.css` |
 | P6 | **Een fictieve, consistente wereld.** Geen echte spelers, clubs of merken. Eén krant (The Gazette), één piramide van 8 niveaus. | README, `engine.js` TIERS/TOWN_* |
+| P7 | **Mensen hebben een eigen wil.** Staf en spelers zijn personages met ambities, ego's en loyaliteit. Ze kunnen je tegenspreken, eigen instincten volgen of vertrekken. | `engine.js` LEAN/pers, `firstteam.js` coach-instinct, `summer2.js` DoF-houding |
+| P8 | **De club is een verhaal.** Elke carrière levert een eigen clubgeschiedenis op (archief, Gazette, legacy). Dat is de beloning voor eindeloos doorspelen. | `G.history`, Gazette-archief, `dossiers.js` |
+| P9 | **Er is geen perfecte keuze.** Elke beslissing is een afweging. Een optie die alles beter maakt is een ontwerpfout. | events/dossiers: opties met kosten en baten |
 
-❓ **Klopt dit rijtje? Mist er een pijler, of is er één die je eigenlijk niet wilt?**
+P1 t/m P6 zijn bevestigd (B5) en P7 t/m P9 zijn toegevoegd (B9).
 
 ## 4. Wat het spel IS / IS NIET
 
@@ -45,11 +48,11 @@ Elke nieuwe feature moet minstens één pijler versterken en mag er geen breken.
 | Speelbaar op een telefoon met één duim | Een desktop-first dashboard |
 | Vergevingsloos waar het moet: ontslag is definitief | Een sandbox zonder verliesconditie |
 
-❓ Nog niet vastgelegd in de code en dus open:
-- Is er een **einddoel** (Premiership winnen? een X aantal seizoenen?) of is het eindeloos tot ontslag?
-- **Monetisatie**: geen, of later iets? (bepaalt veel ontwerpkeuzes)
-- Mag de CEO **ooit zelf onderhandelen** over een transfer? Nu doet de DoF dat automatisch (`recruit.js` negRound).
-- Is **Engels-only** definitief, of komt er later lokalisatie (bijv. Nederlands)?
+Vastgelegd:
+- De CEO kiest **nooit** het elftal en onderhandelt **nooit** zelf; ook niet als uitzondering (B1).
+- **Eindeloos tot ontslag**: geen win-conditie; historie en legacy zijn de beloning (B2).
+- **Engels-only**, geen lokalisatie (B7).
+- Monetisatie is nog open: we maken geen ontwerpkeuzes die het later blokkeren, en geen pay-to-win (B4).
 
 ## 5. De kernloop
 
@@ -118,19 +121,19 @@ Run-in (20–29), Finale (30–34). Beker in week 5/11/17/23/29/33. Na week 34: 
 - Interface in het Engels, maximaal twee zinnen per blok.
 - Visueel: inkt-stijl procedurele portretten, krant-esthetiek (The Gazette), clubkleuren.
 
-❓ Is deze toon wat je wilt vasthouden? Zijn er referenties (games, series, boeken) die het gevoel goed vangen?
+Vastgelegd (B10): droge Britse ironie is de vaste stem van het spel. ❓ Referenties die het gevoel vangen zijn welkom.
 
 ## 8. Technische fundamenten (bindend)
 - **Eén HTML-bestand.** `build.py` plakt `src/*.js` in vaste volgorde + `style.css` in `src/index.html` → `dist/index.html`.
 - **Engine zonder DOM.** `engine.js` en de modules draaien in Node; uitbreiding via `FO.HOOK.*`.
 - **Deterministisch.** Eigen seeded RNG (`G.rs`); zelfde seed + zelfde acties = zelfde uitkomst.
 - **Saves blijven werken.** Nieuwe state via migratie (`VERSION`, nu 3) of een veilige default.
-- **Release** = build → tests → `dist/index.html` naar `docs/index.html` → push naar `main` (GitHub Pages).
+- **Publicatie** via GitHub Actions: elke push naar `main`, `claude-game` of `chatgpt` bouwt alle drie de versies. Claude werkt op `claude-game` (preview `/claude/`); release = merge naar `main` op verzoek. `docs/index.html` is een verouderde snapshot.
 
 ## 9. Huidige staat van de code (analyse 15-11-2026)
 
 Werkt:
-- Build slaagt (~1,0 MB). `docs/index.html` is gelijk aan een verse build.
+- Build slaagt (~1,0 MB).
 - Tests `sim`, `matchday`, `gazette`, `sack`, `pathway`, `acad`, `rec`, `mig` draaien zonder fout.
 
 Aandachtspunten:
@@ -143,17 +146,12 @@ Aandachtspunten:
    DNA-alignment, actiepunten, plus KPI's per afdeling. Sterk voor P2, maar mogelijk in strijd met P4/P5.
 5. Tab `money` bestaat in de render, maar staat niet in de tabbalk.
 
-❓ Wil je dat we (2) en (4) als eerste ontwerpvragen oppakken voordat er nieuwe content bij komt?
+Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na een playtest (B6).
 
-## 10. Open vragen voor jou (samengevat)
-1. Kloppen de zes pijlers? Wat voeg je toe of schrap je?
-2. Einddoel of eindeloos?
-3. Monetisatie: ja/nee/later?
-4. Doelgroep: wie speelt dit, hoe lang per sessie, hoe vaak?
-5. Mag de CEO ooit zelf onderhandelen of een speler aanwijzen — of is "nooit" heilig?
-6. Taal: Engels-only definitief?
-7. Hoeveel meters is te veel? Welke zijn kern, welke kunnen samen?
-8. Welke van de dubbele generaties is leidend (zomer v1/v2, academie 1/2/3)?
+## 10. Open vragen
+1. Toon-referenties (optioneel).
+2. Meters: welke zijn kern? Beslissen we na een playtest (B6).
+3. Monetisatie: blijft open (B4).
 
 ---
 
@@ -161,4 +159,13 @@ Aandachtspunten:
 
 | # | Datum | Besluit | Reden |
 |---|---|---|---|
-| — | — | *(nog leeg — vullen we samen)* | — |
+| B1 | 15-11-2026 | De CEO kiest nooit het elftal en onderhandelt nooit zelf. Ook niet als uitzondering. | Indirecte invloed is de kern van het spel. |
+| B2 | 15-11-2026 | Eindeloos tot ontslag; geen win-conditie. | Historie en legacy zijn de beloning. |
+| B3 | 15-11-2026 | Doelgroep: beide. Een week moet in korte sessies op mobiel af te handelen zijn, met diepte voor wie wil graven. | Korte sessies en verdieping naast elkaar. |
+| B4 | 15-11-2026 | Monetisatie nog niet besloten. Geen keuzes die het blokkeren, geen pay-to-win. | Houdt opties open. |
+| B5 | 15-11-2026 | De zes pijlers P1 t/m P6 zijn bevestigd. | Het toetsingskader voor elke feature. |
+| B6 | 15-11-2026 | Over de meters beslissen we pas na een playtest, niet op papier. | Eerst voelen welke overbodig zijn. |
+| B7 | 15-11-2026 | Engels-only. | Geen lokalisatie-architectuur nodig. |
+| B8 | 15-11-2026 | Bij dubbele versies is de nieuwste leidend (zomer v2, academie 3, enz.); ongebruikte oude code wordt opgeruimd. | Minder regressierisico, één waarheid. |
+| B9 | 15-11-2026 | Pijlers toegevoegd: P7 Mensen hebben een eigen wil, P8 De club is een verhaal, P9 Er is geen perfecte keuze. | Aanvulling op het toetsingskader. |
+| B10 | 15-11-2026 | De toon is droge, licht ironische Britse voetbalproza. | De vaste stem van het spel en de Gazette. |

@@ -11,7 +11,7 @@ function vSheet() {
       if (m.active) h += '<div class="panel2"><b>Assignment underway: ' + esc(m.active.approachTitle) + '</b><p>' + (m.active.steps || 0) + ' of 4 working weeks completed. Review due in ' + Math.max(0,m.active.due - F.absWeek()) + ' weeks.</p><p>Original evidence: ' + esc(m.active.baseline) + '</p></div>';
       else {
         h += '<p><b>How should ' + esc(m.owner) + ' address this?</b></p><p class="small">Choose a direction for the department. An assignment takes one CEO action; results are not guaranteed.</p>';
-        h += '<div style="display:flex;flex-direction:column;gap:12px;width:100%;margin:14px 0">' + m.options.map(o => '<button type="button" class="panel2" style="display:block;box-sizing:border-box;width:100%;min-width:0;min-height:76px;padding:16px;text-align:left;white-space:normal;overflow-wrap:break-word;cursor:pointer;border:2px solid var(--ink,#18221d);border-radius:14px;background:var(--paper,#fff)" data-a="dept-plan" data-k="' + esc(s.k) + '" data-v="' + esc(s.v) + '" data-c="' + esc(o[2]) + '"><strong style="display:block;font-size:1.05rem;line-height:1.3;margin-bottom:8px">' + esc(o[0]) + '</strong><span style="display:block;font-size:.95rem;line-height:1.45;font-weight:400">' + esc(o[1]) + '</span></button>').join('') + '</div>';
+        h += '<div style="display:block;width:100%;max-width:100%;box-sizing:border-box;margin:14px 0">' + m.options.map(o => '<button type="button" class="panel2" style="display:block;box-sizing:border-box;width:100%;max-width:100%;min-width:0;min-height:76px;margin:0 0 12px;padding:16px;text-align:left;white-space:normal;overflow-wrap:break-word;cursor:pointer;border:2px solid var(--ink,#18221d);border-radius:14px;background:var(--paper,#fff)" data-a="dept-plan" data-k="' + esc(s.k) + '" data-v="' + esc(s.v) + '" data-c="' + esc(o[2]) + '"><strong style="display:block;font-size:1.05rem;line-height:1.3;margin-bottom:8px">' + esc(o[0]) + '</strong><span style="display:block;font-size:.95rem;line-height:1.45;font-weight:400">' + esc(o[1]) + '</span></button>').join('') + '</div>';
         h += '<button class="btn ghost wide" data-a="dept-plan" data-k="' + esc(s.k) + '" data-v="' + esc(s.v) + '" data-c="accept">Accept risk — no intervention</button>';
       }
     }
@@ -122,7 +122,7 @@ function vSheet() {
   }
   if (s.t === 'confirm') { const n = inboxItems().filter(i => i.kind === 'need').length; h = `<h2>Play week ${g.week}?</h2><p>${n} decision${n === 1 ? '' : 's'} will be taken by your staff, following their mandates.</p><div class="row"><button class="btn" data-a="end">Play anyway</button><button class="btn ghost" data-a="review">Review first</button></div>`; }
   if (s.t === 'ticker') return vTicker();
-  return `<div class="veil" data-a="veil"><div class="sheet" role="dialog" aria-modal="true">${h}</div></div>`;
+  return `<div class="veil" data-a="veil"><div class="sheet" role="dialog" aria-modal="true"${s.t === "dept-issue" ? ' style="display:block;box-sizing:border-box;width:min(100%,560px);max-width:100%;overflow-x:hidden"' : ""}>${h}</div></div>`;
 }
 function previewAlign(r, m) { const g = G(), old = g.mand[r]; g.mand[r] = m; const a = F.alignment(); g.mand[r] = old; return a; }
 

@@ -191,7 +191,7 @@ function issueDecision(dk, key, choice) {
     return { err: 'This decision is already active. Wait for the agreed review.' };
   rec[issueKey(dk, key)] = {
     choice, owner: current.owner, started: now, due: now + (choice === 'review' ? 3 : 5),
-    baseline: current.evidence, title: current.title, last: null, notified: false
+    baseline: current.evidence, title: current.title, season: g().season, last: null, notified: false
   };
   const X = ensure()[dk];
   X.log.unshift({ w: g().week, s: g().season, t: current.title + ': ' +
@@ -208,8 +208,10 @@ function issueFollowUp(dk, key, present) {
   if (now < rec.due) return { state: rec.choice === 'accept' ? 'Risk accepted' : 'In progress', note: rec.choice === 'accept'
     ? 'You have chosen to carry this risk. It has not gone away.'
     : 'The department is being monitored. No improvement is assumed.', due: rec.due, baseline: rec.baseline };
-  return { state: present ? 'Review due' : 'Improved', note: present
-    ? 'The concern remains. Review the evidence and choose whether to continue or change course.'
+  const changedSeason = rec.season != null && rec.season !== g().season;
+  return { state: changedSeason ? 'New season' : present ? 'Review due' : 'Improved', note: changedSeason
+    ? 'The original baseline belongs to a previous season. Reassess before claiming improvement.'
+    : present ? 'The concern remains. Review the evidence and choose whether to continue or change course.'
     : 'The original trigger is no longer active. This does not prove which intervention helped.', due: rec.due, baseline: rec.baseline };
 }
 // The weekly edition delivers a single, deduplicated result at the agreed date.
@@ -222,10 +224,11 @@ function issueWeekly() {
     const split = id.indexOf(':'), dk = id.slice(0, split), key = id.slice(split + 1);
     if (!DK[dk]) continue;
     const current = snapshots[dk].issues.find(i => i.key === key);
-    const improved = !current;
-    const headline = improved ? 'Department review: concern eased' : 'Department review: still unresolved';
+    const seasonChanged = item.season != null && item.season !== G.season;
+    const improved = !current && !seasonChanged;
+    const headline = seasonChanged ? 'Department review: new season' : improved ? 'Department review: concern eased' : 'Department review: still unresolved';
     const msg = DK[dk].t + ' — ' + item.title + '. ' +
-      (improved ? 'The original warning is no longer active.' : 'The original warning remains active.') +
+      (seasonChanged ? 'The season has changed; the original baseline cannot be compared directly.' : improved ? 'The original warning is no longer active.' : 'The original warning remains active.') +
       ' Original evidence: ' + item.baseline + '. ' +
       (current ? 'Current evidence: ' + current.evidence + '. ' : '') +
       'This is a review of the evidence, not proof of cause. Open the department to decide what happens next.';
@@ -233,7 +236,7 @@ function issueWeekly() {
     ensure()[dk].log.unshift({ w: G.week, s: G.season, t: msg });
     ensure()[dk].log.length = Math.min(ensure()[dk].log.length, 12);
     item.notified = true;
-    item.last = improved ? 'improved' : 'unresolved';
+    item.last = seasonChanged ? 'reset' : improved ? 'improved' : 'unresolved';
   }
 }
 function status(dk) {
@@ -272,7 +275,7 @@ function status(dk) {
   }
   const activeKeys = new Set(issues.map(i => issueKey(dk, i.key)));
   const resolved = Object.entries(issueRecords()).filter(([key, rec]) =>
-    key.startsWith(dk + ':') && !activeKeys.has(key) && rec.due <= F.absWeek()
+    key.startsWith(dk + ':') && !activeKeys.has(key) && rec.due <= F.absWeek() && (rec.season == null || rec.season === G.season)
   ).map(([key, rec]) => ({ key, title: rec.title, followUp: issueFollowUp(dk, key.slice(dk.length + 1), false) }));
   const good = sc.rows.some(r => r.ok === true);
   return { st: issues.length ? 'bad' : good ? 'good' : 'mid',

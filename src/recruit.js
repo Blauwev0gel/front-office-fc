@@ -73,7 +73,7 @@ function prioOf(p) { return (RC().plan.prios || []).find(x => x.pos === p.pos); 
 function fitsProfile(p, k, pr) { if (!pr) return false; if (pr.kind === 'young') return p.age <= 23; if (pr.kind === 'proven') return p.age >= 25 && k.est >= posBest(p.pos) - 0.3; if (pr.kind === 'value') return p.ask <= p.value * 0.9 || !p.club; return true; }
 function grade(p, k) {
   const ref = Math.max(posWorst(p.pos), posBest(p.pos) - 1), pr = prioOf(p);
-  let d = k.est - ref + (k.pest - k.est) * (man('dof', 'youth') / 100) * 0.3 + (fitsProfile(p, k, pr) ? 0.5 : 0) + (F.squadNeeds().includes(p.pos) ? 0.6 : 0);
+  let d = k.est - ref + (k.pest - k.est) * (man('dof', 'youth') / 100) * 0.3 + (fitsProfile(p, k, pr) ? 0.5 : 0) + (recruitmentNeeds().includes(p.pos) ? 0.6 : 0);
   const budget = F.transferBudget() + (RC().extra || 0); if (p.ask > budget * 1.3) d -= 1.5;
   return d >= 1 ? 'A' : d >= 0.3 ? 'B' : d >= -0.5 ? 'C' : 'D';
 }
@@ -179,14 +179,31 @@ function scoutWeek() {
   }
   r.lastFound = found.map(f => ({ sid: f.s.id, sname: f.s.name, pid: f.p.id, again: !!f.again }));
 }
+// The coach's available squad feeds the DoF's recruitment priorities.
+// Only sustained positional shortages count; a single injury is not a
+// mandate to buy a replacement. This derives from real squad availability.
+function coachCoverageNeeds() {
+  const byPos = {};
+  for (const p of sq()) {
+    if (!p || !p.pos) continue;
+    const row = byPos[p.pos] || (byPos[p.pos] = { available: 0, longOut: 0 });
+    if ((p.inj || 0) > 4) row.longOut++;
+    else row.available++;
+  }
+  return Object.keys(byPos).filter(pos =>
+    byPos[pos].longOut > 0 && byPos[pos].available < (pos === 'GK' ? 1 : 2));
+}
+function recruitmentNeeds() {
+  return [...new Set([...(F.squadNeeds() || []), ...coachCoverageNeeds()])];
+}
 function dofPipeline() {
   const r = RC(), d = staff('dof'); if (!d) return;
-  const need = F.squadNeeds(), depth = 20 + Math.round(man('dof', 'depth') / 100 * 6);
+  const need = recruitmentNeeds(), depth = 20 + Math.round(man('dof', 'depth') / 100 * 6);
   for (const x of r.pipe) {
     const p = r.pool[x.pid], k = r.know[x.pid]; if (!p && !['signed', 'lost'].includes(x.stage)) { setStage(x, 'lost', 'He moved elsewhere.'); continue; }
     if (!p || !k) continue;
     k.grade = grade(p, k);
-    if (x.stage === 'scouted' && (k.grade === 'A' || k.grade === 'B') && (k.conf !== 'low' || (F.squadNeeds().includes(p.pos) && F.window_()))) setStage(x, 'recommended', `${k.by} recommends him (grade ${k.grade}).`);
+    if (x.stage === 'scouted' && (k.grade === 'A' || k.grade === 'B') && (k.conf !== 'low' || (recruitmentNeeds().includes(p.pos) && F.window_()))) setStage(x, 'recommended', `${k.by} recommends him (grade ${k.grade}).`);
     if (x.stage === 'scouted' && k.grade === 'D' && k.n >= 2) setStage(x, 'lost', 'Scouts advise against.');
   }
   for (const x of r.pipe.filter(x => x.planB && x.stage === 'scouted' && r.pool[x.pid])) { const p = r.pool[x.pid], live = r.pipe.some(y => y !== x && r.pool[y.pid] && r.pool[y.pid].pos === p.pos && ['recommended', 'approach', 'negotiating'].includes(y.stage) && !y.hold); if (!live && slotOpen(p, r.know[x.pid]) && winBuys(p.pos) === 0) { setStage(x, 'recommended', 'Plan A fell through. Plan B is up.'); x.planA = true; x.boost = true; x.wasB = true; } }
@@ -217,7 +234,7 @@ function dofPipeline() {
   }
   for (const x of r.pipe.filter(x => x.stage === 'negotiating')) negRound(x);
 }
-function scoreRec(x) { const k = RC().know[x.pid], p = RC().pool[x.pid]; return (k.grade === 'A' ? 3 : 2) + (prioOf(p) ? 1 : 0) + (k.conf === 'high' ? 0.5 : 0) + (F.squadNeeds().includes(p.pos) ? 1.5 : 0) + (g().dofPrio === p.pos ? 1 : 0); }
+function scoreRec(x) { const k = RC().know[x.pid], p = RC().pool[x.pid]; return (k.grade === 'A' ? 3 : 2) + (prioOf(p) ? 1 : 0) + (k.conf === 'high' ? 0.5 : 0) + (recruitmentNeeds().includes(p.pos) ? 1.5 : 0) + (g().dofPrio === p.pos ? 1 : 0); }
 function worldWeek() {
   const r = RC();
   if (inWin()) for (const id in r.pool) { const p = r.pool[id]; if (chance(0.012)) { const x = pipeOf(+id); if (x && ['negotiating', 'agreed'].includes(x.stage)) continue; if (x && !['signed', 'lost'].includes(x.stage)) { setStage(x, 'lost', `${p.name} joins another club.`); g().paper.stories.push({ h: 'Target lost', t: `${p.name}, on our list, has joined another club.` }); } p.club = aiClub(p.inTier); p.contract = ri(1, 3); p.ask = Math.round(p.value * REG[p.region].cost * (1 + F.rnd() * 0.3) / 100) * 100; } }

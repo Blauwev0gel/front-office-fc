@@ -19,9 +19,9 @@ function mailBanner() {
 function mailReply(k, id, name, opts, auto, isBig, leave, dis) {
   const i = U.mc && U.mc.k === k && U.mc.id === id ? U.mc.i : -1, o = opts[i];
   const confirming = isBig && U.mconfirm === k + id;
-  return `<section class="mreply" aria-label="Your reply"><div class="slh"><b>Suggested replies</b></div>
+  return `<section class="mreply" aria-label="Your reply"><header class="mrhead"><div><h3>Your reply</h3><p class="mrto">To <b>${esc(name)}</b></p></div><span class="mrstate">Draft</span></header>
   ${mailRows(k, id, opts, auto, i, dis)}
-  <div class="mcb" aria-live="polite">${o ? `<p class="mhi">Hi ${esc(mFirst(name))},</p><p class="mln">${esc(o.l)}.</p>` : '<p class="mph">Choose a reply, then send it.</p>'}</div>
+  <div class="mcb" aria-live="polite">${o ? `<span class="mrlabel">Your message</span><p class="mln">${esc(o.l)}.</p>` : '<p class="mph">Choose a reply above to prepare your message.</p>'}</div>
   ${confirming ? '<p class="mconfirm" role="status">This is a big decision. Confirm your selected reply to send it.</p>' : ''}
   <div class="mrow"><p class="mlv">${esc(leave)}</p>${confirming ? '<button class="mcancel" data-a="mcancel">Cancel</button>' : ''}<button class="msend ${o && !dis ? 'live' : ''}" data-a="msend" data-k="${k}" data-id="${id}" data-i="${i}" ${o && !dis ? '' : 'disabled'}>${MAILI.send}<span>${confirming ? 'Confirm and send' : 'Send'}</span></button></div></section>`;
 }

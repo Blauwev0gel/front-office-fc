@@ -26,14 +26,14 @@ const server = http.createServer((req, res) => { res.setHeader('Content-Type', '
         FO.load(baseline);
         const g = FO.G, id = FO.uid(); g.ap = ap; g.inbox = []; g.briefs = [];
         const item = { id, ctx: {}, done: false, season: g.season, week: g.week };
-        if (kind === 'brief') {
-          item.t = 'fin_wage'; item.ctx = { wr: 60, cp: 70 }; g.briefs.push(item);
+        if (kind === 'brief' || kind === 'budget') {
+          item.t = kind === 'budget' ? 'biz_budget' : 'fin_wage'; item.ctx = { wr: 60, cp: 70 }; g.briefs.push(item);
         } else {
           item.ev = kind === 'big' ? 'vote_board' : 'wage_cap';
           if (kind === 'big') { item.ctx.k = 'board'; FO.rnd = () => 0; }
           g.inbox.push(item);
         }
-        act('open', { k: (kind === 'brief' ? 'b' : 'm') + id });
+        act('open', { k: (kind === 'brief' || kind === 'budget' ? 'b' : 'm') + id });
         return id;
       }, { baseline, kind, ap });
     }
@@ -49,12 +49,15 @@ const server = http.createServer((req, res) => { res.setHeader('Content-Type', '
     assert.equal(await page.locator('[data-a="mcomp"]').count(), 0);
     assert.equal(await page.locator('.mreply .srow[aria-pressed="true"]').count(), 0);
     assert.equal(await send.isDisabled(), true);
+    await shot('reply-unselected-mobile-light');
     await rows.nth(0).click();
     await rows.nth(2).click();
     assert.equal(await page.evaluate(() => FO.G.ap), 3);
     assert.equal(await page.locator('.mln').textContent(), 'Freeze recruitment.');
     assert.equal(await rows.nth(2).getAttribute('aria-pressed'), 'true');
     assert.equal(await page.evaluate(() => document.activeElement.dataset.i), '2');
+    assert.equal(await page.locator('.mhi').count(), 0);
+    assert.equal(await page.locator('.mrstate').textContent(), 'Draft');
     await shot('reply-mobile-light');
     // Dispatch twice in one JS task; assert commit and persistence in that task.
     const instant = await send.evaluate((button, key) => {
@@ -89,6 +92,21 @@ const server = http.createServer((req, res) => { res.setHeader('Content-Type', '
     assert.equal(await page.evaluate(() => FO.G.inbox[0].done), false);
     assert.equal(await page.locator('.msent').count(), 0);
     await page.locator('.toast').waitFor({ state: 'hidden' });
+
+    // Reproduce the budget reply in the reported screenshot, then stress long text.
+    await fixture('budget'); await rows.nth(0).click();
+    assert.equal(await page.locator('.mln').textContent(), 'Accept the proposal.');
+    await send.scrollIntoViewIfNeeded();
+    await shot('budget-reply-mobile-light');
+    await page.evaluate(() => {
+      FO.staff('fin').name = 'Lennart Alexander Garrick van der Meer';
+      FO.BR.biz_budget.opts[0].l = 'Accept the revised proposal while protecting academy funding and reviewing commercial investment next season';
+      render();
+    });
+    await send.scrollIntoViewIfNeeded();
+    await shot('long-reply-mobile-light');
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    console.log('PASS: budget reply, empty draft and long message/recipient layouts');
     console.log('PASS: leaving, reopening, no actions and failed send');
 
     await fixture('brief', 0); await rows.nth(0).click(); await send.click();
@@ -130,6 +148,13 @@ const server = http.createServer((req, res) => { res.setHeader('Content-Type', '
       assert.ok(layout.width <= layout.viewport, JSON.stringify(layout));
       assert.ok(layout.bottom <= layout.barTop, JSON.stringify(layout));
       assert.ok(layout.height >= 44);
+      const card = await page.locator('.mreply').evaluate(card => {
+        const r = card.getBoundingClientRect(), text = card.querySelector('.mcb').getBoundingClientRect(), send = card.querySelector('.msend').getBoundingClientRect();
+        return { paper: getComputedStyle(card).backgroundColor !== 'rgba(0, 0, 0, 0)',
+          containsText: text.left >= r.left && text.right <= r.right && text.top >= r.top && text.bottom <= r.bottom,
+          containsSend: send.left >= r.left && send.right <= r.right && send.top >= r.top && send.bottom <= r.bottom };
+      });
+      assert.deepEqual(card, { paper: true, containsText: true, containsSend: true });
       await shot(`reply-${width}-${colorScheme}`);
       await send.click(); assert.equal((await saved()).ap, 2);
     }

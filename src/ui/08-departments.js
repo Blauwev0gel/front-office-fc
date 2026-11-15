@@ -139,7 +139,11 @@ function vDept(k) {
       return '<div class="panel2"><b>' + esc(i.title) + '</b><p class="small">' + esc(i.evidence) + '</p><p class="small">' + esc(i.why) + '</p><p class="small">Responsible: ' + esc(owner ? owner.name : F.ROLE[i.owner].t + ' (vacant)') + '</p>' + (i.followUp ? '<p class="small"><b>' + esc(i.followUp.state) + '</b> · ' + esc(i.followUp.note) + '</p><p class="small">Original evidence: ' + esc(i.followUp.baseline) + '</p>' : '') + action +
         '<div class="hbtns"><button class="btn ghost small" data-a="dept-issue" data-k="' + esc(k) + '" data-v="' + esc(i.key) + '" data-c="review">' + (i.followUp && i.followUp.state === 'Review due' ? 'Review again' : 'Agree review in 3 weeks') + '</button><button class="btn ghost small" data-a="dept-issue" data-k="' + esc(k) + '" data-v="' + esc(i.key) + '" data-c="accept">Accept risk for now</button></div></div>';
     }).join('') : '<div class="sec">Assessment</div><div class="panel2"><p class="small">No urgent concerns identified. Scorecard figures remain available under Data; not every weak number calls for a CEO decision.</p></div>';
-    body = issuesHtml + kpis + vis + mand;
+    const resolvedHtml = (v.status.resolved || []).length
+      ? '<div class="sec">Reviews completed</div>' + v.status.resolved.map(i =>
+        '<div class="panel2"><b>' + esc(i.title) + ' · Improved</b><p class="small">' + esc(i.followUp.note) + '</p><p class="small">Original evidence: ' + esc(i.followUp.baseline) + '</p></div>'
+      ).join('') : '';
+    body = issuesHtml + resolvedHtml + kpis + vis + mand;
   }
   if (tab === 'people') {
     const scoutC = d.also ? (() => { const sc = v.also; return sc ? `<div class="pcard2 senior"><span class="pf">${ART.staffFace(d.also)}</span><span class="pm"><b>${esc(sc.name)}</b><small>Chief scout, ${starsTxt(F.stars(F.ovr(sc)))}</small></span><span class="pb"><button class="linkbtn" data-a="sheet" data-s="mand" data-r="scout">Mandate</button><button class="linkbtn" data-a="sheet" data-s="talk" data-r="scout" ${g.ap < 1 ? 'disabled' : ''}>Talk</button></span></div>` : `<div class="pcard2 senior"><span class="pf empty">${ART.I.staff}</span><span class="pm"><b>No chief scout</b><small>Scouting runs on luck</small></span><button class="btn small" data-a="sheet" data-s="cands" data-r="scout">Hire</button></div>`; })() : '';

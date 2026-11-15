@@ -219,10 +219,14 @@ function status(dk) {
     if (row.l === 'Last week' && issues.some(x => x.key === 'Cash runway')) continue;
     issues.push({ key: row.l, followUp: issueFollowUp(dk, row.l, true), title: spec[0], why: spec[1], owner: spec[2], action: spec[3], department: spec[4], evidence: row.l + ': ' + row.v + (row.ref ? ' (' + row.ref + ')' : '') });
   }
+  const activeKeys = new Set(issues.map(i => issueKey(dk, i.key)));
+  const resolved = Object.entries(issueRecords()).filter(([key, rec]) =>
+    key.startsWith(dk + ':') && !activeKeys.has(key) && rec.due <= F.absWeek()
+  ).map(([key, rec]) => ({ key, title: rec.title, followUp: issueFollowUp(dk, key.slice(dk.length + 1), false) }));
   const good = sc.rows.some(r => r.ok === true);
   return { st: issues.length ? 'bad' : good ? 'good' : 'mid',
     l: issues.length ? issues[0].title : 'No urgent concerns',
-    extra: Math.max(0, issues.length - 1), issues, rows: sc.rows };
+    extra: Math.max(0, issues.length - 1), issues, resolved, rows: sc.rows };
 }
 function view(dk) {
   const G = g(), d = DK[dk], X = ensure()[dk], used = X.staff.length, S = status(dk);

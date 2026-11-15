@@ -136,7 +136,8 @@ function vDept(k) {
         ? '<button class="btn small" data-a="sheet" data-s="mand" data-r="' + esc(i.owner) + '">Review mandate</button>'
         : '<button class="btn small" ' + (i.owner === 'coach' ? 'data-a="ft-talk"' : 'data-a="sheet" data-s="talk" data-r="' + esc(i.owner) + '"') + ' ' + (g.ap < 1 ? 'disabled' : '') + '>Speak to head</button>')
         : '<button class="btn small" data-a="sheet" data-s="cands" data-r="' + esc(i.owner) + '">Appoint head</button>';
-      return '<div class="panel2"><b>' + esc(i.title) + '</b><p class="small">' + esc(i.evidence) + '</p><p class="small">' + esc(i.why) + '</p><p class="small">Responsible: ' + esc(owner ? owner.name : F.ROLE[i.owner].t + ' (vacant)') + '</p>' + action + '</div>';
+      return '<div class="panel2"><b>' + esc(i.title) + '</b><p class="small">' + esc(i.evidence) + '</p><p class="small">' + esc(i.why) + '</p><p class="small">Responsible: ' + esc(owner ? owner.name : F.ROLE[i.owner].t + ' (vacant)') + '</p>' + (i.followUp ? '<p class="small"><b>' + esc(i.followUp.state) + '</b> · ' + esc(i.followUp.note) + '</p><p class="small">Original evidence: ' + esc(i.followUp.baseline) + '</p>' : '') + action +
+        '<div class="hbtns"><button class="btn ghost small" data-a="dept-issue" data-k="' + esc(k) + '" data-v="' + esc(i.key) + '" data-c="review">' + (i.followUp && i.followUp.state === 'Review due' ? 'Review again' : 'Agree review in 3 weeks') + '</button><button class="btn ghost small" data-a="dept-issue" data-k="' + esc(k) + '" data-v="' + esc(i.key) + '" data-c="accept">Accept risk for now</button></div></div>';
     }).join('') : '<div class="sec">Assessment</div><div class="panel2"><p class="small">No urgent concerns identified. Scorecard figures remain available under Data; not every weak number calls for a CEO decision.</p></div>';
     body = issuesHtml + kpis + vis + mand;
   }

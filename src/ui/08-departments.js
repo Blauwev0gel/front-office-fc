@@ -131,13 +131,14 @@ function vDept(k) {
     const mand = FP ? `<div class="sec">Your mandate vs what he does</div><div class="panel2">${FP.rows}${FP.gapBig ? `<button class="btn ghost wide" data-a="ft-talk" style="margin-top:8px">Raise it with ${esc(FP.sur)}</button>` : ''}</div>` : v.head ? `<div class="sec">Direction</div><div class="panel2">${instinctRow(d.head)}</div>` : '';
     const signals = v.status.issues || [];
     const issuesHtml = signals.length ? '<div class="sec">Needs attention</div>' + signals.map(i => {
-      const owner = F.staff(i.owner);
-      const action = owner ? (i.action === 'mand'
-        ? '<button class="btn small" data-a="sheet" data-s="mand" data-r="' + esc(i.owner) + '">Review mandate</button>'
-        : '<button class="btn small" ' + (i.owner === 'coach' ? 'data-a="ft-talk"' : 'data-a="sheet" data-s="talk" data-r="' + esc(i.owner) + '"') + ' ' + (g.ap < 1 ? 'disabled' : '') + '>Speak to head</button>')
-        : '<button class="btn small" data-a="sheet" data-s="cands" data-r="' + esc(i.owner) + '">Appoint head</button>';
-      return '<div class="panel2"><b>' + esc(i.title) + '</b><p class="small">' + esc(i.evidence) + '</p><p class="small">' + esc(i.why) + '</p><p class="small">Responsible: ' + esc(owner ? owner.name : F.ROLE[i.owner].t + ' (vacant)') + '</p>' + (i.followUp ? '<p class="small"><b>' + esc(i.followUp.state) + '</b> · ' + esc(i.followUp.note) + '</p><p class="small">Original evidence: ' + esc(i.followUp.baseline) + '</p>' : '') + action +
-        '<div class="hbtns"><button class="btn ghost small" data-a="dept-issue" data-k="' + esc(k) + '" data-v="' + esc(i.key) + '" data-c="review">' + (i.followUp && i.followUp.state === 'Review due' ? 'Review again' : 'Agree review in 3 weeks') + '</button><button class="btn ghost small" data-a="dept-issue" data-k="' + esc(k) + '" data-v="' + esc(i.key) + '" data-c="accept">Accept risk for now</button></div></div>';
+      const owner = F.staff(i.owner), follow = i.followUp;
+      const active = follow && follow.state === 'Plan underway';
+      const action = owner
+        ? '<button class="btn small" data-a="dept-meeting" data-k="' + esc(k) + '" data-v="' + esc(i.key) + '">' + (active ? 'View assignment' : 'Discuss this issue') + '</button>'
+        : '<button class="btn small" data-a="sheet" data-s="cands" data-r="' + esc(i.owner) + '">Appoint responsible head</button>';
+      return '<div class="panel2"><b>' + esc(i.title) + '</b><p class="small">' + esc(i.evidence) + '</p><p class="small">' + esc(i.why) + '</p><p class="small">Responsible: ' + esc(owner ? owner.name : F.ROLE[i.owner].t + ' (vacant)') + '</p>' +
+        (follow ? '<p class="small"><b>' + esc(follow.state) + '</b> · ' + esc(follow.note) + '</p><p class="small">Original evidence: ' + esc(follow.baseline) + '</p>' : '') +
+        action + '</div>';
     }).join('') : '<div class="sec">Assessment</div><div class="panel2"><p class="small">No urgent concerns identified. Scorecard figures remain available under Data; not every weak number calls for a CEO decision.</p></div>';
     const resolvedHtml = (v.status.resolved || []).length
       ? '<div class="sec">Reviews completed</div>' + v.status.resolved.map(i =>

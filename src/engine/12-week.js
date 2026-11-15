@@ -47,7 +47,7 @@ function endWeek() {
   if (G.club.cash < -M(4000) && !G.flags.crisisWeek) { queueEvent('cash_crisis', {}); G.flags.crisisWeek = true; } if (G.club.cash > 0) G.flags.crisisWeek = false;
   if (G.club.cash < -M(60000)) G.flags.insolvent = (G.flags.insolvent || 0) + 1; else G.flags.insolvent = 0;
   // paper
-  buildPaper(ours, cup); buildReports(ours); if (HOOK.edition) HOOK.edition(ours, cup);
+  buildPaper(ours, cup); buildReports(ours); if (F.deptIssueWeekly) F.deptIssueWeekly(); if (HOOK.edition) HOOK.edition(ours, cup);
   if (G.board.conf <= 0) { sack('The board has run out of patience and relieved you of your duties.', 'board'); return { ours, cup, sacked: true }; }
   if (G.flags.insolvent >= 4) {
     if (G.flags.adminAt != null && G.season - G.flags.adminAt < 3) { sack('The club has entered administration for the second time. The administrators have dismissed you.', 'admin'); return { ours, cup, sacked: true }; }

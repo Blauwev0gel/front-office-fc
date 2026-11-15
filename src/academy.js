@@ -127,14 +127,14 @@ H.acadSeason = rep => {
   // play-up, loans
   const pu = man('acad', 'playUp'); for (const p of G.academy) p.playUp = false;
   if (pu !== 'none') for (const k of ['U14', 'U16', 'U18']) G.academy.filter(p => grp(p) === k).sort((x, y) => y.ca - x.ca).slice(0, pu === 'many' ? 3 : 1).forEach(p => { if (p.ca >= tierAvg(G.club.tier) * 0.5) p.playUp = true; });
-  const ln = man('acad', 'loans'); for (const p of G.academy) p.loanOut = false;
-  if (ln !== 'never') G.academy.filter(p => grp(p) === 'U21').sort((x, y) => x.ca - y.ca).forEach((p, i, arr) => { if (ln === 'all' || i < Math.ceil(arr.length / 2)) { p.loanOut = true; out.loans.push(p.name); } });
+  const ln = man('acad', 'loans'); for (const p of G.academy) p.loanOut = !!p.loanCEO; // a loan the CEO ordered stands
+  if (ln !== 'never') G.academy.filter(p => grp(p) === 'U21' && !p.loanCEO).sort((x, y) => x.ca - y.ca).forEach((p, i, arr) => { if (ln === 'all' || i < Math.ceil(arr.length / 2)) { p.loanOut = true; out.loans.push(p.name); } });
   if (!staff('acad')) { /* no director: sub-staff not replaced */ } else for (const r of YROLES) if (!a.staff[r.id]) hireY(r.id);
   trim();
   rep.promoted = out.promoted; rep.acad = out; a.lastSeason = out;
 };
 function promote(p) {
-  const G = g(); G.academy = G.academy.filter(x => x !== p); p.contract = 3; p.wage = Math.round(wageFor(p.ca) * 0.6 / 5) * 5; p.st = F.newStats(); p.loanOut = false; p.playUp = false; G.squad.push(p);
+  const G = g(); G.academy = G.academy.filter(x => x !== p); p.contract = 3; p.wage = Math.round(wageFor(p.ca) * 0.6 / 5) * 5; p.st = F.newStats(); p.loanOut = false; delete p.loanCEO; p.playUp = false; G.squad.push(p);
   A().log.push({ name: p.name, season: G.season, pos: p.pos, pot: absStars(p.pa) });
 }
 

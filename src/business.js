@@ -8,7 +8,7 @@ const { clamp, money, M, staff, man, chance } = F;
 const has = r => F.deptHas && F.deptHas('business', r);
 const DK = ['first', 'recruit', 'academy', 'commercial', 'marketing'];
 const LV = [['lean', 'Lean', 25], ['normal', 'Normal', 50], ['invest', 'Invest', 80]];
-const lvOf = v => v <= 37 ? 'lean' : v >= 65 ? 'invest' : 'normal';
+const lvOf = v => v < 25 ? 'cut' : v <= 37 ? 'lean' : v >= 65 ? 'invest' : 'normal'; // 'cut': below Lean, after a cutback
 function B() { const G = g(); if (!G.biz) G.biz = { planS: null, prop: null, refiAt: -99, log: [] }; return G.biz; }
 
 /* ---------- costs and terms ---------- */

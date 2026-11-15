@@ -6,11 +6,14 @@
 const g = () => F.G, H = F.HOOK;
 const { ri, chance, clamp, money, M, staff, man, tierAvg } = F;
 const KEYS = ['attack', 'youthMins', 'rotation', 'intensity'];
+const LAST = F.SEASON_WEEKS || 34; // a target must be judged by the last league week
 const hs = (x) => { let h = 7; for (const c of String(x)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
 
 /* ---------- state ---------- */
 function ft() {
   const G = g(); if (!G.ft) G.ft = { res: {}, games: [], pos: [], comp: 0, compW: 0, deal: null, talk: null, pushP: {}, gapW: 0, gapNote: 0, season: G.season, xiPrev: null, rotN: 0, rotSum: 0, u21: 0, played: 0 };
+  // old saves: a target set past the last week, or left over from an earlier season, could never be judged
+  const D = G.ft.deal; if (D && (D.by > LAST || (D.s != null && D.s !== G.season))) G.ft.deal = null;
   return G.ft;
 }
 
@@ -227,13 +230,15 @@ function talkAnswer(id) {
       if (!pool.length) { say('coach', 'Everyone is where they should be right now.'); end(); break; }
       say('coach', 'Who?'); T.opts = pool.map(p => ({ id: 'pl_' + p.id, t: p.name, fx: `${F.POS_L ? p.pos : p.pos}, ${p.age}` })); break; }
     case 'target': {
-      say('coach', 'Go on then.'); const exp = F.expectedRank(), o = [];
-      o.push({ id: 't_unbeaten', t: 'No defeats in the next five', fx: 'Short term' });
-      if (exp <= 12) o.push({ id: 't_tophalf', t: 'Top half by the winter break', fx: 'By week 19' });
-      if (exp <= 9) o.push({ id: 't_top6', t: 'Top six by the winter break', fx: 'By week 19' });
-      if (exp <= 5) o.push({ id: 't_top2', t: 'Top two by the end of the season', fx: 'By week 38' });
-      o.push({ id: 't_youth', t: 'Start more youngsters', fx: '1.5 under-21s per match' });
-      T.opts = o.slice(0, 4); break; }
+      const exp = F.expectedRank(), o = [], wk = g().week, late = wk > LAST - 5; // only targets that can still be judged this season
+      if (!late) o.push({ id: 't_unbeaten', t: 'No defeats in the next five', fx: 'Short term' });
+      if (exp <= 12 && wk <= 15) o.push({ id: 't_tophalf', t: 'Top half by the winter break', fx: 'By week 19' });
+      if (exp <= 9 && wk <= 15) o.push({ id: 't_top6', t: 'Top six by the winter break', fx: 'By week 19' });
+      if (exp <= 5) o.push({ id: 't_top2', t: 'Top two by the end of the season', fx: 'By the end of the season' });
+      if (!late) o.push({ id: 't_youth', t: 'Start more youngsters', fx: wk + 10 >= LAST ? '1.5 under-21s per match, until the end of the season' : '1.5 under-21s per match, for ten weeks' });
+      if (g().phase !== 'season') o.length = 0;
+      if (!o.length) { say('coach', g().phase !== 'season' ? 'Ask me again when the season starts.' : 'This late in the season? Let us talk targets in the summer.'); end(); break; }
+      say('coach', 'Go on then.'); T.opts = o.slice(0, 4); break; }
     default:
       if (id.startsWith('pl_')) {
         const p = g().squad.find(x => x.id === +id.slice(3)); if (!p) { end(); break; }
@@ -246,11 +251,11 @@ function talkAnswer(id) {
       } else if (id === 'pp_ok') { say('coach', 'Thanks for trusting me.'); rel(2); end(); }
       else if (id.startsWith('t_')) {
         const kk = id.slice(2), lab = (T.opts.find(o => o.id === id) || {}).t || '', G2 = g();
-        const by = kk === 'unbeaten' ? G2.week + 5 : kk === 'top2' ? 38 : kk === 'youth' ? Math.min(38, G2.week + 10) : Math.max(19, G2.week + 4);
+        const by = kk === 'unbeaten' ? Math.min(LAST, G2.week + 5) : kk === 'top2' ? LAST : kk === 'youth' ? Math.min(LAST, G2.week + 10) : Math.min(LAST, Math.max(19, G2.week + 4));
         const exp = F.expectedRank(), hard = (kk === 'top6' && exp > 6) || (kk === 'top2' && exp > 3) || (kk === 'tophalf' && exp > 10);
         if (hard && P.ego < 12 && P.amb < 12) { say('coach', 'That is a stretch with this squad. But fine, I will sign up to it.'); rel(-2); }
         else say('coach', P.amb > 14 ? 'Done. Write it down.' : 'Agreed.');
-        S.deal = { k: kk, t: lab, by, agreed: 1, g0: S.games.length, p0: S.played, u0: S.u21, w0: G2.week };
+        S.deal = { k: kk, t: lab, by, s: G2.season, agreed: 1, g0: S.games.length, p0: S.played, u0: S.u21, w0: G2.week };
         boost(3, 5); fxNote('Target agreed'); end();
       }
   }
@@ -263,7 +268,9 @@ function talkClose() { const S = ft(); if (S.talk && S.talk.done) S.talk = null;
 function sackQuote() {
   const s = staff('coach'); if (!s) return null; const G = g(), pos = F.myPos(), exp = F.expectedRank(), under = pos > exp + 2;
   const cost = Math.round(s.wage * Math.max(8, s.contract * 20));
-  return { cost, under, fans: under ? 2 : -5, press: under ? 0 : -4, board: G.week <= 2 ? 0 : under ? 3 : -4, squad: s.rel > 60 ? -6 : -2 };
+  // board and press include what fire() itself applies, so the sheet shows the real effect
+  const press = under ? 0 : -4, board = G.week <= 2 ? 0 : pos > exp ? 3 : -4;
+  return { cost, under, fans: under ? 2 : -5, press, pressAll: press - 2, board, squad: s.rel > 60 ? -6 : -2, staff: -2 };
 }
 function sack() {
   const q = sackQuote(); if (!q) return { err: 'Vacant.' }; const G = g();

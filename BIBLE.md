@@ -142,7 +142,7 @@ Aandachtspunten:
 2. ~~Dubbele generaties~~ — opgeruimd (15-11-2026): ongeveer 45 KB dode code weg, waaronder de oude zomer-v1-schermen,
    oude club-, staf-, competitie- en reviewschermen en 17 knopacties zonder knop. `academy*`, `events*`, `recruit*`
    zijn geen dubbelingen maar aanvullende delen. `summer.js` levert nog de stappen waarop `summer2.js` draait.
-   Let op: de tests simuleren de zomer nog via de v1-route (`sumAuto`), niet via de v2-flow die de speler ziet.
+   De tests draaien de zomer via de v2-flow: `sumAuto` is sinds `summer2.js` gelijk aan `sum2Auto` (gecorrigeerd 15-11-2026).
 3. ~~`ui.js` is 1.849 regels in één blok~~ — opgeknipt in delen (15-11-2026), build byte-identiek.
 4. **Veel meters tegelijk:** bestuursvertrouwen, 4 backers, grip, verborgen druk, credibility (pathway),
    DNA-alignment, actiepunten, plus KPI's per afdeling. Sterk voor P2, maar mogelijk in strijd met P4/P5.

@@ -53,7 +53,8 @@ const STG_L = { identified: 'Identified', scouted: 'Scouted', recommended: 'Reco
 function squadSeg() { return `${tourCard('squad')}<div class="seg" style="margin-bottom:14px"><button class="${!U.sqTable ? 'on' : ''}" data-a="sqtable" data-v="0">Pitch</button><button class="${U.sqTable ? 'on' : ''}" data-a="sqtable" data-v="1">Stats table</button></div>`; }
 function recRow(o) {
   const { x, p, k } = o, d = x.deal, note = x.blocked ? `Blocked by ${x.blocked.join(', ')}` : x.stage === 'negotiating' && d && d.rounds.length ? d.rounds[d.rounds.length - 1] : (x.log || []).slice(-1)[0] || '';
-  return `<button class="rrow" data-a="target" data-id="${x.pid}"><span class="gr g${k ? k.grade : 'D'}">${k ? k.grade : '?'}</span><span class="rmain"><b>${esc(p.name)}</b> <span class="pos">${p.pos}</span><span class="small rsub">${p.age}, ${F.REGIONS[p.region].name}${p.pool ? (p.club ? ', ' + money(p.ask) : ', free agent') : ''}${k ? `, ${F.recBand(k)}, ${k.conf} confidence` : ''}</span>${note ? `<span class="small rnote ${x.blocked ? 'warn' : ''}">${esc(note)}</span>` : ''}</span></button>`;
+  const was = k && /\(grade ([A-D])\)/.exec(note), note2 = was && was[1] !== k.grade ? note.replace(/\(grade [A-D]\)\.?/, `as a ${was[1]}; now graded ${k.grade}.`) : note;
+  return `<button class="rrow" data-a="target" data-id="${x.pid}"><span class="gr g${k ? k.grade : 'D'}">${k ? k.grade : '?'}</span><span class="rmain"><b>${esc(p.name)}</b> <span class="pos">${p.pos}</span><span class="small rsub">${p.age}, ${F.REGIONS[p.region].name}${p.pool ? (p.club ? ', ' + money(p.ask) : ', free agent') : ''}${k ? `, ${F.recBand(k)}, ${k.conf} confidence` : ''}</span>${note2 ? `<span class="small rnote ${x.blocked ? 'warn' : ''}">${esc(note2)}</span>` : ''}</span></button>`;
 }
 function vRecruit2() {
   const g = G(), V = F.recView(), R = V.r, groups = ['identified', 'scouted', 'recommended', 'approach', 'negotiating'];

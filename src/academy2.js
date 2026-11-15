@@ -157,7 +157,7 @@ E('grad_minutes', { from: 'acad', dept: 'academy', cd: 12, why: 'The academy and
   title: c => `${N('acad')}: "${c.name} needs minutes"`, body: c => { const p = P(c.pid); return p ? `${c.name} (${p.age}) has played ${p.st.mins} league minutes. "If he does not play, he stalls, or he leaves." ${N('coach')} says he is not ready.` : 'Gone.'; },
   opts: [
     { l: 'Tell the coach to play him', h: 'Coach youth minutes +20 · coach ↓', f: () => { F.G.mand.coach.youthMins = clamp(F.G.mand.coach.youthMins + 20, 0, 100); rel('coach', -5); rel('acad', 5); return 'The coach complies.'; } },
-    { l: 'Loan him out for games', h: 'He leaves the squad for now', f: c => { const p = P(c.pid); if (!p || !sq().includes(p)) return 'Gone.'; g().squad = g().squad.filter(x => x !== p); p.loanOut = true; g().academy.push(p); F.acadBand(p); return `${c.name} goes out on loan.`; } },
+    { l: 'Loan him out for games', h: 'He leaves the squad for now', f: c => { const p = P(c.pid); if (!p || !sq().includes(p)) return 'Gone.'; g().squad = g().squad.filter(x => x !== p); p.loanOut = true; p.loanCEO = true; g().academy.push(p); F.acadBand(p); return `${c.name} goes out on loan.`; } },
     { l: 'Back the coach', h: 'Academy ↓ · player morale ↓', f: c => { const p = P(c.pid); if (p) p.morale = clamp(p.morale - 10, 0, 100); rel('acad', -6); rel('coach', 3); return 'The coach decides.'; } }],
   auto: () => man('coach', 'youthMins') > 55 ? 0 : 2 });
 E('agent_youth', { from: 'acad', dept: 'academy', cd: 20, why: 'An agent wants a contract for a minor. Contracts are yours.',

@@ -47,7 +47,7 @@ F.defineBrief('ac_ready', { role: 'acad', cd: 6,
   opts: [
     { l: 'Promote him now', h: 'First-team squad · coach decides minutes', f: c => { const p = g().academy.find(x => x.id === c.pid); if (!p) return 'He has moved on.'; F.acadPromote(p); p.morale = clamp((p.morale || 60) + 10, 0, 100); return `${p.name} joins the first-team squad. The coach's youth mandate decides how much he plays.`; } },
     { l: 'One more season', h: 'Keeps developing here', f: c => { const p = g().academy.find(x => x.id === c.pid); if (p) p.keep = true; return 'He stays in the academy for now.'; } },
-    { l: 'Loan him out', h: 'Faster growth, out of sight', f: c => { const p = g().academy.find(x => x.id === c.pid); if (p) p.loanOut = true; return 'Off on loan for regular football.'; } }] });
+    { l: 'Loan him out', h: 'Faster growth, out of sight', f: c => { const p = g().academy.find(x => x.id === c.pid); if (p) { p.loanOut = true; p.loanCEO = true; } return 'Off on loan for regular football, until he is ready.'; } }] });
 
 function view() { const G = g(), X = T(), groups = ['U14', 'U16', 'U18', 'U21'].map(k => ({ k, ps: G.academy.filter(p => F.acadGrp(p) === k).sort((a, b) => (b.band ? b.band[1] : 0) - (a.band ? a.band[1] : 0)) })); return { groups, grads: G.squad.filter(p => p.academy), trial: X.trial, log: X.log.slice(0, 6), lvl: F.acadTierLvl() }; }
 Object.assign(F, { acView: view });

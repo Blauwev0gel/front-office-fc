@@ -30,14 +30,14 @@ function headCard(k, v) {
 }
 function authHtml(role) {
   if (!F.authView || !F.DESK_HEADS.includes(role)) return ''; const A = F.authView(role), s = A.head; if (!s) return '';
-  return `<div class="authb"><div class="authh"><span>${ART.I.trust}</span><b>Authority</b><small>${A.rec.n ? `${A.rec.n} staff calls, ${A.rec.err} against your mandate` : 'No calls yet'}</small></div>
+  return `<div class="authb"><div class="authh"><span>${ART.I.trust}</span><b>Authority</b><small>${A.rec.n ? `${A.rec.err} of ${A.rec.n} calls went against your mandate` : 'No calls yet'}</small></div>
     <div class="seg wide" role="radiogroup" aria-label="Authority for ${esc(s.name)}">${A.opts.map((t, i) => `<button role="radio" aria-checked="${A.a === i}" class="${A.a === i ? 'on' : ''}" data-a="auth" data-r="${role}" data-v="${i}">${esc(t)}</button>`).join('')}</div>
-    <p class="small">${esc(A.s)} Signs off alone up to ${money(A.lim)} a week. Wrong calls: ${A.err >= 18 ? 'frequent' : A.err >= 8 ? 'occasional' : 'rare'}.</p></div>`;
+    <p class="small">${esc(A.s)} Signs off alone up to ${money(A.lim)} a week.</p></div>`;
 }
-function headBtns(role, s) {
+function headBtns(role, s, mini) {
   const g = G(), sur = s.name.split(' ').slice(-1)[0];
   const PV = F.pwView ? F.pwView() : null, agChip = PV && PV.ag && PV.stage !== 'closed' && ['coach', 'dof', 'acad'].includes(role) ? `<button class="agchip" data-a="pw-open"><span>${ART.I.info}</span><b>Agreement: the ${esc(PV.tname)} question</b><small>${role === PV.ag.owner || (role === 'coach' && PV.ag.owner === PV.ag.owner && PV.ag.ownerName === s.name) ? 'Responsible' : 'Involved'} · evaluation week ${PV.ag.evalWeek}</small></button>` : '';
-  return agChip + authHtml(role) + `<div class="hbtns"><button class="btn small" ${role === 'coach' ? 'data-a="ft-talk"' : `data-a="sheet" data-s="talk" data-r="${role}"`} ${g.ap < 1 ? 'disabled' : ''}>${ART.I.phone} Talk</button><button class="btn ghost small" data-a="sheet" data-s="mand" data-r="${role}">Mandate</button><button class="btn ghost small danger" ${role === 'coach' ? 'data-a="ft-sackq"' : `data-a="sheet" data-s="fire" data-r="${role}"`} ${g.ap < 1 ? 'disabled' : ''}>Sack</button></div>`;
+  return (mini ? '' : agChip + authHtml(role)) + `<div class="hbtns"><button class="btn small" ${role === 'coach' ? 'data-a="ft-talk"' : `data-a="sheet" data-s="talk" data-r="${role}"`} ${g.ap < 1 ? 'disabled' : ''}>${ART.I.phone} Talk</button><button class="btn ghost small" data-a="sheet" data-s="mand" data-r="${role}">Mandate</button><button class="btn ghost small danger" ${role === 'coach' ? 'data-a="ft-sackq"' : `data-a="sheet" data-s="fire" data-r="${role}"`} ${g.ap < 1 ? 'disabled' : ''}>Sack</button></div>`;
 }
 function instinctRow(role) {
   const s = F.staff(role); if (!s) return ''; const L = F.LEAN[role], k = L[0], m = F.man(role, k), MD = F.MAND[role].sl.find(x => x[0] === k); if (!MD) return '';
@@ -83,7 +83,7 @@ function mkDecisions(V) {
 function planCard(only) {
   const V = F.bizView(), rows = V.rows.filter(r => !only || r.k === only);
   return `<div class="plan2">${!only ? `<div class="spread"><b>Season budget</b><span class="small ${V.ok ? 'good' : 'bad'}">${money(V.spend)} of ${money(V.env)}/wk</span></div><div class="budbar"><b class="${V.ok ? '' : 'over'}" style="width:${Math.min(100, V.env ? V.spend / V.env * 100 : 100)}%"></b></div><p class="small" style="margin:4px 0 8px">${V.ok ? 'Within what revenue covers.' : 'Above what revenue covers: cash goes down.'} Forecast ±${V.err}%.</p>` : ''}
-  ${rows.map(r => `<div class="plrow"><span><b>${esc(r.t)}</b><small>${money(r.cost)}/wk</small></span><div class="seg3" role="group" aria-label="${esc(r.t)} budget">${V.levels.map(([k, l], i) => `<button class="${r.lv === k ? 'on' : ''}" data-a="biz-lv" data-k="${r.k}" data-v="${k}" aria-pressed="${r.lv === k}">${l}<small>${money(r.costs[i])}</small></button>`).join('')}</div></div>`).join('')}
+  ${rows.map(r => `<div class="plrow"><span><b>${esc(r.t)}</b><small>${money(r.cost)}/wk${r.lv === 'cut' ? ' <em class="bad">· Cut below Lean</em>' : ''}</small></span><div class="seg3" role="group" aria-label="${esc(r.t)} budget">${V.levels.map(([k, l], i) => `<button class="${r.lv === k ? 'on' : ''}" data-a="biz-lv" data-k="${r.k}" data-v="${k}" aria-pressed="${r.lv === k}">${l}<small>${money(r.costs[i])}</small></button>`).join('')}</div></div>`).join('')}
   ${!only ? `<button class="linkbtn" data-a="biz-prop">Use Finance's proposal</button>` : '<p class="small" style="margin:6px 0 0">Finance checks every department against one season budget.</p>'}</div>`;
 }
 function bizOverview() {
@@ -106,7 +106,7 @@ function acOverview(V) {
   return `<div class="sec">The pathway</div><div class="panel2">${acPyramid(V)}${best ? `<button class="pchip" data-a="player" data-id="${best.id}" style="margin-top:8px"><span>${ART.playerFace(best, 'happy')}</span>${esc(best.name)}<small>best prospect, ${best.age}</small></button>` : ''}<p class="small" style="margin:8px 0 0">The director and the academy staff decide how good the intake is and how fast the kids grow.</p></div>`;
 }
 function acDecisions(V) {
-  const X = V.trial; if (!X) return `<div class="sec">Trial day</div><div class="panel2"><p class="small" style="margin:0">Next trial day in week 28. The academy picks who joins.</p></div>`;
+  const X = V.trial; if (!X) return `<div class="sec">Trial day</div><div class="panel2"><p class="small" style="margin:0">Next trial day: ${G().phase === 'season' && G().week < 28 ? 'week 28' : 'next season, week 28'}. The academy picks who joins.</p></div>`;
   return `<div class="sec">Trial day <span class="small">${X.chosen.length} of ${X.picks} picked</span></div><div class="trials">${X.list.map(p => { const on = X.chosen.includes(p.id), rec = X.staffPick.includes(p.id); return `<div class="trial ${on ? 'on' : ''}" role="listitem"><span class="tf">${ART.playerFace(p, on ? 'happy' : null)}</span><b>${esc(p.name.split(' ').slice(-1)[0])}</b><small>${p.age}, ${esc(F.POS_L[p.pos])}</small><em>${p.band ? p.band[0].toFixed(1) + '–' + p.band[1].toFixed(1) : '?'}★</em>${rec ? '<i class="rec">Recruiters\' pick</i>' : ''}</div>`; }).join('')}</div><p class="small">The academy chooses the intake. You set its objectives, budget and protection in the academy mandate. Potential is a range: better recruiters make it narrower.</p>`;
 }
 function rxOverview(V) {
@@ -156,6 +156,6 @@ function vDept(k) {
     const log = v.log.length ? `<div class="sec">Recently</div><div class="panel2">${v.log.map(l => `<p class="small" style="margin:3px 0">Wk ${l.w}: ${esc(l.t)}</p>`).join('')}</div>` : '';
     body = inbox + (k === 'recruit' && F.rxView ? rxDecisions(F.rxView()) : '') + (k === 'academy' && F.acView ? acDecisions(F.acView()) : '') + (k === 'commercial' && F.comView ? comDecisions(F.comView()) : '') + (k === 'marketing' && F.mkView ? mkDecisions(F.mkView()) : '') + (FP ? `<div class="sec">Target</div>${FP.deal}` : '') + bud + fac + proj + log;
   }
-  const mini = v.head ? `<div class="hmini"><span class="dface">${ART.staffFace(d.head)}</span><span class="dt"><b>${esc(v.head.name)}</b><small>${esc(F.ROLE[d.head].t)}</small></span>${headBtns(d.head, v.head).replace('class="hbtns"', 'class="hbtns in"')}</div>` : headCard(k, v);
+  const mini = v.head ? `<div class="hmini"><span class="dface">${ART.staffFace(d.head)}</span><span class="dt"><b>${esc(v.head.name)}</b><small>${esc(F.ROLE[d.head].t)}</small></span>${headBtns(d.head, v.head, true).replace('class="hbtns"', 'class="hbtns in"')}</div>` : headCard(k, v);
   return `${head}${tab === 'over' ? headCard(k, v) : mini}${tabs}${body}`;
 }

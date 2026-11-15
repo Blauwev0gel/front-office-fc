@@ -42,7 +42,7 @@ function vSheet() {
     const fx = (l, v) => `<span class="eff ${v > 0 ? 'up' : v < 0 ? 'dn' : ''}">${l} ${v > 0 ? '+' : v < 0 ? '−' : '±'}${Math.abs(v)}</span>`;
     h = `<div class="sheethead"><span class="chip">Sack the coach</span><button class="iconbtn" data-a="close" aria-label="Close">${ART.I.close}</button></div>
     <div class="stage"><div class="portrait">${ART.staffFace('coach', 'worried')}</div><div class="who"><b>${esc(c.name)}</b><span>${q.under ? 'Results are below what the squad should do.' : 'Results are on or above par.'}</span></div></div>
-    <div class="panel2" style="margin:12px 0"><div class="scr2"><span>Compensation</span><b class="bad">${money(q.cost)}</b></div><div class="scr2"><span>Reaction</span><b>${fx('Fans', q.fans)}${fx('Press', q.press)}${fx('Board', q.board)}</b></div><div class="scr2"><span>Dressing room</span><b>${fx('Morale', q.squad)}</b></div></div>
+    <div class="panel2" style="margin:12px 0"><div class="scr2"><span>Compensation</span><b class="bad">${money(q.cost)}</b></div><div class="scr2"><span>Reaction</span><b>${fx('Fans', q.fans)}${fx('Press', q.pressAll != null ? q.pressAll : q.press)}${fx('Board', q.board)}</b></div><div class="scr2"><span>Dressing room</span><b>${fx('Morale', q.squad)}</b></div>${q.staff ? `<div class="scr2"><span>Other heads</span><b>${fx('Trust', q.staff)}</b></div>` : ''}</div>
     <p class="small">You will need to appoint a new head coach. Until then the team runs without one.</p>
     <div class="sheetfoot"><button class="btn ghost" data-a="close">Keep him</button><button class="btn danger" data-a="ft-sack" ${G().ap < 1 ? 'disabled' : ''}>Sack ${esc(c.name.split(' ').slice(-1)[0])}</button></div>`;
   }
@@ -72,7 +72,7 @@ function vSheet() {
   if (s.t === 'push') {
     h = `<div class="spread"><div><div class="kick">Costs one action, lasts three weeks</div><h2>Back a department</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>
     <p class="small">Your visible backing lifts that department and its head. Rival departments notice.</p>
-    <div class="choice">${Object.entries({ sporting: 'Squad morale up, a small edge on the pitch.', scouting: 'Network grows faster in the focus regions.', academy: 'Prospects develop faster; a better intake if it falls in the window.', commercial: 'Sponsor mood up; more commercial opportunities arrive.', marketing: 'Fan base and brand grow faster.', business: 'Running costs down five percent.', medical: 'Fewer injuries, faster recovery.' }).map(([k, d]) => `<button class="card" data-a="push" data-d="${k}"><b>${F.PUSH[k][0]}</b>${d}${g.push[k] > 0 ? `<div class="e">Already backed: ${g.push[k]} week${g.push[k] > 1 ? 's' : ''} left.</div>` : ''}</button>`).join('')}</div>`;
+    <div class="choice">${Object.entries({ sporting: 'A small edge on the pitch; scouts spot a little more.', scouting: 'Network grows faster in the focus regions.', academy: 'Prospects develop faster; a better intake if it falls in the window.', commercial: 'Sponsor mood up; more commercial opportunities arrive.', marketing: 'Fan base and brand grow faster.', business: 'Running costs down five percent.', medical: 'Fewer injuries, faster recovery.' }).map(([k, d]) => `<button class="card" data-a="push" data-d="${k}"><b>${F.PUSH[k][0]}</b>${d}${g.push[k] > 0 ? `<div class="e">Already backed: ${g.push[k]} week${g.push[k] > 1 ? 's' : ''} left.</div>` : ''}</button>`).join('')}</div>`;
   }
   if (s.t === 'cands') {
     const r = s.r; if (!g.cands[r]) g.cands[r] = F.genCands(r);

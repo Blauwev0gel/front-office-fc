@@ -53,7 +53,7 @@ E('coach_dof_clash', { from: 'coach', dept: 'sporting', cd: 12, cond: () => staf
   title: () => `Coach and DoF clash over signings`,
   body: () => `${N('coach')} says the new players "are not what I asked for" and wants a veto on recruitment. ${N('dof')} calls it "a coach covering for results". The dressing room is starting to notice.`,
   opts: [
-    { l: 'Back the coach', h: 'Coach ↑ · DoF ↓ · recruitment more conservative', f: () => { rel('coach', 8); rel('dof', -9); return `${N('coach')} gets more say. ${N('dof')} feels undermined.`; } },
+    { l: 'Back the coach', h: 'Coach ↑ · DoF ↓', f: () => { rel('coach', 8); rel('dof', -9); return `${N('coach')} gets more say. ${N('dof')} feels undermined.`; } },
     { l: 'Back the Director of Football', h: 'DoF ↑ · coach ↓', f: () => { rel('dof', 8); rel('coach', -9); boost('coach', -2); return `The structure stands. ${N('coach')} is unhappy.`; } },
     { l: 'Lock them in a room', h: 'Mediation: both small ±, could backfire', f: () => { if (chance(0.55)) { rel('coach', 3); rel('dof', 3); return 'They leave with a shared shortlist and a handshake.'; } rel('coach', -4); rel('dof', -4); return 'The meeting ends in shouting. Nothing is solved.'; } }],
   auto: () => 2 });

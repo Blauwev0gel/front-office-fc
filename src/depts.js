@@ -154,6 +154,10 @@ const SIGNALS = {
     'xG difference per game': ['Chances going against us', 'Results alone do not explain performance. Review the trend with the head coach.', 'coach', 'talk', 'first'],
     'Injured': ['Injury list growing', 'Three or more players are unavailable. Ask the coach about workload and medical support.', 'coach', 'talk', 'first']
   },
+  academy: {
+    'Academy welfare': ['Young players need support', 'Several academy players have low welfare scores. Discuss the environment and the pace of development with the academy director.', 'acad', 'talk', 'academy'],
+    'Academy pathway': ['Pathway is blocked', 'Older prospects are approaching the end of their academy years without a clear route forward. Review promotion and loan priorities.', 'acad', 'mand', 'academy']
+  },
   recruit: {
     'Scouting network, focus': ['Scouting reach is limited', 'The network is thin in the chosen regions. Revisit scouting priorities and resources.', 'scout', 'mand', 'recruit'],
     'Scouting accuracy': ['Reports need scrutiny', 'Past estimates differ from the players eventually observed. Review scouting methods before committing more funds.', 'scout', 'talk', 'recruit']
@@ -249,6 +253,22 @@ function status(dk) {
     }
     if (row.l === 'Last week' && issues.some(x => x.key === 'Cash runway')) continue;
     issues.push({ key: row.l, followUp: issueFollowUp(dk, row.l, true), title: spec[0], why: spec[1], owner: spec[2], action: spec[3], department: spec[4], evidence: row.l + ': ' + row.v + (row.ref ? ' (' + row.ref + ')' : '') });
+  }
+  // Academy assessment uses player-level evidence and only becomes meaningful
+  // after the academy has had time to operate. No judgment on a single intake.
+  if (dk === 'academy' && played >= 8 && Array.isArray(G.academy)) {
+    const youth = G.academy, lowWelfare = youth.filter(p => Number.isFinite(p.wel) && p.wel < 40);
+    const older = youth.filter(p => p.age >= 18 && p.age <= 21);
+    const blocked = older.filter(p => !p.loanOut && !p.playUp && !p.keep && p.age >= 19);
+    const addAcademy = (key, count, total, threshold) => {
+      if (count < threshold) return;
+      const spec = SIGNALS.academy[key];
+      issues.push({ key, followUp: issueFollowUp(dk, key, true), title: spec[0], why: spec[1],
+        owner: spec[2], action: spec[3], department: dk,
+        evidence: count + ' of ' + total + ' relevant players (' + key.toLowerCase() + ')' });
+    };
+    if (youth.length >= 5) addAcademy('Academy welfare', lowWelfare.length, youth.length, Math.max(3, Math.ceil(youth.length * 0.3)));
+    if (older.length >= 4) addAcademy('Academy pathway', blocked.length, older.length, Math.max(3, Math.ceil(older.length * 0.5)));
   }
   const activeKeys = new Set(issues.map(i => issueKey(dk, i.key)));
   const resolved = Object.entries(issueRecords()).filter(([key, rec]) =>

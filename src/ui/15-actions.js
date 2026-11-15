@@ -3,8 +3,8 @@ function readSetup() { const v = id => { const e = $('#' + id); return e ? e.val
 function act(a, d, el) {
   const g = G(); let r;
   switch (a) {
-    case 'quick': quickStart(d.v === 'season'); break;
-    case 'new': U.title = false; F.newGame(); U.setup = { step: 0, name: '', short: '', city: '', col: 0, dna: {} }; U.hire = {}; break;
+    case 'quick': U.mc = null; U.mconfirm = null; U.sentK = null; quickStart(d.v === 'season'); break;
+    case 'new': U.mc = null; U.mconfirm = null; U.sentK = null; U.title = false; F.newGame(); U.setup = { step: 0, name: '', short: '', city: '', col: 0, dna: {} }; U.hire = {}; break;
     case 'continue': if (loadGame()) { U.title = false; setClub(G().club.colors); } break;
     case 'restart': wipe(); U.title = true; F.G = null; break;
     case 'col': readSetup(); U.setup.col = +d.i; break;
@@ -20,15 +20,13 @@ function act(a, d, el) {
     case 'press': { const q = F.PRESS.find(p => p.id === d.q); let ans = q.a[+d.i]; if (typeof ans === 'function') ans = ans(); U.quote = F.pressAnswer(d.q, +d.i); U.quoteP = !!ans[1]; U.pressI++; break; }
     case 'press-next': U.quote = null; if (U.pressI >= g.press.length) { F.finishPress(); U.tab = 'inbox'; window.scrollTo(0, 0); } break;
     case 'tab': U.tab = d.t; U.sub = null; U.dept = null; if (d.t === 'inbox') { U.open = null; U.flash = ''; } window.scrollTo(0, 0); break;
-    case 'mcomp': U.mc = { k: d.k, id: +d.id, i: +d.i }; ART.SND.card && ART.SND.card(); break;
-    case 'mpick': if (U.mc) U.mc.i = +d.i; break;
-    case 'mclose': U.mc = null; break;
+    case 'mpick': U.mc = { k: d.k, id: +d.id, i: +d.i }; U.mconfirm = null; break;
+    case 'mcancel': U.mconfirm = null; break;
     case 'msend': mailSend(d); break;
-    case 'mundo': if (U.pend) { U.mc = { k: U.pend.k, id: U.pend.id, i: U.pend.i }; U.pend = null; U.typedKey = U.mc.k + U.mc.id + '-' + U.mc.i; } break;
-    case 'mnext': U.sentK = null; U.mc = null; advance(); window.scrollTo(0, 0); break;
+    case 'mnext': U.sentK = null; U.mc = null; U.mconfirm = null; advance(); window.scrollTo(0, 0); break;
     case 'opt': r = F.respond(+d.m, +d.i); if (r && r.err) toast(r.err); else if (r && U.open) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.card(); ART.vib(15); advance(); } break;
     case 'open': if (!d.k) break; if (d.k.startsWith('an') && false) { markRead(d.k); U.sheet = { t: 'analysis' }; break; } if (d.k.startsWith('ms') && !d.k.startsWith('msw')) { markRead(d.k); const it = inboxItems().find(x => x.key === d.k); if (it) { U.ptab = 'story'; U.sheet = { t: 'player', id: it.pid }; } break; } U.open = d.k; U.flash = ''; U.mc = null; U.sentK = null; U.edI = 0; window.scrollTo(0, 0); break;
-    case 'close-open': U.open = null; U.flash = ''; break;
+    case 'close-open': U.open = null; U.flash = ''; U.mc = null; U.mconfirm = null; break;
     case 'dismiss': g.dis = g.dis || {}; g.dis[d.k] = F.absWeek(); for (const x in g.dis) if (g.dis[x] < F.absWeek() - 6) delete g.dis[x]; markRead(d.k); if (U.open === d.k) U.open = null; ART.SND.click(); break;
     case 'filt': U.filt = d.v; break;
     case 'md-kick': mdKick(); break;
@@ -127,6 +125,16 @@ function act(a, d, el) {
     case 'next-season': F.startSeason(); U.pressI = 0; U.quote = null; U.lt = null; window.scrollTo(0, 0); break;
   }
   saveGame(); render();
+  // Rendering replaces the buttons; preserve keyboard focus in the reply flow.
+  if (a === 'mpick') document.querySelector('.mreply .srow[aria-pressed="true"]')?.focus({ preventScroll: true });
+  if (a === 'msend' || a === 'mcancel') {
+    const target = document.querySelector(U.mc ? '.mreply .msend' : '.mreply .msent');
+    if (target) {
+      target.focus({ preventScroll: true });
+      const rect = target.getBoundingClientRect(), edge = document.querySelector('.bar2')?.getBoundingClientRect().top || innerHeight;
+      if (rect.bottom > edge || rect.top < 0) target.scrollIntoView({ block: 'center' });
+    }
+  }
 }
 let SW = null, SR = null, noClick = 0;
 document.addEventListener('pointerdown', e => { const r = e.target.closest('.ir.dis'); if (!r) return; SR = { r, x0: e.clientX, y0: e.clientY, dx: 0 }; });

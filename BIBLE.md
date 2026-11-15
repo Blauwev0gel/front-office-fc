@@ -81,6 +81,10 @@ Vastgelegd:
 5. **Weekafsluiting** — onbeantwoorde berichten worden door de staf zelf afgehandeld, financiën,
    ontwikkeling, blessures, bestuur, de Gazette en "wat veranderde er".
 
+Antwoorden staan direct onder de ontvangen mail: één set keuzes, een direct leesbaar antwoord en
+**Send**. Selecteren voert niets uit; verzenden verwerkt en bewaart de beslissing direct, zonder
+kunstmatige wachttijd of Undo-venster. Grote beslissingen vragen een expliciete tweede bevestiging (B12).
+
 ### 5.3 Het seizoen
 Vijf blokken met elk een doel: Opening (1–6), Autumn (7–15), Winter (16–19, korte transferwindow),
 Run-in (20–29), Finale (30–34). Beker in week 5/11/17/23/29/33. Na week 34: promotie/degradatie
@@ -175,3 +179,4 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 | B9 | 15-11-2026 | Pijlers toegevoegd: P7 Mensen hebben een eigen wil, P8 De club is een verhaal, P9 Er is geen perfecte keuze. | Aanvulling op het toetsingskader. |
 | B10 | 15-11-2026 | De toon is droge, licht ironische Britse voetbalproza. | De vaste stem van het spel en de Gazette. |
 | B11 | 15-11-2026 | Deze stand (opgeknipte code, dode code weg, seizoenseinde-crash opgelost) is **V1** (tag `v1.0`): het gemeenschappelijke vertrekpunt voor `main`, `chatgpt` en `claude-game`. | Beide AI-branches werken vanaf dezelfde basis. |
+| B12 | 15-11-2026 | Inbox: keuzes en antwoord op één scherm, zonder aparte Reply-stap. Send verwerkt en bewaart direct; grote beslissingen behouden een expliciete bevestiging. | Minder herhaling en wachten in korte mobiele sessies; de beslissing blijft bewust. |

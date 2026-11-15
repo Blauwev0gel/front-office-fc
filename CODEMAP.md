@@ -65,7 +65,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `engine/04-staff-dna.js` | 14 KB | staff; DNA |  | effBonus |  |
 | `engine/05-world-selection.js` | 4 KB | world; squad & selection |  | coachAct, selBonus, ftExtra | clubs, divs |
 | `engine/06-match.js` | 11 KB | match simulation |  | homeEdge, oppStyle, ftInj, say, storyW | msNew |
-| `engine/07-finance-transfers.js` | 14 KB | finance; transfers; academy |  | attendance, gate, acadIncome, recCost, acadCost, ftCost, deptCost, merchMult, costDisc, acadSale | signLog, shortlist, dofSigned, squad, dofNote |
+| `engine/07-finance-transfers.js` | 15 KB | finance; transfers; academy |  | attendance, gate, acadIncome, recCost, acadCost, ftCost, deptCost, merchMult, costDisc, acadSale | signLog, shortlist, dofSigned, squad, dofNote |
 | `engine/08-weekly-inbox.js` | 8 KB | weekly systems; events & inbox |  | ftDev, fanWeekly, desk |  |
 | `engine/09-meetings-actions-press.js` | 17 KB | management meeting & projects (1.2); player actions; press |  |  | propCd, meeting, projects, projDone, projLog |
 | `engine/10-season.js` | 9 KB | season |  | objMet, acadSeason, recSeason, seasonReprieve, summerStart | squad, academy, lastReport, phase, week, ap, form, inbox, queue, ss, paper, pressDone |
@@ -73,13 +73,13 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `engine/12-week.js` | 8 KB | the week |  | recWeekly, acadWeekly, acadIntake, seasonAfterMatch, edition, seasonWeekly | phase, sackReason, queue, briefs, over, paper, msNew, prev, prevFan, lastMatch, lastCup, ap, later, inbox |
 | `engine/13-newgame-preseason.js` | 7 KB | new game; pre-season planning (1.4) |  | acadInit, summerStart | club, mand, cup, phase, pre, meeting, press, pressDone, paper |
 | `engine/14-save-api.js` | 2 KB | save |  | acadMigrate, recMigrate | v |
-| `events.js` | 70 KB | event library (module 1) Each event: from (role/board/fans/press), dept, cd (cooldown weeks), cond, w (weight) |  |  | academy, freezePrev |
+| `events.js` | 71 KB | event library (module 1) Each event: from (role/board/fans/press), dept, cd (cooldown weeks), cond, w (weight) |  |  | academy, freezePrev |
 | `events2.js` | 31 KB | desk 2.0 configuration, proposals and storylines (1.2) |  |  |  |
 | `briefs.js` | 20 KB | weekly briefings (1.5) Short, state-driven updates and conversations |  |  | dofPrio, dofPrioAt, wageFreezePrev |
 | `academy.js` | 14 KB | youth academy, module 2 part 1 Age groups, academy staff, development model, education and welfare, pathway | acadMigrate, acadInit, acadCost, acadWeekly, acadIntake, acadSeason |  | acad, academy |
-| `academy2.js` | 28 KB | youth academy, module 2 part 2 Category & audit, poaching and tribunals, youth competitions, ROI, academy desk | acadWeekly, acadSeason, acadIncome, acadSale, objMet |  | academy, squad |
-| `recruit.js` | 36 KB | recruitment, module 3 part 1 Player world, scouting department, reports with uncertainty, recruitment pipeline | recWeekly, recCost, recSeason, recMigrate |  | shortlist, rec |
-| `summer.js` | 18 KB | the transfer summer, module 4 part 1 Five steps between seasons: clear-out, board and budget, market, pre-seas | summerStart, sumMigrate | recWeekly | phase, sum, inbox, lastSummer, squad, preEdge |
+| `academy2.js` | 29 KB | youth academy, module 2 part 2 Category & audit, poaching and tribunals, youth competitions, ROI, academy desk | acadWeekly, acadSeason, acadIncome, acadSale, objMet |  | academy, squad |
+| `recruit.js` | 37 KB | recruitment, module 3 part 1 Player world, scouting department, reports with uncertainty, recruitment pipeline | recWeekly, recCost, recSeason, recMigrate |  | shortlist, rec |
+| `summer.js` | 19 KB | the transfer summer, module 4 part 1 Five steps between seasons: clear-out, board and budget, market, pre-seas | summerStart, sumMigrate | recWeekly | phase, sum, inbox, lastSummer, squad, preEdge |
 | `season.js` | 18 KB | season rhythm, module 4 part 2 Season blocks with a decision each, board reviews, high-stakes matches, a small | summerStart, seasonWeekly, seasonAfterMatch, recSeason |  | rival, stake, openTarget, matchEdge, blockDone, winterPrev, winBonus, recovery, loanedOut, squad |
 | `summer2.js` | 29 KB | the transfer summer, version 2 A summer meeting with the DoF and staff that ends in a signed summer brief, a t | summerStart | recWeekly | dofStrikes |
 | `faces.js` | 27 KB | visual layer, part 1 Procedural ink-style portraits for every person in the game, the CEO's office scene, repu |  |  |  |
@@ -94,23 +94,23 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 18 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
 | `loop.js` | 15 KB | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice | lastChance, seasonReprieve, seasonAfterMatch |  | votes, vote, bgoal, bgLog, wkDelta, wkPrev, wkLog |
-| `dossiers.js` | 28 KB | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar | seasonAfterMatch |  | pressure, dos |
+| `dossiers.js` | 29 KB | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar | seasonAfterMatch |  | pressure, dos |
 | `pathway.js` | 27 KB | the pathway question One governance storyline, built to show the core loop: you notice a problem, talk to the  | selBonus, seasonAfterMatch |  | cred, pw, academy, pwLog |
-| `matchday.js` | 9 KB | match day Before kick-off: three stories about our own players | storyW, edition |  | mdS, eds |
+| `matchday.js` | 10 KB | match day Before kick-off: three stories about our own players | storyW, edition |  | mdS, eds |
 | `ui/01-core.js` | 5 KB | atoms; base club: skip the founding |  |  |  |
 | `ui/02-setup.js` | 19 KB | views: title & setup; mandates as a tactics board |  |  |  |
 | `ui/03-summer-preseason-press.js` | 26 KB | the summer (M4); the summer, version 2 |  |  |  |
 | `ui/04-masthead-news.js` | 1 KB |  |  |  |  |
 | `ui/05-pitches-squad-money.js` | 26 KB | project pitches: one at a time, swipe or tap |  |  |  |
 | `ui/06-sheets-ticker.js` | 22 KB | sheets; ticker |  |  |  |
-| `ui/07-club-league.js` | 8 KB | review & sacked; club, league, staff, academy, review: game screens |  | deptCost |  |
+| `ui/07-club-league.js` | 9 KB | review & sacked; club, league, staff, academy, review: game screens |  | deptCost |  |
 | `ui/08-departments.js` | 28 KB | departments |  |  |  |
 | `ui/09-firstteam-review.js` | 15 KB | first team department |  |  |  |
 | `ui/10-inbox.js` | 17 KB | render; inbox home (1.6) |  |  |  |
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
 | `ui/12-scenes-cards.js` | 15 KB | game UI helpers |  |  |  |
-| `ui/13-redbox-render.js` | 16 KB | the red box: an email you answer on one screen |  |  |  |
-| `ui/14-matchday-gazette.js` | 23 KB | match day: preview, match, gazette (full screens); the Gazette: one design, opened after the match and from th |  |  |  |
+| `ui/13-redbox-render.js` | 13 KB | the red box: an email you answer on one screen |  |  |  |
+| `ui/14-matchday-gazette.js` | 24 KB | match day: preview, match, gazette (full screens); the Gazette: one design, opened after the match and from th |  |  |  |
 | `ui/15-actions.js` | 18 KB | actions |  |  |  |
 | `ui/16-boot.js` | 0 KB | boot |  |  |  |
 
@@ -287,7 +287,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: sentEnds, clip2, splitSay, trayHtml, choiceHtml, ticOf, sceneHtml, vOpen, cardOpts, oppShort, fstrip, previewCard, whyPanel, matchCard, weekReport, msStrip, gazette
 
 ### `ui/13-redbox-render.js`
-- Functions: mFirst, mailParas, mailTop, MSV, mailRows, mailDock, mailBanner, mailCompose, mailSending, mailSent, bkStrip, msgHtml, briefHtml, mailCommit, big, mailSend, mailAfter, propHtml, tourCard, tabBadge, vBar, advance, markFresh, render
+- Functions: mFirst, mailParas, mailTop, MSV, mailRows, mailBanner, mailReply, mailSent, bkStrip, msgHtml, briefHtml, mailCommit, big, mailSend, propHtml, tourCard, tabBadge, vBar, advance, markFresh, render
 
 ### `ui/14-matchday-gazette.js`
 - Functions: mdOppCols, mdClean, mdP, mdStadium, mdPitch, mdForm, mdPreview, mdTeams, mdMatch, gzEdition, mdPaper, vMatchday, mdKick

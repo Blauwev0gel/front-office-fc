@@ -8,27 +8,25 @@ function mailTop(role, name, roleT, title, tag, body, emo) {
   <div class="mbody">${mailParas(body)}<p class="msign">${esc(mFirst(name))}</p><div class="msig"><span class="mcrest">${esc(g.club.short || 'FC')}</span><span><b>${esc(name)}</b><br>${esc(roleT ? roleT + ', ' : '')}${esc(g.club.name)}</span></div></div></div>`;
 }
 const MSV = d => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
-const MAILI = { reply: MSV('<path d="M10 8L4 13l6 5"/><path d="M4 13h10a6 6 0 0 1 6 6"/>'), send: MSV('<path d="M12 19V5M5 12l7-7 7 7"/>'), env: MSV('<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 7l9 6 9-6"/>'), x: MSV('<path d="M6 6l12 12M18 6L6 18"/>') };
-function mailRows(k, id, opts, auto, dis) {
-  return `<div class="slist" role="group" aria-label="Suggested replies">${opts.map((o, j) => `<button class="srow ${j === auto ? 'isadv' : ''}" data-a="mcomp" data-k="${k}" data-id="${id}" data-i="${j}" ${dis ? 'disabled' : ''}><span class="sk">${esc(o.l)}${j === auto ? '<small>Advised</small>' : ''}</span><span class="sfx">${ART.fx(o.h)}</span></button>`).join('')}</div>`;
+const MAILI = { send: MSV('<path d="M12 19V5M5 12l7-7 7 7"/>') };
+function mailRows(k, id, opts, auto, i, dis) {
+  return `<div class="slist" role="group" aria-label="Suggested replies">${opts.map((o, j) => `<button class="srow ${j === auto ? 'isadv' : ''}" data-a="mpick" data-k="${k}" data-id="${id}" data-i="${j}" aria-pressed="${j === i}" ${dis ? 'disabled' : ''}><span class="sk">${esc(o.l)}${j === auto ? '<small>Advised</small>' : ''}</span><span class="sfx">${ART.fx(o.h)}</span></button>`).join('')}</div>`;
 }
-function mailDock(inner, cls) { return `<div class="mdock ${cls || ''}" role="region" aria-label="Your reply"><div class="in">${inner}</div></div>`; }
 function mailBanner() {
   const b = U.bn; if (!b || b.n === U.bnShown) return ''; U.bnShown = b.n;
   return `<div class="mbn" role="status"><span class="mbav">${ART.staffFace(b.role, 'happy')}</span><div><div class="mbt"><b>${esc(b.name)}</b><span>now</span></div><small>Re: ${esc(b.subj)}</small><p>${esc(clip2(b.txt)[0])}</p></div></div>`;
 }
-function mailCompose(k, id, title, role, name, opts, auto, i, big, leave) {
-  const n = opts.length, o = opts[i];
-  return mailDock(`<div class="mch"><button class="mxb" data-a="mclose" aria-label="Discard reply">${MAILI.x}</button><span class="mcs">Re: ${esc(title)}</span></div>
-  <div class="mcf"><span>To</span><span class="mpc"><span class="mpa">${ART.staffFace(role)}</span>${esc(name)}</span></div>
-  <div class="mseg ${n > 3 ? 'g2' : ''}" role="group" aria-label="Suggested replies"><i class="mseg-i"></i>${opts.map((x, j) => `<button class="sg ${j === i ? 'on' : ''}" data-a="mpick" data-i="${j}" aria-pressed="${j === i}">${esc(x.l)}${j === auto ? '<em class="adot" aria-label="advised"></em>' : ''}</button>`).join('')}</div>
-  <div class="mcb"><p class="mhi">Hi ${esc(mFirst(name))},</p><p class="mln">${o ? `<span class="typed" data-full="${esc(o.l)}." data-key="${k}${id}-${i}"></span>` : '<span class="mph">Pick a reply above and it writes itself.</span>'}<span class="caret"></span></p></div>
-  ${o && o.h ? `<div class="mprev"><span class="sfx">${ART.fx(o.h)}</span></div>` : ''}
-  <div class="mrow"><p class="mlv">${esc(leave)}</p><button class="msend ${o ? 'live' : ''} ${big ? 'hold' : ''}" ${big ? '' : 'data-a="msend"'} data-k="${k}" data-id="${id}" data-i="${i}" ${o ? '' : 'disabled'}>${MAILI.send}<span>${big ? 'Hold to send' : 'Send'}</span><i class="mfill"></i></button></div>`, 'open');
+function mailReply(k, id, name, opts, auto, isBig, leave, dis) {
+  const i = U.mc && U.mc.k === k && U.mc.id === id ? U.mc.i : -1, o = opts[i];
+  const confirming = isBig && U.mconfirm === k + id;
+  return `<section class="mreply" aria-label="Your reply"><div class="slh"><b>Suggested replies</b></div>
+  ${mailRows(k, id, opts, auto, i, dis)}
+  <div class="mcb" aria-live="polite">${o ? `<p class="mhi">Hi ${esc(mFirst(name))},</p><p class="mln">${esc(o.l)}.</p>` : '<p class="mph">Choose a reply, then send it.</p>'}</div>
+  ${confirming ? '<p class="mconfirm" role="status">This is a big decision. Confirm your selected reply to send it.</p>' : ''}
+  <div class="mrow"><p class="mlv">${esc(leave)}</p>${confirming ? '<button class="mcancel" data-a="mcancel">Cancel</button>' : ''}<button class="msend ${o && !dis ? 'live' : ''}" data-a="msend" data-k="${k}" data-id="${id}" data-i="${i}" ${o && !dis ? '' : 'disabled'}>${MAILI.send}<span>${confirming ? 'Confirm and send' : 'Send'}</span></button></div></section>`;
 }
-function mailSending() { return mailDock(`<div class="msending"><span class="mspin"></span>Sending…</div><div class="mundo" role="status"><span>Sent</span><button data-a="mundo">Undo</button><i></i></div>`, 'sending'); }
 function mailSent(name, line, out) {
-  return mailDock(`<div class="msent"><div class="msh"><span class="mok">${ART.I.trust}</span><b>Sent to ${esc(mFirst(name))}</b></div><p class="msaid">${esc(line)}</p><p class="mout">${esc(clip2(out)[0])}</p></div><button class="mnext" data-a="mnext">Next email ${ART.I.chev}</button>`, 'sent') + mailBanner();
+  return `<section class="mreply"><div class="msent" role="status" tabindex="-1"><div class="msh"><span class="mok">${ART.I.trust}</span><b>Sent to ${esc(mFirst(name))}</b></div><p class="msaid">${esc(line)}</p><p class="mout">${esc(clip2(out)[0])}</p></div><button class="mnext" data-a="mnext">Next email ${ART.I.chev}</button></section>` + mailBanner();
 }
 function bkStrip() {
   if (!F.backers) return ''; const B = F.backers(), from = U.bkFrom;
@@ -41,7 +39,7 @@ function msgHtml(m, it) {
   const tag = v.done ? `<span class="mtg ok">${ART.I.trust}${v.by === 'you' ? 'Replied' : v.del ? (v.err ? 'Wrong call' : 'Staff call') : 'Handled'}</span>` : `<span class="mtg ${big ? 'big' : ''}">${big ? 'Big decision' : esc((it && it.label) || 'Your call')}</span>`;
   let h = mailTop(role, name, roleT, v.title, tag, v.body, emo);
   if (v.done) {
-    if (U.sentK === key && v.by === 'you') { U.tray = mailSent(name, v.opts[v.choice].l + '.', v.outcome); U.trayH = 210; return h + fdHtml(m.fd); }
+    if (U.sentK === key && v.by === 'you') return h + fdHtml(m.fd) + mailSent(name, v.opts[v.choice].l + '.', v.outcome);
     return h + (v.del ? `<div class="whyr ${v.err ? 'bad' : 'ok'}"><span>${ART.I[v.err ? 'risk' : 'trust']}</span><p><b>${v.err ? 'A wrong call by your staff' : 'Decided by your staff'}</b>${v.err ? 'It went against your mandate. Too many of these and the board notices.' : 'Within the authority you gave the department. You did not need to act.'}</p></div>` : '') + `<div class="outc"><b>${v.by === 'you' ? 'You' : esc(v.by)}: ${esc(v.opts[v.choice].l)}.</b> ${esc(v.outcome)}</div>` + fdHtml(m.fd);
   }
   h += `<p class="mwhy"><b>Why it is yours.</b> ${esc(v.why)}</p>`;
@@ -49,30 +47,26 @@ function msgHtml(m, it) {
   if (m.ev === 'pw_eval' && F.pwView) h += pwEvalHtml(F.pwView());
   if (v.second) h += v.second.text ? `<details class="more" open><summary>Second opinion ${ART.I.chev}</summary><p>${esc(v.second.text)}</p></details>` : v.second.avail ? `<details class="more"><summary>Second opinion: ${esc(v.second.name)} <span class="small">1 action</span></summary><p><button class="btn ghost small" data-a="second" data-m="${m.id}" ${g.ap < 1 ? 'disabled' : ''}>Ask ${esc(v.second.name.split(' ')[0])}</button></p></details>` : '';
   const leave = `One action. Leave it and ${v.autoWho} sends the advised reply.`;
-  if (U.pend && U.pend.k === 'm' && U.pend.id === m.id) { U.tray = mailSending(); U.trayH = 90; }
-  else if (U.mc && U.mc.k === 'm' && U.mc.id === m.id) { U.tray = mailCompose('m', m.id, v.title, role, name, v.opts, v.auto, U.mc.i, big, leave); U.trayH = 430; }
-  else { U.tray = mailDock(`<div class="slh"><b>Suggested replies</b>${apPips(g.ap)}</div>${mailRows('m', m.id, v.opts, v.auto, g.ap < 1)}<div class="mrow"><button class="mrb" data-a="mcomp" data-k="m" data-id="${m.id}" data-i="-1" ${g.ap < 1 ? 'disabled' : ''}>${MAILI.reply}Reply</button><p class="mlv">${g.ap < 1 ? 'No actions left this week. Your staff will decide.' : esc(leave)}</p></div>`); U.trayH = 130 + v.opts.length * 58; }
-  return h;
+  return h + mailReply('m', m.id, name, v.opts, v.auto, big, g.ap < 1 ? 'No actions left this week. Your staff will decide.' : leave, g.ap < 1);
 }
 function briefHtml(b, it) {
   const v = F.briefView(b), role = v.role || (it && it.role) || 'club', name = v.who.split(',')[0], roleT = v.who.split(', ')[1] || '', key = 'b' + b.id;
   const tag = v.done ? `<span class="mtg ok">${ART.I.trust}${v.del ? 'Staff call' : 'Replied'}</span>` : '<span class="mtg upd">Update</span>';
   let h = mailTop(role, name, roleT, v.title, tag, v.text, null);
   if (v.done) {
-    if (U.sentK === key && !v.del) { U.tray = mailSent(name, v.opts[v.choice].l + '.', v.out); U.trayH = 210; return h + fdHtml(b.fd); }
+    if (U.sentK === key && !v.del) return h + fdHtml(b.fd) + mailSent(name, v.opts[v.choice].l + '.', v.out);
     return h + `<div class="outc"><b>${v.del ? esc(v.by) + ': ' : ''}${esc(v.opts[v.choice].l)}.</b> ${esc(v.out)}</div>` + fdHtml(b.fd);
   }
   if (v.why) h += `<p class="mwhy"><b>Why it is yours.</b> ${esc(v.why)}</p>`;
   const leave = 'Free. Leave it and nothing changes.';
-  if (U.pend && U.pend.k === 'b' && U.pend.id === b.id) { U.tray = mailSending(); U.trayH = 90; }
-  else if (U.mc && U.mc.k === 'b' && U.mc.id === b.id) { U.tray = mailCompose('b', b.id, v.title, role, name, v.opts, -1, U.mc.i, false, leave); U.trayH = 430; }
-  else { U.tray = mailDock(`<div class="slh"><b>Suggested replies</b><span>Free</span></div>${mailRows('b', b.id, v.opts, -1, false)}<div class="mrow"><button class="mrb" data-a="mcomp" data-k="b" data-id="${b.id}" data-i="-1">${MAILI.reply}Reply</button><p class="mlv">${leave}</p></div>`); U.trayH = 130 + v.opts.length * 58; }
-  return h;
+  return h + mailReply('b', b.id, name, v.opts, -1, false, leave, false);
 }
 function mailCommit(p) {
   const bk0 = F.backers ? F.backers().map(b => b.v) : null;
   const r = p.k === 'm' ? F.respond(p.id, p.i) : F.answerBrief(p.id, p.i);
   if (!r || r.err) { if (r && r.err) toast(r.err); return; }
+  // Persist the committed decision before rendering or playing feedback.
+  saveGame(); U.mc = null; U.mconfirm = null;
   let role = 'club', name = 'Club office', subj = '';
   if (p.k === 'm') { const m = G().inbox.find(x => x.id === p.id), v = F.msgView(m); role = v.role || 'club'; name = v.from.split(',')[0]; subj = v.title; }
   else { const b = (G().briefs || []).find(x => x.id === p.id), v = F.briefView(b); role = v.role || 'club'; name = v.who.split(',')[0]; subj = v.title; }
@@ -82,19 +76,16 @@ function mailCommit(p) {
 }
 function big(p) { if (p.k !== 'm') return false; const m = G().inbox.find(x => x.id === p.id); return !!(m && /^vote_/.test(m.ev)); }
 function mailSend(d) {
-  const p = { k: d.k, id: +d.id, i: +d.i }; U.mc = null; U.pend = p; U.mfly = (U.mfly || 0) + 1;
-  clearTimeout(mailSend.t); mailSend.t = setTimeout(() => { if (U.pend !== p) return; U.pend = null; mailCommit(p); render(); }, MAIL_RM ? 60 : 3000);
+  const p = { k: d.k, id: +d.id, i: +d.i }, selected = U.mc;
+  if (!selected || selected.k !== p.k || selected.id !== p.id || selected.i !== p.i) return;
+  const item = p.k === 'm' ? G().inbox.find(x => x.id === p.id) : p.k === 'b' ? (G().briefs || []).find(x => x.id === p.id) : null;
+  if (!item || item.done) return;
+  const v = p.k === 'm' ? F.msgView(item) : F.briefView(item);
+  if (!Number.isInteger(p.i) || p.i < 0 || p.i >= v.opts.length) return;
+  if (big(p) && U.mconfirm !== p.k + p.id) { U.mconfirm = p.k + p.id; return; }
+  mailCommit(p);
 }
 const MAIL_RM = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-function mailAfter() {
-  const t = document.querySelector('#app .typed[data-full]');
-  if (t) { const full = t.dataset.full, k = t.dataset.key; if (U.typedKey === k || MAIL_RM) t.textContent = full; else { U.typedKey = k; let n = 0; const tick = () => { if (!t.isConnected) return; t.textContent = full.slice(0, ++n); if (n < full.length) setTimeout(tick, 16); }; tick(); } }
-  const seg = document.querySelector('#app .mseg'); if (seg) { const on = seg.querySelector('.sg.on'), ind = seg.querySelector('.mseg-i'); if (on && ind) { Object.assign(ind.style, { left: on.offsetLeft + 'px', top: on.offsetTop + 'px', width: on.offsetWidth + 'px', height: on.offsetHeight + 'px' }); seg.classList.add('has'); } }
-  if (U.mfly && U.mfly !== U.mflyShown) { U.mflyShown = U.mfly; const e = document.createElement('span'); e.className = 'mfly'; e.innerHTML = MAILI.env; document.body.appendChild(e); setTimeout(() => e.remove(), 900); }
-}
-let MH = null;
-document.addEventListener('pointerdown', e => { const b = e.target.closest('.msend.hold'); if (!b || b.disabled) return; e.preventDefault(); b.classList.add('holding'); MH = setTimeout(() => { b.classList.remove('holding'); MH = null; ART.vib([30, 30, 60]); mailSend(b.dataset); render(); }, MAIL_RM ? 10 : 1100); });
-['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => document.addEventListener(ev, e => { if (!MH) return; clearTimeout(MH); MH = null; document.querySelectorAll('.msend.holding').forEach(b => b.classList.remove('holding')); }, true));
 
 function propHtml(idx, row) { return pitchDeck(G().meeting, 'Project pitches', true); }
 const TOUR = {
@@ -134,7 +125,7 @@ function render() {
   else if (g.phase === 'sacked') h = vSacked();
   else { U.tray = ''; h = masthead() + ({ inbox: vInbox, desk: vInbox, news: vNews, club: vClub2, staff: () => U.dept ? vDept(U.dept) : vDepts(), squad: vSquad, league: vLeague2, money: vMoney })[U.tab](); h += ((U.tab === 'inbox' && U.open) || (U.tab === 'staff' && U.dept === 'first')) && U.tray ? U.tray : vBar(); }
   app.innerHTML = h + vSheet() + (U.toast ? `<div class="toast" role="status">${esc(U.toast)}</div>` : '') + (U.flash && U.flashN !== U.flashShown ? (U.flashShown = U.flashN, `<div class="fxtoast" role="status">${esc(U.flash)}</div>`) : '');
-  markFresh(); mailAfter(); if (U.md && U.md.phase === 'match' && !U.md.ft) MDP.start();
+  markFresh(); if (U.md && U.md.phase === 'match' && !U.md.ft) MDP.start();
   window.scrollTo(0, y); ddSchedule();
 }
 

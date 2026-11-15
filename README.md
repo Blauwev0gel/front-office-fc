@@ -45,7 +45,12 @@ node test/gazette.js             # one edition per week, archive, old saves
 node test/sack.js                # dismissal is final
 node test/pathway.js             # the youth pathway storyline
 python3 test/browser/playtest.py # a run of weeks with real clicks (needs Playwright and Chrome)
+node test/browser/mail.cjs       # reply flow, immediate saves, keyboard and mobile layouts (needs Playwright)
 ```
+
+For the mail browser test, set `TEST_BROWSER` to your Chrome executable if
+Playwright's bundled Chromium is not installed. Set `MAIL_SCREENSHOTS` to an
+output directory to save the mobile and desktop screenshots.
 
 To preview: build, run the relevant tests, and push to your assigned branch.
 To release: merge the approved changes into `main`. GitHub Actions publishes

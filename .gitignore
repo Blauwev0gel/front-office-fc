@@ -1,0 +1,6 @@
+# build output; the playable build is dist/the-front-office.html
+dist/index.html
+dist/*fallback*.html
+__pycache__/
+node_modules/
+.DS_Store

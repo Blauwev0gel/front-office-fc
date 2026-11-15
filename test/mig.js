@@ -1,0 +1,11 @@
+const fs = require('fs'), path = require('path'), vm = require('vm');
+const src = ['engine.js', 'events.js', 'events2.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js'].map(f => fs.readFileSync(path.join(__dirname, '../src', f), 'utf8')).join('\n');
+const store = {}; const ctx = { console, localStorage: { getItem: k => store[k] || null, setItem: (k, v) => store[k] = v, removeItem: k => delete store[k] } }; vm.createContext(ctx); vm.runInContext(src + '\n;this.FO=FO;', ctx); const FO = ctx.FO;
+FO.newGame(77); const d = {}; for (const q of FO.DNA) d[q.k] = q.o[0].v; FO.setDNA(d, 'T', 'T', 'T', ['#123', '#fff']);
+for (const r of FO.ROLES) FO.hire(r.id, 1); FO.finishStaff(); FO.finishMandates(); FO.preSetTarget('accept'); FO.finishPreseason();
+for (const id of FO.G.press) FO.pressAnswer(id, 0); FO.finishPress();
+for (let i = 0; i < 3; i++) FO.endWeek();
+const G = FO.G; delete G.rec; G.v = 2; G.shortlist = [FO.genTarget('ST', false), FO.genTarget('CB', true)];
+const s = FO.save(); console.log('save type', typeof s);
+console.log('load', FO.load(s), 'v', FO.G.v, 'rec', !!FO.G.rec, 'pipe', FO.G.rec && FO.G.rec.pipe.length, 'shortlist', FO.G.shortlist.length);
+for (let i = 0; i < 20; i++) FO.endWeek(); console.log('after 20w log', FO.G.rec.log.length, FO.G.squad.length);

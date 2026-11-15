@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Front Office: match day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700;1,800&family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,700;0,8..60,900;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#16201b;background-color:#e3e9e1;background-image:radial-gradient(rgba(22,32,27,.07) 1px,transparent 1.3px);background-size:8px 8px}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 24px 96px}
+.intro{max-width:680px}.intro h1{font:800 italic clamp(40px,6vw,66px)/.95 'Barlow Condensed',sans-serif;margin:0 0 16px}.intro p{font-size:17px;line-height:1.55;margin:0 0 12px}
+h2.sec{font:800 italic clamp(30px,4vw,44px)/1 'Barlow Condensed',sans-serif;margin:72px 0 12px}
+.lead{max-width:700px;font-size:16px;line-height:1.55}
+.stage{display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start;margin-top:28px}
+.proto{display:flex;flex-direction:column;gap:12px;width:390px;max-width:100%}
+.ctl{display:flex;flex-wrap:wrap;gap:8px}.ctl button{min-height:44px;padding:0 14px;border-radius:999px;border:2px solid #16201b;background:#fff;font:600 14px Inter;color:#16201b;cursor:pointer}
+.ctl button[aria-pressed="true"]{background:#16201b;color:#fff}
+.side{flex:1;min-width:280px;max-width:600px}.side h3{font:800 italic 24px 'Barlow Condensed',sans-serif;margin:0 0 8px}.side ol{padding-left:20px;line-height:1.6}
+table{border-collapse:collapse;width:100%;background:#fff;font-size:14px;line-height:1.45;margin-top:12px;border:2px solid #16201b}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid rgba(22,32,27,.13);vertical-align:top}th{background:#f1eadb;font:700 13px Inter}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px}.notes div{background:#fff;border-left:4px solid #7a1e2b;padding:14px 16px;font-size:14px;line-height:1.5}.notes b{display:block;margin-bottom:4px}
+/* ---------- phone ---------- */
+.ph{--bg:#e3e9e1;--paper:#fff;--fill:#eef2ec;--ink:#16201b;--soft:#4f5d55;--hair:rgba(22,32,27,.13);--good:#1f7a43;--bad:#c2331d;--sun:#f3d36b;--cl:#7a1e2b;--news:#f4efe2;
+ position:relative;width:390px;height:844px;max-width:100%;overflow:hidden;border:3px solid #16201b;border-radius:34px;box-shadow:6px 6px 0 #16201b;background:var(--bg);color:var(--ink);display:flex;flex-direction:column}
+.ph.dark{--bg:#121815;--paper:#1b231f;--fill:#232d28;--ink:#e6eee8;--soft:#a3b2a9;--hair:rgba(230,238,232,.14);--good:#6fcf97;--bad:#ff8a75;--news:#1f1c17}
+.scr{flex:1;overflow:auto;min-height:0}
+.pad{padding:12px 16px 20px}
+button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:3px solid #f3d36b;outline-offset:2px}
+.ko{width:100%;min-height:56px;border:3px solid #16201b;border-radius:12px;background:var(--cl);color:#fff;box-shadow:4px 4px 0 #16201b;font:800 italic 24px 'Barlow Condensed',sans-serif;transition:transform .1s}
+.ko:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #16201b}
+.pvfoot{flex:none;padding:12px 16px 16px;background:var(--paper);border-top:3px solid #16201b;display:flex;flex-direction:column;gap:8px}
+.boxw{margin:0;font:400 13px/1.4 Inter;color:var(--soft)}.boxw b{color:var(--ink)}
+/* preview */
+.pvh{position:relative;border-bottom:3px solid #16201b}.stad{display:block}
+.pvb{position:absolute;left:0;right:0;bottom:-26px;display:flex;justify-content:center;align-items:flex-end;gap:14px}
+.pvt{display:flex;flex-direction:column;align-items:center;gap:2px;animation:drop .5s cubic-bezier(.2,1.4,.4,1) both}.pvt:last-child{animation-delay:.12s}.pvt b{font:800 italic 18px 'Barlow Condensed',sans-serif;background:var(--paper);border:2px solid #16201b;border-radius:6px;padding:0 6px}
+@keyframes drop{from{transform:translateY(-30px);opacity:0}}
+.pvv{display:flex;flex-direction:column;align-items:center;background:#16201b;color:#fff;border-radius:10px;padding:6px 12px;margin-bottom:22px}.pvv span{font:700 10px Inter;letter-spacing:.06em;color:#f3d36b}.pvv b{font:800 italic 26px/1 'Barlow Condensed',sans-serif}.pvv small{font:500 11px Inter;color:#cfd8d2}
+.kick{display:flex;justify-content:space-between;margin-top:34px;font:600 12px Inter;color:var(--soft)}
+.pvn{font:800 italic 30px/1 'Barlow Condensed',sans-serif;margin:6px 0 12px}.pvn i{color:var(--soft);font-size:22px}
+.tbl2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tbl2>div{background:var(--paper);border:1px solid var(--hair);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:3px}.tbl2 small{font:600 12px Inter;color:var(--soft)}.tbl2 b{font:800 italic 22px/1 'Barlow Condensed',sans-serif}
+.form{display:flex;gap:3px}.form i{width:18px;height:18px;border-radius:4px;font:700 10px/18px Inter;font-style:normal;text-align:center;color:#fff}.fW{background:#1f7a43}.fD{background:#8a8f8a}.fL{background:#c2331d}
+.stake{margin:12px 0 0;padding:10px 12px;border-left:4px solid var(--cl);background:var(--paper);font:400 14px/1.45 Inter;border-radius:0 8px 8px 0}
+.sh{font:800 italic 22px 'Barlow Condensed',sans-serif;margin:18px 0 8px}
+.stories{display:flex;flex-direction:column;gap:10px}
+.story{display:flex;gap:12px;background:var(--paper);border:3px solid #16201b;box-shadow:4px 4px 0 #16201b;border-radius:12px;padding:10px;animation:slideup .45s cubic-bezier(.2,.9,.3,1) both;animation-delay:var(--d)}
+@keyframes slideup{from{transform:translateY(16px);opacity:0}}
+.sf{flex:none;width:64px;height:64px;border-radius:50%;overflow:hidden;border:2.5px solid #16201b}.sf svg{display:block;width:100%;height:100%}
+.story em{display:inline-block;font:700 11px/1 Inter;font-style:normal;background:var(--sun);color:#16201b;border:1.5px solid #16201b;padding:3px 6px;border-radius:999px}
+.story b{display:block;font:700 16px/1.2 Inter;margin:5px 0 2px}.story b small{font:500 12px Inter;color:var(--soft);margin-left:6px}.story p{margin:0;font:400 13px/1.45 Inter}
+.danger{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font:400 13px/1.45 Inter}.danger p{margin:0}.dg{flex:none;width:24px;height:24px;border-radius:50%;background:var(--bad);color:#fff;font:800 14px/24px Inter;text-align:center}
+.coach{display:flex;gap:10px;align-items:center;margin-top:14px;background:var(--fill);border-radius:12px;padding:10px}.cf{flex:none;width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid #16201b}.cf svg{width:100%;height:100%;display:block}.coach p{margin:0;font:italic 500 14px/1.4 Inter}.coach small{display:block;font:500 12px Inter;font-style:normal;color:var(--soft);margin-top:2px}
+.crowd{margin:12px 0 0;font:500 12px Inter;color:var(--soft);text-align:center}
+/* match */
+.scrMatch{background:#12251a;color:#eef3ee}.ph.dark.scrMatch{background:#0c1711}
+.mbug{flex:none;display:flex;align-items:center;justify-content:space-between;padding:14px 14px 8px;background:#16201b;color:#fff}
+.mbt{display:flex;align-items:center;gap:8px}.mbt b{font:800 italic 22px 'Barlow Condensed',sans-serif}.mbs{display:flex;flex-direction:column;align-items:center}
+.sc{font:800 italic 40px/1 'Barlow Condensed',sans-serif;letter-spacing:.02em}.sc i{font-style:normal;margin:0 6px;opacity:.6}.sc.pop{animation:scpop .6s cubic-bezier(.3,1.8,.5,1)}@keyframes scpop{30%{transform:scale(1.35);color:#f3d36b}}
+.clk{font:700 13px Inter;background:#f3d36b;color:#16201b;padding:2px 8px;border-radius:999px;margin-top:2px}
+.mprog{flex:none;height:4px;background:#2c3a33}.mprog b{display:block;height:100%;width:0;background:#f3d36b;transition:width .4s linear}
+.pwrap{position:relative;flex:none;margin:12px 14px 0;border:3px solid #0b140f;border-radius:10px;overflow:hidden;box-shadow:0 10px 24px -12px rgba(0,0,0,.6)}
+.pitch{display:block;width:100%;height:auto}
+.ball{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);filter:drop-shadow(0 3px 2px rgba(0,0,0,.4));z-index:2}
+.net.rip{animation:rip .6s ease-out}@keyframes rip{30%{transform:scaleX(1.6)}}.net.l{transform-origin:0 50%}.net.r{transform-origin:100% 50%;transform-box:fill-box}
+.pl{position:absolute;width:12px;height:12px;border-radius:50%;border:2px solid #0b140f;transform:translate(-50%,-50%);z-index:1;box-shadow:0 2px 0 rgba(0,0,0,.35)}.pl.gk{width:11px;height:11px}
+.dir{position:absolute;bottom:4px;font:600 10px Inter;color:rgba(255,255,255,.75)}.dir.l{left:8px}.dir.r{right:8px}
+.gflash{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;opacity:0;pointer-events:none;z-index:3}
+.gflash.on{animation:gfl 1.8s ease-out forwards}.gflash.us{background:radial-gradient(circle,rgba(122,30,43,.92),rgba(122,30,43,.55))}.gflash.them{background:rgba(10,18,14,.7)}
+.gflash b{font:800 italic 54px/1 'Barlow Condensed',sans-serif;color:#fff;text-shadow:3px 3px 0 #16201b;animation:gtxt .6s cubic-bezier(.3,1.8,.5,1)}.gflash small{font:700 14px Inter;color:#f3d36b}
+.gface{width:88px;height:88px;border-radius:50%;overflow:hidden;border:3px solid #fff;animation:gtxt .5s cubic-bezier(.3,1.8,.5,1)}.gface svg{width:100%;height:100%;display:block}
+@keyframes gfl{0%{opacity:0}10%{opacity:1}80%{opacity:1}100%{opacity:0}}@keyframes gtxt{from{transform:scale(.3)}}
+.momw{flex:none;margin:10px 14px 0;color:#eef3ee}.momsvg{display:block;width:100%;height:54px}.mu{fill:#c8465a}.mt{fill:#5d8fd0}
+.moml{display:flex;justify-content:space-between;font:700 11px Inter;margin-top:2px}.moml small{font:500 11px Inter;opacity:.7}
+.feed{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:10px 14px 0;overflow:hidden}
+.now{flex:none;min-height:76px}
+.mcard{display:flex;gap:10px;align-items:center;background:#fffdf6;color:#16201b;border:3px solid #0b140f;border-radius:12px;padding:10px;box-shadow:4px 4px 0 #0b140f;animation:cardin .35s cubic-bezier(.2,1.2,.4,1)}
+.mcard.k-goal.us{background:#f3d36b}.mcard.k-goal.them{background:#e8e2d6}@keyframes cardin{from{transform:translateX(30px) rotate(2deg);opacity:0}}
+.mf{flex:none;width:48px;height:48px;border-radius:50%;overflow:hidden;border:2.5px solid #16201b}.mf svg{display:block;width:100%;height:100%}
+.mi{flex:none;width:48px;height:48px;border-radius:50%;border:2.5px solid #16201b;display:flex;align-items:center;justify-content:center;font:800 18px Inter;background:#eef2ec}.mi.k-card{background:#f3d36b}.mi.k-card.red,.mcard .k-card.red{background:#c2331d}
+.mm{font:800 italic 16px 'Barlow Condensed',sans-serif;color:#7a1e2b}.mcard p{margin:0;font:500 14px/1.35 Inter}
+.past{list-style:none;margin:0;padding:0;overflow:auto;flex:1;min-height:0}
+.pli{display:flex;gap:10px;padding:7px 2px;border-bottom:1px solid rgba(238,243,238,.12);font:400 13px/1.35 Inter;color:#d5ded8}.pli span{flex:none;width:30px;font:700 12px Inter;color:#f3d36b}.pli.k-goal{color:#fff;font-weight:600}
+.htcard{background:#fffdf6;color:#16201b;border:3px solid #0b140f;border-radius:12px;padding:12px;box-shadow:4px 4px 0 #0b140f;display:flex;flex-direction:column;gap:8px;animation:cardin .35s}
+.hth{display:flex;justify-content:space-between;align-items:baseline}.hth b{font:800 italic 24px 'Barlow Condensed',sans-serif}.hth span{font:800 italic 24px 'Barlow Condensed',sans-serif}.htcard>p{margin:0;font:400 14px/1.4 Inter}
+.htc{display:flex;gap:10px;align-items:center;background:#eef2ec;border-radius:10px;padding:8px}.htc p{margin:0;font:italic 500 13px/1.4 Inter}
+.htcard button{min-height:44px;border:2px solid #16201b;border-radius:10px;background:#16201b;color:#fff;font:700 14px Inter}
+.mctl{flex:none;display:flex;gap:8px;padding:10px 14px 16px}.mctl button{flex:1;min-height:48px;border-radius:12px;border:2px solid rgba(238,243,238,.5);background:transparent;color:#eef3ee;font:600 14px Inter}
+.ftp{flex:1;min-height:0;overflow:auto;margin:10px 14px 14px;background:#fffdf6;color:#16201b;border:3px solid #0b140f;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;animation:slideup .5s cubic-bezier(.2,.9,.3,1)}
+.fth{display:flex;justify-content:space-between;align-items:baseline}.fth span{font:700 12px Inter;color:#4f5d55}.fth b{font:800 italic 30px/1 'Barlow Condensed',sans-serif}.rW .fth b{color:#1f7a43}.rL .fth b{color:#c2331d}
+.motm{display:flex;gap:12px;align-items:center;background:#f3d36b;border:2.5px solid #16201b;border-radius:12px;padding:10px}.motm .mf{width:64px;height:64px}.motm em{display:block;font:700 11px Inter;font-style:normal}.motm b{font:700 17px Inter}.rt{display:inline-block;margin-left:8px;background:#16201b;color:#fff;font:800 italic 16px 'Barlow Condensed',sans-serif;padding:1px 7px;border-radius:6px}
+.ftp h3{margin:2px 0 0;font:800 italic 18px 'Barlow Condensed',sans-serif}
+.outs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}.outs li{display:flex;gap:10px;align-items:center}.outs .sf{width:36px;height:36px;border-width:2px}.outs p{margin:0;font:400 13px/1.4 Inter}
+/* gazette */
+.scrPaper{background:var(--news)}.news{padding:14px 16px 20px;font-family:'Source Serif 4',Georgia,serif;color:var(--ink)}
+.ph:not(.dark) .news{background-image:radial-gradient(rgba(60,40,20,.05) 1px,transparent 1.2px);background-size:5px 5px}
+.mast{text-align:center;border-bottom:3px double var(--ink);padding-bottom:6px;display:flex;flex-direction:column;align-items:center}.mast h1{margin:2px 0;font:900 34px/1 'Source Serif 4',Georgia,serif;letter-spacing:-.01em}.mast span{font:600 11px Inter;color:var(--soft);display:block}
+.nh{font:900 34px/1 'Source Serif 4',Georgia,serif;margin:14px 0 6px;letter-spacing:-.015em;animation:slideup .5s both}.ndek{margin:0 0 10px;font:italic 400 16px/1.4 'Source Serif 4',serif}
+.nscore{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:8px 4px}.nscore div{display:flex;flex-direction:column;align-items:center;gap:2px;width:96px}.nscore b{font:700 13px Inter;text-align:center}.nscore strong{font:900 44px/1 'Source Serif 4',serif}
+.nsc{margin:6px 0 0;font:500 12px Inter;color:var(--soft)}
+.nfig{margin:12px 0;display:flex;gap:12px;align-items:flex-end}.nf{width:120px;height:120px;border:2px solid var(--ink);overflow:hidden;filter:grayscale(.35) contrast(1.05)}.nf svg{width:100%;height:100%;display:block}.nfig figcaption{font:italic 400 13px 'Source Serif 4',serif;color:var(--soft)}
+.nrep{margin:0;font:400 16px/1.55 'Source Serif 4',serif}.nrep::first-letter{float:left;font:900 46px/.9 'Source Serif 4',serif;margin:2px 6px 0 0}
+.ncols{display:grid;grid-template-columns:1fr 1.25fr;gap:14px;margin-top:14px;border-top:1px solid var(--ink);padding-top:10px}
+.news h3{margin:0 0 6px;font:800 13px Inter;letter-spacing:.02em}
+.rats{list-style:none;margin:0;padding:0;font:400 13px Inter}.rats li{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dotted var(--hair)}.rats li.star span::after{content:" ★";color:#b8860b}.rats b.hi{color:var(--good)}.rats b.lo{color:var(--bad)}
+blockquote{margin:0 0 10px;font:italic 400 14px/1.45 'Source Serif 4',serif}cite{display:block;font:600 11px Inter;font-style:normal;color:var(--soft)}
+.ntab{list-style:none;margin:0;padding:0;font:400 12px Inter}.ntab li{display:grid;grid-template-columns:16px 1fr 24px 12px;gap:4px;padding:3px 0}.ntab li.me{font-weight:700;background:rgba(122,30,43,.1)}.ntab em{font-style:normal;text-align:right}.ntab i{font-style:normal;font-size:9px}.ntab i.up{color:var(--good)}.ntab i.dn{color:var(--bad)}
+.nweek,.nbk{margin-top:14px;border-top:1px solid var(--ink);padding-top:10px}.nweek ul{margin:0;padding-left:18px;font:400 14px/1.5 'Source Serif 4',serif}
+.bks{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.bks div{display:flex;flex-direction:column;gap:2px;font-family:Inter}.bks small{font:600 11px Inter;color:var(--soft)}.bks b{font:800 italic 22px/1 'Barlow Condensed',sans-serif}.bks i{font:700 12px Inter;font-style:normal}.bks i.up{color:var(--good)}.bks i.dn{color:var(--bad)}.bks em{height:5px;background:var(--hair);border-radius:3px;overflow:hidden}.bks u{display:block;height:100%;background:var(--ink)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:1ms!important;transition-duration:1ms!important}}
+@media (max-width:440px){.wrap{padding:24px 0 64px}.intro,h2.sec,.lead,.side,table,.notes{padding-left:16px;padding-right:16px}.ph{border-radius:0;border-left:0;border-right:0;box-shadow:none}.ctl{padding:0 16px}}
+</style></head>
+<body><main class="wrap">
+<header class="intro"><h1>Match day</h1><p>Next match is now a moment in three screens: the preview, the match and the Gazette. Play a win, a draw and a loss, and see whether you know three of your players by the end.</p></header>
+<div class="stage"><section class="proto"><div class="ctl"><button data-scen="win" aria-pressed="true">Win at home</button><button data-scen="draw" aria-pressed="false">Draw away</button><button data-scen="loss" aria-pressed="false">Loss at home</button></div>
+<div class="ctl"><button data-ui="dark" aria-pressed="false">Dark</button><button data-ui="sound" aria-pressed="false">Sound off</button></div><div class="ph"></div></section>
+<aside class="side"><h3>The flow</h3><ol><li><b>Next match</b> replaces Play week. It opens the preview: the opponent, what is at stake and three stories about our players.</li><li><b>Kick off</b> plays the match on its own screen: the pitch, the ball, momentum, moment cards with faces and a half-time talk.</li><li><b>Full time</b> shows player of the match and how each story ended.</li><li><b>The Gazette</b> brings the result and the week together, then starts the next week.</li></ol>
+<h3 style="margin-top:20px">What the CEO does</h3><p class="lead" style="font-size:15px">You watch and care. No line-ups, no tactics. Open emails get one line before kick-off; your staff answer them if you go ahead.</p></aside></div>
+<h2 class="sec">The current flow, step by step</h2><table><tr><th>Step</th><th>What works</th><th>What does not</th></tr><tr><td><b>Play week</b></td><td>One button closes the week and plays the match in one go.</td><td>The match is simulated before you see anything, so there is no build-up.</td></tr><tr><td><b>"Play anyway"</b></td><td>A confirm when decisions are still open.</td><td>A modal in the way, with no sense of what is at stake.</td></tr><tr><td><b>Preview</b></td><td>mtPreview gives the opponent, form and odds as a card in the inbox.</td><td>Easy to miss and nothing about our own players.</td></tr><tr><td><b>Ticker</b></td><td>A pop-up with a score bug, xG dots, momentum and an event feed.</td><td>It is a sheet over the inbox; it feels like a notification, not the main event.</td></tr><tr><td><b>Engine events</b></td><td>Chances, goals, saves, cards, subs and injuries, with names, xG and minutes.</td><td>No turning point, no story hooks and no link to what the player means to us.</td></tr><tr><td><b>Ratings and MOTM</b></td><td>Ratings per player and a man of the match are already calculated.</td><td>Only visible in a player profile or the coach's debrief.</td></tr><tr><td><b>Gazette</b></td><td>A paper with headline and stories, as an item in the inbox.</td><td>Disconnected from the match; the week and the result are not one moment.</td></tr></table>
+<h2 class="sec">Player stories</h2><p class="lead">At most three per match, our players first. Each story comes back in the match and on the full-time card.</p><table><tr><th>Story</th><th>Source in the game</th><th>Available</th></tr><tr><td><b>Academy debut</b></td><td>p.academy and p.debut</td><td>Yes</td></tr><tr><td><b>Milestones (100 goals, 200 games, records)</b></td><td>p.car, p.ms</td><td>Yes, needs thresholds</td></tr><tr><td><b>Back from injury</b></td><td>p.inj history</td><td>Partly: add the last injury to p.ms</td></tr><tr><td><b>New signing, first start</b></td><td>rec.log, p.joined</td><td>Yes</td></tr><tr><td><b>Old club</b></td><td>not stored</td><td>New: store the club that released or sold him</td></tr><tr><td><b>Scouts watching, contract ends</b></td><td>p.contract, interest from bids</td><td>Yes</td></tr><tr><td><b>Form, three clean sheets</b></td><td>p.rats, recent results</td><td>Yes</td></tr><tr><td><b>Background</b></td><td>storyOf(): origin and drive</td><td>Yes</td></tr></table>
+<h2 class="sec">Changes to the engine</h2><div class="notes"><div>Split endWeek: the preview is built before the match, with three storylines picked and stored on the fixture.</div><div>The engine gets story weight: a story player is a little more likely to feature in a chance, never enough to change the odds of the result.</div><div>Each match returns a turning point (first goal, red card or big miss), a story outcome per storyline and the momentum per minute.</div><div>The match is a full screen with its own route, not a sheet; the ticker code is reused for the timing.</div><div>The Gazette is generated from the match and the week, and opens as the last step before the next week.</div><div>The CEO only watches. Half-time shows the coach's line, with no choice, so you never pick the team.</div></div>
+<h2 class="sec">Playtest notes</h2><div class="notes"><div><b>Preview</b><ul style="margin:6px 0 0;padding-left:18px"><li>Three stories read in about 20 seconds.</li><li>The faces make the names stick by the second match.</li><li>Our players lead; the danger man is a single line underneath.</li></ul></div><div><b>Match</b><ul style="margin:6px 0 0;padding-left:18px"><li>About 40 seconds at normal speed, 20 at 2x, plus a half-time pause you can skip.</li><li>The goal flash with the scorer's face is the moment that lands.</li><li>Fixed: an empty pitch felt dead. Twenty-two players now shift with the ball.</li></ul></div><div><b>Gazette</b><ul style="margin:6px 0 0;padding-left:18px"><li>One scroll covers result, ratings, quotes, table and the week.</li><li>The story outcomes on the full-time card close the loop before the paper.</li><li>Fixed: the half-time card repeated the word Half-time.</li></ul></div></div>
+</main><script>/* fictional data for the match-day prototype */
+const CLUB = { name: 'Harwick Athletic', short: 'HAR', c1: '#7a1e2b', c2: '#f3e9d2' };
+const SQ = {
+  whitlow: { n: 'Sam Whitlow', s: 'Whitlow', pos: 'GK', age: 29, f: { sk: '#e9b994', hc: '#3b2a20', hs: 1, bd: 0, bg: '#dfe8ef' } },
+  croft: { n: 'Liam Croft', s: 'Croft', pos: 'RB', age: 22, f: { sk: '#f1c7a5', hc: '#c58a3b', hs: 3, bd: 0, bg: '#efe2cf' } },
+  mensah: { n: 'Kofi Mensah', s: 'Mensah', pos: 'CB', age: 27, f: { sk: '#7a4b33', hc: '#151515', hs: 2, bd: 1, bg: '#e3efe5' } },
+  bielak: { n: 'Tomasz Bielak', s: 'Bielak', pos: 'CB', age: 31, f: { sk: '#eab896', hc: '#8a8a8a', hs: 0, bd: 1, bg: '#e6e0ef' } },
+  alves: { n: 'Ruben Alves', s: 'Alves', pos: 'LB', age: 24, f: { sk: '#c98f6b', hc: '#1d1d1d', hs: 4, bd: 0, bg: '#f1e4d4' } },
+  pryce: { n: 'Jonah Pryce', s: 'Pryce', pos: 'CM', age: 28, f: { sk: '#e2a882', hc: '#5a3b22', hs: 1, bd: 1, bg: '#dfe8ef' } },
+  reid: { n: 'Alex Reid', s: 'Reid', pos: 'CM', age: 18, f: { sk: '#f3cdb0', hc: '#2b1b12', hs: 3, bd: 0, bg: '#fbe7c6' } },
+  ortega: { n: 'Dani Ortega', s: 'Ortega', pos: 'RW', age: 26, f: { sk: '#c98f6b', hc: '#1d1d1d', hs: 2, bd: 0, bg: '#efe2cf' } },
+  kasper: { n: 'Theo Kasper', s: 'Kasper', pos: 'LW', age: 23, f: { sk: '#f1c7a5', hc: '#e0b35a', hs: 4, bd: 0, bg: '#e3efe5' } },
+  brandt: { n: 'Ollie Brandt', s: 'Brandt', pos: 'ST', age: 30, f: { sk: '#eab896', hc: '#3b2a20', hs: 0, bd: 1, bg: '#e6e0ef' } },
+  okoro: { n: 'Jamal Okoro', s: 'Okoro', pos: 'ST', age: 21, f: { sk: '#5e3a28', hc: '#111', hs: 2, bd: 0, bg: '#fbe7c6' } },
+  graves: { n: 'Neil Graves', s: 'Graves', pos: 'Head coach', age: 51, f: { sk: '#eab896', hc: '#9a9a9a', hs: 0, bd: 1, bg: '#dfe8ef', coat: 1 } },
+};
+const XI = ['whitlow', 'croft', 'mensah', 'bielak', 'alves', 'pryce', 'reid', 'ortega', 'kasper', 'brandt', 'okoro'];
+
+const SCEN = {
+ win: {
+  label: 'Win at home', week: 13, home: true,
+  opp: { name: 'Penhaven City', short: 'PEN', c1: '#1f4e8c', c2: '#ffffff', pos: 1, form: 'WWWDW' },
+  us: { pos: 4, form: 'WDWLW' }, comp: 'League One', ko: 'Saturday, 15:00', crowd: '7,840 expected, sold out',
+  stake: 'Beat the leaders and we climb to third. Lose and the gap to the top grows to nine points.',
+  boxOpen: 0,
+  stories: [
+   { p: 'reid', tag: 'Academy debut', t: 'Alex Reid starts his first senior game at 18. He grew up two streets from the ground.', out: 'Reid played 90 minutes, rated 7.4, and set up the winner.' },
+   { p: 'ortega', tag: 'Old club', t: 'Penhaven released Dani Ortega at 19. He says this one is personal.', out: 'Ortega scored the winner against the club that let him go.' },
+   { p: 'brandt', tag: '99 goals', t: 'Ollie Brandt is one goal from 100 in his career.', out: 'Brandt reached 100 with a header in the first half.' }],
+  danger: { n: 'Callum Hirst', t: '14 goals this season, likes to drift to the left.' },
+  coach: '"They have not lost in six. Good. Nobody expects anything from us."',
+  ev: [
+   { m: 0, k: 'info', t: 'Kick-off. A full house, and Penhaven in all blue.' },
+   { m: 6, k: 'ch', us: 0, t: 'Hirst cuts inside and shoots, just wide.', xg: .12 },
+   { m: 14, k: 'ch', us: 1, p: 'kasper', t: 'Kasper curls one at the near post. Saved.', xg: .09 },
+   { m: 21, k: 'card', us: 0, t: 'Yellow card for Penhaven\'s captain, a cynical foul on Reid.' },
+   { m: 27, k: 'save', us: 0, p: 'whitlow', t: 'Whitlow tips a Hirst volley over the bar.', xg: .31 },
+   { m: 34, k: 'goal', us: 1, p: 'brandt', a: 'alves', t: 'GOAL! Brandt heads in Alves\' cross. Number 100.', xg: .38, sc: [1, 0], big: 'brandt' },
+   { m: 45, k: 'ht', t: 'Half-time. Penhaven have more of the ball; we have the lead.', coach: '"Reid has grown into it. I told him to keep it simple."' },
+   { m: 52, k: 'ch', us: 1, p: 'okoro', t: 'Okoro through on goal, the keeper smothers it.', xg: .34 },
+   { m: 58, k: 'goal', us: 0, t: 'Penhaven level. Hirst, of course, from the edge of the box.', xg: .14, sc: [1, 1] },
+   { m: 64, k: 'sub', us: 1, t: 'Okoro off, Kasper moves inside.' },
+   { m: 71, k: 'ch', us: 0, t: 'A header from a corner, cleared off the line by Bielak.', xg: .28 },
+   { m: 79, k: 'ch', us: 1, p: 'pryce', t: 'Pryce from distance, a yard over.', xg: .05 },
+   { m: 88, k: 'goal', us: 1, p: 'ortega', a: 'reid', t: 'GOAL! Reid threads it through and Ortega slots it home.', xg: .41, sc: [2, 1], big: 'ortega' },
+   { m: 93, k: 'save', us: 0, p: 'whitlow', t: 'One last free kick. Whitlow punches clear.', xg: .1 },
+   { m: 95, k: 'ft', t: 'Full time.' }],
+  stats: { shots: [11, 13], xg: [1.27, 0.95], pos: [44, 56] },
+  rat: { whitlow: 7.6, croft: 6.8, mensah: 6.9, bielak: 7.3, alves: 7.2, pryce: 6.9, reid: 7.4, ortega: 8.6, kasper: 6.7, brandt: 7.5, okoro: 6.4 }, motm: 'ortega',
+  head: 'ORTEGA SINKS HIS OLD CLUB', dek: 'Late winner ends the leaders\' unbeaten run. Brandt reaches 100; Reid shines on debut.',
+  report: 'Harwick beat the league leaders for the first time in eleven years. Brandt\'s header gave them the lead before Hirst levelled on the hour. With two minutes left, an 18-year-old from the academy found Ortega, and the ground shook.',
+  quotes: [['graves', '"Reid played like he has been here for years. And Dani, well, he will not be buying the first drink tonight."'], ['opp', '"We were second best in the moments that mattered." Penhaven manager']],
+  bk: { Board: 4, Fans: 6, Press: 3, Room: 3 },
+  table: [['Penhaven City', 31, 0], ['Carlfield Rovers', 29, 0], ['Harwick Athletic', 27, 1], ['Brookmere', 26, -1], ['Stanmouth', 24, 0]],
+ },
+ draw: {
+  label: 'Draw away', week: 14, home: false,
+  opp: { name: 'Stanmouth', short: 'STA', c1: '#f2b632', c2: '#16201b', pos: 6, form: 'DLWWD' },
+  us: { pos: 3, form: 'WDWLW' }, comp: 'League One', ko: 'Tuesday, 19:45', crowd: '600 travelling fans',
+  stake: 'A tricky away night. A point keeps us in the top three.',
+  boxOpen: 1,
+  stories: [
+   { p: 'mensah', tag: 'Back from injury', t: 'Kofi Mensah returns after six weeks out with a hamstring.', out: 'Mensah lasted 90 minutes and made the block of the night.' },
+   { p: 'okoro', tag: 'New signing', t: 'Jamal Okoro, signed in the summer, makes his first start.', out: 'Okoro scored his first goal for the club.' },
+   { p: 'pryce', tag: '200 games', t: 'Jonah Pryce plays his 200th game for Harwick.', out: 'Pryce marked 200 games with the captain\'s armband in the second half.' }],
+  danger: { n: 'Rhys Abara', t: 'Quick, direct, and loves a long throw.' },
+  coach: '"Stanmouth make it ugly. We have to stand up to it."',
+  ev: [
+   { m: 0, k: 'info', t: 'Kick-off under the lights. Rain, and a heavy pitch.' },
+   { m: 9, k: 'ch', us: 1, p: 'brandt', t: 'Brandt turns and shoots, straight at the keeper.', xg: .1 },
+   { m: 22, k: 'goal', us: 0, t: 'Stanmouth score from Abara\'s long throw. A scramble at the near post.', xg: .22, sc: [0, 1] },
+   { m: 30, k: 'card', us: 1, p: 'croft', t: 'Croft booked for a late one.' },
+   { m: 38, k: 'save', us: 1, p: 'mensah', t: 'Mensah throws himself in front of a certain goal.', xg: .44 },
+   { m: 45, k: 'ht', t: 'Half-time. We are second best, but only one down.', coach: '"Mensah has kept us in it. Now we need to play."' },
+   { m: 53, k: 'ch', us: 1, p: 'ortega', t: 'Ortega beats two and fires across goal.', xg: .17 },
+   { m: 61, k: 'sub', us: 1, t: 'Bielak off with a knock. Pryce takes the armband.' },
+   { m: 71, k: 'goal', us: 1, p: 'okoro', a: 'kasper', t: 'GOAL! Okoro meets Kasper\'s cross. His first for the club.', xg: .33, sc: [1, 1], big: 'okoro' },
+   { m: 80, k: 'ch', us: 0, t: 'Abara clean through. Whitlow stands tall.', xg: .38 },
+   { m: 89, k: 'ch', us: 1, p: 'reid', t: 'Reid\'s volley flies just over.', xg: .12 },
+   { m: 94, k: 'ft', t: 'Full time.' }],
+  stats: { shots: [9, 12], xg: [0.72, 1.18], pos: [49, 51] },
+  rat: { whitlow: 7.3, croft: 6.3, mensah: 7.9, bielak: 6.6, alves: 6.6, pryce: 7.0, reid: 6.8, ortega: 6.9, kasper: 7.1, brandt: 6.2, okoro: 7.4 }, motm: 'mensah',
+  head: 'OKORO RESCUES A POINT', dek: 'The new signing\'s first goal earns a draw on a wet night. Mensah returns in style.',
+  report: 'For an hour Stanmouth bullied Harwick, and Abara\'s long throw put them ahead. Mensah, back after six weeks, kept it at one. Then Okoro rose at the far post for his first goal in claret.',
+  quotes: [['graves', '"A point here is a good point. Kofi was immense."'], ['opp', '"We should have killed it off." Stanmouth manager']],
+  bk: { Board: 0, Fans: 1, Press: 0, Room: 2 },
+  table: [['Penhaven City', 32, 0], ['Carlfield Rovers', 32, 0], ['Harwick Athletic', 28, 0], ['Brookmere', 27, 0], ['Stanmouth', 25, 0]],
+ },
+ loss: {
+  label: 'Loss at home', week: 15, home: true,
+  opp: { name: 'Carlfield Rovers', short: 'CAR', c1: '#1d6b3c', c2: '#ffffff', pos: 2, form: 'WWLWW' },
+  us: { pos: 3, form: 'DWDLW' }, comp: 'League One', ko: 'Saturday, 15:00', crowd: '7,200 expected',
+  stake: 'Second against third. Win and we go above them.',
+  boxOpen: 0,
+  stories: [
+   { p: 'whitlow', tag: 'Three clean sheets', t: 'Sam Whitlow has not conceded in three home games.', out: 'Whitlow saved a penalty, but the run ends at three.' },
+   { p: 'kasper', tag: 'Scouts watching', t: 'Two clubs sent scouts for Theo Kasper. His contract ends in summer.', out: 'Kasper missed the big chance at 0–1. The scouts left early.' },
+   { p: 'bielak', tag: 'Club record', t: 'Tomasz Bielak equals the club record of 300 games.', out: 'Bielak got his record, though not the result.' }],
+  danger: { n: 'Ivo Marsh', t: 'Wins every header. Dangerous at set pieces.' },
+  coach: '"Carlfield are good. But they hate playing here."',
+  ev: [
+   { m: 0, k: 'info', t: 'Kick-off. A guard of honour for Bielak\'s 300th.' },
+   { m: 11, k: 'ch', us: 1, p: 'ortega', t: 'Ortega cuts in, his shot deflects wide.', xg: .08 },
+   { m: 19, k: 'save', us: 0, p: 'whitlow', t: 'Penalty to Carlfield! Whitlow dives right and saves.', xg: .76 },
+   { m: 33, k: 'ch', us: 1, p: 'brandt', t: 'Brandt\'s header lands on the roof of the net.', xg: .14 },
+   { m: 40, k: 'goal', us: 0, t: 'Marsh heads in from a corner. 0–1.', xg: .19, sc: [0, 1] },
+   { m: 45, k: 'ht', t: 'Half-time. Even game, one set piece apart.', coach: '"Keep going. The chance will come."' },
+   { m: 57, k: 'ch', us: 1, p: 'pryce', t: 'Pryce\'s drive forces a fine save.', xg: .11 },
+   { m: 63, k: 'ch', us: 1, p: 'kasper', t: 'Kasper alone in front of goal and he blazes over.', xg: .52 },
+   { m: 70, k: 'card', us: 1, red: 1, p: 'croft', t: 'Red card! Croft\'s second yellow. Ten men.' },
+   { m: 81, k: 'goal', us: 0, t: 'Carlfield break and it is 0–2.', xg: .29, sc: [0, 2] },
+   { m: 86, k: 'ch', us: 1, p: 'okoro', t: 'Okoro hits the post. Not our day.', xg: .21 },
+   { m: 93, k: 'ft', t: 'Full time.' }],
+  stats: { shots: [10, 11], xg: [1.06, 1.63], pos: [51, 49] },
+  rat: { whitlow: 7.6, croft: 5.1, mensah: 6.4, bielak: 6.7, alves: 6.2, pryce: 6.6, reid: 6.3, ortega: 6.5, kasper: 5.8, brandt: 6.1, okoro: 6.4 }, motm: 'whitlow',
+  head: 'ROVERS SPOIL BIELAK\'S DAY', dek: 'A penalty save, a miss and a red card. Harwick fall to fourth.',
+  report: 'It started with a guard of honour and a Whitlow penalty save. Marsh\'s header broke the deadlock before the break. Kasper had the chance to level, Croft\'s red ended the fight, and Carlfield finished it on the break.',
+  quotes: [['graves', '"Fine margins. If Theo scores, it is a different game."'], ['opp', '"This is a hard place to come. We earned it." Carlfield manager']],
+  bk: { Board: -4, Fans: -3, Press: -5, Room: -2 },
+  table: [['Carlfield Rovers', 35, 1], ['Penhaven City', 33, -1], ['Brookmere', 30, 1], ['Harwick Athletic', 28, -1], ['Stanmouth', 26, 0]],
+ }
+};
+const WEEK = ['Wages: you trimmed the squad. Graham sold two fringe players.', 'Shirts: every faulty shirt replaced. The photos have stopped.', 'Your staff took 2 decisions themselves, both within their mandates.'];
+const BK0 = { Board: 64, Fans: 65, Press: 39, Room: 58 };
+
+/* flat game artwork: faces, crests, stadium, pitch */
+const INK = '#16201b';
+function face(id, emo, sz) {
+  const P = SQ[id] || { f: { sk: '#e9b994', hc: '#333', hs: 0, bg: '#eee' } }, f = P.f, s = sz || 64;
+  const shirt = f.coat ? '#2b3440' : CLUB.c1, collar = f.coat ? '#e9e4d8' : CLUB.c2;
+  const hair = [
+    `<path d="M24 30c0-12 8-18 16-18s16 6 16 18c-3-5-9-8-16-8s-13 3-16 8z" fill="${f.hc}" stroke="${INK}" stroke-width="2"/>`,
+    `<path d="M23 31c-1-13 7-20 17-20s18 7 17 20c-2-6-6-9-9-9-4 3-12 3-17 0-4 1-7 4-8 9z" fill="${f.hc}" stroke="${INK}" stroke-width="2"/>`,
+    `<g fill="${f.hc}" stroke="${INK}" stroke-width="1.6"><circle cx="28" cy="22" r="6"/><circle cx="36" cy="17" r="6.5"/><circle cx="45" cy="17" r="6.5"/><circle cx="52" cy="23" r="6"/><circle cx="40" cy="20" r="6"/></g>`,
+    `<path d="M24 32c-2-14 8-21 18-20 9 1 15 8 14 18-6-1-11-5-13-9-3 5-11 9-19 11z" fill="${f.hc}" stroke="${INK}" stroke-width="2"/>`,
+    `<path d="M22 34c-3-15 6-23 18-23 13 0 21 8 18 23-2-4-3-9-6-11-5 2-18 2-24 0-3 2-4 7-6 11z" fill="${f.hc}" stroke="${INK}" stroke-width="2"/>`][f.hs];
+  const mouth = emo === 'happy' ? `<path d="M33 46c3 5 11 5 14 0" fill="#fff" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>` : emo === 'sad' ? `<path d="M34 49c3-3 9-3 12 0" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>` : emo === 'shout' ? `<ellipse cx="40" cy="47" rx="4.5" ry="5" fill="#5a1a1a" stroke="${INK}" stroke-width="2"/>` : `<path d="M34 47h12" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>`;
+  const brow = emo === 'sad' ? `<path d="M29 31l6 2M51 31l-6 2" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>` : emo === 'shout' ? `<path d="M29 31l6-1M51 31l-6-1" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>` : `<path d="M29 31h6M45 31h6" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>`;
+  return `<svg viewBox="0 0 80 80" width="${s}" height="${s}" aria-hidden="true"><rect width="80" height="80" fill="${f.bg}"/>
+  <path d="M10 80c2-14 13-20 30-20s28 6 30 20z" fill="${shirt}" stroke="${INK}" stroke-width="2.2"/><path d="M32 61l8 9 8-9" fill="${collar}" stroke="${INK}" stroke-width="2"/>
+  <rect x="34" y="50" width="12" height="12" fill="${f.sk}" stroke="${INK}" stroke-width="2"/>
+  <circle cx="22" cy="38" r="4.5" fill="${f.sk}" stroke="${INK}" stroke-width="2"/><circle cx="58" cy="38" r="4.5" fill="${f.sk}" stroke="${INK}" stroke-width="2"/>
+  <path d="M23 34c0-12 7-19 17-19s17 7 17 19c0 11-7 20-17 20s-17-9-17-20z" fill="${f.sk}" stroke="${INK}" stroke-width="2.2"/>
+  ${f.bd ? `<path d="M24 40c1 9 7 14 16 14s15-5 16-14c-2 4-6 5-9 5h-14c-3 0-7-1-9-5z" fill="${f.hc}" opacity=".85" stroke="${INK}" stroke-width="1.6"/>` : ''}
+  ${hair}${brow}<circle cx="33" cy="37" r="2.4" fill="${INK}"/><circle cx="47" cy="37" r="2.4" fill="${INK}"/><path d="M40 38v5h-2" fill="none" stroke="${INK}" stroke-width="1.6" stroke-linecap="round"/>${mouth}</svg>`;
+}
+function crest(c1, c2, txt, s) {
+  s = s || 48;
+  return `<svg viewBox="0 0 48 56" width="${s}" height="${s * 56 / 48}" aria-hidden="true"><path d="M4 4h40v22c0 15-10 23-20 27C14 49 4 41 4 26z" fill="${c1}" stroke="${INK}" stroke-width="3"/><path d="M4 18h40v6H4z" fill="${c2}" stroke="${INK}" stroke-width="2"/><text x="24" y="41" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-style="italic" font-weight="800" font-size="13" fill="${c2}">${txt}</text></svg>`;
+}
+function stadium(sc) {
+  const o = sc.opp, home = sc.home, night = /19:45/.test(sc.ko);
+  const sky = night ? ['#1b2440', '#3b3a62'] : ['#a9d3ee', '#e7f1f2'];
+  let crowd = ''; for (let r = 0; r < 4; r++) for (let i = 0; i < 46; i++) { const x = 6 + i * 8.4 + (r % 2) * 4, y = 74 + r * 9; const away = home ? i > 38 : i < 30; crowd += `<circle cx="${x}" cy="${y}" r="3.1" fill="${away ? o.c1 : (i + r) % 3 ? CLUB.c1 : CLUB.c2}"/>`; }
+  return `<svg viewBox="0 0 390 170" width="100%" aria-hidden="true" class="stad"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky[0]}"/><stop offset="1" stop-color="${sky[1]}"/></linearGradient><radialGradient id="glow"><stop offset="0" stop-color="#fff7cf" stop-opacity=".9"/><stop offset="1" stop-color="#fff7cf" stop-opacity="0"/></radialGradient></defs>
+  <rect width="390" height="170" fill="url(#sky)"/>${night ? '<circle cx="320" cy="26" r="9" fill="#f4efd8"/>' : '<circle cx="320" cy="28" r="14" fill="#f3d36b" stroke="#16201b" stroke-width="2.5"/>'}
+  ${[24, 366].map(x => `<g><rect x="${x - 2}" y="14" width="4" height="56" fill="#16201b"/><rect x="${x - 12}" y="8" width="24" height="10" rx="2" fill="#e8e4d6" stroke="#16201b" stroke-width="2"/>${night ? `<circle cx="${x}" cy="13" r="34" fill="url(#glow)"/>` : ''}</g>`).join('')}
+  <path d="M0 64h390v52H0z" fill="#2b3440" stroke="#16201b" stroke-width="3"/><path d="M0 64h390v6H0z" fill="${CLUB.c1}"/>${crowd}
+  <path d="M0 114h390v56H0z" fill="#3d7a4f"/>${[0, 1, 2, 3, 4, 5].map(i => `<path d="M${i * 70} 114h35v56h-35z" fill="#468a5a"/>`).join('')}<path d="M0 114h390" stroke="#16201b" stroke-width="3"/><path d="M195 114v56M155 170a40 22 0 0 1 80 0" stroke="#f4f4ec" stroke-width="2.5" fill="none" opacity=".85"/></svg>`;
+}
+function pitchSvg() {
+  let stripes = ''; for (let i = 0; i < 10; i++) stripes += `<rect x="${i * 36}" y="0" width="18" height="220" fill="#468a5a"/>`;
+  return `<svg viewBox="0 0 360 220" class="pitch" aria-hidden="true"><rect width="360" height="220" fill="#3d7a4f"/>${stripes}
+  <g fill="none" stroke="#f4f4ec" stroke-width="2.2" opacity=".9"><rect x="8" y="8" width="344" height="204"/><path d="M180 8v204"/><circle cx="180" cy="110" r="28"/><rect x="8" y="58" width="44" height="104"/><rect x="308" y="58" width="44" height="104"/><rect x="8" y="88" width="16" height="44"/><rect x="336" y="88" width="16" height="44"/><path d="M52 88a26 26 0 0 1 0 44M308 88a26 26 0 0 0 0 44"/></g>
+  <g class="net l"><rect x="0" y="92" width="8" height="36" fill="#f4f4ec" opacity=".35"/><path d="M0 96h8M0 104h8M0 112h8M0 120h8" stroke="#f4f4ec" stroke-width="1"/></g><g class="net r"><rect x="352" y="92" width="8" height="36" fill="#f4f4ec" opacity=".35"/><path d="M352 96h8M352 104h8M352 112h8M352 120h8" stroke="#f4f4ec" stroke-width="1"/></g>
+  <circle cx="180" cy="110" r="2.5" fill="#f4f4ec"/></svg>`;
+}
+const BALL = '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="#fff" stroke="#16201b" stroke-width="2"/><path d="M10 5.5l3.5 2.6-1.3 4.1H7.8L6.5 8.1z" fill="#16201b"/></svg>';
+
+/* match-day flow: preview, match, gazette */
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = (s, r) => (r || document).querySelector(s);
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const ord = n => n + (n % 10 === 1 && n !== 11 ? 'st' : n % 10 === 2 && n !== 12 ? 'nd' : n % 10 === 3 && n !== 13 ? 'rd' : 'th');
+const formStrip = f => `<span class="form">${[...f].map(r => `<i class="f${r}">${r}</i>`).join('')}</span>`;
+/* --- sound, off by default --- */
+const SND = { on: false, ctx: null,
+  ac() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); return this.ctx; },
+  whistle(n = 1) { if (!this.on) return; const c = this.ac(); for (let i = 0; i < n; i++) { const o = c.createOscillator(), g = c.createGain(), l = c.createOscillator(), lg = c.createGain(); o.frequency.value = 2900; l.frequency.value = 38; lg.gain.value = 140; l.connect(lg); lg.connect(o.frequency); o.connect(g); g.connect(c.destination); const t = c.currentTime + i * 0.42; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.08, t + .02); g.gain.setValueAtTime(.08, t + (i === n - 1 ? .55 : .28)); g.gain.linearRampToValueAtTime(0, t + (i === n - 1 ? .6 : .32)); o.start(t); l.start(t); o.stop(t + .7); l.stop(t + .7); } },
+  crowd(good) { if (!this.on) return; const c = this.ac(), len = c.sampleRate * 2.2, b = c.createBuffer(1, len, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1); const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); s.buffer = b; f.type = 'bandpass'; f.frequency.value = good ? 900 : 380; f.Q.value = .6; s.connect(f); f.connect(g); g.connect(c.destination); const t = c.currentTime; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(good ? .35 : .18, t + .25); g.gain.exponentialRampToValueAtTime(.001, t + 2.1); s.start(t); }
+};
+class Day {
+  constructor(root) { this.root = root; this.load('win'); }
+  load(k) { this.k = k; this.sc = SCEN[k]; this.bk = { ...BK0 }; this.preview(); }
+  get ph() { return this.root.querySelector('.ph'); }
+  show(html, cls) { clearTimeout(this.t); const ph = this.ph; ph.className = 'ph ' + cls + (ph.classList.contains('dark') ? ' dark' : ''); ph.innerHTML = html; ph.scrollTop = 0; const sc = ph.querySelector('.scr'); if (sc) sc.scrollTop = 0; }
+  /* ---------- 1. preview ---------- */
+  preview() {
+    const s = this.sc, o = s.opp, H = s.home ? [CLUB, s.us] : [o, o], L = s.home ? CLUB : o, R = s.home ? o : CLUB;
+    this.show(`<div class="scr">
+    <header class="pvh">${stadium(s)}<div class="pvb"><div class="pvt">${crest(L.c1, L.c2, L.short, 52)}<b>${esc(L.short)}</b></div><div class="pvv"><span>${s.home ? 'HOME' : 'AWAY'}</span><b>vs</b><small>${esc(s.ko)}</small></div><div class="pvt">${crest(R.c1, R.c2, R.short, 52)}<b>${esc(R.short)}</b></div></div></header>
+    <div class="pad">
+    <div class="kick"><span>Matchday, week ${s.week}</span><span>${esc(s.comp)}</span></div>
+    <h1 class="pvn">${s.home ? 'Harwick Athletic' : esc(o.name)} <i>v</i> ${s.home ? esc(o.name) : 'Harwick Athletic'}</h1>
+    <div class="tbl2"><div><small>Us</small><b>${ord(s.us.pos)}</b>${formStrip(s.us.form)}</div><div><small>${esc(o.name)}</small><b>${ord(o.pos)}</b>${formStrip(o.form)}</div></div>
+    <p class="stake"><b>At stake.</b> ${esc(s.stake)}</p>
+    <h2 class="sh">Our story this week</h2>
+    <div class="stories">${s.stories.map((x, i) => `<article class="story" style="--d:${i * 90}ms"><span class="sf">${face(x.p, 'calm', 64)}</span><div><em>${esc(x.tag)}</em><b>${esc(SQ[x.p].n)}<small>${esc(SQ[x.p].pos)}, ${SQ[x.p].age}</small></b><p>${esc(x.t)}</p></div></article>`).join('')}</div>
+    <div class="danger"><span class="dg">!</span><p><b>Watch out for ${esc(s.danger.n)}.</b> ${esc(s.danger.t)}</p></div>
+    <div class="coach"><span class="cf">${face('graves', 'calm', 48)}</span><p>${esc(s.coach)}<small>Neil Graves, head coach</small></p></div>
+    <p class="crowd">${esc(s.crowd)}</p>
+    </div></div>
+    <div class="pvfoot">${s.boxOpen ? `<p class="boxw"><b>${s.boxOpen} email still in your red box.</b> Kick off and your staff answer it.</p>` : ''}<button class="ko" data-go="kick">Kick off</button></div>`, 'scrPreview');
+  }
+  /* ---------- 2. match ---------- */
+  kick() {
+    const s = this.sc, o = s.opp, L = s.home ? CLUB : o, R = s.home ? o : CLUB;
+    this.min = 0; this.i = 0; this.score = [0, 0]; this.mom = []; this.fast = false; this.paused = false;
+    this.show(`<div class="mbug"><div class="mbt">${crest(L.c1, L.c2, L.short, 30)}<b>${L.short}</b></div><div class="mbs"><b class="sc">0<i>–</i>0</b><span class="clk">0'</span></div><div class="mbt r"><b>${R.short}</b>${crest(R.c1, R.c2, R.short, 30)}</div></div>
+    <div class="mprog"><b></b></div>
+    <div class="pwrap">${pitchSvg()}<span class="ball">${BALL}</span><div class="gflash"></div><span class="dir l">${s.home ? o.short : 'HAR'} attack</span><span class="dir r">${s.home ? 'HAR' : o.short} attack</span></div>
+    <div class="momw"><svg viewBox="0 0 360 54" preserveAspectRatio="none" class="momsvg"><path class="mu" d=""/><path class="mt" d=""/><path d="M0 27h360" stroke="currentColor" stroke-opacity=".25"/><path d="M180 0v54" stroke="currentColor" stroke-opacity=".15" stroke-dasharray="3 3"/></svg><div class="moml"><span>${s.home ? 'HAR' : o.short}</span><small>Momentum</small><span>${s.home ? o.short : 'HAR'}</span></div></div>
+    <div class="feed"><div class="now"></div><ul class="past"></ul></div>
+    <div class="mctl"><button data-go="speed" class="ghost">2x speed</button><button data-go="skip" class="ghost">Skip to full time</button></div>`, 'scrMatch');
+    this.players(); this.ball(50, 50, 0); SND.whistle(1); this.feedNow({ k: 'info', t: s.ev[0].t, m: 0 }); this.i = 1; this.loop();
+  }
+  players() {
+    const s = this.sc, w = this.ph.querySelector('.pwrap'), F = [[5, 50], [20, 18], [18, 39], [18, 61], [20, 82], [38, 16], [36, 40], [36, 60], [38, 84], [48, 38], [48, 62]];
+    const L = s.home ? CLUB : s.opp, R = s.home ? s.opp : CLUB; this.pl = [];
+    F.forEach(([x, y], i) => { for (const side of [0, 1]) { const el = document.createElement('i'); el.className = 'pl' + (i === 0 ? ' gk' : ''); const c = side ? R : L; el.style.background = i === 0 ? '#f3d36b' : c.c1; el.style.borderColor = c.c1 === '#ffffff' ? '#16201b' : '#0b140f'; const bx = side ? 100 - x : x; el.style.left = bx + '%'; el.style.top = y + '%'; w.appendChild(el); this.pl.push({ el, bx, by: y, gk: i === 0 }); } });
+  }
+  side(us) { return this.sc.home ? us : !us; } // true = right side attack (left-to-right)
+  ball(x, y, ms) { const b = this.ph.querySelector('.ball'); if (!b) return; b.style.transition = RM ? 'none' : `left ${ms}ms cubic-bezier(.3,.7,.3,1),top ${ms}ms cubic-bezier(.3,.7,.3,1)`; b.style.left = x + '%'; b.style.top = y + '%';
+    (this.pl || []).forEach(p => { const k = p.gk ? .08 : .38; p.el.style.transition = b.style.transition; p.el.style.left = Math.max(3, Math.min(97, p.bx + (x - 50) * k + (Math.random() - .5) * 3)) + '%'; p.el.style.top = Math.max(6, Math.min(94, p.by + (y - p.by) * (p.gk ? .1 : .18))) + '%'; }); }
+  loop() {
+    const s = this.sc, step = RM ? 40 : this.fast ? 160 : 380;
+    this.t = setTimeout(() => {
+      if (this.paused) return;
+      this.min++; const e = s.ev[this.i];
+      if (!e) return;
+      // idle play: the ball drifts, momentum leans to whoever has the next event
+      if (!e || e.m > this.min) { if (this.min % 2 === 0) { const lean = e && e.us != null ? (this.side(e.us) ? 1 : -1) : 0; this.ball(50 + lean * 12 + (Math.random() - .5) * 36, 22 + Math.random() * 56, step * 2); } this.tickClock(); this.pushMom(e && e.us != null ? (this.side(e.us) ? .25 : -.25) : 0); return this.loop(); }
+      this.i++; this.tickClock(e.m); this.fire(e);
+    }, step);
+  }
+  tickClock(m) { const mm = Math.min(m || this.min, 95); const c = this.ph.querySelector('.clk'); if (c) c.textContent = (mm > 90 ? '90+' + (mm - 90) : mm) + "'"; const p = this.ph.querySelector('.mprog b'); if (p) p.style.width = Math.min(100, mm / 93 * 100) + '%'; }
+  pushMom(v) { const last = this.mom.length ? this.mom[this.mom.length - 1] : 0; this.mom.push(last * .82 + v); this.drawMom(); }
+  drawMom() { const n = 95, pts = this.mom.map((v, i) => [i / n * 360, 27 - Math.max(-25, Math.min(25, v * 14))]); if (!pts.length) return; const top = 'M0 27 ' + pts.map(p => `L${p[0].toFixed(1)} ${Math.min(27, p[1]).toFixed(1)}`).join(' ') + ` L${pts[pts.length - 1][0].toFixed(1)} 27Z`, bot = 'M0 27 ' + pts.map(p => `L${p[0].toFixed(1)} ${Math.max(27, p[1]).toFixed(1)}`).join(' ') + ` L${pts[pts.length - 1][0].toFixed(1)} 27Z`; const a = this.ph.querySelector('.mu'), b = this.ph.querySelector('.mt'); if (a) { a.setAttribute('d', top); b.setAttribute('d', bot); } }
+  fire(e) {
+    const s = this.sc, right = e.us != null ? this.side(e.us) : true, gx = right ? 94 : 6;
+    let wait = this.fast ? 500 : 1100;
+    if (e.k === 'ch' || e.k === 'save') { this.ball(right ? 80 : 20, 35 + Math.random() * 30, 420); setTimeout(() => this.ball(gx + (right ? -4 : 4), 44 + Math.random() * 12, 260), 420); this.pushMom(right ? 1.2 : -1.2); }
+    if (e.k === 'goal') {
+      this.ball(right ? 82 : 18, 50, 380); setTimeout(() => { this.ball(gx + (right ? 3 : -3), 50, 220); const net = this.ph.querySelector('.net.' + (right ? 'r' : 'l')); if (net) { net.classList.remove('rip'); void net.getBBox(); net.classList.add('rip'); } }, 380);
+      this.score = e.sc; const ours = s.home ? e.sc[0] : e.sc[1], theirs = s.home ? e.sc[1] : e.sc[0];
+      setTimeout(() => { const sc = this.ph.querySelector('.sc'); if (sc) { sc.innerHTML = `${s.home ? e.sc[0] : e.sc[1]}<i>–</i>${s.home ? e.sc[1] : e.sc[0]}`; sc.classList.remove('pop'); void sc.offsetWidth; sc.classList.add('pop'); }
+        const g = this.ph.querySelector('.gflash'); if (g) { g.className = 'gflash on ' + (e.us ? 'us' : 'them'); g.innerHTML = e.us ? `<span class="gface">${face(e.p, 'shout', 96)}</span><b>GOAL!</b><small>${esc(SQ[e.p].n)}</small>` : `<b>${esc(s.opp.short)} score</b>`; setTimeout(() => g.className = 'gflash', this.fast ? 900 : 1800); }
+        SND.crowd(!!e.us); if (navigator.vibrate) try { navigator.vibrate(e.us ? [60, 40, 60] : 30); } catch (x) { } }, 600);
+      this.pushMom(right ? 2 : -2); wait = this.fast ? 1300 : 2500; void ours; void theirs;
+    }
+    if (e.k === 'ht') { this.ball(50, 50, 600); SND.whistle(2); this.feedNow(e); this.halfTime(e); return; }
+    if (e.k === 'ft') { SND.whistle(3); return this.fullTime(); }
+    this.feedNow(e);
+    this.t = setTimeout(() => this.loop(), RM ? 200 : wait);
+  }
+  feedNow(e) {
+    const now = this.ph.querySelector('.now'), past = this.ph.querySelector('.past'); if (!now) return;
+    const prev = now.firstElementChild; if (prev && prev.dataset.t) { const li = document.createElement('li'); li.className = prev.className.replace('mcard', 'pli'); li.innerHTML = `<span>${prev.dataset.m}'</span>${esc(prev.dataset.t)}`; past.prepend(li); }
+    const ic = { goal: '⚽', ch: '○', save: '✋', card: '', sub: '⇄', info: '·', ht: '‖' }[e.k] || '·';
+    const fc = e.p && SQ[e.p] ? `<span class="mf">${face(e.p, e.k === 'goal' ? 'happy' : e.k === 'card' ? 'sad' : 'calm', 48)}</span>` : `<span class="mi k-${e.k} ${e.red ? 'red' : ''}">${ic}</span>`;
+    now.innerHTML = `<div class="mcard k-${e.k} ${e.us ? 'us' : e.us === 0 ? 'them' : ''}" data-t="${esc(e.t)}" data-m="${e.m}">${fc}<div><span class="mm">${e.m > 90 ? '90+' + (e.m - 90) : e.m}'</span><p>${esc(e.t)}</p></div></div>`;
+  }
+  halfTime(e) {
+    const s = this.sc, sc = this.score, us = s.home ? sc[0] : sc[1], th = s.home ? sc[1] : sc[0];
+    const now = this.ph.querySelector('.now'); now.innerHTML = `<div class="htcard"><div class="hth"><b>Half-time</b><span>${s.home ? us : th}–${s.home ? th : us}</span></div><p>${esc(e.t.replace(/^Half-time\.\s*/, ''))}</p><div class="htc"><span class="cf">${face('graves', 'calm', 40)}</span><p>${esc(e.coach)}</p></div><button data-go="resume">Second half</button></div>`;
+    this.paused = true; this.t = setTimeout(() => this.resume(), RM ? 300 : this.fast ? 2500 : 6000);
+  }
+  resume() { if (!this.paused) return; this.paused = false; SND.whistle(1); const now = this.ph.querySelector('.now'); if (now) now.innerHTML = ''; this.loop(); }
+  skip() { clearTimeout(this.t); this.paused = false; const s = this.sc; this.score = s.ev.filter(e => e.sc).pop()?.sc || [0, 0]; this.fullTime(); }
+  fullTime() {
+    const s = this.sc, sc = this.score, us = s.home ? sc[0] : sc[1], th = s.home ? sc[1] : sc[0], res = us > th ? 'W' : us < th ? 'L' : 'D';
+    const word = { W: 'A win', D: 'A draw', L: 'A defeat' }[res];
+    const ph = this.ph; const ctl = ph.querySelector('.mctl'); if (ctl) ctl.remove();
+    const clk = ph.querySelector('.clk'); if (clk) clk.textContent = 'FT'; const scEl = ph.querySelector('.sc'); if (scEl) scEl.innerHTML = `${s.home ? us : th}<i>–</i>${s.home ? th : us}`;
+    const feed = ph.querySelector('.feed'); feed.outerHTML = `<section class="ftp r${res}"><div class="fth"><span>Full time</span><b>${word}</b></div>
+    <div class="motm"><span class="mf">${face(s.motm, 'happy', 64)}</span><div><em>Player of the match</em><b>${esc(SQ[s.motm].n)}</b><span class="rt">${s.rat[s.motm].toFixed(1)}</span></div></div>
+    <h3>How the stories ended</h3><ul class="outs">${s.stories.map(x => `<li><span class="sf">${face(x.p, res === 'L' && x.p !== s.motm ? 'sad' : 'happy', 36)}</span><p>${esc(x.out)}</p></li>`).join('')}</ul>
+    <button class="ko" data-go="paper">Read the Gazette</button></section>`;
+    ph.classList.add('ft');
+  }
+  /* ---------- 3. gazette ---------- */
+  paper() {
+    const s = this.sc, o = s.opp, sc = s.ev.filter(e => e.sc).pop()?.sc || [0, 0], hn = s.home ? 'Harwick' : o.name, an = s.home ? o.name : 'Harwick';
+    const goals = s.ev.filter(e => e.k === 'goal');
+    const ourSc = goals.filter(g => g.us).map(g => `${SQ[g.p].s} ${g.m}'`).join(', ') || 'none';
+    const lead = goals.filter(g => g.us).pop(); const hero = s.motm;
+    const nbk = Object.fromEntries(Object.entries(this.bk).map(([k, v]) => [k, v + (s.bk[k] || 0)]));
+    this.show(`<div class="scr news">
+    <header class="mast"><span>Week ${s.week} edition</span><h1>The Harwick Gazette</h1><span>Price: one honest opinion</span></header>
+    <h2 class="nh">${esc(s.head)}</h2><p class="ndek">${esc(s.dek)}</p>
+    <div class="nscore"><div>${crest(s.home ? CLUB.c1 : o.c1, s.home ? CLUB.c2 : o.c2, s.home ? 'HAR' : o.short, 40)}<b>${esc(hn)}</b></div><strong>${sc[0]}–${sc[1]}</strong><div>${crest(s.home ? o.c1 : CLUB.c1, s.home ? o.c2 : CLUB.c2, s.home ? o.short : 'HAR', 40)}<b>${esc(an)}</b></div></div>
+    <p class="nsc">Harwick scorers: ${esc(ourSc)}</p>
+    <figure class="nfig"><span class="nf">${face(hero, 'happy', 120)}</span><figcaption>${esc(SQ[hero].n)}, rated ${s.rat[hero].toFixed(1)}</figcaption></figure>
+    <p class="nrep">${esc(s.report)}</p>
+    <div class="ncols"><section><h3>Ratings</h3><ol class="rats">${XI.map(id => `<li class="${id === s.motm ? 'star' : ''}"><span>${esc(SQ[id].s)}</span><b class="${s.rat[id] >= 7.5 ? 'hi' : s.rat[id] < 6 ? 'lo' : ''}">${s.rat[id].toFixed(1)}</b></li>`).join('')}</ol></section>
+    <section><h3>They said</h3>${s.quotes.map(([w, q]) => `<blockquote>${esc(q)}${w === 'graves' ? '<cite>Neil Graves</cite>' : ''}</blockquote>`).join('')}
+    <h3>The table</h3><ol class="ntab">${s.table.map(([n, p, d], i) => `<li class="${n === 'Harwick Athletic' ? 'me' : ''}"><span>${i + 1}</span><b>${esc(n)}</b><em>${p}</em><i class="${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '▲' : d < 0 ? '▼' : ''}</i></li>`).join('')}</ol></section></div>
+    <section class="nweek"><h3>Around the club this week</h3><ul>${WEEK.map(w => `<li>${esc(w)}</li>`).join('')}</ul></section>
+    <section class="nbk"><h3>Your backers after the match</h3><div class="bks">${Object.keys(nbk).map(k => { const d = s.bk[k] || 0; return `<div><small>${k}</small><b>${nbk[k]}</b><i class="${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d || '='}</i><em><u style="width:${nbk[k]}%"></u></em></div>`; }).join('')}</div></section>
+    </div><div class="pvfoot"><button class="ko" data-go="next">Start week ${s.week + 1}</button></div>`, 'scrPaper');
+  }
+  next() { const ord = ['win', 'draw', 'loss'], n = ord[(ord.indexOf(this.k) + 1) % 3]; this.root.querySelectorAll('[data-scen]').forEach(b => b.setAttribute('aria-pressed', b.dataset.scen === n)); this.load(n); }
+}
+document.querySelectorAll('.proto').forEach(root => {
+  const d = new Day(root);
+  root.addEventListener('click', e => { const b = e.target.closest('[data-go],[data-scen],[data-ui]'); if (!b) return;
+    if (b.dataset.scen) { root.querySelectorAll('[data-scen]').forEach(x => x.setAttribute('aria-pressed', x === b)); return d.load(b.dataset.scen); }
+    if (b.dataset.ui === 'dark') { d.ph.classList.toggle('dark'); b.setAttribute('aria-pressed', d.ph.classList.contains('dark')); return; }
+    if (b.dataset.ui === 'sound') { SND.on = !SND.on; b.setAttribute('aria-pressed', SND.on); b.textContent = SND.on ? 'Sound on' : 'Sound off'; return; }
+    const g = b.dataset.go; if (g === 'kick') d.kick(); else if (g === 'speed') { d.fast = !d.fast; b.textContent = d.fast ? 'Normal speed' : '2x speed'; } else if (g === 'skip') d.skip(); else if (g === 'resume') { clearTimeout(d.t); d.resume(); } else if (g === 'paper') d.paper(); else if (g === 'next') d.next(); });
+  window._day = d;
+});
+</script></body></html>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Front Office: inbox design options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#1c1a17;background:#e4ded1}
+.wrap{max-width:1360px;margin:0 auto;padding:40px 24px 96px}
+.intro{max-width:700px}.intro h1{font:800 italic clamp(40px,6vw,66px)/.95 'Barlow Condensed',sans-serif;margin:0 0 16px}.intro p{font-size:17px;line-height:1.55;margin:0 0 12px}
+h2.sec{font:800 italic clamp(30px,4vw,44px)/1 'Barlow Condensed',sans-serif;margin:72px 0 12px}
+.lead{max-width:700px;font-size:16px;line-height:1.55;margin:0 0 8px}
+.protos{display:flex;flex-wrap:wrap;gap:40px 32px;justify-content:center;margin-top:32px;align-items:flex-start}
+.pw{display:flex;flex-direction:column;gap:12px;width:390px;max-width:100%}
+.pw h3{margin:0;font:800 italic 28px/1 'Barlow Condensed',sans-serif}.pw .how{margin:0;font-size:14px;line-height:1.5;min-height:63px}
+.ctl{display:flex;gap:8px}.ctl button{min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid #1c1a17;background:#fbf7ee;font:600 14px Inter;color:#1c1a17}
+.ctl button[aria-pressed="true"]{background:#1c1a17;color:#fbf7ee}.ctl .again{background:#7a1e2b;color:#fff;border-color:#7a1e2b;margin-left:auto}
+table{border-collapse:collapse;width:100%;max-width:960px;background:#fbf7ee;font-size:14px;line-height:1.45;margin-top:12px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid rgba(28,26,23,.12);vertical-align:top}th{font:700 13px Inter;background:#f1eadb}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:12px}
+.notes div{background:#fbf7ee;border-left:3px solid #7a1e2b;padding:14px 16px;font-size:14px;line-height:1.5}.notes b{display:block;margin-bottom:4px;font-size:15px}
+.notes ul{margin:6px 0 0;padding-left:18px}
+/* ---------- phone ---------- */
+.ph{--pg:#fbf7ee;--sh:#f1eadb;--wh:#fffdf8;--ink:#1c1a17;--mut:#665f54;--cl:#7a1e2b;--cl2:#f3e2e0;--rule:rgba(28,26,23,.13);--good:#1f6b3d;--bad:#a8261e;--y:#f2c94c;--onc:#fff;
+ position:relative;width:390px;height:844px;max-width:100%;display:flex;flex-direction:column;overflow:hidden;background:var(--pg);color:var(--ink);border:1px solid rgba(28,26,23,.3);border-radius:34px;box-shadow:0 30px 60px -30px rgba(60,40,20,.5);font-family:Inter,system-ui,sans-serif;transition:width .3s,height .3s}
+.ph.w360{width:360px;height:780px}
+.ph.dark{--pg:#1b1714;--sh:#25201b;--wh:#2c2620;--ink:#f2eadc;--mut:#b5aa98;--cl:#d9707b;--cl2:#3a2326;--rule:rgba(242,234,220,.15);--good:#86d6a4;--bad:#ff9d93;--onc:#1b1714}
+.ph::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--cl);z-index:3}
+.ph.tap{animation:tap .25s ease-out}.ph.thud{animation:thud .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes tap{50%{transform:scale(.992)}}@keyframes thud{20%{transform:translateY(5px) scale(.985)}60%{transform:translateY(-2px)}}
+.hud{display:flex;align-items:center;padding:12px 12px 0 4px;flex:none}
+.nb{height:44px;border:0;background:none;color:var(--cl);display:flex;align-items:center;gap:2px;font:500 16px Inter;padding:0 8px}
+.cnt{margin-left:auto;text-align:right;font:800 italic 20px/1 'Barlow Condensed',sans-serif}.cnt small{display:block;font:500 12px Inter;color:var(--mut)}
+.meters{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:8px 16px 12px;border-bottom:1px solid var(--rule);flex:none}
+.mt{position:relative;display:flex;flex-direction:column;gap:4px;font:600 11px Inter;color:var(--mut)}
+.mt .bar{position:relative;display:block;height:8px;border-radius:4px;background:var(--rule);overflow:hidden}
+.mt .bar b{position:absolute;left:0;top:0;bottom:0;background:var(--ink);border-radius:4px;transition:width .5s cubic-bezier(.3,1.4,.5,1)}
+.mt .bar u{position:absolute;top:0;bottom:0;width:0;transition:all .25s}.mt u.up{background:var(--good);opacity:.75;animation:pulse 1s infinite}.mt u.dn{background:var(--bad);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.mt em{position:absolute;right:0;top:-1px;font:800 11px Inter;font-style:normal}.mt em.up{color:var(--good)}.mt em.dn{color:var(--bad)}
+.mt.pv span{color:var(--ink)}
+.mt.bump{animation:bump .5s cubic-bezier(.3,1.8,.5,1)}.mt.g span{color:var(--good)}.mt.r span{color:var(--bad)}
+@keyframes bump{40%{transform:scale(1.18)}}
+.float{position:absolute;left:50%;top:-6px;font:800 italic 18px 'Barlow Condensed',sans-serif;animation:float 1s ease-out forwards;pointer-events:none}.float.up{color:var(--good)}.float.dn{color:var(--bad)}
+@keyframes float{from{transform:translate(-50%,0);opacity:1}to{transform:translate(-50%,-26px);opacity:0}}
+.scr{flex:1 1 auto;min-height:0;overflow:auto}
+.mail{padding:12px 16px 16px}.mail.in{animation:mailin .32s cubic-bezier(.2,.8,.3,1)}.mail.out{animation:mailout .24s ease-in forwards}
+@keyframes mailin{from{transform:translateX(40px);opacity:0}}@keyframes mailout{to{transform:translateX(-60px);opacity:0}}
+.tagrow{display:flex;align-items:center;gap:8px;margin-bottom:8px}.dl{font:500 13px Inter;color:var(--mut)}
+.tg{display:inline-flex;align-items:center;gap:4px;font:600 12px/1 Inter;color:var(--cl);background:var(--cl2);padding:6px 8px;border-radius:999px}
+.tg.ok{color:var(--good);background:transparent;padding-left:0;animation:pop .4s cubic-bezier(.3,1.8,.5,1)}.tg.big{background:var(--ink);color:var(--pg)}
+.subj{font:700 23px/1.15 Inter;letter-spacing:-.015em;margin:0 0 16px}
+.from{display:flex;gap:12px;align-items:flex-start;padding-bottom:12px;border-bottom:1px solid var(--rule);margin-bottom:12px}
+.av{display:inline-block;border-radius:50%;overflow:hidden;flex:none}.av svg{width:100%;height:100%;display:block}
+.fm{flex:1;min-width:0}.fr{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.fr b{font:600 16px Inter}.fr time{font:400 13px Inter;color:var(--mut)}
+.to{font:400 13px/1.5 Inter;color:var(--mut)}
+.body p{margin:0 0 12px;font:400 15px/1.55 Inter}.body .sign{margin:16px 0 12px}
+.esig{display:flex;gap:8px;align-items:center;font:400 12px/1.4 Inter;color:var(--mut);padding-left:8px;border-left:2px solid var(--cl)}.esig b{color:var(--ink);font-weight:600}
+.crest{width:20px;height:24px;border-radius:2px 2px 10px 10px;background:#7a1e2b;color:#fbf7ee;font:800 10px/24px 'Barlow Condensed',sans-serif;text-align:center;flex:none}
+.adv{font:600 10px/1 Inter;font-style:normal;color:#1c1a17;background:var(--y);padding:3px 5px;border-radius:999px;white-space:nowrap}
+.lv{flex:1;margin:0;font:400 13px/1.4 Inter;color:var(--mut)}
+/* dock */
+.dock{flex:none;background:var(--sh);border-top:1px solid var(--rule);padding:12px 16px 16px;display:flex;flex-direction:column;gap:12px;animation:dockin .28s cubic-bezier(.2,.8,.3,1)}
+@keyframes dockin{from{transform:translateY(24px);opacity:0}}
+.dock.open{background:var(--wh);box-shadow:0 -14px 30px -18px rgba(60,40,20,.5);border-radius:18px 18px 0 0;animation:sheet .3s cubic-bezier(.2,.9,.3,1)}
+@keyframes sheet{from{transform:translateY(60%)}}
+.dock.fold{transition:transform .26s ease-in,opacity .26s;transform:translateY(30%) scale(.9);opacity:0}
+.row{display:flex;align-items:center;gap:12px}
+.sugg{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:0 16px;border-radius:999px;border:1.5px solid var(--cl);background:transparent;color:var(--cl);font:600 14px Inter;display:inline-flex;align-items:center;gap:6px;transition:transform .12s}
+.chip:active{transform:scale(.95)}.chip.on{background:var(--cl);color:var(--onc);animation:pop .3s cubic-bezier(.3,1.8,.5,1)}.chip.on .adv{background:#fff3c4}
+@keyframes pop{40%{transform:scale(1.08)}}
+.rb{min-height:48px;padding:0 18px;border-radius:999px;border:0;background:var(--ink);color:var(--pg);font:600 15px Inter;display:inline-flex;align-items:center;gap:8px}
+.ch{display:flex;align-items:center;gap:8px;margin:-4px -8px 0}.cs{flex:1;font:600 14px Inter;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xb{width:44px;height:44px;border:0;background:none;color:var(--mut);display:flex;align-items:center;justify-content:center}
+.cf{display:flex;gap:8px;align-items:center;font:400 13px Inter;padding-bottom:8px;border-bottom:1px solid var(--rule)}.cf>span{color:var(--mut);width:22px;flex:none}
+.pp{display:flex;flex-wrap:wrap;gap:6px}.pchip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 3px;border-radius:999px;background:var(--sh);font:500 13px Inter;transition:background .3s}
+.pchip.gl-up{background:color-mix(in srgb,var(--good) 22%,var(--sh));animation:pop .4s}.pchip.gl-dn{background:color-mix(in srgb,var(--bad) 22%,var(--sh));animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.cbody{min-height:84px}.hi{margin:4px 0 4px;font:400 16px/1.5 Inter}.ln{margin:0;font:400 18px/1.45 Inter;letter-spacing:-.01em}
+.phd{color:var(--mut);font-size:15px}
+.caret{display:inline-block;width:2px;height:1.05em;background:var(--cl);vertical-align:-3px;margin-left:1px;animation:blink 1s steps(1) infinite}@keyframes blink{50%{opacity:0}}
+.quote{margin-top:8px;font:400 12px/1.5 Inter;color:var(--mut);padding-left:10px;border-left:2px solid var(--rule)}
+.prev{display:flex;flex-direction:column;gap:4px;min-height:22px}.prev:empty{display:none}.prev.pop{animation:dockin .25s}
+.prev small{font:400 13px Inter;color:var(--mut)}
+.imps{display:flex;flex-wrap:wrap;gap:4px 14px}.im{font:500 14px Inter;display:inline-flex;gap:3px}.im b{font-weight:800}.im.up b{color:var(--good)}.im.dn b{color:var(--bad)}
+.odds{display:inline-flex;align-items:center;gap:8px;font:600 14px Inter}.om{display:inline-flex;gap:3px}.om i{width:16px;height:6px;border-radius:3px;background:var(--rule)}.om i.on{background:var(--cl)}
+.pub{margin:0;font:500 13px/1.4 Inter;color:var(--cl)}
+.send{position:relative;overflow:hidden;margin-left:auto;min-height:52px;min-width:52px;padding:0 22px 0 16px;border:0;border-radius:999px;background:var(--rule);color:var(--mut);font:600 16px Inter;display:inline-flex;align-items:center;gap:8px;transition:background .2s,transform .12s}
+.send.live{background:var(--cl);color:var(--onc);animation:pop .35s}.send:active{transform:scale(.94)}
+.send .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,255,255,.28)}.send.holding .fill{width:100%;transition:width 1.1s linear}
+.send>*:not(.fill){position:relative}
+/* concept A: tight choices */
+.dA{gap:10px}
+.slh{display:flex;justify-content:space-between;align-items:baseline;font:600 13px Inter;color:var(--mut)}.slh b{font-weight:600}
+.slist{display:flex;flex-direction:column;background:var(--wh);border-radius:14px;box-shadow:0 0 0 1px var(--rule);overflow:hidden}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:8px 14px 8px 16px;border:0;border-top:1px solid var(--rule);background:none;color:var(--ink);text-align:left;font:inherit;position:relative;transition:background .15s}
+.srow:first-child{border-top:0}.srow:active{background:var(--cl2)}
+.srow.isadv::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--y)}
+.sk{display:flex;flex-direction:column;font:600 15px/1.2 Inter}.sk small{font:500 11px Inter;color:var(--mut);margin-top:3px}
+.imps.sm{gap:2px 10px;justify-content:flex-end;flex:none;max-width:58%}.imps.sm .im{font:500 12px Inter;color:var(--mut)}.imps.sm .im b{font-size:12px}
+.odds.sm{font:500 12px Inter;color:var(--mut)}.odds.sm .om i{width:10px}
+.seg{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;padding:3px;background:var(--sh);border-radius:12px}
+.seg.n4{grid-auto-flow:row;grid-template-columns:1fr 1fr}
+.seg-i{position:absolute;border-radius:9px;background:var(--ink);opacity:0;transition:left .28s cubic-bezier(.3,1.3,.5,1),top .28s cubic-bezier(.3,1.3,.5,1),width .28s,height .28s,opacity .15s}
+.seg.has .seg-i{opacity:1}
+.chip.sg{position:relative;z-index:1;min-height:44px;padding:4px 8px;border:0;border-radius:9px;background:none;color:var(--ink);font:600 13px/1.2 Inter;justify-content:center;text-align:center;transition:color .2s}
+.chip.sg.on{background:none;color:var(--pg);animation:none}
+.adot{width:6px;height:6px;border-radius:50%;background:var(--y);flex:none;align-self:flex-start;margin-top:4px}
+/* concept B */
+.verbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.verb{min-height:96px;border:1.5px solid var(--rule);background:var(--wh);color:var(--ink);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 6px;text-align:center;transition:transform .12s}
+.verb svg{color:var(--cl)}.verb b{font:700 15px Inter}.verb small{font:400 12px/1.25 Inter;color:var(--mut)}.verb:active{transform:scale(.95)}.verb:disabled{opacity:.5}
+/* concept C */
+.dock.dC.open{padding-bottom:6px;gap:8px}
+.cC .ch{margin-right:-6px}.cC .send{min-width:44px;width:44px;height:44px;min-height:44px;padding:0;justify-content:center}
+.cC .send.hold{width:auto;padding:0 14px}
+.cC{display:flex;flex-direction:column;gap:8px}
+.qt{display:flex;background:var(--sh);border-radius:12px;padding:4px;gap:4px;min-height:52px}
+.qs{flex:1;min-height:44px;border:0;background:none;color:var(--ink);font:600 13px/1.15 Inter;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px}
+.qs.on{background:var(--wh);box-shadow:0 1px 3px rgba(60,40,20,.25);animation:pop .3s}.qs .adv{font-size:9px;padding:2px 4px}
+.qmore{min-width:44px;border:0;background:none;color:var(--mut);font:600 11px Inter;display:flex;align-items:center}
+.kb{display:flex;flex-direction:column;gap:6px;padding:4px 0 0}.kr{display:flex;justify-content:center;gap:4px}
+.kb i{flex:1;max-width:32px;height:36px;border-radius:6px;background:var(--wh);box-shadow:0 1px 0 var(--rule),0 0 0 1px var(--rule);font:400 15px/36px Inter;font-style:normal;text-align:center;color:var(--ink);transition:background .08s,transform .08s}
+.kb i.kx{max-width:48px;font-size:12px;background:var(--sh)}.kb i.sp{max-width:190px;flex:5;font-size:12px}
+.kb i.hit{background:var(--cl);color:var(--onc);transform:translateY(-3px) scale(1.12)}
+.replyfield{min-height:56px;border:1.5px solid var(--rule);background:var(--wh);border-radius:999px;display:flex;align-items:center;gap:10px;padding:0 18px;color:var(--mut);font:500 16px Inter;text-align:left}
+.replyfield svg{color:var(--cl)}
+/* sending + done */
+.sentbar{display:flex;align-items:center;gap:10px;justify-content:center;min-height:52px;font:600 15px Inter;color:var(--mut)}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid var(--rule);border-top-color:var(--cl);animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.sentcard{background:var(--wh);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;animation:pop .4s}
+.sh{display:flex;align-items:center;gap:8px}.sh b{flex:1;font:600 15px Inter}.sh time{font:400 13px Inter;color:var(--mut)}
+.okc{width:24px;height:24px;border-radius:50%;background:var(--good);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.said{margin:0;font:400 15px/1.5 Inter;padding-left:10px;border-left:2px solid var(--cl)}.who{margin:0;font:400 13px Inter;color:var(--mut)}
+.next{min-height:52px;border:0;border-radius:14px;background:var(--cl);color:var(--onc);font:600 16px Inter;display:flex;align-items:center;justify-content:center;gap:6px}
+.toast{position:absolute;left:16px;right:16px;bottom:88px;background:var(--ink);color:var(--pg);border-radius:14px;padding:4px 4px 4px 16px;display:flex;align-items:center;justify-content:space-between;font:500 15px Inter;overflow:hidden;z-index:5}
+.toast[hidden]{display:none}.toast.go{animation:dockin .25s}.undo{min-height:44px;padding:0 16px;border:0;background:none;color:#f2c94c;font:700 15px Inter}
+.ph.dark .undo{color:#7a1e2b}
+.toast .tb{position:absolute;left:0;bottom:0;height:3px;background:#f2c94c;width:100%;animation:drain 3s linear forwards}@keyframes drain{to{width:0}}
+.fly{position:absolute;z-index:6;color:var(--cl);pointer-events:none;margin:-13px 0 0 -13px;animation:fly .62s cubic-bezier(.5,0,.6,1) both}
+.fly.seal{color:var(--cl);animation-duration:.95s}
+@keyframes fly{0%{transform:translate(0,0) scale(.6) rotate(0);opacity:0}15%{opacity:1;transform:translate(0,-8px) scale(1.1)}100%{transform:translate(var(--dx),var(--dy)) scale(.5) rotate(-18deg);opacity:0}}
+.banners{position:absolute;left:8px;right:8px;top:104px;display:flex;flex-direction:column;gap:8px;z-index:7;pointer-events:none}
+.bn{display:flex;gap:10px;background:color-mix(in srgb,var(--wh) 92%,transparent);backdrop-filter:blur(8px);border-radius:18px;padding:10px 12px;box-shadow:0 12px 28px -10px rgba(0,0,0,.4);transform:translateY(-130%);transition:transform .38s cubic-bezier(.2,1.3,.4,1)}
+.bn.in{transform:none}.bn .bt{display:flex;justify-content:space-between}.bn b{font:600 14px Inter}.bn .bt span{font:400 12px Inter;color:var(--mut)}.bn small{font:400 12px Inter;color:var(--mut)}.bn p{margin:2px 0 0;font:400 14px/1.4 Inter}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:3px solid #f2c94c;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:1ms!important}}
+@media (max-width:440px){.wrap{padding:24px 0 64px}.intro,.lead,h2.sec,table,.notes{margin-left:16px;margin-right:16px;width:auto}.pw{width:100%}.pw h3,.pw .how,.ctl{padding:0 16px}.ph{border-radius:0;border-left:0;border-right:0}}
+</style></head>
+<body><main class="wrap">
+<header class="intro"><h1>Play the inbox</h1><p>Three playable prototypes. Each uses only things you already know from email, and makes them part of the game: what you send moves your backers, and the person you wrote to answers.</p><p>Play five emails in a row: two, three and four replies, a long email and a big decision. Try Dark and 360 px too.</p></header>
+<div class="protos"><section class="pw" data-proto="A"><h3>1. Suggested reply, with undo</h3><p class="how">Tap a suggested reply under the email and the reply window slides up and writes it for you. Send it, and you get three seconds to undo before it lands.</p><div class="ctl"><button type="button" class="theme" aria-pressed="false">Dark</button><button type="button" class="narrow" aria-pressed="false">360 px</button><button type="button" class="again">Play again</button></div><div class="ph"></div></section><section class="pw" data-proto="B"><h3>2. Reply, Reply all or Forward</h3><p class="how">The three mail buttons are the decision. Reply keeps it private, Reply all makes it public with bigger effects, Forward hands it to a colleague.</p><div class="ctl"><button type="button" class="theme" aria-pressed="false">Dark</button><button type="button" class="narrow" aria-pressed="false">360 px</button><button type="button" class="again">Play again</button></div><div class="ph"></div></section><section class="pw" data-proto="C"><h3>3. Your keyboard writes it</h3><p class="how">Reply opens the window with a keyboard, like every phone. Tap a suggestion and you see the keys light up as your sentence types itself.</p><div class="ctl"><button type="button" class="theme" aria-pressed="false">Dark</button><button type="button" class="narrow" aria-pressed="false">360 px</button><button type="button" class="again">Play again</button></div><div class="ph"></div></section></div>
+<h2 class="sec">Why the last two rounds failed</h2><div class="notes"><div><b>Round 1: slips, ledger, signature</b>The answer forms were invented: slips, stamps and ledgers do not exist in email, so the screen stopped feeling like a mailbox. Everything stood still, so a decision had no moment.</div><div><b>Round 2: drafts, list, suggestion bar</b>The email part was right, but the replies were again invented structures: tabs, a list of radio buttons and a toolbar without a keyboard. Nothing moved and nothing came back, so it felt like a form.</div></div>
+<h2 class="sec">Email conventions as game rules</h2><table><tr><th>Convention</th><th>In email</th><th>In the game</th><th>Concept</th></tr><tr><td><b>Suggested replies (Gmail, Outlook)</b></td><td>Short chips under the email.</td><td>The department's options, ready to send.</td><td>1, 2</td></tr><tr><td><b>Reply window slides up</b></td><td>The sheet with To, Re and your text.</td><td>Choosing becomes writing a reply, not filling in a form.</td><td>1, 2, 3</td></tr><tr><td><b>Undo send</b></td><td>A toast with a short countdown after sending.</td><td>One last moment of doubt. Undo returns you to the draft.</td><td>1</td></tr><tr><td><b>Reply all</b></td><td>Everyone in Cc gets your answer.</td><td>A public stance: the board and press read it, every effect is one step bigger.</td><td>2</td></tr><tr><td><b>Forward</b></td><td>Pass the email on to someone else.</td><td>Delegating: your colleague picks their own advice and the board sees you passed it on.</td><td>2</td></tr><tr><td><b>Keyboard suggestions</b></td><td>Three words above the keyboard.</td><td>The options, with keys that light up as your line is typed.</td><td>3</td></tr><tr><td><b>New mail banner</b></td><td>A notification slides in from the top.</td><td>The consequence arrives as a reply from the person you wrote to.</td><td>1, 2, 3</td></tr></table>
+<h2 class="sec">The arc of one email</h2><table><tr><th>Moment</th><th>What moves</th><th>Timing</th></tr><tr><td><b>Arrival</b></td><td>The email slides in from the right; the tag says Your call or Big decision.</td><td>320 ms</td></tr><tr><td><b>Considering</b></td><td>Tapping a reply makes the backers meters pulse with what would change.</td><td>250 ms, pulsing</td></tr><tr><td><b>Writing</b></td><td>The reply types itself; in concept 3 the keys light up one by one.</td><td>14 to 26 ms per letter</td></tr><tr><td><b>Sending</b></td><td>The sheet folds into an envelope that flies to the person, or to every recipient.</td><td>600 ms</td></tr><tr><td><b>Weight</b></td><td>Big decisions need a 1 second hold, then the whole screen thuds.</td><td>1.1 s hold, 500 ms thud</td></tr><tr><td><b>Consequence</b></td><td>Meters jump with a +2 or -1 floater; the reply arrives as a banner.</td><td>500 ms, banner after 420 ms</td></tr><tr><td><b>Next</b></td><td>The email slides away to the left, the next comes in.</td><td>240 ms</td></tr></table>
+<h2 class="sec">Playtest notes, ten emails each</h2><div class="notes"><div><b>1. Suggested reply</b><ul><li>The quickest loop: chip, read the line, send.</li><li>The 3 second undo is felt on every email. On big calls it adds tension; on small ones it can feel like waiting.</li><li>Fixed: reply banners covered the meters just as they moved. They now drop in below the meters.</li></ul></div><div><b>2. Reply, Reply all, Forward</b><ul><li>The richest choices: who reads it matters as much as what you say.</li><li>Recipient chips glow green or red, so you see who you will please before sending.</li><li>Forward is off for the board vote: only you can answer that one. Reply all brings a second reply from the chair.</li></ul></div><div><b>3. Your keyboard</b><ul><li>The most satisfying to watch: the keys light up as the line types.</li><li>The keyboard fills the bottom half, so the email shrinks; long emails need a scroll.</li><li>Fixed: on big decisions the round send button had no label. It now says Hold.</li></ul></div></div>
+</main><script>/* The Front Office: three playable reply prototypes */
+const FACE=(c)=>`<svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="${c[0]}"/><path d="M8 40c1-8 6-11 12-11s11 3 12 11z" fill="#2c3a33"/><circle cx="20" cy="18" r="8" fill="${c[1]}" stroke="#16201b" stroke-width="1.5"/><path d="M12 15c1-6 15-7 16 0-3-2-12-3-16 0z" fill="${c[2]}"/></svg>`;
+const P={
+ tomas:{n:'Tomás Szabo',f:'Tomás',r:'Finance Director',c:['#dbe8f3','#c98f6b','#2a2a2a']},
+ graham:{n:'Graham Varga',f:'Graham',r:'Director of Football',c:['#f3e3cf','#8a5a3c','#1d1d1d']},
+ arjen:{n:'Arjen Lyle',f:'Arjen',r:'Commercial Director',c:['#e9e1f3','#6b4a3a','#111']},
+ nadia:{n:'Nadia Okafor',f:'Nadia',r:'Head of Media',c:['#e2f0e6','#7a4b33','#2b1b12']},
+ hale:{n:'Margaret Hale',f:'Margaret',r:'Chair',c:['#f1e4d4','#e9c4a4','#bbb']},
+ press:{n:'Press office',f:'Press office',r:'Media',c:['#efe6d2','#d7a982','#5a3b22']},
+};
+const MSG=[
+ {id:'wages',from:'tomas',cc:['graham'],subj:'Wages are over the cap',time:'Mon 09:12',dl:'Sunday',
+  body:['Hi, player wages have reached 54% of revenue. Your mandate caps them at 50%.','Three renewals and lower gate income since the price cut caused it. My advice is to trim the squad.'],sign:'Tomás',fwd:'graham',
+  opts:[{k:'Trim the squad',line:'Agreed. Trim the squad, starting with the two Graham named.',fx:{Board:1,Room:-1,Cash:2},adv:1,who:'Graham sells two players by week 15.',reply:'Good call. Graham is on it; I will report in week 15.'},
+        {k:'Raise the cap',line:'Raise the cap to 55%, for this season only.',fx:{Board:-2,Room:1,Cash:-1},who:'Tomás rewrites the budget.',reply:'Understood. The board will want to know why.'},
+        {k:'Freeze new wages',line:'Freeze all new wages until the summer.',fx:{Board:1,Room:-1,Cash:1},who:'No new contracts until summer.',reply:'Done. Graham will not be pleased.'}]},
+ {id:'bid',from:'graham',cc:['tomas'],subj:'£20k bid for Connor Birtles',time:'Tue 10:40',dl:'Sunday',
+  body:['Stanmouth bid £20k for Connor. He is one of our three best, so it needs you.','I would sell: the fee is well above his value and we have cover.'],sign:'Graham',fwd:'tomas',
+  opts:[{k:'Accept the bid',line:'Accept it. Use the money well.',fx:{Board:1,Fans:-1,Cash:2},adv:1,who:'Connor leaves on Friday.',reply:'Deal done. I already have a name for his spot.'},
+        {k:'Keep him',line:'Turn it down. He stays.',fx:{Fans:1,Room:1},who:'Graham tells Stanmouth no.',reply:'Fine. I will tell Connor you backed him.'}]},
+ {id:'kits',from:'arjen',cc:[],subj:'The shirts fall apart',time:'Wed 08:55',dl:'Friday',
+  body:['Dossier 2 of 3. The new shirts arrived; the badge peels off in the first wash.','Photos are everywhere. We need a line by Friday.'],sign:'Arjen',fwd:'nadia',
+  opts:[{k:'Replace them all',line:'Replace every faulty shirt, no questions.',fx:{Fans:2,Cash:-2,Press:1},adv:1,who:'An exchange desk opens on Saturday.',reply:'Expensive, but the photos will stop.'},
+        {k:'Make it a joke',line:'Post something funny about it.',fx:{Press:1,Board:-1},who:'The media team posts tonight.',reply:'Bold. Nadia loves it, the board less so.'},
+        {k:'Refund on request',line:'Refund anyone who asks.',fx:{Fans:1,Cash:-1},who:'Refunds through the club shop.',reply:'Fair. The story will run a bit longer.'},
+        {k:'Deny it',line:'There is no problem with the shirts.',fx:{Fans:-2,Press:-2},who:'A statement goes out.',reply:'I will send it. Expect a rough week.'}]},
+ {id:'vote',from:'hale',cc:[],subj:'Emergency board meeting',time:'Thu 17:03',dl:'Friday',big:1,
+  body:['Board confidence has collapsed. We meet on Friday to decide whether you stay.','Tell us how you will make your case.'],sign:'Margaret Hale',fwd:null,
+  opts:[{k:'A recovery plan',line:'I will walk you through a recovery plan.',fx:{Board:2},odds:'Could go either way',who:'You present on Friday.',reply:'The board voted 4 to 3. You stay, for now.'},
+        {k:'Let fans speak',line:'Ask the supporters what they think.',fx:{Board:1,Fans:1},odds:'Likely to work',who:'The trust is invited.',reply:'The trust spoke well of you. 5 votes to 2.'},
+        {k:'Cut my office',line:'I will cut my own office first.',fx:{Board:2,Cash:1},odds:'Likely to work',who:'Scouting and marketing budgets go down.',reply:'The board liked that. 6 votes to 1.'}]},
+ {id:'long',from:'tomas',cc:['graham'],subj:'The bank wants a number',time:'Fri 11:20',dl:'Monday',
+  body:['Hi, the bank reviews our loan on Monday and wants one figure: the wage share by January.','Three renewals in October pushed the bill up, and gate income has dropped since the price cut. Left alone we reach 56% by January, which the bank will notice.','Graham has two fringe players that other clubs asked about. Selling them gets us to 51%. Otherwise I can give the bank an honest 56% with a plan.'],sign:'Tomás',fwd:'graham',
+  opts:[{k:'Sell and say 51%',line:'Sell the two and tell the bank 51%.',fx:{Board:1,Room:-1,Cash:1},adv:1,who:'Two sales and a letter to the bank.',reply:'Sending the figure now.'},
+        {k:'Honest 56%',line:'Tell them 56%, with the plan.',fx:{Board:-1,Cash:-1,Press:1},who:'Tomás writes the plan.',reply:'They will respect it. Rates may go up.'}]},
+];
+const KEYS=['Board','Fans','Press','Room','Cash'];
+const ZONES=['A long shot','Risky','Could go either way','Likely to work'];
+const ICON={
+ back:'<path d="M15 5l-7 7 7 7"/>',reply:'<path d="M10 8L4 13l6 5"/><path d="M4 13h10a6 6 0 0 1 6 6"/>',
+ all:'<path d="M9 8l-5 5 5 5"/><path d="M14 8l-5 5 5 5"/><path d="M9 13h6a6 6 0 0 1 6 6"/>',fwd:'<path d="M14 8l6 5-6 5"/><path d="M20 13H10a6 6 0 0 0-6 6"/>',
+ send:'<path d="M12 19V5M5 12l7-7 7 7"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+ env:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 7l9 6 9-6"/>',next:'<path d="M9 6l6 6-6 6"/>',
+};
+const ic=(k,s=20,w=2.2)=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
+const av=(p,s=40)=>`<span class="av" style="width:${s}px;height:${s}px">${FACE(P[p].c)}</span>`;
+const arrows=v=>v>0?'↑'.repeat(v):v<0?'↓'.repeat(-v):'=';
+const WORD={3:'way up',2:'strongly up',1:'up','-1':'down','-2':'strongly down','-3':'way down'};
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wait=ms=>new Promise(r=>setTimeout(r,RM?Math.min(ms,30):ms));
+
+class Proto{
+ constructor(root,kind){this.root=root;this.kind=kind;this.reset();}
+ reset(){this.i=0;this.week=13;this.v={Board:5,Fans:6,Press:5,Room:6,Cash:4};this.render();}
+ get m(){return MSG[this.i%MSG.length]}
+ fx(o,mode){ // effects after the verb is applied
+  let f={...o.fx};
+  if(mode==='all'){for(const k in f)f[k]=f[k]+Math.sign(f[k]);if(!this.m.big)f.Press=(f.Press||0)+(o.adv?1:-1);}
+  if(mode==='fwd'){f.Board=(f.Board||0)-1;}
+  for(const k in f){if(!f[k])delete f[k]}
+  return f;}
+ render(){
+  const m=this.m,s=P[m.from];
+  this.root.innerHTML=`<div class="hud"><button class="nb" type="button" aria-label="Back to the red box">${ic('back')}<span>Red box</span></button><span class="cnt">${(this.i%MSG.length)+1} of ${MSG.length}<small>Week ${this.week}</small></span></div>
+<div class="meters">${KEYS.map(k=>`<div class="mt" data-k="${k}"><span>${k}</span><i class="bar"><b style="width:${this.v[k]*10}%"></b><u></u></i><em></em></div>`).join('')}</div>
+<div class="scr"><article class="mail in">
+<div class="tagrow">${m.big?'<span class="tg big">Big decision</span>':'<span class="tg">Your call</span>'}<span class="dl">Answer by ${m.dl}</span></div>
+<h1 class="subj">${m.subj}</h1>
+<div class="from">${av(m.from)}<div class="fm"><div class="fr"><b>${s.n}</b><time>${m.time}</time></div><div class="to">To: You${m.cc.length?`&nbsp;&nbsp;Cc: ${m.cc.map(c=>P[c].n).join(', ')}`:''}</div></div></div>
+<div class="body">${m.body.map(p=>`<p>${p}</p>`).join('')}<p class="sign">${m.sign}</p><div class="esig"><span class="crest">H</span><span><b>${s.n}</b><br>${s.r}, Harwick Athletic</span></div></div>
+<div class="sent-q" hidden></div></article></div>
+<div class="dock"></div><div class="banners"></div><div class="toast" hidden></div>`;
+  this.read();}
+ dock(html,cls=''){const d=this.root.querySelector('.dock');d.className='dock '+cls;d.innerHTML=html;return d;}
+ leaveTxt(){const m=this.m;return m.fwd||m.from!=='hale'?`Leave it and ${P[m.from].f} acts on their advice on ${m.dl}.`:`Leave it and the board decides without you on ${m.dl}.`}
+ /* ---------- read state per concept ---------- */
+ read(){
+  const m=this.m,k=this.kind;
+  if(k==='A'){
+   const mini=o=>o.odds?`<span class="odds sm"><span class="om">${ZONES.map((z,j)=>`<i class="${j<=ZONES.indexOf(o.odds)?'on':''}"></i>`).join('')}</span>${o.odds}</span>`:`<span class="imps sm">${Object.entries(o.fx).map(([k,v])=>`<span class="im ${v>0?'up':'dn'}">${k}<b>${arrows(v)}</b></span>`).join('')}</span>`;
+   const d=this.dock(`<div class="slh"><b>Suggested replies</b><span>${m.opts.length}</span></div><div class="slist" role="group" aria-label="Suggested replies">${m.opts.map((o,i)=>`<button type="button" class="srow ${o.adv?'isadv':''}" data-i="${i}"><span class="sk">${o.k}${o.adv?'<small>Advised</small>':''}</span>${mini(o)}</button>`).join('')}</div>
+<div class="row"><button type="button" class="rb" data-a="reply">${ic('reply')}Reply</button><p class="lv">${this.leaveTxt()}</p></div>`,'dA');
+   d.querySelectorAll('.srow').forEach(b=>b.onclick=()=>this.compose('reply',+b.dataset.i));
+   d.querySelector('.rb').onclick=()=>this.compose('reply',null);
+  } else if(k==='B'){
+   const f=m.fwd?P[m.fwd].f:null;
+   const d=this.dock(`<div class="verbs">
+<button type="button" class="verb" data-a="reply">${ic('reply',24)}<b>Reply</b><small>Only ${P[m.from].f} reads it</small></button>
+<button type="button" class="verb" data-a="all">${ic('all',24)}<b>Reply all</b><small>${m.big?'The whole board reads it':'The board and press read it'}</small></button>
+<button type="button" class="verb" data-a="fwd" ${f?'':'disabled'}>${ic('fwd',24)}<b>Forward</b><small>${f?f+' decides for you':'Only you can answer'}</small></button></div><p class="lv">${this.leaveTxt()}</p>`,'dB');
+   d.querySelectorAll('.verb').forEach(b=>b.onclick=()=>this.compose(b.dataset.a,b.dataset.a==='fwd'?m.opts.findIndex(o=>o.adv):null));
+  } else {
+   const d=this.dock(`<button type="button" class="replyfield">${ic('reply')}<span>Reply to ${P[m.from].f}</span></button><p class="lv">${this.leaveTxt()}</p>`,'dC');
+   d.querySelector('.replyfield').onclick=()=>this.compose('reply',null);
+  }}
+ /* ---------- compose ---------- */
+ compose(mode,sel){
+  this.mode=mode;this.sel=sel;const m=this.m,k=this.kind;
+  const to=mode==='fwd'?[m.fwd]:[m.from];
+  const cc=mode==='all'?[...m.cc,...(m.from==='hale'?[]:['hale']),...(m.big?[]:['press'])]:[];
+  const recips=[...to,...cc];
+  const field=(lab,ps)=>`<div class="cf"><span>${lab}</span><div class="pp">${ps.map(p=>`<span class="pchip" data-p="${p}">${av(p,22)}${P[p].n}</span>`).join('')}</div></div>`;
+  const subj=`${mode==='fwd'?'Fwd':'Re'}: ${m.subj}`;
+  const chips=mode==='fwd'?'':k==='A'?`<div class="seg n${m.opts.length}" role="group" aria-label="Suggested replies"><i class="seg-i"></i>${m.opts.map((o,i)=>`<button type="button" class="chip sg" data-i="${i}">${o.k}${o.adv?'<em class="adot" aria-label="advised"></em>':''}</button>`).join('')}</div>`:`<div class="sugg in-c" role="group" aria-label="Suggested replies">${m.opts.map((o,i)=>`<button type="button" class="chip" data-i="${i}">${o.k}${o.adv?'<i class="adv">advised</i>':''}</button>`).join('')}</div>`;
+  const sendBtn=`<button type="button" class="send ${m.big?'hold':''}" disabled aria-label="Send">${ic('send',22,2.6)}<span>${m.big?'Hold to send':'Send'}</span><i class="fill"></i></button>`;
+  let html;
+  if(k==='C'){
+   html=`<div class="comp cC"><div class="ch"><button type="button" class="xb" aria-label="Discard">${ic('x')}</button><span class="cs">${subj}</span>${sendBtn.replace('<span>Hold to send</span>','<span>Hold</span>').replace('<span>Send</span>','')}</div>
+${field('To',to)}<div class="cbody"><p class="hi">Hi ${P[to[0]].f},</p><p class="ln"><span class="typed"></span><span class="caret"></span><span class="phd">Pick a suggestion to write it.</span></p></div>
+<div class="prev"></div><div class="qt" role="group" aria-label="Suggestions"></div><div class="kb" aria-hidden="true">${['qwertyuiop','asdfghjkl','zxcvbnm'].map((r,ri)=>`<div class="kr">${ri==2?'<i class="kx">⇧</i>':''}${[...r].map(c=>`<i data-c="${c}">${c}</i>`).join('')}${ri==2?'<i class="kx">⌫</i>':''}</div>`).join('')}<div class="kr"><i class="kx">123</i><i class="sp" data-c=" ">space</i><i class="kx">return</i></div></div></div>`;
+  } else {
+   html=`<div class="comp c${k}"><div class="ch"><button type="button" class="xb" aria-label="Discard">${ic('x')}</button><span class="cs">${subj}</span></div>
+${field('To',to)}${cc.length?field('Cc',cc):''}${chips}
+<div class="cbody"><p class="hi">Hi ${P[to[0]].f},</p><p class="ln"><span class="typed"></span><span class="caret"></span><span class="phd">${mode==='fwd'?'':'Tap a suggestion and it writes itself.'}</span></p>${mode==='fwd'?`<div class="quote">---------- Forwarded message ----------<br>From: ${P[m.from].n}<br>${m.body[0]}</div>`:''}</div>
+<div class="prev"></div>${mode==='all'?'<p class="pub">Reply all: everyone in Cc reads it, so every effect is one step bigger.</p>':''}${mode==='fwd'?`<p class="pub">${P[m.fwd].f} will pick their own advice. The board sees you passed it on.</p>`:''}
+<div class="row">${sendBtn}</div></div>`;
+  }
+  const d=this.dock(html,'open d'+k);
+  d.querySelector('.xb').onclick=()=>{this.read();};
+  this.recips=recips;
+  if(k==='C'){this.page=0;this.drawQT();}
+  d.querySelectorAll('.sugg .chip,.seg .chip').forEach(b=>b.onclick=()=>this.pick(+b.dataset.i));
+  this.bindSend();
+  if(mode==='fwd') this.pick(sel,`${P[m.fwd].f}, can you take this one? Your call.`);
+  else if(sel!=null) this.pick(sel);
+ }
+ drawQT(){
+  const q=this.root.querySelector('.qt'),m=this.m,n=m.opts.length,per=3;
+  const pages=Math.ceil(n/per),idx=m.opts.map((o,i)=>i).slice(this.page*per,this.page*per+per);
+  q.innerHTML=idx.map(i=>`<button type="button" class="qs ${i===this.sel?'on':''}" data-i="${i}">${m.opts[i].k}${m.opts[i].adv?'<i class="adv">advised</i>':''}</button>`).join('')+(pages>1?`<button type="button" class="qmore" aria-label="More suggestions">${this.page+1}/${pages}${ic('next',16)}</button>`:'');
+  q.querySelectorAll('.qs').forEach(b=>b.onclick=()=>this.pick(+b.dataset.i));
+  const mo=q.querySelector('.qmore');if(mo)mo.onclick=()=>{this.page=(this.page+1)%pages;this.drawQT();};
+ }
+ async pick(i,text){
+  this.sel=i;const m=this.m,o=m.opts[i],d=this.root.querySelector('.dock');
+  d.querySelectorAll('.sugg .chip,.seg .chip').forEach(b=>b.classList.toggle('on',+b.dataset.i===i));
+  const seg=d.querySelector('.seg');if(seg){const b=seg.querySelectorAll('.chip')[i];const ind=seg.querySelector('.seg-i');ind.style.left=b.offsetLeft+'px';ind.style.top=b.offsetTop+'px';ind.style.width=b.offsetWidth+'px';ind.style.height=b.offsetHeight+'px';seg.classList.add('has');}
+  if(this.kind==='C')this.drawQT();
+  const send=d.querySelector('.send');send.disabled=false;send.classList.add('live');
+  const ph=d.querySelector('.phd');if(ph)ph.remove();
+  // preview: meters ghost + text
+  const f=this.fx(o,this.mode);this.preview(f);
+  const pv=d.querySelector('.prev');
+  pv.innerHTML=o.odds?`<span class="odds"><span class="om">${ZONES.map((z,j)=>`<i class="${j<=ZONES.indexOf(o.odds)?'on':''}"></i>`).join('')}</span>${o.odds}</span><small>${o.who}</small>`
+   :`<span class="imps">${Object.entries(f).map(([k,v])=>`<span class="im ${v>0?'up':'dn'}">${k}<b>${arrows(v)}</b></span>`).join('')}</span><small>${o.who}</small>`;
+  pv.classList.remove('pop');void pv.offsetWidth;pv.classList.add('pop');
+  if(this.kind==='B')this.moodChips(f);
+  // typing
+  const t=d.querySelector('.typed'),line=text||o.line,tok=Symbol();this.tok=tok;t.textContent='';
+  for(const ch of line){if(this.tok!==tok)return;t.textContent+=ch;if(this.kind==='C')this.key(ch);await wait(this.kind==='C'?26:14);}
+ }
+ key(ch){const k=this.root.querySelector(`.kb i[data-c="${ch.toLowerCase()}"]`);if(!k)return;k.classList.add('hit');setTimeout(()=>k.classList.remove('hit'),110);}
+ moodChips(f){const map={hale:'Board',press:'Press',graham:'Room',tomas:'Cash',arjen:'Fans',nadia:'Press'};
+  this.root.querySelectorAll('.pchip').forEach(c=>{const k=map[c.dataset.p];const v=f[k]||0;c.classList.remove('gl-up','gl-dn');void c.offsetWidth;if(v>0)c.classList.add('gl-up');if(v<0)c.classList.add('gl-dn');});}
+ preview(f){this.root.querySelectorAll('.mt').forEach(el=>{const k=el.dataset.k,v=f[k]||0,u=el.querySelector('u'),cur=this.v[k];
+  el.classList.toggle('pv',!!v);
+  if(v>0){u.style.left=cur*10+'%';u.style.width=Math.min(v,10-cur)*10+'%';u.className='up'}
+  else if(v<0){u.style.left=Math.max(0,cur+v)*10+'%';u.style.width=Math.min(-v,cur)*10+'%';u.className='dn'}
+  else{u.style.width='0';}
+  el.querySelector('em').textContent=v?arrows(v):'';el.querySelector('em').className=v>0?'up':v<0?'dn':'';});}
+ bindSend(){
+  const b=this.root.querySelector('.send');if(!b)return;
+  if(b.classList.contains('hold')){
+   let t=null;const start=e=>{if(b.disabled)return;e.preventDefault();b.classList.add('holding');t=setTimeout(()=>{b.classList.remove('holding');this.send();},RM?10:1100);};
+   const stop=()=>{clearTimeout(t);b.classList.remove('holding');};
+   b.addEventListener('pointerdown',start);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,stop));
+   b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')start(e)});b.addEventListener('keyup',stop);
+  } else b.onclick=()=>this.send();
+ }
+ /* ---------- send ---------- */
+ async send(){
+  const m=this.m,o=m.opts[this.sel],f=this.fx(o,this.mode),root=this.root,d=root.querySelector('.dock');
+  this.tok=Symbol();
+  const sb=d.querySelector('.send').getBoundingClientRect(),rr=root.getBoundingClientRect();
+  root.classList.add(m.big?'thud':'tap');setTimeout(()=>root.classList.remove('thud','tap'),500);
+  if(this.kind==='B'){ // one envelope per recipient, to its chip
+   const targets=[...d.querySelectorAll('.pchip')];
+   targets.forEach((c,j)=>{const cr=c.getBoundingClientRect();this.fly(sb.left-rr.left+sb.width/2,sb.top-rr.top,cr.left-rr.left+16,cr.top-rr.top,j*90,m.big);});
+   await wait(520+targets.length*90);
+  } else {
+   d.classList.add('fold');await wait(260);
+   this.fly(rr.width/2,d.getBoundingClientRect().top-rr.top+40,rr.width-48,24,0,m.big);
+  }
+  this.dock(`<div class="sentbar"><span class="spin"></span>Sending…</div>`,'dS');
+  if(this.kind==='A'){ // undo window
+   const undone=await this.undoWindow();
+   if(undone){this.compose(this.mode,this.sel);return;}
+  } else await wait(m.big?700:350);
+  this.commit(f);
+  this.done(o,f);
+  await wait(m.big?650:420);
+  await this.banner(m.from===(this.mode==='fwd'?m.from:m.from)?(this.mode==='fwd'?m.fwd:m.from):m.from,this.mode==='fwd'?`On it. I went with my advice: ${o.k.toLowerCase()}.`:o.reply);
+  if(this.mode==='all'&&m.from!=='hale'){await wait(500);await this.banner('hale',o.adv?'Noted, and well handled in front of everyone.':'The whole board saw that. We will discuss it.');}
+ }
+ undoWindow(){return new Promise(res=>{const t=this.root.querySelector('.toast');
+  t.hidden=false;t.innerHTML=`<span>Sent to ${P[this.mode==='fwd'?this.m.fwd:this.m.from].f}</span><button type="button" class="undo">Undo</button><i class="tb"></i>`;
+  t.classList.remove('go');void t.offsetWidth;t.classList.add('go');
+  const timer=setTimeout(()=>{t.hidden=true;res(false)},RM?60:3000);
+  t.querySelector('.undo').onclick=()=>{clearTimeout(timer);t.hidden=true;res(true)};});}
+ fly(x0,y0,x1,y1,delay,big){const e=document.createElement('span');e.className='fly'+(big?' seal':'');e.innerHTML=ic('env',26,1.8);
+  e.style.left=x0+'px';e.style.top=y0+'px';e.style.setProperty('--dx',(x1-x0)+'px');e.style.setProperty('--dy',(y1-y0)+'px');e.style.animationDelay=delay+'ms';
+  this.root.appendChild(e);setTimeout(()=>e.remove(),1400+delay);}
+ commit(f){for(const k in f){this.v[k]=Math.max(0,Math.min(10,this.v[k]+f[k]));}
+  this.root.querySelectorAll('.mt').forEach(el=>{const k=el.dataset.k,v=f[k]||0;el.classList.remove('pv');el.querySelector('u').style.width='0';el.querySelector('em').textContent='';
+   el.querySelector('b').style.width=this.v[k]*10+'%';
+   if(v){el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump',v>0?'g':'r');setTimeout(()=>el.classList.remove('g','r'),900);
+    const fl=document.createElement('span');fl.className='float '+(v>0?'up':'dn');fl.textContent=(v>0?'+':'')+v;el.appendChild(fl);setTimeout(()=>fl.remove(),1100);}});}
+ done(o,f){const m=this.m,root=this.root;
+  root.querySelector('.tg').outerHTML=`<span class="tg ok">${ic('check',14,3)}${this.mode==='fwd'?'Forwarded':'Replied'}</span>`;
+  const to=this.mode==='fwd'?m.fwd:m.from;
+  const d=this.dock(`<div class="sentcard"><div class="sh"><span class="okc">${ic('check',14,3)}</span><b>${this.mode==='fwd'?'Forwarded to ':this.mode==='all'?'Sent to everyone, incl. ':'Sent to '}${P[to].f}</b><time>${m.time.split(' ')[0]} 09:41</time></div>
+<p class="said">${this.mode==='fwd'?`${P[m.fwd].f}, can you take this one? Your call.`:o.line}</p>
+<p class="who">${o.who}</p></div><button type="button" class="next">Next email${ic('next',18)}</button>`,'dD');
+  d.querySelector('.next').onclick=()=>this.next();}
+ banner(p,txt){return new Promise(async res=>{const b=document.createElement('div');b.className='bn';
+  b.innerHTML=`${av(p,36)}<div><div class="bt"><b>${P[p].n}</b><span>now</span></div><small>Re: ${this.m.subj}</small><p>${txt}</p></div>`;
+  const wrap=this.root.querySelector('.banners');wrap.appendChild(b);await wait(60);b.classList.add('in');res();
+  setTimeout(()=>{b.classList.remove('in');setTimeout(()=>b.remove(),400)},4200);});}
+ async next(){const mail=this.root.querySelector('.mail');mail.classList.add('out');await wait(240);this.i++;if(this.i%MSG.length===0)this.week++;
+  const keep=this.v;this.render();this.v=keep;}
+}
+document.querySelectorAll('[data-proto]').forEach(el=>{const p=new Proto(el.querySelector('.ph'),el.dataset.proto);el._p=p;
+ el.querySelector('.again').onclick=()=>p.reset();
+ el.querySelector('.theme').onclick=e=>{const ph=el.querySelector('.ph');ph.classList.toggle('dark');e.currentTarget.setAttribute('aria-pressed',ph.classList.contains('dark'));};
+ el.querySelector('.narrow').onclick=e=>{const ph=el.querySelector('.ph');ph.classList.toggle('w360');e.currentTarget.setAttribute('aria-pressed',ph.classList.contains('w360'));};});
+</script></body></html>

@@ -48,7 +48,7 @@ console.log('PASS: main save preserved; preview saves, loads and resets isolated
   const start = recruitment.indexOf('function coachCoverageNeeds()');
   const end = recruitment.indexOf('function dofPipeline()', start);
   assert(start >= 0 && end > start, 'Recruitment coverage functions present');
-  const api = recruitment.slice(start, end) + '\\nthis.getNeeds = recruitmentNeeds;';
+  const api = recruitment.slice(start, end) + '\nthis.getNeeds = recruitmentNeeds;';
   const cases = [
     { players: [{pos:'GK',inj:8}], base:[], want:['GK'] },
     { players: [{pos:'GK',inj:1}], base:[], want:[] },

@@ -102,7 +102,7 @@ const TOUR = {
   club: ['Your club', 'How the club is doing: who backs you, the board\'s objectives, the money and your projects.'],
   squad: ['Your squad', 'The coach\'s likely eleven and the rest of the squad. Tap any player for his profile. You never pick the team yourself.'],
   league: ['The league', 'Where you stand, who is next and how the cup is going. Top three go up, bottom three go down.'],
-  staff: ['Your departments', 'Each department has a head with staff underneath. Open one to see its numbers, people and decisions.']
+  staff: ['Your departments', 'Each department has a head who runs his own staff. Open one to see how it goes and what he plans, or to talk to him.']
 };
 function tourCard(k) { const g = G(), t = TOUR[k]; if (!t || (g.flags.tour || {})[k]) return ''; return `<div class="tourc"><b>${esc(t[0])}</b><p>${esc(t[1])}</p><button class="btn small" data-a="tour-ok" data-k="${k}">Got it</button></div>`; }
 function tabBadge(k) {
@@ -132,7 +132,7 @@ function render() {
   else if ((g.phase === 'review' || g.phase === 'sacked') && U.ticker) h = '';
   else if (g.phase === 'review') h = vReview2();
   else if (g.phase === 'sacked') h = vSacked();
-  else { U.tray = ''; h = masthead() + ({ inbox: vInbox, desk: vInbox, news: vNews, club: vClub2, staff: () => U.dept ? vDept(U.dept) : vDepts(), squad: vSquad, league: vLeague2, money: vMoney })[U.tab](); h += ((U.tab === 'inbox' && U.open) || (U.tab === 'staff' && U.dept === 'first')) && U.tray ? U.tray : vBar(); }
+  else { U.tray = ''; h = masthead() + ({ inbox: vInbox, desk: vInbox, news: vNews, club: vClub2, staff: () => U.dept ? vDept(U.dept) : vDepts(), squad: vSquad, league: vLeague2, money: vMoney })[U.tab](); h += ((U.tab === 'inbox' && U.open) || (U.tab === 'staff' && U.dept)) && U.tray ? U.tray : vBar(); }
   app.innerHTML = h + vSheet() + (U.toast ? `<div class="toast" role="status">${esc(U.toast)}</div>` : '') + (U.flash && U.flashN !== U.flashShown ? (U.flashShown = U.flashN, `<div class="fxtoast" role="status">${esc(U.flash)}</div>`) : '');
   markFresh(); mailAfter(); if (U.md && U.md.phase === 'match' && !U.md.ft) MDP.start();
   window.scrollTo(0, y); ddSchedule();

@@ -15,7 +15,7 @@ function kpiTile(r) {
   return `<div class="kt ${r.ok === true ? 'good' : r.ok === false ? 'bad' : ''}"><small>${esc(r.l)}</small><b>${esc(b)}</b>${sub ? `<span>${esc(sub)}</span>` : ''}</div>`;
 }
 function attAttr(x) {
-  if (x.a === 'talk') return x.x === 'coach' ? 'data-a="ft-talk"' : `data-a="sheet" data-s="talk" data-r="${x.x}"`;
+  if (x.a === 'talk') return `data-a="cv-open" data-r="${x.x}"`;
   if (x.a === 'mand') return `data-a="sheet" data-s="mand" data-r="${x.x}"`;
   if (x.a === 'dept') return `data-a="dept" data-k="${x.x}"`;
   return `data-a="dtab" data-v="${x.a}"`;
@@ -74,7 +74,7 @@ function acRecord() {
 }
 function acStaff() {
   const v = F.acadView();
-  return `<div class="sec">Academy staff</div>${v.staff.map(({ r, s }) => s ? `<div class="pcard2"><span class="pf">${ART.face(s.id * 13 + 7, { role: 'acad', age: s.age, bg: '#fff' })}</span><span class="pm"><b>${esc(s.name)}</b><small>${esc(r.t)}, ${starsTxt(F.stars((s.at[0] + s.at[1] + s.at[2]) / 3))}</small><small class="pw">${esc(s.bio)}. ${money(s.wage)}/wk</small></span><button class="linkbtn" data-a="ysack" data-r="${r.id}">Replace (${money(s.wage * 10)})</button></div>` : `<div class="pcard2"><span class="pf empty">${ART.I.staff}</span><span class="pm"><b>${esc(r.t)}</b><small>Vacant. The Academy Director fills it at season end.</small></span><span></span></div>`).join('')}`;
+  return `<div class="sec">Academy staff</div><p class="small">The Academy Director appoints and replaces these coaches himself.</p>${v.staff.map(({ r, s }) => s ? `<div class="pcard2"><span class="pf">${ART.face(s.id * 13 + 7, { role: 'acad', age: s.age, bg: '#fff' })}</span><span class="pm"><b>${esc(s.name)}</b><small>${esc(r.t)}, ${starsTxt(F.stars((s.at[0] + s.at[1] + s.at[2]) / 3))}</small><small class="pw">${esc(s.bio)}. ${money(s.wage)}/wk</small></span><span></span></div>` : `<div class="pcard2"><span class="pf empty">${ART.I.staff}</span><span class="pm"><b>${esc(r.t)}</b><small>Vacant. The Academy Director fills it at season end.</small></span><span></span></div>`).join('')}`;
 }
 
 /* ---------- first team plan: where youth minutes come from, academy rules, medical ---------- */
@@ -90,4 +90,19 @@ function ftPlanExtra() {
   return `<div class="sec">Youth minutes</div><div class="panel2"><p class="small" style="margin:0">Come from: ${src.join(' · ')}.${v.u21pm != null ? ` Result: ${v.u21pm.toFixed(1)} under-21s start per match.` : ''}</p>
   <p class="small" style="margin:6px 0 0">From the academy mandate: ${prot ? `${prot} academy player${prot === 1 ? '' : 's'} the DoF may not sell` : 'no academy players protected from sale'}; ${ment ? 'senior pros mentor the scholars' : 'no first-team mentors'}.</p>${F.staff('acad') ? '<button class="linkbtn" data-a="sheet" data-s="mand" data-r="acad">Academy mandate · 1 action</button>' : ''}</div>
   <div class="sec">Medical</div><div class="panel2"><p class="small" style="margin:0 0 8px">${push ? `Medical push active: fewer injuries and faster recovery, ${g.push.medical} week${g.push.medical === 1 ? '' : 's'} left.` : 'A medical push means fewer injuries and faster recovery for three weeks.'}</p><button class="btn ghost wide" data-a="push" data-d="medical" ${push || g.ap < 1 ? 'disabled' : ''}>Medical push · 1 action</button></div>`;
+}
+
+/* ---------- talks: requests on Now, the scene (B19) ---------- */
+function wantsHtml(k, st) {
+  const rq = F.convoReqs ? F.convoReqs(k) : [];
+  const cards = rq.map(r => `<div class="att"><p><b>${esc(F.staff(r.role).name.split(' ')[0])} wants a word.</b> ${esc(r.t)}${r.left <= 1 ? ' <span class="small">If you wait, he decides himself.</span>' : ''}</p><button class="btn small" data-a="cv-open" data-r="${r.role}" data-q="1">Hear him out</button></div>`).join('');
+  return `<p class="verd"><b>${esc(st.verdict.w)}.</b> ${esc(st.verdict.t)}</p>${cards ? `<div class="attl">${cards}</div>` : `<p class="small">Nothing he needs from you this week. Talk to him any time; it is free.</p>`}`;
+}
+function cvTalkHtml(T) {
+  const role = T.role, s = F.staff(role); if (!s) return '';
+  const coach = role === 'coach', last = T.log.slice(-3), ans = coach ? 'ft-ans' : 'cv-ans', cls = coach ? 'ft-talk-close' : 'cv-close';
+  const emo = T.done ? (T.fx.some(x => /down|deflated|−/i.test(x)) ? 'worried' : 'happy') : null;
+  U.tray = T.done ? trayHtml('', `<button class="btn" data-a="${cls}">Back to the department</button>`, '') : trayHtml('<span>You say</span>', T.opts.map((o, j) => choiceHtml({ l: o.t, h: o.fx }, j, `data-a="${ans}" data-id="${o.id}"`, false, false)).join(''), '');
+  U.trayH = T.done ? 90 : 60 + T.opts.length * 66;
+  return `<div class="ftalk">${sceneHtml(role, s.name, 'talk', 'In his office', '', emo)}${last.map((l, i) => l.who === 'you' ? `<p class="you-said">You: ${esc(l.t)}</p>` : `<div class="bubble ${i < last.length - 1 ? 'old' : ''}">${esc(l.t)}${ticOf(role, l.t) ? `<span class="tic">${esc(ticOf(role, l.t))}</span>` : ''}</div>`).join('')}${T.done && T.fx.length ? `<div class="fxrow">${T.fx.map(x => `<span class="chip">${esc(x)}</span>`).join('')}</div>` : ''}</div><div class="trayspace" style="--tray:${U.trayH}px"></div>`;
 }

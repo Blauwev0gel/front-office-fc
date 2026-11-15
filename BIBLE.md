@@ -75,7 +75,7 @@ Vastgelegd:
    escalaties komen bij jou (boven het limiet, topspeler, clubnaam, zwakke/koude head, kort lijntje)
    plus wat altijd van de CEO is: conflicten tussen afdelingen, bestuur, supporters, pers, en
    gesprekken met de heads zelf.
-3. **3 actiepunten per week** — voor second opinions, gesprekken, pushes van een afdeling.
+3. **3 actiepunten per week** — voor second opinions, mandaten en pushes van een afdeling. Gesprekken met de hoofden zijn gratis (B19): een hoofd vraagt om een gesprek als hij iets van de CEO nodig heeft ("wants a word"), en de CEO kan altijd zelf een gesprek openen. Laat je een verzoek twee weken liggen, dan beslist hij zelf.
 4. **Wedstrijddag** — vooraf drie verhalen over eigen spelers; tijdens: commentaar; na: hoe elk
    verhaal afliep en het keerpunt.
 5. **Weekafsluiting** — onbeantwoorde berichten worden door de staf zelf afgehandeld, financiën,
@@ -99,7 +99,8 @@ Run-in (20–29), Finale (30–34). Beker in week 5/11/17/23/29/33. Na week 34: 
 | Wereld & competitie | 8 divisies, 18 clubs, beker, rivalen die mee-evolueren | `engine/` |
 | Spelers | 14 attributen, CA/PA, leeftijd, contract, moraal, persoonlijkheid | `engine/` |
 | Wedstrijdsim | xG-gebaseerd, teamsterkte uit XI + coach-fit | `engine/`, `matchtalk.js`, `matchday.js` |
-| Afdelingen | vier tabs Now / Plan / People / Record (B12): oordeel en aandachtspunten, mandaat en middelen, mensen, record met wat het hoofd namens jou besliste | `depts.js`, `ui/08-departments.js`, `ui/08a-dept-parts.js` |
+| Afdelingen | vier tabs Now / Plan / People / Record (B12): oordeel en verzoeken van het hoofd (B19), mandaat en middelen, mensen (het hoofd beheert zijn staf, B18), record met wat het hoofd namens jou besliste | `depts.js`, `ui/08-departments.js`, `ui/08a-dept-parts.js` |
+| Gesprekken | het hoofd vraagt om een gesprek of de CEO opent er een; korte scènes met gevolg, gratis | `talks.js`, `firstteam.js` |
 | Bevoegdheid (desk) | short leash / normal / free hand per head, foutkans | `desk.js` |
 | Grip | zakt als je niet zelf beslist; tilt of drukt alle heads | `levers.js` |
 | Backers | 4 achterbannen met eigen stem, vote of confidence | `loop.js` |
@@ -181,3 +182,5 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 | B15 | 15-11-2026 | De Chief Scout is de tweede stem binnen Recruitment: geen eigen afdeling of mandaatsheet, wel een eigen persoon (Talk, Sack). Medical hoort bij First team. | Duidelijke eigenaar per knop, geen extra scherm (B3). |
 | B16 | 15-11-2026 | De CEO kiest geen individuele jeugdspelers: op de proefdag kiest hij waar de recruiters op letten, zij kiezen de kinderen. | Je stuurt mensen, geen spelers (P1). |
 | B17 | 15-11-2026 | Een verzoek aan de coach over een speler ("Give him minutes") kan hij weigeren, naar de mate waarin hij je mandaat volgt. | Mensen hebben een eigen wil (P7); de CEO kiest nooit het elftal (B1). |
+| B18 | 15-11-2026 | Elk hoofd neemt zijn eigen staf aan en laat ze gaan, binnen het budgetniveau dat de CEO zet. Hij kiest naar zijn kwaliteit en karakter. Boven zijn bedragslimiet vraagt hij het de CEO in een gesprek. | De CEO stuurt mensen, niet hun personeel (P1); het hoofd kiezen weegt zwaarder (P7). |
+| B19 | 15-11-2026 | Wat de CEO nodig heeft, komt als gesprek van het hoofd ("wants a word"), niet als lijst. Eén gespreksmotor voor alle hoofden (de coach-scènes zijn het model). Gesprekken zijn gratis; alleen het eerste gesprek met een hoofd binnen drie weken geeft grip en volle werking. **Herziet B12:** Now toont geen aandachtslijst meer maar het oordeel en de verzoeken van het hoofd. | Druk voel je via mensen (P4), mensen hebben een eigen wil (P7). |

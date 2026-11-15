@@ -6,11 +6,12 @@ function spark(arr, inv, W = 320, H = 70) {
 }
 const kfmt = (k, v) => k === 'commercial' || k === 'business' ? money(v) : k === 'first' ? F.ord(v) : String(v);
 function vDepts() {
-  const g = G(), O = F.deptOverview(), B = F.deptBudView();
-  const tiles = O.map(o => `<button class="dtile2" data-a="dept" data-k="${o.k}"><span class="dface ${o.s ? '' : 'empty'}">${o.s ? ART.staffFace(o.head) : ART.I.staff}</span><span class="dt"><small>${esc(o.t)}</small><b>${o.s ? esc(o.s.name) : 'Vacant'}</b><span class="sdots">${Array.from({ length: o.slots }, (_, i) => `<i class="${i < o.staffOn ? 'on' : i < o.used ? 'half' : ''}"></i>`).join('')}<em>${o.used} of ${o.slots} staff</em></span></span><span class="dstat ${o.s ? o.status.st : 'bad'}">${o.s ? o.status.l : 'Hire'}</span>${ART.I.chev}</button>`).join('');
+  const g = G(), O = F.deptOverview(), rq = k => (F.convoReqs ? F.convoReqs(k) : []);
+  const tiles = O.map(o => { const w = rq(o.k).length; return `<button class="dtile2" data-a="dept" data-k="${o.k}"><span class="dface ${o.s ? '' : 'empty'}">${o.s ? ART.staffFace(o.head) : ART.I.staff}</span><span class="dt"><small>${esc(o.t)}</small><b>${o.s ? esc(o.s.name) : 'Vacant'}</b><em class="dsub">${o.s ? (o.used ? `His staff: ${o.used}` : 'No staff yet') : 'Appoint a head'}</em></span><span class="dchips">${w ? '<span class="dstat bad">Wants a word</span>' : ''}<span class="dstat ${o.s ? o.status.st : 'bad'}">${o.s ? esc(o.status.l) : 'Hire'}</span></span>${ART.I.chev}</button>`; }).join('');
   const bud = `<div class="budcard">${planCard()}</div>`;
-  const bad = O.filter(o => !o.s || o.status.st === 'bad').length;
-  return `${tourCard('staff')}<div class="dhead"><b>${O.length} departments</b><span class="${bad ? 'bad' : 'good'}">${bad ? bad + ' need attention' : 'All running'}</span></div><div class="dtiles">${tiles}</div><div class="sec">Money per department</div>${bud}`;
+  const nw = O.filter(o => rq(o.k).length).length, vac = O.filter(o => !o.s).length;
+  const top = nw ? `${nw} want${nw === 1 ? 's' : ''} a word` : vac ? `${vac} without a head` : 'All quiet';
+  return `${tourCard('staff')}<div class="dhead"><b>${O.length} departments</b><span class="${nw || vac ? 'bad' : 'good'}">${top}</span></div><div class="dtiles">${tiles}</div><div class="sec">Money per department</div>${bud}`;
 }
 function headLine(role, s) {
   const rc = F.record(role), P = s.p, v = rc.verdict;
@@ -37,7 +38,7 @@ function authHtml(role) {
 function headBtns(role, s, mini) {
   const g = G();
   const PV = F.pwView ? F.pwView() : null, agChip = !mini && PV && PV.ag && PV.stage !== 'closed' && ['coach', 'dof', 'acad'].includes(role) ? `<button class="agchip" data-a="pw-open"><span>${ART.I.info}</span><b>Agreement: the ${esc(PV.tname)} question</b><small>${role === PV.ag.owner ? 'Responsible' : 'Involved'} · evaluation week ${PV.ag.evalWeek}</small></button>` : '';
-  return agChip + `<div class="hbtns${mini ? ' in' : ''}"><button class="btn small" ${role === 'coach' ? 'data-a="ft-talk"' : `data-a="sheet" data-s="talk" data-r="${role}"`} ${g.ap < 1 ? 'disabled' : ''}>${ART.I.phone} Talk</button></div>`;
+  return agChip + `<div class="hbtns${mini ? ' in' : ''}"><button class="btn small" data-a="cv-open" data-r="${role}">${ART.I.phone} Talk</button></div>`;
 }
 function instinctRow(role) {
   const s = F.staff(role); if (!s) return ''; const L = F.LEAN[role], k = L[0], m = F.man(role, k), MD = F.MAND[role].sl.find(x => x[0] === k); if (!MD) return '';
@@ -110,8 +111,8 @@ const DTABS = [['now', 'Now'], ['plan', 'Plan'], ['people', 'People'], ['record'
 function vDept(k) {
   const g = G(), v = F.deptView(k), d = v.d, st = v.status, role = d.head, s = v.head;
   let tab = DTAB_OLD[U.dtab] || U.dtab || 'now'; if (!DTABS.some(t => t[0] === tab)) tab = 'now';
-  const head = `<div class="ohead"><button class="iconbtn" data-a="dept" data-k="" aria-label="Back to departments">${ART.I.back}</button><span class="pos">${esc(d.t)}</span><button class="dstatb" data-a="dtab" data-v="now" aria-label="${esc(st.l)}: show what needs you"><span class="dstat ${st.st}">${esc(st.l)}</span></button></div>`;
-  if (k === 'first' && s) { const T = F.ftView(); if (T.talk) return head + ftTalkHtml(T); }
+  const head = `<div class="ohead"><button class="iconbtn" data-a="dept" data-k="" aria-label="Back to departments">${ART.I.back}</button><span class="pos">${esc(d.t)}</span>${(() => { const rq = F.convoReqs ? F.convoReqs(k) : []; return rq.length ? `<button class="dstatb" data-a="dtab" data-v="now" aria-label="Wants a word"><span class="dstat bad">Wants a word</span></button>` : `<span class="dstat ${st.st}">${esc(st.l)}</span>`; })()}</div>`;
+  const TV = F.convoView ? F.convoView(k) : null; if (TV) return head + cvTalkHtml(TV);
   const FP = k === 'first' && s ? vFirst(true) : null;
   const tabs = `<div class="dtabs" role="tablist">${DTABS.map(([t, l]) => `<button role="tab" aria-selected="${tab === t}" class="${tab === t ? 'on' : ''}" data-a="dtab" data-v="${t}">${l}</button>`).join('')}</div>`;
   let body = '';
@@ -120,7 +121,7 @@ function vDept(k) {
     const wait = items.length ? `<div class="sec">Waiting for you</div>${items.map(i => `<button class="dinb" data-a="dinbox" data-key="${i.key}"><b>${esc(i.subj)}</b><small>${esc(i.label)}</small>${ART.I.chev}</button>`).join('')}` : '';
     const kpis = st.rows.length ? `<div class="sec">The numbers</div><div class="kgrid">${st.rows.slice(0, 4).map(kpiTile).join('')}</div>` : '';
     const vis = k === 'commercial' && F.comView ? comOverview(F.comView()) : k === 'marketing' && F.mkView ? mkOverview(F.mkView()) : k === 'business' && F.bizView ? bizOverview() : FP ? `<div class="sec">Form</div><div class="panel2">${FP.form}</div>` : '';
-    body = attHtml(st) + wait + kpis + vis;
+    body = wantsHtml(k, st) + wait + kpis + vis;
   }
   if (tab === 'plan') {
     const mandBtn = s ? `<button class="btn ghost wide" data-a="sheet" data-s="mand" data-r="${role}" style="margin-top:8px" ${g.ap < 1 ? 'disabled' : ''}>Change mandate · 1 action</button>` : '';
@@ -134,11 +135,11 @@ function vDept(k) {
   }
   if (tab === 'people') {
     const me = s ? `<div class="pcard2 senior"><span class="pf">${ART.staffFace(role)}</span><span class="pm"><b>${esc(s.name)}</b><small>${esc(F.ROLE[role].t)}, ${s.age}. ${s.contract} season${s.contract === 1 ? '' : 's'} left. ${money(s.wage)}/wk</small><small class="pw">Relationship ${relW(s.rel)} (${r0(s.rel)}). ${esc(s.bio)}.</small></span><button class="btn ghost small danger" ${role === 'coach' ? 'data-a="ft-sackq"' : `data-a="sheet" data-s="fire" data-r="${role}"`} ${g.ap < 1 ? 'disabled' : ''}>Sack</button></div>` : '';
-    const scoutC = d.also ? (v.also ? `<div class="pcard2 senior"><span class="pf">${ART.staffFace(d.also)}</span><span class="pm"><b>${esc(v.also.name)}</b><small>Chief scout, ${starsTxt(F.stars(F.ovr(v.also)))}. Relationship ${relW(v.also.rel)} (${r0(v.also.rel)})</small></span><span class="pb"><button class="linkbtn" data-a="sheet" data-s="talk" data-r="${d.also}" ${g.ap < 1 ? 'disabled' : ''}>Talk</button><button class="linkbtn danger" data-a="sheet" data-s="fire" data-r="${d.also}" ${g.ap < 1 ? 'disabled' : ''}>Sack</button></span></div>` : `<div class="pcard2 senior"><span class="pf empty">${ART.I.staff}</span><span class="pm"><b>No chief scout</b><small>Nobody is watching players</small></span><button class="btn small" data-a="sheet" data-s="cands" data-r="${d.also}">Hire</button></div>`) : '';
-    const cards = v.staff.map(x => `<div class="pcard2 ${x.on ? '' : 'pending'}"><span class="pf">${ART.face(x.id * 17 + 5, { role: d.face, age: x.age, bg: '#fff' })}</span><span class="pm"><b>${esc(x.name)}</b><small>${esc(x.title)}</small><span class="traits"><span title="${esc(x.tdesc)}">${esc(x.trait)}</span></span><small class="pw">${esc(x.what)}. ${money(x.wage)}/wk</small>${x.on ? '' : `<small class="pw">Starts in ${x.left} wk</small>`}</span><button class="linkbtn" data-a="dletgo" data-k="${k}" data-id="${x.id}">Let go</button></div>`).join('');
-    const open = v.used < v.slots ? `<div class="sec">Open roles <span class="small">${v.slots - v.used} free</span></div><div class="oroles">${v.open.map(o => `<button class="orole" data-a="dcand" data-k="${k}" data-r="${o.role}"><b>${esc(o.title)}</b><small>${esc(o.what)}</small><em>from ${money(o.wage)}/wk</em></button>`).join('')}</div>` : `<p class="small">All ${v.slots} staff roles are filled. More room comes with a higher division.</p>`;
+    const scoutC = d.also ? (v.also ? `<div class="pcard2 senior"><span class="pf">${ART.staffFace(d.also)}</span><span class="pm"><b>${esc(v.also.name)}</b><small>Chief scout, ${starsTxt(F.stars(F.ovr(v.also)))}. Relationship ${relW(v.also.rel)} (${r0(v.also.rel)})</small></span><span class="pb"><button class="linkbtn" data-a="cv-open" data-r="${d.also}">Talk</button><button class="linkbtn danger" data-a="sheet" data-s="fire" data-r="${d.also}" ${g.ap < 1 ? 'disabled' : ''}>Sack</button></span></div>` : `<div class="pcard2 senior"><span class="pf empty">${ART.I.staff}</span><span class="pm"><b>No chief scout</b><small>Nobody is watching players</small></span><button class="btn small" data-a="sheet" data-s="cands" data-r="${d.also}">Hire</button></div>`) : '';
+    const cards = v.staff.map(x => `<div class="pcard2 ${x.on ? '' : 'pending'}"><span class="pf">${ART.face(x.id * 17 + 5, { role: d.face, age: x.age, bg: '#fff' })}</span><span class="pm"><b>${esc(x.name)}</b><small>${esc(x.title)}</small><span class="traits"><span title="${esc(x.tdesc)}">${esc(x.trait)}</span></span><small class="pw">${esc(x.what)}. ${money(x.wage)}/wk</small>${x.on ? '' : `<small class="pw">Starts in ${x.left} wk</small>`}</span><span></span></div>`).join('');
+    const want = F.deptStaffWant ? F.deptStaffWant(k) : 0, open = s ? `<p class="small">${esc(s.name.split(' ')[0])} hires and lets go his own staff. With this budget he wants ${want} ${want === 1 ? 'person' : 'people'}; there is room for ${v.slots}. Raise the budget on Plan for more.</p>` : '<p class="small">Without a head, nobody hires staff here.</p>';
     const log = v.log.length ? `<div class="sec">Recently</div><div class="panel2">${v.log.map(l => `<p class="small" style="margin:3px 0">Wk ${l.w}: ${esc(l.t)}</p>`).join('')}</div>` : '';
-    body = `${me}${scoutC}<div class="sec">Staff <span class="small">${v.used} of ${v.slots}</span></div>${cards || '<p class="small">Nobody yet. The head does everything alone.</p>'}${open}${k === 'academy' && g.acad ? acStaff() : ''}${log}`;
+    body = `${me}${scoutC}<div class="sec">His staff <span class="small">${v.used}</span></div>${cards || '<p class="small">Nobody yet. He does everything alone.</p>'}${open}${k === 'academy' && g.acad ? acStaff() : ''}${log}`;
   }
   if (tab === 'record') {
     if (k === 'academy') body = g.acad ? acRecord() : '';

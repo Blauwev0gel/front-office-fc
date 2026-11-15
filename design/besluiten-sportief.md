@@ -73,10 +73,25 @@ Status: **open** · **besloten** · **gebouwd** · **getest**. Type: bug · misl
 | D12 | Lage trainingsintensiteit lijkt dominant (minder blessures, gelijke punten). | A §4.2 | balans | open |
 | D13 | `test/audit.js` laadt loop, dossiers, pathway en matchday niet; de stijl "active" kiest wat de staf kiest. De audit meet zo geen CEO-oordeel. | A §5 | opschonen | open |
 
+## Ronde 5 — Hoofden verantwoordelijk, gesprekken in plaats van een lijst
+
+Huidige stand (code): de CEO neemt staf onder elk hoofd zelf aan (`depts.js` `hireStaff`, People-tab, "0 of 2 staff" in `vDepts`), betaalt vier weken loon als tekengeld en ontslaat via "Let go". De aandachtslijst komt uit `depts.js` `attention()`. Gesprekken bestaan als coach-scènes (`firstteam.js`), een algemeen talk-sheet met vijf tonen (`engine/09` `talk`), briefings (`defineBrief`), de pathway- en zomervergadering.
+
+| Id | Probleem / keuze | Type | Status |
+|---|---|---|---|
+| H1 | De CEO huurt staf onder elk hoofd zelf in; dat hoort bij het hoofd. | ontwerp | getest |
+| H2 | Hoe kiest een hoofd zijn staf (kwaliteit, persoonlijkheid, budget)? | ontwerp | getest |
+| H3 | "Needs you" is een lijst van de game, niet een stem van het hoofd (herziet een deel van B12). | ontwerp | getest |
+| H4 | Status-chip, "N need attention" en "0 of 2 staff" in de afdelingslijst. | ontwerp | getest |
+| H5 | Wat kost een gesprek, en hoe blijft een week kort (B3)? | ontwerp | getest |
+| H6 | Eén gespreksmotor voor alle hoofden, met de coach-scènes als model? | ontwerp | getest |
+| H7 | Oude saves met door de CEO aangenomen staf. | migratie | getest |
+
 ## Buiten deze rondes (fase 2, opschonen)
 
 | Id | Probleem | Bron | Status |
 |---|---|---|---|
+| X4 | Dode code na ronde 5: het talk-sheet met vijf tonen (`vSheet` 'talk', acties `talk-who`/`talk-do`, `F.talk`), de acties `dcand`, `dletgo`, `ysack` en de kandidatensheet voor staf. | ronde 5 | open |
 | X1 | Dode delen van `summer.js` (`sumRound`, `sumPending`, `sumAnswer`, `sumStep`, de oude `sumAuto`, `sumMigrate`). | A §3 | open |
 | X2 | Onbereikbare `resBuy`-UI van het eerste elftal (`ft-buy`). | A §4.2 | open |
 | X3 | `vAcademy` wordt dode code zodra T4 gebouwd is. | S §4.4 | gedaan in ronde 2 (`vAcademy`, `vAcademy2` en `vRecruit2` vervangen) |
@@ -114,3 +129,11 @@ Doel: elke afdeling beantwoordt dezelfde vier vragen, elk gegeven staat op één
 - **O6/O7 Eigenaar van regels:** "Blocked by the wage cap (Finance)" of "… the age limit (DoF mandate)"; de aandachtspunten verwijzen naar het juiste mandaat. De twee academieregels blijven in het academiemandaat en staan ook op First team Plan.
 - **O8:** academiediepte blijft zoals na ronde 2.
 - Getest: build, alle `node test/*.js`, scriptcheck van de drie proefdagcriteria en van de weigerkans, screenshots op 390 px licht en donker (week 28–30).
+
+### Ronde 5 (besloten 15-11-2026; B18–B19, herziet B12)
+- **H1/H2 Hoofd beheert zijn staf** (`depts.js` `staffWant`, `headHire`, om de week): het aantal volgt het budgetniveau (Cut 0, Lean 1, Normal 2, Invest alle plekken), +1 bij grote ambitie, −1 bij een voorzichtig hoofd. Hij kiest de rol die zijn zwakste attribuut versterkt (First team: fitnesscoach bij veel blessures); een sterk hoofd kiest de betere kandidaat. Boven zijn bedragslimiet (`F.deskLimit`) vraagt hij het in een gesprek; niet als de kas krap is. Te veel staf voor het budget: hij laat de zwakste gaan. Alles komt als regel in People → Recently. De CEO kan geen staf meer aannemen of ontslaan; "Replace" bij de jeugdstaf is weg.
+- **H3/H5/H6 Gesprekken** (`talks.js`, nieuw): verzoeken uit de echte staat (mandaatafwijking, koude relatie, selectie onder niveau, regels van de DoF, de wage cap van Finance, een dun netwerk voor de scout, academiebudget, welzijn, minuten voor jeugdspelers, stafaanvraag). Max. één verzoek per hoofd, drie weken rust na afloop, verloopt na twee weken ("he decides himself", in Record). Gesprekken zijn gratis; grip alleen bij een fris gesprek. De coach houdt zijn eigen scènes; de motor opent ze. Het talk-sheet met tonen is vervangen.
+- **H4 Afdelingslijst:** per afdeling het oordeel en "Wants a word"; de kop telt wie je wil spreken; "His staff: n" in plaats van "0 of 2 staff".
+- **H7 Oude saves:** bestaande staf blijft en valt onder het hoofd. Nieuwe state met veilige defaults: `G.convo`, `G.staffAsk`.
+- Gemeten (16 runs × 3 seizoenen, gematchte seeds, actieve auditstijl), nu tegenover de vorige commit: staf per club in week 30 5,9 tegenover 0; punten per wedstrijd 1,78 tegenover 1,73 (ruis); eindkas £149k tegenover £133k; negatieve kas 10 tegenover 9 runs; verzoeken 4,4 per seizoen per club.
+- Getest: build, alle `node test/*.js` (incl. `mig.js`; `talks.js` toegevoegd aan `test/audit.js` en `tools/auditlib.js`), screenshots op 390 px licht en donker (afdelingslijst, Now met verzoek, People, een gesprek). Tijdens de test gevonden en gerepareerd: de gesprekstray werd alleen bij First team getoond.

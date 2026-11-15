@@ -91,6 +91,7 @@ H.seasonAfterMatch = ours => {
     for (const st of X.staff) if (st.left > 0 && --st.left === 0) X.log.unshift({ w: G.week, s: G.season, t: `${st.name} is up and running as ${ROLES[d.k][st.role][0].toLowerCase()}.` });
     if (X.log.length > 12) X.log.length = 12;
   }
+  if (G.phase === 'season' && G.week % 2 === 0) for (const d of DEPTS) headHire(d.k);
   if (G.week === 1 && G.deptSeason !== G.season) {
     G.deptSeason = G.season;
     for (const d of DEPTS) { const X = D[d.k]; for (const st of X.staff.slice()) {
@@ -105,21 +106,46 @@ function cands(dk, role) {
   const X = ensure()[dk]; if (!X.cands[role] || X.cands[role].s !== g().season) X.cands[role] = { s: g().season, c: [mkStaff(dk, role), mkStaff(dk, role)] };
   return X.cands[role].c;
 }
-function hireStaff(dk, role, i) {
+function hireStaff(dk, role, i, byHead) {
   const G = g(), X = ensure()[dk]; if (X.staff.length >= slots()) return { err: 'No open roles left in this department.' };
   if (X.staff.some(s => s.role === role)) return { err: 'That role is already filled.' };
   const c = cands(dk, role)[i]; if (!c) return; const fee = c.wage * 4; if (G.club.cash < fee) return { err: 'Not enough cash for the signing-on fee.' };
   G.club.cash -= fee; c.since = G.season; c.left = 2; X.staff.push(c); delete X.cands[role];
-  const h = staff(DK[dk].head); if (h) h.rel = clamp(h.rel + 2, 0, 100);
-  X.log.unshift({ w: G.week, s: G.season, t: `${c.name} hired as ${ROLES[dk][role][0].toLowerCase()}.` });
+  const h = staff(DK[dk].head); if (h && !byHead) h.rel = clamp(h.rel + 2, 0, 100);
+  X.log.unshift({ w: G.week, s: G.season, t: byHead ? `${h ? h.name.split(' ')[0] : 'The head'} hired ${c.name} as ${ROLES[dk][role][0].toLowerCase()}${byHead === true ? '' : ': ' + byHead}.` : `${c.name} hired as ${ROLES[dk][role][0].toLowerCase()}.` });
   return { out: `${c.name} joins as ${ROLES[dk][role][0].toLowerCase()}. Starts in 2 weeks.` };
 }
-function letGo(dk, id) {
+function letGo(dk, id, why) {
   const G = g(), X = ensure()[dk], st = X.staff.find(s => s.id === id); if (!st) return;
   const pay = st.wage * 4; G.club.cash -= pay; X.staff = X.staff.filter(s => s !== st);
-  const h = staff(DK[dk].head); if (h) h.rel = clamp(h.rel - 3, 0, 100);
-  X.log.unshift({ w: G.week, s: G.season, t: `${st.name} let go.` });
+  const h = staff(DK[dk].head); if (h && !why) h.rel = clamp(h.rel - 3, 0, 100);
+  X.log.unshift({ w: G.week, s: G.season, t: why ? `${h ? h.name.split(' ')[0] : 'The head'} let ${st.name} go: ${why}.` : `${st.name} let go.` });
   return { out: `${st.name} has left. Paid ${money(pay)} in notice.` };
+}
+
+/* ---------- the head runs his own staff (B18) ---------- */
+// How many people he wants follows the budget level you set, nudged by his character.
+function staffWant(dk) {
+  const d = DK[dk], h = staff(d.head); if (!h) return 0;
+  const lv = d.bud ? budGet(dk) : 50; let n = lv < 25 ? 0 : lv <= 37 ? 1 : lv >= 65 ? slots() : Math.min(2, slots());
+  if (h.p.amb >= 14) n++; if (h.p.risk <= 6) n--; return clamp(n, 0, slots());
+}
+// He fills the role that shores up his weakest side; a strong head picks the better candidate.
+function headHire(dk) {
+  const G = g(), d = DK[dk], X = ensure()[dk], h = staff(d.head); if (!h || G.phase !== 'season') return;
+  const want = staffWant(dk);
+  if (X.staff.length > want) { const st = X.staff.slice().sort((a, b) => mult(a) - mult(b))[0]; return letGo(dk, st.id, 'the budget no longer covers the role'); }
+  if (X.staff.length >= want || (G.staffAsk || {})[dk] || !chance(0.5)) return;
+  const R = ROLES[dk], filled = new Set(X.staff.map(x => x.role)), open = Object.keys(R).filter(r => !filled.has(r)); if (!open.length) return;
+  const weak = h.at.indexOf(Math.min(...h.at)), AT = (F.ROLE[d.head] || { at: [] }).at;
+  const score = r => R[r][3].reduce((a, [rr, ii, v]) => a + (rr === d.head ? v * (ii === weak ? 2 : 1) : v * 0.5), 0) + (dk === 'first' && r === 'fit' && G.squad.filter(p => p.inj > 0).length >= 3 ? 3 : 0) + F.rnd() * 0.6;
+  const role = open.sort((a, b) => score(b) - score(a))[0], cs = cands(dk, role);
+  const strong = F.eff(d.head) - F.tierAvg(G.club.tier) >= 2, i = strong ? (mult(cs[0]) >= mult(cs[1]) ? 0 : 1) : (F.rnd() < 0.5 ? 0 : 1), c = cs[i];
+  const why = R[role][3].some(x => x[0] === d.head && x[1] === weak) && AT[weak] ? `to shore up his ${AT[weak].toLowerCase()}` : R[role][1].toLowerCase();
+  const lim = F.deskLimit ? F.deskLimit(d.head) : Infinity;
+  if (c.wage > lim && F.convoAsk) { (G.staffAsk = G.staffAsk || {})[dk] = { role, i, why }; return F.convoAsk(d.head, { k: 'staff', dk, role, i, why, wage: c.wage, fee: c.wage * 4, title: R[role][0], name: c.name }); }
+  if (G.club.cash < c.wage * 4 * 3) return; // not while money is tight
+  return hireStaff(dk, role, i, why);
 }
 
 /* ---------- budget split ---------- */
@@ -203,7 +229,7 @@ function attention(dk) {
 const SW = F.SEASON_WEEKS || 34;
 function status(dk) {
   const sc = F.scorecard().find(x => x.k === dk), V = verdict(dk), A = attention(dk);
-  return { st: A.length ? 'bad' : V.st, l: A.length ? `${A.length} to look at` : V.w, verdict: V, att: A, rows: sc ? sc.rows : [] };
+  return { st: V.st, l: V.w, verdict: V, att: A, rows: sc ? sc.rows : [] }; // the chip is the verdict; what needs the CEO comes as a request to talk (B19)
 }
 function view(dk) {
   const G = g(), d = DK[dk], X = ensure()[dk], used = X.staff.length, S = status(dk);
@@ -221,5 +247,5 @@ function view(dk) {
 function overview() { return DEPTS.map(d => { const X = ensure()[d.k]; return { k: d.k, t: d.t, head: d.head, s: staff(d.head), status: status(d.k), used: X.staff.length, slots: slots(), staffOn: X.staff.filter(active).length }; }); }
 function budView() { return { cap: budCap(), used: budUsed(), rows: BUD.map(k => ({ k, t: DK[k].t, v: budGet(k), cost: budCost(k), d: BUD_D[k], vacant: !staff(DK[k].head) })) }; }
 
-Object.assign(F, { deptVerdict: verdict, deptAttention: attention, DEPTS, DEPT: DK, DEPT_ROLES: ROLES, deptEnsure: ensure, deptView: view, deptOverview: overview, deptCands: cands, deptHire: hireStaff, deptLetGo: letGo, deptBudView: budView, deptBudSet: budSet });
+Object.assign(F, { deptHeadHire: headHire, deptStaffWant: staffWant, deptVerdict: verdict, deptAttention: attention, DEPTS, DEPT: DK, DEPT_ROLES: ROLES, deptEnsure: ensure, deptView: view, deptOverview: overview, deptCands: cands, deptHire: hireStaff, deptLetGo: letGo, deptBudView: budView, deptBudSet: budSet });
 })(FO);

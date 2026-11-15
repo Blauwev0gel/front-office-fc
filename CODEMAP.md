@@ -84,7 +84,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `summer2.js` | 29 KB | the transfer summer, version 2 A summer meeting with the DoF and staff that ends in a signed summer brief, a t | summerStart | recWeekly | dofStrikes |
 | `faces.js` | 27 KB | visual layer, part 1 Procedural ink-style portraits for every person in the game, the CEO's office scene, repu |  |  |  |
 | `firstteam.js` | 21 KB | First team department The coach's own instincts vs your mandate, support staff you can fund, talks as short sc | coachAct, ftCost, ftInj, ftDev, ftExtra, selBonus, seasonAfterMatch |  | ft |
-| `depts.js` | 18 KB | departments Every department is a real unit: a head, staff underneath, a budget share, facilities, KPI history | effBonus, deptCost, merchMult, ftExtra, ftDev, ftInj, seasonAfterMatch |  | dept, deptB, deptSeason |
+| `depts.js` | 21 KB | departments Every department is a real unit: a head, staff underneath, a budget share, facilities, KPI history | effBonus, deptCost, merchMult, ftExtra, ftDev, ftInj, seasonAfterMatch |  | dept, deptB, deptSeason, staffAsk |
 | `levers.js` | 7 KB | levers Grip: a club drifts without a CEO steering it | effBonus, ftExtra, seasonAfterMatch | deptCost | grip, gripW, gripLog |
 | `commercial.js` | 10 KB | Commercial department The stadium as a system (three stands, demand, price, matchday experience), sponsor offe | attendance, gate, homeEdge, merchMult, deptCost, seasonAfterMatch |  | com |
 | `marketing.js` | 7 KB | Marketing department A supporter funnel (reach, fans, season-ticket holders), loyalty that cushions bad result | fanWeekly, deptCost |  | mk |
@@ -93,6 +93,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `recruitx.js` | 3 KB | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re | seasonAfterMatch |  | recX |
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 18 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
+| `talks.js` | 14 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio |
 | `loop.js` | 15 KB | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice | lastChance, seasonReprieve, seasonAfterMatch |  | votes, vote, bgoal, bgLog, wkDelta, wkPrev, wkLog |
 | `dossiers.js` | 28 KB | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar | seasonAfterMatch |  | pressure, dos |
 | `pathway.js` | 27 KB | the pathway question One governance storyline, built to show the core loop: you notice a problem, talk to the  | selBonus, seasonAfterMatch |  | cred, pw, academy, pwLog |
@@ -105,7 +106,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/06-sheets-ticker.js` | 22 KB | sheets; ticker |  |  |  |
 | `ui/07-club-league.js` | 8 KB | review & sacked; club, league, staff, academy, review: game screens |  | deptCost |  |
 | `ui/08-departments.js` | 25 KB | departments |  |  |  |
-| `ui/08a-dept-parts.js` | 15 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
+| `ui/08a-dept-parts.js` | 17 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
 | `ui/09-firstteam-review.js` | 12 KB | first team department |  |  |  |
 | `ui/10-inbox.js` | 17 KB | render; inbox home (1.6) |  |  |  |
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
@@ -200,8 +201,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: ftView, ftTalkStart, ftTalkAnswer, ftTalkClose, ftResBuy, ftResCancel, ftSackQuote, ftSack, ftPref, ftCompliance, FT_RES
 
 ### `depts.js`
-- Functions: g, slots, tierK, ensure, mkStaff, mult, active, has, kpiOf, cands, hireStaff, letGo, budGet, budCap, budUsed, budSet, budCost, verdict, attention, status, view, overview, budView
-- Exports on `F`: deptHas, deptVerdict, deptAttention, DEPTS, DEPT, DEPT_ROLES, deptEnsure, deptView, deptOverview, deptCands, deptHire, deptLetGo, deptBudView, deptBudSet
+- Functions: g, slots, tierK, ensure, mkStaff, mult, active, has, kpiOf, cands, hireStaff, letGo, staffWant, headHire, budGet, budCap, budUsed, budSet, budCost, verdict, attention, status, view, overview, budView
+- Exports on `F`: deptHas, deptHeadHire, deptStaffWant, deptVerdict, deptAttention, DEPTS, DEPT, DEPT_ROLES, deptEnsure, deptView, deptOverview, deptCands, deptHire, deptLetGo, deptBudView, deptBudSet
 
 ### `levers.js`
 - Functions: g, gripInit, gain, wrap, net, runway, tight, wrapAuto, patchAutos
@@ -233,7 +234,11 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 
 ### `desk.js`
 - Functions: g, headOf, auth, setAuth, limit, amtOf, top3, errChance, lvl, first, reason, coreWhy, log, txt, slip, briefAmt, both, pickHead, deskView, authView
-- Exports on `F`: AUTH, setAuth, authView, deskView, DESK_HEADS
+- Exports on `F`: AUTH, setAuth, authView, deskView, DESK_HEADS, deskLimit, auth(r)), deskNote, t, c, err) => log(headOf(r), err ? 1, c)
+
+### `talks.js`
+- Functions: g, first, C, rel, boost, ask, reqText, lapse, weekly, say, note, common, reqOpts, open, answer, close, view, reqOf, reqsFor
+- Exports on `F`: convoAsk, convoOpen, convoAnswer, convoClose, convoView, convoReq, convoReqs, CONVO_DEPT
 
 ### `loop.js`
 - Functions: g, room, sup, voice, backers, snap, diff, form5, band, bump, lift, lastChance, tgt, needFor, blockTick, goalView, comingUp
@@ -276,7 +281,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: spark, kfmt, vDepts, headLine, headCard, authHtml, headBtns, instinctRow, fillCol, stadiumSvg, comOverview, comDecisions, mkOverview, mkDecisions, planCard, bizOverview, acPyramid, acDecisions, vDept
 
 ### `ui/08a-dept-parts.js`
-- Functions: relW, compW, netW, gapW, kpiTile, attAttr, attHtml, deskHist, recTiles, regionCard, recRecord, acRecord, acStaff, ftPlanExtra
+- Functions: relW, compW, netW, gapW, kpiTile, attAttr, attHtml, deskHist, recTiles, regionCard, recRecord, acRecord, acStaff, ftPlanExtra, wantsHtml, cvTalkHtml
 
 ### `ui/09-firstteam-review.js`
 - Functions: vFirst, ftTalkHtml, vReview2, vSacked

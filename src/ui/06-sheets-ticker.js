@@ -11,9 +11,10 @@ function vSheet() {
       if (m.active) h += '<div class="panel2"><b>Assignment underway: ' + esc(m.active.approachTitle) + '</b><p>' + (m.active.steps || 0) + ' of 4 working weeks completed. Review due in ' + Math.max(0,m.active.due - F.absWeek()) + ' weeks.</p><p>Original evidence: ' + esc(m.active.baseline) + '</p></div>';
       else {
         h += '<p><b>How should ' + esc(m.owner) + ' address this?</b></p><p class="small">Choose a direction for the department. An assignment takes one CEO action; results are not guaranteed.</p>';
-        // Use the same known-good full-width button primitive as the risk action.
-        // The former .panel2 buttons were shrinking to their intrinsic width on iOS.
-        h += m.options.map(o => '<button type="button" class="btn ghost wide" style="display:block;width:100%;box-sizing:border-box;height:auto;min-height:76px;margin:0 0 12px;padding:16px;text-align:left;white-space:normal;line-height:1.45" data-a="dept-plan" data-k="' + esc(s.k) + '" data-v="' + esc(s.v) + '" data-c="' + esc(o[2]) + '"><span style="display:block;font-weight:900;margin-bottom:6px">' + esc(o[0]) + '</span><span style="display:block;font:400 15px/1.5 var(--body);white-space:normal;overflow-wrap:anywhere">' + esc(o[1]) + '</span></button>').join('');
+        // An isolated full-width block: no inherited candidate or panel button layout.
+        h += '<section class="dept-issue-choices" aria-label="Department response options">' +
+          m.options.map(o => '<button type="button" class="dept-issue-choice" data-a="dept-plan" data-k="' + esc(s.k) + '" data-v="' + esc(s.v) + '" data-c="' + esc(o[2]) + '"><span class="dept-issue-choice-title">' + esc(o[0]) + '</span><span class="dept-issue-choice-desc">' + esc(o[1]) + '</span></button>').join('') +
+          '</section>';
         h += '<button class="btn ghost wide" data-a="dept-plan" data-k="' + esc(s.k) + '" data-v="' + esc(s.v) + '" data-c="accept">Accept risk — no intervention</button>';
       }
     }

@@ -5,9 +5,7 @@
 const g = () => F.G, H = F.HOOK, S = () => g().sum;
 const { ri, pick, chance, clamp, gauss, money, M, staff, man, tierAvg, wageFor } = F;
 const sq = () => g().squad, N = r => F.staffName(r);
-const STEPS = ['Clear-out', 'Board and budget', 'Market', 'Pre-season', 'Deadline day'];
 const ROUNDS = ['Early summer', 'Midsummer', 'Late summer'];
-F.SUM_STEPS = STEPS; F.SUM_ROUNDS = ROUNDS;
 
 /* ---------- start & finish ---------- */
 H.summerStart = () => {
@@ -51,7 +49,7 @@ function sellSuggest() {
   for (const p of sq()) if (!p.expiring && p.age >= 31 && p.wage > F.playerWages() / sq().length * 1.4 && !out.includes(p)) out.push(p);
   s.sell = out.filter(p => !prot.has(p.id)).slice(0, 4).map(p => p.id);
 }
-F.sumToggleSell = id => { const p = sq().find(x => x.id === id); if (p) p.sellFlag = !p.sellFlag; };
+
 F.sumPlanner = () => {
   const rows = [];
   for (const pos in F.REQ) {
@@ -186,7 +184,6 @@ F.ddSkip = () => { const d = S().dd; if (!d) F.ddStart(); let guard = 0; while (
 F.sumView = () => { const s = S(); return { s, step: s.step, contracts: sq().filter(p => p.expiring || s.contracts[p.id]).map(p => ({ p, c: s.contracts[p.id] })).filter(o => o.c), sell: (s.sell || []).map(id => sq().find(p => p.id === id)).filter(Boolean) }; };
 F.sumStep = i => { const s = S(); if (i > s.step + 1) return; s.step = i; if (i === 3) F.sumFriendlies(); };
 F.sumFinish = finishSummer;
-F.sumCanAdvance = () => { const s = S(); return s.step === 2 ? s.round >= ROUNDS.length : s.step === 4 ? !!(s.dd && s.dd.done) : true; };
 
 /* test helper: plays a whole summer with random choices */
 F.sumAuto = (rand, lazy) => {

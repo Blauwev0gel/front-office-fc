@@ -134,17 +134,22 @@ Vastgelegd (B10): droge Britse ironie is de vaste stem van het spel. ❓ Referen
 
 Werkt:
 - Build slaagt (~1,0 MB).
-- Tests `sim`, `matchday`, `gazette`, `sack`, `pathway`, `acad`, `rec`, `mig` draaien zonder fout.
+- Alle Node-tests slagen, ook `audit` en een nieuwe regressietest in `sack` (ontslag bij de seizoensbeoordeling).
 
 Aandachtspunten:
-1. **`test/audit.js` crasht** (`Cannot read properties of undefined (reading 'pts')`).
-2. **Dubbele generaties naast elkaar:** `summer.js` + `summer2.js`, `academy.js`/`2`/`3`, `events.js` + `events2.js`,
-   `recruit.js` + `recruitx.js`, en in `ui/` o.a. `vClub`/`vClub2`, `vReview`/`vReview2`, `vRecruit`/`vRecruit2`.
-   Onduidelijk welke versie leidend is en wat dood is.
-3. ~~`ui.js` is 1.849 regels in één blok~~ — opgeknipt in 16 delen (15-11-2026), build byte-identiek.
+1. ~~`test/audit.js` crasht~~ — was een echte spelbug: ontslag door het bestuur bij de seizoensbeoordeling liet het
+   spel crashen, omdat de clubs al van divisie gewisseld waren. Opgelost (15-11-2026).
+2. ~~Dubbele generaties~~ — opgeruimd (15-11-2026): ongeveer 45 KB dode code weg, waaronder de oude zomer-v1-schermen,
+   oude club-, staf-, competitie- en reviewschermen en 17 knopacties zonder knop. `academy*`, `events*`, `recruit*`
+   zijn geen dubbelingen maar aanvullende delen. `summer.js` levert nog de stappen waarop `summer2.js` draait.
+   Let op: de tests simuleren de zomer nog via de v1-route (`sumAuto`), niet via de v2-flow die de speler ziet.
+3. ~~`ui.js` is 1.849 regels in één blok~~ — opgeknipt in delen (15-11-2026), build byte-identiek.
 4. **Veel meters tegelijk:** bestuursvertrouwen, 4 backers, grip, verborgen druk, credibility (pathway),
    DNA-alignment, actiepunten, plus KPI's per afdeling. Sterk voor P2, maar mogelijk in strijd met P4/P5.
 5. Tab `money` bestaat in de render, maar staat niet in de tabbalk.
+6. Eerste audit-signaal (20 runs × 5 seizoenen, nog te toetsen): een *actieve* CEO wordt even vaak ontslagen
+   als een passieve (35%), een willekeurig klikkende CEO nooit. Coach-mandaten (aanvallend/verdedigend, jeugd)
+   veranderen punten per wedstrijd nauwelijks.
 
 Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na een playtest (B6).
 

@@ -53,7 +53,6 @@ function vOpen() {
   const head = `<div class="ohead"><button class="iconbtn" data-a="close-open" aria-label="Back to ${esc(FOLD_T[f])}">${ART.I.back}</button><span class="pos">${esc(FOLD_T[f])}</span>${i.kind === 'info' ? `<button class="archbtn" data-a="dismiss" data-k="${i.key}">Archive</button>` : ''}<button class="iconbtn" data-a="open" data-k="${nx ? nx.key : ''}" ${nx ? '' : 'disabled'} aria-label="Next">${ART.I.chev}</button></div>`;
   return `${head}${i.t === 'msg' || (i.t === 'brief' && i.bt !== 'coach_debrief') ? bkStrip() : ''}<article class="om">${body}</article>${U.tray ? '<div class="trayspace" style="--tray:' + U.trayH + 'px"></div>' : ''}`;
 }
-const BICON = { crowd_low: 'stadium', u18_report: 'academy', acad_flying: 'academy', youth_cup: 'league', stake_match: 'league', fin_runway: 'money', project_check: 'bulb', form_player: 'star', scouts_watching: 'scout' };
 function cardOpts(b, v) {
   if (v.done) return `<div class="bstamp"><span>${ART.I.trust}</span><b>${v.del ? esc(v.by.split(' ')[0]) + ' decided: ' : ''}${esc(v.opts[v.choice].l)}</b><small>${esc(v.out || '')}</small></div>`;
   const why = v.why ? `<div class="whyr"><span>${ART.I.bulb}</span><p><b>Why it is yours</b>${esc(v.why)}</p></div>` : '';
@@ -98,12 +97,6 @@ function matchCard(b) {
     ${mp || inj.length ? `<div class="mcfoot">${mp ? `<button class="motm" data-a="player" data-id="${mp.id}"><span>${ART.playerFace(mp, 'happy')}</span><small>Best player</small><b>${esc(mp.name.split(' ').slice(-1)[0])}</b></button>` : ''}${inj.length ? `<div class="minj"><small>Injured</small>${inj.map(p => `<button class="pchip" data-a="player" data-id="${p.id}"><span>${ART.playerFace(p, 'worried')}</span>${esc(p.name.split(' ').slice(-1)[0])}</button>`).join('')}</div>` : ''}</div>` : ''}
     ${lm.ev ? '<button class="linkbtn" data-a="replay" style="margin:6px auto 0;display:flex">Replay the match</button>' : ''}</section>${whyPanel(lm)}
   ${v ? `<div class="stage" style="margin-top:14px"><div class="portrait" style="width:56px;height:56px">${ART.staffFace('coach', res === 'W' ? 'happy' : res === 'L' ? 'worried' : null)}</div><div class="who"><b>${esc(v.who.split(',')[0])}</b><span>Head coach</span></div></div><div class="bubble">${esc(sp.say)}</div>${sp.rest ? `<details class="more"><summary>Details ${ART.I.chev}</summary><p>${esc(sp.rest)}</p></details>` : ''}${cardOpts(b, v)}` : ''}`;
-}
-function briefCard(b, it) {
-  const v = F.briefView(b), role = v.role || (it && it.role) || 'club', [t1, t2] = clip2(v.text), ic = BICON[b.t] || 'info';
-  const num = (v.title.match(/£?[\d,.]+[k%]?/) || [])[0];
-  return `<section class="bcard"><div class="bchead"><span class="bcic">${ART.I[ic]}</span><span class="bcf">${ART.staffFace(role)}</span><span class="bcw"><b>${esc(v.who.split(',')[0])}</b><small>${esc(ROLE_T[role] || '')}</small></span></div>
-    ${num ? `<div class="bcnum">${esc(num)}</div>` : ''}<h2 class="otitle" style="margin:4px 0 6px">${esc(v.title)}</h2><p class="obody">${esc(t1)}</p>${t2 ? `<details class="more"><summary>Details ${ART.I.chev}</summary><p>${esc(t2)}</p></details>` : ''}</section>${cardOpts(b, v)}`;
 }
 function weekReport() {
   const g = G(), A = F.analysis(), O = F.deptOverview(), au = g.paper.stories.filter(s => s.auto);

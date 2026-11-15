@@ -125,8 +125,7 @@ F.recLoan = x => {
   p.loan = true; p.loanFrom = from; p.loanUntil = g().season;
   g().paper.stories.push({ h: 'Loan signing', t: `${p.name} joins on loan from ${fromN} until the end of the season.` });
 };
-F.loanOutCands = () => { const prot = F.protectedIds(); return sq().filter(p => p.age <= 22 && !p.loan && !prot.has(p.id) && !p.expiring).filter(p => sq().filter(q => q.pos === p.pos && q.ca > p.ca).length >= 2).slice(0, 4); };
-F.loanOut = id => { const G = g(), p = sq().find(x => x.id === id); if (!p) return; G.squad = G.squad.filter(x => x !== p); p.loanOut = G.season; (G.loanedOut = G.loanedOut || []).push(p); if (G.sum) G.sum.log.push({ k: 'out', t: `${p.name} goes out on loan for the season.` }); G.paper.stories.push({ h: 'Loan', t: `${p.name} leaves on a season-long loan to get games.` }); };
+
 function loansBack() {
   const G = g(), back = [];
   for (const p of (G.loanedOut || [])) { const w = F.POSW[p.pos]; for (const a in w) p.a[a] = clamp(p.a[a] + Math.max(0, p.pa - p.ca) * 0.3 + 0.2, 1, 20); F.upd(p); delete p.loanOut; G.squad.push(p); back.push(p.name); }

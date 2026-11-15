@@ -97,12 +97,6 @@ document.addEventListener('pointerdown', e => { const b = e.target.closest('.mse
 ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => document.addEventListener(ev, e => { if (!MH) return; clearTimeout(MH); MH = null; document.querySelectorAll('.msend.holding').forEach(b => b.classList.remove('holding')); }, true));
 
 function propHtml(idx, row) { return pitchDeck(G().meeting, 'Project pitches', true); }
-function digestHtml() {
-  const g = G(), au = g.paper.stories.filter(s => s.auto), other = g.paper.stories.filter(s => !s.auto);
-  return `<h2 class="oh">This week in the club</h2><div class="reports">${(g.reports || []).map(r => `<p class="rep"><b>${esc(F.ROLE[r.role].s)}</b> ${esc(r.t)}</p>`).join('')}</div>
-  ${au.length ? `<h3 style="margin-top:14px">Handled by your staff</h3>${au.map(s => `<p class="rep">${esc(s.t)}</p>`).join('')}` : ''}
-  ${other.length ? `<h3 style="margin-top:14px">Around the club</h3>${other.map(s => `<p class="rep"><b>${esc(s.h)}</b> ${esc(s.t)}</p>`).join('')}` : ''}`;
-}
 const TOUR = {
   inbox: ['This week', 'What needs you this week. Decisions cost an action and build your grip; leave them and your staff decide.'],
   club: ['Your club', 'How the club is doing: who backs you, the board\'s objectives, the money and your projects.'],
@@ -131,7 +125,7 @@ function render() {
   else if (g.phase === 'dna') h = vSetupDNA();
   else if (g.phase === 'staff') h = vSetupStaff();
   else if (g.phase === 'mandates') h = vSetupMandates();
-  else if (g.phase === 'summer') { F.sum2Ensure && F.sum2Ensure(); h = g.sum && g.sum.v2 ? vSummer2() : vSummer(); }
+  else if (g.phase === 'summer') { F.sum2Ensure(); h = vSummer2(); }
   else if (g.phase === 'preseason') h = vPreseason();
   else if (g.phase === 'press') h = vPress();
   else if (U.md) h = vMatchday();

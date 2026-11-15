@@ -1,7 +1,6 @@
 /* ---------- render ---------- */
 
 /* ---------- inbox home (1.6) ---------- */
-const ROLEI = { dof: 'DoF', coach: 'HC', scout: 'SC', acad: 'AC', com: 'CO', mkt: 'MK', fin: 'FI', board: 'BD', fans: 'FN', press: 'PR', club: 'FO' };
 const isRead = k => !!((G().read || {})[k]);
 function markRead(k) { const g = G(); g.read = g.read || {}; if (!g.read[k]) g.read[k] = F.absWeek(); const keep = F.absWeek() - 6; for (const x in g.read) if (g.read[x] < keep) delete g.read[x]; }
 const first = t => { t = String(t || ''); const i = t.search(/[.!?](\s|$)/); return i > 0 ? t.slice(0, i + 1) : t; };
@@ -81,11 +80,6 @@ function caseHtml(c) {
 function fdHtml(fd) {
   if (!fd || !F.BACKERS) return ''; const T = { board: 'Board', fans: 'Supporters', press: 'Press', room: 'Dressing room' };
   return `<div class="fdrow" aria-label="How your backers reacted">${Object.entries(fd).map(([k, d]) => `<span class="${d > 0 ? 'up' : 'dn'}">${T[k]} ${d > 0 ? '+' : ''}${d}</span>`).join('')}</div>`;
-}
-function vTiles() {
-  const g = G(), c = g.club, A = F.analysis(), st = A.pos <= A.target ? 'good' : A.pos <= A.target + 2 ? 'warn' : 'bad', nf = nextFix();
-  const T = (l, v, cls, act, extra) => `<button class="mt" ${act}><span>${l}</span><b class="${cls || ''}">${v}</b>${extra || ''}</button>`;
-  return `<div class="tiles2">${T('Position', F.ord(A.pos), st, 'data-a="sheet" data-s="analysis"', `<small>target ${F.ord(A.target)}</small>`)}${(() => { const run = F.finRunway ? F.finRunway() : null; return T('Cash', money(c.cash), c.cash < 0 || (run != null && run <= 8) ? 'bad' : '', 'data-a="tab" data-t="staff"', run != null && run <= 12 ? `<small class="bad">${run} wk left</small>` : c.debt > 0 ? `<small>debt ${money(c.debt)}</small>` : dl(c.cash, 'cash', money)); })()}${nf ? T('Next', esc(nf.short), '', 'data-a="tab" data-t="league"', `<small>${nf.home ? 'home' : 'away'}, ${F.ord(nf.pos)}</small>`) : ''}</div>`;
 }
 const FOLDERS = [['all', 'Inbox', 'inbox'], ['need', 'Needs you', 'bulb'], ['match', 'Matches', 'play'], ['staff', 'Staff', 'staff'], ['reports', 'Reports', 'info'], ['press', 'Press', 'press'], ['players', 'Players', 'squad'], ['dos', 'Dossiers', 'info'], ['done', 'Decided', 'trust']];
 const FOLD_T = Object.fromEntries(FOLDERS.map(f => [f[0], f[1]]));

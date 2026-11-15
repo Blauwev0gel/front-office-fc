@@ -241,22 +241,17 @@ F.recView = () => {
   const rows = r.pipe.map(x => { const p = r.pool[x.pid] || sq().find(s => s.id === x.pid), k = r.know[x.pid]; return { x, p, k }; }).filter(o => o.p);
   return { r, rows, scouts: scoutsAll(), plan: r.plan, budget: F.transferBudget() + (r.extra || 0), threshold: threshold(), wageLimit: wageLimit(), STAGES, inWin: inWin() };
 };
-F.recAction = (id, a) => {
-  const r = RC(), p = r.pool[id], x = pipeOf(id) || (p ? addPipe(id, r.know[id] ? 'scouted' : 'identified') : null); if (!p || !x) return 'He is no longer available.';
-  if (a === 'report') { const s = r.scouts.find(s => !s.assign || s.assign.type !== 'player') || r.scouts[0] || staff('scout'); if (!s) return 'Nobody free to watch him.'; s.assign = { type: 'player', pid: id, reg: p.region, left: 1, label: `Watch ${p.name}` }; return `${s.name} will watch him this week.`; }
-  if (a === 'push') { x.boost = true; const k = r.know[id]; if (k && ['identified', 'scouted'].includes(x.stage) && k.conf !== 'low') setStage(x, 'recommended', 'Prioritised by the CEO.'); else if (k && k.conf === 'low') return 'Confidence is too low; the DoF wants another report first.'; return 'He moves up the DoF\'s list.'; }
-  if (a === 'drop') { setStage(x, 'lost', 'Dropped by the CEO.'); return 'Dropped from the list.'; }
-};
+
 F.recScoutAcc = s => { const errs = RC().log.filter(l => l.by === s.id && l.est != null).map(l => { const p = sq().find(q => q.name === l.name && q.pos === l.pos); return p ? Math.abs(F.stars(l.est) - F.stars(p.ca)) : null; }).filter(v => v != null); return errs.length ? { n: errs.length, err: errs.reduce((a, b) => a + b, 0) / errs.length } : null; };
-F.recReport = report; F.recScouts = scoutsAll; F.recPipeOf = pipeOf; F.recCapFor = capFor; F.recRules = ruleIssues; F.recSetStage = setStage; F.recComplete = complete; F.recAddPipe = addPipe;
+F.recReport = report; F.recScouts = scoutsAll; F.recRules = ruleIssues; F.recSetStage = setStage; F.recAddPipe = addPipe;
 F.recPlanBoard = () => { ensure(); const r = RC(); return (r.plan.prios || []).map(pr => { const pos = pr.pos, rows = r.pipe.filter(x => r.pool[x.pid] && r.pool[x.pid].pos === pos), busy = rows.find(x => ['negotiating', 'approach'].includes(x.stage)), next = rows.filter(x => x.stage === 'recommended' && !x.hold)[0], signed = r.log.find(l => l.s === g().season && l.pos === pos && winBuys(pos) > 0); const st = winBuys(pos) > 0 ? 'done' : busy ? 'busy' : 'open'; return { pos, st, who: st === 'done' ? (signed ? signed.name + ' signed' : 'Signed') : busy ? r.pool[busy.pid].name + (busy.stage === 'approach' ? ', your call' : ', talks') : next ? r.pool[next.pid].name + ' next' : `${rows.filter(x => x.stage === 'scouted').length} on the list`, pid: busy ? busy.pid : next ? next.pid : null }; }); };
-F.recWinBuys = winBuys; F.recSlotOpen = slotOpen;
+F.recSlotOpen = slotOpen;
 F.recDeal = () => { ensure(); dofPipeline(); };
 F.recLate = () => { ensure(); const r = RC(), b = F.transferBudget() + (r.extra || 0); return Object.values(r.pool).filter(p => { const k = r.know[p.id], x = pipeOf(p.id); return k && (k.grade === 'A' || k.grade === 'B') && k.conf !== 'low' && (!x || ['scouted', 'recommended'].includes(x.stage)) && slotOpen(p, k) && p.ask * 1.2 <= b && !ruleIssues(p).filter(i => i !== 'fee limit').length; }).sort((a, b2) => (r.know[b2.id].est - r.know[a.id].est))[0] || null; };
 F.recForceSign = (pid, fee, wage, note) => { const r = RC(), p = r.pool[pid]; if (!p) return false; const x = addPipe(pid, 'approach'); x.deal = { club: p.club, ask: p.ask, floor: fee, cap: fee, offer: fee, fee, round: 1, wageAsk: p.wageAsk, wage, sellon: false, inst: false, rounds: [note || `Deadline-day deal: ${money(fee)}.`] }; setStage(x, 'agreed'); complete(x); return true; };
 F.recWageLimit = wageLimit;
 F.recPlayer = id => { const r = RC(); return { p: r.pool[id], k: r.know[id], x: pipeOf(id) }; };
-F.recBand = bandTxt; F.recPot = potTxt; F.recStages = STAGES;
+F.recBand = bandTxt; F.recPot = potTxt; 
 
 const sc0 = F.scorecard;
 F.scorecard = () => { const cards = sc0(), c = cards.find(x => x.k === 'recruit'); if (c && RC()) { const r = RC(), live = r.pipe.filter(x => !['signed', 'lost'].includes(x.stage)), rec = live.filter(x => x.stage === 'recommended').length, bl = live.filter(x => x.blocked).length; c.rows = c.rows.filter(x => x.l !== 'Shortlist'); c.rows.push({ l: 'Recruitment list', v: `${live.length} players`, ref: `${rec} recommended${bl ? `, ${bl} blocked by your rules` : ''}`, ok: rec >= 2 ? true : live.length < 3 ? false : null }); c.rows.push({ l: 'Scouts', v: `${scoutsAll().length}`, ref: 'Chief Scout plus staff scouts, set by the scouting budget', ok: null }); } return cards; };

@@ -84,6 +84,6 @@ F.sign = function (p, ...rest) {
   return r;
 };
 
-Object.assign(F, { gripGain: gain, gripInit, finNet: net, finRunway: runway, finTight: tight, leversPatch: patchAutos });
+Object.assign(F, { gripGain: gain, finRunway: runway, finTight: tight });
 patchAutos();
 })(FO);

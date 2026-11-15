@@ -19,7 +19,6 @@ H.acadIntake = () => {
   const staffPick = list.slice().sort((a, b) => (b.band ? b.band[1] : 0) - (a.band ? a.band[1] : 0)).slice(0, got.length).map(p => p.id);
   T().trial = { s: G.season, w: G.week, list, picks: got.length, chosen: staffPick.slice(), staffPick, until: F.absWeek() + 2 };
 };
-function toggle(pid) { const X = T().trial; if (!X) return; const i = X.chosen.indexOf(pid); if (i >= 0) X.chosen.splice(i, 1); else if (X.chosen.length < X.picks) X.chosen.push(pid); else return { err: `You can take ${X.picks}. Drop someone first.` }; return {}; }
 function confirm(auto) {
   const G = g(), X = T().trial; if (!X) return;
   const take = X.list.filter(p => X.chosen.includes(p.id));
@@ -51,5 +50,5 @@ F.defineBrief('ac_ready', { role: 'acad', cd: 6,
     { l: 'Loan him out', h: 'Faster growth, out of sight', f: c => { const p = g().academy.find(x => x.id === c.pid); if (p) p.loanOut = true; return 'Off on loan for regular football.'; } }] });
 
 function view() { const G = g(), X = T(), groups = ['U14', 'U16', 'U18', 'U21'].map(k => ({ k, ps: G.academy.filter(p => F.acadGrp(p) === k).sort((a, b) => (b.band ? b.band[1] : 0) - (a.band ? a.band[1] : 0)) })); return { groups, grads: G.squad.filter(p => p.academy), trial: X.trial, log: X.log.slice(0, 6), lvl: F.acadTierLvl() }; }
-Object.assign(F, { acView: view, acToggle: toggle, acConfirm: () => confirm(false) });
+Object.assign(F, { acView: view });
 })(FO);

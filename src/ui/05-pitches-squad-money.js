@@ -24,34 +24,7 @@ function pitchDeck(mt, kick, inTray) {
   return `<section class="pitches"><div class="spread"><h2 class="itemh" style="margin:0">${esc(kick)}</h2><span class="chip">${cur ? `${done.length + 1} of ${items.length}` : 'Done'}</span></div>${meter}${deck}${doneList}${inTray ? '' : btns}</section>${inTray && cur ? (U.tray = trayHtml('', btns, ''), U.trayH = 130, '') : ''}`;
 }
 function meetingBlock(mt, kick) { return pitchDeck(mt, kick, false); }
-function nextFixture() { const g = G(), r = g.divs[g.club.tier].fix[g.week - 1]; if (!r) return ''; const f = r.find(x => x[0] === 0 || x[1] === 0); const home = f[0] === 0, opp = home ? f[1] : f[0]; const cup = g.cup.alive && g.cup.weeks.includes(g.week) ? ` Midweek: National Cup ${g.cup.names[g.cup.weeks.indexOf(g.week)]}.` : ''; return `${home ? 'Home to' : 'Away at'} ${esc(F.cname(opp))} (${F.ord(F.sortTable(g.club.tier).indexOf(opp) + 1)}).${cup}`; }
 
-function vClub() {
-  const g = G(), c = g.club, al = F.alignment();
-  const lab = (k, v) => F.DNA.find(q => q.k === k).o.find(o => o.v === v).l;
-  const deals = c.deals.map(d => `<li><span>${esc(d.name)}</span><span class="num">${money(d.wk)}/wk, ${d.weeks > 150 ? 'long term' : d.weeks + ' wk'}</span></li>`).join('');
-  const nets = Object.keys(F.REGIONS).map(k => meter(F.REGIONS[k].name, c.net[k])).join('');
-  const SC = F.scorecard();
-  return `<h2 style="font-size:28px;margin-bottom:4px">Departments</h2><p class="small" style="margin-top:0">The key numbers per department, with a reference point. Green is good, red needs attention. Projects change these numbers.</p>
-  <div class="cards">${SC.map(d => `<section class="sc"><div class="spread"><h3 style="font-size:19px">${esc(d.t)}</h3><span class="small">${esc(F.staffName(d.head))}</span></div>${d.rows.map(r => `<div class="scr"><span>${esc(r.l)}</span><b class="${r.ok === true ? 'good' : r.ok === false ? 'bad' : ''}">${esc(r.v)}</b>${r.ref ? `<small>${esc(r.ref)}</small>` : ''}</div>`).join('')}</section>`).join('')}</div>
-  <div class="grid2" style="margin-top:22px">
-  <section class="panel"><div class="row">${crest(c.colors, c.short, 64)}<div><h2 style="margin:0">${esc(c.name)}</h2><div class="small">Founded in ${esc(c.city)}, season 1.</div></div></div>
-    <h3>Club DNA</h3><div class="chips">${F.DNA.map(q => `<span class="chip">${esc(lab(q.k, c.dna[q.k]))}</span>`).join('')}</div>
-    ${meter('DNA alignment', al)}<p class="small">How closely your mandates and decisions match the DNA. Below 60, supporters and the board lose faith.</p>
-    <h3>Stakeholders</h3>${meter('Board', g.board.conf)}${meter('Supporters', g.st.fans)}${meter('Sponsors', g.st.spons)}${meter('Press', g.st.press)}${meter('Brand', c.brand)}
-    ${g.trophies.length ? `<h3>Honours</h3><ul class="list">${g.trophies.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}</section>
-  <section class="panel"><h2>Board objectives</h2><ul class="list">${g.board.obj.map(o => `<li><span>${esc(o.t)}</span><b class="${F.objMet(o) ? 'good' : 'bad'}">${F.objMet(o) ? 'On track' : 'Off track'}</b></li>`).join('')}</ul>
-    <h3>Your public promises</h3>${g.promises.filter(p => p.season === g.season).length ? `<ul class="list">${g.promises.filter(p => p.season === g.season).map(p => `<li><span>${esc(p.t)}</span><b class="${p.status === 'broken' ? 'bad' : F.promiseMet(p) ? 'good' : 'warn'}">${p.status === 'broken' ? 'Broken' : F.promiseMet(p) ? 'On track' : 'At risk'}</b></li>`).join('')}</ul>` : '<p class="small">No promises this season.</p>'}
-    ${g.history.length ? `<h3>History</h3><ul class="list">${g.history.map(h => `<li><span>Season ${h.season}</span><span class="num">${F.ord(h.pos)}, ${F.TIERS[h.tier]}</span></li>`).join('')}</ul>` : ''}</section>
-  <section class="panel"><h2>Scouting</h2><p class="small">Network strength per region. ${esc(F.staffName('scout'))} focuses on ${esc(F.REGIONS[F.man('scout', 'reg1')].name)} and ${esc(F.REGIONS[F.man('scout', 'reg2')].name)}. Stronger networks mean better targets.</p>${nets}
-    <h3>Shortlist</h3>${(g.shortlist || []).length ? `<ul class="list">${g.shortlist.slice().reverse().map(p => `<li><span>${esc(p.name)} <span class="small">${p.pos}, ${p.age}, ${esc(F.REGIONS[p.region].name)}${p.fee ? ', ' + money(p.fee) : ', free'}</span></span><span>${stars(F.stars(p.pCA))} ${stars(F.stars(p.pPA))}</span></li>`).join('')}</ul><p class="small">Your scouts' estimates, not the truth. The Director of Football picks from this list first. Accuracy depends on the scout, the network and the data slider.</p>` : '<p class="small">Empty. Scouts add names as they watch matches.</p>'}</section>
-  <section class="panel"><h2>Academy</h2>${(() => { const v = F.acadView(); return `<dl class="kv"><dt>Pipeline U14 / U16 / U18 / U21</dt><dd>${v.groups.map(x => x.players.length).join(' / ')}</dd><dt>Facilities</dt><dd>level ${c.fac.youth}</dd><dt>Reputation</dt><dd>${Math.round(v.a.rep)}</dd><dt>Graduates in squad</dt><dd>${v.grads.length}</dd></dl>`; })()}<button class="btn small" style="margin-top:10px" data-a="acad-open">Open the academy</button></section>
-  <section class="panel"><h2>Commercial</h2><dl class="kv"><dt>Ticket price</dt><dd>${money(F.ticketPrice())}</dd><dt>Last home crowd</dt><dd>${(c.lastAtt || 0).toLocaleString('en-GB')} / ${c.cap.toLocaleString('en-GB')}</dd><dt>Sponsorship income</dt><dd>${money(F.sponsorIncome())}/wk</dd></dl><h3>Deals</h3><ul class="list">${deals || '<li class="small">No deals.</li>'}</ul></section>
-  <section class="panel"><h2>Projects</h2>${(g.projects || []).length ? `<ul class="list">${g.projects.map(pr => { const v = F.PROP[pr.id]; let t = ''; try { t = typeof v.title === 'function' ? v.title(pr.ctx) : v.title; } catch (e) { } const left = pr.due - F.absWeek(), tot = pr.due - pr.start; return `<li style="display:block"><div class="spread"><span>${esc(t)}</span><span class="small">${left > 0 ? left + ' wk left' : 'due'}</span></div>${bar(tot - Math.max(0, left), tot)}<div class="small">${esc(F.staffName(pr.owner))}${pr.wk ? ', ' + money(pr.wk) + '/wk' : ''}</div></li>`; }).join('')}</ul>` : '<p class="small">No projects running. Approve proposals at the management meeting.</p>'}
-    ${(g.projLog || []).length ? `<h3>Completed</h3><ul class="list">${g.projLog.slice(0, 8).map(l => `<li><span>${esc(l.title)}</span><b class="${l.ok ? 'good' : 'bad'}">${l.ok ? 'Delivered' : 'Failed'}</b></li>`).join('')}</ul>` : ''}</section>
-  <section class="panel"><h2>Marketing and business</h2><dl class="kv"><dt>Supporter base</dt><dd>${c.fanbase.toLocaleString('en-GB')}</dd><dt>Brand strength</dt><dd>${r0(c.brand)}</dd><dt>Stadium capacity</dt><dd>${c.cap.toLocaleString('en-GB')}</dd><dt>Training ground</dt><dd>Level ${c.fac.train} of 10</dd><dt>Debt</dt><dd>${money(c.debt)}</dd></dl>${F.CAPREQ[c.tier - 1] ? `<p class="small">Licensing: the ${F.TIERS[c.tier - 1]} requires ${F.CAPREQ[c.tier - 1].toLocaleString('en-GB')} seats.</p>` : ''}</section>
-  </div>`;
-}
 function vAcademy() {
   const g = G(), v = F.acadView(), a = v.a, c = g.club, sel = U.ag || 'U18', grpD = v.groups.find(x => x.k === sel), last = a.lastSeason;
   const maxN = Math.max(10, a.found.n / 4);
@@ -75,38 +48,12 @@ function vAcademy() {
   <section class="panel"><h2>Last season</h2>${last ? `<div class="kvs">${[['Promoted to first team', last.promoted], ['New scholars', last.scholars], ['Kept as under-21s', last.u21], ['On loan', last.loans], ['Growth spurts', last.spurts], ['Late bloomers', last.bloom], ['Released', last.released], ['Dropped out', last.dropped]].map(([l, a]) => `<p><b>${l}</b> ${esc(a.join(', ') || 'none')}</p>`).join('')}</div>` : '<p class="small">The first review comes at the end of this season.</p>'}
   <h3>Graduates</h3>${a.log.length ? `<ul class="list">${a.log.slice().reverse().slice(0, 10).map(l => `<li><span>${esc(l.name)} <span class="small">${l.pos}, season ${l.season}</span></span><span class="num">${l.pot}★ potential</span></li>`).join('')}</ul>` : '<p class="small">No graduates yet.</p>'}</section></div>`;
 }
-function vStaff() {
-  const g = G();
-  return `<p class="small">Your only levers: who holds each job, the mandate they work to, and how you talk to them. Changing a mandate, a one-to-one and a dismissal each cost one action.</p><div class="grid2">${F.ROLES.map(r => {
-    const s = g.staff[r.id];
-    if (!s) return `<div class="staff vacant"><div class="role">${r.t}</div><h3>Vacant</h3><p class="small">Decisions in ${r.dept} fall to chance, and the department underperforms.</p><button class="btn small" data-a="sheet" data-s="cands" data-r="${r.id}">See candidates</button></div>`;
-    return staffCard(s, r.id, { live: true, actions: `<div class="row" style="margin-top:6px"><button class="btn small" data-a="sheet" data-s="mand" data-r="${r.id}">Mandate</button><button class="btn ghost small" data-a="sheet" data-s="talk" data-r="${r.id}" ${g.ap < 1 ? 'disabled' : ''}>Talk</button><button class="btn ghost small" data-a="sheet" data-s="fire" data-r="${r.id}">Dismiss</button></div>` });
-  }).join('')}</div>`;
-}
 function p90(v, m) { return m ? (v / m * 90).toFixed(2) : '–'; }
 const STG_L = { identified: 'Identified', scouted: 'Scouted', recommended: 'Recommended', approach: 'Awaiting approval', negotiating: 'In talks', agreed: 'Agreed', signed: 'Signed', lost: 'Dropped' };
-const GRADE_D = { A: 'Clear upgrade', B: 'Good addition', C: 'Squad level', D: 'Not for us' };
 function squadSeg() { return `${tourCard('squad')}<div class="seg" style="margin-bottom:14px"><button class="${!U.sqTable ? 'on' : ''}" data-a="sqtable" data-v="0">Pitch</button><button class="${U.sqTable ? 'on' : ''}" data-a="sqtable" data-v="1">Stats table</button></div>`; }
 function recRow(o) {
   const { x, p, k } = o, d = x.deal, note = x.blocked ? `Blocked by ${x.blocked.join(', ')}` : x.stage === 'negotiating' && d && d.rounds.length ? d.rounds[d.rounds.length - 1] : (x.log || []).slice(-1)[0] || '';
   return `<button class="rrow" data-a="target" data-id="${x.pid}"><span class="gr g${k ? k.grade : 'D'}">${k ? k.grade : '?'}</span><span class="rmain"><b>${esc(p.name)}</b> <span class="pos">${p.pos}</span><span class="small rsub">${p.age}, ${F.REGIONS[p.region].name}${p.pool ? (p.club ? ', ' + money(p.ask) : ', free agent') : ''}${k ? `, ${F.recBand(k)}, ${k.conf} confidence` : ''}</span>${note ? `<span class="small rnote ${x.blocked ? 'warn' : ''}">${esc(note)}</span>` : ''}</span></button>`;
-}
-function vRecruit() {
-  const g = G(), V = F.recView(), R = V.r, groups = ['negotiating', 'approach', 'recommended', 'scouted', 'identified'];
-  const thr = V.threshold === Infinity ? 'never' : V.threshold === 0 ? 'every deal' : 'above ' + money(Math.round(V.threshold));
-  const pr = V.plan.prios.length ? V.plan.prios.map(x => `<span class="chip">${F.POS_L[x.pos]}: ${F.REC_KINDS[x.kind].toLowerCase()}</span>`).join('') : '<span class="small">No priorities set. The DoF follows squad needs.</span>';
-  const live = V.rows.filter(o => groups.includes(o.x.stage)), done = V.rows.filter(o => !groups.includes(o.x.stage)).slice(-6).reverse();
-  const sect = st => { const rs = live.filter(o => o.x.stage === st).sort((a, b) => (a.k ? a.k.grade : 'Z').localeCompare(b.k ? b.k.grade : 'Z')); return rs.length ? `<h3 class="rh">${STG_L[st]} <span class="small">${rs.length}</span></h3>${rs.slice(0, st === 'scouted' ? 6 : 10).map(recRow).join('')}${rs.length > (st === 'scouted' ? 6 : 10) ? `<p class="small">And ${rs.length - (st === 'scouted' ? 6 : 10)} more.</p>` : ''}` : ''; };
-  const scouts = V.scouts.map(s => { const acc = F.recScoutAcc(s); return `<li><span><b>${esc(s.name)}</b>${s === F.staff('scout') ? ' <span class="small">Chief Scout</span>' : ''}<br><span class="small">${s.assign ? esc(s.assign.label) : 'Between assignments'}. Knows ${F.REGIONS[s.home || 'dom'].name} best. ${s.reports || 0} reports filed${acc ? `, signings off by ${acc.err.toFixed(1)}★ on average (${acc.n})` : ''}.</span></span></li>`; }).join('');
-  return `<div class="spread"><div><h2 style="font-size:26px">Recruitment</h2><div class="small">${F.staffName('dof')} runs the list. Your scouts feed it. You set the plan and the limits.</div></div></div>
-  <dl class="figs"><div><dt>Transfer budget</dt><dd>${money(V.budget)}</dd></div><div><dt>Window</dt><dd>${V.inWin ? (g.phase === 'summer' ? 'Summer' : `Shuts after week ${g.week <= 2 ? 2 : 18}`) : g.week < 17 ? 'Opens week 17' : 'Opens in summer'}</dd></div><div><dt>You approve</dt><dd>${thr}</dd></div><div><dt>Wage limit</dt><dd>${V.wageLimit === Infinity ? 'none' : money(Math.round(V.wageLimit)) + '/wk'}</dd></div></dl>
-  <div class="spread" style="margin:6px 0 2px"><h3>Plan</h3><button class="btn ghost sm" data-a="recplan">Edit plan</button></div><div class="chips">${pr}</div>
-  ${live.length ? groups.map(sect).join('') : `<p class="note">${V.scouts.length ? 'Nobody on the list right now. The scouts file new reports every week.' : 'Nobody on the list, and no Chief Scout to find anyone.'}</p>`}
-  ${done.length ? `<h3 class="rh">Recent outcomes</h3>${done.map(recRow).join('')}` : ''}
-  <h3 class="rh">Scouts</h3><ul class="list">${scouts || '<li>No Chief Scout. Nobody is watching players.</li>'}</ul>
-  ${(() => { const ev = F.recEval ? F.recEval(g.season) : []; return ev.length ? `<h3 class="rh">This season's signings</h3><div class="scroll"><table><thead><tr><th>Player</th><th>Fee</th><th>Scouted, now</th><th>Apps</th><th>Rating</th><th></th></tr></thead><tbody>${ev.map(e => `<tr><td>${esc(e.name)} <span class="pos">${e.pos}</span>${e.loan ? ' <span class="small">loan</span>' : ''}</td><td class="num">${e.fee ? money(e.fee) : 'Free'}</td><td class="num">${e.est != null ? e.est + '★' : '–'}, ${e.now != null ? e.now + '★' : '–'}</td><td class="num">${e.apps != null ? e.apps : '–'}</td><td class="num">${e.rat ? e.rat.toFixed(2) : '–'}</td><td class="${e.cls}">${e.verdict}</td></tr>`).join('')}</tbody></table></div><p class="small">Hit: a regular with good ratings. Miss: rarely plays or rates poorly. Scouted against now shows how accurate the scouts were.</p>` : ''; })()}
-  ${R.log.length ? `<h3 class="rh">Signed by this department</h3><ul class="list">${R.log.slice(0, 8).map(l => `<li><span>${esc(l.name)} <span class="pos">${l.pos}</span><br><span class="small">Season ${l.s}, week ${l.w}</span></span><span class="num">${l.fee ? money(l.fee) : 'Free'}</span></li>`).join('')}</ul>` : ''}
-  <p class="small">Grades: A clear upgrade, B good addition, C squad level, D not for us. Ratings are ranges: more reports and better scouts make them narrower.</p>`;
 }
 function vRecruit2() {
   const g = G(), V = F.recView(), R = V.r, groups = ['identified', 'scouted', 'recommended', 'approach', 'negotiating'];
@@ -158,14 +105,6 @@ function vSquad() {
   return `${squadSeg()}<div class="spread" style="margin-bottom:10px"><div><h2 style="font-size:26px">First-team squad</h2><div class="small">${sq.length} players. Squad strength ranks ${F.ord(F.expectedRank())} in the division. Wage bill ${money(F.playerWages())}/wk.</div></div><div class="seg"><button class="${U.sq === 'profile' ? 'on' : ''}" data-a="sq" data-v="profile">Profile</button><button class="${U.sq === 'mb' ? 'on' : ''}" data-a="sq" data-v="mb">Moneyball</button></div></div>
   <div class="scroll">${U.sq === 'mb' ? mb : prof}</div>
   <p class="small">${U.sq === 'mb' ? 'Wage value: ability per pound of wages, 100 is squad average. PrgP: progressive passes. Duels: share won.' : 'Stars are relative to your current division. Tap a player for the full profile. You cannot buy, sell or pick players: that is the job of your Director of Football and Head Coach.'}</p>`;
-}
-function vLeague() {
-  const g = G(), t = U.lt || g.club.tier, tab = F.sortTable(t), dv = g.divs[t];
-  return `<div class="tiers">${[1, 2, 3, 4, 5, 6, 7, 8].map(i => `<button class="${t === i ? 'on' : ''}" data-a="lt" data-t="${i}">${i}. ${F.TIERS[i]}</button>`).join('')}</div>
-  <h2 style="font-size:28px;margin:6px 0">${F.TIERS[t]}</h2><p class="small">Top three ${t > 1 ? 'promoted' : 'are champions and runners-up'}, bottom three ${t < 8 ? 'relegated' : 'stay put: this is the bottom of the pyramid'}.</p>
-  <div class="scroll"><table><thead><tr><th>Club</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>${tab.map((id, i) => { const r = dv.tab[id]; return `<tr class="${id === 0 ? 'me' : ''} ${i < 3 && t > 1 ? 'zone-up' : ''} ${i >= 15 && t < 8 ? 'zone-down' : ''}"><td>${i + 1}. ${esc(F.cname(id))}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gf}</td><td>${r.ga}</td><td>${sign(r.gf - r.ga)}</td><td><b>${r.pts}</b></td></tr>`; }).join('')}</tbody></table></div>
-  ${t === g.club.tier ? `<h3 style="margin-top:18px">Form</h3><p class="num" style="font-size:20px;letter-spacing:4px">${g.form.slice(-10).map(r => `<span class="${r === 'W' ? 'good' : r === 'L' ? 'bad' : ''}">${r}</span>`).join('') || '–'}</p>` : ''}
-  <h3 style="margin-top:14px">National Cup</h3>${g.cup.log.length ? `<ul class="list">${g.cup.log.map(l => `<li><span>${cap(l.rd)}: ${esc(l.opp)}</span><b class="${l.win ? 'good' : 'bad'}">${esc(l.s)}</b></li>`).join('')}</ul>` : '<p class="small">First round in week 5.</p>'}${!g.cup.alive && g.cup.won !== g.season && g.cup.log.length ? '<p class="small">Eliminated.</p>' : ''}`;
 }
 function spark(h) {
   if (h.length < 2) return '';

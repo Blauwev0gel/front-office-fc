@@ -60,7 +60,7 @@ function endSeason() {
   if (HOOK.recSeason) HOOK.recSeason(rep);
   G.lastReport = rep; G.history.push({ season: G.season, tier: t, pos, pts: G.divs[G.club.tier] && rep.table ? rep.table.find(x => x.id === 0).pts : 0 });
   if (G.board.conf <= 0 && HOOK.seasonReprieve && HOOK.seasonReprieve()) { /* one last chance */ }
-  else if (G.board.conf <= 0) { sack('The board has lost all confidence after a dismal season.', 'season'); return rep; }
+  else if (G.board.conf <= 0) { sack('The board has lost all confidence after a dismal season.', 'season', { pos, tier: t }); return rep; }
   if (over()) return rep;
   G.phase = 'review';
   return rep;

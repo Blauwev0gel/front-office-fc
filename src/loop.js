@@ -38,7 +38,6 @@ const VT = {
   press: { from: 'press', title: 'The press wants your head', who: 'The board', body: 'Every paper in town wants you gone. The board will decide on Friday whether you are worth the headlines.', lose: 'The board could not stand another week of headlines and let you go.' },
   room: { from: 'coach', title: 'Dressing room revolt', who: 'The senior players', body: 'The senior players have gone to the board. They say they will not play for this club as long as you run it.', lose: 'The players won. The board dismissed you to save the season.' } };
 const form5 = () => (g().form || []).slice(-5).reduce((a, r) => a + (r === 'W' ? 3 : r === 'D' ? 1 : 0), 0) / 15;
-const pc = p => clamp(Math.round(p * 100), 5, 95);
 // an expectation, not a promise: the vote has real uncertainty, so we name it in words
 const band = p => p >= 0.7 ? 'Likely to work' : p >= 0.45 ? 'Could go either way' : p >= 0.25 ? 'Risky' : 'A long shot';
 const OPTS = {
@@ -140,5 +139,5 @@ function comingUp() {
   return out.slice(0, 6);
 }
 
-Object.assign(F, { backers, comingUp, goalView, BACKERS: BK, VOTE_AT, supOf: sup });
+Object.assign(F, { backers, comingUp, goalView, BACKERS: BK, VOTE_AT });
 })(FO);

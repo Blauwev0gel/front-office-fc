@@ -61,5 +61,5 @@ F.defineBrief('pre_box', { role: 'board', cd: 5,
     { l: 'Host our sponsors', h: () => `+${F.money(Math.round(F.M(400) / 10) * 10)} · sponsors ↑`, f: () => { const G = g(); G.club.cash += Math.round(F.M(400) / 10) * 10; G.st.spons = F.clamp(G.st.spons + 3, 0, 100); return 'Handshakes, a good lunch and a hint of a new deal.'; } },
     { l: 'Invite the supporters\' club', h: 'Fans ↑ · loyalty ↑', f: () => { const G = g(); G.st.fans = F.clamp(G.st.fans + 3, 0, 100); if (G.mk) G.mk.loyalty = F.clamp(G.mk.loyalty + 4, 0, 100); return 'They post photos all evening. The forum is full of it.'; } },
     { l: 'A quiet one, no distractions', h: 'Coach appreciates it', f: () => { const s = F.staff('coach'); if (s) s.rel = F.clamp(s.rel + 2, 0, 100); return 'The coach thanks you for keeping the circus away.'; } }] });
-Object.assign(F, { mtOpp: opp, mtPreview: preview, MT_STY: STY });
+Object.assign(F, { mtPreview: preview, MT_STY: STY });
 })(FO);

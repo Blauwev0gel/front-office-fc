@@ -48,4 +48,15 @@ function setup(seed) { const FO = boot(); FO.newGame(seed); const d = {}; for (c
   ok(G.season === before && !r.seasonOver, 'season did not roll over');
   ok(/players/i.test(G.sackReason) && G.over.cause === 'vote:room', 'reason matches the cause: ' + G.over.cause);
 }
+// 3. dismissed by the board at the end of the season, after the clubs have changed division
+{ const FO = setup(14), G = FO.G;
+  while (G.week < FO.SEASON_WEEKS && G.phase === 'season') FO.endWeek();
+  G.votes = { board: G.season }; // the board already gave its one more summer this season
+  const tier = G.club.tier; let r, err = null;
+  G.board.conf = 6; G.board.obj = [{ k: 'league', target: 1, t: 'Win the league', bold: true }]; // survives the week, fails the review
+  try { r = FO.endWeek(); } catch (e) { err = e; }
+  ok(!err, 'season-end dismissal does not crash' + (err ? ': ' + err.message : ''));
+  ok(G.phase === 'sacked' && !!G.over && G.over.cause === 'season', 'dismissed at the season review (phase ' + G.phase + ', cause ' + (G.over && G.over.cause) + ')');
+  ok(G.over && G.over.tier === tier && G.over.pos >= 1, 'end record keeps the final tier and position: ' + (G.over && G.over.tier + '/' + G.over.pos));
+}
 console.log(fails ? fails + ' FAILED' : 'all sack tests passed'); process.exit(fails ? 1 : 0);

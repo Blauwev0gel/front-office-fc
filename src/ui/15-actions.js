@@ -72,7 +72,6 @@ function act(a, d, el) {
     case 'sub': if (d.v === 'academy' || d.v === 'first') { U.tab = 'staff'; U.dept = d.v; U.dtab = d.v === 'academy' ? 'data' : 'over'; } else U.sub = d.v || null; U.tray = ''; window.scrollTo(0, 0); break;
     case 'dept': U.dept = d.k || null; U.dtab = d.v || 'over'; U.tray = ''; window.scrollTo(0, 0); break;
     case 'dtab': U.dtab = d.v; window.scrollTo(0, 0); break;
-    case 'dbud': { const rr = F.deptBudSet(d.k, F.deptBudView().rows.find(x => x.k === d.k).v + (+d.v)); if (rr && rr.capped && +d.v > 0) toast('Over the limit Finance allows. Cut another department first.'); ART.SND.click(); break; }
     case 'dcand': U.sheet = { t: 'dcand', k: d.k, r: d.r }; break;
     case 'dhire': r = F.deptHire(d.k, d.r, +d.i); U.sheet = null; if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); ART.vib(30); } break;
     case 'dletgo': r = F.deptLetGo(d.k, +d.id); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } break;
@@ -90,8 +89,6 @@ function act(a, d, el) {
     case 'com-exp': r = d.v === 'up' ? F.comExpUp() : F.comExpDown(); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
     case 'rx-focus': r = F.rxFocus(d.k); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } ART.SND.click(); break;
     case 'rx-invest': r = F.rxInvest(d.k); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
-    case 'ac-pick': r = F.acToggle(+d.id); if (r && r.err) toast(r.err); ART.SND.click(); break;
-    case 'ac-confirm': r = F.acConfirm(); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
     case 'biz-lv': r = F.bizSetLevel(d.k, d.v); ART.SND.click(); break;
     case 'biz-prop': F.bizPropose(); r = F.bizApply(); U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); break;
     case 'mk-camp': r = F.mkCamp(d.k); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
@@ -102,22 +99,10 @@ function act(a, d, el) {
     case 'tour-ok': g.flags.tour = Object.assign({}, g.flags.tour, { [d.k]: 1 }); if (d.k === 'inbox') g.flags.howto = true; break;
     case 'preset': { const vals = PRESETS[d.r][+d.i][1], tgt = d.p === 'md' ? U.draft : g.mand[d.r]; Object.assign(tgt, vals); ART.SND.card(); break; }
     case 'ru-set': { const tgt = d.p === 'md' ? U.draft : g.mand[d.r]; tgt[d.k] = d.v; ART.SND.click(); break; }
-    case 'sum-step': F.sumStep(+d.i); window.scrollTo(0, 0); break;
-    case 'sum-ctr': F.sumContract(+d.id, d.v); break;
-    case 'sum-ctr-all': for (const o of F.sumView().contracts) if (!o.c.out) F.sumContract(o.p.id, o.c.advice); break;
-    case 'loan-out': F.loanOut(+d.id); break;
-    case 'sum-sell': F.sumToggleSell(+d.id); break;
-    case 'sum-round': F.sumRound(); window.scrollTo(0, 0); break;
-    case 'sum-ans': F.sumAnswer(+d.m, +d.i); break;
-    case 'sqv-rec': U.sheet = { t: 'reclist' }; break;
-    case 'dd-start': F.ddStart(); break;
     case 'dd-dec': F.ddDecide(+d.i); U.ddDecEnd = null; break;
     case 'dd-pause': G().sum.dd.run = !G().sum.dd.run; break;
     case 'dd-skip': F.ddSkip(); break;
-    case 'sum-finish': clearTimeout(U.ddT); F.sumFinish(); U.pressI = 0; U.quote = null; window.scrollTo(0, 0); break;
-    case 'sqv': if (d.v === 'rec') { U.tab = 'staff'; U.dept = 'recruit'; U.dtab = 'data'; } window.scrollTo(0, 0); break;
     case 'target': U.recMsg = ''; U.ptab = 'over'; U.sheet = { t: 'target', id: +d.id }; break;
-    case 'recact': U.recMsg = F.recAction(+d.id, d.v); break;
     case 'recplan': U.sheet = { t: 'recplan' }; break;
     case 'rec-prio': F.recTogglePrio(d.p, d.k); break;
     case 'rec-kind': F.recSetKind(d.p, d.k); break;
@@ -130,7 +115,6 @@ function act(a, d, el) {
     case 'hire': F.hire(d.r, +d.i); U.sheet = null; toast(`${F.staff(d.r).name} appointed. Check the mandate.`); break;
     case 'fire': r = F.fire(d.r); U.sheet = null; if (r.err) toast(r.err); else toast(r.out); break;
     case 'sq': U.sq = d.v; break;
-    case 'acad-open': U.sub = 'academy'; window.scrollTo(0, 0); break;
     case 'acad-close': U.dept = null; window.scrollTo(0, 0); break;
     case 'ag': U.ag = d.v; break;
     case 'ysack': { const ns = F.acadSack(d.r); toast(ns ? `${ns.name} takes over.` : 'Replaced. The post stays vacant until a Director is appointed.'); break; }
@@ -139,7 +123,6 @@ function act(a, d, el) {
     case 'pre-focus': F.preToggleFocus(d.k); break;
     case 'pre-acad': g.pre.acad = g.pre.acad === d.k ? null : d.k; break;
     case 'pre-done': F.finishPreseason(); U.pressI = 0; U.quote = null; window.scrollTo(0, 0); break;
-    case 'howto': g.flags.howto = true; break;
     case 'lt': U.lt = +d.t; break;
     case 'next-season': F.startSeason(); U.pressI = 0; U.quote = null; U.lt = null; window.scrollTo(0, 0); break;
   }

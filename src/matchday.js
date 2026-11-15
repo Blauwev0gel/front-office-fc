@@ -63,13 +63,12 @@ function turningPoint(m) {
   if (goals.length) return { m: goals[0].m, t: goals[0].t.replace(/\s*\(xG [\d.]+\)/, '') };
   return null;
 }
-Object.assign(F, { mdStories, mdOutcomes, mdTurning: turningPoint, mdStoryFor: storyFor });
+Object.assign(F, { mdStories, mdOutcomes, mdTurning: turningPoint });
 })(FO);
 /* The Gazette: one edition per week, made once at the end of the week and kept for the archive */
 (function (F) {
 'use strict';
 const g = () => F.G, H = F.HOOK, KEEP = 8;
-const clean = t => String(t || '').replace(/\s*\(xG [\d.]+\)/, '');
 function matchSum(m) {
   if (!m) return null; const G = g(), P = id => G.squad.find(x => x.id === id) || (G.academy || []).find(x => x.id === id);
   return { comp: m.comp, rd: m.rd || null, home: m.home, opp: m.opp, oppName: m.oppName, ug: m.ug, tg: m.tg, pens: m.pens || null, att: m.att || 0, motm: m.motm || '', result: m.result,

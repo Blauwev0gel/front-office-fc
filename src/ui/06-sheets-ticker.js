@@ -55,7 +55,6 @@ function vSheet() {
     ${U.recMsg ? `<p class="note">${esc(U.recMsg)}</p>` : ''}
     ${!live ? `<p class="small note">${esc(F.staffName ? F.staffName('dof') : 'The DoF')} decides whether to pursue him, within your mandate. Change priorities or limits in the recruitment mandate.</p>` : ''}`;
   }
-  if (s.t === 'reclist') { h = `<div class="spread"><div class="kick">The list</div><button class="x" data-a="close" aria-label="Close">×</button></div>${vRecruit().replace(squadSeg(), '')}`; }
   if (s.t === 'recplan') { h = `<div class="spread"><div><div class="kick">Recruitment plan</div><h2>What should we look for?</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>${recPlanBlock()}<div class="row" style="margin-top:12px"><button class="btn" data-a="close">Done</button></div>`; }
   if (s.t === 'mand') {
     const r = s.r, st = F.staff(r), m = U.draft; const al = previewAlign(r, m);

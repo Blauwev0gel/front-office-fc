@@ -1,10 +1,6 @@
 /* ---------- review & sacked ---------- */
 /* ---------- club, league, staff, academy, review: game screens ---------- */
 const mrow = (ic, l, v, max, txt, cls) => `<div class="mrow">${ART.I[ic] || ''}<span>${l}</span><i><b class="${cls || ''}" style="width:${Math.max(0, Math.min(100, v / (max || 100) * 100))}%"></b></i><em>${txt != null ? txt : r0(v)}</em></div>`;
-function secScouting() {
-  const g = G(), c = g.club, nets = Object.keys(F.REGIONS).map(k => meter(F.REGIONS[k].name, c.net[k])).join('');
-  return `<div class="sec">Scouting network</div><div class="panel2"><p class="small" style="margin-top:0">${esc(F.staffName('scout'))} focuses on ${esc(F.REGIONS[F.man('scout', 'reg1')].name)} and ${esc(F.REGIONS[F.man('scout', 'reg2')].name)}. Stronger networks find better targets.</p>${nets}</div>`;
-}
 function secCommercial() {
   const g = G(), c = g.club, deals = c.deals.map(d => `<div class="scr2"><span>${esc(d.name)}</span><b>${money(d.wk)}/wk<small> ${d.weeks > 150 ? 'long term' : d.weeks + ' wk left'}</small></b></div>`).join('');
   return `<div class="sec">Matchday</div><div class="panel2"><div class="scr2"><span>Ticket price</span><b>${money(F.ticketPrice())}</b></div><div class="scr2"><span>Last home crowd</span><b>${(c.lastAtt || 0).toLocaleString('en-GB')} of ${c.cap.toLocaleString('en-GB')}</b></div>${mrow('stadium', 'Stadium full', c.cap ? (c.lastAtt || 0) / c.cap * 100 : 0, 100, Math.round(c.cap ? (c.lastAtt || 0) / c.cap * 100 : 0) + '%')}${F.CAPREQ[c.tier - 1] ? `<p class="small" style="margin:6px 0 0">Licensing: the ${F.TIERS[c.tier - 1]} requires ${F.CAPREQ[c.tier - 1].toLocaleString('en-GB')} seats.</p>` : ''}</div>
@@ -46,16 +42,4 @@ function vLeague2() {
   ${tab.map((id, i) => { const r = dv.tab[id]; return `<div class="lr ${id === 0 ? 'me' : ''} ${i < 3 && t > 1 ? 'up' : ''} ${i >= 15 && t < 8 ? 'dn' : ''}"><span>${i + 1}</span><span class="cn">${dot(id)}${esc(F.cname(id))}</span><span>${r.p}</span>${full ? `<span>${r.w}</span><span>${r.d}</span><span>${r.l}</span>` : ''}<span>${r.gf - r.ga > 0 ? '+' : ''}${r.gf - r.ga}</span><b>${r.pts}</b></div>`; }).join('')}</div>
   <div class="spread" style="margin-top:6px"><span class="small">${t > 1 ? 'Top 3 go up' : 'Top 3 win honours'}${t < 8 ? ', bottom 3 go down' : ''}.</span><button class="linkbtn" data-a="lfull" style="margin:0">${full ? 'Short table' : 'Full table'}</button></div>
   ${t === g.club.tier ? `<div class="sec">National Cup</div><div class="planboard">${g.cup.log.length ? g.cup.log.map(l => `<div class="pl ${l.win ? 'done' : 'open'}"><i class="dot"></i>${cap(l.rd)}: ${esc(l.opp)}<span>${esc(l.s)}</span></div>`).join('') : '<div class="pl open"><i class="dot"></i>First round<span>week 5</span></div>'}</div>` : ''}`;
-}
-function vStaff2() {
-  const g = G();
-  return `<p class="small" style="margin:0 0 10px">Hire, set the mandate, talk. A mandate change, a talk or a dismissal costs one action.</p><div class="scards">${F.ROLES.map(r => {
-    const s = g.staff[r.id];
-    if (!s) return `<div class="scard vacant"><div class="sface2 empty">${ART.I.staff}</div><div class="sm"><b>${esc(r.t)}</b><small>Vacant: ${esc(r.dept)} runs on chance</small></div><button class="btn small" data-a="sheet" data-s="cands" data-r="${r.id}">Hire</button></div>`;
-    const P = s.p, tr = [P.ego > 14 ? 'Big ego' : '', P.loy > 14 ? 'Loyal' : P.loy < 7 ? 'Mercenary' : '', P.risk > 14 ? 'Risk-taker' : P.risk < 7 ? 'Careful' : '', P.amb > 14 ? 'Ambitious' : ''].filter(Boolean).slice(0, 2), rc = F.record(r.id);
-    return `<div class="scard"><div class="sface2">${ART.staffFace(r.id)}</div><div class="sm"><b>${esc(s.name)}</b><small>${esc(r.t)}, ${starsTxt(F.stars(F.ovr(s)))}</small><div class="traits">${tr.map(x => `<span>${x}</span>`).join('')}<span class="${rc.verdict === 'Strong' ? 'good' : rc.verdict === 'Poor' ? 'bad' : ''}">${esc(rc.verdict)}</span></div>
-      ${mrow('trust', 'Trust', s.rel, 100, null, s.rel < 35 ? 'lo' : '')}${mrow('star', 'Form', s.perf, 100, null, s.perf < 35 ? 'lo' : '')}</div>
-      <div class="sbtns"><button class="btn small" data-a="sheet" data-s="mand" data-r="${r.id}">Mandate</button><button class="btn ghost small" data-a="sheet" data-s="talk" data-r="${r.id}" ${g.ap < 1 ? 'disabled' : ''}>Talk</button><details class="more2"><summary aria-label="More">…</summary><button class="linkbtn" data-a="sheet" data-s="fire" data-r="${r.id}" ${g.ap < 1 ? 'disabled' : ''}>Dismiss</button></details></div>
-      <details class="more snum"><summary>The numbers ${ART.I.chev}</summary>${numbers(r.id)}</details></div>`;
-  }).join('')}</div>`;
 }

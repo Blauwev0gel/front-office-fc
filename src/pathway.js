@@ -29,12 +29,6 @@ function cred() { const G = g(); G.cred = G.cred || { youth: 50, log: [] }; retu
 function credAdd(d, t, key) { const C = cred(); if (key && C.log.some(l => l.key === key)) return; C.youth = clamp(C.youth + d, 0, 100); C.log.unshift({ s: g().season, w: g().week, d, t, key: key || null }); C.log = C.log.slice(0, 20); }
 
 /* ---------- start conditions ---------- */
-function candidate() {
-  const G = g(), ta = tierAvg(G.club.tier);
-  const pool = sq().filter(p => p.age <= 20 && p.academy && !p.loan).concat(G.academy.filter(p => p.age >= 17));
-  const ok = pool.filter(p => p.pa >= ta + 1.2 && p.ca >= ta - 2.2 && !p.inj).sort((a, b) => (b.pa + b.ca) - (a.pa + a.ca));
-  return ok[0] || null;
-}
 function blocker(t) { // the weakest regular starter in his position: the one he would replace
   const xi = (g().ft && g().ft.xiPrev) || [];
   const starters = sq().filter(p => p.pos === t.pos && p.id !== t.id && !p.inj && xi.includes(p.id)).sort((a, b) => a.ca - b.ca);

@@ -5,7 +5,6 @@ const g = () => F.G, EV = F.EV;
 const { ri, pick, chance, clamp, money, M, staff, man, staffName, gauss } = F;
 const P = id => g().squad.find(p => p.id === id) || g().academy.find(p => p.id === id);
 const sq = () => g().squad, dna = () => g().club.dna, N = r => staffName(r);
-const rel = (r, n) => { const s = staff(r); if (s) s.rel = clamp(s.rel + n, 0, 100); };
 const fx = o => { const G = g(); for (const k in o) { const n = o[k]; if (k === 'board') G.board.conf = clamp(G.board.conf + n, 0, 100); else if (k === 'brand') G.club.brand = clamp(G.club.brand + n, 0, 100); else if (k === 'cash') G.club.cash += n; else G.st[k] = clamp(G.st[k] + n, 0, 100); } };
 const avgW = () => F.playerWages() / Math.max(1, sq().length);
 const wageLim = () => man('dof', 'maxWage') === '999' ? Infinity : avgW() * (+man('dof', 'maxWage')) / 100;

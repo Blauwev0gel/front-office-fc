@@ -163,5 +163,5 @@ function view(dk) {
 function overview() { return DEPTS.map(d => { const X = ensure()[d.k]; return { k: d.k, t: d.t, head: d.head, s: staff(d.head), status: status(d.k), used: X.staff.length, slots: slots(), staffOn: X.staff.filter(active).length }; }); }
 function budView() { return { cap: budCap(), used: budUsed(), rows: BUD.map(k => ({ k, t: DK[k].t, v: budGet(k), cost: budCost(k), d: BUD_D[k], vacant: !staff(DK[k].head) })) }; }
 
-Object.assign(F, { DEPTS, DEPT: DK, DEPT_ROLES: ROLES, deptEnsure: ensure, deptView: view, deptOverview: overview, deptCands: cands, deptHire: hireStaff, deptLetGo: letGo, deptBudView: budView, deptBudSet: budSet, deptSlots: slots });
+Object.assign(F, { DEPTS, DEPT: DK, DEPT_ROLES: ROLES, deptEnsure: ensure, deptView: view, deptOverview: overview, deptCands: cands, deptHire: hireStaff, deptLetGo: letGo, deptBudView: budView, deptBudSet: budSet });
 })(FO);

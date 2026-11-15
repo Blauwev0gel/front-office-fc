@@ -197,5 +197,5 @@ function deskView() {
 }
 function authView(h) { const s = staff(h), a = auth(h); return { a, t: AUTH[a].t, s: AUTH[a].s, opts: AUTH.map(x => x.t), lim: limit(h, a), err: Math.round(errChance(h) * 100), rec: ((G => G.desk && G.desk.by[h])(g())) || { n: 0, err: 0 }, head: s }; }
 
-Object.assign(F, { AUTH, authOf: auth, setAuth, authView, deskView, deskReason: reason, DESK_HEADS: HEADS });
+Object.assign(F, { AUTH, setAuth, authView, deskView, DESK_HEADS: HEADS });
 })(FO);

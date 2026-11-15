@@ -1,9 +1,10 @@
 /* ---------- the week ---------- */
 // dismissal is final: one place sets it, nothing after it can undo it
-function sack(reason, cause) {
+function sack(reason, cause, at) {
+  // at: { pos, tier } when the table has already moved on (end of season: clubs have changed division).
   if (G.phase === 'sacked') return false;
   G.phase = 'sacked'; G.sackReason = reason; G.queue = []; G.briefs = [];
-  G.over = { reason, cause: cause || 'board', season: G.season, week: G.week, pos: (G.divs && G.divs[G.club.tier]) ? myPos() : null, tier: G.club.tier, conf: Math.round(G.board.conf) };
+  G.over = { reason, cause: cause || 'board', season: G.season, week: G.week, pos: at ? at.pos : (G.divs && G.divs[G.club.tier]) ? safe(myPos) || null : null, tier: at ? at.tier : G.club.tier, conf: Math.round(G.board.conf) };
   return true;
 }
 const over = () => G.phase === 'sacked';

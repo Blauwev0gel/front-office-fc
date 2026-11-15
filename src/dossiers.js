@@ -251,5 +251,5 @@ function dosView() {
   return { open, arch: X.arch, signal: pSignal(), pressure: pv() };
 }
 
-Object.assign(F, { DOS, dosView, dosStart: start, pressureSignal: pSignal, defineDossier });
+Object.assign(F, { DOS, dosView, defineDossier });
 })(FO);

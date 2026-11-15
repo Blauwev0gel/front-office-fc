@@ -40,3 +40,28 @@ assert.equal(main.loadGame(), 'existing main save');
 assert.equal(open('/front-office-fc/index.html').KEY, main.KEY);
 assert.equal(open('/front-office-fc/chatgpt').KEY, chatgpt.KEY);
 console.log('PASS: main save preserved; preview saves, loads and resets isolated');
+
+/* Organizational simulation regression: execute the real recruitment needs
+   functions against controlled squad states. This is run by Pages CI. */
+{
+  const recruitment = require('./src.js')('recruit.js');
+  const start = recruitment.indexOf('function coachCoverageNeeds()');
+  const end = recruitment.indexOf('function dofPipeline()', start);
+  assert(start >= 0 && end > start, 'Recruitment coverage functions present');
+  const api = recruitment.slice(start, end) + '\\nthis.getNeeds = recruitmentNeeds;';
+  const cases = [
+    { players: [{pos:'GK',inj:8}], base:[], want:['GK'] },
+    { players: [{pos:'GK',inj:1}], base:[], want:[] },
+    { players: [{pos:'CB',inj:8},{pos:'CB',inj:0}], base:[], want:['CB'] },
+    { players: [{pos:'CB',inj:8},{pos:'CB',inj:0},{pos:'CB',inj:0}], base:[], want:[] },
+    { players: [{pos:'CM',inj:0}], base:['ST'], want:['ST'] },
+    { players: [{pos:'ST',inj:7}], base:['ST'], want:['ST'] }
+  ];
+  for (const {players,base,want} of cases) {
+    const context = {sq:()=>players,F:{squadNeeds:()=>base},Set,Object};
+    vm.runInNewContext(api,context);
+    assert.deepEqual(Array.from(context.getNeeds()),want,
+      'Coverage needs and existing squad needs must combine without duplicates');
+  }
+  console.log('PASS: coach availability -> DoF recruitment priorities (6 cases)');
+}

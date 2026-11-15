@@ -181,6 +181,89 @@ const SIGNALS = {
 // evidence as the original signal. A plan does not alter a scorecard or guarantee success.
 function issueRecords() { const G = g(); return G.deptIssues = G.deptIssues || {}; }
 function issueKey(dk, row) { return dk + ':' + row; }
+
+// Contextual CEO meetings: a decision starts an operational assignment, not a
+// generic staff morale conversation. All assignments retain their issue identity.
+const APPROACH = {
+  first: [['Review workload', 'Coach reviews training and player availability; a lighter load may protect fitness but slow development.', 'workload'],
+          ['Targeted coaching', 'Coach concentrates staff time on weak areas, sacrificing breadth.', 'focus']],
+  recruit: [['Audit scouting reports', 'The chief scout cross-checks existing assessments. Fewer new reports, better calibration.', 'audit'],
+            ['Narrow scouting focus', 'Scouts prioritise fewer targets and reduce the breadth of coverage.', 'focus']],
+  academy: [['Welfare review', 'Academy director gives struggling youngsters closer attention at the expense of coaching time elsewhere.', 'welfare'],
+            ['Pathway meetings', 'Director reviews older prospects and loan options, reducing time for the next intake.', 'pathway']],
+  commercial: [['Review matchday offer', 'Commercial director studies pricing and supporter demand before making recommendations.', 'review'],
+               ['Focus on sponsors', 'Director concentrates on sponsor relationships rather than matchday development.', 'sponsor']],
+  marketing: [['Community outreach', 'Marketing focuses on supporter relationships rather than broad reach.', 'community'],
+              ['Review campaigns', 'Marketing audits campaigns and reduces experimental activity.', 'campaign']],
+  business: [['Cost audit', 'Finance reviews recurring costs and prepares savings recommendations.', 'audit'],
+             ['Cash protection', 'Finance prioritises liquidity and defers discretionary initiatives.', 'cash']]
+};
+function issueMeeting(dk, key) {
+  const issue = status(dk).issues.find(i => i.key === key);
+  if (!issue) return { err: 'This concern is no longer active.' };
+  const owner = staff(issue.owner);
+  if (!owner) return { err: 'Appoint the responsible head before discussing a plan.' };
+  const old = issueRecords()[issueKey(dk,key)];
+  return { issue, owner: owner.name, ownerRole: issue.owner, options: APPROACH[dk] || [],
+    active: old && old.choice === 'plan' && F.absWeek() < old.due ? old : null };
+}
+function issuePlan(dk, key, choice) {
+  const meeting = issueMeeting(dk,key);
+  if (meeting.err) return meeting;
+  if (meeting.active) return { err: 'An assignment is already underway. Review it before starting another.' };
+  if (g().ap < 1) return { err: 'No actions left this week.' };
+  const opt = (APPROACH[dk] || []).find(x => x[2] === choice);
+  if (!opt && choice !== 'accept') return { err: 'Unknown approach.' };
+  g().ap--;
+  const now = F.absWeek(), rec = issueRecords();
+  rec[issueKey(dk,key)] = {
+    choice: opt ? 'plan' : 'accept', approach: opt ? opt[2] : null,
+    approachTitle: opt ? opt[0] : 'Risk accepted', owner: meeting.ownerRole,
+    ownerId: staff(meeting.ownerRole).id, started: now, due: now + (opt ? 4 : 5),
+    baseline: meeting.issue.evidence, title: meeting.issue.title,
+    season: g().season, last: null, notified: false, steps: 0
+  };
+  const log = ensure()[dk].log;
+  log.unshift({ w:g().week, s:g().season, t:meeting.issue.title + ': ' + (opt ? opt[0] + ' assigned to ' + meeting.owner : 'CEO accepts risk without intervention') });
+  log.length = Math.min(log.length,12);
+  return { out: opt ? meeting.owner + ' will carry out ' + opt[0].toLowerCase() + ' over four weeks.' : 'Risk accepted. No intervention underway.' };
+}
+function issueWorkWeekly() {
+  const G = g(), now = F.absWeek();
+  for (const [id, rec] of Object.entries(issueRecords())) {
+    if (!rec || rec.choice !== 'plan' || now <= rec.started || now > rec.due || rec.last === 'blocked') continue;
+    const sep = id.indexOf(':'), dk = id.slice(0,sep);
+    const leader = staff(rec.owner);
+    if (!leader || leader.id !== rec.ownerId) {
+      rec.last = 'blocked';
+      G.paper.stories.push({h:'Department assignment halted',t:rec.title + ': the responsible head has left. Revisit the department.'});
+      continue;
+    }
+    if (rec.steps >= 4) continue;
+    rec.steps++;
+    // Apply effects to existing systems rather than an isolated success meter.
+    // Recruitment report audits trade scouting throughput for narrower uncertainty.
+    if (dk === 'recruit' && rec.approach === 'audit' && G.rec && G.rec.know) {
+      const known = Object.values(G.rec.know).filter(x => x && Number.isFinite(x.sd));
+      const count = Math.min(3, known.length);
+      for (let i=0;i<count;i++) {
+        const k = known[(i + rec.steps - 1) % known.length];
+        k.sd = Math.max(0.2, k.sd - 0.08);
+        if (Number.isFinite(k.psd)) k.psd = Math.max(0.3, k.psd - 0.05);
+        k.conf = k.sd < 0.6 ? 'high' : k.sd < 1.2 ? 'medium' : 'low';
+      }
+    }
+    if (dk === 'academy' && rec.approach === 'welfare') {
+      const youth = (G.academy || []).filter(p => Number.isFinite(p.wel) && p.wel < 55);
+      for (const p of youth.slice(0,2)) p.wel = Math.min(100,p.wel + 1);
+    }
+    // All other assignments are documented investigations, not invented KPI boosts.
+    if (rec.steps === 1 || rec.steps === 3) {
+      ensure()[dk].log.unshift({w:G.week,s:G.season,t:rec.approachTitle + ': week ' + rec.steps + ' of 4. ' + (dk === 'recruit' && rec.approach === 'audit' ? 'Existing reports cross-checked; fewer resources for fresh coverage.' : 'Department head is reviewing the evidence and existing mandate.')});
+      ensure()[dk].log.length = Math.min(ensure()[dk].log.length,12);
+    }
+  }
+}
 function issueDecision(dk, key, choice) {
   const current = status(dk).issues.find(i => i.key === key);
   if (!current) return { err: 'That concern is no longer current.' };
@@ -205,9 +288,9 @@ function issueFollowUp(dk, key, present) {
   const rec = issueRecords()[issueKey(dk, key)];
   if (!rec) return null;
   const now = F.absWeek();
-  if (now < rec.due) return { state: rec.choice === 'accept' ? 'Risk accepted' : 'In progress', note: rec.choice === 'accept'
+  if (now < rec.due) return { state: rec.choice === 'accept' ? 'Risk accepted' : rec.choice === 'plan' ? 'Plan underway' : 'Monitoring only', note: rec.choice === 'accept'
     ? 'You have chosen to carry this risk. It has not gone away.'
-    : 'The department is being monitored. No improvement is assumed.', due: rec.due, baseline: rec.baseline };
+    : rec.choice === 'plan' ? rec.approachTitle + ': ' + (rec.steps || 0) + ' of 4 weeks completed.' : 'The department is being monitored. No intervention underway.', due: rec.due, baseline: rec.baseline };
   const changedSeason = rec.season != null && rec.season !== g().season;
   return { state: changedSeason ? 'New season' : present ? 'Review due' : 'Improved', note: changedSeason
     ? 'The original baseline belongs to a previous season. Reassess before claiming improvement.'
@@ -298,5 +381,5 @@ function view(dk) {
 function overview() { return DEPTS.map(d => { const X = ensure()[d.k]; return { k: d.k, t: d.t, head: d.head, s: staff(d.head), status: status(d.k), used: X.staff.length, slots: slots(), staffOn: X.staff.filter(active).length }; }); }
 function budView() { return { cap: budCap(), used: budUsed(), rows: BUD.map(k => ({ k, t: DK[k].t, v: budGet(k), cost: budCost(k), d: BUD_D[k], vacant: !staff(DK[k].head) })) }; }
 
-Object.assign(F, { DEPTS, DEPT: DK, DEPT_ROLES: ROLES, deptEnsure: ensure, deptView: view, deptOverview: overview, deptCands: cands, deptHire: hireStaff, deptLetGo: letGo, deptBudView: budView, deptBudSet: budSet, deptIssueDecision: issueDecision, deptIssueFollowUp: issueFollowUp, deptIssueWeekly: issueWeekly });
+Object.assign(F, { DEPTS, DEPT: DK, DEPT_ROLES: ROLES, deptEnsure: ensure, deptView: view, deptOverview: overview, deptCands: cands, deptHire: hireStaff, deptLetGo: letGo, deptBudView: budView, deptBudSet: budSet, deptIssueDecision: issueDecision, deptIssueFollowUp: issueFollowUp, deptIssueWeekly: issueWeekly, deptIssueMeeting: issueMeeting, deptIssuePlan: issuePlan, deptIssueWorkWeekly: issueWorkWeekly });
 })(FO);

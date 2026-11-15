@@ -241,25 +241,16 @@ function issueWorkWeekly() {
     }
     if (rec.steps >= 4) continue;
     rec.steps++;
-    // Apply effects to existing systems rather than an isolated success meter.
-    // Recruitment report audits trade scouting throughput for narrower uncertainty.
-    if (dk === 'recruit' && rec.approach === 'audit' && G.rec && G.rec.know) {
-      const known = Object.values(G.rec.know).filter(x => x && Number.isFinite(x.sd));
-      const count = Math.min(3, known.length);
-      for (let i=0;i<count;i++) {
-        const k = known[(i + rec.steps - 1) % known.length];
-        k.sd = Math.max(0.2, k.sd - 0.08);
-        if (Number.isFinite(k.psd)) k.psd = Math.max(0.3, k.psd - 0.05);
-        k.conf = k.sd < 0.6 ? 'high' : k.sd < 1.2 ? 'medium' : 'low';
-      }
-    }
+    // Recruitment audits are executed by assigned scouts inside scoutWeek().
+    // They consume fieldwork capacity and use the ordinary report() model.
+    // Do not silently lower report uncertainty here.
     if (dk === 'academy' && rec.approach === 'welfare') {
       const youth = (G.academy || []).filter(p => Number.isFinite(p.wel) && p.wel < 55);
       for (const p of youth.slice(0,2)) p.wel = Math.min(100,p.wel + 1);
     }
     // All other assignments are documented investigations, not invented KPI boosts.
     if (rec.steps === 1 || rec.steps === 3) {
-      ensure()[dk].log.unshift({w:G.week,s:G.season,t:rec.approachTitle + ': week ' + rec.steps + ' of 4. ' + (dk === 'recruit' && rec.approach === 'audit' ? 'Existing reports cross-checked; fewer resources for fresh coverage.' : 'Department head is reviewing the evidence and existing mandate.')});
+      ensure()[dk].log.unshift({w:G.week,s:G.season,t:rec.approachTitle + ': week ' + rec.steps + ' of 4. ' + (dk === 'recruit' && rec.approach === 'audit' ? 'Assigned scouts cross-check reports instead of finding new targets.' : 'Department head is reviewing the evidence and existing mandate.')});
       ensure()[dk].log.length = Math.min(ensure()[dk].log.length,12);
     }
   }

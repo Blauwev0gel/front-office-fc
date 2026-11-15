@@ -197,6 +197,14 @@ function dofPipeline() {
   const wanted = sq().length < depth + 1 || need.length || (upgrade && sq().length < depth + 4);
   let slots = wanted ? 2 - active : 0;
   if (F.finTight && F.finTight() && (!need.length || F.wageRatio() * 100 > +man('fin', 'wageCap') + 10)) slots = 0; // money first
+  // Finance's operating forecast constrains discretionary recruitment. An
+  // urgent squad gap can still be addressed under the existing wage/fee rules.
+  // No new budget meter: this uses the actual Finance plan and club cash.
+  if (F.bizPlan) {
+    const fp = F.bizPlan();
+    const reserve = Math.max(0, (fp.spend - fp.env) * 4);
+    if (fp.spend > fp.env && g().club.cash < reserve && !need.length) slots = 0;
+  }
   for (const x of recs) {
     if (slots <= 0) break;
     const p = r.pool[x.pid]; if (!slotOpen(p, r.know[x.pid]) || r.pipe.some(y => y !== x && ['approach', 'negotiating'].includes(y.stage) && r.pool[y.pid] && r.pool[y.pid].pos === p.pos)) { x.hold = true; continue; } x.hold = false; const iss = ruleIssues(p); x.blocked = null;

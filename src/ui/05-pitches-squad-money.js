@@ -28,8 +28,9 @@ function meetingBlock(mt, kick) { return pitchDeck(mt, kick, false); }
 function p90(v, m) { return m ? (v / m * 90).toFixed(2) : '–'; }
 const STG_L = { identified: 'Identified', scouted: 'Scouted', recommended: 'Recommended', approach: 'Awaiting approval', negotiating: 'In talks', agreed: 'Agreed', signed: 'Signed', lost: 'Dropped' };
 function squadSeg() { return `${tourCard('squad')}<div class="seg" style="margin-bottom:14px"><button class="${!U.sqTable ? 'on' : ''}" data-a="sqtable" data-v="0">Pitch</button><button class="${U.sqTable ? 'on' : ''}" data-a="sqtable" data-v="1">Stats table</button></div>`; }
+const RULE_OWN = { 'wage cap': 'the wage cap (Finance)', 'fee limit': 'the fee limit (DoF mandate)', 'wage limit': 'the wage limit (DoF mandate)', 'age limit': 'the age limit (DoF mandate)' };
 function recRow(o) {
-  const { x, p, k } = o, d = x.deal, note = x.blocked ? `Blocked by ${x.blocked.join(', ')}` : x.stage === 'negotiating' && d && d.rounds.length ? d.rounds[d.rounds.length - 1] : (x.log || []).slice(-1)[0] || '';
+  const { x, p, k } = o, d = x.deal, note = x.blocked ? `Blocked by ${x.blocked.map(r => RULE_OWN[r] || r).join(', ')}` : x.stage === 'negotiating' && d && d.rounds.length ? d.rounds[d.rounds.length - 1] : (x.log || []).slice(-1)[0] || '';
   const was = k && /\(grade ([A-D])\)/.exec(note), note2 = was && was[1] !== k.grade ? note.replace(/\(grade [A-D]\)\.?/, `as a ${was[1]}; now graded ${k.grade}.`) : note;
   return `<button class="rrow" data-a="target" data-id="${x.pid}"><span class="gr g${k ? k.grade : 'D'}">${k ? k.grade : '?'}</span><span class="rmain"><b>${esc(p.name)}</b> <span class="pos">${p.pos}</span><span class="small rsub">${p.age}, ${F.REGIONS[p.region].name}${p.pool ? (p.club ? ', ' + money(p.ask) : ', free agent') : ''}${k ? `, ${F.recBand(k)}, ${k.conf} confidence` : ''}</span>${note2 ? `<span class="small rnote ${x.blocked ? 'warn' : ''}">${esc(note2)}</span>` : ''}</span></button>`;
 }

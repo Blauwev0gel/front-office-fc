@@ -140,3 +140,4 @@ i.up,.fdrow .up,.wkd .up i{color:var(--good)}i.dn,.fdrow .dn,.wkd .dn i{color:va
 .regr:first-child{border-top:0}.regr>span{display:grid;min-width:0}.regr b{font:900 14px var(--head)}.regr small{font-size:12px;color:var(--soft)}
 .regr .btn{min-height:44px;min-width:64px}
 .mdept{display:block;margin:10px 0 0;min-height:44px}
+.choice2{display:grid;gap:8px}.choice2 .btn{min-height:44px;display:grid;justify-items:center}.choice2 .btn small{font-size:11px;font-weight:600}

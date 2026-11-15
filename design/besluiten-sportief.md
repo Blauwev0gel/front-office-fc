@@ -46,21 +46,21 @@ Status: **open** · **besloten** · **gebouwd** · **getest**. Type: bug · misl
 
 | Id | Probleem | Bron | Type | Status |
 |---|---|---|---|---|
-| O1 | De Chief Scout zit half tussen eigen afdeling en DoF-staf in (eigen mandaat en gesprek, geen bevoegdheid, KPI of inbox). | A §3, §4.3 · S §3.6 | ontwerp | open |
-| O2 | Medical bestaat alleen als push zonder eigenaar. | A §3 | ontwerp | open |
-| O3 | Proefdag: de briefing belooft dat de CEO kinderen kiest, het scherm laat dat niet toe. Mag de CEO dat überhaupt (P1)? | A §4.4 · S §3.3 | ontwerp | open |
-| O4 | "Give him minutes" negeert de wil van de coach (P7). | A §4.2 | ontwerp | open |
-| O5 | Zes routes voor jeugdminuten, verspreid over vijf schermen. | A §5 · S §3.6 | ontwerp | open |
-| O6 | Bij "blocked by rule" is niet zichtbaar welke regel van de DoF is en welke van Finance. | A §4.1 · S §4.3 | ontwerp | open |
-| O7 | Het academiemandaat bevat eerste-elftalzaken (beschermde spelers, mentoren). | S §3.6 | ontwerp | open |
-| O8 | Hoeveel academiediepte hoort op de telefoon (jeugdtabellen, jeugdstaf, Youth Cup)? | S §7 | ontwerp | open |
+| O1 | De Chief Scout zit half tussen eigen afdeling en DoF-staf in (eigen mandaat en gesprek, geen bevoegdheid, KPI of inbox). | A §3, §4.3 · S §3.6 | ontwerp | getest |
+| O2 | Medical bestaat alleen als push zonder eigenaar. | A §3 | ontwerp | getest |
+| O3 | Proefdag: de briefing belooft dat de CEO kinderen kiest, het scherm laat dat niet toe. Mag de CEO dat überhaupt (P1)? | A §4.4 · S §3.3 | ontwerp | getest |
+| O4 | "Give him minutes" negeert de wil van de coach (P7). | A §4.2 | ontwerp | getest |
+| O5 | Zes routes voor jeugdminuten, verspreid over vijf schermen. | A §5 · S §3.6 | ontwerp | getest |
+| O6 | Bij "blocked by rule" is niet zichtbaar welke regel van de DoF is en welke van Finance. | A §4.1 · S §4.3 | ontwerp | getest |
+| O7 | Het academiemandaat bevat eerste-elftalzaken (beschermde spelers, mentoren). | S §3.6 | ontwerp | getest |
+| O8 | Hoeveel academiediepte hoort op de telefoon (jeugdtabellen, jeugdstaf, Youth Cup)? | S §7 | ontwerp | getest |
 
 ## Ronde 4 — Doorwerking en balans
 
 | Id | Probleem | Bron | Type | Status |
 |---|---|---|---|---|
 | D1 | Het DoF-schuifje Scout's eye ↔ Data doet niets in de live pipeline; de persoonlijkheid (LEAN) van de DoF hangt eraan. | A §4.1 | balans | open |
-| D2 | De scout-schuifjes Proven ↔ Potential en Data zijn dood; zijn LEAN hangt eraan. Rapporten negeren boost, grip en staf. | A §4.3 | balans | open |
+| D2 | De scout-schuifjes Proven ↔ Potential en Data zijn dood; zijn LEAN hangt eraan. Rapporten negeren boost, grip en staf. Na O1 heeft de scout geen eigen mandaatsheet meer: "Proven ↔ Potential" moet hier naar het Recruitment-mandaat verhuizen én gaan werken. | A §4.3, O1 | balans | open |
 | D3 | De DoF-attributen Judgement en Network doen (bijna) niets. | A §4.1 | balans | open |
 | D4 | Geen van de vier coachschuifjes verandert punten; "your way" is gratis relatie. | A §4.2 | balans | open |
 | D5 | Grip beloont klikken en bestraft delegeren. | A §5 | balans | open |
@@ -104,3 +104,13 @@ Doel: elke afdeling beantwoordt dezelfde vier vragen, elk gegeven staat op één
 - **Inbox:** elk bericht en elke briefing van een hoofd heeft "Open {afdeling}". De desk bewaart per hoofd de laatste 8 zelf genomen besluiten (`G.desk.by[h].hist`, veilige default); triviale "Noted"-briefings tellen niet mee.
 - Opgeruimd: "All numbers", "Full academy report", `vAcademy`, `vAcademy2`, `vRecruit2`, de oude netwerkkaart en de dubbele regiochips.
 - Getest: build, alle `node test/*.js` (incl. `mig.js`), screenshots van alle tabs van de drie sportieve afdelingen op 390 px in licht en donker, en de link uit een bericht gerenderd. Niet gedraaid: `test/browser/playtest.py` (de Python-module van Playwright ontbreekt hier).
+
+### Ronde 3 (besloten 15-11-2026; B15–B17)
+- **O1 Chief Scout = tweede stem binnen Recruitment.** Geen apart mandaatsheet meer; op People Talk én Sack. Regio's en budget staan op Plan. Het verhuizen van "Proven ↔ Potential" naar het Recruitment-mandaat gebeurt in ronde 4 samen met het laten werken (D2), zodat er geen dode knop verhuist.
+- **O2 Medical:** dezelfde push, nu als knop op First team Plan ("Medical push · 1 action"); in het push-sheet heet hij "First team: medical".
+- **O3 Proefdag:** de CEO kiest het criterium (Trust the recruiters / Local lads first / Ready soonest), de recruiters kiezen de kinderen (`academy3.js` `pickBy`). De briefing gaat altijd naar de CEO (`desk.js` `CEO_B`). Zonder antwoord gaan de recruiters na twee weken voor de hoogste potentie. Plan toont de keuze en het verslag van de vorige proefdag.
+- **O4 "Give him minutes"** is een verzoek: de coach doet het met kans gelijk aan zijn mandaatvolgzaamheid (gemeten: 25 ja, 15 nee bij gemiddeld 0,73). Een weigering verschijnt in het gesprek en vier weken op Now (`G.ft.refused`, veilige default).
+- **O5 Jeugdminuten:** op First team Plan één blok "Youth minutes" met de actieve bronnen (mandaat en hoe hij het speelt, pathway-afspraak, target, verzoeken) en het resultaat (U21-starts per wedstrijd).
+- **O6/O7 Eigenaar van regels:** "Blocked by the wage cap (Finance)" of "… the age limit (DoF mandate)"; de aandachtspunten verwijzen naar het juiste mandaat. De twee academieregels blijven in het academiemandaat en staan ook op First team Plan.
+- **O8:** academiediepte blijft zoals na ronde 2.
+- Getest: build, alle `node test/*.js`, scriptcheck van de drie proefdagcriteria en van de weigerkans, screenshots op 390 px licht en donker (week 28–30).

@@ -76,3 +76,18 @@ function acStaff() {
   const v = F.acadView();
   return `<div class="sec">Academy staff</div>${v.staff.map(({ r, s }) => s ? `<div class="pcard2"><span class="pf">${ART.face(s.id * 13 + 7, { role: 'acad', age: s.age, bg: '#fff' })}</span><span class="pm"><b>${esc(s.name)}</b><small>${esc(r.t)}, ${starsTxt(F.stars((s.at[0] + s.at[1] + s.at[2]) / 3))}</small><small class="pw">${esc(s.bio)}. ${money(s.wage)}/wk</small></span><button class="linkbtn" data-a="ysack" data-r="${r.id}">Replace (${money(s.wage * 10)})</button></div>` : `<div class="pcard2"><span class="pf empty">${ART.I.staff}</span><span class="pm"><b>${esc(r.t)}</b><small>Vacant. The Academy Director fills it at season end.</small></span><span></span></div>`).join('')}`;
 }
+
+/* ---------- first team plan: where youth minutes come from, academy rules, medical ---------- */
+function ftPlanExtra() {
+  const g = G(), v = F.ftView(), PV = F.pwView ? F.pwView() : null, src = [];
+  const ym = F.man('coach', 'youthMins'), act = F.cact('youthMins');
+  src.push(`your mandate: ${ym >= 60 ? 'blood youngsters' : ym <= 35 ? 'trust veterans' : 'balanced'}${Math.abs(act - ym) >= 8 ? ` (he plays it ${act > ym ? 'younger' : 'older'})` : ''}`);
+  if (PV && PV.ag && PV.stage !== 'closed' && PV.ag.route !== 'exp') src.push(`the ${esc(PV.tname)} agreement`);
+  if (v.deal && v.deal.k === 'youth') src.push('his target to start more youngsters');
+  if (v.pushN) src.push(`${v.pushN} request${v.pushN === 1 ? '' : 's'} for more minutes`);
+  const prot = +F.man('acad', 'minGrads'), ment = F.man('acad', 'mentors') === 'yes';
+  const push = g.push.medical > 0;
+  return `<div class="sec">Youth minutes</div><div class="panel2"><p class="small" style="margin:0">Come from: ${src.join(' · ')}.${v.u21pm != null ? ` Result: ${v.u21pm.toFixed(1)} under-21s start per match.` : ''}</p>
+  <p class="small" style="margin:6px 0 0">From the academy mandate: ${prot ? `${prot} academy player${prot === 1 ? '' : 's'} the DoF may not sell` : 'no academy players protected from sale'}; ${ment ? 'senior pros mentor the scholars' : 'no first-team mentors'}.</p>${F.staff('acad') ? '<button class="linkbtn" data-a="sheet" data-s="mand" data-r="acad">Academy mandate · 1 action</button>' : ''}</div>
+  <div class="sec">Medical</div><div class="panel2"><p class="small" style="margin:0 0 8px">${push ? `Medical push active: fewer injuries and faster recovery, ${g.push.medical} week${g.push.medical === 1 ? '' : 's'} left.` : 'A medical push means fewer injuries and faster recovery for three weeks.'}</p><button class="btn ghost wide" data-a="push" data-d="medical" ${push || g.ap < 1 ? 'disabled' : ''}>Medical push · 1 action</button></div>`;
+}

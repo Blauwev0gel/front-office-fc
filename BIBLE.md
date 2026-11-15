@@ -60,7 +60,7 @@ Vastgelegd:
 1. **DNA** — zeven vragen: ontstaan, speelstijl, talentbron, financiering, identiteit, ambitie, stadion.
    Dit zet kas, fans, schulden, capaciteit, mandaat-defaults en bestuursdoelen.
 2. **Staf** — zeven rollen aannemen binnen een stafbudget (DoF, Head Coach, Chief Scout, Academy
-   Director, Commercial Director, Head of Marketing, Finance Director). Elk met 3 attributen, een
+   Director, Commercial Director, Head of Marketing, Finance Director). Zes afdelingen: de Chief Scout werkt binnen Recruitment (B15). Elk met 3 attributen, een
    bio en een eigen neiging (LEAN) die kan botsen met je mandaat.
 3. **Mandaten** — per rol schuifjes (bv. Youth↔Experience) en regels (bv. max transfersom).
 4. **Zomer** — vergadering met DoF en staf → getekende zomerbrief → ticker waarin de DoF uitvoert →
@@ -178,3 +178,6 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 | B12 | 15-11-2026 | Elke afdeling heeft dezelfde vier tabs: **Now** (oordeel, max. drie aandachtspunten met oorzaak en knop, wat op jou wacht), **Plan** (mandaat, middelen, bevoegdheid), **People** en **Record** (wat hij deed). Elk gegeven staat op één plek; geen "alle informatie"-blokken. | Overzicht op mobiel; diepte onder een vraag, niet onder "alles" (P4, P5, B3). |
 | B13 | 15-11-2026 | Richting kost een actie, middelen niet: een mandaat wijzigen kost 1 AP; budget, regio's, trips en staf zijn gratis en staan alleen op Plan. | Eén prijs per instelling, ongeacht de route. |
 | B14 | 15-11-2026 | Getallen over mensen en afdelingen tonen eerst een woord, het getal klein erachter ("cool (44)"). Een afwijking van het mandaat noemt wat het kost. | Druk voel je, je leest hem niet af (P4). |
+| B15 | 15-11-2026 | De Chief Scout is de tweede stem binnen Recruitment: geen eigen afdeling of mandaatsheet, wel een eigen persoon (Talk, Sack). Medical hoort bij First team. | Duidelijke eigenaar per knop, geen extra scherm (B3). |
+| B16 | 15-11-2026 | De CEO kiest geen individuele jeugdspelers: op de proefdag kiest hij waar de recruiters op letten, zij kiezen de kinderen. | Je stuurt mensen, geen spelers (P1). |
+| B17 | 15-11-2026 | Een verzoek aan de coach over een speler ("Give him minutes") kan hij weigeren, naar de mate waarin hij je mandaat volgt. | Mensen hebben een eigen wil (P7); de CEO kiest nooit het elftal (B1). |

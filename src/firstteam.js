@@ -244,10 +244,13 @@ function talkAnswer(id) {
         const p = g().squad.find(x => x.id === +id.slice(3)); if (!p) { end(); break; }
         const better = g().squad.filter(q => q.pos === p.pos && q.ca > p.ca && q.inj <= 0).length;
         say('coach', p.inj > 0 ? `${p.name.split(' ')[1] || p.name} is injured. Nothing to discuss until he is fit.` : better >= 2 ? `There are ${better} ahead of him. He has to earn it in training.` : p.morale < 45 ? 'His head is not right. I am handling it.' : p.age <= 20 ? 'Talented. I do not want to burn him out.' : 'He is in my plans. Patience.');
-        T.pid = p.id; T.opts = [{ id: 'pp_push', t: 'Give him minutes', fx: 'He plays more for 6 weeks' }, { id: 'pp_ok', t: 'Your call', fx: 'Relationship up' }];
+        T.pid = p.id; T.opts = [{ id: 'pp_push', t: 'Give him minutes', fx: 'He may or may not do it' }, { id: 'pp_ok', t: 'Your call', fx: 'Relationship up' }];
       } else if (id === 'pp_push') {
-        S.pushP[T.pid] = 6; if (P.ego > 14) { say('coach', 'I will look at it. No promises.'); rel(-4); } else { say('coach', 'Fair. He gets his chance.'); rel(-1); }
-        const p = g().squad.find(x => x.id === T.pid); if (p) p.morale = clamp(p.morale + 8, 0, 100); fxNote('More minutes for 6 weeks'); end();
+        // a request, not an order: he does it as faithfully as he follows your mandate (P7)
+        const p = g().squad.find(x => x.id === T.pid), yes = chance(compliance());
+        if (yes) { S.pushP[T.pid] = 6; say('coach', P.ego > 14 ? 'Fine. He gets a run. If it goes wrong, you asked for it.' : 'Fair. He gets his chance.'); rel(P.ego > 14 ? -3 : -1); if (p) p.morale = clamp(p.morale + 8, 0, 100); fxNote('More minutes for 6 weeks'); }
+        else { say('coach', P.ego > 14 ? 'I pick the team. He has to earn it.' : 'Not yet. I do not think he is ready.'); rel(-1); S.refused = { pid: T.pid, name: p ? p.name : '', at: F.absWeek() }; fxNote('He will not do it'); }
+        end();
       } else if (id === 'pp_ok') { say('coach', 'Thanks for trusting me.'); rel(2); end(); }
       else if (id.startsWith('t_')) {
         const kk = id.slice(2), lab = (T.opts.find(o => o.id === id) || {}).t || '', G2 = g();
@@ -287,7 +290,7 @@ function view() {
   return {
     s, line: line(), games: S.games.slice(-6), pos: S.pos.slice(), exp: F.expectedRank(), rows: s ? mandateRows() : [], comp: compliance(),
     eyes: squadEyes(), res: Object.keys(RES).map(k => ({ k, ...RES[k], ...resCost(k), on: !!S.res[k], left: S.res[k] ? S.res[k].left : 0 })),
-    deal: S.deal, last: S.last, talk: S.talk, injRisk: Math.round((0.6 + act('intensity') / 100 * 0.8) * H.ftInj() * 50), injS: S.injS || 0
+    deal: S.deal, last: S.last, talk: S.talk, pushN: Object.keys(S.pushP).length, refused: S.refused && F.absWeek() - S.refused.at <= 4 ? S.refused : null, u21pm: S.played ? S.u21 / S.played : null, injRisk: Math.round((0.6 + act('intensity') / 100 * 0.8) * H.ftInj() * 50), injS: S.injS || 0
   };
 }
 

@@ -70,6 +70,7 @@ function act(a, d, el) {
     case 'ptab': U.ptab = d.v; break;
     case 'lfull': U.lfull = !U.lfull; break;
     case 'sub': if (d.v === 'academy' || d.v === 'first') { U.tab = 'staff'; U.dept = d.v; U.dtab = d.v === 'academy' ? 'data' : 'over'; } else U.sub = d.v || null; U.tray = ''; window.scrollTo(0, 0); break;
+    case 'ac-crit': r = F.acTrialPick(d.v); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
     case 'godept': U.tab = 'staff'; U.open = null; U.sheet = null; U.dept = d.k; U.dtab = 'now'; U.tray = ''; window.scrollTo(0, 0); break;
     case 'dept': U.dept = d.k || null; U.dtab = d.v || 'now'; U.tray = ''; window.scrollTo(0, 0); break;
     case 'dtab': U.dtab = d.v; window.scrollTo(0, 0); break;

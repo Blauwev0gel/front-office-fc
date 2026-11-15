@@ -179,6 +179,7 @@ function attention(dk) {
     const v = F.ftView(), gap = v.rows.slice().sort((a, b) => Math.abs(b.d) - Math.abs(a.d))[0];
     if (gap && Math.abs(gap.d) >= 15) add(`He goes his own way on ${gap.name} (${gap.d > 0 ? '+' : '−'}${Math.abs(gap.d)} against your mandate). It costs his trust each week.`, 'talk', 'coach', 'Raise it', 3);
     if (head.rel < 35) add(`Your relationship with ${head.name.split(' ')[0]} is cold. He follows your mandate less.`, 'talk', 'coach', 'Talk', 4);
+    if (v.refused) add(`He refused to give ${v.refused.name} more minutes. "I pick the team."`, 'talk', 'coach', 'Talk', 2);
     if (!v.deal && G.phase === 'season' && G.week <= SW - 5) add('No target agreed. A met target lifts his trust and the board\'s.', 'talk', 'coach', 'Agree one', 1);
     let r = red('Squad quality'); if (r) { used.add(r.l); add(`The squad is below the division average (${r.v}, ${r.ref}).`, 'dept', 'recruit', 'Recruitment', 2); }
     r = red('Injured'); if (r) { used.add(r.l); add(`${r.v} players injured. A fitness coach and lighter training cut injuries.`, 'people', 'first', 'Staff', 2); }
@@ -188,8 +189,9 @@ function attention(dk) {
     let r = red('Signings rated vs squad'); if (r) { used.add(r.l); add(`This season's signings rate below the squad (${r.v}).`, 'record', '', 'See signings', 3); }
     r = red('Scouting network, focus'); if (r) { used.add(r.l); add(`The network in the focus regions is thin (${r.v.replace(' / ', ' of ')}). A scouting trip grows it fast.`, 'plan', '', 'Plan a trip', 2); }
     r = red('Scouting accuracy'); if (r) { used.add(r.l); add(`Scout reports are off by about ${r.v}. A data analyst or a stronger network sharpens them.`, 'people', 'recruit', 'Staff', 2); }
-    const rc = G.rec, bl = rc ? rc.pipe.filter(x => x.blocked && rc.pool[x.pid]).length : 0;
-    if (bl) add(`${bl} target${bl === 1 ? ' is' : 's are'} blocked by your rules.`, 'mand', 'dof', 'Mandate', 2);
+    const rc = G.rec, blk = rc ? rc.pipe.filter(x => x.blocked && rc.pool[x.pid]) : [], cap = blk.filter(x => x.blocked.includes('wage cap')).length, own = blk.length - cap;
+    if (own) add(`${own} target${own === 1 ? ' is' : 's are'} blocked by limits in the DoF's mandate.`, 'mand', 'dof', 'DoF mandate', 2);
+    if (cap) add(`${cap} target${cap === 1 ? ' is' : 's are'} blocked by the wage cap, which Finance sets.`, 'mand', 'fin', 'Finance mandate', 2);
   }
   if (dk === 'academy' && F.acadView) {
     for (const x of F.acadView().diag) add(x.t, x.a === 'mand' ? 'mand' : x.a === 'tab' ? 'people' : 'record', x.a === 'mand' ? x.x : 'acad', x.a === 'mand' ? 'Mandate' : x.a === 'tab' ? 'Hire' : 'See record', x.a === 'mand' ? 2 : 1);

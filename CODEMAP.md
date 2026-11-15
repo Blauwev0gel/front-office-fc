@@ -89,7 +89,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `commercial.js` | 10 KB | Commercial department The stadium as a system (three stands, demand, price, matchday experience), sponsor offe | attendance, gate, homeEdge, merchMult, deptCost, seasonAfterMatch |  | com |
 | `marketing.js` | 7 KB | Marketing department A supporter funnel (reach, fans, season-ticket holders), loyalty that cushions bad result | fanWeekly, deptCost |  | mk |
 | `business.js` | 7 KB | Business department A season budget per department (lean, normal, invest) against what the club can afford, a  | costDisc |  | biz, deptB |
-| `academy3.js` | 4 KB | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid  | acadIntake, seasonAfterMatch |  | acadX, academy |
+| `academy3.js` | 5 KB | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid  | acadIntake, seasonAfterMatch |  | acadX, academy |
 | `recruitx.js` | 3 KB | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re | seasonAfterMatch |  | recX |
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 18 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
@@ -101,11 +101,11 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/02-setup.js` | 19 KB | views: title & setup; mandates as a tactics board |  |  |  |
 | `ui/03-summer-preseason-press.js` | 26 KB | the summer (M4); the summer, version 2 |  |  |  |
 | `ui/04-masthead-news.js` | 1 KB |  |  |  |  |
-| `ui/05-pitches-squad-money.js` | 14 KB | project pitches: one at a time, swipe or tap |  |  |  |
+| `ui/05-pitches-squad-money.js` | 15 KB | project pitches: one at a time, swipe or tap |  |  |  |
 | `ui/06-sheets-ticker.js` | 22 KB | sheets; ticker |  |  |  |
 | `ui/07-club-league.js` | 8 KB | review & sacked; club, league, staff, academy, review: game screens |  | deptCost |  |
 | `ui/08-departments.js` | 25 KB | departments |  |  |  |
-| `ui/08a-dept-parts.js` | 13 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
+| `ui/08a-dept-parts.js` | 15 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
 | `ui/09-firstteam-review.js` | 12 KB | first team department |  |  |  |
 | `ui/10-inbox.js` | 17 KB | render; inbox home (1.6) |  |  |  |
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
@@ -220,8 +220,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: sign, bizView, bizSetLevel, bizPropose
 
 ### `academy3.js`
-- Functions: g, T, confirm, view
-- Exports on `F`: acView
+- Functions: g, T, pickBy, confirm, view
+- Exports on `F`: acView, acTrialPick, AC_CRIT
 
 ### `recruitx.js`
 - Functions: g, R, regions, setFocus, invest, record, view
@@ -276,7 +276,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: spark, kfmt, vDepts, headLine, headCard, authHtml, headBtns, instinctRow, fillCol, stadiumSvg, comOverview, comDecisions, mkOverview, mkDecisions, planCard, bizOverview, acPyramid, acDecisions, vDept
 
 ### `ui/08a-dept-parts.js`
-- Functions: relW, compW, netW, gapW, kpiTile, attAttr, attHtml, deskHist, recTiles, regionCard, recRecord, acRecord, acStaff
+- Functions: relW, compW, netW, gapW, kpiTile, attAttr, attHtml, deskHist, recTiles, regionCard, recRecord, acRecord, acStaff, ftPlanExtra
 
 ### `ui/09-firstteam-review.js`
 - Functions: vFirst, ftTalkHtml, vReview2, vSacked

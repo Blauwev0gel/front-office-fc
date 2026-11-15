@@ -181,14 +181,21 @@ function issueDecision(dk, key, choice) {
   const current = status(dk).issues.find(i => i.key === key);
   if (!current) return { err: 'That concern is no longer current.' };
   if (!['review', 'accept'].includes(choice)) return { err: 'Unknown decision.' };
-  const G = g(), now = F.absWeek(), rec = issueRecords();
+  const now = F.absWeek(), rec = issueRecords();
+  const old = rec[issueKey(dk, key)];
+  if (old && old.due > now && old.choice === choice)
+    return { err: 'This decision is already active. Wait for the agreed review.' };
   rec[issueKey(dk, key)] = {
     choice, owner: current.owner, started: now, due: now + (choice === 'review' ? 3 : 5),
-    baseline: current.evidence, title: current.title, last: null
+    baseline: current.evidence, title: current.title, last: null, notified: false
   };
+  const X = ensure()[dk];
+  X.log.unshift({ w: g().week, s: g().season, t: current.title + ': ' +
+    (choice === 'review' ? 'CEO requested a review in three weeks.' : 'CEO accepted the risk for five weeks.') });
+  X.log.length = Math.min(X.log.length, 12);
   return { out: choice === 'accept'
-    ? 'Risk accepted for now. The underlying figures will still be checked in five weeks.'
-    : 'Review agreed with the responsible department. Check the existing levers and return in three weeks.' };
+    ? 'Risk accepted for now. The figures will be checked in five weeks.'
+    : 'Review scheduled. Use the existing head conversation, mandate and department levers to pursue a change.' };
 }
 function issueFollowUp(dk, key, present) {
   const rec = issueRecords()[issueKey(dk, key)];
@@ -200,6 +207,30 @@ function issueFollowUp(dk, key, present) {
   return { state: present ? 'Review due' : 'Improved', note: present
     ? 'The concern remains. Review the evidence and choose whether to continue or change course.'
     : 'The original trigger is no longer active. This does not prove which intervention helped.', due: rec.due, baseline: rec.baseline };
+}
+// The weekly edition delivers a single, deduplicated result at the agreed date.
+// It never changes performance numbers and cannot fabricate an improvement.
+function issueWeekly() {
+  const G = g(), now = F.absWeek(), rec = issueRecords();
+  const snapshots = Object.fromEntries(DEPTS.map(d => [d.k, status(d.k)]));
+  for (const [id, item] of Object.entries(rec)) {
+    if (!item || item.notified || now < item.due) continue;
+    const split = id.indexOf(':'), dk = id.slice(0, split), key = id.slice(split + 1);
+    if (!DK[dk]) continue;
+    const current = snapshots[dk].issues.find(i => i.key === key);
+    const improved = !current;
+    const headline = improved ? 'Department review: concern eased' : 'Department review: still unresolved';
+    const msg = DK[dk].t + ' — ' + item.title + '. ' +
+      (improved ? 'The original warning is no longer active.' : 'The original warning remains active.') +
+      ' Original evidence: ' + item.baseline + '. ' +
+      (current ? 'Current evidence: ' + current.evidence + '. ' : '') +
+      'This is a review of the evidence, not proof of cause. Open the department to decide what happens next.';
+    G.paper.stories.push({ h: headline, t: msg });
+    ensure()[dk].log.unshift({ w: G.week, s: G.season, t: msg });
+    ensure()[dk].log.length = Math.min(ensure()[dk].log.length, 12);
+    item.notified = true;
+    item.last = improved ? 'improved' : 'unresolved';
+  }
 }
 function status(dk) {
   const sc = F.scorecard().find(x => x.k === dk);
@@ -244,5 +275,5 @@ function view(dk) {
 function overview() { return DEPTS.map(d => { const X = ensure()[d.k]; return { k: d.k, t: d.t, head: d.head, s: staff(d.head), status: status(d.k), used: X.staff.length, slots: slots(), staffOn: X.staff.filter(active).length }; }); }
 function budView() { return { cap: budCap(), used: budUsed(), rows: BUD.map(k => ({ k, t: DK[k].t, v: budGet(k), cost: budCost(k), d: BUD_D[k], vacant: !staff(DK[k].head) })) }; }
 
-Object.assign(F, { DEPTS, DEPT: DK, DEPT_ROLES: ROLES, deptEnsure: ensure, deptView: view, deptOverview: overview, deptCands: cands, deptHire: hireStaff, deptLetGo: letGo, deptBudView: budView, deptBudSet: budSet, deptIssueDecision: issueDecision, deptIssueFollowUp: issueFollowUp });
+Object.assign(F, { DEPTS, DEPT: DK, DEPT_ROLES: ROLES, deptEnsure: ensure, deptView: view, deptOverview: overview, deptCands: cands, deptHire: hireStaff, deptLetGo: letGo, deptBudView: budView, deptBudSet: budSet, deptIssueDecision: issueDecision, deptIssueFollowUp: issueFollowUp, deptIssueWeekly: issueWeekly });
 })(FO);

@@ -128,12 +128,12 @@ Vastgelegd (B10): droge Britse ironie is de vaste stem van het spel. ❓ Referen
 - **Engine zonder DOM.** `engine.js` en de modules draaien in Node; uitbreiding via `FO.HOOK.*`.
 - **Deterministisch.** Eigen seeded RNG (`G.rs`); zelfde seed + zelfde acties = zelfde uitkomst.
 - **Saves blijven werken.** Nieuwe state via migratie (`VERSION`, nu 3) of een veilige default.
-- **Release** = build → tests → `dist/index.html` naar `docs/index.html` → push naar `main` (GitHub Pages).
+- **Publicatie** via GitHub Actions: elke push naar `main`, `claude-game` of `chatgpt` bouwt alle drie de versies. Claude werkt op `claude-game` (preview `/claude/`); release = merge naar `main` op verzoek. `docs/index.html` is een verouderde snapshot.
 
 ## 9. Huidige staat van de code (analyse 15-11-2026)
 
 Werkt:
-- Build slaagt (~1,0 MB). `docs/index.html` is gelijk aan een verse build.
+- Build slaagt (~1,0 MB).
 - Tests `sim`, `matchday`, `gazette`, `sack`, `pathway`, `acad`, `rec`, `mig` draaien zonder fout.
 
 Aandachtspunten:

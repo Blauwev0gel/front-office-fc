@@ -70,6 +70,7 @@ function act(a, d, el) {
     case 'sub': if (d.v === 'academy' || d.v === 'first') { U.tab = 'staff'; U.dept = d.v; U.dtab = d.v === 'academy' ? 'data' : 'over'; } else U.sub = d.v || null; U.tray = ''; window.scrollTo(0, 0); break;
     case 'dept': U.dept = d.k || null; U.dtab = d.v || 'over'; U.tray = ''; window.scrollTo(0, 0); break;
     case 'dtab': U.dtab = d.v; window.scrollTo(0, 0); break;
+    case 'dept-issue': r = F.deptIssueDecision(d.k, d.v, d.c); if (r && r.err) toast(r.err); else if (r) { saveGame(); toast(r.out); } break;
     case 'dcand': U.sheet = { t: 'dcand', k: d.k, r: d.r }; break;
     case 'dhire': r = F.deptHire(d.k, d.r, +d.i); U.sheet = null; if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); ART.vib(30); } break;
     case 'dletgo': r = F.deptLetGo(d.k, +d.id); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } break;

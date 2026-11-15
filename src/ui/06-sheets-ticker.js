@@ -1,6 +1,21 @@
 /* ---------- sheets ---------- */
 function vSheet() {
   const s = U.sheet; if (!s) return ''; const g = G(); let h = '';
+  if (s.t === 'dept-issue') {
+    const m = F.deptIssueMeeting(s.k, s.v);
+    if (m.err) h = '<div class="sheethead"><b>Issue review</b><button class="iconbtn" data-a="close" aria-label="Close">' + ART.I.close + '</button></div><p>' + esc(m.err) + '</p>';
+    else {
+      const i = m.issue;
+      h = '<div class="sheethead"><span class="chip">Department meeting</span><button class="iconbtn" data-a="close" aria-label="Close">' + ART.I.close + '</button></div>' +
+        '<h2>' + esc(i.title) + '</h2><p class="small">With ' + esc(m.owner) + '</p><div class="panel2"><b>The evidence</b><p>' + esc(i.evidence) + '</p><p>' + esc(i.why) + '</p></div>';
+      if (m.active) h += '<div class="panel2"><b>Assignment underway: ' + esc(m.active.approachTitle) + '</b><p>' + (m.active.steps || 0) + ' of 4 working weeks completed. Review due in ' + Math.max(0,m.active.due - F.absWeek()) + ' weeks.</p><p>Original evidence: ' + esc(m.active.baseline) + '</p></div>';
+      else {
+        h += '<p><b>How should ' + esc(m.owner) + ' address this?</b></p><p class="small">Choose a direction for the department. An assignment takes one CEO action; results are not guaranteed.</p>';
+        h += m.options.map(o => '<button class="cand" data-a="dept-plan" data-k="' + esc(s.k) + '" data-v="' + esc(s.v) + '" data-c="' + esc(o[2]) + '"><span class="cm"><b>' + esc(o[0]) + '</b><small>' + esc(o[1]) + '</small></span></button>').join('');
+        h += '<button class="btn ghost wide" data-a="dept-plan" data-k="' + esc(s.k) + '" data-v="' + esc(s.v) + '" data-c="accept">Accept risk — no intervention</button>';
+      }
+    }
+  }
   if (s.t === 'player') {
     const p = g.squad.find(x => x.id === s.id) || g.academy.find(x => x.id === s.id) || (g.loanedOut || []).find(x => x.id === s.id); if (!p) return '';
     h = `<div class="sheethead"><span class="chip">${g.academy.includes(p) ? 'Academy' : 'First team'}</span><button class="iconbtn" data-a="close" aria-label="Close">${ART.I.close}</button></div>${profileHtml(p, null, null)}`;

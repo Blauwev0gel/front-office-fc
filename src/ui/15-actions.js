@@ -70,7 +70,8 @@ function act(a, d, el) {
     case 'ptab': U.ptab = d.v; break;
     case 'lfull': U.lfull = !U.lfull; break;
     case 'sub': if (d.v === 'academy' || d.v === 'first') { U.tab = 'staff'; U.dept = d.v; U.dtab = d.v === 'academy' ? 'data' : 'over'; } else U.sub = d.v || null; U.tray = ''; window.scrollTo(0, 0); break;
-    case 'dept': U.dept = d.k || null; U.dtab = d.v || 'over'; U.tray = ''; window.scrollTo(0, 0); break;
+    case 'godept': U.tab = 'staff'; U.open = null; U.sheet = null; U.dept = d.k; U.dtab = 'now'; U.tray = ''; window.scrollTo(0, 0); break;
+    case 'dept': U.dept = d.k || null; U.dtab = d.v || 'now'; U.tray = ''; window.scrollTo(0, 0); break;
     case 'dtab': U.dtab = d.v; window.scrollTo(0, 0); break;
     case 'dcand': U.sheet = { t: 'dcand', k: d.k, r: d.r }; break;
     case 'dhire': r = F.deptHire(d.k, d.r, +d.i); U.sheet = null; if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); ART.vib(30); } break;
@@ -108,7 +109,7 @@ function act(a, d, el) {
     case 'rec-kind': F.recSetKind(d.p, d.k); break;
     case 'rec-appr': g.mand.dof = g.mand.dof || {}; g.mand.dof.approve = d.v; break;
     case 'prio-all': U.prioAll = true; break;
-    case 'mand-save': r = F.setMandate(U.sheet.r, U.draft); if (r.err) toast(r.err); else { U.sheet = null; toast(r.out); } break;
+    case 'mand-save': for (const k of RES_KEYS) if (g.mand[U.sheet.r] && g.mand[U.sheet.r][k] != null) U.draft[k] = g.mand[U.sheet.r][k]; r = F.setMandate(U.sheet.r, U.draft); if (r.err) toast(r.err); else { U.sheet = null; toast(r.out); } break;
     case 'talk-who': U.talkRole = d.r; U.talkOut = null; break;
     case 'talk-do': r = F.talk(U.talkRole, d.t); if (r.err) toast(r.err); else U.talkOut = r.out; break;
     case 'push': r = F.push(d.d); if (r.err) toast(r.err); else { U.sheet = null; toast(r.out); } break;

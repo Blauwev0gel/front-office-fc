@@ -99,7 +99,7 @@ Run-in (20–29), Finale (30–34). Beker in week 5/11/17/23/29/33. Na week 34: 
 | Wereld & competitie | 8 divisies, 18 clubs, beker, rivalen die mee-evolueren | `engine/` |
 | Spelers | 14 attributen, CA/PA, leeftijd, contract, moraal, persoonlijkheid | `engine/` |
 | Wedstrijdsim | xG-gebaseerd, teamsterkte uit XI + coach-fit | `engine/`, `matchtalk.js`, `matchday.js` |
-| Afdelingen | head + staf, budgetaandeel, KPI-historie, log | `depts.js` |
+| Afdelingen | vier tabs Now / Plan / People / Record (B12): oordeel en aandachtspunten, mandaat en middelen, mensen, record met wat het hoofd namens jou besliste | `depts.js`, `ui/08-departments.js`, `ui/08a-dept-parts.js` |
 | Bevoegdheid (desk) | short leash / normal / free hand per head, foutkans | `desk.js` |
 | Grip | zakt als je niet zelf beslist; tilt of drukt alle heads | `levers.js` |
 | Backers | 4 achterbannen met eigen stem, vote of confidence | `loop.js` |
@@ -175,3 +175,6 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 | B9 | 15-11-2026 | Pijlers toegevoegd: P7 Mensen hebben een eigen wil, P8 De club is een verhaal, P9 Er is geen perfecte keuze. | Aanvulling op het toetsingskader. |
 | B10 | 15-11-2026 | De toon is droge, licht ironische Britse voetbalproza. | De vaste stem van het spel en de Gazette. |
 | B11 | 15-11-2026 | Deze stand (opgeknipte code, dode code weg, seizoenseinde-crash opgelost) is **V1** (tag `v1.0`): het gemeenschappelijke vertrekpunt voor `main`, `chatgpt` en `claude-game`. | Beide AI-branches werken vanaf dezelfde basis. |
+| B12 | 15-11-2026 | Elke afdeling heeft dezelfde vier tabs: **Now** (oordeel, max. drie aandachtspunten met oorzaak en knop, wat op jou wacht), **Plan** (mandaat, middelen, bevoegdheid), **People** en **Record** (wat hij deed). Elk gegeven staat op één plek; geen "alle informatie"-blokken. | Overzicht op mobiel; diepte onder een vraag, niet onder "alles" (P4, P5, B3). |
+| B13 | 15-11-2026 | Richting kost een actie, middelen niet: een mandaat wijzigen kost 1 AP; budget, regio's, trips en staf zijn gratis en staan alleen op Plan. | Eén prijs per instelling, ongeacht de route. |
+| B14 | 15-11-2026 | Getallen over mensen en afdelingen tonen eerst een woord, het getal klein erachter ("cool (44)"). Een afwijking van het mandaat noemt wat het kost. | Druk voel je, je leest hem niet af (P4). |

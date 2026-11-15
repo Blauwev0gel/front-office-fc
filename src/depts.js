@@ -146,7 +146,63 @@ function budCost(k) {
 const BUD_D = { first: 'Training, kit and travel', recruit: 'Scouting trips and data', academy: 'Coaching, pitches and food', commercial: 'Sales and activation', marketing: 'Campaigns and content' };
 
 /* ---------- views ---------- */
-function status(dk) { const sc = F.scorecard().find(x => x.k === dk); if (!sc) return { st: 'mid', l: 'Steady', rows: [] }; const bad = sc.rows.filter(r => r.ok === false).length, good = sc.rows.filter(r => r.ok === true).length; return { st: bad ? 'bad' : good ? 'good' : 'mid', l: bad ? bad + ' to fix' : good ? 'Good' : 'Steady', rows: sc.rows }; }
+/* ---------- verdict and attention: what the CEO should look at ---------- */
+// One word and one sentence on how the department is doing, judged on its own course.
+function verdict(dk) {
+  const G = g(), d = DK[dk], head = staff(d.head); if (!head) return { w: 'Vacant', st: 'bad', t: `Nobody runs ${d.t.toLowerCase()}.` };
+  if (dk === 'first') {
+    if ((G.ss.lg || 0) < 3 || G.phase !== 'season') return { w: 'Early days', st: 'mid', t: 'Too few games to judge.' };
+    const pos = F.myPos(), exp = F.expectedRank(), dd = pos - exp, t = `${F.ord(pos)}, expected ${F.ord(exp)}.`;
+    return dd <= -2 ? { w: 'Ahead', st: 'good', t } : dd <= 1 ? { w: 'On course', st: 'good', t } : dd <= 3 ? { w: 'Behind', st: 'mid', t } : { w: 'Well behind', st: 'bad', t };
+  }
+  if (dk === 'recruit') {
+    const ev = (F.recEval ? F.recEval(G.season) : []).filter(e => e.verdict === 'Hit' || e.verdict === 'Miss'), hit = ev.filter(e => e.verdict === 'Hit').length, miss = ev.length - hit;
+    if (ev.length < 2) { const win = F.window_(); return { w: win ? 'Window open' : 'Between windows', st: 'mid', t: win ? 'The DoF is working the market.' : 'Signings are judged once they have played.' }; }
+    const t = `${hit} hit${hit === 1 ? '' : 's'}, ${miss} miss${miss === 1 ? '' : 'es'} this season.`;
+    return hit > miss ? { w: 'Strong', st: 'good', t } : hit === miss ? { w: 'Mixed', st: 'mid', t } : { w: 'Struggling', st: 'bad', t };
+  }
+  if (dk === 'academy' && G.acad && G.acad.cat) {
+    const cat = G.acad.cat, sc = F.acadView ? Math.round(F.acadView().catScore.total) : 0, nx = sc < 55 ? 55 : sc < 75 ? 75 : 95, t = `Category ${cat}. Score ${sc}${cat > 1 ? `, next category at ${nx}` : ''}.`;
+    return cat <= 2 ? { w: 'Strong', st: 'good', t } : cat === 3 ? { w: 'Steady', st: 'mid', t } : { w: 'Weak', st: 'bad', t };
+  }
+  const rc = F.record(d.head), v = rc.verdict;
+  return { w: v === 'Too early' ? 'Early days' : v, st: v === 'Strong' ? 'good' : v === 'Poor' ? 'bad' : 'mid', t: v === 'Too early' ? 'Too few weeks to judge.' : `The numbers say: ${v.toLowerCase()}.` };
+}
+// At most three things that need the CEO, each with its cause and one action.
+// action: { a: 'talk' | 'mand' | 'plan' | 'people' | 'record' | 'dept', x: role or department, l: button label }
+function attention(dk) {
+  const G = g(), d = DK[dk], head = staff(d.head), out = [], add = (t, a, x, l, pr) => out.push({ t, a, x, l, pr: pr || 1 });
+  if (!head) { add(`Nobody runs ${d.t.toLowerCase()}. It runs on chance.`, 'people', d.head, 'Hire', 9); return out; }
+  const sc = (F.scorecard().find(x => x.k === dk) || { rows: [] }).rows, row = l => sc.find(r => r.l === l), red = l => { const r = row(l); return r && r.ok === false ? r : null; };
+  const used = new Set();
+  if (dk === 'first' && F.ftView) {
+    const v = F.ftView(), gap = v.rows.slice().sort((a, b) => Math.abs(b.d) - Math.abs(a.d))[0];
+    if (gap && Math.abs(gap.d) >= 15) add(`He goes his own way on ${gap.name} (${gap.d > 0 ? '+' : '−'}${Math.abs(gap.d)} against your mandate). It costs his trust each week.`, 'talk', 'coach', 'Raise it', 3);
+    if (head.rel < 35) add(`Your relationship with ${head.name.split(' ')[0]} is cold. He follows your mandate less.`, 'talk', 'coach', 'Talk', 4);
+    if (!v.deal && G.phase === 'season' && G.week <= SW - 5) add('No target agreed. A met target lifts his trust and the board\'s.', 'talk', 'coach', 'Agree one', 1);
+    let r = red('Squad quality'); if (r) { used.add(r.l); add(`The squad is below the division average (${r.v}, ${r.ref}).`, 'dept', 'recruit', 'Recruitment', 2); }
+    r = red('Injured'); if (r) { used.add(r.l); add(`${r.v} players injured. A fitness coach and lighter training cut injuries.`, 'people', 'first', 'Staff', 2); }
+  }
+  if (dk === 'recruit') {
+    if (!staff('scout')) add('There is no chief scout. Nobody is watching players.', 'people', 'scout', 'Hire', 8);
+    let r = red('Signings rated vs squad'); if (r) { used.add(r.l); add(`This season's signings rate below the squad (${r.v}).`, 'record', '', 'See signings', 3); }
+    r = red('Scouting network, focus'); if (r) { used.add(r.l); add(`The network in the focus regions is thin (${r.v.replace(' / ', ' of ')}). A scouting trip grows it fast.`, 'plan', '', 'Plan a trip', 2); }
+    r = red('Scouting accuracy'); if (r) { used.add(r.l); add(`Scout reports are off by about ${r.v}. A data analyst or a stronger network sharpens them.`, 'people', 'recruit', 'Staff', 2); }
+    const rc = G.rec, bl = rc ? rc.pipe.filter(x => x.blocked && rc.pool[x.pid]).length : 0;
+    if (bl) add(`${bl} target${bl === 1 ? ' is' : 's are'} blocked by your rules.`, 'mand', 'dof', 'Mandate', 2);
+  }
+  if (dk === 'academy' && F.acadView) {
+    for (const x of F.acadView().diag) add(x.t, x.a === 'mand' ? 'mand' : x.a === 'tab' ? 'people' : 'record', x.a === 'mand' ? x.x : 'acad', x.a === 'mand' ? 'Mandate' : x.a === 'tab' ? 'Hire' : 'See record', x.a === 'mand' ? 2 : 1);
+    used.add('Category');
+  }
+  for (const r of sc) if (r.ok === false && !used.has(r.l)) add(`${r.l}: ${r.v}${r.ref ? ` (${r.ref})` : ''}.`, 'record', '', 'See record', 0.5);
+  return out.sort((a, b) => b.pr - a.pr).slice(0, 3);
+}
+const SW = F.SEASON_WEEKS || 34;
+function status(dk) {
+  const sc = F.scorecard().find(x => x.k === dk), V = verdict(dk), A = attention(dk);
+  return { st: A.length ? 'bad' : V.st, l: A.length ? `${A.length} to look at` : V.w, verdict: V, att: A, rows: sc ? sc.rows : [] };
+}
 function view(dk) {
   const G = g(), d = DK[dk], X = ensure()[dk], used = X.staff.length, S = status(dk);
   const filled = new Set(X.staff.map(s => s.role));
@@ -163,5 +219,5 @@ function view(dk) {
 function overview() { return DEPTS.map(d => { const X = ensure()[d.k]; return { k: d.k, t: d.t, head: d.head, s: staff(d.head), status: status(d.k), used: X.staff.length, slots: slots(), staffOn: X.staff.filter(active).length }; }); }
 function budView() { return { cap: budCap(), used: budUsed(), rows: BUD.map(k => ({ k, t: DK[k].t, v: budGet(k), cost: budCost(k), d: BUD_D[k], vacant: !staff(DK[k].head) })) }; }
 
-Object.assign(F, { DEPTS, DEPT: DK, DEPT_ROLES: ROLES, deptEnsure: ensure, deptView: view, deptOverview: overview, deptCands: cands, deptHire: hireStaff, deptLetGo: letGo, deptBudView: budView, deptBudSet: budSet });
+Object.assign(F, { deptVerdict: verdict, deptAttention: attention, DEPTS, DEPT: DK, DEPT_ROLES: ROLES, deptEnsure: ensure, deptView: view, deptOverview: overview, deptCands: cands, deptHire: hireStaff, deptLetGo: letGo, deptBudView: budView, deptBudSet: budSet });
 })(FO);

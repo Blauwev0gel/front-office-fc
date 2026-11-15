@@ -58,14 +58,14 @@ function vSheet() {
   if (s.t === 'recplan') { h = `<div class="spread"><div><div class="kick">Recruitment plan</div><h2>What should we look for?</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>${recPlanBlock()}<div class="row" style="margin-top:12px"><button class="btn" data-a="close">Done</button></div>`; }
   if (s.t === 'mand') {
     const r = s.r, st = F.staff(r), m = U.draft; const al = previewAlign(r, m);
-    h = `<div class="sheethead"><span class="chip">Mandate · club fit ${al}%</span><button class="iconbtn" data-a="close" aria-label="Close">${ART.I.close}</button></div>${staffHead(r)}${leanNote(r, m)}<div id="mand">${sliderRows(r, m, 'md')}</div>
+    h = `<div class="sheethead"><span class="chip">Mandate · club fit ${al}%</span><button class="iconbtn" data-a="close" aria-label="Close">${ART.I.close}</button></div>${staffHead(r)}${leanNote(r, m)}<div id="mand">${sliderRows(r, m, 'md')}</div>${F.MAND[r].sl.concat(F.MAND[r].ru).some(x => RES_KEYS.includes(x[0])) ? '<p class="small">Budget and scouting regions are set on the department\'s Plan tab, at no cost.</p>' : ''}
     <div class="sheetfoot"><button class="btn ghost" data-a="close">Cancel</button><button class="btn" data-a="mand-save" ${g.ap < 1 ? 'disabled' : ''}>Save mandate<small>Costs 1 action</small></button></div>`;
   }
   if (s.t === 'talk') {
     const roles = F.ROLES.filter(r => g.staff[r.id]);
     const sel = U.talkRole;
     h = `<div class="spread"><div><div class="kick">One-to-one, costs one action</div><h2>Who do you want to see?</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>
-    <div class="choice">${roles.map(r => { const s2 = g.staff[r.id]; return `<button class="card ${sel === r.id ? 'on' : ''}" data-a="talk-who" data-r="${r.id}"><b>${esc(s2.name)}</b>${r.t}. Relationship ${r0(s2.rel)}. The numbers: ${F.record(r.id).verdict.toLowerCase()}.<div class="e">${s2.p.ego > 14 ? 'Big ego. ' : ''}${s2.p.amb > 14 ? 'Very ambitious. ' : ''}${s2.p.loy < 7 ? 'Not very loyal.' : ''}</div></button>`; }).join('')}</div>
+    <div class="choice">${roles.map(r => { const s2 = g.staff[r.id]; return `<button class="card ${sel === r.id ? 'on' : ''}" data-a="talk-who" data-r="${r.id}"><b>${esc(s2.name)}</b>${r.t}. Relationship ${relW(s2.rel)} (${r0(s2.rel)}). The numbers: ${F.record(r.id).verdict.toLowerCase()}.<div class="e">${s2.p.ego > 14 ? 'Big ego. ' : ''}${s2.p.amb > 14 ? 'Very ambitious. ' : ''}${s2.p.loy < 7 ? 'Not very loyal.' : ''}</div></button>`; }).join('')}</div>
     ${sel ? `<h3>How do you approach it?</h3><div class="choice">${[['review', 'Go through the numbers', 'Evidence, not opinion. Good numbers earn real credit; bad ones are hard to argue with.'], ['praise', 'Praise his work', 'Builds trust. Some take it as licence to coast.'], ['challenge', 'Challenge him to do more', 'Ambitious people respond. Proud people bristle.'], ['reassure', 'Reassure him', 'Steadies someone who is struggling.'], ['warn', 'Warn him', 'Sharpens minds when results are poor. Unfair otherwise.']].map(([k, l, d]) => `<button class="card" data-a="talk-do" data-t="${k}"><b>${l}</b>${d}</button>`).join('')}</div>` : ''}
     ${U.talkOut ? `<div class="quote" style="font-size:22px">${esc(U.talkOut)}</div>` : ''}`;
   }

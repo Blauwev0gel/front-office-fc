@@ -26,21 +26,21 @@ Status: **open** · **besloten** · **gebouwd** · **getest**. Type: bug · misl
 
 | Id | Probleem | Bron | Type | Status |
 |---|---|---|---|---|
-| T1 | De tabs (Overview, People, Data, Decisions) zijn bakken voor soorten inhoud, niet antwoorden op vragen. Voorstel: Now / Plan / People / Record. | S §4.1 | ontwerp | open |
-| T2 | De status-chip ("2 to fix") en "5 need attention" zeggen niet wat er mis is. Een rode rij buiten de eerste vier tegels is onzichtbaar. | S §3.1 | misleidend | open |
-| T3 | "All numbers" herhaalt de KPI-tegels. | S §3.2 | dubbel | open |
-| T4 | "Full academy report" is een tweede academiescherm in het eerste. | S §3.2 | dubbel | open |
-| T5 | Recruitment Data is ongeveer 3.000 px, met dezelfde signings in drie lijsten. | S §3.2, §3.5 | dubbel | open |
-| T6 | De regio's staan vier keer (kaart, focuschips, tripchips, mandaat). | S §3.5 | dubbel | open |
-| T7 | Het budget heeft twee bedieningen: een schuif van 0–100 in het mandaat en een knop met drie standen. | S §3.5 | dubbel | open |
-| T8 | Kale getallen zonder schaal of oordeel (relatie 44, "Follows mandate 71%", netwerk 21/100, ±1.7★, categoriescore). | S §3.4 | ontwerp | open |
-| T9 | "Holding it back" (oorzaak plus knop) staat verstopt op de Data-tab. | S §3.1 | ontwerp | open |
-| T10 | Een inboxbericht linkt niet naar de afdeling. | S §3.7 | ontwerp | open |
-| T11 | Wat een hoofd namens de CEO besliste, is alleen een telling ("16 staff calls"). | S §3.7 | ontwerp | open |
-| T12 | Het statuswoord weegt de rijen niet ("Good" op de 11e plek). | S §3.3 | misleidend | open |
-| T13 | Dezelfde instelling kost via de ene route 1 AP en via de andere niets (mandaat, chips, budget, debrief). | A §4.1, S §2 | ontwerp | open |
-| T14 | "+25 vs your mandate" en "Friction" zeggen niet wat het kost. | S §3.1 | ontwerp | open |
-| T15 | Talk en Sack staan in de kop op elke tab; het coachgesprek staat twee keer. | S §3.5 | dubbel | open |
+| T1 | De tabs (Overview, People, Data, Decisions) zijn bakken voor soorten inhoud, niet antwoorden op vragen. Voorstel: Now / Plan / People / Record. | S §4.1 | ontwerp | getest |
+| T2 | De status-chip ("2 to fix") en "5 need attention" zeggen niet wat er mis is. Een rode rij buiten de eerste vier tegels is onzichtbaar. | S §3.1 | misleidend | getest |
+| T3 | "All numbers" herhaalt de KPI-tegels. | S §3.2 | dubbel | getest |
+| T4 | "Full academy report" is een tweede academiescherm in het eerste. | S §3.2 | dubbel | getest |
+| T5 | Recruitment Data is ongeveer 3.000 px, met dezelfde signings in drie lijsten. | S §3.2, §3.5 | dubbel | getest |
+| T6 | De regio's staan vier keer (kaart, focuschips, tripchips, mandaat). | S §3.5 | dubbel | getest |
+| T7 | Het budget heeft twee bedieningen: een schuif van 0–100 in het mandaat en een knop met drie standen. | S §3.5 | dubbel | getest |
+| T8 | Kale getallen zonder schaal of oordeel (relatie 44, "Follows mandate 71%", netwerk 21/100, ±1.7★, categoriescore). | S §3.4 | ontwerp | getest |
+| T9 | "Holding it back" (oorzaak plus knop) staat verstopt op de Data-tab. | S §3.1 | ontwerp | getest |
+| T10 | Een inboxbericht linkt niet naar de afdeling. | S §3.7 | ontwerp | getest |
+| T11 | Wat een hoofd namens de CEO besliste, is alleen een telling ("16 staff calls"). | S §3.7 | ontwerp | getest |
+| T12 | Het statuswoord weegt de rijen niet ("Good" op de 11e plek). | S §3.3 | misleidend | getest |
+| T13 | Dezelfde instelling kost via de ene route 1 AP en via de andere niets (mandaat, chips, budget, debrief). | A §4.1, S §2 | ontwerp | getest |
+| T14 | "+25 vs your mandate" en "Friction" zeggen niet wat het kost. | S §3.1 | ontwerp | getest |
+| T15 | Talk en Sack staan in de kop op elke tab; het coachgesprek staat twee keer. | S §3.5 | dubbel | getest |
 
 ## Ronde 3 — Rollen en eigenaarschap
 
@@ -79,7 +79,7 @@ Status: **open** · **besloten** · **gebouwd** · **getest**. Type: bug · misl
 |---|---|---|---|
 | X1 | Dode delen van `summer.js` (`sumRound`, `sumPending`, `sumAnswer`, `sumStep`, de oude `sumAuto`, `sumMigrate`). | A §3 | open |
 | X2 | Onbereikbare `resBuy`-UI van het eerste elftal (`ft-buy`). | A §4.2 | open |
-| X3 | `vAcademy` wordt dode code zodra T4 gebouwd is. | S §4.4 | open |
+| X3 | `vAcademy` wordt dode code zodra T4 gebouwd is. | S §4.4 | gedaan in ronde 2 (`vAcademy`, `vAcademy2` en `vRecruit2` vervangen) |
 
 ## Ontwerpnotities
 
@@ -90,3 +90,17 @@ Alleen reparaties, geen nieuwe state behalve twee veilige velden: `p.loanCEO` (a
 - R8/R9: teksten aangepast aan wat er gebeurt; echte gevolgen van clashes volgen in ronde 4 (D8).
 - Getest: build, alle `node test/*.js` (incl. `mig.js` en een kleine `audit.js`), een scriptcheck van de afspraken (top two, youth laat, top half, unbeaten, oude save), screenshots op 390 px licht en donker.
 
+
+### Ronde 2 (besloten 15-11-2026; B12–B14)
+Doel: elke afdeling beantwoordt dezelfde vier vragen, elk gegeven staat op één plek (P4, P5, B3). Geen nieuwe meters.
+- **Tabs** Now / Plan / People / Record voor alle zes afdelingen (`ui/08-departments.js` `vDept`). Oude tab-sleutels in een save worden omgezet (`DTAB_OLD`).
+- **Now:** volledige kop met alleen Talk, een oordeel in woorden (`F.deptVerdict`), maximaal drie aandachtspunten met oorzaak en knop (`F.deptAttention`, in `depts.js`), "Waiting for you", vier tegels met woorden, en voor First team de vorm.
+- **Plan:** mandaat (First team: "your mandate vs what he does", met een prijs per rij), knop "Change mandate · 1 action", afspraken, Recruitment-regels en één regiokaart (focus en trip per regio), proefdag, bevoegdheid, budget, faciliteiten, projecten.
+- **People:** hoofd met Sack, Chief Scout (met Talk; zijn mandaat staat op Plan), staf, open rollen, jeugdstaf (Academy), stafwissels.
+- **Record:** First team (positielijn, selectie door zijn ogen, fitness); Recruitment (één pijplijnlijst, "Signed this season" met oordeel en fee, scouts); Academy (vier vragen, jeugdcompetities ingeklapt); voor elk hoofd "What he decided for you".
+- **Chip** in de kop: "N to look at" of het oordeel; tikken opent Now. De afdelingslijst gebruikt dezelfde status.
+- **Woord plus getal:** relatie (close/good/cool/cold), mandaat volgen (closely/mostly/loosely), netwerk (Strong/Workable/Thin/Barely there), nauwkeurigheid (Sharp/Fair/Rough), afwijking van het mandaat ("His own way (+25) · costs trust").
+- **Kosten:** het mandaatsheet toont geen budget en geen regio's meer; die staan gratis op Plan. Opslaan van het mandaat kost 1 actie en laat budget en regio's ongemoeid.
+- **Inbox:** elk bericht en elke briefing van een hoofd heeft "Open {afdeling}". De desk bewaart per hoofd de laatste 8 zelf genomen besluiten (`G.desk.by[h].hist`, veilige default); triviale "Noted"-briefings tellen niet mee.
+- Opgeruimd: "All numbers", "Full academy report", `vAcademy`, `vAcademy2`, `vRecruit2`, de oude netwerkkaart en de dubbele regiochips.
+- Getest: build, alle `node test/*.js` (incl. `mig.js`), screenshots van alle tabs van de drie sportieve afdelingen op 390 px in licht en donker, en de link uit een bericht gerenderd. Niet gedraaid: `test/browser/playtest.py` (de Python-module van Playwright ontbreekt hier).

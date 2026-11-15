@@ -128,3 +128,15 @@ i.up,.fdrow .up,.wkd .up i{color:var(--good)}i.dn,.fdrow .dn,.wkd .dn i{color:va
 .agchip{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;min-height:44px;margin:0 0 var(--s3);padding:8px 12px;border-radius:10px;border:1.5px solid var(--acc);background:var(--paper);color:inherit;font:inherit;text-align:left;cursor:pointer;position:relative;padding-left:38px}.agchip span{position:absolute;left:12px;top:12px;width:18px;height:18px}.agchip small{font-size:12px;opacity:.8}
 .crl{display:flex;gap:10px;padding:6px 0;border-top:1px solid var(--hair)}.crl:first-of-type{border-top:0}.crl b{flex:none;width:30px;font:800 14px/1.3 var(--head)}.crl span{font-size:13px}.crl small{display:block;opacity:.7}
 
+/* department: verdict, attention list, regions (round 2) */
+.dstatb{margin-left:auto;min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:flex-end;background:none;border:0;padding:0;cursor:pointer}
+.dstatb .dstat{margin:0}
+.verd{margin:12px 0 4px;font-size:15px;line-height:1.4}.verd b{font:900 15px var(--head)}
+.attl{display:grid;gap:8px}
+.att{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--paper);border:var(--l1);border-left:4px solid var(--bad);border-radius:12px;padding:10px 12px}
+.att p{margin:0;font-size:14px;line-height:1.35}.att .btn{min-height:44px;white-space:nowrap}
+.regl{display:grid;gap:6px}
+.regr{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center;padding:4px 0;border-top:1px solid var(--hair)}
+.regr:first-child{border-top:0}.regr>span{display:grid;min-width:0}.regr b{font:900 14px var(--head)}.regr small{font-size:12px;color:var(--soft)}
+.regr .btn{min-height:44px;min-width:64px}
+.mdept{display:block;margin:10px 0 0;min-height:44px}

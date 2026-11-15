@@ -64,7 +64,9 @@ function coreWhy(e) {
   if (e.from === 'press') return 'The press want the CEO, not a spokesman.';
   return 'Strategy, big money or the club\'s name. This is a CEO call.';
 }
-function log(h, err) { const G = g(); G.desk = G.desk || { n: 0, err: 0, by: {} }; G.desk.n++; if (err) G.desk.err++; const b = G.desk.by[h] = G.desk.by[h] || { n: 0, err: 0, errW: [] }; b.n++; if (err) { b.err++; b.errW.push(F.absWeek()); b.errW = b.errW.slice(-6); } }
+function log(h, err, t, c) { const G = g(); G.desk = G.desk || { n: 0, err: 0, by: {} }; G.desk.n++; if (err) G.desk.err++; const b = G.desk.by[h] = G.desk.by[h] || { n: 0, err: 0, errW: [] }; b.n++; if (err) { b.err++; b.errW.push(F.absWeek()); b.errW = b.errW.slice(-6); }
+  if (t && !/^(noted|nothing to add|ok|fine)\b/i.test(c || '')) { b.hist = (b.hist || []).concat([{ w: G.week, s: G.season, t, c: c || '', err: err ? 1 : 0 }]).slice(-8); } } // the last calls, for the department's Record
+const txt = (x, c) => { try { return typeof x === 'function' ? x(c) : (x || ''); } catch (er) { return ''; } };
 function slip(h) { const a = auth(h), k = a === 2 ? 1.5 : 1; const G = g(); G.club.drift += Math.round(2 * k); if (a === 2) { G.board.conf = clamp(G.board.conf - 1, 0, 100); G.st.fans = clamp(G.st.fans - 1, 0, 100); } }
 
 /* ---------- messages ---------- */
@@ -81,7 +83,7 @@ H.desk = (e, m) => {
   const st = g().paper.stories[n0]; if (st) { st.auto = 1; st.h = `${DSHORT[h]} handled it${err ? ', badly' : ''}`; }
   if (err) { slip(h); m.outcome = (m.outcome || '') + ' It goes against your mandate.'; }
   else if (F.gripGain) F.gripGain(1, 'desk');
-  log(h, err);
+  const ev = F.EV[m.ev] || {}; log(h, err, txt(ev.title, m.ctx), txt((ev.opts || [])[idx] && ev.opts[idx].l, m.ctx));
 };
 
 /* ---------- briefs ---------- */
@@ -103,7 +105,7 @@ H.deskBriefs = list => {
     const x = BAUTO[b.t]; let idx = x == null ? d.opts.length - 1 : typeof x === 'function' ? (() => { try { return x(); } catch (er) { return d.opts.length - 1; } })() : x;
     idx = clamp(idx, 0, d.opts.length - 1);
     let r = ''; try { r = d.opts[idx].f(b.ctx) || 'Noted.'; } catch (er) { r = 'Noted.'; }
-    b.done = true; b.choice = idx; b.out = r; b.del = 1; b.by = s.name; log(h, 0);
+    b.done = true; b.choice = idx; b.out = r; b.del = 1; b.by = s.name; log(h, 0, txt(d.title, b.ctx), txt(d.opts[idx].l, b.ctx));
   }
 };
 

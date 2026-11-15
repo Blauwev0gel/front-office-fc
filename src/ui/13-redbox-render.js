@@ -5,7 +5,7 @@ function mailTop(role, name, roleT, title, tag, body, emo) {
   const g = G();
   return `<div class="mail"><div class="mtagr">${tag}</div><h2 class="msubj">${esc(title)}</h2>
   <div class="mfrom"><span class="mav">${ART.staffFace(role, emo)}</span><div class="mfm"><div class="mfr"><b>${esc(name)}</b><time>Week ${g.week}</time></div><div class="mto">To: You</div></div></div>
-  <div class="mbody">${mailParas(body)}<p class="msign">${esc(mFirst(name))}</p><div class="msig"><span class="mcrest">${esc(g.club.short || 'FC')}</span><span><b>${esc(name)}</b><br>${esc(roleT ? roleT + ', ' : '')}${esc(g.club.name)}</span></div></div></div>`;
+  <div class="mbody">${mailParas(body)}<p class="msign">${esc(mFirst(name))}</p><div class="msig"><span class="mcrest">${esc(g.club.short || 'FC')}</span><span><b>${esc(name)}</b><br>${esc(roleT ? roleT + ', ' : '')}${esc(g.club.name)}</span></div>${DEPT_OF[role] && F.DEPT ? `<button class="linkbtn mdept" data-a="godept" data-k="${DEPT_OF[role]}">Open ${esc(F.DEPT[DEPT_OF[role]].t)}</button>` : ''}</div></div>`;
 }
 const MSV = d => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const MAILI = { reply: MSV('<path d="M10 8L4 13l6 5"/><path d="M4 13h10a6 6 0 0 1 6 6"/>'), send: MSV('<path d="M12 19V5M5 12l7-7 7 7"/>'), env: MSV('<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 7l9 6 9-6"/>'), x: MSV('<path d="M6 6l12 12M18 6L6 18"/>') };

@@ -67,9 +67,10 @@ function says(role, k, v, lo, hi) {
     coach: { attack: v > 65 ? 'Goes for goals and concedes more.' : v < 35 ? 'Sits deep and keeps it tight.' : 'Balanced approach.', youthMins: v > 65 ? 'Young players get real minutes.' : v < 35 ? 'Veterans first, kids wait.' : 'Picks on form, whatever the age.', rotation: v > 65 ? 'Rotates a lot: fresher legs, less rhythm.' : v < 35 ? 'Same eleven every week.' : 'Rotates when needed.', intensity: v > 65 ? 'Hard sessions: sharper team, more injuries.' : v < 35 ? 'Light sessions: fewer injuries, less sharp.' : 'Normal training load.' } };
   const t = S[role] && S[role][k]; return t || (v > 65 ? `Leans to ${hi.toLowerCase()}.` : v < 35 ? `Leans to ${lo.toLowerCase()}.` : 'Balanced.');
 }
+const RES_KEYS = ['budget', 'reg1', 'reg2']; // resources: set on the department's Plan tab, not in the mandate
 function sliderRows(role, m, prefix) {
-  const D = F.MAND[role], P = PRESETS[role] || [];
-  const isP = vals => Object.entries(vals).every(([k, v]) => String(m[k]) === String(v));
+  const md = prefix === 'md', D0 = F.MAND[role], D = md ? { sl: D0.sl.filter(x => !RES_KEYS.includes(x[0])), ru: D0.ru.filter(x => !RES_KEYS.includes(x[0])) } : D0, P = PRESETS[role] || [];
+  const isP = vals => Object.entries(vals).every(([k, v]) => (md && RES_KEYS.includes(k)) || String(m[k]) === String(v));
   const cur = P.findIndex(([, vals]) => isP(vals));
   const preset = P.length ? `<div class="sec">Style</div><div class="seg wide">${P.map(([l], i) => `<button class="${cur === i ? 'on' : ''}" data-a="preset" data-r="${role}" data-i="${i}" data-p="${prefix}">${l}</button>`).join('')}<button class="${cur < 0 ? 'on' : ''}" tabindex="-1" aria-disabled="true">Custom</button></div>` : '';
   const dials = D.sl.map(([k, lo, hi]) => { const v = +m[k]; return `<div class="dial"><label class="dlab" for="${prefix}-${k}">${esc(lo)} or ${esc(hi.toLowerCase())}</label><div class="ends"><span>${END_IC[lo] ? ART.I[END_IC[lo]] : ''}${esc(lo)}</span><span>${esc(hi)}${END_IC[hi] ? ART.I[END_IC[hi]] : ''}</span></div><input class="dial-r" type="range" min="0" max="100" step="5" id="${prefix}-${k}" value="${v}" data-sl="${role}" data-k="${k}" data-p="${prefix}" style="--v:${v}%" aria-valuetext="${v} of 100"><div class="says" id="says-${prefix}-${k}">${esc(says(role, k, v, lo, hi))}</div></div>`; }).join('');

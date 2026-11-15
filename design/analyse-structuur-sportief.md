@@ -25,7 +25,7 @@ Het voorstel: één vast patroon per afdeling. Een kop met een oordeel in woorde
 **Gemeenschappelijk** **[code]** (`ui/08-departments.js`, `vDept`):
 - *Ingang:* tab **Depts** → afdelingstegel (2 tikken). Vanuit de inbox is er geen link naar een afdeling (`ui/10-inbox.js:99`, `deskRow` opent alleen het bericht).
 - *Lagen:* afdelingslijst → afdeling → 4 tabs → secties → sheets (Mandate, Talk, Sack, kandidaten) → in Academy nog een uitklapper met een tweede academiescherm.
-- *De kop:* op Overview de volledige head-card (gezicht, relatie, form, quote, Authority, Talk/Mandate/Sack). Op de andere tabs een mini-kop met dezelfde knoppen **en** het hele bevoegdheidsblok (`:157` voegt `headBtns` in, en dat bevat `authHtml`, `:40`).
+- *De kop:* op Overview de volledige head-card (gezicht, relatie, form, quote, Authority, Talk/Mandate/Sack). Op de andere tabs een mini-kop met dezelfde knoppen **en** het hele bevoegdheidsblok (`:159` voegt `headBtns` in, en dat bevat `authHtml`, `:40`).
 
 Elk element valt in één van vier bakken: **B** = nodig voor een beslissing deze week, **C** = context, **D** = dubbel (elders ook), **O** = onduidelijk (geen eenheid, referentie of handelingsperspectief).
 
@@ -192,7 +192,7 @@ Maakt het minst kapot en is het voorbeeld.
 ## 5. Geprioriteerde lijst
 
 **Eerst: wat misleidt of verstopt is**
-1. Mini-kop breekt op 390 px op 3 van de 4 tabs: bevoegdheid uit `headBtns` halen in de mini-kop (`ui/08-departments.js:40,157`). *Klein.*
+1. Mini-kop breekt op 390 px op 3 van de 4 tabs: bevoegdheid uit `headBtns` halen in de mini-kop (`ui/08-departments.js:40,159`). *Klein.*
 2. Budgetsegment toont "Lean" bij een budget onder Lean: een vierde toestand "Cut" tonen, of het werkelijke niveau (`business.js:11`). *Klein.*
 3. "Wrong calls: frequent" tegenover de echte telling: één regel, gebaseerd op het werkelijke record ("0 of 16 went against you"). *Klein.*
 4. Proefdag: een dode verwijzing en een verkeerde week (`academy3.js`, `ui/08-departments.js:109-110`). *Klein.*

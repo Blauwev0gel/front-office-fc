@@ -7,10 +7,10 @@ function spark(arr, inv, W = 320, H = 70) {
 const kfmt = (k, v) => k === 'commercial' || k === 'business' ? money(v) : k === 'first' ? F.ord(v) : String(v);
 function vDepts() {
   const g = G(), O = F.deptOverview(), B = F.deptBudView();
-  const tiles = O.map(o => `<button class="dtile2" data-a="dept" data-k="${o.k}"><span class="dface ${o.s ? '' : 'empty'}">${o.s ? ART.staffFace(o.head) : ART.I.staff}</span><span class="dt"><small>${esc(o.t)}</small><b>${o.s ? esc(o.s.name) : 'Vacant'}</b><span class="sdots">${Array.from({ length: o.slots }, (_, i) => `<i class="${i < o.staffOn ? 'on' : i < o.used ? 'half' : ''}"></i>`).join('')}<em>${o.used} of ${o.slots} staff</em></span></span><span class="dstat ${o.s ? o.status.st : 'bad'}">${o.s ? o.status.l : 'Hire'}</span>${ART.I.chev}</button>`).join('');
+  const tiles = O.map(o => `<button class="dtile2" data-a="dept" data-k="${o.k}"><span class="dface ${o.s ? '' : 'empty'}">${o.s ? ART.staffFace(o.head) : ART.I.staff}</span><span class="dt"><small>${esc(o.t)}</small><b>${o.s ? esc(o.s.name) : 'Vacant'}</b><span class="sdots">${Array.from({ length: o.slots }, (_, i) => `<i class="${i < o.staffOn ? 'on' : i < o.used ? 'half' : ''}"></i>`).join('')}<em>${o.used} of ${o.slots} staff</em></span></span><span class="dstat ${o.s ? o.status.st : 'bad'}">${o.s ? esc(o.status.l) + (o.status.extra ? ' +' + o.status.extra : '') : 'Head needed'}</span>${ART.I.chev}</button>`).join('');
   const bud = `<div class="budcard">${planCard()}</div>`;
   const bad = O.filter(o => !o.s || o.status.st === 'bad').length;
-  return `${tourCard('staff')}<div class="dhead"><b>${O.length} departments</b><span class="${bad ? 'bad' : 'good'}">${bad ? bad + ' need attention' : 'All running'}</span></div><div class="dtiles">${tiles}</div><div class="sec">Money per department</div>${bud}`;
+  return `${tourCard('staff')}<div class="dhead"><b>${O.length} departments</b><span class="${bad ? 'bad' : 'good'}">${bad ? bad + ' departments need attention' : 'No urgent concerns'}</span></div><div class="dtiles">${tiles}</div><div class="sec">Money per department</div>${bud}`;
 }
 function headLine(role, s) {
   const rc = F.record(role), P = s.p, v = rc.verdict;
@@ -129,7 +129,16 @@ function vDept(k) {
     const kpis = `<div class="kgrid">${v.status.rows.slice(0, 4).map(r => `<div class="kt ${r.ok === true ? 'good' : r.ok === false ? 'bad' : ''}"><small>${esc(r.l)}</small><b>${esc(r.v)}</b>${r.ref ? `<span>${esc(r.ref)}</span>` : ''}</div>`).join('')}</div>`;
     const vis = k === 'recruit' && F.rxView ? rxOverview(F.rxView()) : k === 'academy' && F.acView ? acOverview(F.acView()) : k === 'business' && F.bizView ? bizOverview() : k === 'commercial' && F.comView ? comOverview(F.comView()) : k === 'marketing' && F.mkView ? mkOverview(F.mkView()) : FP ? `<div class="sec">Form</div><div class="panel2">${FP.form}${FP.trend}</div>` : `<div class="sec">${esc(v.kpiL[0])}</div><div class="panel2"><div class="kbig">${v.kpi.length ? kfmt(k, v.kpi[v.kpi.length - 1]) : '–'}</div>${spark(v.kpi, v.kpiL[1])}</div>`;
     const mand = FP ? `<div class="sec">Your mandate vs what he does</div><div class="panel2">${FP.rows}${FP.gapBig ? `<button class="btn ghost wide" data-a="ft-talk" style="margin-top:8px">Raise it with ${esc(FP.sur)}</button>` : ''}</div>` : v.head ? `<div class="sec">Direction</div><div class="panel2">${instinctRow(d.head)}</div>` : '';
-    body = kpis + vis + mand;
+    const signals = v.status.issues || [];
+    const issuesHtml = signals.length ? '<div class="sec">Needs attention</div>' + signals.map(i => {
+      const owner = F.staff(i.owner);
+      const action = owner ? (i.action === 'mand'
+        ? '<button class="btn small" data-a="sheet" data-s="mand" data-r="' + esc(i.owner) + '">Review mandate</button>'
+        : '<button class="btn small" ' + (i.owner === 'coach' ? 'data-a="ft-talk"' : 'data-a="sheet" data-s="talk" data-r="' + esc(i.owner) + '"') + ' ' + (g.ap < 1 ? 'disabled' : '') + '>Speak to head</button>')
+        : '<button class="btn small" data-a="sheet" data-s="cands" data-r="' + esc(i.owner) + '">Appoint head</button>';
+      return '<div class="panel2"><b>' + esc(i.title) + '</b><p class="small">' + esc(i.evidence) + '</p><p class="small">' + esc(i.why) + '</p><p class="small">Responsible: ' + esc(owner ? owner.name : F.ROLE[i.owner].t + ' (vacant)') + '</p>' + action + '</div>';
+    }).join('') : '<div class="sec">Assessment</div><div class="panel2"><p class="small">No urgent concerns identified. Scorecard figures remain available under Data; not every weak number calls for a CEO decision.</p></div>';
+    body = issuesHtml + kpis + vis + mand;
   }
   if (tab === 'people') {
     const scoutC = d.also ? (() => { const sc = v.also; return sc ? `<div class="pcard2 senior"><span class="pf">${ART.staffFace(d.also)}</span><span class="pm"><b>${esc(sc.name)}</b><small>Chief scout, ${starsTxt(F.stars(F.ovr(sc)))}</small></span><span class="pb"><button class="linkbtn" data-a="sheet" data-s="mand" data-r="scout">Mandate</button><button class="linkbtn" data-a="sheet" data-s="talk" data-r="scout" ${g.ap < 1 ? 'disabled' : ''}>Talk</button></span></div>` : `<div class="pcard2 senior"><span class="pf empty">${ART.I.staff}</span><span class="pm"><b>No chief scout</b><small>Scouting runs on luck</small></span><button class="btn small" data-a="sheet" data-s="cands" data-r="scout">Hire</button></div>`; })() : '';

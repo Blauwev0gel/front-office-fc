@@ -200,8 +200,8 @@ function dofPipeline() {
   // Finance's operating forecast constrains discretionary recruitment. An
   // urgent squad gap can still be addressed under the existing wage/fee rules.
   // No new budget meter: this uses the actual Finance plan and club cash.
-  if (F.bizPlan) {
-    const fp = F.bizPlan();
+  if (F.bizView) {
+    const fp = F.bizView();
     const reserve = Math.max(0, (fp.spend - fp.env) * 4);
     if (fp.spend > fp.env && g().club.cash < reserve && !need.length) slots = 0;
   }

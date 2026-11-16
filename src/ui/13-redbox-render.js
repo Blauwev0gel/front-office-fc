@@ -109,7 +109,7 @@ function tabBadge(k) {
   if (k === 'inbox') { const n = inboxItems().filter(isBox).length; return n ? `<em class="nbadge">${n}</em>` : ''; }
   if (k === 'club') { const run = F.finRunway ? F.finRunway() : null; return (g.grip != null && g.grip < 30) || (run != null && run <= 8) || g.board.conf < 30 ? '<em class="nbadge warn">!</em>' : ''; }
   if (k === 'squad') return (g.msNew || []).length ? `<em class="nbadge dot"></em>` : '';
-  if (k === 'staff') { const n = F.deptOverview().filter(o => !o.s).length; return n ? '<em class="nbadge warn">!</em>' : ''; }
+  if (k === 'staff') { const w = F.convoReqs ? F.deptOverview().reduce((a, o) => a + F.convoReqs(o.k).length, 0) : 0; if (w) return `<em class="nbadge">${w}</em>`; const n = F.deptOverview().filter(o => !o.s).length; return n ? '<em class="nbadge warn">!</em>' : ''; }
   return '';
 }
 function vBar() {

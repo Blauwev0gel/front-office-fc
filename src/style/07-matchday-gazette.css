@@ -87,3 +87,12 @@
 .mdnot{list-style:none;padding:0!important}.mdnot li{font:400 13px/1.45 var(--body);color:var(--soft);padding:3px 0}
 .mdarch{display:flex;flex-direction:column;gap:6px}.mdarch button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-height:52px;padding:8px 12px;border:1px solid var(--hair);border-radius:10px;background:transparent;color:var(--ink);text-align:left;font:inherit}
 .mdarch button.on{border:2px solid var(--ink);background:color-mix(in srgb,var(--club) 10%,transparent)}.mdarch span{font:600 11px var(--body);color:var(--soft)}.mdarch b{font:700 15px Georgia,serif}
+/* weather, half-time choice, why (round B) */
+.mdpw.night .mdpitch{filter:brightness(.78) saturate(.9)}
+.mdpw.rain::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;background:repeating-linear-gradient(105deg,rgba(255,255,255,.18) 0 1px,transparent 1px 14px);opacity:.55}
+@media (prefers-reduced-motion:no-preference){.mdpw.rain::after{animation:mdrain .6s linear infinite}}
+@keyframes mdrain{from{background-position:0 0}to{background-position:-14px 28px}}
+.mdhtq{margin-top:8px;padding-top:8px;border-top:1px dashed #16201b}.mdhtq p{margin:0 0 8px;font-size:14px;line-height:1.35}
+.mdhtq .mdrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mdhtq .mdrow button:last-child{background:#fffdf6;color:#16201b}
+.mdwhy{margin:0 0 10px;padding-left:18px}.mdwhy li{font-size:14px;line-height:1.4;margin:2px 0}
+.mdsky{margin:6px 0 0;color:var(--soft)}

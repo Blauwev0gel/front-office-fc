@@ -94,11 +94,11 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 18 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
 | `talks.js` | 19 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio |
-| `weekflow.js` | 19 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo |
+| `weekflow.js` | 20 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo |
 | `loop.js` | 15 KB | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice | lastChance, seasonReprieve, seasonAfterMatch |  | votes, vote, bgoal, bgLog, wkDelta, wkPrev, wkLog |
 | `dossiers.js` | 28 KB | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar | seasonAfterMatch |  | pressure, dos |
 | `pathway.js` | 27 KB | the pathway question One governance storyline, built to show the core loop: you notice a problem, talk to the  | selBonus, seasonAfterMatch |  | cred, pw, academy, pwLog |
-| `matchday.js` | 9 KB | match day Before kick-off: three stories about our own players | storyW, edition |  | mdS, eds |
+| `matchday.js` | 10 KB | match day Before kick-off: three stories about our own players | storyW, edition |  | mdS, eds |
 | `ui/01-core.js` | 5 KB | atoms; base club: skip the founding |  |  |  |
 | `ui/02-setup.js` | 19 KB | views: title & setup; mandates as a tactics board |  |  |  |
 | `ui/03-summer-preseason-press.js` | 26 KB | the summer (M4); the summer, version 2 |  |  |  |
@@ -113,8 +113,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
 | `ui/12-scenes-cards.js` | 15 KB | game UI helpers |  |  |  |
 | `ui/13-redbox-render.js` | 15 KB | the red box: an email you answer on one screen |  |  |  |
-| `ui/14-matchday-gazette.js` | 23 KB | match day: preview, match, gazette (full screens); the Gazette: one design, opened after the match and from th |  |  |  |
-| `ui/15-actions.js` | 18 KB | actions |  |  |  |
+| `ui/14-matchday-gazette.js` | 25 KB | match day: preview, match, gazette (full screens); the Gazette: one design, opened after the match and from th |  |  |  |
+| `ui/15-actions.js` | 19 KB | actions |  |  |  |
 | `ui/16-boot.js` | 0 KB | boot |  |  |  |
 
 ## Functions per file
@@ -135,7 +135,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: townName, roundRobin, blankRow, buildFixtures, genWorld, sortTable, cname, myPos, expectedRank, squadAvail, fit, ordWord, cact, pickXI, strengthParts, teamStrength
 
 ### `engine/06-match.js`
-- Functions: expRand, simOurMatch, whyLines, quickSim, applyResult
+- Functions: wxFor, expRand, simOurMatch, whyLines, quickSim, applyResult
 
 ### `engine/07-finance-transfers.js`
 - Functions: playerWages, staffWages, ticketPrice, attendance, revenueAvg, estRevenue, sponsorIncome, wageRatio, transferBudget, weeklyFinance, window_, squadNeeds, weakestPos, genTarget, scoreTarget, allowed, sign, staffName, protectedIds, administration, sellPlayer, dofWork, academyIntake
@@ -242,8 +242,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: convoAsk, convoOpen, convoAnswer, convoClose, convoView, convoReq, convoReqs, CONVO_DEPT
 
 ### `weekflow.js`
-- Functions: g, sq, fx, rel, first, topic, quiet, B, P
-- Exports on `F`: weekTopic, OPP_IDS
+- Functions: g, sq, fx, rel, first, topic, quiet, B, P, htOffer, htChoice
+- Exports on `F`: weekTopic, OPP_IDS, mdHtOffer, mdHtChoice
 
 ### `loop.js`
 - Functions: g, room, sup, voice, backers, snap, diff, form5, band, bump, lift, lastChance, tgt, needFor, blockTick, goalView, comingUp
@@ -258,7 +258,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: pwView, pwAsk, pwChange, pwStart, credView, PW_ROUTES
 
 ### `matchday.js`
-- Functions: g, avg, lastInjury, storyFor, mdStories, mdOutcomes, turningPoint, matchSum, edView
+- Functions: g, avg, lastInjury, storyFor, mdStories, mdOutcomes, mdOutcomesShort, turningPoint, matchSum, edView
 - Exports on `F`: mdStories, mdOutcomes, mdTurning, edView, edCount
 
 ### `ui/01-core.js`

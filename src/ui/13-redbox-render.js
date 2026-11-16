@@ -97,7 +97,7 @@ document.addEventListener('pointerdown', e => { const b = e.target.closest('.mse
 
 function propHtml(idx, row) { return pitchDeck(G().meeting, 'Project pitches', true); }
 const TOUR = {
-  inbox: ['This week', 'What needs you this week. Decisions cost an action and build your grip; leave them and your staff decide.'],
+  inbox: ['This week', 'What this week is about and what needs you. Decide what you want; leave the rest and your staff decide.'],
   club: ['Your club', 'How the club is doing: who backs you, the board\'s objectives, the money and your projects.'],
   squad: ['Your squad', 'The coach\'s likely eleven and the rest of the squad. Tap any player for his profile. You never pick the team yourself.'],
   league: ['The league', 'Where you stand, who is next and how the cup is going. Top three go up, bottom three go down.'],

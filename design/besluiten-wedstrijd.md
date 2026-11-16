@@ -4,12 +4,12 @@ Werklijst bij `design/analyse-wedstrijd.md`. Besloten door de eigenaar op 16-11-
 
 | Id | Besluit | Status |
 |---|---|---|
-| W1 | Weergave: hetzelfde veld, levendiger (stippen schuiven mee, een echt goalmoment), ±40 s. | open |
-| W2 | De CEO bij rust: soms de keuze om de kleedkamer in te gaan of de coach te laten; af en toe een gast in de bestuurskamer. Nooit opstelling, wissels of tactiek (B1). | open |
+| W1 | Weergave: hetzelfde veld, levendiger (stippen schuiven mee, een echt goalmoment), ±40 s. | getest |
+| W2 | De CEO bij rust: soms de keuze om de kleedkamer in te gaan of de coach te laten; af en toe een gast in de bestuurskamer. Nooit opstelling, wissels of tactiek (B1). | getest (gast: zie hieronder) |
 | W3 | Engine: één gekalibreerd niveau voor goals en uitslagen, en coachschuifjes met een echte prijs (sluit D4/D12 uit ronde 4). | getest |
-| W4 | Een korte "why" bij full time uit de echte factoren. | engine getest, UI open |
-| W5 | Sfeer per wedstrijd: avond of middag, regen, tribunevulling; licht doorwerkend. | engine getest, UI open |
-| W6 | Animatie aan, geluid uit tot je het aanzet; reduced motion: alleen tekst en stand. | open |
+| W4 | Een korte "why" bij full time uit de echte factoren. | getest |
+| W5 | Sfeer per wedstrijd: avond of middag, regen, tribunevulling; licht doorwerkend. | getest |
+| W6 | Animatie aan, geluid uit tot je het aanzet; reduced motion: alleen tekst en stand. | getest |
 
 ## Ronde A — engine (16-11-2026)
 - **Kalibratie** (`engine/06-match.js`): 27 kansen × volume in plaats van 22,5; rode kaart 6,5% per kaart.
@@ -27,3 +27,14 @@ Werklijst bij `design/analyse-wedstrijd.md`. Besloten door de eigenaar op 16-11-
 - **Why:** `whyLines()` levert 2–3 regels uit afwerking tegenover xG, tegengoals tegenover xG, kwaliteit, rode kaarten, vol stadion, moraal, jeugd en aanvallend spel.
 - **Bugs:** xG in de Gazette volgt nu de volgorde van de uitslag; een blessure valt in een minuut waarin de speler echt op het veld stond.
 - Getest: build, syntaxcheck, alle `node test/*.js` (incl. `mig.js`, `matchday.js`, `gazette.js`).
+
+## Ronde B — wat je ziet (16-11-2026)
+- **Tempo:** de wedstrijd duurt ±46 seconden op normale snelheid (was 63), met wissels en gele kaarten korter in beeld; 2× sneller en overslaan blijven.
+- **Weer en avond vooraf:** het weer is een vaste functie van seizoen, week en tegenstander (`wxFor`), dus de preview kan het aankondigen ("Evening kick-off, rain forecast. Expected crowd 45% of capacity."). De stadionkop toont avond, regen en een tribune zo vol als de verwachte opkomst; het veld toont regen en avondlicht.
+- **Keuze bij rust** (`weekflow.js` `htOffer`, `htChoice`): bij een achterstand, een big game of soms bij gelijkspel ("Go into the dressing room? It is about the players, not the tactics."). Naar binnen: moraal +3, de coach voelt zich gepasseerd (−2, of −5 bij een groot ego). Laten: de coach +2. De uitslag staat al vast; de keuze gaat over mensen (B1). Gemeten: in ±de helft van de wedstrijden.
+- **Gast in de bestuurskamer:** niet apart gebouwd; de sponsor in de box zit al in de keuze vóór big games (B23). Open voor later.
+- **Why bij full time:** 2–3 regels uit `whyLines` (altijd minstens één, op basis van de kansenverhouding). Na een nederlaag heet het "Our best player" in plaats van "Player of the match".
+- **Minder herhaling:** meerdere "quiet days" in de verhalen worden één regel.
+- **Animatie:** de veldanimatie gebruikt een eigen seeded generator in plaats van `Math.random` (CLAUDE.md). Geluid blijft uit tot je het aanzet; reduced motion: geen regenanimatie, korte stappen.
+- **Gerepareerd:** de rondleidingstekst sprak nog over actiepunten.
+- Getest: build, syntaxcheck, de pagina geladen, alle `node test/*.js`, vijf volledige wedstrijden in de browser op 390 px (licht en donker), waarvan één met de keuze bij rust.

@@ -170,5 +170,13 @@ const ECHO = {
 };
 for (const k in ECHO) { const [id, i] = k.split(':'); const e = F.EV[id]; if (!e || !e.opts[+i]) continue; const f0 = e.opts[+i].f; e.opts[+i].f = c => { const out = f0(c); const G = g(); if (G.resBy === 'you') (G.echo = G.echo || []).push({ at: F.absWeek() + ri(3, 8), k, ctx: c }); return out; }; }
 
-Object.assign(F, { weekTopic: topic, OPP_IDS: OPP });
+/* ---------- half-time: the dressing room (B27) ---------- */
+// The match is already decided by the engine: this choice is about the people, never the score.
+function htOffer(m) { const G = g(); if (!m || !staff('coach')) return null; const ht = m.ev.find(e => e.k === 'info' && /^Half-time/.test(e.t)); if (!ht) return null;
+  const [a, b] = ht.t.replace(/^Half-time:\s*/, '').replace(/\.$/, '').split('–').map(Number), us = m.home ? a : b, th = m.home ? b : a; const big = G.stake && G.stake.week === G.week;
+  return us < th || big || (us === th && chance(0.35)) ? { us, th } : null; }
+function htChoice(k) { const s = staff('coach'); if (!s) return ''; const n = s.name.split(' ')[0];
+  if (k === 'in') { sq().forEach(p => p.morale = clamp(p.morale + 3, 0, 100)); rel('coach', s.p.ego > 13 ? -5 : -2); return s.p.ego > 13 ? `The players listen. ${n} stands by the door, arms folded.` : `A few calm words. ${n} nods as you leave.`; }
+  rel('coach', 2); return `You stay in the box. ${n} appreciates the trust.`; }
+Object.assign(F, { weekTopic: topic, OPP_IDS: OPP, mdHtOffer: htOffer, mdHtChoice: htChoice });
 })(FO);

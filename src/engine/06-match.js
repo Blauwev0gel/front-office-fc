@@ -1,10 +1,11 @@
 /* ---------- match simulation ---------- */
+function wxFor(s, w, o) { let h = (s * 73856093) ^ (w * 19349663) ^ (o * 83492791); h = (h ^ (h >>> 13)) * 1274126177 >>> 0; return { rain: h % 100 < 25, night: (h >>> 8) % 100 < 30 }; }
 function expRand(m) { return -Math.log(1 - rnd()) * m; }
 function simOurMatch(oppId, home, comp) {
   const opp = G.clubs[oppId], L = pickXI(true), me = teamStrength(L), os = opp.str + gauss() * 0.3;
   const d = me - os + (HOOK.homeEdge ? HOOK.homeEdge(home) : (home ? 0.35 : -0.35));
   const att = cact('attack') / 100, intn = cact('intensity') / 100, vol = 0.85 + 0.3 * att, share = 1 / (1 + Math.exp(-0.6 * d));
-  const wx = { rain: chance(0.25), night: chance(0.3) }; /* weather: rain means fewer and poorer chances */
+  const wx = wxFor(G.season, G.week, oppId); /* weather: rain means fewer and poorer chances */
   let redUs = 0, redThem = 0;
   const OS = HOOK.oppStyle ? HOOK.oppStyle(oppId) : { vol: 1, oxg: 1 };
   const n = poisson(27 * vol * OS.vol * (wx.rain ? 0.92 : 1)), ev = [], onPitch = L.xi.map(x => x.p), mins = new Map(onPitch.map(p => [p.id, 0])), start = new Map(onPitch.map(p => [p.id, 0]));
@@ -112,6 +113,8 @@ function whyLines(o) {
   if (P.moraleAvg < 50) out.push([1.4, 'Morale is low, and it showed.']);
   const kids = o.L.xi.filter(x => x.p.age <= 21).length; if (kids >= 5 && o.result === 'L') out.push([1.6, `Five or more under-21s started: they learned the hard way.`]);
   if (o.att > 0.65 && o.tg >= 3) out.push([1.6, 'Going for goals left gaps at the back.']); if (o.att < 0.35 && o.result !== 'L' && o.tg === 0) out.push([1.3, 'Compact and patient: the defensive plan worked.']);
+  const dx = o.uxg - o.txg; /* always at least one line: who made the chances */
+  out.push([0.5, dx > 0.6 ? `We made the chances: ${o.uxg.toFixed(1)} expected goals to ${o.txg.toFixed(1)}.` : dx < -0.6 ? `They made the chances: ${o.txg.toFixed(1)} expected goals to our ${o.uxg.toFixed(1)}.` : `An even game on chances (${o.uxg.toFixed(1)} to ${o.txg.toFixed(1)}), settled by the finishing.`]);
   return out.sort((a, b) => b[0] - a[0]).slice(0, 3).map(x => x[1]);
 }
 function quickSim(h, a) { const d = G.clubs[h].str - G.clubs[a].str + 0.3; return [poisson(1.48 * Math.exp(0.22 * d)), poisson(1.17 * Math.exp(-0.22 * d))]; }

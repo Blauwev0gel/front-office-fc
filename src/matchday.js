@@ -51,9 +51,12 @@ function mdOutcomes(m) {
     else if (red) t = `${first} was sent off. Not the day he wanted.`;
     else if (save && rat >= 7) t = `${first} made the big saves.`;
     else t = `${first} ${s.tag === 'Academy debut' ? 'made his debut' : s.ms && s.ms[0] === 'a' ? `played his ${s.ms.slice(1)}th game` : 'played'}${rat >= 7.5 ? ' and was outstanding' : rat >= 6.8 ? ' and did well' : ', a quiet day'}.`;
-    return { pid: p.id, tag: s.tag, t: t + (rat ? ` Rated ${rat.toFixed(1)}.` : ''), mood: goals || ast || rat >= 7 ? 'happy' : red || rat < 6.2 ? 'worried' : 'neutral' };
+    return { pid: p.id, tag: s.tag, quiet: /a quiet day/.test(t), t: t + (rat ? ` Rated ${rat.toFixed(1)}.` : ''), mood: goals || ast || rat >= 7 ? 'happy' : red || rat < 6.2 ? 'worried' : 'neutral' };
   });
 }
+// several quiet days read as one line instead of the same sentence three times
+const mdOutcomes0 = mdOutcomes;
+function mdOutcomesShort(m) { const L = mdOutcomes0(m), q = L.filter(o => o.quiet); if (q.length < 2) return L; const names = q.map(o => { const p = g().squad.find(x => x.id === o.pid); return p ? p.name.split(' ')[0] : ''; }).filter(Boolean); return L.filter(o => !o.quiet).concat([{ pid: q[0].pid, t: `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]} played: a quiet day for all of them.`, mood: 'neutral' }]); }
 function turningPoint(m) {
   if (!m) return null; const ev = m.ev, res = m.result;
   const red = ev.find(e => e.k === 'card' && e.red); if (red) return { m: red.m, t: red.t };
@@ -63,7 +66,7 @@ function turningPoint(m) {
   if (goals.length) return { m: goals[0].m, t: goals[0].t.replace(/\s*\(xG [\d.]+\)/, '') };
   return null;
 }
-Object.assign(F, { mdStories, mdOutcomes, mdTurning: turningPoint });
+Object.assign(F, { mdStories, mdOutcomes: mdOutcomesShort, mdTurning: turningPoint });
 })(FO);
 /* The Gazette: one edition per week, made once at the end of the week and kept for the archive */
 (function (F) {

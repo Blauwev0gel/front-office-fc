@@ -1,6 +1,6 @@
 // Headless simulation: plays N seasons with random CEO behaviour and checks invariants.
 const fs = require('fs'), path = require('path'), vm = require('vm');
-const src = ['engine.js', 'events.js', 'events2.js', 'events3.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js', 'firstteam.js', 'depts.js', 'levers.js', 'commercial.js', 'marketing.js', 'business.js', 'academy3.js', 'recruitx.js', 'matchtalk.js', 'desk.js', 'talks.js', 'weekflow.js', 'weekloop.js', 'loop.js', 'dossiers.js', 'pathway.js'].map(f => require('./src.js')(f)).join('\n');
+const src = ['engine.js', 'events.js', 'events2.js', 'events3.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js', 'firstteam.js', 'depts.js', 'levers.js', 'commercial.js', 'marketing.js', 'business.js', 'academy3.js', 'recruitx.js', 'world.js', 'matchtalk.js', 'desk.js', 'talks.js', 'weekflow.js', 'weekloop.js', 'loop.js', 'dossiers.js', 'pathway.js'].map(f => require('./src.js')(f)).join('\n');
 function boot() { const ctx = { console, module: undefined }; vm.createContext(ctx); vm.runInContext(src + '\n;this.FO=FO;', ctx); return ctx.FO; }
 const runs = +process.argv[2] || 6, seasons = +process.argv[3] || 3;
 const summary = [];

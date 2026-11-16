@@ -1,6 +1,6 @@
 // Match day: stories before kick-off, outcomes and a turning point after, over several seasons.
 const fs = require('fs'), vm = require('vm');
-const src = ['engine.js', 'events.js', 'events2.js', 'events3.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js', 'firstteam.js', 'depts.js', 'levers.js', 'commercial.js', 'marketing.js', 'business.js', 'academy3.js', 'recruitx.js', 'matchtalk.js', 'desk.js', 'loop.js', 'dossiers.js', 'pathway.js', 'matchday.js'].map(f => require('./src.js')(f)).join('\n');
+const src = ['engine.js', 'events.js', 'events2.js', 'events3.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js', 'firstteam.js', 'depts.js', 'levers.js', 'commercial.js', 'marketing.js', 'business.js', 'academy3.js', 'recruitx.js', 'world.js', 'matchtalk.js', 'desk.js', 'loop.js', 'dossiers.js', 'pathway.js', 'matchday.js'].map(f => require('./src.js')(f)).join('\n');
 function boot() { const ctx = { console, module: undefined }; vm.createContext(ctx); vm.runInContext(src + '\n;this.FO=FO;', ctx); return ctx.FO; }
 let fails = 0, weeks = 0, stories = 0, tags = {}, outs = 0, tps = 0; const ok = (c, m) => { if (!c) { fails++; if (fails < 15) console.log('FAIL', m); } };
 for (let r = 0; r < 4; r++) {

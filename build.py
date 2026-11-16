@@ -8,7 +8,7 @@ def read(name):
     stem,ext=name.rsplit('.',1)
     return ''.join(p.read_text(encoding='utf-8') for p in sorted((s/stem).glob('*.'+ext)))
 t=(s/'index.html').read_text(encoding='utf-8')
-js='\n'.join(read(f) for f in ['engine.js','events.js','events2.js','events3.js','briefs.js','academy.js','academy2.js','recruit.js','summer.js','season.js','summer2.js','faces.js','firstteam.js','depts.js','levers.js','commercial.js','marketing.js','business.js','academy3.js','recruitx.js','matchtalk.js','desk.js','talks.js','weekflow.js','weekloop.js','loop.js','dossiers.js','pathway.js','matchday.js','ui.js'])
+js='\n'.join(read(f) for f in ['engine.js','events.js','events2.js','events3.js','briefs.js','academy.js','academy2.js','recruit.js','summer.js','season.js','summer2.js','faces.js','firstteam.js','depts.js','levers.js','commercial.js','marketing.js','business.js','academy3.js','recruitx.js', 'world.js','matchtalk.js','desk.js','talks.js','weekflow.js','weekloop.js','loop.js','dossiers.js','pathway.js','matchday.js','ui.js'])
 t=t.replace('/*CSS*/',read('style.css')).replace('/*JS*/',js)
 pathlib.Path('dist').mkdir(exist_ok=True)
 pathlib.Path('dist/index.html').write_text(t, encoding='utf-8'); print(len(t))

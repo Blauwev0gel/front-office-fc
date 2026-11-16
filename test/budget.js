@@ -1,6 +1,6 @@
 // The season budget line must be honest: env 0 is flagged, fixed costs are exposed, and the numbers are finite.
 const fs = require('fs'), vm = require('vm');
-const src = ['engine.js', 'events.js', 'events2.js', 'events3.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js', 'firstteam.js', 'depts.js', 'levers.js', 'commercial.js', 'marketing.js', 'business.js', 'recruitx.js', 'matchtalk.js', 'desk.js'];
+const src = ['engine.js', 'events.js', 'events2.js', 'events3.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js', 'firstteam.js', 'depts.js', 'levers.js', 'commercial.js', 'marketing.js', 'business.js', 'recruitx.js', 'world.js', 'matchtalk.js', 'desk.js'];
 const S = fs.readFileSync(__dirname + '/sim.js', 'utf8'), m = S.match(/const src = \[([^\]]*)\]/);
 const files = m ? m[1].split(',').map(x => x.trim().replace(/['"]/g, '')).filter(Boolean) : src;
 const code = files.map(f => require('./src.js')(f)).join('\n');

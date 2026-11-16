@@ -64,7 +64,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `engine/03-players.js` | 4 KB | players |  |  |  |
 | `engine/04-staff-dna.js` | 14 KB | staff; DNA |  | effBonus |  |
 | `engine/05-world-selection.js` | 4 KB | world; squad & selection |  | coachAct, selBonus, ftExtra | clubs, divs |
-| `engine/06-match.js` | 13 KB | match simulation |  | homeEdge, oppStyle, ftInj, say, storyW | msNew |
+| `engine/06-match.js` | 15 KB | match simulation |  | homeEdge, oppStyle, ftInj, say, storyW | msNew |
 | `engine/07-finance-transfers.js` | 14 KB | finance; transfers; academy |  | attendance, gate, acadIncome, recCost, acadCost, ftCost, deptCost, merchMult, costDisc, acadSale | signLog, shortlist, dofSigned, squad, dofNote |
 | `engine/08-weekly-inbox.js` | 9 KB | weekly systems; events & inbox |  | ftDev, fanWeekly, desk, evWeight |  |
 | `engine/09-meetings-actions-press.js` | 17 KB | management meeting & projects (1.2); player actions; press |  |  | propCd, meeting, projects, projDone, projLog, resBy, resOf |
@@ -92,6 +92,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `business.js` | 7 KB | Business department A season budget per department (lean, normal, invest) against what the club can afford, a  | costDisc |  | biz, deptB |
 | `academy3.js` | 5 KB | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid  | acadIntake, seasonAfterMatch |  | acadX, academy |
 | `recruitx.js` | 25 KB | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re | seasonAfterMatch, recWeekly, seasonWeekly, summerStart | recMigrate | recX |
+| `world.js` | 13 KB | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store |  |  | world |
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 18 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
 | `talks.js` | 19 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio, dofStrikes |
@@ -233,6 +234,10 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 ### `recruitx.js`
 - Functions: g, R, regions, setFocus, invest, record, view, copy, at, state, note, corePlayers, rows, action, refresh, priorities, renewals, requestPolicy, policyLive, policyAnswer
 - Exports on `F`: squadPlanScoutJob, squadPlanAllows, squadPlanPrepare, squadPlanView, squadPlanAsk, recPlanSuggest, squadPlanDelivered, rxView, rxFocus, rxInvest
+
+### `world.js`
+- Functions: g, hstr, mk, WS, LGDEF, leagueName, clubsOf, lineage, build, attrsAt, season, market, record, ours, leaguePlayers, worldLeagues, worldLeague, worldPlayer, worldRemove
+- Exports on `F`: worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN
 
 ### `matchtalk.js`
 - Functions: g, hs, opp, P, sur, crowd, preview

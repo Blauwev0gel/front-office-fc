@@ -37,7 +37,7 @@ function finishMandates() { setObjectives(); if (HOOK.summerStart) HOOK.summerSt
 const FOCUS = [
   { k: 'fanbase', t: () => `Grow the supporter base to ${Math.round(G.club.fanbase * 1.1).toLocaleString('en-GB')}`, d: 'Marketing and results drive this.', target: () => Math.round(G.club.fanbase * 1.1) },
   { k: 'grads', t: () => 'Give two academy players a debut', d: 'Needs the coach to trust youth.', target: () => 2 },
-  { k: 'wagecap', t: () => 'Keep player wages under the cap all season', d: 'Restrains the Director of Football.', target: () => 0 },
+  { k: 'wagecap', t: () => 'Finish the season within the player wage cap', d: 'Finance and the DoF own the wage structure.', target: () => 0 },
   { k: 'brand', t: () => `Grow brand strength to ${Math.min(95, Math.round(G.club.brand + 8))}`, d: 'Marketing spend and campaigns.', target: () => Math.min(95, Math.round(G.club.brand + 8)) },
   { k: 'profit', t: () => 'Make a profit on transfers', d: 'Sell well, buy smart.', target: () => 0 },
   { k: 'fill', t: () => 'Fill the stadium to 80% on average', d: 'Prices, form and fan base.', target: () => 0.8 },
@@ -61,11 +61,52 @@ function preSetTarget(k) {
   G.board.conf = clamp(G.board.conf, 0, 100); o.target = opt.target; o.t = `Finish ${ord(o.target)} or higher`; o.bold = k === 'bold'; G.pre.deal = k;
 }
 function preToggleFocus(k) { const f = G.pre.focus; const i = f.indexOf(k); if (i >= 0) f.splice(i, 1); else if (f.length < 2) f.push(k); }
+// Advice is based on live club pressures. No quota, randomness or automatic promises.
+function preAdvice() {
+  const taken = new Set(G.board.obj.map(o => o.k)), out = [];
+  const add = (k, role, priority, why, action, risk) => {
+    const f = FOCUS.find(x => x.k === k); if (!f || taken.has(k) || !staff(role)) return;
+    out.push({ k, role, priority, title: f.t(), target: f.target(), why, action, risk });
+  };
+  const wr = wageRatio() * 100, cap = +man('fin', 'wageCap'), wf = weekForecast();
+  if (wr >= cap - 10) add('wagecap', 'fin', wr > cap ? 100 : 85,
+    `Player wages are ${Math.round(wr)}% of revenue against a ${cap}% cap${wf.cost > wf.rev ? ', with an operating deficit of ' + money(wf.cost - wf.rev) + ' a week' : ''}.`,
+    'Finance and the DoF will work within the existing wage ceiling; you decide whether to accept a smaller recruitment market.',
+    'Retaining the ceiling can mean walking away from stronger players; this commitment is judged at season end.');
+  const youth = G.squad.filter(p => p.academy && p.age <= 21 && !(p.st && p.st.apps));
+  if (youth.length >= 2 && man('coach', 'youthMins') >= 60 && staff('acad')) add('grads', 'coach', 80,
+    `${youth.slice(0, 2).map(p => p.name).join(' and ')} are in the senior squad without an appearance, and your coaching mandate favours youth.`,
+    'The coach owns selection and will seek two academy debuts; you back the pathway without picking a team.',
+    'Giving inexperienced players opportunities may cost short-term consistency.');
+  const occupancy = attendance() / Math.max(1, G.club.cap);
+  if (G.club.dna.identity === 'community' && occupancy < 0.65 && wf.rev >= wf.cost && man('mkt', 'budget') >= 40) add('fanbase', 'mkt', 60,
+    `Expected attendance fills ${Math.round(occupancy * 100)}% of the ground, while the club has ${Math.round(G.club.fanbase).toLocaleString('en-GB')} supporters and a funded marketing department.`,
+    'Marketing will pursue supporter growth within its existing budget; you back the community direction.',
+    'Results still affect growth, and the existing budget limits how far the department can reach.');
+  const table = G.lastReport && G.lastReport.table, last = table && table.find(x => x.id === 0);
+  if (last && last.ga > last.gf) add('topxg', 'coach', 65,
+    `Last season we conceded ${last.ga} goals and scored ${last.gf}; the coach recommends a performance target alongside the league finish.`,
+    'The coach owns tactics and selection, aiming to create at least as much xG as the team concedes over the season.',
+    'Better underlying performances do not guarantee better results immediately.');
+  return out.sort((a,b) => b.priority - a.priority || a.k.localeCompare(b.k)).slice(0,2);
+}
+function preAcceptAdvice(k) {
+  if (!G.pre || !['preseason', 'summer'].includes(G.phase)) return false;
+  const i = G.pre.focus.indexOf(k);
+  if (i >= 0) { G.pre.focus.splice(i,1); if (G.pre.advice) delete G.pre.advice[k]; return true; }
+  const advice = preAdvice().find(x => x.k === k);
+  if (!advice || G.pre.focus.length >= 2) return false;
+  G.pre.focus.push(k); (G.pre.advice || (G.pre.advice = {}))[k] = { ...advice, season: G.season };
+  return true;
+}
 function budgetCosts() { const bud = r => (0.3 + man(r, 'budget') / 100 * 1.4); return { scouting: staff('scout') ? M(300) * bud('scout') : 0, academy: Math.round(M(380) * (staff('acad') ? bud('acad') : 0.5) * (1 + G.club.fac.youth * 0.08)), marketing: staff('mkt') ? M(250) * bud('mkt') : 0, facilities: Math.round(M(320) * man('fin', 'invest') / 100) }; }
 function weekForecast() { const b = budgetCosts(); const out = playerWages() + staffWages() + b.scouting + b.academy + b.marketing + b.facilities + Math.round(G.club.cap * 0.12 + G.club.rent + G.club.fac.train * M(40)) + Math.round((G.club.debt || 0) * 0.0012) + projWeekly(); return { rev: Math.round(revenueAvg()), cost: Math.round(out) }; }
 function finishPreseason() {
   if (over()) return;
-  for (const k of G.pre.focus) { const f = FOCUS.find(x => x.k === k); G.board.obj.push({ k, target: f.target(), t: f.t(), soft: true }); }
+  for (const k of G.pre.focus) {
+    const f = FOCUS.find(x => x.k === k), a = G.pre.advice && G.pre.advice[k];
+    if (f && !G.board.obj.some(o => o.k === k)) G.board.obj.push({ k, target: a ? a.target : f.target(), t: a ? a.title : f.t(), soft: true, owner: a ? a.role : null, agreedWhy: a ? a.why : null });
+  }
   if (G.meeting) for (const it of G.meeting.items) if (it.status === 'open') it.status = 'lapsed';
   G.meeting = null; G.phase = 'press'; G.press = pressQuestions().map(q => q.id);
 }

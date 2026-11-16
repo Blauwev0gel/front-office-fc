@@ -126,6 +126,7 @@ function act(a, d, el) {
     case 'pre-step': g.pre.step = +d.i; window.scrollTo(0, 0); break;
     case 'pre-target': F.preSetTarget(d.k); break;
     case 'pre-focus': F.preToggleFocus(d.k); break;
+    case 'pre-advice': F.preAcceptAdvice(d.k); break;
     case 'pre-acad': g.pre.acad = g.pre.acad === d.k ? null : d.k; break;
     case 'pre-done': F.finishPreseason(); U.pressI = 0; U.quote = null; window.scrollTo(0, 0); break;
     case 'lt': U.lt = +d.t; break;

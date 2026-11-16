@@ -2,6 +2,29 @@
 const STATUS_L = { need: ['Need', 'bad'], weak: ['Weak', 'warn'], ageing: ['Ageing', 'warn'], thin: ['Thin', ''], ok: ['Covered', 'good'] };
 /* ---------- the summer, version 2 ---------- */
 const WHO = r => r === 'you' ? 'You' : r === 'board' ? 'The chairman' : `${F.staffName(r)}${F.ROLE[r] ? ', ' + F.ROLE[r].s : ''}`;
+function seasonAdviceBlock() {
+  const g = G(), P = g.pre, rows = F.preAdvice().map(a => P.advice && P.advice[a.k] || a);
+  for (const k of P.focus) if (!rows.some(x => x.k === k)) {
+    const saved = P.advice && P.advice[k], f = F.FOCUS.find(x => x.k === k);
+    if (saved) rows.push(saved);
+    else if (f) rows.push({ k, title: f.t(), why: 'An extra commitment carried over from your earlier choices.', action: 'Keep it only if it still fits the season plan.', risk: 'You can withdraw it before meeting the press.' });
+  }
+  return `<h2>What needs your backing?</h2><p>The board has already set the club's objectives. Staff run their departments; only add a commitment when it serves this club.</p>
+    <section class="dcard"><div class="kick">Already agreed with the board</div><ul class="list">${g.board.obj.filter(o => !o.soft).map(o => `<li>${esc(o.t)}</li>`).join('')}</ul></section>
+    ${rows.length ? `<h3 style="margin-top:20px">Staff recommendations</h3>${rows.map(a => {
+      const selected = P.focus.includes(a.k);
+      return `<section class="dcard" style="margin-top:14px"><div class="kick">${a.role ? esc(WHO(a.role)) : 'Earlier commitment'}</div><h3>${esc(a.title)}</h3><p>${esc(a.why)}</p><p>${esc(a.action)}</p><p class="small">${esc(a.risk)}</p><button class="btn ${selected ? 'ghost' : ''}" data-a="pre-advice" data-k="${a.k}" aria-pressed="${selected}" ${!selected && P.focus.length >= 2 ? 'disabled' : ''}>${selected ? 'Withdraw this extra commitment' : 'Back this recommendation'}</button></section>`;
+    }).join('')}` : '<p class="note">No extra target is justified by the current staffing, finances and squad. The recommendation is to deliver the existing board plan.</p>'}
+    ${P.acad ? `<section class="dcard" style="margin-top:14px"><div class="kick">Earlier academy commitment</div><p>${esc((F.ACAD_PLANS || []).find(a => a.k === P.acad)?.t() || P.acad)}</p><p class="small">This was chosen before the new advice screen; keep it only if it still fits.</p><button class="btn ghost" data-a="pre-acad" data-k="${esc(P.acad)}">Withdraw academy commitment</button></section>` : ''}
+    <p class="small">${P.focus.length ? `${P.focus.length} extra commitment${P.focus.length === 1 ? '' : 's'} backed.` : 'No extra promises added.'} Optional commitments are reviewed by the board at season end; meeting one adds confidence, missing one costs confidence.</p>`;
+}
+function meetingContext(log) {
+  const last = log[log.length - 1], latest = new Map();
+  for (const l of log) if (l.who !== 'you') latest.set(l.who, l);
+  const advice = [...latest.values()].filter(l => l !== last);
+  return advice.length ? `<section class="dcard"><div class="kick">Staff advice for this decision</div>${advice.map(l => `<p><b>${esc(WHO(l.who))}:</b> ${esc(l.t)}</p>`).join('')}</section>` : '';
+}
+
 function ddBlock(doneBtn) {
   const g = G(), S = g.sum, d = S.dd, dec = F.ddDecision(), H = F.DD_HOURS;
   return `<div class="ddclock"><div><div class="kick">Deadline day</div><b class="num">${d ? H[Math.max(0, d.t)] : '08:00'}</b></div><div class="small" style="text-align:right">Window shuts<br><span class="num" style="font-size:20px">23:00</span></div></div>
@@ -20,9 +43,8 @@ function mtCard(it) {
   }
   if (it === 'money') {
     const b = F.budgetCosts(), wf = F.weekForecast(), net = wf.rev - wf.cost, cap = +F.man('fin', 'wageCap');
-    const row = (role, k, l, cost, note) => F.staff(role) || role === 'fin' ? `<div class="sl"><div class="spread"><label for="pb-${role}-${k}">${l}</label><span class="num">${cost != null ? money(cost) + '/wk' : ''}</span></div><input type="range" min="0" max="100" step="5" id="pb-${role}-${k}" value="${F.man(role, k)}" data-sl="${role}" data-k="${k}" data-p="pb"><div class="ends"><span>${note[0]}</span><span>${note[1]}</span></div></div>` : '';
     return `<section class="dcard"><dl class="figs"><div><dt>Transfer budget</dt><dd>${money(F.transferBudget())}</dd></div><div><dt>Wages / revenue</dt><dd class="${F.wageRatio() * 100 > cap ? 'bad' : ''}">${r0(F.wageRatio() * 100)}% of ${cap}%</dd></div><div><dt>Cash</dt><dd>${money(g.club.cash)}</dd></div><div><dt>Weekly result</dt><dd class="${net < 0 ? 'bad' : 'good'}">${net >= 0 ? '+' : ''}${money(net)}</dd></div></dl>
-    <details class="fold"><summary>Department budgets</summary>${row('scout', 'budget', 'Scouting', b.scouting, ['Lean', 'Lavish'])}${row('acad', 'budget', 'Academy', b.academy, ['Lean', 'Lavish'])}${row('mkt', 'budget', 'Marketing', b.marketing, ['Lean', 'Lavish'])}${row('fin', 'invest', 'Facility investment', b.facilities, ['Cut costs', 'Invest'])}</details></section>`;
+    <h3>Department allocations</h3><dl class="kv">${[['Scouting',b.scouting],['Academy',b.academy],['Marketing',b.marketing],['Facilities',b.facilities]].filter(([,v]) => v > 0).map(([l,v]) => `<dt>${l}</dt><dd>${money(v)}/week</dd>`).join('')}</dl><p class="small">These allocations are included in the weekly forecast. The Finance discussion below sets the room available for recruitment.</p></section>`;
   }
   if (it === 'needs') {
     const p = mt.plan; if (!p) return '';
@@ -55,7 +77,7 @@ function vSummer2() {
     ${last ? `<div class="bubble ${last.who === 'you' ? 'me' : ''} ${last.k === 'plan' ? 'plan' : ''}"><div class="who">${esc(WHO(last.who))}</div>${esc(last.t)}${last.who !== 'you' && last.who !== 'board' && ticOf(last.who, last.t) ? `<span class="tic">${esc(ticOf(last.who, last.t))}</span>` : ''}</div>` : ''}
     ${d ? `<div class="trustm">${ART.I.trust}<span>${esc(d.name.split(' ').slice(-1)[0])}'s trust</span><i><b style="width:${r0(d.rel)}%"></b></i><span class="num">${r0(d.rel)}</span></div>` : ''}
     ${mtCard(it)}
-    ${log.length > 2 ? `<details class="fold minutes"><summary>Meeting notes (${log.length})</summary>${log.map(l => `<p><b>${esc(WHO(l.who))}:</b> ${esc(l.t)}</p>`).join('')}</details>` : ''}
+    ${meetingContext(log)}
     ${trayHtml(`<span>${it === 'brief' ? 'Sign it' : 'Your response'}</span><span>${mt.item + 1} of ${items.length}</span>`, resp.map((o, j) => o.k === 'sign' ? `<button class="btn" data-a="mt-ans" data-i="${j}" data-k="sign" ${U.signing ? 'disabled' : ''}>Sign the summer brief</button>` : choiceHtml(o, j, `data-a="mt-ans" data-i="${j}" data-k="${o.k}"`, false, U.signing)).join(''), '')}<div class="trayspace" style="--tray:${80 + resp.length * 66}px"></div>`;
   } else if (st === 1) {
     const tk = S.tk;
@@ -69,7 +91,7 @@ function vSummer2() {
         const chips = tp ? `<div class="chips3"><div><small>Asking</small><b>${tp.club ? money(c.counter || tp.ask) : 'Free'}</b></div><div><small>Wage</small><b>${money(tp.wageAsk)}</b></div><div><small>Budget</small><b>${money(F.transferBudget())}</b></div></div>` : '';
         callH = `<div class="callhead"><div class="portrait">${ART.staffFace(F.EV[call.m.ev].from || 'dof')}</div><div><b>${esc(call.v.from.split(',')[0])}</b><span><i class="ringdot"></i>is calling</span></div><span class="phoneic">${ART.I.phone}</span></div>
         <h2 class="ask">${esc(call.v.title)}</h2>${tp ? pcard(tp, { k: tk2 }) : ''}${chips}
-        <details class="more"><summary>Details ${ART.I.chev}</summary><p>${esc(call.v.body)}</p><p>${esc(call.v.why)}</p></details>`;
+        <div class="call-context"><p>${esc(call.v.body)}</p>${call.v.why && call.v.why !== call.v.body ? `<p class="small"><b>Why this needs you:</b> ${esc(call.v.why)}</p>` : ''}</div>`;
         U.tkTray = trayHtml('<span>Your call</span><span>His advice is marked</span>', call.v.opts.map((o, j) => `<button class="cho ${j === call.ai ? 'pick' : ''}" data-a="tk-ans" data-i="${j}">${j === call.ai ? '<span class="pk">His advice</span>' : ''}<b>${esc(o.l)}</b><span class="fx">${ART.fx(o.h)}</span></button>`).join(''), '');
       } else U.tkTray = '';
       const line = l => `<li class="fk-${l.k || 'quiet'}"><span class="fk">${esc(l.h)}</span>${l.pid && (g.squad.find(q => q.id === l.pid) || (g.rec.pool[l.pid])) ? `<button class="lnk" data-a="${g.squad.some(q => q.id === l.pid) ? 'player' : 'target'}" data-id="${l.pid}"><span class="mf">${(() => { const q = g.squad.find(q => q.id === l.pid) || g.rec.pool[l.pid]; return q.pool ? ART.poolFace(q) : ART.playerFace(q); })()}</span>${esc(l.t)}</button>` : esc(l.t)}</li>`;
@@ -97,14 +119,12 @@ function vSummer2() {
   } else if (st === 3) {
     const D = F.sum2Debrief();
     body = `<h2>Debrief</h2><div class="meet"><div class="say"><div class="who">${esc(WHO('dof'))}</div><p>${esc(D.intro)} ${D.lines.map(esc).join(' ')}</p></div>${D.done ? `<div class="say me"><div class="who">You</div><p>${esc({ praise: '"Good work this summer."', probe: '"Walk me through what went wrong."', warn: '"This is not good enough."', tighten: '"From now on, every deal comes through me."', loosen: '"You have earned more freedom."' }[D.done.k])}</p></div><div class="say"><div class="who">${esc(WHO('dof'))}</div><p>${esc(D.done.t)}</p></div>` : ''}</div>
-    ${D.done ? `<div class="row" style="margin-top:14px"><button class="btn" data-a="s2-step" data-i="4">Next: season goals</button></div>` : `<div class="ch">${[['praise', 'Praise his work', 'Trust up, more so if he delivered'], ['probe', 'Ask what went wrong', 'He explains, slightly defensive'], ['warn', 'Warn him', D.met < D.ev.length ? 'Sharpens him, counts as a strike' : 'Unfair after a good summer'], [D.met >= 2 ? 'loosen' : 'tighten', D.met >= 2 ? 'Give him more freedom' : 'Every deal through you from now on', D.met >= 2 ? 'You approve only big deals' : 'More control, less trust']].map(([k, l, h]) => `<button class="cbtn" data-a="db-talk" data-k="${k}"><b>${l}</b><span>${h}</span></button>`).join('')}</div><p class="small"><button class="link" data-a="s2-step" data-i="4">Skip the debrief</button></p>`}`;
+    ${D.done ? `<div class="row" style="margin-top:14px"><button class="btn" data-a="s2-step" data-i="4">Next: season priorities</button></div>` : `<div class="ch">${[['praise', 'Praise his work', 'Trust up, more so if he delivered'], ['probe', 'Ask what went wrong', 'He explains, slightly defensive'], ['warn', 'Warn him', D.met < D.ev.length ? 'Sharpens him, counts as a strike' : 'Unfair after a good summer'], [D.met >= 2 ? 'loosen' : 'tighten', D.met >= 2 ? 'Give him more freedom' : 'Every deal through you from now on', D.met >= 2 ? 'You approve only big deals' : 'More control, less trust']].map(([k, l, h]) => `<button class="cbtn" data-a="db-talk" data-k="${k}"><b>${l}</b><span>${h}</span></button>`).join('')}</div><p class="small"><button class="link" data-a="s2-step" data-i="4">Skip the debrief</button></p>`}`;
   } else {
-    const P = g.pre, fo = F.FOCUS.filter(f => !g.board.obj.some(o => o.k === f.k && !o.soft) || P.focus.includes(f.k));
-    body = `<h2>Two focus goals</h2><p class="small">Extra goals for the season. Met: board confidence up. Missed: a small dent.</p>
-    <div class="cards2">${fo.map(f => `<button class="card ${P.focus.includes(f.k) ? 'on' : ''}" data-a="pre-focus" data-k="${f.k}"><b style="font-size:17px">${esc(f.t())}</b><span class="small">${esc(f.d)}</span></button>`).join('')}</div>
-    ${F.ACAD_PLANS ? `<h2 style="margin-top:22px">Academy plan</h2><div class="cards2">${F.ACAD_PLANS.map(a => `<button class="card ${P.acad === a.k ? 'on' : ''}" data-a="pre-acad" data-k="${a.k}"><b style="font-size:17px">${esc(a.t())}</b><span class="small">${esc(a.d)}</span></button>`).join('')}</div>` : ''}
+    body = `${seasonAdviceBlock()}
     ${g.meeting && g.meeting.items.length ? `<div style="margin-top:22px">${meetingBlock(g.meeting, 'Projects for the season')}</div>` : ''}
-    <div class="row" style="margin-top:18px"><button class="btn" data-a="s2-finish" ${P.focus.length === 2 ? '' : 'disabled'}>Meet the press</button>${P.focus.length === 2 ? '' : '<span class="small">Choose two focus goals.</span>'}</div>`;
+    <div class="row" style="margin-top:18px"><button class="btn" data-a="s2-finish">Meet the press</button></div>`;
+
   }
   return `<div class="setup" style="max-width:760px"><div class="sumhead">${crest(g.club.colors, g.club.short, 26)}<h1>The summer</h1><span class="chip" style="margin-left:auto">Step ${st + 1} of ${STEPS.length}</span></div>${body}</div>`;
 }
@@ -121,13 +141,11 @@ function vPreseason() {
   const nav = `<div class="steps">${steps.map((l, i) => `<button class="${i === st ? 'on' : ''}" data-a="pre-step" data-i="${i}">${i + 1}. ${l}</button>`).join('')}</div>`;
   let body = '';
   if (st === 0) {
-    const fo = F.FOCUS.filter(f => !g.board.obj.some(o => o.k === f.k && !o.soft) || P.focus.includes(f.k));
     body = `<h2>The board's target</h2><p>The board expects us to finish <b>${F.ord(P.base)}</b> in the ${F.TIERS[g.club.tier]}. Our squad ranks about ${F.ord(F.expectedRank())} on paper. You can negotiate.</p>
     <div class="choice">${F.preTargets().map(o => `<button class="card ${P.deal === o.k ? 'on' : ''}" data-a="pre-target" data-k="${o.k}"><b>${esc(o.t)}: finish ${F.ord(o.target)}</b>${esc(o.d)}<div class="e">${esc(o.fx)}</div></button>`).join('')}</div>
-    <h2 style="margin-top:22px">Two focus goals</h2><p class="small">Pick two extra goals for the season. Met: board confidence up. Missed: a small dent. Already set by the board: ${esc(g.board.obj.filter(o => o.k !== 'league' && !o.soft).map(o => o.t.toLowerCase()).join('; '))}.</p>
-    <div class="cards2">${fo.map(f => `<button class="card ${P.focus.includes(f.k) ? 'on' : ''}" data-a="pre-focus" data-k="${f.k}"><b style="font-size:17px">${esc(f.t())}</b><span class="small">${esc(f.d)}</span></button>`).join('')}</div>
-    ${F.ACAD_PLANS ? `<h2 style="margin-top:22px">Academy plan</h2><p class="small">Optional: one goal for the academy this season. Same reward as a focus goal.</p><div class="cards2">${F.ACAD_PLANS.map(a => `<button class="card ${P.acad === a.k ? 'on' : ''}" data-a="pre-acad" data-k="${a.k}"><b style="font-size:17px">${esc(a.t())}</b><span class="small">${esc(a.d)}</span></button>`).join('')}</div>` : ''}
-    <div class="row" style="margin-top:18px"><button class="btn" data-a="pre-step" data-i="1" ${P.deal && P.focus.length === 2 ? '' : 'disabled'}>Next: budget</button>${P.deal && P.focus.length === 2 ? '' : '<span class="small">Choose a target and two focus goals.</span>'}</div>`;
+    ${seasonAdviceBlock()}
+    <div class="row" style="margin-top:18px"><button class="btn" data-a="pre-step" data-i="1" ${P.deal ? '' : 'disabled'}>Next: budget</button>${P.deal ? '' : '<span class="small">Agree a league target with the board.</span>'}</div>`;
+
   } else if (st === 1) {
     const b = F.budgetCosts(), wf = F.weekForecast(), net = wf.rev - wf.cost;
     const row = (role, k, l, cost, note) => F.staff(role) || role === 'fin' ? `<div class="sl"><div class="spread"><label for="pb-${role}-${k}">${l}</label><span class="num">${cost != null ? money(cost) + '/wk' : ''}</span></div><input type="range" min="0" max="100" step="5" id="pb-${role}-${k}" value="${F.man(role, k)}" data-sl="${role}" data-k="${k}" data-p="pb"><div class="ends"><span>${note[0]}</span><span>${note[1]}</span></div></div>` : '';

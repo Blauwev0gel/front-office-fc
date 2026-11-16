@@ -7,7 +7,7 @@ const g = () => F.G, H = F.HOOK, S = () => g().sum;
 const { ri, pick, chance, clamp, money, M, staff, man, tierAvg } = F;
 const sq = () => g().squad, N = r => F.staffName(r), ord = F.ord;
 const POSL = p => F.POS_L[p].toLowerCase();
-const STEPS2 = ['Summer meeting', 'The summer', 'Summer edition', 'Debrief', 'Season goals'];
+const STEPS2 = ['Summer meeting', 'The summer', 'Summer edition', 'Debrief', 'Season priorities'];
 F.SUM2_STEPS = STEPS2;
 const dof = () => staff('dof');
 const trait = () => { const d = dof(); return d ? { ego: d.p.ego, risk: d.p.risk, loy: d.p.loy, rel: d.rel } : { ego: 8, risk: 8, loy: 10, rel: 50 }; };
@@ -327,7 +327,7 @@ F.sum2Auto = (rand, lazy) => {
   guard = 0; while (s.tk && s.tk.phase !== 'dd' && guard++ < 300) { if (s.tk.call) { const c = F.tkCall(); if (c) F.tkAnswer(lazy ? c.v.auto : Math.floor(r() * c.v.opts.length)); else s.tk.call = null; } else F.tkStep(); }
   guard = 0; while (!s.dd.done && guard++ < 80) { if (s.dd.dec) F.ddDecide(lazy ? -1 : Math.floor(r() * (F.ddDecision() || { opts: [1] }).opts.length)); else F.ddTick(); }
   s.step = 2; F.sum2Edition(); s.step = 3; if (!lazy) F.sum2Talk(pick(['praise', 'probe', 'warn'])); s.step = 4;
-  const fo = F.FOCUS.filter(f => !g().board.obj.some(o => o.k === f.k)); while (g().pre.focus.length < 2 && fo.length) F.preToggleFocus(fo.splice(Math.floor(r() * fo.length), 1)[0].k);
+  // Extra board commitments are optional and must be chosen by the CEO.
   if (g().meeting) g().meeting.items.forEach((it, i) => F.decideProposal(i, r() < 0.5 ? 'approve' : 'reject'));
   F.sum2Finish();
 };

@@ -44,6 +44,11 @@ html,body{background:#f6f7f8 !important;color:#18212a !important;
 #app .scene{border:1px solid #d5dbe0 !important;border-radius:7px !important;
   background:#fff !important;padding:12px !important;margin:12px 0 !important}
 #app .seat{border:1px solid #e2e5e8 !important;border-radius:5px !important;padding:5px 9px !important}
+#app .scene .seat{position:static !important;inset:auto !important;left:auto !important;
+  top:auto !important;right:auto !important;bottom:auto !important;
+  transform:none !important;opacity:1 !important;visibility:visible !important}
+#app .scene .seat .nm{display:block !important;position:static !important;
+  opacity:1 !important;visibility:visible !important}
 #app .scene .table{display:none !important}
 #app :is(.scene .nm,.scene .fxf){position:static !important;transform:none !important}
 #app :is(.progress,.progress-l,.steps,.agenda){margin:10px 0 15px !important}

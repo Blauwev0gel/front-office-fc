@@ -30,7 +30,7 @@ function mailSent(name, line, out) {
 }
 function bkStrip() {
   if (!F.backers) return ''; const B = F.backers(), from = U.bkFrom;
-  return `<div class="mbk" aria-label="Your backers">${B.map((b, j) => { const d = from && from[j] != null ? b.v - from[j] : 0; return `<span class="mbkb ${d ? 'bump ' + (d > 0 ? 'g' : 'r') : ''} ${b.danger ? 'lo' : ''}"><small>${esc(b.t === 'Dressing room' ? 'Room' : b.t === 'Supporters' ? 'Fans' : b.t)}</small><em><u style="width:${b.v}%"></u></em>${d ? `<i class="mfl ${d > 0 ? 'up' : 'dn'}">${d > 0 ? '+' : ''}${d}</i>` : ''}</span>`; }).join('')}</div>`;
+  return `<div class="mbk" aria-label="Your backers">${B.map((b, j) => { const d = from && from[j] != null ? b.v - from[j] : 0; return `<span class="mbkb ${d ? 'bump ' + (d > 0 ? 'g' : 'r') : ''} ${b.danger ? 'lo' : ''}"><small>${esc(b.t === 'Dressing room' ? 'Room' : b.t === 'Supporters' ? 'Fans' : b.t)}</small><b class="num">${Math.round(b.v)}/100</b>${d ? `<i class="mfl ${d > 0 ? 'up' : 'dn'}">${d > 0 ? '+' : ''}${d}</i>` : ''}</span>`; }).join('')}</div>`;
 }
 function msgHtml(m, it) {
   const v = F.msgView(m), g = G(), role = v.role || (it && it.role) || 'club', name = v.from.split(',')[0], roleT = v.from.split(', ')[1] || ROLE_T[role] || '';

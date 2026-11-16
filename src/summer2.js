@@ -197,8 +197,9 @@ function makeBrief() {
   kpis.push({ k: 'prios', t: `Sign a player for ${p.prios.slice(0, 2).map(POSL).join(' and ')}`, pos: p.prios.slice(0, 2) });
   kpis.push({ k: 'net', t: `Net spend under ${money(Math.round(b * 0.9 / 100) * 100)}`, v: Math.round(b * 0.9) });
   if (p.approach === 'star') kpis.push({ k: 'star', t: `Land a clear upgrade (grade A)` });
-  else kpis.push({ k: 'count', t: `At least three signings`, v: 3 });
-  s.mt.brief = { kpis, prios: p.prios, approach: p.approach, sell: p.sell.slice(), keep: p.keep.slice(), approve: p.approve, budget: b, lists: p.lists };
+  else { const target = Math.max(1, Math.min(3, p.prios.length)); kpis.push({ k: 'count', t: `At least ${target} useful signing${target === 1 ? '' : 's'}`, v: target }); }
+  const names = {}; for (const ids of Object.values(p.lists)) for (const id of ids) { const target = R.pool[id] || sq().find(q => q.id === id); if (target) names[id] = target.name; }
+  s.mt.brief = { kpis, prios: p.prios, approach: p.approach, sell: p.sell.slice(), keep: p.keep.slice(), approve: p.approve, budget: b, lists: p.lists, names };
   say('dof', `"Then this is what I will be judged on." He slides the summer brief across the table.`);
 }
 function applyBrief() {
@@ -263,7 +264,7 @@ function evalBrief() {
     if (k.k === 'prios') { const got = k.pos.filter(p => ins.some(l => l.pos === p)); return { ...k, met: got.length === k.pos.length, note: got.length ? `Signed for ${got.map(POSL).join(' and ')}` : 'Nobody signed in those positions' }; }
     if (k.k === 'net') return { ...k, met: net <= k.v, note: `Net spend ${money(net)}` };
     if (k.k === 'star') { const a = R.log.filter(l => l.s === g().season && ins.some(i => i.name === l.name)).find(l => { return l.est != null && l.est >= Math.max(...sq().filter(p => p.pos === l.pos && p.name !== l.name).map(p => p.ca), 0) + 0.3; }); return { ...k, met: !!a, note: a ? `${a.name} looks like an upgrade` : 'No clear upgrade arrived' }; }
-    if (k.k === 'count') { const R2 = g().rec, sur = R2.log.filter(l => l.s === g().season && l.surplus).length, useful = ins.length - sur; return { ...k, met: useful >= k.v, note: `${useful} useful signing${useful === 1 ? '' : 's'}${sur ? `, ${sur} surplus` : ''}` }; }
+    if (k.k === 'count') { const R2 = g().rec, signedIds = new Set(ins.map(l => l.pid).filter(Boolean)), sur = R2.log.filter(l => l.s === g().season && l.surplus && (signedIds.has(l.pid) || ins.some(i => i.name === l.name))).length, useful = Math.max(0, ins.length - sur); return { ...k, met: useful >= k.v, note: `${useful} useful signing${useful === 1 ? '' : 's'}${sur ? `, ${sur} surplus` : ''}` }; }
     return { ...k, met: false, note: '' };
   });
 }
@@ -274,17 +275,28 @@ F.sum2Edition = () => {
   const grade = score >= 4 ? 'A' : score >= 2.8 ? 'B' : score >= 1.5 ? 'C' : score >= 0.5 ? 'D' : 'E';
   const head = grade === 'A' ? 'A summer to remember' : grade === 'B' ? 'Smart business at ' + g().club.short : grade === 'C' ? 'A summer of half measures' : grade === 'D' ? 'Questions over summer business' : 'Summer of failure';
   const rows = after.map(r => { const b = (s.before || []).find(x => x.pos === r.pos) || {}; return { pos: r.pos, b: b.best || 0, a: r.best, nb: b.n || 0, na: r.n }; });
+  // The Gazette compares the signed brief with the actual recruitment trail.
+  const B = s.mt.brief, R = g().rec;
+  const plans = (B ? B.prios : []).map(pos => {
+    const ids = (B.lists[pos] || []).slice(0, 2);
+    const name = id => { const p = R.pool[id] || sq().find(q => q.id === id) || R.log.find(l => l.pid === id); return p ? p.name : (B.names && B.names[id]) || 'Unavailable target'; };
+    const signed = R.log.find(l => l.s === g().season && l.pos === pos && ids.includes(l.pid));
+    const replacement = !signed && R.log.find(l => l.s === g().season && l.pos === pos);
+    const failed = ids.map(id => R.pipe.find(x => x.pid === id)).find(x => x && x.stage === 'lost');
+    const result = signed ? signed.name + ' signed from the shortlist.' : replacement ? replacement.name + ' signed instead.' : failed ? 'No signing. ' + ((failed.log || []).slice(-1)[0] || 'The target fell through.') : 'No signing completed.';
+    return { pos, a: ids[0] ? name(ids[0]) : null, b: ids[1] ? name(ids[1]) : null, done: !!(signed || replacement), result };
+  });
   const coach = xi > 0.15 ? `"I have a better squad than in May. Now it is up to me."` : xi < -0.1 ? `"We are weaker than last season. I will say that to anyone who asks."` : `"About the same squad. We will have to work harder."`;
   const fans = grade <= 'B' ? 'Supporters\' forums are buzzing about the new arrivals.' : 'Supporters are asking where the money went.';
   const board = met >= 2 ? '"The DoF did what we agreed."' : '"We expected more from this summer."';
-  s.ed = s.ed || { grade, met, n: ev.length }; return { ev, grade, head, ins, outs, spent, earned, net: spent - earned, rows, xi, coach, fans, board };
+  s.ed = s.ed || { grade, met, n: ev.length }; return { ev, grade, head, ins, outs, spent, earned, net: spent - earned, rows, xi, coach, fans, board, plans };
 };
 
 /* ---------- the debrief ---------- */
 F.sum2Debrief = () => {
   const s = S(), ev = evalBrief(), T = trait(), met = ev.filter(e => e.met).length;
   let ex = false; const lines = ['"' + ev.map(e => { if (e.met) return `${e.t}: done. ${e.note}.`; const extra = ex ? '' : T.ego >= 13 ? ' With the budget I had, that was always going to be hard.' : ' That one is on me.'; ex = true; return `${e.t}: not done. ${e.note}.${extra}`; }).join(' ') + '"'];
-  return { ev, met, lines, intro: met === ev.length ? `"Everything we agreed is done."` : met === 0 ? `"I know how this looks."` : `"Most of it went to plan. Not all."`, done: s.db };
+  return { ev, met, lines, intro: met === ev.length ? `"Everything we agreed is done."` : met === 0 ? `"I know how this looks."` : met > ev.length / 2 ? `"Most of it went to plan. Not all."` : `"Some of it worked. Too much did not."`, done: s.db };
 };
 F.sum2Talk = k => {
   const s = S(), d = dof(), ev = evalBrief(), met = ev.filter(e => e.met).length, miss = ev.length - met; if (!d || s.db) return;

@@ -88,7 +88,8 @@ function vSummer2() {
     <h2 class="ehead2">${esc(E.head)}</h2><p class="esub2">${E.ins.length} in, ${E.outs.length} out, net spend ${money(E.net)}</p>
     <div class="ins">${E.ins.map(card).join('') || '<p class="small">Nobody came in.</p>'}</div>
     ${outs.length ? `<p class="outs">Out: ${esc(outs.join('; '))}</p>` : ''}
-    <div class="sec2">The brief</div><div class="planboard">${E.ev.map(e => `<div class="pl ${e.met ? 'done' : 'open'}"><i class="dot"></i>${esc(e.t)}<span>${e.met ? 'Met' : 'Missed'}</span></div>`).join('')}</div>
+    <div class="sec2">The brief</div><div class="planboard">${E.ev.map(e => `<div class="pl ${e.met ? 'done' : 'open'}"><i class="dot"></i>${esc(e.t)}<span>${esc(e.note)} · ${e.met ? 'Met' : 'Missed'}</span></div>`).join('')}</div>
+    <div class="sec2">Original shortlist vs. outcome</div><div class="planboard">${E.plans.map(p => '<div class="pl ' + (p.done ? 'done' : 'open') + '"><i class="dot"></i>' + esc(F.POS_L[p.pos]) + '<span>' + esc([p.a ? 'Plan A: ' + p.a : '', p.b ? 'Plan B: ' + p.b : '', p.result].filter(Boolean).join(' · ')) + '</span></div>').join('')}</div>
     <div class="sec2">Best player per line, May → now</div><div class="posbars">${bars}</div>
     <div class="quote"><span class="pf">${ART.staffFace('coach', E.xi > 0.15 ? 'happy' : E.xi < -0.1 ? 'worried' : null)}</span>${esc(E.coach)}</div>
     <div class="quote"><span class="pf">${ART.staffFace('board', E.met >= 2 ? 'happy' : 'worried')}</span>${esc(E.board)}</div></article>

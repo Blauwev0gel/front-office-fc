@@ -14,10 +14,10 @@ const html = fs.readFileSync(path.join(__dirname, '../dist/index.html'), 'utf8')
 const script = html.match(/<script>([\s\S]*?)<\/script>/);
 assert(script && script[1], 'standalone game script present');
 new vm.Script(script[1], { filename: 'dist/index.html' });
-assert(html.includes('FRONT OFFICE · TEST BENCH UI v3'),
+assert(html.includes('FRONT OFFICE · RETRO WIREFRAME V4'),
   'text stylesheet included in the built HTML');
 assert(!html.includes('/*JS*/') && !html.includes('/*CSS*/'), 'all build placeholders resolved');
-assert(css.lastIndexOf('FRONT OFFICE · TEST BENCH UI v3') > css.indexOf('VOICE:'),
+assert(css.lastIndexOf('FRONT OFFICE · RETRO WIREFRAME V4') > css.indexOf('VOICE:'),
   'text CSS must load after the original visual styles');
 assert(ui.includes('ART.face = noVisual') && ui.includes('ART.office = o =>'),
   'portrait and office drawing replaced with text');
@@ -49,7 +49,33 @@ for (const selector of ['.redbox', '.rbr', '.srow', '.mreply', '.dtiles',
   assert(css.includes(selector),
     'selector is covered by the text-only stylesheet: ' + selector);
 }
-assert(css.includes('TEST BENCH UI v3'), 'wireframe system is loaded');
+assert(css.includes('RETRO WIREFRAME V4'), 'wireframe system is loaded');
+const retroCSS = fs.readFileSync(path.join(styleDir, 'zz-text-only.css'),'utf8');
+assert(retroCSS.includes('FRONT OFFICE · RETRO WIREFRAME V4'),'single retro stylesheet owns the override');
+assert.equal((retroCSS.match(/FRONT OFFICE · RETRO WIREFRAME V4/g)||[]).length,1,
+  'no cascading stack of conflicting retro themes');
+assert(retroCSS.includes('font:14px/1.5 var(--retro)'),'monospace text system');
+assert(retroCSS.includes('border-radius:0!important'),'square retro panels and buttons');
+assert(retroCSS.includes('#app *{background-image:none!important}'),
+  'remove all remaining graphic-style gradients from the text mode');
+for (const selector of ['.title2','.hd','.tabs','.redbox','.rbr','.srow','.mreply',
+  '.dtile2','.dtabs','.clubhero','.scene','.seat','.mds','.mdfeed','.mdfoot','.bar2',
+  '.b2nav','.sheet','.bkrs','.mbk','.fields','.trayspace','.mdsc']) {
+  assert(retroCSS.includes(selector), 'retro screen coverage: '+selector);
+}
+for (const width of [350,500]) {
+  assert(retroCSS.includes('@media(max-width:'+width+'px)'),
+    'mobile-specific wireframe breakpoint '+width);
+}
+assert(retroCSS.includes('@media(min-width:680px)'),'desktop summary panels');
+assert(retroCSS.includes('@media(prefers-reduced-motion:reduce)'),'motion reduction');
+assert(retroCSS.includes('#app button[aria-label]:empty::after'),
+  'decorative icons can be stripped without losing button labels');
+assert(retroCSS.includes('.scene .seat .nm'),
+  'summer meeting participants remain readable');
+assert(!/#app\s+\*[^{}]*\{[^}]*display\s*:\s*none/i.test(retroCSS),
+  'do not hide every game element with a global selector');
+
 assert(css.includes('@media(max-width:500px)'), 'mobile-first wireframe responsive rules');
 assert(css.includes('.srow[aria-pressed="true"]'),
   'chosen decision remains visually distinct');

@@ -59,7 +59,7 @@ Status: **open** · **besloten** · **gebouwd** · **getest**. Type: bug · misl
 
 | Id | Probleem | Bron | Type | Status |
 |---|---|---|---|---|
-| D1 | Het DoF-schuifje Scout's eye ↔ Data doet niets in de live pipeline; de persoonlijkheid (LEAN) van de DoF hangt eraan. | A §4.1 | balans | open |
+| D1 | Het DoF-schuifje Scout's eye ↔ Data doet niets in de live pipeline; de persoonlijkheid (LEAN) van de DoF hangt eraan. | A §4.1 | balans | deels getest (DoF-data: zie besluiten-zomer.md) |
 | D2 | De scout-schuifjes Proven ↔ Potential en Data zijn dood; zijn LEAN hangt eraan. Rapporten negeren boost, grip en staf. Na O1 heeft de scout geen eigen mandaatsheet meer: "Proven ↔ Potential" moet hier naar het Recruitment-mandaat verhuizen én gaan werken. | A §4.3, O1 | balans | open |
 | D3 | De DoF-attributen Judgement en Network doen (bijna) niets. | A §4.1 | balans | open |
 | D4 | Geen van de vier coachschuifjes verandert punten; "your way" is gratis relatie. | A §4.2 | balans | getest (zie besluiten-wedstrijd.md, ronde A) |
@@ -68,8 +68,8 @@ Status: **open** · **besloten** · **gebouwd** · **getest**. Type: bug · misl
 | D7 | Hits en misses gaan altijd naar de DoF, ook als de scout misleest. | A §4.3 | ontwerp | open |
 | D8 | Clash-uitkomsten zijn alleen relatie ±. | A §5 | ontwerp | open |
 | D9 | De scout heeft geen moment in het seizoen; de DoF is stil tussen de windows. | A §4.1, §4.3 | ontwerp | open |
-| D10 | De DoF-waarschuwing in de debrief (`dofStrikes`) wordt nergens gebruikt. | A §4.1 | ontwerp | open |
-| D11 | "Question the misses: data focus up" verschuift een dood schuifje. | A §4.1 | misleidend | open |
+| D10 | De DoF-waarschuwing in de debrief (`dofStrikes`) wordt nergens gebruikt. | A §4.1 | ontwerp | getest (zie besluiten-zomer.md) |
+| D11 | "Question the misses: data focus up" verschuift een dood schuifje. | A §4.1 | misleidend | getest (zie besluiten-zomer.md) |
 | D12 | Lage trainingsintensiteit lijkt dominant (minder blessures, gelijke punten). | A §4.2 | balans | getest (zie besluiten-wedstrijd.md, ronde A) |
 | D13 | `test/audit.js` laadt loop, dossiers, pathway en matchday niet; de stijl "active" kiest wat de staf kiest. De audit meet zo geen CEO-oordeel. | A §5 | opschonen | open |
 

@@ -166,7 +166,8 @@ function dofPipeline() {
     const p = r.pool[x.pid], k = r.know[x.pid]; if (!p && !['signed', 'lost'].includes(x.stage)) { setStage(x, 'lost', 'He moved elsewhere.'); continue; }
     if (!p || !k) continue;
     k.grade = grade(p, k);
-    if (x.stage === 'scouted' && (k.grade === 'A' || k.grade === 'B') && (k.conf !== 'low' || (F.squadNeeds().includes(p.pos) && F.window_()))) setStage(x, 'recommended', `${k.by} recommends him (grade ${k.grade}).`);
+    const dd = man('dof', 'data'); /* data-led: only sure reports; eye-led: acts on a hunch */
+    if (x.stage === 'scouted' && (k.grade === 'A' || k.grade === 'B') && (k.conf !== 'low' || dd <= 35 || (F.squadNeeds().includes(p.pos) && F.window_() && dd < 70))) setStage(x, 'recommended', `${k.by} recommends him (grade ${k.grade}).`);
     if (x.stage === 'scouted' && k.grade === 'D' && k.n >= 2) setStage(x, 'lost', 'Scouts advise against.');
   }
   for (const x of r.pipe.filter(x => x.planB && x.stage === 'scouted' && r.pool[x.pid])) { const p = r.pool[x.pid], live = r.pipe.some(y => y !== x && r.pool[y.pid] && r.pool[y.pid].pos === p.pos && ['recommended', 'approach', 'negotiating'].includes(y.stage) && !y.hold); if (!live && slotOpen(p, r.know[x.pid]) && winBuys(p.pos) === 0) { setStage(x, 'recommended', 'Plan A fell through. Plan B is up.'); x.planA = true; x.boost = true; x.wasB = true; } }

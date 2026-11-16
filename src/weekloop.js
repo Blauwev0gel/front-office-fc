@@ -8,8 +8,9 @@ const g = () => F.G, H = F.HOOK, { staff } = F;
 const DEPT = { coach: 'first', 'first team': 'first', sporting: 'recruit', dof: 'recruit', scout: 'recruit', acad: 'academy', academy: 'academy', com: 'commercial', commercial: 'commercial', mkt: 'marketing', marketing: 'marketing', fin: 'business', business: 'business', board: 'board', fans: 'fans', press: 'press' };
 const HEAD = { first: 'coach', recruit: 'dof', academy: 'acad', commercial: 'com', marketing: 'mkt', business: 'fin' };
 // how much trouble is a department in, 0 (calm) to 2 (under pressure)
-function heat(d) {
-  const G = g(), f5 = G.form.slice(-5), L = f5.filter(r => r === 'L').length; let h = 0;
+function heat(d) { try { return heat0(d); } catch (e) { return 0; } } /* tables are not valid between seasons: never let a weight crash the week */
+function heat0(d) {
+  const G = g(), f5 = G.form.slice(-5), L = f5.filter(r => r === 'L').length; let h = 0; if (G.phase !== 'season') return 0;
   if (d === 'first') h = (L >= 2 ? 1 : 0) + (F.myPos() > F.expectedRank() + 2 ? 1 : 0);
   else if (d === 'recruit') h = (F.window_() && F.squadNeeds().length ? 1 : 0) + (F.squadNeeds().length >= 2 ? 1 : 0);
   else if (d === 'business') h = F.finTight && F.finTight() ? 2 : 0;

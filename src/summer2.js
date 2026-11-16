@@ -20,7 +20,8 @@ const prevStart = H.summerStart;
 H.summerStart = () => { prevStart(); init2(); };
 function init2() {
   const s = S(); s.v2 = true; s.step = 0;
-  s.before = F.sumPlanner().map(r => ({ pos: r.pos, n: r.n, best: r.best })); s.xiBefore = F.teamStrength(); s.cashBefore = g().club.cash;
+  s.before = F.sumPlanner().map(r => ({ pos: r.pos, n: r.n, best: r.best })); s.xiBefore = F.teamStrength(); s.cashBefore = g().club.cash; s.ssB = { spent: g().ss.spent || 0, earned: g().ss.earned || 0 }; /* the summer's own money, not the whole last season's */
+  if ((g().dofStrikes || 0) > 0) g().dofStrikes--; /* a warning fades after a season */
   s.mt = { item: 0, log: [], q: 0, turns: {}, plan: null, brief: null };
   s.tk = null;
   openItem(0);
@@ -231,6 +232,26 @@ function explain(lines) {
   }
   return out;
 }
+function planStatus() {
+  const B = F.recPlanBoard ? F.recPlanBoard() : []; if (!B.length) return '';
+  return B.slice(0, 3).map(r => `${POSL(r.pos)[0].toUpperCase() + POSL(r.pos).slice(1)}: ${r.who}`).join('. ') + '.';
+}
+// the five questions the debrief answers (B28): was the plan followed, how well was it carried out, was the market unkind, did the team improve, what did it cost
+function five() {
+  const s = S(), B = s.mt.brief, R = g().rec, ins = s.log.filter(l => l.k === 'in'); if (!B || !R) return null;
+  const inPlan = ins.filter(l => B.prios.includes(l.pos)).length, off = ins.length - inPlan;
+  const known = ins.map(l => R.log.find(x => x.s === g().season && x.name === l.name)).filter(Boolean), good = known.filter(x => R.know[x.pid] && /^[AB]$/.test(R.know[x.pid].grade)).length;
+  const lostMarket = R.pipe.filter(x => x.stage === 'lost' && (x.log || []).some(t => /joins another|moved elsewhere|chose|rival|no longer available/i.test(t)) && F.absWeek() - x.since < 12).length;
+  const lostOwn = R.pipe.filter(x => x.stage === 'lost' && (x.log || []).some(t => /rejects our wage|break|collapse|rules/i.test(t)) && F.absWeek() - x.since < 12).length;
+  const xi = F.teamStrength() - (s.xiBefore || 0), B0 = s.ssB || { spent: 0, earned: 0 }, net = (g().ss.spent || 0) - B0.spent - ((g().ss.earned || 0) - B0.earned), cap = (B.kpis.find(k => k.k === 'net') || {}).v;
+  const L = [
+    { k: 'plan', ok: inPlan > 0 && off <= inPlan, t: inPlan ? `Plan followed: ${inPlan} of ${ins.length} signing${ins.length === 1 ? '' : 's'} in the agreed positions${off ? `, ${off} outside the brief` : ''}.` : ins.length ? 'Plan not followed: nobody signed in the agreed positions.' : 'Plan not carried out: nobody signed.' },
+    { k: 'exec', ok: known.length ? good >= known.length / 2 : null, t: known.length ? `Execution: ${good} of ${known.length} signing${known.length === 1 ? '' : 's'} were rated a clear upgrade or a good addition when he chose them.` : 'Execution: nothing to judge yet.' },
+    { k: 'market', ok: null, t: lostMarket ? `Market: ${lostMarket} target${lostMarket === 1 ? '' : 's'} went elsewhere or became unavailable. That is not on him.` : lostOwn ? `Market: ${lostOwn} deal${lostOwn === 1 ? '' : 's'} fell through on our own terms (wage or rules).` : 'Market: no targets lost.' },
+    { k: 'team', ok: xi > 0.1 ? true : xi < -0.1 ? false : null, t: xi > 0.1 ? `The team is stronger than in May (+${xi.toFixed(1)}).` : xi < -0.1 ? `The team is weaker than in May (${xi.toFixed(1)}).` : 'The team is about as strong as in May.' },
+    { k: 'money', ok: cap != null ? net <= cap : null, t: `Money: net spend ${money(net)}${cap != null ? `, against ${money(cap)} agreed` : ''}.` }];
+  return { L, excuse: lostMarket > 0 && lostOwn === 0 && inPlan === 0, bad: L.filter(x => x.ok === false).length };
+}
 function weekTick() {
   const s = S(), tk = s.tk, G = g(); tk.wk++;
   if (tk.wk >= WEEKS.length) { tk.phase = 'dd'; F.ddStart(); return; }
@@ -240,7 +261,7 @@ function weekTick() {
   const ls = F.sumDiff(before), ex = explain(ls);
   ex.forEach(l => tl(l.t, l.k, null, l.pid));
   if (tk.wk === 3 || tk.wk === 4) { const fr = F.sumFriendlies(); const f = fr[tk.wk - 3]; if (f) tl(`Friendly: ${g().club.name} ${f.ug}–${f.tg} ${f.opp}. ${f.note}`, f.res === 'W' ? 'in' : f.res === 'L' ? 'out' : 'quiet'); }
-  if (!ex.length) tl(pick([`${N('scout')}'s scouts file new reports. Nothing to act on yet.`, `${N('dof')} is on the phone most of the day. No movement.`, 'A quiet week at the training ground.']), 'quiet');
+  if (!ex.length) { const st = planStatus(); if (st && st !== tk.lastStatus) { tl(st, 'quiet'); tk.lastStatus = st; } } /* a quiet week shows where the plan stands, or nothing */
   const q = F.sumDrain(); if (q.length) { tk.calls.push(...q); }
 }
 F.tkStep = () => {
@@ -258,7 +279,7 @@ F.tkSkip = () => { const tk = S().tk; let guard = 0; while (tk.phase !== 'dd' &&
 /* ---------- the edition ---------- */
 function evalBrief() {
   const s = S(), B = s.mt.brief, ins = s.log.filter(l => l.k === 'in'), R = g().rec; if (!B) return [];
-  const spent = (g().ss.spent || 0), earned = (g().ss.earned || 0), net = spent - earned;
+  const B0 = s.ssB || { spent: 0, earned: 0 }, spent = (g().ss.spent || 0) - B0.spent, earned = (g().ss.earned || 0) - B0.earned, net = spent - earned;
   return B.kpis.map(k => {
     if (k.k === 'prios') { const got = k.pos.filter(p => ins.some(l => l.pos === p)); return { ...k, met: got.length === k.pos.length, note: got.length ? `Signed for ${got.map(POSL).join(' and ')}` : 'Nobody signed in those positions' }; }
     if (k.k === 'net') return { ...k, met: net <= k.v, note: `Net spend ${money(net)}` };
@@ -269,7 +290,7 @@ function evalBrief() {
 }
 F.sum2Edition = () => {
   const s = S(), ev = evalBrief(), met = ev.filter(e => e.met).length, after = F.sumPlanner(), xi = F.teamStrength() - (s.xiBefore || 0);
-  const ins = s.log.filter(l => l.k === 'in'), outs = s.log.filter(l => l.k === 'out'), spent = g().ss.spent || 0, earned = g().ss.earned || 0;
+  const ins = s.log.filter(l => l.k === 'in'), outs = s.log.filter(l => l.k === 'out'), B0 = s.ssB || { spent: 0, earned: 0 }, spent = (g().ss.spent || 0) - B0.spent, earned = (g().ss.earned || 0) - B0.earned;
   const score = met * 1.2 + clamp(xi * 3, -2, 2.5) + (ins.length ? 0.5 : -1);
   const grade = score >= 4 ? 'A' : score >= 2.8 ? 'B' : score >= 1.5 ? 'C' : score >= 0.5 ? 'D' : 'E';
   const head = grade === 'A' ? 'A summer to remember' : grade === 'B' ? 'Smart business at ' + g().club.short : grade === 'C' ? 'A summer of half measures' : grade === 'D' ? 'Questions over summer business' : 'Summer of failure';
@@ -284,14 +305,14 @@ F.sum2Edition = () => {
 F.sum2Debrief = () => {
   const s = S(), ev = evalBrief(), T = trait(), met = ev.filter(e => e.met).length;
   let ex = false; const lines = ['"' + ev.map(e => { if (e.met) return `${e.t}: done. ${e.note}.`; const extra = ex ? '' : T.ego >= 13 ? ' With the budget I had, that was always going to be hard.' : ' That one is on me.'; ex = true; return `${e.t}: not done. ${e.note}.${extra}`; }).join(' ') + '"'];
-  return { ev, met, lines, intro: met === ev.length ? `"Everything we agreed is done."` : met === 0 ? `"I know how this looks."` : `"Most of it went to plan. Not all."`, done: s.db };
+  const fv = five(); return { five: fv ? fv.L : [], ev, met, lines, intro: met === ev.length ? `"Everything we agreed is done."` : met === 0 ? `"I know how this looks."` : `"Most of it went to plan. Not all."`, done: s.db };
 };
 F.sum2Talk = k => {
   const s = S(), d = dof(), ev = evalBrief(), met = ev.filter(e => e.met).length, miss = ev.length - met; if (!d || s.db) return;
   let t = '';
   if (k === 'praise') { relD('dof', met >= 2 ? 6 : 1); d.boost = clamp(d.boost + (met >= 2 ? 4 : 0), -10, 12); d.boostW = 6; t = met >= 2 ? `"Thank you. The scouts deserve that as much as I do."` : `"Kind of you. We both know it was not my best summer."`; }
   if (k === 'probe') { const miss1 = ev.find(e => !e.met); relD('dof', -1); t = miss1 ? (miss1.k === 'prios' ? `"The targets we wanted were either too expensive or broke our rules. I could have pushed harder for an exception."` : miss1.k === 'net' ? `"I spent more than we agreed because the right player came up late. I would do it again."` : `"The market did not give me what I wanted at our price."`) : `"Ask me anything. I am happy to go through every deal."`; }
-  if (k === 'warn') { relD('dof', miss ? -6 : -12); d.boost = clamp(d.boost + (miss ? 5 : -2), -10, 12); d.boostW = 6; t = miss ? `"Understood. The winter window will look different."` : `"A warning? After this summer? I will remember that."`; if (miss) g().dofStrikes = (g().dofStrikes || 0) + 1; }
+  if (k === 'warn') { relD('dof', miss ? -6 : -12); d.boost = clamp(d.boost + (miss ? 5 : -2), -10, 12); d.boostW = 6; t = miss ? `"Understood. The winter window will look different."` : `"A warning? After this summer? I will remember that."`; if (miss) { const fv = five(); if (fv && fv.excuse) { relD('dof', 3); t = `"A warning? The market took the players I wanted. But I hear you."`; } else g().dofStrikes = (g().dofStrikes || 0) + 1; } }
   if (k === 'tighten') { g().mand.dof.approve = '0'; relD('dof', -5); t = `"Every deal through you, then. It will slow us down."`; }
   if (k === 'loosen') { g().mand.dof.approve = '50'; relD('dof', 4); t = `"Thank you for the trust."`; }
   s.db = { k, t };

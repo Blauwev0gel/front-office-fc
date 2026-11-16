@@ -240,3 +240,4 @@ details.more2[open] .linkbtn{position:absolute;right:0;bottom:46px;background:va
 .ring:before{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--paper)}
 .ring b{position:relative;font:900 26px/1 var(--head)}.ring small{position:absolute;bottom:12px;font:800 8px var(--head);color:var(--soft)}
 
+.five{margin:8px 0 0;padding-left:18px}.five li{font-size:14px;line-height:1.4;margin:2px 0}.five li.good{color:var(--good)}.five li.bad{color:var(--bad)}

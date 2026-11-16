@@ -45,6 +45,7 @@ function reqText(role, c) {
   if (c.k === 'minutes') return `Our graduates hardly play: ${c.v}% of the first-team minutes. Without a pathway they stall or leave.`;
   if (c.k === 'squad') return `This squad is below the division average. I can only do so much with it.`;
   if (c.k === 'mandate') return `About the ${c.name}: I am doing it my way. I would rather we talked it through.`;
+  if (c.k === 'ultimatum') return 'Two warnings. Either you back me, or you tell me to go. I would rather know where I stand.';
   if (c.k === 'cold') return `I do not feel backed. We should talk.`;
   if (c.k === 'verdict') return `${c.vt} ${c.cause || 'I know it is not good enough.'}${c.fix ? ' This is what I need from you.' : ''}`;
   return 'Have you got a minute?';
@@ -83,6 +84,7 @@ function weekly() {
     if (b < 25) ask('acad', { k: 'budget' }); else if (wl < 55) ask('acad', { k: 'welfare', v: Math.round(wl) }); else if (share != null && share < 0.2) ask('acad', { k: 'minutes', v: Math.round(share * 100) });
     else if (staff('acad').rel < 35) ask('acad', { k: 'cold' }); }
   for (const role of ['com', 'mkt', 'fin']) if (fresh(role) && staff(role).rel < 35) ask(role, { k: 'cold' });
+  if (fresh('dof') && (G.dofStrikes || 0) >= 2) ask('dof', { k: 'ultimatum' });
   // a bad verdict is never silent: the head comes to explain it and says what he needs
   if (F.deptVerdict) for (const dk in HEAD) { const role = HEAD[dk]; if (!fresh(role)) continue; const V = F.deptVerdict(dk); if (V.st !== 'bad' || V.w === 'Vacant') continue; const fx = fixFor(dk); ask(role, { k: 'verdict', v: V.w, vt: V.t, cause: fx.cause, fix: fx.kind ? fx : null }); }
 }
@@ -108,6 +110,7 @@ function reqOpts(r) {
   if (r.k === 'welfare') return [{ id: 'r_yes', t: 'Protect the kids more', fx: 'Welfare up, development a little slower' }, { id: 'r_no', t: 'They have to be tough', fx: 'Trust down a little' }];
   if (r.k === 'minutes') return [{ id: 'r_yes', t: 'I will raise it with the coach', fx: 'Coach youth minutes +10 · coach ↓' }, { id: 'r_no', t: 'The coach picks the team', fx: 'Academy ↓' }];
   if (r.k === 'squad') return [{ id: 'r_yes', t: 'I will talk to the DoF', fx: 'Coach ↑ · DoF ↓' }, { id: 'r_no', t: 'Work with what you have', fx: 'Coach ↓' }];
+  if (r.k === 'ultimatum') return [{ id: 'r_yes', t: 'I back you. Start again', fx: 'Trust up · warnings cleared' }, { id: 'r_no', t: 'Final warning', fx: 'He is sharper · trust down' }, { id: 'r_go', t: 'Part ways', fx: 'He leaves with his contract paid' }];
   if (r.k === 'verdict') return (r.fix ? [{ id: 'r_fix', t: r.fix.l, fx: 'What he asks for' }] : []).concat([{ id: 'back', t: 'You have my backing', fx: 'Trust up' }, { id: 'push', t: 'It has to improve, fast', fx: 'Sharper, risk on trust' }]);
   return [];
 }
@@ -145,7 +148,9 @@ function answer(id) {
       if (fx.kind === 'cap') { const f = G.mand.fin, o = ['50', '60', '70', '85']; f.wageCap = o[Math.min(3, Math.max(0, o.indexOf(String(f.wageCap))) + 1)]; say(role, `${f.wageCap}% it is.`); R(2); note(`Wage cap ${f.wageCap}%`); }
       if (fx.kind === 'loosen') { const m = G.mand.dof, step = (key, o) => { m[key] = o[Math.min(o.length - 1, Math.max(0, o.indexOf(String(m[key]))) + 1)]; }; if (fx.rule === 'wage limit') step('maxWage', ['100', '150', '200', '999']); else if (fx.rule === 'fee limit') step('maxFee', ['0', '25', '50', '100']); else step('maxAge', ['21', '24', '28', '32', '99']); say(role, 'Good. I will look at them again.'); R(3); note(`${fx.rule} loosened`); }
       break; }
+    case 'r_go': { const out = F.fire(role); G.dofStrikes = 0; say(role, 'Then I will clear my desk.'); note('DoF let go'); break; }
     case 'r_yes':
+      if (r.k === 'ultimatum') { G.dofStrikes = 0; say(role, 'Thank you. You will not regret it.'); R(6); B(4); note('Warnings cleared'); }
       if (r.k === 'staff') { const out = F.deptHire(r.dk, r.role, r.i, r.why); if (G.staffAsk) delete G.staffAsk[r.dk]; if (out && out.err) { say(role, `Then we cannot do it: ${out.err.toLowerCase()}`); } else { say(role, 'Thank you. You will see the difference.'); R(3); note(`${r.title} hired`); } }
       if (r.k === 'rules') { const m = G.mand.dof, step = (key, o) => { m[key] = o[Math.min(o.length - 1, Math.max(0, o.indexOf(String(m[key]))) + 1)]; }; if (r.rule === 'wage limit') step('maxWage', ['100', '150', '200', '999']); else if (r.rule === 'fee limit') step('maxFee', ['0', '25', '50', '100']); else step('maxAge', ['21', '24', '28', '32', '99']); say(role, 'Good. I will look at them again.'); R(3); note(`DoF ${r.rule} loosened`); }
       if (r.k === 'cap') { const f = G.mand.fin, o = ['50', '60', '70', '85']; f.wageCap = o[Math.min(3, Math.max(0, o.indexOf(String(f.wageCap))) + 1)]; say(role, `${f.wageCap}% it is. If the gates drop, we feel it first.`); R(-2); rel('dof', 2); note(`Wage cap ${f.wageCap}%`); }
@@ -156,6 +161,7 @@ function answer(id) {
       if (r.k === 'squad') { say(role, 'Good. Tell him what I need.'); R(3); rel('dof', -2); if (F.recPlanSuggest) { const pos = (F.recPlanSuggest()[0] || {}).pos; if (pos) G.dofPrio = pos; } note('Coach +3 · DoF −2'); }
       break;
     case 'r_no':
+      if (r.k === 'ultimatum') { say(role, 'Understood. I know what is at stake.'); R(-5); B(5); G.dofStrikes = 1; note('One warning left'); break; }
       if (r.k === 'staff') { if (G.staffAsk) delete G.staffAsk[r.dk]; say(role, P.amb > 12 ? 'Then do not expect miracles.' : 'Understood.'); R(P.amb > 12 ? -3 : -1); }
       else if (r.k === 'cap') { say(role, 'Thank you. That is the responsible call.'); R(2); rel('dof', -2); note('Finance +2 · DoF −2'); }
       else if (r.k === 'trip') { say(role, 'Then we keep guessing.'); }

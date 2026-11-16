@@ -151,7 +151,7 @@ B('signing_review', { role: 'dof', cd: 30,
   text: c => `${N('dof')} goes through the ${c.n} signings of this season with you. The full list is on the Recruitment page.`,
   opts: [
     { l: 'Praise the scouts', h: 'Chief Scout trust +4', f: () => { const s = staff('scout'); if (s) s.rel = clamp(s.rel + 4, 0, 100); return 'The scouts appreciate it.'; } },
-    { l: 'Question the misses', h: 'DoF trust −3, data focus up', f: c => { const d = staff('dof'); if (d) d.rel = clamp(d.rel - 3, 0, 100); g().mand.dof.data = clamp((g().mand.dof.data || 50) + 10, 0, 100); return 'He will lean more on data.'; } },
+    { l: 'Question the misses', h: 'DoF trust −3 · he wants surer reports before he recommends', f: c => { const d = staff('dof'); if (d) d.rel = clamp(d.rel - 3, 0, 100); g().mand.dof.data = clamp((g().mand.dof.data || 50) + 10, 0, 100); return 'He will lean more on data.'; } },
     { l: 'Note it and move on', h: '', f: () => 'Noted.' }] });
 
 /* ---------- season end: undo winter freeze ---------- */

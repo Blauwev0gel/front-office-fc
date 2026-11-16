@@ -1,0 +1,24 @@
+// Transfer summer v3: summer-only money, five-line debrief, plan-status ticker, warnings become a talk, data-led DoF, save/load mid-summer
+const vm = require('vm');
+const src = ['engine.js', 'events.js', 'events2.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js', 'firstteam.js', 'depts.js', 'levers.js', 'commercial.js', 'marketing.js', 'business.js', 'academy3.js', 'recruitx.js', 'matchtalk.js', 'desk.js', 'talks.js', 'weekflow.js', 'weekloop.js', 'loop.js', 'dossiers.js', 'pathway.js', 'matchday.js'].map(f => require('./src.js')(f)).join('\n');
+let fails = 0; const ok = (c, m) => { console.log((c ? 'ok   ' : 'FAIL ') + m); if (!c) fails++; };
+function boot() { const c = { console }; vm.createContext(c); vm.runInContext(src + ';this.FO=FO;', c); return c.FO; }
+function toSeason(seed) { const F = boot(); F.newGame(seed); const d = {}; for (const q of F.DNA) d[q.k] = q.o[0].v; F.setDNA(d, 'T', 'T', 'T', ['#123', '#fff']); for (const r of F.ROLES) F.hire(r.id, 1); F.finishStaff(); F.finishMandates(); F.preSetTarget('accept'); F.finishPreseason(); for (const id of F.G.press) F.pressAnswer(id, 1); F.finishPress(); return F; }
+function toSummer(seed) { const F = toSeason(seed); while (F.G.phase === 'season') { for (const x of F.G.inbox.filter(x => !x.done)) F.resolve(x, 0, 'x'); F.endWeek(); for (const r of F.ROLES) if (!F.G.staff[r.id] && F.G.cands[r.id]) F.hire(r.id, 1); } if (F.G.phase === 'review') F.startSeason(); return F; } /* startSeason builds the fixtures and opens the summer */
+function meeting(F) { F.sum2Ensure(); let g = 0; while (F.G.sum.step === 0 && g++ < 30) { if (!F.sum2Responses().length) break; F.sum2Answer(0); } }
+function ticker(F) { let i = 0; while (F.G.sum.tk.phase !== 'dd' && i++ < 400) { if (F.G.sum.tk.call) F.tkAnswer(0); else F.tkStep(); } }
+function deadline(F) { let n = 0; while (!F.G.sum.dd.done && n++ < 80) { if (F.G.sum.dd.dec) F.ddDecide(-1); else F.ddTick(); } }
+{ const F = toSummer(321); meeting(F);
+  ok(F.G.sum.ssB && F.G.sum.ssB.spent === 0 && F.G.sum.ssB.earned === 0, 'summer starts from a clean money baseline (startSeason resets the season totals)');
+  ticker(F); const L = F.G.sum.tk.lines.map(l => l.t); ok(new Set(L).size === L.length, `ticker has no repeated lines (${L.length})`); ok(!L.some(t => /file new reports\. Nothing to act on|A quiet week at the training ground/.test(t)), 'no filler lines in the ticker');
+  const F2 = boot(); ok(F2.load(JSON.stringify(F.G)) && F2.G.sum.tk && F2.G.sum.tk.phase === 'dd', 'save/load keeps the ticker and its phase (mid-summer)');
+  deadline(F); const ed = F.sum2Edition(); const sB = F.G.sum.ssB; ok(ed.net === (F.G.ss.spent - sB.spent) - (F.G.ss.earned - sB.earned), `edition net spend is the summer's own (${ed.net})`);
+  const D = F.sum2Debrief(); ok(D.five.length === 5 && D.five.every(x => x.t), 'debrief answers five questions'); console.log('     ' + D.five.map(x => x.t).join(' | '));
+  F.G.sum.step = 3; F.sum2Talk('warn'); ok(F.G.sum.db && F.G.sum.db.k === 'warn', 'warn runs and is recorded'); }
+{ const F = toSeason(22); for (let i = 0; i < 7; i++) { for (const x of F.G.inbox.filter(x => !x.done)) F.resolve(x, 0, 'x'); F.endWeek(); } F.G.dofStrikes = 2; F.endWeek(); const q = F.G.convo && F.G.convo.req.dof; ok(q && q.k === 'ultimatum', 'two warnings make the DoF ask for a word');
+  if (q) { F.convoOpen('dof', true); const T = F.G.convo.cur; ok(T && T.opts.length === 3, 'ultimatum offers three answers'); F.convoAnswer('r_yes'); ok(F.G.dofStrikes === 0, 'backing him clears the warnings'); F.convoClose(); } }
+{ const rate = data => { let n = 0; for (let i = 0; i < 4; i++) { const F = toSummer(40 + i); F.G.mand.dof.data = data; meeting(F); const R = F.G.rec; for (const k in R.know) R.know[k].conf = 'low'; ticker(F); n += R.pipe.filter(x => ['recommended', 'approach', 'negotiating', 'agreed', 'signed'].includes(x.stage)).length; } return n; };
+  const hi = rate(85), lo = rate(10); ok(lo >= hi, `eye-led DoF acts on hunches at least as often as a data-led one (${lo} vs ${hi})`); }
+{ const F = toSummer(77); for (let y = 0; y < 2 && F.G.phase !== 'sacked'; y++) { meeting(F); ticker(F); deadline(F); F.sum2Edition(); F.G.sum.step = 3; F.sum2Talk('praise'); F.sum2Finish(); if (F.G.phase === 'sacked') break; for (const id of F.G.press) F.pressAnswer(id, 1); F.finishPress(); while (F.G.phase === 'season') { for (const x of F.G.inbox.filter(x => !x.done)) F.resolve(x, 0, 'x'); F.endWeek(); for (const r of F.ROLES) if (!F.G.staff[r.id] && F.G.cands[r.id]) F.hire(r.id, 1); } if (F.G.phase !== 'review') break; F.startSeason(); }
+  ok(F.G.season >= 2, `two summers played (season ${F.G.season}, phase ${F.G.phase})`); ok(!F.G.squad.some(p => !p || !p.id), 'squad references valid'); }
+console.log(fails ? `${fails} FAILED` : 'ALL PASS'); process.exit(fails ? 1 : 0);

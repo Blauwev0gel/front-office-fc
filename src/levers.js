@@ -26,7 +26,7 @@ const GW = { coach: 1, dof: 1, scout: 1, acad: 1, com: 0.4, mkt: 0.6, fin: 0.3 }
 H.effBonus = (r, i) => (prevEff ? prevEff(r, i) : 0) + ((g().grip == null ? 60 : g().grip) - 50) / GRIPK * (GW[r] != null ? GW[r] : 1);
 
 // a step up: the first season in a new division is harder, and fades as the squad adapts
-const prevExtra = H.ftExtra; H.ftExtra = () => (prevExtra ? prevExtra() : 0) - (g().club.stepUp === g().season ? 0.45 * Math.max(0, 1 - g().week / 38) : 0);
+const prevExtra = H.ftExtra; H.ftExtra = () => (prevExtra ? prevExtra() : 0) - (g().club.stepUp === g().season ? 1.2 * Math.max(0, 1 - g().week / 50) : 0); // B37: the first season in a new division is an adjustment, not a victory lap
 /* ---------- weekly ---------- */
 const prevAfter = H.seasonAfterMatch;
 H.seasonAfterMatch = ours => {

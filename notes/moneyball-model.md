@@ -49,3 +49,11 @@ Geleerd bij het bouwen:
 - Marktfout in de prototypeverdeling: 0,7 CA per standaardeenheid van de kernstatistiek (lager dan de eerste rekensom, omdat contract, geldnood en schattingsruis er bovenop komen). Dan lijken ±31% van de spelers ≥20% goedkoop (onbevestigd), 2 van 48 ≥50%.
 - Aflopend contract is een kleine korting (×0,8), geen ×0,6: de speler vertrekt in juni gratis, dus zijn "te goedkoop" is geen vondst.
 - Het prototype bevat geen keepers en nog geen persoonlijkheid, blessurehistorie of potentieel in de verdeling.
+
+## Principe (eigenaar, 16-11-2026): de portal geeft nooit een oordeel
+Prototype v1 zei zelf "Looks +79% cheap", "Worth £600k to us" en liet de DoF zeggen dat de prijs in ons voordeel klopte. Dat is een aanbevelingsfilter, geen data-spel. Regel: **de portal toont data en feiten; wat goedkoop is, ontdekt de speler zelf.**
+- Geen waarde- of fit-tags, geen "worth", geen sortering op waarde. Wel neutrale metrics als kolom of sortering (output, verwacht, verschil, per £100k, minuten).
+- De speler flagt met een eigen **hypothese** ("onfortuinlijke afmaker", "geluksjaar", "past bij onze druk", "late bloeier", "aflopend contract").
+- **Scouts testen de hypothese** achteraf: ze geven een getal (verwacht, karakter, potentieel) en de speler ziet of hij gelijk had. Geen voordeel vooraf.
+- **De DoF is geen orakel:** hij reageert vanuit zijn eigen voorkeur (voorzichtig, wil minuten en betrouwbaarheid), met eigen vooroordelen, en kan ernaast zitten. Zijn eigen alternatief is "wat hij zou kiezen", niet "wat beter is".
+- De gratis cijfers zijn ruisig: de speler kan zich vergissen, en dat is het spel.

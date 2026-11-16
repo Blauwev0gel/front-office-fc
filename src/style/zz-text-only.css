@@ -18,7 +18,7 @@ html,body { background:#fff !important; color:#181818 !important;
   margin:0 auto !important; }
 #app *, #app *::before, #app *::after {
   box-shadow:none !important; text-shadow:none !important; filter:none !important;
-  background-image:none !important;
+  background-image:none !important; background-color:transparent !important;
   animation:none !important; transition:none !important;
 }
 #app :is(h1,h2,h3,h4) { font-family:inherit !important; font-weight:700 !important;
@@ -86,7 +86,7 @@ html,body { background:#fff !important; color:#181818 !important;
 #app .text-crest {
   display:inline-block !important;padding:2px 7px !important;
   border:1px solid #777 !important; border-radius:2px !important;
-  color:#181818 !important; font:700 12px/1.5 inherit !important;
+  color:#181818 !important; font:700 12px/1.5 system-ui,Arial,sans-serif !important;
 }
 #app .text-office {padding:8px 0 !important;border-bottom:1px solid #ddd !important}
 #app .text-stars,#app .textbar {display:inline-block !important;

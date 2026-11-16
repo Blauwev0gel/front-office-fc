@@ -6,7 +6,7 @@ function markRead(k) { const g = G(); g.read = g.read || {}; if (!g.read[k]) g.r
 const first = t => { t = String(t || ''); const i = t.search(/[.!?](\s|$)/); return i > 0 ? t.slice(0, i + 1) : t; };
 function inboxItems() {
   const g = G(), out = [], wk = g.week, se = g.season;
-  for (const m of g.inbox.filter(m => !m.done)) { const v = F.msgView(m), dz = /^dos_/.test(m.ev) && m.ctx && m.ctx.part != null; out.push({ key: 'm' + m.id, kind: 'need', fold: 'need', label: dz ? `Dossier ${m.ctx.part + 1}/3` : /^pw_/.test(m.ev) ? 'Agreement' : 'Needs you', role: v.role, from: v.from.split(',')[0], subj: v.title, prev: first(v.body), ref: m, t: 'msg' }); }
+  for (const m of g.inbox.filter(m => !m.done)) { const v = F.msgView(m), dz = /^dos_/.test(m.ev) && m.ctx && m.ctx.part != null; out.push({ key: 'm' + m.id, kind: 'need', fold: 'need', label: /^story_/.test(m.ev) ? 'Club story' : dz ? `Dossier ${m.ctx.part + 1}/3` : /^pw_/.test(m.ev) ? 'Agreement' : 'Needs you', role: v.role, from: v.from.split(',')[0], subj: v.title, prev: first(v.body), ref: m, t: 'msg' }); }
   const mt = g.meeting;
   if (mt && !mt.pre && mt.week === wk && mt.season === se) mt.items.forEach((it, i) => { const v = F.proposalView(it); out.push({ key: `p${se}_${wk}_${i}`, kind: it.status === 'open' ? 'need' : 'done', fold: it.status === 'open' ? 'need' : 'done', label: it.status === 'open' ? 'Meeting' : cap(it.status), role: it.owner, from: v.owner, subj: v.title, prev: `${money(v.cost)} now, ${v.dur} weeks, his confidence ${Math.round(v.pc * 100)}%`, ref: i, t: 'prop' }); });
   for (const b of g.briefs || []) { const v = F.briefView(b); out.push({ key: 'b' + b.id, kind: b.done ? 'done' : 'upd', fold: b.t === 'coach_debrief' || b.t === 'stake_match' ? 'match' : 'staff', bt: b.t, label: b.del ? 'Staff call' : b.done ? 'Handled' : 'Update', role: v.role || 'club', from: v.who.split(',')[0], subj: v.title, prev: b.done ? `${v.opts[v.choice].l}. ${v.out}` : first(v.text), ref: b, t: 'brief' }); }
@@ -123,11 +123,24 @@ function vInbox() {
         '<p class="small">Why: ' + esc(x.reason) + '</p>' +
         '<p class="small">Result: ' + esc(x.outcome) + '</p></li>').join('') + '</ul>' :
         '<p class="small">No recent delegated decisions.</p>') + '</details>' : '';
+  const storyState = F.storyView ? F.storyView() : null;
+  const storyPanel = storyState && (storyState.active.length || storyState.history.length) ?
+    '<details class="dcard club-story-record"><summary><b>Ongoing club stories</b> · ' +
+    storyState.active.length + ' active</summary>' +
+    (storyState.active.length ? '<h4>Currently unfolding</h4><ul>' +
+      storyState.active.map(x => '<li><b>' + esc(x.title) + '</b> · ' +
+      esc(x.age + ' playing weeks') + '<p class="small">' + esc(x.latest) + '</p>' +
+      (x.next==null ? '' : '<p class="small">Next review in ' + x.next + ' week(s).</p>') +
+      '</li>').join('') + '</ul>' : '') +
+    (storyState.history.length ? '<h4>Earlier chapters</h4><ul>' +
+      storyState.history.map(x => '<li><b>' + esc(x.kind) + '</b><p class="small">' +
+      esc(x.verdict) + '</p></li>').join('') + '</ul>' : '') +
+    '</details>' : '';
   return `${tourCard('inbox')}${strip}${backersHtml()}
   <section class="redbox" aria-label="The red box"><div class="rbh"><h2>The red box</h2><span>${box.length ? `${box.length} to answer this week` : 'All signed'}</span></div>
   <div class="rbl">${box.map(boxRow).join('') || `<p class="rbe"><b>Nothing needs your signature.</b> ${F.deskView && F.deskView().n ? `Your staff took ${F.deskView().n} decision${F.deskView().n === 1 ? '' : 's'} themselves.` : 'Your staff work within their mandates.'}</p>`}</div></section>
   ${desk.length ? `<div class="dkh"><h3>On your desk</h3><small>${desk.length} running</small></div><div class="dkl2">${desk.map(deskRow).join('')}</div>` : ''}
   ${pap && !isDis(pap.key) ? `<button class="paperpin" data-a="open" data-k="${pap.key}"><span class="ppm">THE ${esc(g.club.city.toUpperCase())} GAZETTE</span><b>${esc((F.edView(0) || {}).head || g.paper.headline)}</b><small>${isRead(pap.key) ? 'Read' : 'Today\'s edition'} ${ART.I.chev}</small></button>` : ''}
-  ${done.length ? `<button class="dkdone" data-a="filt" data-v="done">${done.length} handled this week ${ART.I.chev}</button>` : ''}${comingHtml()}${trail}${folders}`;
+  ${done.length ? `<button class="dkdone" data-a="filt" data-v="done">${done.length} handled this week ${ART.I.chev}</button>` : ''}${comingHtml()}${storyPanel}${trail}${folders}`;
 }
 

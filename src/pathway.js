@@ -167,7 +167,7 @@ H.seasonAfterMatch = ours => {
   if (prevAfter) prevAfter(ours);
   const G = g(); if (G.phase !== 'season') return;
   const p = P();
-  if (!p || p.stage === 'closed') { if (chance(0.22)) start(false); youthDrift(ours); return; }
+  if (!p || p.stage === 'closed') { if (chance(0.22) && !(G.storybook && G.storybook.active && G.storybook.active.youth)) start(false); youthDrift(ours); return; }
   if (p.stage === 'data' && F.absWeek() >= p.meetAt) { p.stage = 'meet'; F.queueEvent('pw_meet', { pw: 1 }); }
   if (p.stage === 'run' && p.ag) {
     if (p.ag.delegated == null || p.ag.delegated === false) { const mm = G.inbox.find(m => m.ev === 'pw_meet' && m.done && m.by && m.by !== 'you' && m.week >= G.week - 1); if (mm && !p.ag.delChecked) p.ag.delegated = true; p.ag.delChecked = true; }

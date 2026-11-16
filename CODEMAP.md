@@ -38,6 +38,7 @@ grep -rn "function vInbox\|vInbox =" src
 | Transfer summer (v2 is the flow; `summer.js` still supplies its steps, contracts and deadline day) | `summer.js`, `summer2.js` | `ui/03-summer-preseason-press.js` |
 | Academy | `academy.js`, `academy2.js`, `academy3.js`, `engine/07-finance-transfers.js` (academyIntake) | `ui/08-departments.js` (ac*), `ui/09-firstteam-review.js` (vAcademy2) |
 | Pathway storyline | `pathway.js` | `ui/10-inbox.js` (pw*, pathwayCard) |
+| Living club storylines: coach–DoF, youth pathway, financial crisis | `stories.js` (`storyStart`, `storyView`; six existing-event-type messages and hook); `pathway.js` guards overlap | `ui/10-inbox.js` (Red Box decisions + collapsed active/history panel); Gazette reports |
 | Commercial | `commercial.js`, `engine/07-finance-transfers.js` (ticketPrice, attendance, sponsorIncome) | `ui/08-departments.js` (com*) |
 | Marketing | `marketing.js` | `ui/08-departments.js` (mk*) |
 | Finance / Business | `business.js`, `engine/07-finance-transfers.js` (weeklyFinance, transferBudget) | `ui/08-departments.js` (biz*), `ui/05-pitches-squad-money.js` (vMoney2) |
@@ -100,6 +101,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `pathway.js` | 27 KB | the pathway question One governance storyline, built to show the core loop: you notice a problem, talk to the  | selBonus, seasonAfterMatch |  | cred, pw, academy, pwLog |
 | `matchday.js` | 10 KB | match day Before kick-off: three stories about our own players | storyW, edition |  | mdS, eds |
 | `ceocore.js` | 6 KB | CEO instructions, delegated calls, 3-week evidence reviews | seasonAfterMatch |  | ceoCore |
+| `stories.js` | 19 KB | three linked staff, youth and financial stories | seasonAfterMatch |  | storybook |
 | `ui/01-core.js` | 5 KB | atoms; base club: skip the founding |  |  |  |
 | `ui/02-setup.js` | 19 KB | views: title & setup; mandates as a tactics board |  |  |  |
 | `ui/03-summer-preseason-press.js` | 27 KB | the summer (M4); the summer, version 2 |  |  |  |
@@ -252,6 +254,11 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 ### `matchday.js`
 - Functions: g, avg, lastInjury, storyFor, mdStories, mdOutcomes, turningPoint, matchSum, edView
 - Exports on `F`: mdStories, mdOutcomes, mdTurning, edView, edCount
+
+### `stories.js`
+- Functions: eligible, start, intro, autonomous, shouldReopen, follow, close
+- Exports on `F`: storyStart, storyView
+- State: `G.storybook` (active, history, last, lastStart), safe defaults for existing saves
 
 ### `ceocore.js`
 - Functions: state, snap, track, review

@@ -133,3 +133,9 @@ function ftActions() {
   const g = G(), push = g.push.medical > 0;
   return `<div class="sec">You can also</div><div class="group"><div class="row"><div><b>Medical push</b><span>${push ? `Active: ${g.push.medical} week${g.push.medical === 1 ? '' : 's'} left.` : 'Fewer injuries and faster recovery for three weeks.'}</span></div><button class="btn ghost small" data-a="push" data-d="medical" ${push ? 'disabled' : ''}>${push ? 'Active' : 'Start'}</button></div></div>`;
 }
+
+// a section with a one-line summary that opens and closes; the open state is kept per department in U.dsec
+function accHtml(k, id, title, sum, inner, def) {
+  const o = U.dsec && U.dsec[k + id] != null ? U.dsec[k + id] : def;
+  return `<section class="acc ${o ? 'open' : ''}"><button class="acch" data-a="dsec" data-k="${k + id}" data-d="${def ? 1 : 0}" aria-expanded="${o}"><b>${title}</b><span>${esc(sum)}</span>${ART.I.chev}</button>${o ? `<div class="accb">${inner}</div>` : ''}</section>`;
+}

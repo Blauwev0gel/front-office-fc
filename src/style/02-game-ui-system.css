@@ -6,10 +6,10 @@
    Level 3: rows inside a group. Hairline only.
    ===================================================================== */
 :root{
---bg:light-dark(#e3e9e1,#121815);--paper:light-dark(#ffffff,#1b231f);--fill:light-dark(#eef2ec,#232d28);--ink:light-dark(#16201b,#e6eee8);--soft:light-dark(#5a6a61,#a3b2a9);
+--bg:light-dark(#e3e9e1,#121815);--paper:light-dark(#ffffff,#1b231f);--fill:light-dark(#eef2ec,#232d28);--ink:light-dark(#16201b,#e6eee8);--soft:light-dark(#526157,#a3b2a9);
 --rule:light-dark(rgba(22,32,27,.22),rgba(230,238,232,.2));--hair:light-dark(rgba(22,32,27,.13),rgba(230,238,232,.12));
 --sun:#f3d36b;--grass:#3d7a4f;--hot:#d9472b;--face-ink:#16201b;--wall:light-dark(#cfdccf,#25302a);
---good:light-dark(#1f7a43,#6fcf97);--bad:light-dark(#c2331d,#ff8a75);--warn:light-dark(#9a5b00,#f0b45c);
+--good:light-dark(#1f7a43,#6fcf97);--bad:light-dark(#b92f1a,#ff8a75);--warn:light-dark(#9a5b00,#f0b45c);
 --head:"Avenir Next Condensed","Futura","Trebuchet MS","Arial Narrow",sans-serif;--body:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;--mast:var(--head);
 --t1:32px;--t2:22px;--t3:17px;--t4:15px;--t5:12px;--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;
 --l1:3px solid var(--ink);--sh1:4px 4px 0 light-dark(#16201b,#000);--r:10px}

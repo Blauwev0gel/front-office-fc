@@ -74,6 +74,7 @@ function act(a, d, el) {
     case 'godept': U.tab = 'staff'; U.open = null; U.sheet = null; U.dept = d.k; U.dtab = 'now'; U.tray = ''; window.scrollTo(0, 0); break;
     case 'dept': U.dept = d.k || null; U.dtab = d.v || 'now'; U.tray = ''; window.scrollTo(0, 0); break;
     case 'dtab': U.dtab = d.v; window.scrollTo(0, 0); break;
+    case 'dsec': U.dsec = U.dsec || {}; U.dsec[d.k] = !(U.dsec[d.k] != null ? U.dsec[d.k] : d.d === '1'); break;
     case 'dcand': U.sheet = { t: 'dcand', k: d.k, r: d.r }; break;
     case 'dhire': r = F.deptHire(d.k, d.r, +d.i); U.sheet = null; if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); ART.vib(30); } break;
     case 'dletgo': r = F.deptLetGo(d.k, +d.id); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } break;

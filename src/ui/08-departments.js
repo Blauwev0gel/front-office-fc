@@ -9,7 +9,7 @@ function vDepts() {
   const O = F.deptOverview(), rq = k => (F.convoReqs ? F.convoReqs(k) : []);
   const tiles = O.map(o => {
     const w = rq(o.k).length, V = o.status.verdict, act = !o.s ? 'Hire' : w ? 'Wants a word' : '';
-    return `<button class="dtile2 ${act ? 'act' : ''}" data-a="dept" data-k="${o.k}"><span class="dface ${o.s ? '' : 'empty'}">${o.s ? ART.staffFace(o.head) : ART.I.staff}</span><span class="dt"><small>${esc(o.t)}</small><b>${o.s ? esc(o.s.name) : 'Vacant'}</b><em class="dsub">${o.s ? `${healthHtml(V)} ${esc(V.t)}` : 'Nobody runs it. Appoint a head.'}</em></span>${act ? `<span class="dstat bad">${act}</span>` : ''}${ART.I.chev}</button>`;
+    return `<button class="dtile2" data-a="dept" data-k="${o.k}"><span class="dface ${o.s ? '' : 'empty'}">${o.s ? ART.staffFace(o.head) : ART.I.staff}</span><span class="dt"><small>${esc(o.t)}</small><b>${o.s ? esc(o.s.name) : 'Vacant'}</b><em class="dsub">${o.s ? `${healthHtml(V)} ${esc(V.t)}` : 'Nobody runs it. Appoint a head.'}</em></span>${act ? `<span class="dstat bad">${act}</span>` : ''}${ART.I.chev}</button>`;
   }).join('');
   const bud = `<div class="budcard">${planCard()}</div>`;
   const nw = O.filter(o => rq(o.k).length).length, vac = O.filter(o => !o.s).length;
@@ -78,7 +78,7 @@ function mkDecisions(V) {
 }
 function planCard(only) {
   const V = F.bizView(), rows = V.rows.filter(r => !only || r.k === only);
-  return `<div class="plan2">${!only ? `<div class="spread"><b>Season budget</b><span class="small ${V.ok ? 'good' : 'bad'}">${money(V.spend)} of ${money(V.env)}/wk</span></div><div class="budbar"><b class="${V.ok ? '' : 'over'}" style="width:${Math.min(100, V.env ? V.spend / V.env * 100 : 100)}%"></b></div><p class="small" style="margin:4px 0 8px">${V.ok ? 'Within what revenue covers.' : 'Above what revenue covers: cash goes down.'} Forecast ±${V.err}%.</p>` : ''}
+  return `<div class="plan2">${!only ? `<div class="spread"><b>Season budget</b><span class="small ${V.ok ? 'good' : 'bad'}">${V.none ? `${money(V.spend)}/wk` : `${money(V.spend)} of ${money(V.env)}/wk`}</span></div>${V.none ? '' : `<div class="budbar"><b class="${V.ok ? '' : 'over'}" style="width:${Math.min(100, V.spend / V.env * 100)}%"></b></div>`}<p class="small" style="margin:4px 0 8px">${V.none ? `No room yet. Wages and fixed costs (${money(V.other)}) already pass revenue (${money(V.rev)}), so every budget adds to the loss.` : V.ok ? 'Within what revenue covers.' : 'Above what revenue covers: cash goes down.'} ${V.est ? 'Early estimate, firmer after four weeks.' : `Forecast ±${V.err}%.`}</p>` : ''}
   ${rows.map(r => `<div class="plrow"><span><b>${esc(r.t)}</b><small>${money(r.cost)}/wk${r.lv === 'cut' ? ' <em class="bad">· Cut below Lean</em>' : ''}</small></span><div class="seg3" role="group" aria-label="${esc(r.t)} budget">${V.levels.map(([k, l], i) => `<button class="${r.lv === k ? 'on' : ''}" data-a="biz-lv" data-k="${r.k}" data-v="${k}" aria-pressed="${r.lv === k}">${l}<small>${money(r.costs[i])}</small></button>`).join('')}</div></div>`).join('')}
   ${!only ? `<button class="linkbtn" data-a="biz-prop">Use Finance's proposal</button>` : '<p class="small" style="margin:6px 0 0">Finance checks every department against one season budget.</p>'}</div>`;
 }
@@ -114,7 +114,7 @@ function vDept(k) {
   if (tab === 'now') {
     const kpis = st.rows.length ? `<div class="sec">The numbers</div><div class="kgrid">${st.rows.slice(0, 4).map(kpiTile).join('')}</div>` : '';
     const vis = k === 'commercial' && F.comView ? comOverview(F.comView()) : k === 'marketing' && F.mkView ? mkOverview(F.mkView()) : k === 'business' && F.bizView ? bizOverview() : FP ? `<div class="sec">Form</div><div class="panel2">${FP.form}</div>` : '';
-    body = (s ? verdictCard(st, role, s) + needsHtml(k, role, d) + (FP ? ftActions() : '') + (k === 'academy' && F.acView ? acDecisions(F.acView()) : '') : headCard(k, v)) + (k === 'recruit' && F.squadPlanView ? squadPlanHtml() : '') + kpis + vis;
+    body = (s ? verdictCard(st, role, s) + needsHtml(k, role, d) + (FP ? ftActions() : '') + (k === 'academy' && F.acView ? acDecisions(F.acView()) : '') : headCard(k, v)) + kpis + vis + (k === 'recruit' && F.squadPlanView ? accHtml(k, 'sqp', 'Squad plan', 'Winter and summer targets', squadPlanHtml(), false) : '');
   }
   let peopleHtml = '';
   {
@@ -123,18 +123,25 @@ function vDept(k) {
     const cards = v.staff.map(x => `<div class="pcard2 ${x.on ? '' : 'pending'}"><span class="pf">${ART.face(x.id * 17 + 5, { role: d.face, age: x.age, bg: '#fff' })}</span><span class="pm"><b>${esc(x.name)}</b><small>${esc(x.title)}</small><span class="traits"><span title="${esc(x.tdesc)}">${esc(x.trait)}</span></span><small class="pw">${esc(x.what)}. ${money(x.wage)}/wk</small>${x.on ? '' : `<small class="pw">Starts in ${x.left} wk</small>`}</span><span></span></div>`).join('');
     const want = F.deptStaffWant ? F.deptStaffWant(k) : 0, open = s ? `<p class="small">${esc(s.name.split(' ')[0])} hires and lets go his own staff. With this budget he wants ${want} ${want === 1 ? 'person' : 'people'}; there is room for ${v.slots}. Raise the budget below for more.</p>` : '<p class="small">Without a head, nobody hires staff here.</p>';
     const log = v.log.length ? `<div class="sec">Recently</div><div class="panel2">${v.log.map(l => `<p class="small" style="margin:3px 0">Wk ${l.w}: ${esc(l.t)}</p>`).join('')}</div>` : '';
-    peopleHtml = `<div class="sec">People</div>${me}${scoutC}<div class="sec">His staff <span class="small">${v.used}</span></div>${cards || '<p class="small">Nobody yet. He does everything alone.</p>'}${open}${k === 'academy' && g.acad ? acStaff() : ''}${log}`;
+    peopleHtml = `${me}${scoutC}<div class="sec">His staff <span class="small">${v.used}</span></div>${cards || '<p class="small">Nobody yet. He does everything alone.</p>'}${open}${k === 'academy' && g.acad ? acStaff() : ''}${log}`;
   }
   if (tab === 'plan') {
+    // Setup = four fixed sections, the same on every department; each closed one shows a one-line summary
+    const acc = (id, title, sum, inner, def) => accHtml(k, id, title, sum, inner, def);
     const mandBtn = s ? `<button class="btn ghost wide" data-a="sheet" data-s="mand" data-r="${role}" style="margin-top:8px">Change mandate</button>` : '';
-    const comp = FP ? (() => { const c = F.ftView().comp; return mrow('board', 'Follows your mandate', c * 100, 100, `${compW(c)} (${Math.round(c * 100)}%)`, c < 0.65 ? 'lo' : ''); })() : '';
+    const FV = FP ? F.ftView() : null, comp = FP ? mrow('board', 'Follows your mandate', FV.comp * 100, 100, `${compW(FV.comp)} (${Math.round(FV.comp * 100)}%)`, FV.comp < 0.65 ? 'lo' : '') : '';
     const own = k === 'recruit' && F.recView ? recTiles(F.recView()) + (F.rxView ? regionCard(F.rxView()) : '') : k === 'commercial' && F.comView ? comDecisions(F.comView()) : k === 'marketing' && F.mkView ? mkDecisions(F.mkView()) : FP ? `<div class="sec">Target</div>${FP.deal}` + ftPlanExtra() : '';
-    const auth = s && F.DESK_HEADS.includes(role) ? authHtml(role) : '';
-    const how = s ? `<div class="sec">How ${esc(s.name.split(' ')[0])} works</div><div class="panel2">${comp}${FP ? FP.rows : instinctRow(role)}${mandBtn}${auth ? `<div class="hdiv"></div>${auth}` : ''}</div>` : '';
-    const bud = `<div class="sec">Budget</div><div class="budcard">${planCard(v.bud ? k : undefined)}</div>`;
-    const fac = v.fac ? `<div class="sec">Facilities</div><div class="panel2">${mrow('stadium', esc(v.fac.l), v.fac.lv, 10, 'Level ' + v.fac.lv)}<p class="small" style="margin:6px 0 0">Upgrades come through projects in the board meeting.</p></div>` : '';
-    const proj = v.projects.length ? `<div class="sec">Projects</div><div class="panel2">${v.projects.map(pr => { const P = F.PROP[pr.id]; let t = ''; try { t = typeof P.title === 'function' ? P.title(pr.ctx) : P.title; } catch (e) { } return `<div class="proj"><span>${esc(t)}</span><em>${Math.max(0, pr.due - F.absWeek())} wk</em></div>`; }).join('')}</div>` : '';
-    body = own + how + peopleHtml + bud + fac + proj;
+    const A = s && F.DESK_HEADS.includes(role) && F.authView ? F.authView(role) : null, auth = A ? authHtml(role) : '';
+    const how = s ? `<div class="panel2">${comp}${FP ? FP.rows : instinctRow(role)}${mandBtn}${auth ? `<div class="hdiv"></div>${auth}` : ''}</div>` : '';
+    const BV = F.bizView ? F.bizView() : null, br = BV && v.bud ? BV.rows.find(r => r.k === k) : null, lvL = br ? (BV.levels.find(l => l[0] === br.lv) || [0, 'Cut'])[1] : '';
+    const money_ = `<div class="sec">Budget</div><div class="budcard">${planCard(v.bud ? k : undefined)}</div>`
+      + (v.fac ? `<div class="sec">Facilities</div><div class="panel2">${mrow('stadium', esc(v.fac.l), v.fac.lv, 10, 'Level ' + v.fac.lv)}<p class="small" style="margin:6px 0 0">Upgrades come through projects in the board meeting.</p></div>` : '')
+      + (v.projects.length ? `<div class="sec">Projects</div><div class="panel2">${v.projects.map(pr => { const P = F.PROP[pr.id]; let t = ''; try { t = typeof P.title === 'function' ? P.title(pr.ctx) : P.title; } catch (e) { } return `<div class="proj"><span>${esc(t)}</span><em>${Math.max(0, pr.due - F.absWeek())} wk</em></div>`; }).join('')}</div>` : '');
+    const sDec = FP ? (FV.deal ? 'Target agreed' : 'No target agreed') : k === 'recruit' && F.recView ? (F.recView().inWin ? 'Window open' : 'Window closed') : '';
+    const sHow = FP ? `Follows your mandate ${compW(FV.comp)}` : A ? A.opts[A.a] : '';
+    const sPpl = s ? `${s.name.split(' ')[0]} + ${v.used} staff` : 'No head';
+    const sMon = [lvL && `${lvL} · ${money(v.bud.cost)}/wk`, v.fac && `${v.fac.l} level ${v.fac.lv}`].filter(Boolean).join(' · ');
+    body = (own ? acc('dec', 'Decisions', sDec, own, true) : '') + (how ? acc('how', `How ${esc(s.name.split(' ')[0])} works`, sHow, how, false) : '') + acc('ppl', 'People', sPpl, peopleHtml, false) + acc('mon', 'Money and buildings', sMon, money_, false);
   }
   if (tab === 'record') {
     if (k === 'academy') body = g.acad ? acRecord() : '';

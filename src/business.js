@@ -25,7 +25,7 @@ function plan() {
   const other = fx.cost - budNow; // everything that is not a department budget
   const acc = clamp((F.eff('fin', 0) - 4) / 14, 0, 1) * (has('ac') ? 1 : 0.85), err = Math.round((1 - acc) * 25);
   const env = Math.max(0, Math.round(fx.rev * 0.97 - other));
-  return { rev: Math.round(fx.rev), err, env, spend: budNow, rows: DK.map(k => ({ k, t: F.DEPT[k].t, v: cur(k), lv: lvOf(cur(k)), cost: deptCostAt(k, cur(k)), costs: LV.map(l => deptCostAt(k, l[2])) })) };
+  return { rev: Math.round(fx.rev), other: Math.round(other), err, env, spend: budNow, rows: DK.map(k => ({ k, t: F.DEPT[k].t, v: cur(k), lv: lvOf(cur(k)), cost: deptCostAt(k, cur(k)), costs: LV.map(l => deptCostAt(k, l[2])) })) };
 }
 function setLevel(k, lv) { const L = LV.find(x => x[0] === lv); if (!L || !DK.includes(k)) return; const G = g(), d = F.DEPT[k]; if (d.bud === 'own') { (G.deptB = G.deptB || {})[k] = L[2]; } else { G.mand[d.bud] = Object.assign({}, G.mand[d.bud], { budget: L[2] }); } return { out: `${d.t}: ${L[1].toLowerCase()} budget.` }; }
 // Finance proposes: start from normal, protect what the DNA cares about, cut until it fits
@@ -66,6 +66,6 @@ F.defineBrief('biz_refi', { role: 'fin', cd: 12,
     { l: 'Refinance', h: c => `−${money(c.fee)} now · interest ↓`, f: c => { g().club.cash -= c.fee; g().club.rate = c.nr; return 'New terms signed. Interest drops from next week.'; } },
     { l: 'Not now', h: '', f: () => 'The current loan stays.' }] });
 
-function view() { const P = plan(), X = B(); return { ...P, levels: LV, prop: X.prop, ok: P.spend <= P.env, rate: g().club.rate || 0.0012, debt: g().club.debt || 0 }; }
+function view() { const P = plan(), X = B(), fin = g().fin || {}; return { ...P, none: P.env <= 0, est: !(fin.revW >= 4) && !fin.lastRev, levels: LV, prop: X.prop, ok: P.spend <= P.env, rate: g().club.rate || 0.0012, debt: g().club.debt || 0 }; }
 Object.assign(F, { bizView: view, bizSetLevel: setLevel, bizPropose: () => { const p = propose(); B().prop = p; return p; }, bizApply: () => { applyProp(B().prop || propose()); return { out: 'Finance\'s proposal applied.' }; }, BIZ_DK: DK });
 })(FO);

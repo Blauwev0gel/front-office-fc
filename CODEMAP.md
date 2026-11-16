@@ -30,6 +30,7 @@ grep -rn "function vInbox\|vInbox =" src
 | Staff actions: hire, fire, talk, push, mandate | `engine/09-meetings-actions-press.js` | `ui/06-sheets-ticker.js` (vSheet), `ui/15-actions.js` |
 | Departments in general: staff, budget share, KPIs | `depts.js` | `ui/08-departments.js` (vDepts, vDept) |
 | Authority and escalation (the desk) | `desk.js` | `ui/08-departments.js` (authHtml) |
+| CEO instructions, delegated calls and delayed evidence reviews | `ceocore.js` (wrapping action APIs and weekly hook), `desk.js` (actual delegated decision reason/result) | `ui/10-inbox.js` (collapsible decision record), Gazette follow-up |
 | Grip | `levers.js` | `ui/13-redbox-render.js` (vBar) |
 | First team / Head Coach | `firstteam.js`, `engine/05-world-selection.js` (pickXI, teamStrength) | `ui/09-firstteam-review.js` (vFirst) |
 | Recruitment / DoF and scouting | `recruit.js`, `recruitx.js`, `engine/07-finance-transfers.js` (sign, dofWork), `engine/11-staffwork-analysis-briefs.js` (scoutWork) | `ui/08-departments.js` (rx*), `ui/05-pitches-squad-money.js` (vRecruit2) |
@@ -98,6 +99,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `dossiers.js` | 29 KB | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar | seasonAfterMatch |  | pressure, dos |
 | `pathway.js` | 27 KB | the pathway question One governance storyline, built to show the core loop: you notice a problem, talk to the  | selBonus, seasonAfterMatch |  | cred, pw, academy, pwLog |
 | `matchday.js` | 10 KB | match day Before kick-off: three stories about our own players | storyW, edition |  | mdS, eds |
+| `ceocore.js` | 6 KB | CEO instructions, delegated calls, 3-week evidence reviews | seasonAfterMatch |  | ceoCore |
 | `ui/01-core.js` | 5 KB | atoms; base club: skip the founding |  |  |  |
 | `ui/02-setup.js` | 19 KB | views: title & setup; mandates as a tactics board |  |  |  |
 | `ui/03-summer-preseason-press.js` | 27 KB | the summer (M4); the summer, version 2 |  |  |  |
@@ -250,6 +252,10 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 ### `matchday.js`
 - Functions: g, avg, lastInjury, storyFor, mdStories, mdOutcomes, turningPoint, matchSum, edView
 - Exports on `F`: mdStories, mdOutcomes, mdTurning, edView, edCount
+
+### `ceocore.js`
+- Functions: state, snap, track, review
+- Exports on `F`: ceoCoreView, ceoCoreDelegated (plus wrappers of hire, setMandate, setAuth, respond)
 
 ### `ui/01-core.js`
 - Functions: esc, money, G, saveGame, hasSave, loadGame, wipe, toast, setClub, lum, stars, bar, meter, crest, apPips, sign, quickStart

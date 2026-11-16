@@ -76,12 +76,18 @@ H.desk = (e, m) => {
   let idx = F.autoIndex(m), err = 0;
   if (e.opts.length > 1 && chance(errChance(h))) { const alt = e.opts.map((_, i) => i).filter(i => i !== idx); idx = pick(alt); err = 1; }
   m.del = 1; m.err = err; m.authAt = auth(h);
+  m.why = 'Within ' + AUTH[m.authAt].t.toLowerCase() + ' authority (' + money(limit(h, m.authAt)) + ' limit).';
   const n0 = g().paper.stories.length;
   F.resolve(m, idx, s.name);
   const st = g().paper.stories[n0]; if (st) { st.auto = 1; st.h = `${DSHORT[h]} handled it${err ? ', badly' : ''}`; }
   if (err) { slip(h); m.outcome = (m.outcome || '') + ' It goes against your mandate.'; }
   else if (F.gripGain) F.gripGain(1, 'desk');
   log(h, err);
+  if (F.ceoCoreDelegated) {
+    let label = ''; try { label = typeof e.opts[idx].l === 'function' ? e.opts[idx].l(m.ctx) : e.opts[idx].l; } catch (ignore) {}
+    F.ceoCoreDelegated({ role:h, who:s.name, title:e.id, choice:String(label || 'Department decision'),
+      reason:m.why, outcome:m.outcome, error:!!err, id:m.id });
+  }
 };
 
 /* ---------- briefs ---------- */
@@ -105,6 +111,12 @@ H.deskBriefs = list => {
     idx = clamp(idx, 0, d.opts.length - 1);
     let r = ''; try { r = d.opts[idx].f(b.ctx) || 'Noted.'; } catch (er) { r = 'Noted.'; }
     b.done = true; b.choice = idx; b.out = r; b.del = 1; b.by = s.name; log(h, 0);
+    if (F.ceoCoreDelegated) {
+      let label = ''; try { label = typeof d.opts[idx].l === 'function' ? d.opts[idx].l(b.ctx) : d.opts[idx].l; } catch (ignore) {}
+      F.ceoCoreDelegated({ role:h, who:s.name, title:b.t, choice:String(label || 'Department briefing'),
+        reason:AUTH[a].t + ' authority: ' + money(amt) + ' against a ' + money(lim) + ' limit.',
+        outcome:r, error:false, id:b.id, brief:true });
+    }
   }
 };
 

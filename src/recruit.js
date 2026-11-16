@@ -207,12 +207,12 @@ function recruitmentNeeds() {
 }
 function dofPipeline() {
   const r = RC(), d = staff('dof'); if (!d) return;
-  const need = recruitmentNeeds(), depth = 20 + Math.round(man('dof', 'depth') / 100 * 6);
+  const need = recruitmentNeeds(), depth = 20 + Math.round(man('dof', 'depth') / 100 * 6), dataPolicy = +man('dof', 'data');
   for (const x of r.pipe) {
     const p = r.pool[x.pid], k = r.know[x.pid]; if (!p && !['signed', 'lost'].includes(x.stage)) { setStage(x, 'lost', 'He moved elsewhere.'); continue; }
     if (!p || !k) continue;
     k.grade = grade(p, k);
-    if (x.stage === 'scouted' && (!x.planB || x.wasB) && (k.grade === 'A' || k.grade === 'B') && (k.conf !== 'low' || (recruitmentNeeds().includes(p.pos) && F.window_()))) setStage(x, 'recommended', `${k.by} recommends him (grade ${k.grade}).`);
+    if (x.stage === 'scouted' && (!x.planB || x.wasB) && (k.grade === 'A' || k.grade === 'B') && (dataPolicy <= 35 || k.conf === 'high' || (dataPolicy < 70 && (k.conf !== 'low' || (need.includes(p.pos) && F.window_()))))) setStage(x, 'recommended', `${k.by} recommends him (grade ${k.grade}; ${dataPolicy >= 70 ? 'verified evidence' : dataPolicy <= 35 ? 'scout judgement' : 'balanced evidence'}).`);
     if (x.stage === 'scouted' && k.grade === 'D' && k.n >= 2) setStage(x, 'lost', 'Scouts advise against.');
   }
   for (const x of r.pipe.filter(x => x.planB && x.stage === 'scouted' && r.pool[x.pid])) { const p = r.pool[x.pid], live = r.pipe.some(y => y !== x && r.pool[y.pid] && r.pool[y.pid].pos === p.pos && ['recommended', 'approach', 'negotiating'].includes(y.stage) && !y.hold); if (!live && slotOpen(p, r.know[x.pid]) && winBuys(p.pos) === 0) { setStage(x, 'recommended', 'Plan A fell through. Plan B is up.'); x.planA = true; x.boost = true; x.wasB = true; } }

@@ -109,11 +109,25 @@ function vInbox() {
   const A = F.analysis(), nf = nextFix(), box = items.filter(isBox), desk = items.filter(i => !isBox(i) && i.kind !== 'done' && i.t !== 'paper' && !isDis(i.key));
   const done = items.filter(i => i.kind === 'done'), st = A.pos <= A.target ? 'good' : A.pos <= A.target + 2 ? 'warn' : 'bad';
   const strip = `<div class="rstrip"><button class="rsp" data-a="sheet" data-s="analysis"><b class="${A.g ? st : ''}">${A.g ? F.ord(A.pos) : '–'}</b><small>target ${F.ord(A.target)}</small></button><button class="rsp" data-a="tab" data-t="staff"><b>${money(g.club.cash)}</b><small>in the bank</small></button>${nf ? `<button class="rsp" data-a="tab" data-t="league"><b>${esc(nf.short)}</b><small>${nf.home ? 'home' : 'away'}, ${F.ord(nf.pos)}</small></button>` : ''}</div>`;
+  const core = F.ceoCoreView ? F.ceoCoreView() : null;
+  const trail = core && (core.decisions.length || core.delegated.length) ?
+    '<details class="dcard ceo-trail"><summary><b>Decisions and consequences</b> · ' +
+    core.decisions.filter(x => !x.review).length + ' awaiting review</summary>' +
+    '<h4>Your instructions</h4><ul>' +
+    core.decisions.map(x => '<li><b>' + esc(x.label) + '</b> · ' +
+      esc('Season ' + x.season + ', week ' + x.week) + '<p class="small">' +
+      esc(x.review || 'Evidence review due after three playing weeks.') + '</p></li>').join('') +
+    '</ul><h4>Decisions taken by your staff</h4>' +
+    (core.delegated.length ? '<ul>' +
+      core.delegated.map(x => '<li><b>' + esc(x.who + ': ' + x.choice) + '</b>' +
+        '<p class="small">Why: ' + esc(x.reason) + '</p>' +
+        '<p class="small">Result: ' + esc(x.outcome) + '</p></li>').join('') + '</ul>' :
+        '<p class="small">No recent delegated decisions.</p>') + '</details>' : '';
   return `${tourCard('inbox')}${strip}${backersHtml()}
   <section class="redbox" aria-label="The red box"><div class="rbh"><h2>The red box</h2><span>${box.length ? `${box.length} to answer this week` : 'All signed'}</span></div>
   <div class="rbl">${box.map(boxRow).join('') || `<p class="rbe"><b>Nothing needs your signature.</b> ${F.deskView && F.deskView().n ? `Your staff took ${F.deskView().n} decision${F.deskView().n === 1 ? '' : 's'} themselves.` : 'Your staff work within their mandates.'}</p>`}</div></section>
   ${desk.length ? `<div class="dkh"><h3>On your desk</h3><small>${desk.length} running</small></div><div class="dkl2">${desk.map(deskRow).join('')}</div>` : ''}
   ${pap && !isDis(pap.key) ? `<button class="paperpin" data-a="open" data-k="${pap.key}"><span class="ppm">THE ${esc(g.club.city.toUpperCase())} GAZETTE</span><b>${esc((F.edView(0) || {}).head || g.paper.headline)}</b><small>${isRead(pap.key) ? 'Read' : 'Today\'s edition'} ${ART.I.chev}</small></button>` : ''}
-  ${done.length ? `<button class="dkdone" data-a="filt" data-v="done">${done.length} handled this week ${ART.I.chev}</button>` : ''}${comingHtml()}${folders}`;
+  ${done.length ? `<button class="dkdone" data-a="filt" data-v="done">${done.length} handled this week ${ART.I.chev}</button>` : ''}${comingHtml()}${trail}${folders}`;
 }
 

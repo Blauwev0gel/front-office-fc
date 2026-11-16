@@ -3,7 +3,7 @@ function expRand(m) { return -Math.log(1 - rnd()) * m; }
 function simOurMatch(oppId, home, comp) {
   const opp = G.clubs[oppId], L = pickXI(true), me = teamStrength(L), os = opp.str + gauss() * 0.3;
   const d = me - os + (HOOK.homeEdge ? HOOK.homeEdge(home) : (home ? 0.35 : -0.35));
-  const att = cact('attack') / 100, intn = cact('intensity') / 100, vol = 0.8 + 0.45 * att, share = 1 / (1 + Math.exp(-0.6 * d));
+  const att = cact('attack') / 100, intn = cact('intensity') / 100, vol = 0.8 + 0.45 * att, share = 1 / (1 + Math.exp(-0.6 * (d + (att - 0.5) * (d >= 0 ? 0.5 : -0.4))));
   let redUs = 0, redThem = 0;
   const OS = HOOK.oppStyle ? HOOK.oppStyle(oppId) : { vol: 1, oxg: 1 };
   const n = poisson(22.5 * vol * OS.vol), ev = [], onPitch = L.xi.map(x => x.p), mins = new Map(onPitch.map(p => [p.id, 0])), start = new Map(onPitch.map(p => [p.id, 0]));
@@ -45,7 +45,7 @@ function simOurMatch(oppId, home, comp) {
         else ev.push({ m: e.m, k: 'ch', us: 1, pid: sh.id, t: HOOK.say ? HOOK.say('ch_us', { sh, xg, m: e.m, big: xg > 0.3, ug, tg }) + ` (xG ${xg.toFixed(2)})` : xg > 0.3 ? `Huge chance! ${sh.name} should score but ${pick(['the keeper saves', 'drags it wide', 'hits the post', 'skies it'])}. (xG ${xg.toFixed(2)})` : `${sh.name} ${pick(['drives wide from distance', 'forces a save', 'heads over', 'curls one just past the post', 'sees his shot blocked'])}. (xG ${xg.toFixed(2)})` });
       } else {
         const ourDef = L.xi.filter(x => LINE[x.slot] === 'DF').reduce((a, x) => a + x.p.ca, 0) / 4 || 5;
-        let xg = clamp(expRand(0.112) * (1 + 0.05 * (os - ourDef)) * (e.push < 0 ? 1.15 : 1) * (1 + (att - 0.5) * 0.2) * OS.oxg, 0.02, 0.78);
+        let xg = clamp(expRand(0.112) * (1 + 0.05 * (os - ourDef)) * (e.push < 0 ? 1.15 : 1) * (1 + (att - 0.5) * 0.36) * OS.oxg, 0.02, 0.78);
         const kp = gk ? gk.p : null;
         const goal = rnd() < xg * (1 - (kp ? (kp.a.ref - os) * 0.03 : -0.3));
         txg += xg;

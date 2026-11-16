@@ -1,7 +1,7 @@
 /* ---------- season ---------- */
 function setObjectives() {
   const d = G.club.dna, exp = expectedRank(); let target;
-  if (d.ambition === 'rocket') target = 3; else if (d.ambition === 'steady') target = clamp(exp - 1, 2, 14); else target = clamp(exp + 2, 3, 15);
+  if (d.ambition === 'rocket') target = 3; else if (d.ambition === 'steady') target = clamp(exp - 1, 2, 14); else target = clamp(exp, 3, 15);
   if (G.club.tier === 1) target = Math.min(target, 10);
   const o = [{ k: 'league', target, t: `Finish ${ord(target)} or higher` }];
   o.push(d.money === 'debt' ? { k: 'cashmin', target: -M(20000), t: `Keep cash above ${money(-M(20000))}` } : { k: 'cash', target: 0, t: 'Finish the season with cash in the bank' });
@@ -29,10 +29,10 @@ function endSeason() {
   for (let tt = 1; tt <= 8; tt++) { for (const id of up[tt]) move(id, tt, tt - 1); for (const id of down[tt]) move(id, tt, tt + 1); }
   function move(id, from, to) { const a = G.divs[from].clubs; a.splice(a.indexOf(id), 1); G.divs[to].clubs.push(id); if (id === 0) { G.club.tier = to; G.clubs[0].tier = to; rep.moves.push(to < from ? 'promoted' : 'relegated'); } else G.clubs[id].tier = to; }
   rep.newTier = G.club.tier;
-  if (G.club.tier < t) { G.board.conf = clamp(G.board.conf + 12, 0, 100); G.st.fans = clamp(G.st.fans + 12, 0, 100); G.club.stepUp = G.season + 1; }
+  if (G.club.tier < t) { G.board.conf = clamp(G.board.conf + 6, 0, 100); G.st.fans = clamp(G.st.fans + 8, 0, 100); G.club.stepUp = G.season + 1; }
   if (G.club.tier > t) { G.board.conf = clamp(G.board.conf - 15, 0, 100); G.st.fans = clamp(G.st.fans - 10, 0, 100); if (G.board.conf < 30 && G.season - (G.board.second || -99) >= 4) { G.board.second = G.season; G.board.conf = 32; rep.second = true; } }
   if (CAPREQ[G.club.tier] && G.club.cap < CAPREQ[G.club.tier]) { const cost = Math.round((CAPREQ[G.club.tier] - G.club.cap) * 12 * sc() / 100) * 100; G.club.cash -= cost; G.club.cap = CAPREQ[G.club.tier]; rep.licence = `Licensing: temporary stands to reach ${CAPREQ[G.club.tier].toLocaleString('en-GB')} seats cost ${money(cost)}.`; }
-  for (const id in G.clubs) { const c = G.clubs[id]; if (c.me) continue; c.str += (tierAvg(c.tier) - c.str) * 0.3 + gauss() * 0.45; }
+  for (const id in G.clubs) { const c = G.clubs[id]; if (c.me) continue; c.str += (tierAvg(c.tier) - c.str) * 0.18 + gauss() * 0.65; }
   // players
   rep.leavers = []; rep.renewed = [];
   const med = G.squad.map(p => p.ca).sort((a, b) => a - b)[Math.floor(G.squad.length / 2)] || 0;

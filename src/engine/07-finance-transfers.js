@@ -60,7 +60,7 @@ function genTarget(pos, free) {
   const net = (G.club.net[reg] || 0) / 100;
   const ca = tierAvg(G.club.tier) + gauss() * 1.5 + (eff('scout', 0) - 10) * 0.07 + net * 0.8 + man('scout', 'budget') / 100 * 0.4 - (free ? 1.3 : 0) + (age > 29 ? 0.4 : 0) - (age < 21 ? 1 : 0);
   const p = genPlayer({ pos, age, ca, region: reg, paBonus: (eff('scout', 1) - 10) * 0.05 + (pot - 0.5) });
-  p.fee = free ? 0 : Math.round(p.value * REGIONS[reg].cost * (1 - (eff('dof', 1) - 10) * 0.02) * (0.85 + rnd() * 0.35) / 100) * 100;
+  p.fee = free ? 0 : Math.round(p.value * REGIONS[reg].cost * (1 - (eff('dof', 1) - 10) * 0.035) * (0.85 + rnd() * 0.35) / 100) * 100;
   p.wage = Math.round(wageFor(p.ca) * (1 + (age > 28 ? 0.15 : 0)) * (0.95 + rnd() * 0.2) / 5) * 5;
   const dataW = clamp((man('dof', 'data') + man('scout', 'data')) / 200 + (perk('data') ? 0.35 : 0), 0, 1.2);
   const nCA = clamp(2.6 - (eff('scout', 0) + eff('dof', 0)) / 20 - dataW * 0.7, 0.35, 3), nPA = clamp(3 - eff('scout', 1) / 10 - (1 - dataW) * 0.8, 0.5, 3.5);

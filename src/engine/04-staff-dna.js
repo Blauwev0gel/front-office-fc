@@ -41,7 +41,7 @@ const BIOS = {
 };
 
 function genStaff(role, tier, q) {
-  const ovr = clamp(tierAvg(tier) + (q || 0) + gauss() * 1.3, 2, 19.5);
+  const ovr = clamp(tierAvg(tier) + (q || 0) + gauss() * 2.3, 2, 19.5);
   const at = [0, 1, 2].map(() => clamp(Math.round(ovr + gauss() * 1.8), 1, 20));
   const p = { ego: ri(3, 19), loy: ri(3, 19), risk: ri(3, 19), amb: ri(3, 19) };
   const ov = (at[0] + at[1] + at[2]) / 3;

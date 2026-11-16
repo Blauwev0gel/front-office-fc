@@ -171,6 +171,17 @@ const ECHO = {
   'ticket_protest:1': () => 'There are more empty seats than last season, the Gazette notes.',
   'dof_rule:0': c => { const p = c.player && sq().find(x => x.name === c.player.name); return p ? `${p.name}, signed as an exception to the rules, has ${p.st.apps || 0} appearances so far.` : ''; },
   'staff_raise:2': () => 'An agent says one of our heads of department has been looking at other jobs.',
+  // the turnaround (B44): what the board remembers of how you handled a crisis
+  'turn_call:0': () => 'The chairman has not mentioned the coach since you backed him. That is how backing is measured.',
+  'turn_call:1': () => 'The new head coach has been in the job long enough to rearrange the furniture.',
+  'turn_call:2': () => 'The money you put into the squad shows on the team sheet, if not yet in the table.',
+  'turn_call:3': () => 'The youngsters have more minutes than the fans expected, and more mistakes.',
+  'turn_call:4': () => 'The decision to wait is being discussed, mostly by people who were not asked.',
+  'far:turn_call:0': () => 'Two seasons ago you backed the coach through a bad run. People remember that either as loyalty or as a mistake, depending on the weather.',
+  'far:turn_call:1': () => 'The club sacked its coach in a crisis not long ago. Nobody remembers the position, only the headline.',
+  'far:turn_call:2': () => 'The signings made in the panic of that autumn are still on the wage bill.',
+  'far:turn_call:3': () => 'One of the lads you threw in during that bad spell is now a regular. The others have found other clubs.',
+  'far:turn_call:4': () => 'The crisis you waited out is mostly remembered by the supporters who stopped coming.',
   // far echoes: the same decision, seasons later (keys start with far:, they are scheduled together with the near echo)
   'far:bet_sponsor:0': () => 'The betting logo is still on the shirt. Nobody can remember why it was ever a big decision.',
   'far:bet_sponsor:1': () => 'The new stand roof has been costed. The betting money we turned down would have covered it.',

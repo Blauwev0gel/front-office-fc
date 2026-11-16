@@ -93,10 +93,11 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `academy3.js` | 5 KB | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid  | acadIntake, seasonAfterMatch |  | acadX, academy |
 | `recruitx.js` | 25 KB | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re | seasonAfterMatch, recWeekly, seasonWeekly, summerStart | recMigrate | recX |
 | `world.js` | 14 KB | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store |  |  | world |
+| `turnaround.js` | 7 KB | the turnaround (B37, B44) When it goes properly wrong, the board asks what the CEO intends to do | ftExtra, seasonWeekly |  | turn, turnLast, turnAsk |
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 18 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
 | `talks.js` | 19 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio, dofStrikes |
-| `weekflow.js` | 24 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo, coachNews, mem |
+| `weekflow.js` | 25 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo, coachNews, mem |
 | `weekloop.js` | 2 KB | situation-driven week Chance serves the club's situation: an event is likelier when its department is under pr | evWeight |  |  |
 | `loop.js` | 15 KB | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice | lastChance, seasonReprieve, seasonAfterMatch |  | votes, vote, bgoal, bgLog, wkDelta, wkPrev, wkLog |
 | `dossiers.js` | 28 KB | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar | seasonAfterMatch |  | pressure, dos |
@@ -239,6 +240,10 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 ### `world.js`
 - Functions: g, hstr, mk, WS, LGDEF, leagueName, clubsOf, lineage, build, attrsAt, season, market, record, ours, leaguePlayers, worldLeagues, worldLeague, worldPlayer, worldRemove, WX, aw, worldSlots, worldMeta, worldFlag, worldUnflag, worldConfirm, worldFlagged
 - Exports on `F`: worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN, worldSlots, worldMeta, worldFlag, worldUnflag, worldConfirm, worldFlagged
+
+### `turnaround.js`
+- Functions: g, abs, fx, ord, lossesLast5, ppg, snap, trouble, start, edge, STATE
+- Exports on `F`: turnTrouble, turnEdge, TURN_LABEL
 
 ### `matchtalk.js`
 - Functions: g, hs, opp, P, sur, crowd, preview

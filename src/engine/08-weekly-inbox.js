@@ -2,7 +2,7 @@
 function develop(p, mult) {
   if (p.age < 24 && p.ca < p.pa) {
     const minsF = p.academy && !G.squad.includes(p) ? 0.5 : clamp(p.st.mins / Math.max(1, G.week * 90), 0, 1);
-    const devF = 0.55 + eff('coach', 2) / 20 * 0.5 + G.club.fac.train * 0.03 + minsF * 0.4 + cact('intensity') / 100 * 0.2 + (p.pers.prof - 10) * 0.02 + (HOOK.ftDev ? HOOK.ftDev() : 0);
+    const devF = 0.55 + eff('coach', 2) / 20 * 0.5 + G.club.fac.train * 0.03 + minsF * (p.age <= 21 ? 0.9 : 0.4) + cact('intensity') / 100 * 0.35 + (p.pers.prof - 10) * 0.02 + (HOOK.ftDev ? HOOK.ftDev() : 0);
     const g = (p.pa - p.ca) * 0.0055 * devF * mult;
     const w = POSW[p.pos]; for (const k in w) p.a[k] = clamp(p.a[k] + g * (0.6 + rnd() * 0.8), 1, 20);
   } else if (p.age >= 30) { for (const k of ['pac', 'sta', 'str']) p.a[k] = clamp(p.a[k] - 0.012 * (p.age - 29) * rnd() * 2, 1, 20); }

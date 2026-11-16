@@ -56,9 +56,9 @@ const tierK = () => Math.max(1, (9 - g().club.tier) * 0.55);
 const resCost = k => ({ wk: Math.round(M(RES[k].wk) * tierK() / 10) * 10, fee: Math.round(M(RES[k].fee) * tierK() / 100) * 100 });
 const live = k => { if (F.deptHas) return F.deptHas('first', k); const r = ft().res[k]; return !!(r && r.left <= 0); };
 H.ftCost = () => { let c = 0; for (const k in ft().res) c += resCost(k).wk; return c; };
-H.ftInj = () => live('fit') ? 0.65 : 1;
+H.ftInj = () => (live('fit') ? 0.65 : 1) * (1.2 - 0.4 * act('rotation') / 100); /* rotation: fresher legs, fewer injuries */
 H.ftDev = () => live('asst') ? 0.1 : 0;
-H.ftExtra = () => (live('ana') ? 0.12 : 0) + (live('asst') ? 0.05 : 0);
+H.ftExtra = () => (live('ana') ? 0.12 : 0) + (live('asst') ? 0.05 : 0) + (0.5 - act('rotation') / 100) * 0.12 + (act('intensity') / 100 - 0.5) * 0.05; /* a settled XI has rhythm; a fitter team plays better */
 H.selBonus = p => { const w = ft().pushP[p.id]; return w && w > 0 ? 1.1 : 0; };
 function resBuy(k) {
   const G = g(), S = ft(); if (!RES[k] || S.res[k]) return { err: 'Already in place.' };

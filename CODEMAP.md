@@ -64,7 +64,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `engine/03-players.js` | 4 KB | players |  |  |  |
 | `engine/04-staff-dna.js` | 14 KB | staff; DNA |  | effBonus |  |
 | `engine/05-world-selection.js` | 4 KB | world; squad & selection |  | coachAct, selBonus, ftExtra | clubs, divs |
-| `engine/06-match.js` | 11 KB | match simulation |  | homeEdge, oppStyle, ftInj, say, storyW | msNew |
+| `engine/06-match.js` | 13 KB | match simulation |  | homeEdge, oppStyle, ftInj, say, storyW | msNew |
 | `engine/07-finance-transfers.js` | 14 KB | finance; transfers; academy |  | attendance, gate, acadIncome, recCost, acadCost, ftCost, deptCost, merchMult, costDisc, acadSale | signLog, shortlist, dofSigned, squad, dofNote |
 | `engine/08-weekly-inbox.js` | 8 KB | weekly systems; events & inbox |  | ftDev, fanWeekly, desk |  |
 | `engine/09-meetings-actions-press.js` | 17 KB | management meeting & projects (1.2); player actions; press |  |  | propCd, meeting, projects, projDone, projLog, resBy |
@@ -83,7 +83,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `season.js` | 18 KB | season rhythm, module 4 part 2 Season blocks with a decision each, board reviews, high-stakes matches, a small | summerStart, seasonWeekly, seasonAfterMatch, recSeason |  | rival, stake, openTarget, matchEdge, blockDone, winterPrev, winBonus, recovery, loanedOut, squad |
 | `summer2.js` | 29 KB | the transfer summer, version 2 A summer meeting with the DoF and staff that ends in a signed summer brief, a t | summerStart | recWeekly | dofStrikes |
 | `faces.js` | 27 KB | visual layer, part 1 Procedural ink-style portraits for every person in the game, the CEO's office scene, repu |  |  |  |
-| `firstteam.js` | 21 KB | First team department The coach's own instincts vs your mandate, support staff you can fund, talks as short sc | coachAct, ftCost, ftInj, ftDev, ftExtra, selBonus, seasonAfterMatch |  | ft |
+| `firstteam.js` | 22 KB | First team department The coach's own instincts vs your mandate, support staff you can fund, talks as short sc | coachAct, ftCost, ftInj, ftDev, ftExtra, selBonus, seasonAfterMatch |  | ft |
 | `depts.js` | 21 KB | departments Every department is a real unit: a head, staff underneath, a budget share, facilities, KPI history | effBonus, deptCost, merchMult, ftExtra, ftDev, ftInj, seasonAfterMatch |  | dept, deptB, deptSeason, staffAsk |
 | `levers.js` | 7 KB | levers Grip: a club drifts without a CEO steering it | effBonus, ftExtra, seasonAfterMatch | deptCost | grip, gripW, gripLog |
 | `commercial.js` | 10 KB | Commercial department The stadium as a system (three stands, demand, price, matchday experience), sponsor offe | attendance, gate, homeEdge, merchMult, deptCost, seasonAfterMatch |  | com |
@@ -135,7 +135,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: townName, roundRobin, blankRow, buildFixtures, genWorld, sortTable, cname, myPos, expectedRank, squadAvail, fit, ordWord, cact, pickXI, strengthParts, teamStrength
 
 ### `engine/06-match.js`
-- Functions: expRand, simOurMatch, quickSim, applyResult
+- Functions: expRand, simOurMatch, whyLines, quickSim, applyResult
 
 ### `engine/07-finance-transfers.js`
 - Functions: playerWages, staffWages, ticketPrice, attendance, revenueAvg, estRevenue, sponsorIncome, wageRatio, transferBudget, weeklyFinance, window_, squadNeeds, weakestPos, genTarget, scoreTarget, allowed, sign, staffName, protectedIds, administration, sellPlayer, dofWork, academyIntake

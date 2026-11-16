@@ -3,10 +3,11 @@ function expRand(m) { return -Math.log(1 - rnd()) * m; }
 function simOurMatch(oppId, home, comp) {
   const opp = G.clubs[oppId], L = pickXI(true), me = teamStrength(L), os = opp.str + gauss() * 0.3;
   const d = me - os + (HOOK.homeEdge ? HOOK.homeEdge(home) : (home ? 0.35 : -0.35));
-  const att = cact('attack') / 100, intn = cact('intensity') / 100, vol = 0.8 + 0.45 * att, share = 1 / (1 + Math.exp(-0.6 * d));
+  const att = cact('attack') / 100, intn = cact('intensity') / 100, vol = 0.85 + 0.3 * att, share = 1 / (1 + Math.exp(-0.6 * d));
+  const wx = { rain: chance(0.25), night: chance(0.3) }; /* weather: rain means fewer and poorer chances */
   let redUs = 0, redThem = 0;
   const OS = HOOK.oppStyle ? HOOK.oppStyle(oppId) : { vol: 1, oxg: 1 };
-  const n = poisson(22.5 * vol * OS.vol), ev = [], onPitch = L.xi.map(x => x.p), mins = new Map(onPitch.map(p => [p.id, 0])), start = new Map(onPitch.map(p => [p.id, 0]));
+  const n = poisson(27 * vol * OS.vol * (wx.rain ? 0.92 : 1)), ev = [], onPitch = L.xi.map(x => x.p), mins = new Map(onPitch.map(p => [p.id, 0])), start = new Map(onPitch.map(p => [p.id, 0]));
   const ps = new Map(); const S2 = p => { if (!ps.has(p.id)) ps.set(p.id, { g: 0, a: 0, xg: 0, xa: 0, yc: 0, rc: 0 }); return ps.get(p.id); };
   let ug = 0, tg = 0, uxg = 0, txg = 0;
   const gk = L.xi.find(x => x.slot === 'GK');
@@ -16,7 +17,7 @@ function simOurMatch(oppId, home, comp) {
   const subs = []; const bench = L.bench.slice(); const nsub = Math.min(3, bench.length);
   for (let i = 0; i < nsub; i++) subs.push({ m: ri(55, 82) });
   // cards & injuries
-  const cards = []; const ny = ri(0, 3); for (let i = 0; i < ny; i++) cards.push({ m: ri(10, 90), red: chance(0.04) });
+  const cards = []; const ny = ri(0, 3); for (let i = 0; i < ny; i++) cards.push({ m: ri(10, 90), red: chance(0.065) });
   const injP = 0.010 * (0.6 + cact('intensity') / 100 * 0.8) * (G.push.medical > 0 ? 0.6 : 1) * (perk('sci') ? 0.7 : 1) * (HOOK.ftInj ? HOOK.ftInj() : 1);
   const timeline = [...chances.map(c => ({ ...c, k: 'ch' })), ...subs.map(s => ({ ...s, k: 'sub' })), ...cards.map(c => ({ ...c, k: 'card' }))].sort((a, b) => a.m - b.m);
   const opName = opp.name, my = G.club.short;
@@ -37,7 +38,7 @@ function simOurMatch(oppId, home, comp) {
       }
       if (e.us) {
         const sh = pickW(lp, p => ({ FW: 3, MF: 1.4, DF: 0.35, GK: 0 }[LINE[p.pos]]) * (p.a.fin + 2) * (HOOK.storyW ? HOOK.storyW(p) : 1));
-        let xg = clamp(expRand(0.112) * (1 + 0.05 * (sh.a.fin - os)) * (e.push > 0 ? 1.15 : 1), 0.02, 0.78);
+        let xg = clamp(expRand(0.112) * (1 + 0.05 * (sh.a.fin - os)) * (e.push > 0 ? 1.15 : 1) * (1 + (att - 0.5) * 0.08) * (wx.rain ? 0.95 : 1), 0.02, 0.78);
         const goal = rnd() < xg * (1 + (sh.a.com - 10) * 0.015);
         const as = chance(0.72) ? pickW(lp.filter(p => p !== sh), p => (p.a.pas + p.a.vis + (p.pos === 'W' || p.pos === 'FB' ? p.a.cro : 0)) * (LINE[p.pos] === 'GK' ? 0.1 : 1)) : null;
         S2(sh).xg += xg; uxg += xg; if (as) S2(as).xa += xg;
@@ -45,7 +46,7 @@ function simOurMatch(oppId, home, comp) {
         else ev.push({ m: e.m, k: 'ch', us: 1, pid: sh.id, t: HOOK.say ? HOOK.say('ch_us', { sh, xg, m: e.m, big: xg > 0.3, ug, tg }) + ` (xG ${xg.toFixed(2)})` : xg > 0.3 ? `Huge chance! ${sh.name} should score but ${pick(['the keeper saves', 'drags it wide', 'hits the post', 'skies it'])}. (xG ${xg.toFixed(2)})` : `${sh.name} ${pick(['drives wide from distance', 'forces a save', 'heads over', 'curls one just past the post', 'sees his shot blocked'])}. (xG ${xg.toFixed(2)})` });
       } else {
         const ourDef = L.xi.filter(x => LINE[x.slot] === 'DF').reduce((a, x) => a + x.p.ca, 0) / 4 || 5;
-        let xg = clamp(expRand(0.112) * (1 + 0.05 * (os - ourDef)) * (e.push < 0 ? 1.15 : 1) * (1 + (att - 0.5) * 0.2) * OS.oxg, 0.02, 0.78);
+        let xg = clamp(expRand(0.112) * (1 + 0.05 * (os - ourDef)) * (e.push < 0 ? 1.15 : 1) * (1 + (att - 0.5) * 0.2) * OS.oxg * (wx.rain ? 0.95 : 1), 0.02, 0.78);
         const kp = gk ? gk.p : null;
         const goal = rnd() < xg * (1 - (kp ? (kp.a.ref - os) * 0.03 : -0.3));
         txg += xg;
@@ -89,13 +90,29 @@ function simOurMatch(oppId, home, comp) {
       else if (rat >= 8.6) ms(`Man of the match against ${opName}, rated ${rat.toFixed(1)}.`);
       if (p.capps === 50 || p.capps === 100) ms(`${p.capps} games for the club.`); }
     if (p.academy && !p.debut) { p.debut = true; G.ss.grads++; G.paper.stories.push({ h: 'Academy debut', t: `${p.name} (${p.age}) becomes the latest academy graduate to play for the first team.` }); G.st.fans = clamp(G.st.fans + 2, 0, 100); }
-    if (mn > 0 && chance(injP * f)) { p.inj = ri(1, 7); out.push(p); ev.push({ m: ri(20, 88), k: 'inj', us: 1, t: `${p.name} pulls up injured.` }); if (p.inj >= 4) { (p.ms = p.ms || []).push({ s: G.season, w: G.week, t: `Injured against ${opName}, out for ${p.inj} weeks.` }); (G.msNew = G.msNew || []).push({ pid: p.id, t: `Injured, out for ${p.inj} weeks.` }); } }
+    if (mn > 0 && chance(injP * f)) { p.inj = ri(1, 7); out.push(p); const st0 = start.get(p.id) || 0; ev.push({ m: clamp(st0 + ri(1, Math.max(1, mn)), 1, 90), k: 'inj', us: 1, t: `${p.name} pulls up injured.` }); if (p.inj >= 4) { (p.ms = p.ms || []).push({ s: G.season, w: G.week, t: `Injured against ${opName}, out for ${p.inj} weeks.` }); (G.msNew = G.msNew || []).push({ pid: p.id, t: `Injured, out for ${p.inj} weeks.` }); } }
     p.yc = (p.yc || 0) + s.yc; if (p.yc >= 5) { p.yc = 0; p.susp = Math.max(p.susp, 1); }
   }
   ev.sort((a, b) => a.m - b.m);
   ev.push({ m: 90, k: 'ft', t: `Full time. ${home ? G.club.name + ' ' + ug + '–' + tg + ' ' + opName : opName + ' ' + tg + '–' + ug + ' ' + G.club.name}.` });
   const motm = [...mins.keys()].map(id => G.squad.find(x => x.id === id)).filter(Boolean).sort((a, b) => b.lastRat - a.lastRat)[0];
-  return { comp, home, opp: oppId, oppName: opName, ug, tg, uxg, txg, ev, result, dpre: +(me - os).toFixed(2), edge: +(d - (me - os)).toFixed(2), reds: [redUs, redThem], xi: L.xi.map(x => x.p.id), injured: out, motm: motm ? motm.name : '', att: home ? attendance() : 0 };
+  const why = whyLines({ me, os, home, ug, tg, uxg, txg, reds: [redUs, redThem], L, att, result });
+  return { why, wx, fill: home && G.club.cap ? Math.min(1, attendance() / G.club.cap) : null, comp, home, opp: oppId, oppName: opName, ug, tg, uxg, txg, ev, result, dpre: +(me - os).toFixed(2), edge: +(d - (me - os)).toFixed(2), reds: [redUs, redThem], xi: L.xi.map(x => x.p.id), injured: out, motm: motm ? motm.name : '', att: home ? attendance() : 0 };
+}
+// why we won or lost, in two or three plain lines from the real factors (B26)
+function whyLines(o) {
+  const out = [], P = strengthParts(o.L), q = P.squad - (o.os - (P.coach + P.style + P.morale + P.extra)), gap = o.me - o.os;
+  if (o.ug - o.uxg >= 0.9) out.push([2, `We were clinical: ${o.ug} goal${o.ug === 1 ? '' : 's'} from ${o.uxg.toFixed(1)} expected.`]);
+  else if (o.uxg - o.ug >= 0.9) out.push([2, `We were wasteful in front: ${o.uxg.toFixed(1)} expected goals, ${o.ug} scored.`]);
+  if (o.tg - o.txg >= 0.9) out.push([1.8, `They scored more than their chances deserved.`]);
+  else if (o.txg - o.tg >= 0.9) out.push([1.4, `Our keeper and defence kept them out: ${o.txg.toFixed(1)} expected, ${o.tg} conceded.`]);
+  if (gap > 0.5) out.push([1.2, 'We had the better players on the pitch.']); else if (gap < -0.5) out.push([1.5, 'They simply had better players.']);
+  if (o.reds[0]) out.push([2.5, 'Our red card changed the game.']); if (o.reds[1]) out.push([2.2, 'Their red card opened the game up.']);
+  if (o.home && G.club.cap && attendance() / G.club.cap > 0.85 && o.result !== 'L') out.push([1.3, 'A full house pushed us on.']);
+  if (P.moraleAvg < 50) out.push([1.4, 'Morale is low, and it showed.']);
+  const kids = o.L.xi.filter(x => x.p.age <= 21).length; if (kids >= 5 && o.result === 'L') out.push([1.6, `Five or more under-21s started: they learned the hard way.`]);
+  if (o.att > 0.65 && o.tg >= 3) out.push([1.6, 'Going for goals left gaps at the back.']); if (o.att < 0.35 && o.result !== 'L' && o.tg === 0) out.push([1.3, 'Compact and patient: the defensive plan worked.']);
+  return out.sort((a, b) => b[0] - a[0]).slice(0, 3).map(x => x[1]);
 }
 function quickSim(h, a) { const d = G.clubs[h].str - G.clubs[a].str + 0.3; return [poisson(1.48 * Math.exp(0.22 * d)), poisson(1.17 * Math.exp(-0.22 * d))]; }
 function applyResult(t, h, a, hg, ag) { if (G.clubs[h]) G.clubs[h].fm = (G.clubs[h].fm || []).concat(hg > ag ? 'W' : hg < ag ? 'L' : 'D').slice(-5); if (G.clubs[a]) G.clubs[a].fm = (G.clubs[a].fm || []).concat(ag > hg ? 'W' : ag < hg ? 'L' : 'D').slice(-5); const tab = G.divs[t].tab, H = tab[h], A = tab[a]; H.p++; A.p++; H.gf += hg; H.ga += ag; A.gf += ag; A.ga += hg; if (hg > ag) { H.w++; A.l++; H.pts += 3; } else if (hg < ag) { A.w++; H.l++; A.pts += 3; } else { H.d++; A.d++; H.pts++; A.pts++; } }

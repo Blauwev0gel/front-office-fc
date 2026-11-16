@@ -274,10 +274,21 @@ F.sum2Edition = () => {
   const grade = score >= 4 ? 'A' : score >= 2.8 ? 'B' : score >= 1.5 ? 'C' : score >= 0.5 ? 'D' : 'E';
   const head = grade === 'A' ? 'A summer to remember' : grade === 'B' ? 'Smart business at ' + g().club.short : grade === 'C' ? 'A summer of half measures' : grade === 'D' ? 'Questions over summer business' : 'Summer of failure';
   const rows = after.map(r => { const b = (s.before || []).find(x => x.pos === r.pos) || {}; return { pos: r.pos, b: b.best || 0, a: r.best, nb: b.n || 0, na: r.n }; });
+  // The Gazette compares the signed brief with the actual recruitment trail.
+  const B = s.mt.brief, R = g().rec;
+  const plans = (B ? B.prios : []).map(pos => {
+    const ids = (B.lists[pos] || []).slice(0, 2);
+    const name = id => { const p = R.pool[id] || sq().find(q => q.id === id) || R.log.find(l => l.pid === id); return p ? p.name : 'Unknown target'; };
+    const signed = R.log.find(l => l.s === g().season && l.pos === pos && ids.includes(l.pid));
+    const replacement = !signed && R.log.find(l => l.s === g().season && l.pos === pos);
+    const failed = ids.map(id => R.pipe.find(x => x.pid === id)).find(x => x && x.stage === 'lost');
+    const result = signed ? signed.name + ' signed from the shortlist.' : replacement ? replacement.name + ' signed instead.' : failed ? 'No signing. ' + ((failed.log || []).slice(-1)[0] || 'The target fell through.') : 'No signing completed.';
+    return { pos, a: ids[0] ? name(ids[0]) : null, b: ids[1] ? name(ids[1]) : null, done: !!(signed || replacement), result };
+  });
   const coach = xi > 0.15 ? `"I have a better squad than in May. Now it is up to me."` : xi < -0.1 ? `"We are weaker than last season. I will say that to anyone who asks."` : `"About the same squad. We will have to work harder."`;
   const fans = grade <= 'B' ? 'Supporters\' forums are buzzing about the new arrivals.' : 'Supporters are asking where the money went.';
   const board = met >= 2 ? '"The DoF did what we agreed."' : '"We expected more from this summer."';
-  s.ed = s.ed || { grade, met, n: ev.length }; return { ev, grade, head, ins, outs, spent, earned, net: spent - earned, rows, xi, coach, fans, board };
+  s.ed = s.ed || { grade, met, n: ev.length }; return { ev, grade, head, ins, outs, spent, earned, net: spent - earned, rows, xi, coach, fans, board, plans };
 };
 
 /* ---------- the debrief ---------- */

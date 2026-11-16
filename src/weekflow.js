@@ -167,8 +167,25 @@ const ECHO = {
   'ticket_protest:1': () => 'There are more empty seats than last season, the Gazette notes.',
   'dof_rule:0': c => { const p = c.player && sq().find(x => x.name === c.player.name); return p ? `${p.name}, signed as an exception to the rules, has ${p.st.apps || 0} appearances so far.` : ''; },
   'staff_raise:2': () => 'An agent says one of our heads of department has been looking at other jobs.',
+  // far echoes: the same decision, seasons later (keys start with far:, they are scheduled together with the near echo)
+  'far:bet_sponsor:0': () => 'The betting logo is still on the shirt. Nobody can remember why it was ever a big decision.',
+  'far:bet_sponsor:1': () => 'The new stand roof has been costed. The betting money we turned down would have covered it.',
+  'far:raise_demand:1': c => { const p = P(c.pid); return p ? `${p.name}, whose raise you refused, is still here. His agent still brings it up.` : 'The player whose raise you refused has long gone. His agent has not.'; },
+  'far:bid_star:0': () => 'The fee we took for our star would no longer buy a decent full-back.',
+  'far:bid_star:1': c => { const p = P(c.pid); return p ? `${p.name}, the player you would not sell, is ${p.age} now with ${p.contract} season${p.contract === 1 ? '' : 's'} left on his deal.` : 'The player you would not sell has since moved on, and the fee was never mentioned again.'; },
+  'far:clash_prospect:0': c => `${c.name}, sold as a teenager, has signed his first professional contract elsewhere.`,
+  'far:clash_prospect:1': c => { const p = P(c.pid); return p ? `${c.name}, the boy you would not sell, ${sq().includes(p) ? 'is a first-team regular now' : 'is still in the academy and still asks about the first team'}.` : ''; },
+  'far:ticket_protest:0': () => 'The ground has been full for two seasons. The queue for the pies has not improved.',
+  'far:ticket_protest:1': () => 'The supporters\' trust still raises the ticket prices at every annual meeting.',
+  'far:naming_rights:0': () => 'Supporters now use the sponsored stadium name without irony. A small defeat for irony.',
 };
-for (const k in ECHO) { const [id, i] = k.split(':'); const e = F.EV[id]; if (!e || !e.opts[+i]) continue; const f0 = e.opts[+i].f; e.opts[+i].f = c => { const out = f0(c); const G = g(); if (G.resBy === 'you') (G.echo = G.echo || []).push({ at: F.absWeek() + ri(3, 8), k, ctx: c }); return out; }; }
+/* ---------- memory: what the CEO chose is remembered, so later events can answer it ---------- */
+// G.mem['event_id:option'] = { at: absolute week, s: season, c: the plain values of the event's context (pid, name, ...) }
+const keepCtx = c => { const o = {}; if (c) for (const k in c) { const v = c[k]; if (v == null || ['number', 'string', 'boolean'].includes(typeof v)) o[k] = v; } return o; };
+for (const id in F.EV) { const e = F.EV[id]; if (!Array.isArray(e.opts)) continue; e.opts.forEach((o, i) => { if (typeof o.f !== 'function') return; const f0 = o.f; o.f = c => { const out = f0(c), G = g(); if (G.resBy === 'you') (G.mem = G.mem || {})[id + ':' + i] = { at: F.absWeek(), s: G.season, c: keepCtx(c) }; return out; }; }); }
+// recall('raise_demand:1', 34, 150): the record if that choice was made between 34 and 150 weeks ago, else null
+function recall(key, minAgo, maxAgo) { const r = (g().mem || {})[key]; if (!r) return null; const ago = F.absWeek() - r.at; return ago >= (minAgo || 0) && ago <= (maxAgo == null ? Infinity : maxAgo) ? r : null; }
+for (const k in ECHO) { if (k.startsWith('far:')) continue; const [id, i] = k.split(':'); const e = F.EV[id]; if (!e || !e.opts[+i]) continue; const f0 = e.opts[+i].f; e.opts[+i].f = c => { const out = f0(c); const G = g(); if (G.resBy === 'you') { (G.echo = G.echo || []).push({ at: F.absWeek() + ri(3, 8), k, ctx: c }); if (ECHO['far:' + k]) G.echo.push({ at: F.absWeek() + 34 * ri(1, 3) + ri(0, 10), k: 'far:' + k, ctx: keepCtx(c) }); } return out; }; }
 
 /* ---------- half-time: the dressing room (B27) ---------- */
 // The match is already decided by the engine: this choice is about the people, never the score.
@@ -178,5 +195,5 @@ function htOffer(m) { const G = g(); if (!m || !staff('coach')) return null; con
 function htChoice(k) { const s = staff('coach'); if (!s) return ''; const n = s.name.split(' ')[0];
   if (k === 'in') { sq().forEach(p => p.morale = clamp(p.morale + 3, 0, 100)); rel('coach', s.p.ego > 13 ? -5 : -2); return s.p.ego > 13 ? `The players listen. ${n} stands by the door, arms folded.` : `A few calm words. ${n} nods as you leave.`; }
   rel('coach', 2); return `You stay in the box. ${n} appreciates the trust.`; }
-Object.assign(F, { weekTopic: topic, OPP_IDS: OPP, mdHtOffer: htOffer, mdHtChoice: htChoice });
+Object.assign(F, { weekTopic: topic, OPP_IDS: OPP, mdHtOffer: htOffer, mdHtChoice: htChoice, recall });
 })(FO);

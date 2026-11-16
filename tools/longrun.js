@@ -3,12 +3,16 @@
 // Read it with: node tools/longrun-analyze.js out.json   (see notes/longevity-2026-11.md)
 // Headless simulation: plays N seasons with random CEO behaviour and checks invariants.
 const fs = require('fs'), path = require('path'), vm = require('vm');
-const src = ['engine.js', 'events.js', 'events2.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js', 'firstteam.js', 'depts.js', 'levers.js', 'commercial.js', 'marketing.js', 'business.js', 'academy3.js', 'recruitx.js', 'matchtalk.js', 'desk.js', 'talks.js', 'weekflow.js', 'weekloop.js', 'loop.js', 'dossiers.js', 'pathway.js'].map(f => require(require('path').join(__dirname, '..', 'test', 'src.js'))(f)).join('\n');
+const src = ['engine.js', 'events.js', 'events2.js', 'events3.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js', 'firstteam.js', 'depts.js', 'levers.js', 'commercial.js', 'marketing.js', 'business.js', 'academy3.js', 'recruitx.js', 'matchtalk.js', 'desk.js', 'talks.js', 'weekflow.js', 'weekloop.js', 'loop.js', 'dossiers.js', 'pathway.js'].map(f => require(require('path').join(__dirname, '..', 'test', 'src.js'))(f)).join('\n');
 function boot() { const ctx = { console, module: undefined }; vm.createContext(ctx); vm.runInContext(src + '\n;this.FO=FO;', ctx); return ctx.FO; }
 const runs = +process.argv[2] || 6, seasons = +process.argv[3] || 3;
 const summary = []; const OUT = {runs: []};
 for (let r = 0; r < runs; r++) {
-  const FO = boot(); const G = FO.newGame(1000 + r * 7919);
+  const FO = boot();
+  // CEO style: random (default), absent (never answers anything), staff (always takes the head's own pick)
+  const POLICY = process.env.LONGRUN_POLICY || 'random';
+  if (POLICY === 'absent') for (const k of ['respond', 'answerBrief', 'talk', 'push', 'ftTalkStart', 'decideProposal', 'secondOpinion', 'pressAnswer']) if (k !== 'pressAnswer') FO[k] = () => null;
+  if (POLICY === 'staff') { const r0 = FO.respond; FO.respond = (id, idx) => { const m = FO.G.inbox.find(x => x.id === id), e = m && FO.EV[m.ev]; let a = idx; try { if (e && e.auto) a = e.auto(m.ctx); } catch (err) { } return r0(id, a); }; } const G = FO.newGame(1000 + r * 7919);
   const pick = a => a[Math.floor(FO.rnd() * a.length)];
   const d = {}; for (const q of FO.DNA) d[q.k] = pick(q.o).v;
   FO.setDNA(d, 'Test United', 'TST', 'Testford', ['#123', '#fff']);

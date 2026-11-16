@@ -1,5 +1,5 @@
 const fs = require('fs'), path = require('path'), vm = require('vm');
-const src = ['engine.js', 'events.js', 'events2.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js'].map(f => require('./src.js')(f)).join('\n');
+const src = ['engine.js', 'events.js', 'events2.js', 'events3.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js'].map(f => require('./src.js')(f)).join('\n');
 const ctx = { console }; vm.createContext(ctx); vm.runInContext(src + '\n;this.FO=FO;', ctx); const FO = ctx.FO;
 FO.newGame(+process.argv[2] || 8926); const pick = a => a[Math.floor(FO.rnd() * a.length)];
 const d = {}; for (const q of FO.DNA) d[q.k] = pick(q.o).v; FO.setDNA(d, 'T', 'T', 'T', ['#123', '#fff']);

@@ -197,7 +197,7 @@ function makeBrief() {
   kpis.push({ k: 'prios', t: `Sign a player for ${p.prios.slice(0, 2).map(POSL).join(' and ')}`, pos: p.prios.slice(0, 2) });
   kpis.push({ k: 'net', t: `Net spend under ${money(Math.round(b * 0.9 / 100) * 100)}`, v: Math.round(b * 0.9) });
   if (p.approach === 'star') kpis.push({ k: 'star', t: `Land a clear upgrade (grade A)` });
-  else kpis.push({ k: 'count', t: `At least three signings`, v: 3 });
+  else { const target = Math.max(1, Math.min(3, p.prios.length)); kpis.push({ k: 'count', t: `At least ${target} useful signing${target === 1 ? '' : 's'}`, v: target }); }
   s.mt.brief = { kpis, prios: p.prios, approach: p.approach, sell: p.sell.slice(), keep: p.keep.slice(), approve: p.approve, budget: b, lists: p.lists };
   say('dof', `"Then this is what I will be judged on." He slides the summer brief across the table.`);
 }
@@ -263,7 +263,7 @@ function evalBrief() {
     if (k.k === 'prios') { const got = k.pos.filter(p => ins.some(l => l.pos === p)); return { ...k, met: got.length === k.pos.length, note: got.length ? `Signed for ${got.map(POSL).join(' and ')}` : 'Nobody signed in those positions' }; }
     if (k.k === 'net') return { ...k, met: net <= k.v, note: `Net spend ${money(net)}` };
     if (k.k === 'star') { const a = R.log.filter(l => l.s === g().season && ins.some(i => i.name === l.name)).find(l => { return l.est != null && l.est >= Math.max(...sq().filter(p => p.pos === l.pos && p.name !== l.name).map(p => p.ca), 0) + 0.3; }); return { ...k, met: !!a, note: a ? `${a.name} looks like an upgrade` : 'No clear upgrade arrived' }; }
-    if (k.k === 'count') { const R2 = g().rec, sur = R2.log.filter(l => l.s === g().season && l.surplus).length, useful = ins.length - sur; return { ...k, met: useful >= k.v, note: `${useful} useful signing${useful === 1 ? '' : 's'}${sur ? `, ${sur} surplus` : ''}` }; }
+    if (k.k === 'count') { const R2 = g().rec, signedIds = new Set(ins.map(l => l.pid).filter(Boolean)), sur = R2.log.filter(l => l.s === g().season && l.surplus && (signedIds.has(l.pid) || ins.some(i => i.name === l.name))).length, useful = Math.max(0, ins.length - sur); return { ...k, met: useful >= k.v, note: `${useful} useful signing${useful === 1 ? '' : 's'}${sur ? `, ${sur} surplus` : ''}` }; }
     return { ...k, met: false, note: '' };
   });
 }

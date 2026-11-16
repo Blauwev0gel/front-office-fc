@@ -59,18 +59,22 @@ function recRecord(V) {
 }
 
 /* ---------- academy: the record as four questions ---------- */
-function acRecord() {
-  const g = G(), v = F.acadView(), a = v.a, last = a.lastSeason, sel = U.ag || 'U18', grpD = v.groups.find(x => x.k === sel) || v.groups[0];
-  const intake = `<div class="sec">Is the intake good?</div><div class="panel2"><p class="small" style="margin:0 0 6px">${esc(F.acadCatName(v.cat))}, score ${Math.round(v.catScore.total)}. Category 3 from 55, 2 from 75, 1 from 95. Audit in week 30.</p>${v.catScore.parts.map(p => mrow('academy', esc(p[0]), p[1], p[2], `${Math.round(p[1])} of ${p[2]}`)).join('')}<p class="small" style="margin:6px 0 0">A better category brings better intakes, a grant, international recruitment and higher fees when rivals poach.</p></div>`;
+function acKids() {
+  const g = G(), v = F.acadView(), sel = U.ag || 'U18', grpD = v.groups.find(x => x.k === sel) || v.groups[0];
   const kids = `<div class="sec">Are the kids growing?</div><div class="panel2">${acPyramid(F.acView())}</div>
   <div class="seg wide" style="margin:8px 0">${['U14', 'U16', 'U18', 'U21'].map(k => `<button class="${sel === k ? 'on' : ''}" data-a="ag" data-v="${k}">${k}</button>`).join('')}</div>
   <div class="pcards">${grpD.players.map(p => `<button class="pcd" data-a="player" data-id="${p.id}"><span class="pf">${ART.face(p.id * 17 + 11, { role: 'youth', age: p.age, region: p.region, c1: g.club.colors[0], c2: g.club.colors[1], bg: '#fff', emo: p.wel < 40 ? 'worried' : null })}</span><span class="pm"><b>${esc(p.name)}</b><small>${p.age}, ${F.POS_L[p.pos]}${p.playUp ? ', plays up' : ''}${p.loanOut ? ', on loan' : ''}</small><span class="strengths">${strengths(p)}</span></span><span class="pr"><span class="stx">${F.absStars(p.ca)}★</span><small class="small">pot ${p.band[0]}–${p.band[1]}★</small>${p.wel < 40 ? '<small class="bad">welfare low</small>' : p.edu < 40 ? '<small class="bad">school slipping</small>' : ''}</span></button>`).join('') || `<p class="small">No players in the ${sel} group.</p>`}</div>
   <p class="small">Coaching level ${grpD.lv.toFixed(1)} of 10. Low welfare or school results lead to drop-outs.</p>`;
+  return kids;
+}
+function acRecord() {
+  const g = G(), v = F.acadView(), a = v.a, last = a.lastSeason;
+  const intake = `<div class="sec">Is the intake good?</div><div class="panel2"><p class="small" style="margin:0 0 6px">${esc(F.acadCatName(v.cat))}, score ${Math.round(v.catScore.total)}. Category 3 from 55, 2 from 75, 1 from 95. Audit in week 30.</p>${v.catScore.parts.map(p => mrow('academy', esc(p[0]), p[1], p[2], `${Math.round(p[1])} of ${p[2]}`)).join('')}<p class="small" style="margin:6px 0 0">A better category brings better intakes, a grant, international recruitment and higher fees when rivals poach.</p></div>`;
   const reach = `<div class="sec">Do they reach the first team?</div><div class="panel2">${a.log.length ? a.log.slice().reverse().slice(0, 8).map(l => `<div class="scr2"><span>${esc(l.name)}<small>${l.pos}, promoted in season ${l.season}</small></span><b>${l.pot}★ potential</b></div>`).join('') : '<p class="small" style="margin:0">No graduates yet.</p>'}
   ${last ? `<details class="more"><summary>Last season in the academy ${ART.I.chev}</summary>${[['Promoted to first team', last.promoted], ['New scholars', last.scholars], ['Kept as under-21s', last.u21], ['On loan', last.loans], ['Released', last.released], ['Dropped out', last.dropped]].map(([l, x]) => `<p class="small"><b>${l}:</b> ${esc(x.join(', ') || 'none')}</p>`).join('')}</details>` : ''}</div>`;
   const roi = `<div class="sec">Is it worth the money?</div><div class="money1 panel2"><div><small>Spent</small><b>${money(v.roi.spent)}</b></div><div><small>Earned</small><b>${money(v.roi.earned)}</b></div><div><small>Net</small><b class="${v.roi.net >= 0 ? 'good' : 'bad'}">${v.roi.net >= 0 ? '+' : ''}${money(v.roi.net)}</b></div></div><p class="small">Earned counts sales, fees and grants; net adds the value of graduates in the squad.</p>`;
   const youth = `<details class="more"><summary>Youth leagues and cup ${ART.I.chev}</summary>${['U18', 'U21'].map(k => { const t = v.lg[k], me = t.findIndex(x => x.id === 0); return `<h3>${k} league</h3><table><thead><tr><th>Team</th><th>P</th><th>GD</th><th>Pts</th></tr></thead><tbody>${t.map((x, i) => i < 4 || Math.abs(i - me) <= 1 ? `<tr class="${x.id === 0 ? 'me' : ''}"><td>${i + 1}. ${esc(x.n)}</td><td>${x.p}</td><td>${sign(x.gf - x.ga)}</td><td>${x.pts}</td></tr>` : '').join('')}</tbody></table>`; }).join('')}<h3>Youth Cup</h3>${v.cup && v.cup.log.length ? v.cup.log.map(l => `<p class="small">${cap(l.rd)}: ${esc(l.opp)}, <b class="${l.win ? 'good' : 'bad'}">${l.win ? 'won' : 'lost'}</b></p>`).join('') : '<p class="small">First round in week 9.</p>'}${v.honours.length ? `<p class="small">Honours: ${esc(v.honours.join(', '))}.</p>` : ''}</details>`;
-  return intake + kids + reach + roi + youth;
+  return intake + reach + roi + youth;
 }
 function acStaff() {
   const v = F.acadView();

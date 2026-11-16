@@ -114,7 +114,7 @@ function vDept(k) {
   if (tab === 'now') {
     const kpis = st.rows.length ? `<div class="sec">The numbers</div><div class="kgrid">${st.rows.slice(0, 4).map(kpiTile).join('')}</div>` : '';
     const vis = k === 'commercial' && F.comView ? comOverview(F.comView()) : k === 'marketing' && F.mkView ? mkOverview(F.mkView()) : k === 'business' && F.bizView ? bizOverview() : FP ? `<div class="sec">Form</div><div class="panel2">${FP.form}</div>` : '';
-    body = (s ? verdictCard(st, role, s) + needsHtml(k, role, d) + (FP ? ftActions() : '') + (k === 'academy' && F.acView ? acDecisions(F.acView()) : '') : headCard(k, v)) + kpis + vis + (k === 'recruit' && F.squadPlanView ? accHtml(k, 'sqp', 'Squad plan', 'Winter and summer targets', squadPlanHtml(), false) : '');
+    body = (s ? verdictCard(st, role, s) + needsHtml(k, role, d) + (FP ? ftActions() : '') + (k === 'academy' && F.acView ? acDecisions(F.acView()) : '') : headCard(k, v)) + kpis + vis + (k === 'academy' && g.acad ? acKids() : '') + (k === 'recruit' && F.squadPlanView ? accHtml(k, 'sqp', 'Squad plan', 'Winter and summer targets', squadPlanHtml(), false) : '');
   }
   let peopleHtml = '';
   {

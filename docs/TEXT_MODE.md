@@ -48,3 +48,18 @@ node test/browser/text-mode.cjs
 The last two browser tests require Playwright/Chrome. Existing headless tests also cover other engine systems. Source-level checks are **not** a substitute for real mobile/browser playthroughs.
 
 **Release gate:** Do not claim feature parity until a full founding run, the five-stage summer, regular weekly play, staff/department controls, a match, Gazette, season transition and reload have been exercised in a browser. Leave `main` visual unless the user explicitly requests otherwise.
+
+## Text-bench V3 corrective redesign (16 November 2026)
+
+The previous wireframe V2 was not treated as a finished UI. The consolidated stylesheet is now intentionally smaller, replacing layers of conflicting overrides instead of adding another layer.
+
+**Confirmed source-level defects corrected:**
+
+- Red Box messages were disabled by the UI at zero action points, contradicting the already-merged engine rule that required replies cost zero. The UI now allows them and explains the rule. Optional second opinions still consume actions.
+- The CSS hid `scene` containers (and thus the participants in the summer meeting) rather than only the illustration. The participant names remain visible without art.
+- Universal transparent backgrounds and broad flex/grid overrides created contradictory layouts. The text-bench CSS now scopes styles to established components and retains their internal layout by default.
+- Every generic `.btn` was styled as a primary call to action. Strong emphasis is now reserved for the actual play/submit controls; other buttons stay neutral.
+
+**Evidence and limits:** source parser and isolated Red Box behaviour tests passed in the assistant environment. The GitHub workflow now has a regression check for free required replies and prohibited broad CSS hiding. Browser/mobile playthroughs remain a separate release gate; do not claim full parity or live deployment without checking them.
+
+**Next QA steps:** on 390px and desktop, test actual club creation, staff hiring, summer meeting (names/agenda/signature), deadline day, Red Box with 0 AP, all five department tabs, match commentary, Gazette and save/load; inspect overflow and fixed trays, then address concrete failures rather than introducing more global CSS.

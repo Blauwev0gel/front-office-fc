@@ -19,10 +19,11 @@ function setup(seed) { const FO = boot(); FO.newGame(seed); const d = {}; for (c
   ok(G.phase === 'review' && /one more summer/i.test(JSON.stringify(G.paper.stories)) || G.phase === 'sacked', 'final-week collapse uses the season-end rule (phase ' + G.phase + ')');
 }
 { const FO = setup(12), G = FO.G;
-  for (let i = 0; i < FO.SEASON_WEEKS - 2 && G.phase === 'season'; i++) FO.endWeek();
+  // an absent CEO can now be dismissed in season 1; keep the backers healthy on the way to the late-season vote this test is about
+  for (let i = 0; i < FO.SEASON_WEEKS - 2 && G.phase === 'season'; i++) { G.board.conf = 80; G.st.fans = 60; G.st.press = 60; G.squad.forEach(p => p.morale = 75); FO.endWeek(); }
   G.votes = {}; G.vote = null; FO.queueEvent('vote_fans', { k: 'fans' });
   // make the vote certain to fail: no support anywhere, then leave it unanswered
-  G.st.fans = 0; G.st.press = 0; G.board.conf = 1; G.form = ['L', 'L', 'L', 'L', 'L'];
+  G.st.fans = 0; G.st.press = 0; G.board.conf = 15; G.form = ['L', 'L', 'L', 'L', 'L']; G.squad.forEach(p => p.morale = 85); /* the dressing room must not start its own vote first */
   FO.endWeek(); // generates the vote message for week 38
   const v = G.inbox.find(m => !m.done && m.ev === 'vote_fans'); ok(!!v, 'vote message is in the inbox in week ' + G.week);
   const before = G.season; FO.G.rs = 4242; // seeded

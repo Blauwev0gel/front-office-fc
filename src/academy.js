@@ -73,7 +73,7 @@ H.acadWeekly = () => {
   const TECH = ['pas', 'dri', 'vis', 'com', 'fin', 'cro'], PHYS = ['pac', 'sta', 'str', 'hea', 'tac', 'mar'];
   for (const p of G.academy) {
     const k = grp(p), mult = 0.45 + a.lv[k] / 10 * 0.5 + yv('ycoach') / 20 * 0.35 + c.fac.youth * 0.04 + (p.playUp ? 0.15 : 0) + (p.loanOut ? 0.25 : 0) + (p.mentor ? 0.08 : 0) + (p.pers.prof - 10) * 0.03 + (p.wel - 60) / 200 + (ph < 40 ? 0.05 : -0.03) + (G.push.academy > 0 ? 0.3 : 0) + (F.perk('ysci') ? 0.1 : 0);
-    const ga = Math.max(0, p.pa - p.ca) * (k === 'U21' ? 0.0045 : 0.006) * mult, w = F.POSW[p.pos];
+    const ga = Math.max(0, p.pa - p.ca) * (k === 'U21' ? 0.0025 : 0.0033) * mult, w = F.POSW[p.pos];
     for (const at in w) { const wt = TECH.includes(at) ? 0.6 + tech * 0.8 : PHYS.includes(at) ? 0.6 + (1 - tech) * 0.8 : 1; p.a[at] = clamp(p.a[at] + ga * wt * (0.6 + F.rnd() * 0.8), 1, 20); }
     upd(p); if (p.ca > p.pa) p.pa = p.ca;
     const eT = clamp(40 + yv('ycare', 1) * 2 + wf * 0.2 + b * 10 + (F.perk('edu') ? 15 : 0), 0, 100), wT = clamp(48 + yv('ycare', 0) * 1.8 + wf * 0.25 - ph * 0.15 - (p.playUp ? 8 : 0) - (p.loanOut ? 5 : 0) + (F.perk('boarding') ? 8 : 0) + (F.perk('ysci') ? 5 : 0), 0, 100);

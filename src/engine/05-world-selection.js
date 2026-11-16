@@ -53,7 +53,7 @@ function strengthParts(lineup) {
   if (!L.xi.length) return P;
   let q = 0; for (const x of L.xi) q += x.p.ca * fit(x.p, x.slot) * (x.p.settle ? 1 : 0.94) * (x.p.age <= 21 ? 0.95 : 1); /* inexperience */
   P.squad = q / 11 - (11 - L.xi.length) * 0.6;
-  const co = staff('coach'); P.coach = (eff('coach', 0) - 10) * 0.10;
+  const co = staff('coach'); P.coach = (eff('coach', 0) - tierAvg(G.club.tier)) * 0.18; // B37: a weaker coach than the division's is a weaker team
   if (co) { const st = man('coach', 'style') === 'dna' ? G.club.dna.style : co.style; P.style = st === co.style ? (co.style === G.club.dna.style ? 0.3 : 0.2) : -0.1; } else P.style = -0.2;
   const mor = G.squad.reduce((a, p) => a + p.morale, 0) / Math.max(1, G.squad.length);
   P.morale = (mor - 60) / 40 * 0.35 + (eff('coach', 1) - 10) * 0.02; P.moraleAvg = mor;

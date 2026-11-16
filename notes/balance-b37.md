@@ -24,3 +24,9 @@ Het structurele voordeel van +1,26 aanpakken: waar komt het vandaan (startselect
 
 Oude voorstel, deels gedaan in v4:
 De ontwikkelsnelheid van jonge spelers in `develop()` (`src/engine/08-weekly-inbox.js`: `(pa - ca) * 0.0055 * devF`) rechtstreeks verlagen of met het niveau laten afnemen. Plus hefboom D (winnen kost iets: verwachtingen schalen met succes). Meet daarna met een kleine run.
+
+## v5 (owner input: basis selectie OK, jeugd te snel, slechte staf moet slechter presteren) — nog niet gemeten met een run
+- Jeugdgroei bijna gehalveerd: `develop()` 0,0055 → 0,0030 per week (`src/engine/08-weekly-inbox.js`), academie 0,006/0,0045 → 0,0033/0,0025 (`src/academy.js`). Rekenvoorbeeld (17-jarige, tier 6, gemiddelde coach): 27% → 16% van het gat naar potentieel per seizoen; 90% sluiten duurt 13 in plaats van 7,3 jaar; tot 24 jaar bereikt hij ±70% van zijn potentieel.
+- Coach telt relatief aan het divisieniveau: `(eff − tierAvg) × 0,18` op teamsterkte (zwak −0,50, gemiddeld 0, sterk +0,58 op tier 6) en `(eff − tierAvg)/10 × 0,8` in de groeifactor. DoF-prijsinvloed `(eff − tierAvg) × 0,04`.
+- `test/sack.js` aangepast: een volledig afwezige CEO kan nu al in seizoen 1 ontslagen worden (kleedkamerstemming in week 28), dus de test houdt de achterbannen in de aanloop op niveau.
+- Niet aangepakt: effect van de andere staf (scout, academy, commercial, marketing, finance) op resultaten.

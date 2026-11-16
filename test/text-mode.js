@@ -14,10 +14,10 @@ const html = fs.readFileSync(path.join(__dirname, '../dist/index.html'), 'utf8')
 const script = html.match(/<script>([\s\S]*?)<\/script>/);
 assert(script && script[1], 'standalone game script present');
 new vm.Script(script[1], { filename: 'dist/index.html' });
-assert(html.includes('THE FRONT OFFICE / TEXT-FIRST DEVELOPMENT UI'),
+assert(html.includes('FRONT OFFICE · TEST BENCH UI v3'),
   'text stylesheet included in the built HTML');
 assert(!html.includes('/*JS*/') && !html.includes('/*CSS*/'), 'all build placeholders resolved');
-assert(css.lastIndexOf('THE FRONT OFFICE / TEXT-FIRST DEVELOPMENT UI') > css.indexOf('VOICE:'),
+assert(css.lastIndexOf('FRONT OFFICE · TEST BENCH UI v3') > css.indexOf('VOICE:'),
   'text CSS must load after the original visual styles');
 assert(ui.includes('ART.face = noVisual') && ui.includes('ART.office = o =>'),
   'portrait and office drawing replaced with text');
@@ -49,8 +49,8 @@ for (const selector of ['.redbox', '.rbr', '.srow', '.mreply', '.dtiles',
   assert(css.includes('#app ' + selector) || css.includes('.' + selector),
     'wireframe treatment exists for ' + selector);
 }
-assert(css.includes('WIREFRAME V2'), 'wireframe system is loaded');
-assert(css.includes('@media(max-width:580px)'), 'mobile-first wireframe responsive rules');
+assert(css.includes('TEST BENCH UI v3'), 'wireframe system is loaded');
+assert(css.includes('@media(max-width:500px)'), 'mobile-first wireframe responsive rules');
 assert(css.includes('.srow[aria-pressed="true"]'),
   'chosen decision remains visually distinct');
 assert(css.includes('.b2nav button.on'), 'selected navigation tab remains distinct');

@@ -42,4 +42,19 @@ for (const moduleName of ['recruit.js', 'summer.js', 'summer2.js', 'desk.js', 'd
   const marker = 'The Front Office';
   assert(read(moduleName).length > 100, 'engine or UI module still available: ' + moduleName);
 }
+// Wireframe layout contract: this is presentation-only. It must preserve
+// action targets and text-first responsive layout instead of introducing art.
+for (const selector of ['.redbox', '.rbr', '.srow', '.mreply', '.dtiles',
+  '.dtile2', '.planboard', '.feedl', '.mdfoot', '.bar2']) {
+  assert(css.includes('#app ' + selector) || css.includes('.' + selector),
+    'wireframe treatment exists for ' + selector);
+}
+assert(css.includes('WIREFRAME V2'), 'wireframe system is loaded');
+assert(css.includes('@media(max-width:580px)'), 'mobile-first wireframe responsive rules');
+assert(css.includes('.srow[aria-pressed="true"]'),
+  'chosen decision remains visually distinct');
+assert(css.includes('.b2nav button.on'), 'selected navigation tab remains distinct');
+assert(!/\\[?data-a[^}]*display\\s*:\\s*none/.test(css),
+  'wireframe must not hide gameplay action controls');
+console.log('PASS: structural wireframe hierarchy and responsive states');
 console.log('PASS: text mode builds, script parses and all required actions and modules remain');

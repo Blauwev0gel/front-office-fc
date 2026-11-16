@@ -1,5 +1,5 @@
 /* ---------- staff work, records & chains (1.1) ---------- */
-function later(id, ctx, a, b) { (G.later = G.later || []).push({ at: absWeek() + ri(a, b), id, ctx: ctx || {} }); }
+function later(id, ctx, a, b) { (G.later = G.later || []).push({ at: absWeek() + ri(a, b), id, ctx: ctx || {}, of: G.resOf || '' }); } /* 'of' names the decision this follows */
 function kittyFor(rev) { const d = G.club.dna; let k = Math.max(M(7000), (rev || 0) * 0.1); k *= { self: 0.7, owner: 1.4, debt: 1.2 }[d.money] || 1; if (d.origin === 'investor') k *= 1.4; return Math.round(k / 100) * 100; }
 function snapStart() { G.ss.start = { spons: sponsorIncome(), fanbase: G.club.fanbase, cash: G.club.cash, brand: G.club.brand }; }
 function scoutWork() {

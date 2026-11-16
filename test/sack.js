@@ -13,7 +13,7 @@ function setup(seed) { const FO = boot(); FO.newGame(seed); const d = {}; for (c
 // 1. failed vote left unanswered in the final week must not roll into a new season
 { const FO = setup(11), G = FO.G; ok(G.phase === 'season', 'reaches the season');
   while (G.week < FO.SEASON_WEEKS && G.phase === 'season') FO.endWeek();
-  G.board.conf = -5; G.st.fans = 0; FO.endWeek(); // triggers a vote (board) in week 38 -> season end
+  G.board.conf = -60; /* deep enough that a staff-resolved event cannot lift it above zero (the test was seed-fragile) */ G.st.fans = 0; FO.endWeek(); // triggers a vote (board) in week 38 -> season end
   const pend = G.inbox.find(m => !m.done && /^vote_/.test(m.ev));
   // if the season ended, the reprieve path is used; force a failing vote mid-season instead below
   ok(G.phase === 'review' && /one more summer/i.test(JSON.stringify(G.paper.stories)) || G.phase === 'sacked', 'final-week collapse uses the season-end rule (phase ' + G.phase + ')');

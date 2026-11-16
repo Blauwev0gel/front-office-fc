@@ -110,3 +110,10 @@ Elke vorm bestaat al ergens in de code; ze worden ingezet waar ze bij passen:
 - Uitleg-gesprekken bij een slecht oordeel: ±4,6 per seizoen.
 - Ontslag (16 runs × 4 seizoenen): passief 8, actief 5, willekeurig 0, dezelfde verhouding als eerder. Te toetsen in de playtest: of de week niet te vol voelt (B3).
 
+
+## 8. Situation-driven selectie en opvolging (sprint "weekloop", 17-11-2026)
+- **Selectie** (`weekloop.js`, `HOOK.evWeight`): bovenop de bestaande voorwaarden, gewichten en cooldowns telt de situatie mee. Een afdeling onder druk (resultaten, geld, bestuursvertrouwen, supporters, pers, koude relatie met het hoofd) krijgt gewicht 1,4–2,0; een rustige afdeling 0,8–0,85; een verwant bericht van de afgelopen twee weken dempt met ×0,6. Een week met al drie openstaande berichten krijgt er geen extra bij; niets wordt kunstmatig toegevoegd. Alleen de seeded RNG wordt gebruikt.
+- **Opvolging:** `later()` onthoudt welk besluit het volgt (`of`); het vervolgbericht komt aan met `fu` en toont "Follow-up" en "After: …". Dubbele actieve berichten worden niet meer toegevoegd en een vervolg zonder bestaand event valt weg. Oude saves krijgen een veilige `later`-lijst.
+- **Inbox:** de rode map sorteert op belang (crisis, bestuur en conflict, dan vervolgen, dan de rest); bij meerdere berichten krijgt de belangrijkste "Main issue".
+- **Weekvolgorde** (`endWeek`, gecontroleerd): onbeantwoord → auto-afhandeling, dan afdelingswerk, wedstrijden, financiën, rapporten, weekwissel, `later`-vervolgen, seizoensblok, `genMessages`, `genBriefs`. Nieuwe berichten worden dus gemaakt na de statuswijziging waar ze op reageren. Gevolgen worden alleen in `resolve` toegepast; ik vond geen dubbele toepassing.
+- Test: `test/weekloop.js` (reproduceerbaar, situatie verschuift de selectie, drie vervolgketens, twee seizoenen, oude save). `test/sack.js` was seed-fragiel geworden door de andere RNG-volgorde (een door de staf afgehandeld event tilde het bestuursvertrouwen boven nul); de test gebruikt nu een diepere waarde.

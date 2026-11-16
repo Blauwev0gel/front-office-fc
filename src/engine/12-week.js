@@ -56,7 +56,7 @@ function endWeek() {
   G.week++; G.ap = AP_FREE;
   if (G.week > SEASON_WEEKS) { endSeason(); return { ours, cup, seasonOver: true }; }
   if (G.week === 9) { const p = G.promises.find(x => x.k === 'tickets' && x.status === 'open'); if (p && man('com', 'tickets') > 50) G.paper.stories.push({ h: 'Promise watch', t: 'Supporters note that ticket prices have crept above what was promised.' }); }
-  if (G.later) { const due = G.later.filter(l => l.at <= absWeek()); G.later = G.later.filter(l => l.at > absWeek()); for (const l of due) queueEvent(l.id, l.ctx); }
+  if (G.later) { const due = G.later.filter(l => l.at <= absWeek()); G.later = G.later.filter(l => l.at > absWeek()); for (const l of due) queueEvent(l.id, l.ctx, l.of || 'an earlier decision'); }
   if (HOOK.seasonWeekly) HOOK.seasonWeekly();
   genMessages(); genBriefs();
   G.inbox = G.inbox.filter((m, i) => !m.done || i < 40);

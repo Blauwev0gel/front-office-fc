@@ -99,3 +99,4 @@
 .wtopic h2{margin:2px 0 4px;font:900 26px/1.1 var(--head)}.wtopic p{margin:0;font-size:15px;line-height:1.4;color:var(--ink)}
 .wtopic.stake h2,.wtopic.window h2{color:var(--club)}
 .wtopic.crisis h2{color:var(--bad)}
+.rbr.lead{box-shadow:inset 4px 0 0 var(--club)}.rbr.lead .rbt em{background:var(--club);color:var(--on)}

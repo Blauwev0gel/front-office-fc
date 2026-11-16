@@ -66,7 +66,7 @@ function msgView(m) {
 }
 function autoIndex(m) { const e = EV[m.ev]; if (!ROLE[e.from] || staff(e.from)) return e.auto ? clamp(e.auto(m.ctx), 0, e.opts.length - 1) : 0; return e.vacant != null ? e.vacant : e.opts.length - 1; }
 function resolve(m, idx, by) {
-  const e = EV[m.ev]; m.done = true; m.choice = idx; m.by = by; G.resBy = by;
+  const e = EV[m.ev]; m.done = true; m.choice = idx; m.by = by; G.resBy = by; try { const t = e.title; G.resOf = typeof t === 'function' ? t(m.ctx) : t; } catch (err) { G.resOf = ''; }
   let r; try { r = e.opts[idx].f(m.ctx); } catch (err) { r = 'The situation resolved itself.'; } m.outcome = r || 'Done.';
   if (by !== 'you') { let lab = ''; try { lab = typeof e.opts[idx].l === 'function' ? e.opts[idx].l(m.ctx) : e.opts[idx].l; } catch (err) { } G.paper.stories.push({ h: by === 'The board' ? 'Board decision' : by === 'The club office' ? 'Club decision' : 'Staff decision', t: `${by}: ${lab}. ${m.outcome}` }); }
   return m.outcome;

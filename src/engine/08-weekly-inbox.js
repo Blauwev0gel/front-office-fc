@@ -73,16 +73,17 @@ function boardWeekly(res) {
 /* ---------- events & inbox ---------- */
 const EV = {}; // filled by events.js
 function defineEvent(id, def) { def.id = id; EV[id] = def; }
-function queueEvent(id, ctx) { if (!EV[id]) return; if (G.queue.some(q => q.id === id) || pendingOf(id)) return; G.queue.push({ id, ctx: ctx || {} }); }
+function queueEvent(id, ctx, fu) { if (!EV[id]) return; if (G.queue.some(q => q.id === id) || pendingOf(id)) return; G.queue.push({ id, ctx: ctx || {}, fu: fu || '' }); }
 function pendingOf(id) { return G.inbox.some(m => m.ev === id && !m.done); }
 function addMsg(id, ctx) { const e = EV[id]; const c = ctx || (e.setup ? e.setup() : {}); if (c === null) return false; const m = { id: uid(), ev: id, ctx: c, season: G.season, week: G.week, done: false }; G.inbox.unshift(m);
   if (e.second && staff(e.second.r)) { try { m.second = `${staff(e.second.r).name} (${ROLE[e.second.r].t}): ${e.second.t(c)}`; } catch (err) { } } /* the second voice comes with the message, free */ G.cd[id] = absWeek() + (e.cd || 8); if (HOOK.desk) { try { HOOK.desk(e, m); } catch (err) { } } return true; }
 const safe = f => { try { return f(); } catch (e) { return false; } };
 function genMessages() {
-  const forced = G.queue.splice(0, 4); for (const q of forced) addMsg(q.id, q.ctx);
+  const forced = G.queue.splice(0, 4); for (const q of forced) { if (!EV[q.id] || pendingOf(q.id)) continue; if (addMsg(q.id, q.ctx) && q.fu) { G.inbox[0].fu = q.fu; } } /* follow-ups carry what they follow */
   const ok = e => !e.forced && e.mode !== 'off' && (G.cd[e.id] || 0) <= absWeek() && !pendingOf(e.id) && (!e.cond || safe(e.cond));
-  let slots = Math.max(0, (chance(0.55) ? 1 : 2) - forced.length), tries = 0;
-  while (slots > 0 && tries++ < 10) { const el = Object.values(EV).filter(e => ok(e) && e.mode !== 'auto'); if (!el.length) break; const e = wpick(el, e => (e.w ? safe(e.w) || 0.5 : 1)); if (addMsg(e.id)) slots--; }
+  const openN = G.inbox.filter(m => !m.done).length; /* a week that already has plenty of subjects gets no extra ones */
+  let slots = openN >= 3 ? 0 : Math.max(0, (chance(0.55) ? 1 : 2) - forced.length), tries = 0;
+  while (slots > 0 && tries++ < 10) { const el = Object.values(EV).filter(e => ok(e) && e.mode !== 'auto'); if (!el.length) break; const e = wpick(el, e => (e.w ? safe(e.w) || 0.5 : 1) * (HOOK.evWeight ? HOOK.evWeight(e) : 1)); if (addMsg(e.id)) slots--; }
   let n = ri(1, 2); tries = 0;
   while (n > 0 && tries++ < 10) { const el = Object.values(EV).filter(e => ok(e) && e.mode === 'auto'); if (!el.length) break; const e = wpick(el, e => (e.w ? safe(e.w) || 0.5 : 1) * (G.push[e.dept] > 0 ? 2 : 1)); autoEvent(e); n--; }
   if (isMeeting(G.week)) genMeeting();

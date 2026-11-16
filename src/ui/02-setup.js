@@ -1,8 +1,7 @@
 /* ---------- views: title & setup ---------- */
 function vTitle() {
   const C = PALETTES[0];
-  return `<div class="title2"><svg class="tscene" viewBox="0 0 360 200" aria-hidden="true"><defs><pattern id="td" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="rgba(0,0,0,.08)"/></pattern></defs><rect width="360" height="200" fill="#a9cce6"/><circle cx="300" cy="44" r="18" fill="#f6d86b" stroke="#16201b" stroke-width="3"/><rect y="130" width="360" height="70" fill="#4f8d5c"/><path d="M0 130h360" stroke="#16201b" stroke-width="3"/><path d="M60 132 L84 92 L276 92 L300 132Z" fill="${C[0]}" stroke="#16201b" stroke-width="3"/><rect x="92" y="100" width="176" height="8" fill="#f3d36b"/><path d="M110 92v-22M250 92v-22" stroke="#16201b" stroke-width="3"/><circle cx="110" cy="66" r="6" fill="#fff" stroke="#16201b" stroke-width="2.5"/><circle cx="250" cy="66" r="6" fill="#fff" stroke="#16201b" stroke-width="2.5"/><rect width="360" height="200" fill="url(#td)"/></svg>
-  <div class="tbody"><h1>The Front Office</h1><p class="tag">You run the club. Not the team.</p><p>Found a club at the bottom of the pyramid. Hire the people, set their mandates and live with the results.</p></div></div>
+  return `<div class="title2"><div class="tbody"><h1>The Front Office</h1><p class="tag">You run the club. Not the team.</p><p>Found a club at the bottom of the pyramid. Hire the people, set their mandates and live with the results.</p></div></div>
   ${trayHtml('', `<button class="btn" data-a="new">Found a club</button><button class="btn ghost" data-a="sheet" data-s="quick">Start with a base club</button>${hasSave() ? '<button class="btn ghost" data-a="continue">Continue your club</button>' : ''}`, 'Saves automatically in this browser')}`;
 }
 function vSetupDNA() {

@@ -71,7 +71,7 @@ Vastgelegd:
 
 ### 5.2 De week (34× per seizoen)
 1. **Coming up** — wat staat er deze week.
-2. **Inbox / rode map** — antwoorden in twee tikken: kies, dan Send (B20); een second opinion staat erbij. Routinezaken beslissen afdelingen zelf binnen hun bevoegdheid; alleen
+2. **Inbox / rode map** — antwoorden met één tik (B33, herziet B20); een second opinion staat erbij. Routinezaken beslissen afdelingen zelf binnen hun bevoegdheid; alleen
    escalaties komen bij jou (boven het limiet, topspeler, clubnaam, zwakke/koude head, kort lijntje)
    plus wat altijd van de CEO is: conflicten tussen afdelingen, bestuur, supporters, pers, en
    gesprekken met de heads zelf.
@@ -198,3 +198,4 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 | B30 | 17-11-2026 | Het data-schuifje van de DoF is een afweging tussen snelheid en zekerheid: data-gedreven beveelt geen onzekere rapporten aan, oog-gedreven wel. | Geen betekenisloze instellingen (P9). |
 | B31 | 17-11-2026 | Gebeurtenissen volgen de clubsituatie: een afdeling onder druk krijgt vaker aandacht, een rustige wordt met rust gelaten, een verwant bericht van de afgelopen weken dempt een nieuw; een week met al drie openstaande berichten krijgt er geen bij. Vervolgberichten onthouden welk besluit ze volgen ("Follow-up", "After: …"); de rode map toont het belangrijkste als "Main issue". Rustige weken blijven mogelijk. | Continuïteit boven volume; gevolgen zijn herkenbaar (P2, P8). |
 | B32 | 17-11-2026 | De DoF houdt het hele seizoen een doorlopend kaderplan bij: winter = acute gaten, zomer = opvolging en aflopende contracten. Scouts werken daaraan, hij verlengt betaalbare contracten zelf en de CEO beslist alleen als een financiële grens in het mandaat in de weg zit. Het plan staat op het Now-tabblad van Recruitment en logt waarom prioriteiten wijzigen. | Je stuurt de DoF, niet de spelers (P1, B1); beslissingen laten een spoor na (P2); de DoF handelt zelf (P7). Idee van de chatgpt-branch, aangepast aan de Now/Plan-indeling. |
+| B33 | 17-11-2026 | **Herziet B20.** Een bericht beantwoorden kost één tik: het antwoord staat als regel in de mail zelf (met zijn effecten) en tikken verstuurt het direct, zonder Send-knop, wachttijd of undo. Big decisions blijven 'houd ingedrukt' op het antwoord. Een second opinion staat boven de antwoorden; het resultaat verschijnt in dezelfde mail met één knop 'Next email'. | De mail leest als een mail, geen vast paneel met dode ruimte (B3, P5); effecten zijn vooraf zichtbaar, dus je beslist geïnformeerd. |

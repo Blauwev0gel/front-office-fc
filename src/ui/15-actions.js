@@ -20,11 +20,8 @@ function act(a, d, el) {
     case 'press': { const q = F.PRESS.find(p => p.id === d.q); let ans = q.a[+d.i]; if (typeof ans === 'function') ans = ans(); U.quote = F.pressAnswer(d.q, +d.i); U.quoteP = !!ans[1]; U.pressI++; break; }
     case 'press-next': U.quote = null; if (U.pressI >= g.press.length) { F.finishPress(); U.tab = 'inbox'; window.scrollTo(0, 0); } break;
     case 'tab': U.tab = d.t; U.sub = null; U.dept = null; if (d.t === 'inbox') { U.open = null; U.flash = ''; } window.scrollTo(0, 0); break;
-    case 'mcomp': U.mc = { k: d.k, id: +d.id, i: +d.i }; ART.SND.click && ART.SND.click(); break; // select a reply; Send sends it
-    case 'mpick': if (U.mc) U.mc.i = +d.i; break;
-    case 'mclose': U.mc = null; break;
     case 'msend': mailSend(d); break;
-    case 'mnext': U.sentK = null; U.mc = null; advance(); window.scrollTo(0, 0); break;
+    case 'mnext': U.sentK = null; advance(); window.scrollTo(0, 0); break;
     case 'opt': r = F.respond(+d.m, +d.i); if (r && r.err) toast(r.err); else if (r && U.open) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.card(); ART.vib(15); advance(); } break;
     case 'open': if (!d.k) break; if (d.k.startsWith('an') && false) { markRead(d.k); U.sheet = { t: 'analysis' }; break; } if (d.k.startsWith('ms') && !d.k.startsWith('msw')) { markRead(d.k); const it = inboxItems().find(x => x.key === d.k); if (it) { U.ptab = 'story'; U.sheet = { t: 'player', id: it.pid }; } break; } U.open = d.k; U.flash = ''; U.mc = null; U.sentK = null; U.edI = 0; window.scrollTo(0, 0); break;
     case 'close-open': U.open = null; U.flash = ''; break;

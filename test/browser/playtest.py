@@ -5,13 +5,11 @@ from playwright.async_api import async_playwright
 OV = "(()=>{const d=document.documentElement;return d.scrollWidth>d.clientWidth+1?d.scrollWidth:0})()"
 async def answer(pg, n):
     if not await pg.locator('.srow').count(): return False
-    await pg.click(f'.srow >> nth={n}'); await pg.wait_for_timeout(250)
-    b = pg.locator('.msend')
-    if 'hold' in (await b.get_attribute('class') or ''):
-        bb = await b.bounding_box(); await pg.mouse.move(bb['x']+20, bb['y']+20); await pg.mouse.down(); await pg.wait_for_timeout(1250); await pg.mouse.up()
-    else: await b.click()
+    row = pg.locator(f'.srow >> nth={n}')
+    if 'hold' in (await row.get_attribute('class') or ''):
+        bb = await row.bounding_box(); await pg.mouse.move(bb['x']+20, bb['y']+20); await pg.mouse.down(); await pg.wait_for_timeout(1250); await pg.mouse.up()
+    else: await row.click()  # one tap sends (B33)
     await pg.wait_for_timeout(3300); return True
-
 async def md_through(pg):
     if not await pg.locator('[data-a=md-kick]').count(): return
     await pg.click('[data-a=md-kick]'); await pg.wait_for_timeout(300)
@@ -106,7 +104,7 @@ async def main():
     for r in ['coach','acad','dof']: await sclick(pg, f'[data-a=pw-ask][data-r={r}]'); await pg.wait_for_timeout(120)
     print('questions answered:', await pg.evaluate("Object.keys(FO.G.pw.asked).length"), 'actions unchanged:', ap0 == await pg.evaluate("FO.G.ap"))
     await pg.screenshot(path='/tmp/g_meet.png', full_page=True); await chk('meeting')
-    covered = await pg.evaluate("(()=>{const t=document.querySelector('.mdock');const last=[...document.querySelectorAll('.pwr')].pop();if(!t||!last)return null;window.scrollTo(0,document.body.scrollHeight);const a=last.getBoundingClientRect(),b=t.getBoundingClientRect();return a.bottom>b.top})()")
+    covered = await pg.evaluate("(()=>{const t=document.querySelector('.mreply');const last=[...document.querySelectorAll('.pwr')].pop();if(!t||!last)return null;window.scrollTo(0,document.body.scrollHeight);const a=last.getBoundingClientRect(),b=t.getBoundingClientRect();return a.bottom>b.top})()")
     print('last route text hidden behind the decision tray after scrolling:', covered)
     await answer(pg, 2)
     if await pg.locator('[data-a=close-open]').count(): await sclick(pg, '[data-a=close-open]')

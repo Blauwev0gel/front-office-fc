@@ -2,7 +2,7 @@
 // Run after moving code: node tools/codemap.js
 const fs = require('fs'), path = require('path');
 const SRC = path.join(__dirname, '../src');
-const ORDER = fs.readFileSync(path.join(__dirname, '../build.py'), 'utf8').match(/\['engine\.js'[^\]]*\]/)[0].match(/'[^']+'/g).map(s => s.slice(1, -1));
+const ORDER = JSON.parse(fs.readFileSync(path.join(__dirname, '../src/modules.json'), 'utf8'));
 const files = [];
 for (const name of ORDER) {
   const f = path.join(SRC, name);

@@ -1,6 +1,6 @@
 // Transfer summer v3: summer-only money, five-line debrief, plan-status ticker, warnings become a talk, data-led DoF, save/load mid-summer
 const vm = require('vm');
-const src = ['engine.js', 'events.js', 'events2.js', 'events3.js', 'briefs.js', 'academy.js', 'academy2.js', 'recruit.js', 'summer.js', 'season.js', 'summer2.js', 'firstteam.js', 'depts.js', 'levers.js', 'commercial.js', 'marketing.js', 'business.js', 'academy3.js', 'recruitx.js', 'world.js', 'turnaround.js', 'matchtalk.js', 'desk.js', 'talks.js', 'weekflow.js', 'weekloop.js', 'loop.js', 'dossiers.js', 'pathway.js', 'matchday.js'].map(f => require('./src.js')(f)).join('\n');
+const src = require('./src.js').mods('matchday.js').map(f => require('./src.js')(f)).join('\n');
 let fails = 0; const ok = (c, m) => { console.log((c ? 'ok   ' : 'FAIL ') + m); if (!c) fails++; };
 function boot() { const c = { console }; vm.createContext(c); vm.runInContext(src + ';this.FO=FO;', c); return c.FO; }
 function toSeason(seed) { const F = boot(); F.newGame(seed); const d = {}; for (const q of F.DNA) d[q.k] = q.o[0].v; F.setDNA(d, 'T', 'T', 'T', ['#123', '#fff']); for (const r of F.ROLES) F.hire(r.id, 1); F.finishStaff(); F.finishMandates(); F.preSetTarget('accept'); F.finishPreseason(); for (const id of F.G.press) F.pressAnswer(id, 1); F.finishPress(); return F; }

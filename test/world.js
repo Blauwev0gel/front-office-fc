@@ -1,7 +1,6 @@
 // The seeded world (B38, B39, B42): deterministic, built from the game's own clubs, never touches the game's RNG, plausible statistics.
 const vm = require('vm'), fs = require('fs');
-const m = fs.readFileSync(__dirname + '/weekloop.js', 'utf8').match(/const src = \[([^\]]*)\]/);
-const src = m[1].split(',').map(x => x.trim().replace(/['"]/g, '')).filter(Boolean).map(f => require('./src.js')(f)).join('\n');
+const src = require('./src.js').mods('matchday.js').map(f => require('./src.js')(f)).join('\n');
 let fails = 0; const ok = (c, msg) => { console.log((c ? 'ok   ' : 'FAIL ') + msg); if (!c) fails++; };
 function game(seed) { const c = { console }; vm.createContext(c); vm.runInContext(src + ';this.FO=FO;', c); const F = c.FO; F.newGame(seed); const d = {}; for (const q of F.DNA) d[q.k] = q.o[0].v; F.setDNA(d, 'T', 'T', 'T', ['#123', '#fff']); for (const r of F.ROLES) F.hire(r.id, 1); F.finishStaff(); F.finishMandates(); F.preSetTarget('accept'); F.finishPreseason(); for (const id of F.G.press) F.pressAnswer(id, 1); F.finishPress(); return F; }
 const F = game(91), G = F.G;

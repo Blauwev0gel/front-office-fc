@@ -7,3 +7,11 @@ module.exports = function read(name) {
   const d = path.join(SRC, name.replace(/\.js$/, ''));
   return fs.readdirSync(d).filter(x => x.endsWith('.js')).sort().map(x => fs.readFileSync(path.join(d, x), 'utf8')).join('');
 };
+
+// The one module list lives in src/modules.json (build.py reads it too).
+// mods(last, skip): every logic module up to and including `last`, without `skip`; faces.js and ui.js are never loaded in tests.
+module.exports.mods = (last, skip = []) => {
+  const all = JSON.parse(fs.readFileSync(path.join(SRC, 'modules.json'), 'utf8')).filter(x => x !== 'faces.js' && x !== 'ui.js');
+  if (!all.includes(last)) throw new Error('unknown module ' + last);
+  return all.slice(0, all.indexOf(last) + 1).filter(x => !skip.includes(x));
+};

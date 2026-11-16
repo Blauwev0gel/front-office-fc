@@ -43,7 +43,7 @@ We werken in fasen. Sla geen fase over zonder dat de eigenaar dat zegt.
    - Logica zonder DOM in de engine of een module; koppel via `FO.HOOK.*`.
    - Alle toeval via de seeded RNG (`F.rnd`, `ri`, `chance`, …), nooit `Math.random`.
    - Nieuwe state: veilige default of migratie (`VERSION` ophogen + migratie in `load`).
-   - Nieuw bestand? Voeg het toe aan de lijst in `build.py`, op de juiste plek in de volgorde.
+   - Nieuw bestand? Voeg het toe aan `src/modules.json`, op de juiste plek in de volgorde (build, codemap en tests lezen die lijst).
    - `src/engine/`, `src/ui/` en `src/style/` zijn genummerde delen van één bestand met één scope; ze zijn
      alleen geldig na samenvoegen. Houd een deel onder ±40 KB; splits op een functiegrens.
    - UI: 390 px, licht en donker, tikdoelen ≥ 44 px, WCAG AA, max. twee zinnen per tekstblok.

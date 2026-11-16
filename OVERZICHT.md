@@ -68,7 +68,7 @@ Waarom de volgorde telt:
 - `weekflow.js` omhult **alle** opties van alle gebeurtenissen om je eigen keuzes te onthouden (`G.mem`). Een bestand met gebeurtenissen moet dus **vóór** `weekflow.js` staan (daarom `events3.js` en `turnaround.js` vroeg).
 - De stijlen en UI-delen zijn fragmenten van één bestand; ze zijn pas geldig na samenvoegen.
 
-Let op: de modulelijst staat ook in **de tests en tools** (zie hoofdstuk 12, "schuld"). Voeg je een bestand toe, dan moet het op alle plekken.
+De modulelijst staat op één plek: `src/modules.json`. `build.py`, `tools/codemap.js` en de tests (via `require('./src.js').mods(laatste, [overslaan])`) lezen daaruit. Een nieuw bestand voeg je dus alleen daar toe.
 
 ## 4. De fases van een spel
 
@@ -329,7 +329,7 @@ De bijbel heeft 44 besluiten (B1 tot B44). De groepen die bepalen hoe je werkt:
 
 Dit zijn dingen die ik tijdens het werk tegenkwam; ze staan hier zodat we ze gericht kunnen aanpakken.
 
-1. **De modulelijst staat op elf plekken** (`build.py`, negen testbestanden en `tools/longrun.js`, `tools/auditlib.js`). Een nieuw bestand toevoegen vergt meerdere handmatige wijzigingen en vergeten geeft een test die het systeem niet ziet. Voorstel: één gedeelde lijst, bijvoorbeeld `build.py` leest hem uit één bestand dat ook de tests inlezen.
+1. ~~De modulelijst stond op elf plekken~~ — opgelost: één lijst in `src/modules.json`.
 2. **Seed-gevoelige tests.** `test/sack.js` ging driemaal stuk door een kleine wijziging in de loop. Scenario's moeten de toestand zelf zetten, niet op een bepaalde uitslag vertrouwen.
 3. **Twee spelerswerelden.** `G.rec.pool` (de pool van de DoF met scoutrapporten `G.rec.know`) en `world.js` (seeded, met `G.world.know`). Plak 3b moet ze verbinden: een target uit het portaal moet in de bestaande pipeline komen.
 4. **De wedstrijdafleiding staat op twee plekken.** `engine/06-match.js` (per wedstrijd) en `world.js` (per seizoen) hebben elk eigen tarieven voor dezelfde statistieken. `test/stats.js` meet de engine; `test/world.js` toetst de wereld daartegen. Ze delen geen code.

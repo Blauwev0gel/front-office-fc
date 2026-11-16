@@ -65,3 +65,11 @@ Toegevoegd na "dit is leuk, een soort terminal": **langetermijnterugkoppeling**.
 - Geleerd: een verkeerde lezing kan toch winst opleveren door geluk (of juist niet). Dat verschil tussen *goed gelezen* en *goed uitgepakt* is de kern van het spel.
 - Bug onderweg: de helpers `fitS` en `teamFx` waren bij de herbouw naar v2 weggevallen; de test met de volledige lus vond het.
 Nog niet in het prototype: opgeslagen filters, spelers vergelijken, een zoekregel (de eigenaar koos alleen de langetermijnterugkoppeling), keepers, persoonlijkheid in de prijs.
+
+## Prototype v4 (16-11-2026): echte velden, simpele terminal
+Eigenaar: de gegevens moeten gelijk zijn aan wat het spel heeft; een speler moet een FM-lijst van statistieken tonen en daaronder Moneyball-statistieken in FotMob-stijl; de terminal moet simpeler: gewoon statistieken per competitie, geen filter op waarden, wel op competitie en leeftijd.
+- **Velden zijn die van het spel** (`src/engine/03-players.js`): 14 attributen (fin, pas, dri, cro, tac, mar, hea, pac, sta, str, vis, com, han, ref), 12 seizoensstatistieken (`apps, mins, g, a, xg, xa, prg, dw, dt, rat, yc, rc`), vier persoonlijkheidsscores (prof, loy, temp, amb), leeftijd, contract, loon, CA en PA. Verzonnen velden uit v1 tot v3 (profieltekens als "Build-up", "Injury risk") zijn weg. Geen blessuregevoeligheid: het spel heeft die niet.
+- **Profiel:** bovenaan de FM-lijst (attributen per groep, scoutschatting ±1 tot de scouts bevestigen, persoonlijkheid onbekend tot bevestigd), daaronder FotMob-stijl seizoensstatistieken met percentielbalken tegen spelers op dezelfde positie in dezelfde competitie. Balken zijn neutraal (geen groen of rood): een percentiel is een feit, geen oordeel.
+- **Terminal:** tabblad Leagues met een competitiekeuze (acht divisies + zes regio's), leeftijdschips en Totals/Per 90. Geen filter op waarden; sorteren op een kolomkop mag. Verder alleen Flags en Bets.
+- **Seeded wereld, bewezen in klein:** elke competitie (18 clubs, 360 spelers) wordt op aanvraag uit zijn naam gegenereerd in ±35 ms in de browser; er wordt niets opgeslagen. Dit is een eerste aanwijzing voor B38 (seeded wereld), nog geen meting op een telefoon.
+- Lus (hypothese, scouts, zomerraam, seizoen, Bets) ongewijzigd uit v3.

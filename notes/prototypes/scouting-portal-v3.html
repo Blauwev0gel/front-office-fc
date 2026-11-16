@@ -1,0 +1,215 @@
+<title>Scouting Portal Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one 390px phone column (search, flags, table, player detail) built from the game's own tokens and its three surface levels; a slim bar above it switches theme and explains the data */
+:root{color-scheme:light dark;
+--bg:light-dark(#e3e9e1,#121815);--paper:light-dark(#ffffff,#1b231f);--fill:light-dark(#eef2ec,#232d28);--ink:light-dark(#16201b,#e6eee8);--soft:light-dark(#526157,#a3b2a9);
+--hair:light-dark(rgba(22,32,27,.18),rgba(230,238,232,.18));--sun:#f3d36b;
+--good:light-dark(#1f7a43,#6fcf97);--bad:light-dark(#b92f1a,#ff8a75);--warn:light-dark(#8a5200,#f0b45c);--club:#7a1e2b;--on:#fff;
+--head:"Avenir Next Condensed","Futura","Trebuchet MS","Arial Narrow",sans-serif;--body:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+--t1:32px;--t2:22px;--t3:17px;--t4:15px;--t5:12px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;
+--l1:3px solid var(--ink);--sh1:4px 4px 0 light-dark(#16201b,#000);--r:10px}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:var(--t4)/1.5 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 48px}
+h1,h2,h3,p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+.bar{max-width:390px;margin:0 auto 12px;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.bar small{color:var(--soft);font-size:13px;flex:1 1 200px}
+.tg{display:inline-flex;border:2px solid var(--ink);border-radius:var(--r);overflow:hidden}
+.tg button{font:700 14px var(--body);padding:8px 14px;min-height:44px;background:var(--paper);border:0}
+.tg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.app{max-width:390px;margin:0 auto;display:grid;gap:var(--s3)}
+.hd{display:flex;align-items:center;gap:10px;font:800 var(--t3) var(--head);font-style:italic}
+.hd .sp{margin-left:auto;font:600 13px var(--body);font-style:normal;color:var(--soft)}
+.ib{width:44px;height:44px;display:grid;place-items:center;border:var(--l1);border-radius:var(--r);background:var(--paper);font-size:20px;flex:none}
+.btn{background:var(--club);color:var(--on);border:0;border-radius:var(--r);font:800 var(--t4) var(--head);font-style:italic;min-height:46px;padding:0 16px}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--ink)}.btn.w{width:100%}.btn[disabled]{opacity:.55}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);background:var(--fill);border-radius:var(--r);padding:3px}
+.seg button{min-height:44px;border:0;background:none;font:800 13px var(--head);border-radius:8px;padding:0 2px}
+.seg button.on{background:var(--paper);box-shadow:0 1px 0 var(--ink)}
+/* level 1: the open puzzle and the verdict */
+.l1{background:var(--paper);border:var(--l1);box-shadow:var(--sh1);border-radius:var(--r);padding:var(--s4);display:grid;gap:var(--s2)}
+.l1 h3{font:900 var(--t2)/1.1 var(--head);font-style:italic}
+.l1 p{font-size:var(--t4)}
+/* level 2 */
+.l2{background:var(--paper);border:1px solid var(--hair);border-radius:var(--r);padding:var(--s3) var(--s4);display:grid;gap:var(--s2)}
+.sec{font:800 var(--t3) var(--head);font-style:italic;margin-top:var(--s2);display:flex;justify-content:space-between;align-items:baseline}
+.sec small{font:600 13px var(--body);color:var(--soft);font-style:normal}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--hair);background:var(--paper);font:700 14px var(--body)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* player row: level 2 with level 3 lines */
+.pc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px var(--s3);width:100%;text-align:left;background:var(--paper);border:1px solid var(--hair);border-radius:var(--r);padding:var(--s3) var(--s4)}
+.pc b{font:800 var(--t3) var(--head)}.pc .meta{font-size:14px;color:var(--soft)}.pc .ask{font:900 var(--t3) var(--head);text-align:right}
+.pc .stat{grid-column:1/-1;font-size:14px}
+.tags{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
+.tag{font:800 13px var(--head);padding:3px 8px;border-radius:6px;background:var(--fill);border:1px solid var(--hair)}
+.tag.good{color:var(--good);border-color:var(--good)}.tag.bad{color:var(--bad);border-color:var(--bad)}.tag.warn{color:var(--warn);border-color:var(--warn)}
+.flag{min-height:44px;min-width:44px;border:1px solid var(--hair);border-radius:var(--r);background:var(--fill);font:800 14px var(--head)}
+.flag.on{background:var(--ink);color:var(--bg)}
+.row2{display:grid;grid-template-columns:1fr auto;gap:var(--s2);align-items:center}
+.bars{display:grid;gap:7px}
+.br{display:grid;grid-template-columns:96px 1fr 32px;gap:8px;align-items:center;font-size:14px}
+.br i{height:10px;background:var(--fill);border-radius:5px;position:relative;overflow:hidden;border:1px solid var(--hair)}
+.br i b{position:absolute;inset:0 auto 0 0;background:var(--ink)}.br i b.s{background:var(--club)}
+.br span:last-child{text-align:right;color:var(--soft);font-size:13px}
+.kg{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)}
+.kt{background:var(--fill);border-radius:var(--r);padding:var(--s3)}
+.kt small{display:block;font-size:14px;color:var(--soft)}.kt b{display:block;font:800 var(--t2)/1.15 var(--head);margin:2px 0}.kt span{font-size:14px;color:var(--soft)}
+.kt.good b{color:var(--good)}.kt.bad b{color:var(--bad)}
+.unk{color:var(--soft);font-style:italic}
+.dof{border-left:6px solid var(--club)}
+.say{font-size:var(--t4);line-height:1.4}.who{font:800 13px var(--head);color:var(--soft)}
+.tw{overflow-x:auto;border:1px solid var(--hair);border-radius:var(--r);background:var(--paper);max-height:520px;overflow-y:auto}
+table{border-collapse:separate;border-spacing:0;font-size:14px;width:max-content;min-width:100%}
+th,td{padding:10px 10px;border-bottom:1px solid var(--hair);white-space:nowrap;text-align:right}
+th{position:sticky;top:0;background:var(--fill);font:800 13px var(--head);z-index:2;cursor:pointer;min-height:44px}
+td:first-child,th:first-child{position:sticky;left:0;text-align:left;background:var(--paper);z-index:1;border-right:1px solid var(--hair)}
+th:first-child{z-index:3;background:var(--fill)}
+tr.f td:first-child{box-shadow:inset 4px 0 0 var(--club)}tr.s td:first-child{box-shadow:inset 4px 0 0 var(--good)}
+.toast{position:sticky;bottom:12px;background:var(--ink);color:var(--bg);border-radius:var(--r);padding:12px 16px;font-weight:700;text-align:center}
+.note{font-size:13px;color:var(--soft)}
+</style>
+
+<div class="bar"><div class="tg" role="group" aria-label="Theme"><button id="tl" aria-pressed="false">Light</button><button id="td" aria-pressed="false">Dark</button></div><small>Prototype v3. Data and facts, never a verdict. You learn whether you were right by playing seasons. Generated by the model in notes/moneyball-model.md; not saved, not tuned.</small></div>
+<div class="app" id="app"></div>
+
+<script>
+/* ---------- seeded world, following the model: profile, production with luck, market reads the headline stat ---------- */
+let seed=20261116;const rnd=()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const gauss=()=>{let u=0;for(let i=0;i<6;i++)u+=rnd();return(u-3)/Math.sqrt(.5)};
+const poisson=l=>{const L=Math.exp(-l);let k=0,p=1;do{k++;p*=rnd()}while(p>L);return k-1};
+const pick=a=>a[Math.floor(rnd()*a.length)],clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const ATT=['pac','sta','str','hea','tac','mar','pas','vis','dri','cro','fin','com'];
+const W={ST:{fin:3,com:2,hea:2,pac:1,str:1},W:{pac:3,dri:3,cro:2,fin:1},CM:{pas:3,vis:2,sta:2,tac:1},DM:{tac:3,mar:2,pas:1,sta:2},CB:{tac:3,mar:3,hea:2,str:2},FB:{tac:2,pac:2,cro:2,sta:2,mar:1}};
+const POS=['ST','W','CM','DM','CB','FB'],POSW=[1.2,1.3,1.5,1,1.5,1.2];
+const FN=['Ivo','Marek','Tomás','Hamish','Lennart','Joaquim','Sean','Femi','Carlos','Viktor','Gareth','Stefan','Emre','Pranav','Dele','Niko','Ross','Hendrik','Arjen','Clive','Ellis','Kyle','Leo','Sam'];
+const LN=['Brackley','Varley','Aldridge','Okoro','Whitlock','Haddad','Lyle','Pryor','Rourke','Kemp','Duarte','Esteves','Farrow','Nuttall','Tindall','Birtles','Hesketh','Voss','Garrick','Ilesen','Ashby','Benn','Stroud','Wilde'];
+const CL=['Oakwell Rangers','Kelmoor City','Lynfield United','Draymouth Athletic','Queenspool Town','Glenworth Wanderers','Elmbridge Town','Coldbridge Albion','Wilborough Rovers','Ravenborough Wanderers'];
+const STYLES={pressing:{engine:.4,solid:.2,carry:.1,threat:.1,build:.1,aerial:.1},possession:{build:.4,carry:.25,engine:.1,threat:.1,solid:.1,aerial:.05},counter:{carry:.3,threat:.3,engine:.15,solid:.15,build:.05,aerial:.05},direct:{aerial:.35,threat:.25,solid:.2,engine:.1,carry:.05,build:.05}};
+const TRAITS=[['aerial','Aerial'],['engine','Engine'],['build','Build-up'],['carry','Carrying'],['threat','Box threat'],['solid','Solidity']];
+const OUR='pressing',STYLE_L={pressing:'pressing',possession:'possession',counter:'counter-attack',direct:'direct'};
+const price=(ca,age)=>{const af=age<=21?1.3:age<=25?1.15:age<=29?1:age<=31?.7:.45;return 100*Math.pow(1.38,ca-6)*af};
+const money=k=>k>=1000?'£'+(k/1000).toFixed(k>=10000?1:2).replace(/\.?0+$/,'')+'m':'£'+Math.round(k)+'k';
+let players=[];
+function make(i){const pos=(()=>{let r=rnd()*POSW.reduce((a,b)=>a+b),j=0;while(r>POSW[j]){r-=POSW[j];j++}return POS[j]})(),w=W[pos];
+  const ca0=clamp(8.2+gauss()*1.5,4,14),a={};for(const k of ATT)a[k]=clamp((w[k]?ca0+gauss()*1.1+(w[k]-1.5)*.5:ca0-2.5+gauss()*2),1,20);
+  let sw=0,s=0;for(const k in w){s+=a[k]*w[k];sw+=w[k]}const ca=s/sw,age=Math.round(clamp(19+Math.abs(gauss())*4.5+(rnd()<.2?3:0),18,35)),mins=Math.round(1700+rnd()*1200);
+  const tr={aerial:(a.hea*2+a.str)/3,engine:(a.sta*2+a.tac+a.pac)/4,build:(a.pas*2+a.vis+a.com)/4,carry:(a.dri*2+a.pac+a.cro)/4,threat:(a.fin*2+a.com+a.hea)/4,solid:(a.tac+a.mar*2+a.str)/4};
+  const f=mins/2800;let E,H,Hobs,label;
+  if(pos==='ST'){E=16*Math.pow(ca/9,1.6)*f;H=poisson(E);label='Goals';}
+  else if(pos==='W'){E=11*Math.pow(ca/9,1.4)*f;H=poisson(E);label='Goals + assists';}
+  else if(pos==='CM'){E=6*Math.pow(ca/9,1.2)*f;H=poisson(E);label='Assists';}
+  else{E=6.3+(ca-8)*.1;H=E+gauss()*.3/Math.sqrt(mins/2700);label='Rating';}
+  const sd=pos==='ST'||pos==='W'||pos==='CM'?Math.sqrt(Math.max(E,1)):.3/Math.sqrt(mins/2700);
+  const z=clamp((H-E)/sd,-2.6,2.6),perceived=ca+0.7*z;
+  const end=rnd()<.14,needy=rnd()<.12,contract=end?.5:Math.round((1+rnd()*3)*2)/2;
+  const p={eN:gauss()*.1,id:i,name:pick(FN)+' '+pick(LN),pos,age,club:pick(CL),ca,a,tr,mins,E,H,label,z,xgObs:E*(1+gauss()*.18),perceived,contract,end,needy,
+    ask:price(perceived,age)*(end?.8:1)*(needy?.92:1),fl:false,confirmed:0,estN:gauss()*.35,
+    chars:{prof:pick(['Professional','Professional','Average','Casual']),temp:pick(['Calm','Calm','Hot-headed']),inj:pick(['low','normal','normal','high']),pot:Math.round(clamp(ca+(age<=22?1+rnd()*3:rnd()*.8),4,16)*10)/10},
+    tid:'p'+i};return p}
+function build(){seed=20261116;players=[];for(let i=0;i<48;i++)players.push(make(i));
+  for(const pos of POS){const g=players.filter(p=>p.pos===pos);for(const[k]of TRAITS){const s=g.map(p=>p.tr[k]).sort((x,y)=>x-y);for(const p of g){p.pc=p.pc||{};p.pc[k]=s.indexOf(p.tr[k])/Math.max(1,s.length-1)}}}
+  for(const p of players){const st=STYLES[OUR];p.fit=clamp(TRAITS.reduce((a,[k])=>a+st[k]*(p.pc[k]-.5)*2,0)*.9,-1,1)}}
+build();
+
+function recalcProfiles(){for(const p of players){const a=p.a;p.tr={aerial:(a.hea*2+a.str)/3,engine:(a.sta*2+a.tac+a.pac)/4,build:(a.pas*2+a.vis+a.com)/4,carry:(a.dri*2+a.pac+a.cro)/4,threat:(a.fin*2+a.com+a.hea)/4,solid:(a.tac+a.mar*2+a.str)/4}}
+  for(const pos of POS){const g=players.filter(p=>p.pos===pos);for(const[k]of TRAITS){const s=g.map(p=>p.tr[k]).sort((x,y)=>x-y);for(const p of g){p.pc=p.pc||{};p.pc[k]=s.indexOf(p.tr[k])/Math.max(1,s.length-1)}}}
+  for(const p of players){const st=STYLES[OUR];p.fit=clamp(TRAITS.reduce((a,[k])=>a+st[k]*(p.pc[k]-.5)*2,0)*.9,-1,1)}}
+function produce(p){const f=p.mins/2800,ca=p.ca,pos=p.pos;let E,H;
+  if(pos==='ST'){E=16*Math.pow(ca/9,1.6)*f;H=poisson(E)}else if(pos==='W'){E=11*Math.pow(ca/9,1.4)*f;H=poisson(E)}else if(pos==='CM'){E=6*Math.pow(ca/9,1.2)*f;H=poisson(E)}else{E=6.3+(ca-8)*.1;H=E+gauss()*.3/Math.sqrt(p.mins/2700)}
+  const sd=pos==='ST'||pos==='W'||pos==='CM'?Math.sqrt(Math.max(E,1)):.3/Math.sqrt(p.mins/2700);
+  p.E=E;p.H=H;p.z=clamp((H-E)/sd,-2.6,2.6);p.perceived=ca+0.7*p.z;p.xgObs=E*(1+gauss()*.18);p.eN=gauss()*.1}
+function nextSeason(){for(const p of players){p.prevH=p.H;const old=p.ca;
+    const dca=p.age<=23?.3+rnd()*.3:p.age<=29?gauss()*.15:p.age>=31?-.3*rnd():0;p.ca=clamp(p.ca+dca,2,16);for(const k in W[p.pos])p.a[k]=clamp(p.a[k]+dca,1,20);
+    p.age++;p.mins=p.signed?Math.round(2300+rnd()*600):Math.round(1700+rnd()*1200);p.contract=Math.max(.5,p.contract-1);p.end=p.contract<=.5;p.needy=!p.signed&&rnd()<.12;
+    produce(p);p.ask=price(p.perceived,p.age)*(p.end?.8:1)*(p.needy?.92:1);if(!p.signed)p.confirmed=0;
+    if(p.signed){p.lastSeason={H:p.H,E:p.E,mins:p.mins}}}
+  recalcProfiles();S.season++;S.week=1;S.slots=3;S.budget+=400}
+const expObs=p=>p.label==='Rating'?p.E+p.eN:p.xgObs,gap=p=>p.H-expObs(p),per=p=>p.label==='Rating'?null:expObs(p)/(p.ask/100);
+const f1=(p,v)=>p.label==='Rating'?v.toFixed(2):(Math.abs(v)<10?v.toFixed(1):String(Math.round(v)));
+const sg=(p,v)=>(v>=0?'+':'−')+f1(p,Math.abs(v));
+const hyps=['Unlucky finisher','Lucky season','Fits our press','Late bloomer','Contract run-down','Other'];
+const S={season:1,budget:900,signed:[],tab:'search',pos:'All',fCheap:false,fYoung:false,fBig:false,fEnd:false,sort:'gapLow',week:1,slots:3,open:null,tset:'Overview',tsort:'gap',tdir:1,toast:'',targets:new Set()};
+const $=s=>document.querySelector(s),app=$('#app');const byId=id=>players.find(p=>p.id===id);
+function toast(t){S.toast=t;render();setTimeout(()=>{if(S.toast===t){S.toast='';render()}},2600)}
+const SORTS={gapLow:['Output − expected, low first',p=>gap(p)],gapHigh:['Output − expected, high first',p=>-gap(p)],exp:['Expected output',p=>-(p.label==='Rating'?p.E+p.eN-6:expObs(p))],per:['Expected per £100k',p=>-(per(p)||0)],ask:['Price, low first',p=>p.ask],age:['Age, young first',p=>p.age],mins:['Minutes',p=>-p.mins]};
+function tags(p){const t=[];if(S.targets.has(p.id))t.push('<span class="tag good">Target</span>');if(p.mins<2000)t.push('<span class="tag warn">Small sample</span>');if(p.end)t.push('<span class="tag warn">Contract ends</span>');if(p.needy)t.push('<span class="tag warn">Seller needs cash</span>');if(p.hyp)t.push(`<span class="tag">${p.hyp}</span>`);return t.join('')}
+function row(p){const g=gap(p);return `<div style="display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:8px;align-items:start"><button class="pc" data-open="${p.id}"><span><b>${p.name}</b><br><span class="meta">${p.pos} · ${p.age} · ${p.club}</span></span><span class="ask">${money(p.ask)}</span><span class="stat">${p.label}: <b>${f1(p,p.H)}</b> · expected ≈ ${f1(p,expObs(p))} (${sg(p,g)}) · ${p.mins} min</span><span class="tags">${tags(p)}</span></button><button class="flag ${p.fl?'on':''}" data-flag="${p.id}" aria-pressed="${p.fl}" aria-label="Flag ${p.name}">${p.fl?'Flagged':'Flag'}</button></div>`}
+function search(){let L=players.filter(p=>!p.signed&&(S.pos==='All'||p.pos===S.pos)&&(!S.fCheap||p.ask<=200)&&(!S.fYoung||p.age<=24)&&(!S.fBig||p.mins>=2000)&&(!S.fEnd||p.end));
+  const key=SORTS[S.sort][1];L=L.slice().sort((a,b)=>key(a)-key(b));
+  return `<div class="l1"><h3>Open puzzle: a right-back for a pressing side</h3><p>Pau Reyes (33) leaves in June. We press high, so engine and solidity matter. Nobody tells you who is good value: you read the numbers and form a view.</p></div>
+  <div class="chips">${['All',...POS].map(x=>`<button class="chip ${S.pos===x?'on':''}" data-pos="${x}">${x}</button>`).join('')}</div>
+  <div class="chips"><button class="chip ${S.fCheap?'on':''}" data-t="fCheap">Under £200k</button><button class="chip ${S.fYoung?'on':''}" data-t="fYoung">Age 24 or less</button><button class="chip ${S.fBig?'on':''}" data-t="fBig">2,000+ minutes</button><button class="chip ${S.fEnd?'on':''}" data-t="fEnd">Contract ending</button></div>
+  <div class="row2"><span class="sec" style="margin:0">${L.length} players</span><select id="sort" aria-label="Sort" style="min-height:44px;border-radius:10px;border:1px solid var(--hair);background:var(--paper);color:var(--ink);padding:0 10px;max-width:220px">${Object.entries(SORTS).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join('')}</select></div>
+  ${L.slice(0,14).map(row).join('')||'<div class="l2"><p>Nobody matches. Loosen a filter.</p></div>'}${L.length>14?`<p class="note">Showing 14 of ${L.length}. Narrow the search, or open the full table.</p>`:''}`}
+function bar(label,v,strong){return `<div class="br"><span>${label}</span><i><b class="${strong?'s':''}" style="width:${Math.round(v*100)}%"></b></i><span>${Math.round(v*100)}</span></div>`}
+function review(p){if(p.confirmed!==2||!p.hyp||p.hyp==='Other')return '';const tg=p.H-p.E,L=p.label==='Rating'?'rating':'output';
+  const ok={'Unlucky finisher':tg<=-1||(p.label==='Rating'&&tg<=-.15),'Lucky season':tg>=1||(p.label==='Rating'&&tg>=.15),'Fits our press':p.fit>=.3,'Late bloomer':p.chars.pot-p.ca>=1.2,'Contract run-down':p.end}[p.hyp];
+  const num=`The scouts' expected ${L} is ${f1(p,p.E)}, against ${f1(p,p.H)} this season.`;
+  return `<p><b>Your read: “${p.hyp}”.</b> ${num} ${ok?'That supports your read.':'That does not support your read.'}</p>`}
+function dofSays(p){const t=[];
+  if(p.mins<2000)t.push(`He has played ${p.mins} minutes. I do not trust a season that short.`);
+  if(p.age>=31)t.push(`He is ${p.age}. I worry about the second year.`);else if(p.age<=21)t.push(`Very young. I would want to see him against men first.`);
+  const H={'Unlucky finisher':'You think the numbers undersell him. Strikers like that also disappoint for years.','Lucky season':'You think he is riding a good year. Fair: good years happen to ordinary players.','Fits our press':'He suits our system, you say. I want to see him work off the ball first.','Late bloomer':'Late bloomers are lovely right up to the point they are not.','Contract run-down':'Cheap because he is leaving anyway. That is a reason, not a bargain.','Other':'Tell me what you see.'};
+  if(p.hyp)t.push(H[p.hyp]);
+  t.push(p.confirmed===2?'The scouts have been; their report is below.':p.confirmed===1?'The scouts are on it.':'I would want the scouts to look before we move.');
+  const alt=players.filter(x=>x.id!==p.id&&x.pos===p.pos&&!x.fl&&x.mins>=2400&&x.age>=25&&x.age<=29).sort((a,b)=>b.mins-a.mins||a.age-b.age)[0];
+  return{t:t.join(' '),alt}}
+function detail(p){const c=p.confirmed===2,st=STYLES[OUR],ds=dofSays(p),g=gap(p);
+  return `<div class="hd"><button class="ib" data-back aria-label="Back">‹</button><span>${p.name}</span><span class="sp">${p.pos} · ${p.age} · ${p.club}</span></div>
+  <section class="l1"><h3>Asking ${money(p.ask)}</h3><p>${p.age}-year-old ${p.pos} at ${p.club}. Contract ${p.contract<=.5?'ends in June':p.contract+' years'}. ${p.mins} minutes this season.</p><p class="note">No verdict here. Read the data, form a view, flag it, let the scouts test it.</p></section>
+  <div class="sec">Your read <small>${p.fl?'flagged':'not flagged'}</small></div><div class="l2"><p class="note">Why is he interesting? Flagging with a reason is your bet. The scouts can test it.</p><div class="chips">${hyps.map(h=>`<button class="chip ${p.hyp===h?'on':''}" data-hyp="${p.id}" data-h="${h}">${h}</button>`).join('')}</div>${p.fl?`<button class="btn ghost w" data-flag="${p.id}">Unflag</button>`:''}</div>
+  <div class="sec">The DoF says</div><div class="l2 dof"><span class="who">Lennart Goodall, Director of Football · cautious, wants minutes and proof</span><p class="say">${ds.t}</p>${ds.alt?`<p class="note">If it were up to him: ${ds.alt.name}, ${ds.alt.age}, ${ds.alt.mins} minutes, ${money(ds.alt.ask)}.</p><button class="btn ghost" data-open="${ds.alt.id}">Look at ${ds.alt.name}</button>`:''}</div>
+  <div class="sec">Profile <small>against ${p.pos}s, 0 to 100</small></div><div class="l2"><div class="bars">${TRAITS.map(([k,l])=>bar(l+(st[k]>=.2?' ★':''),p.pc[k],st[k]>=.2)).join('')}</div><p class="note">★ matters most to a ${STYLE_L[OUR]} side.</p></div>
+  <div class="sec">The numbers</div><div class="kg"><div class="kt"><small>${p.label}</small><b>${f1(p,p.H)}</b><span>in ${p.mins} min</span></div><div class="kt"><small>Expected (data)</small><b>${f1(p,expObs(p))}</b><span>noisy until confirmed</span></div><div class="kt"><small>Output − expected</small><b>${sg(p,g)}</b><span>${p.mins<2000?'small sample':'full season'}</span></div><div class="kt"><small>Per £100k</small><b>${per(p)==null?'–':per(p).toFixed(2)}</b><span>expected output</span></div><div class="kt"><small>Contract</small><b>${p.contract<=.5?'6 months':p.contract+' yrs'}</b><span>${p.end?'ends in June':'runs on'}</span></div><div class="kt"><small>Seller</small><b>${p.needy?'Needs cash':'Calm'}</b><span>club situation</span></div></div>
+  <div class="sec">Scouts <small>${S.slots} of 3 slots this week</small></div>
+  <div class="l2">${c?`<p><b>Confirmed.</b> The scouts put his expected ${p.label==='Rating'?'rating':'output'} at ${f1(p,p.E)} (±${p.label==='Rating'?'0.05':'0.8'}).</p><p>Character: ${p.chars.prof}, ${p.chars.temp.toLowerCase()}. Injury risk ${p.chars.inj}. Potential ${p.chars.pot.toFixed(1)}.</p>${review(p)}`:p.confirmed===1?`<p><b>Scouts are on it.</b> The report arrives next week.</p>`:`<p class="unk">Character, injury risk and potential are unknown. The expected figure above is noisy.</p><button class="btn ghost w" data-confirm="${p.id}" ${S.slots<1?'disabled':''}>Ask scouts to confirm (1 slot, back next week)</button>`}</div>`}
+function flags(){const F=players.filter(p=>p.fl&&!p.signed);if(!F.length)return `<div class="l1"><h3>No flags yet</h3><p>Flag a player with a reason. The scouts test your read, and the DoF gives his own opinion.</p></div>`;
+  return `<div class="sec">${F.length} flagged <small>your reads</small></div>${F.map(p=>{const ds=dofSays(p);return `<div class="l2 dof"><div class="row2"><span><b style="font:800 var(--t3) var(--head)">${p.name}</b><br><span class="note">${p.pos} · ${p.age} · asking ${money(p.ask)}</span></span><button class="flag on" data-flag="${p.id}" aria-label="Unflag">Unflag</button></div><div class="tags">${p.hyp?`<span class="tag">${p.hyp}</span>`:'<span class="tag warn">No reason given</span>'}<span class="tag">${p.confirmed===2?'Scouts confirmed':p.confirmed===1?'Scouts on it':'Not yet checked'}</span></div>${review(p)}<span class="who">Lennart Goodall</span><p class="say">${ds.t}</p><div class="row2"><button class="btn ghost" data-open="${p.id}">Open</button><button class="btn" data-target="${p.id}">${S.targets.has(p.id)?'Remove target':'Make target'}</button></div></div>`}).join('')}`}
+const fitS=p=>(p.fit>=0?'+':'')+Math.round(p.fit*100),teamFx=p=>(p.fit*.055>=0?'+':'')+(p.fit*.055).toFixed(2);
+function outcome(p){if(!p.hyp||p.hyp==='Other'||!p.lastSeason)return null;const cnt=p.label!=='Rating',d=cnt?1:.1;
+  const ok={'Unlucky finisher':p.H>=p.sigH+d,'Lucky season':p.H<=p.sigH-d,'Fits our press':p.fit>=.3,'Late bloomer':p.ca-p.sigCa>=.5,'Contract run-down':p.ask>=p.paid}[p.hyp];
+  const num={'Unlucky finisher':`He had ${f1(p,p.sigH)}; with us ${f1(p,p.H)} (scouts' expected ${f1(p,p.E)}).`,'Lucky season':`He had ${f1(p,p.sigH)}; with us ${f1(p,p.H)} (expected ${f1(p,p.E)}).`,'Fits our press':`His profile match with our press is ${fitS(p)}, worth about ${teamFx(p)} on team strength.`,'Late bloomer':`His rating moved from ${p.sigCa.toFixed(1)} to ${p.ca.toFixed(1)}.`,'Contract run-down':`He cost ${money(p.paid)}; the market now asks ${money(p.ask)}.`}[p.hyp];
+  return{ok,t:`<b>Your read: “${p.hyp}”.</b> ${num} ${ok?'That supports it.':'That does not support it.'}`}}
+function bets(){const L=players.filter(p=>p.signed);if(!L.length)return `<div class="l1"><h3>No signings yet</h3><p>Flag a player with a reason, make him a target, open the summer window, then play a season. Here you learn whether your reads were right.</p></div>`;
+  const tested=L.map(outcome).filter(Boolean),yes=tested.filter(x=>x.ok).length;
+  return `<div class="l1"><h3>Your reads: ${yes} of ${tested.length} supported</h3><p>Only counted once a player has played a season for us. Nobody tells you in advance.</p></div>
+  ${L.map(p=>{const o=outcome(p);return `<div class="l2"><div class="row2"><span><b style="font:800 var(--t3) var(--head)">${p.name}</b><br><span class="note">${p.pos} · ${p.age} · signed in season ${p.joined}</span></span><button class="flag" data-open="${p.id}" aria-label="Open ${p.name}">Open</button></div>
+   <div class="kg"><div class="kt"><small>Paid</small><b>${money(p.paid)}</b><span>${p.hyp||'no reason given'}</span></div><div class="kt"><small>Market asks now</small><b>${money(p.ask)}</b><span>${p.ask>=p.paid?'+':'−'}${money(Math.abs(p.ask-p.paid))} on what you paid</span></div></div>
+   ${p.lastSeason?`<p class="note">${p.label} with us: ${f1(p,p.H)} in ${p.mins} min. Scouts' expected ${f1(p,p.E)}.</p>`:`<p class="unk">He has not played a season for us yet.</p>`}${o?`<p>${o.t}</p>`:''}</div>`}).join('')}`}
+const SETS={Overview:['pos','age','ask','H','exp','gap','per','mins','contract'],Attack:['pos','fin','com','dri','cro','pas','vis','pac'],Defend:['pos','tac','mar','hea','str','sta'],Mind:['pos','age','contract','prof','temp','inj']};
+const COL={pos:['Pos',p=>p.pos],age:['Age',p=>p.age,p=>p.age],ask:['Ask',p=>money(p.ask),p=>p.ask],H:['Output',p=>f1(p,p.H),p=>p.H],exp:['Expected',p=>f1(p,expObs(p)),p=>expObs(p)],gap:['Out−exp',p=>sg(p,gap(p)),p=>gap(p)],per:['Per £100k',p=>per(p)==null?'–':per(p).toFixed(2),p=>per(p)||0],mins:['Min',p=>p.mins,p=>p.mins],contract:['Contract',p=>p.contract+'y',p=>p.contract],prof:['Prof.',p=>p.confirmed===2?p.chars.prof:'?'],temp:['Temp.',p=>p.confirmed===2?p.chars.temp:'?'],inj:['Injury',p=>p.confirmed===2?p.chars.inj:'?']};
+for(const k of ATT)COL[k]=[k[0].toUpperCase()+k.slice(1),p=>Math.round(p.a[k]),p=>p.a[k]];
+function table(){const cols=SETS[S.tset],ks=COL[S.tsort]&&COL[S.tsort][2]?COL[S.tsort][2]:(p=>gap(p));let L=players.slice().sort((a,b)=>S.tdir*(ks(a)-ks(b)));
+  return `<div class="l1"><h3>Full table</h3><p>Everything the data shows, for every player. Tap a header to sort. The name stays put.</p></div><div class="chips">${Object.keys(SETS).map(k=>`<button class="chip ${S.tset===k?'on':''}" data-set="${k}">${k}</button>`).join('')}</div>
+  <div class="tw"><table><thead><tr><th>Player</th>${cols.map(c=>`<th data-sort="${c}">${COL[c][0]}${S.tsort===c?(S.tdir<0?' ↓':' ↑'):''}</th>`).join('')}</tr></thead><tbody>${L.map(p=>`<tr class="${p.signed?'s':p.fl?'f':''}" data-open="${p.id}"><td>${p.signed?'✓ ':''}${p.name}</td>${cols.map(c=>`<td>${COL[c][1](p)}</td>`).join('')}</tr>`).join('')}</tbody></table></div><p class="note">Flagged players have a red edge, your signings a green one.</p>`}
+function render(){let h;
+  if(S.open!=null){h=detail(byId(S.open))}
+  else{h=`<div class="hd"><span>Scouting portal</span><span class="sp">Season ${S.season} · Wk ${S.week} · ${money(S.budget)} · ${S.slots}/3 scouts</span></div>
+   <div class="seg" role="tablist"><button class="${S.tab==='search'?'on':''}" data-tab="search">Search</button><button class="${S.tab==='flags'?'on':''}" data-tab="flags">Flags (${players.filter(p=>p.fl).length})</button><button class="${S.tab==='table'?'on':''}" data-tab="table">Table</button><button class="${S.tab==='bets'?'on':''}" data-tab="bets">Bets (${players.filter(p=>p.signed).length})</button></div>`
+   +(S.tab==='search'?search():S.tab==='flags'?flags():S.tab==='bets'?bets():table())
+   +`<div class="row2" style="grid-template-columns:1fr 1fr"><button class="btn ghost" data-next>Next week</button><button class="btn ghost" data-window ${S.targets.size?'':'disabled'}>Summer window (${S.targets.size})</button></div><button class="btn w" data-season>Play next season</button><p class="note">Next week: scouts report. Summer window: the DoF approaches your targets. Next season: the world moves on and your signings play.</p>`}
+  app.innerHTML=h+(S.toast?`<div class="toast" role="status">${S.toast}</div>`:'');const sel=$('#sort');if(sel)sel.value=S.sort}
+app.addEventListener('click',e=>{const t=e.target.closest('[data-open],[data-flag],[data-back],[data-tab],[data-pos],[data-t],[data-confirm],[data-next],[data-set],[data-sort],[data-target],[data-hyp],[data-window],[data-season]');if(!t)return;const d=t.dataset;
+  if(d.window!=null){let ok=[],no=[];for(const id of [...S.targets]){const p=byId(id),cost=Math.round(p.ask*(.95+rnd()*.2));if(cost<=S.budget){S.budget-=cost;p.signed=true;p.paid=cost;p.club='Harwick Athletic';p.joined=S.season;p.sigH=p.H;p.sigE=p.E;p.sigCa=p.ca;S.signed.push(id);ok.push(p.name)}else no.push(p.name)}S.targets.clear();toast(ok.length?`Signed ${ok.join(', ')}.${no.length?' Could not afford '+no.join(', ')+'.':''}`:`Nobody signed. ${no.length?'Could not afford '+no.join(', ')+'.':''}`);return}
+  if(d.season!=null){nextSeason();S.open=null;toast(`Season ${S.season}. The world has moved on.`);return}
+  if(d.hyp!=null){const p=byId(+d.hyp);p.hyp=p.hyp===d.h?null:d.h;if(p.hyp)p.fl=true;toast(p.hyp?`Flagged: “${p.hyp}”.`:'Reason removed.');return}
+  if(d.open!=null){S.open=+d.open;window.scrollTo(0,0)}
+  else if(d.back!=null){S.open=null}
+  else if(d.flag!=null){const p=byId(+d.flag);p.fl=!p.fl;if(!p.fl)p.hyp=null;toast(p.fl?`${p.name} flagged. Give a reason on his page.`:`${p.name} unflagged.`);return}
+  else if(d.tab){S.tab=d.tab}
+  else if(d.pos){S.pos=d.pos}
+  else if(d.t){S[d.t]=!S[d.t]}
+  else if(d.confirm!=null){if(S.slots<1)return;S.slots--;byId(+d.confirm).confirmed=1;toast('Scouts are on it. Report next week.');return}
+  else if(d.next!=null){S.week++;S.slots=3;let n=0;players.forEach(p=>{if(p.confirmed===1){p.confirmed=2;n++}});toast(n?`Week ${S.week}: ${n} scout report${n>1?'s':''} arrived.`:`Week ${S.week}. Nothing new from the scouts.`);return}
+  else if(d.set){S.tset=d.set;S.tsort=SETS[d.set].includes('gap')?'gap':SETS[d.set][1];S.tdir=1}
+  else if(d.sort){if(S.tsort===d.sort)S.tdir*=-1;else{S.tsort=d.sort;S.tdir=-1}}
+  else if(d.target!=null){const id=+d.target;if(S.targets.has(id)){S.targets.delete(id);toast('Target removed.')}else{S.targets.add(id);toast('Target set. The DoF approaches in the summer window.')}return}
+  render()});
+app.addEventListener('change',e=>{if(e.target.id==='sort'){S.sort=e.target.value;render()}});
+const root=document.documentElement,tl=$('#tl'),td=$('#td');
+function setT(t){if(t)root.setAttribute('data-theme',t);else root.removeAttribute('data-theme');const d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;tl.setAttribute('aria-pressed',String(!d));td.setAttribute('aria-pressed',String(d))}
+tl.onclick=()=>setT('light');td.onclick=()=>setT('dark');setT(null);render();
+</script>

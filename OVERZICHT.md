@@ -403,6 +403,38 @@ Twee losse stukken in één bestand. Het eerste (`rx*`): per regio focus en inve
 | Opruimen v1/v2 | `summer.js` + `summer2.js` samenvoegen; `dofWork`-fallback verwijderen |
 | Squadplan zichtbaar of weg | `recruitx.js` tweede helft, `test/squad-plan.js` repareren |
 
+## 18. Hoe het speelt: events en briefings
+
+Gelezen op 2026-11-16: `genMessages`/`defineEvent` (engine/08), `weekloop.js` (kop en gewichten), de kop van `briefs.js`, plus een telling (hieronder). **Niet gelezen**: de teksten en keuzes van de ±120 events zelf, `dossiers.js` en `loop.js` in detail.
+
+### Het mechanisme
+- **Een event** (`defineEvent(id, {from, dept, cd, w, cond, opts, second, forced, mode})`) heeft 2–3 keuzes (118 van de 123 hebben er 2 of 3). `from` is wie het meldt, `cd` het aantal weken tot hij weer mag, `cond` wanneer hij kan komen, `w` een gewicht.
+- **Per week** (`genMessages`): eerst de **geforceerde wachtrij** (maximaal 4; dit zijn events die andere systemen aanzetten, zoals `rec_approve` en `turn_call`). Dan **1 of 2 gewone slots** (55% één, anders twee), maar **geen extra als er al 3 open berichten staan**. Dan 1–2 **auto-events** (`mode: 'auto'`), die de staf zelf afhandelt en alleen in de Gazette komen.
+- **Gewichten**: `w × evWeight`. `weekloop.js` maakt een event 2× waarschijnlijker als zijn afdeling onder druk staat (`heat` 0–2: slechte reeks, tekort in de selectie, geld krap, bestuursvertrouwen laag), 0,8× als ze rustig is, en ×0,6 als er net een bericht van dezelfde afdeling was.
+- **Telling van het aanbod**: 123 events, waarvan **49 geforceerd** (alleen via een ander systeem bereikbaar), **24 auto**, 50 gewoon. 61 hebben een `cond`, 17 een eigen gewicht, 9 een "tweede mening". Wie meldt: DoF 20, bestuur 18, coach 17, academie 15, commercieel 14, financiën 14, supporters 9, marketing 9, pers 5, scout 2. Cooldowns: 41 events ≤4 weken, 40 meer dan 20.
+- **Briefings** (`briefs.js`, 12 `defineBrief` plus die in `academy*.js`): korte, door de toestand gedreven updates met gratis antwoorden. Ze blijven staan tot ze beantwoord zijn.
+
+### Wat een run laat zien
+Eén korte telling (3 seeds, 12 seizoenen samen, 408 weken, antwoorden willekeurig, alle staf aangenomen). **Dit is een aanwijzing, geen meting van een echte speler.**
+- **0,9 nieuw bericht per week, ±31 per seizoen.** Dat past bij de bedoeling ("één of twee subjecten per week").
+- **59 van de 123 events kwamen langs.** De rest is niet gezien: voorwaarden die zelden waar zijn, of geforceerde events die een situatie nodig hebben.
+- **Herhaling**: de top-3 (`board_review` 29, `press_interview` 25, `staff_raise` 22) is 21% van alle berichten, de top-10 41%. `board_review` en `press_interview` zijn bewust vast (bestuursreview, persgesprek), maar `staff_raise` is willekeurig en komt het vaakst. Over 12 seizoenen is dat zichtbaar herhaling.
+- **Briefings**: de telling per week (2,5) telt open briefings elke week opnieuw, dus het zegt vooral dat ze blijven staan, niet dat er 2,5 nieuwe zijn. De meest voorkomende (`rec_report` 110, `coach_debrief` 102, `squad_plan_update` 86, `u18_report` 63, `stake_match` 54) staan dus lang open; een speler die ze niet beantwoordt, ziet een groeiend rijtje.
+
+### Wat ik opmerk
+- **De gewichten sturen goed, maar de inhoud is breed en dun**: 123 events voor 10 afdelingen is ±12 per afdeling, en met cooldowns van tot 20+ weken ziet iemand over 15 seizoenen veel hetzelfde. Dat is het langetermijnprobleem dat B34 (geheugen en echo's) deels oploste: oude keuzes komen terug, maar alleen als de keuze er was.
+- **Scouting heeft maar 2 events** (`from: scout`) en de DoF-events zijn vooral procesvragen (goedkeuren, uitzondering, prijsverhoging). Daar valt winst te halen, met name rond het portaal.
+- **49 geforceerde events** betekent dat de helft van het aanbod alleen bestaat doordat een systeem hem aanzet. Als dat systeem faalt, valt het event stil zonder dat iemand het ziet.
+- **Een tegenvoorbeeld is `turn_call`/`turn_check`**: nieuw, 9 en 10 keer gezien in 12 seizoenen. Dat lijkt veel voor een crisis die één keer per 40 weken mag komen (`turnLast`). Ik heb niet nagekeken of de seeds echt zo vaak in de problemen zaten of dat de drempel te laag ligt. Dit is wel een kandidaat om te meten, omdat ik dat nooit heb gedaan.
+
+### Wat dit betekent voor verbeteringen
+| Idee | Eerst bekijken |
+|---|---|
+| Minder herhaling | `staff_raise` (`cd` en `cond`), `cond`s van de top-10; dan een volgende telling |
+| Meer variatie in een afdeling | de ±12 events per afdeling in `events*.js`; `defineDossier` voor ketens |
+| Scouting- en portaalevents | nieuwe events in `events3.js` (`from: 'scout'`/`'dof'`), met `F.recall` voor terugkeer |
+| Turnaround-frequentie | `trouble()` in `turnaround.js`; telling van `turn_call` per seizoen op meer seeds |
+| Briefings die zich opstapelen | `briefs.js` (verloop, `cd`, een maximum aan open briefings) |
 ## Bijlage: alle bronbestanden
 
 <!-- generated:files:start -->

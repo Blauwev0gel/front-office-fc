@@ -9,24 +9,25 @@ function mailTop(role, name, roleT, title, tag, body, emo) {
 }
 const MSV = d => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const MAILI = { reply: MSV('<path d="M10 8L4 13l6 5"/><path d="M4 13h10a6 6 0 0 1 6 6"/>'), send: MSV('<path d="M12 19V5M5 12l7-7 7 7"/>'), env: MSV('<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 7l9 6 9-6"/>'), x: MSV('<path d="M6 6l12 12M18 6L6 18"/>') };
-function mailRows(k, id, opts, auto, dis) {
-  return `<div class="slist" role="group" aria-label="Suggested replies">${opts.map((o, j) => `<button class="srow ${j === auto ? 'isadv' : ''}" data-a="mcomp" data-k="${k}" data-id="${id}" data-i="${j}" ${dis ? 'disabled' : ''}><span class="sk">${esc(o.l)}${j === auto ? '<small>Advised</small>' : ''}</span><span class="sfx">${ART.fx(o.h)}</span></button>`).join('')}</div>`;
+function mailRows(k, id, opts, auto, dis, sel) {
+  return `<div class="slist" role="radiogroup" aria-label="Suggested replies">${opts.map((o, j) => `<button class="srow ${j === auto ? 'isadv' : ''} ${j === sel ? 'sel' : ''}" role="radio" aria-checked="${j === sel}" data-a="mcomp" data-k="${k}" data-id="${id}" data-i="${j}" ${dis ? 'disabled' : ''}><span class="sk">${esc(o.l)}${j === auto ? '<small>Advised</small>' : ''}</span><span class="sfx">${ART.fx(o.h)}</span></button>`).join('')}</div>`;
+}
+// the reply dock: a second voice if there is one, the replies, and one Send button (B20)
+function second2(sec) {
+  if (!sec || !sec.text) return ''; const mm = /^(.*?) \((.*?)\): (.*)$/.exec(sec.text), who = mm ? mm[1] : sec.name, role = mm ? mm[2] : sec.role, txt = mm ? mm[3] : sec.text;
+  const rk = (F.ROLES.find(r => r.t === role) || { id: 'club' }).id;
+  return `<div class="m2nd"><span class="mav">${ART.staffFace(rk)}</span><p><b>${esc(who)}</b><small>${esc(role)}, second opinion</small>${esc(txt)}</p></div>`;
+}
+function replyDock(k, id, opts, auto, sel, big, foot, dis, sec, head) {
+  const o = sel != null && sel >= 0 ? opts[sel] : null;
+  return mailDock(`${second2(sec)}<div class="slh"><b>Your reply</b>${head || ''}</div>${mailRows(k, id, opts, auto, dis, sel)}
+  <div class="mrow"><p class="mlv">${esc(foot)}</p><button class="msend ${o ? 'live' : ''} ${big && o ? 'hold' : ''}" ${big ? '' : 'data-a="msend"'} data-k="${k}" data-id="${id}" data-i="${o ? sel : -1}" ${o && !dis ? '' : 'disabled'}>${MAILI.send}<span>${o ? (big ? 'Hold to send' : 'Send') : 'Pick a reply'}</span><i class="mfill"></i></button></div>`, o ? 'open' : '');
 }
 function mailDock(inner, cls) { return `<div class="mdock ${cls || ''}" role="region" aria-label="Your reply"><div class="in">${inner}</div></div>`; }
 function mailBanner() {
   const b = U.bn; if (!b || b.n === U.bnShown) return ''; U.bnShown = b.n;
   return `<div class="mbn" role="status"><span class="mbav">${ART.staffFace(b.role, 'happy')}</span><div><div class="mbt"><b>${esc(b.name)}</b><span>now</span></div><small>Re: ${esc(b.subj)}</small><p>${esc(clip2(b.txt)[0])}</p></div></div>`;
 }
-function mailCompose(k, id, title, role, name, opts, auto, i, big, leave) {
-  const n = opts.length, o = opts[i];
-  return mailDock(`<div class="mch"><button class="mxb" data-a="mclose" aria-label="Discard reply">${MAILI.x}</button><span class="mcs">Re: ${esc(title)}</span></div>
-  <div class="mcf"><span>To</span><span class="mpc"><span class="mpa">${ART.staffFace(role)}</span>${esc(name)}</span></div>
-  <div class="mseg ${n > 3 ? 'g2' : ''}" role="group" aria-label="Suggested replies"><i class="mseg-i"></i>${opts.map((x, j) => `<button class="sg ${j === i ? 'on' : ''}" data-a="mpick" data-i="${j}" aria-pressed="${j === i}">${esc(x.l)}${j === auto ? '<em class="adot" aria-label="advised"></em>' : ''}</button>`).join('')}</div>
-  <div class="mcb"><p class="mhi">Hi ${esc(mFirst(name))},</p><p class="mln">${o ? `<span class="typed" data-full="${esc(o.l)}." data-key="${k}${id}-${i}"></span>` : '<span class="mph">Pick a reply above and it writes itself.</span>'}<span class="caret"></span></p></div>
-  ${o && o.h ? `<div class="mprev"><span class="sfx">${ART.fx(o.h)}</span></div>` : ''}
-  <div class="mrow"><p class="mlv">${esc(leave)}</p><button class="msend ${o ? 'live' : ''} ${big ? 'hold' : ''}" ${big ? '' : 'data-a="msend"'} data-k="${k}" data-id="${id}" data-i="${i}" ${o ? '' : 'disabled'}>${MAILI.send}<span>${big ? 'Hold to send' : 'Send'}</span><i class="mfill"></i></button></div>`, 'open');
-}
-function mailSending() { return mailDock(`<div class="msending"><span class="mspin"></span>Sending…</div><div class="mundo" role="status"><span>Sent</span><button data-a="mundo">Undo</button><i></i></div>`, 'sending'); }
 function mailSent(name, line, out) {
   return mailDock(`<div class="msent"><div class="msh"><span class="mok">${ART.I.trust}</span><b>Sent to ${esc(mFirst(name))}</b></div><p class="msaid">${esc(line)}</p><p class="mout">${esc(clip2(out)[0])}</p></div><button class="mnext" data-a="mnext">Next email ${ART.I.chev}</button>`, 'sent') + mailBanner();
 }
@@ -47,11 +48,10 @@ function msgHtml(m, it) {
   h += `<p class="mwhy"><b>Why it is yours.</b> ${esc(v.why)}</p>`;
   if (m.ev === 'pw_meet' && F.pwView) h += pwMeetHtml(F.pwView());
   if (m.ev === 'pw_eval' && F.pwView) h += pwEvalHtml(F.pwView());
-  if (v.second) h += v.second.text ? `<details class="more" open><summary>Second opinion ${ART.I.chev}</summary><p>${esc(v.second.text)}</p></details>` : v.second.avail ? `<details class="more"><summary>Second opinion: ${esc(v.second.name)} <span class="small">1 action</span></summary><p><button class="btn ghost small" data-a="second" data-m="${m.id}" ${g.ap < 1 ? 'disabled' : ''}>Ask ${esc(v.second.name.split(' ')[0])}</button></p></details>` : '';
+  if (v.second && !v.second.text && v.second.avail) h += `<p class="small"><button class="linkbtn" data-a="second" data-m="${m.id}">Ask ${esc(v.second.name.split(' ')[0])} for a second opinion</button></p>`; // older messages: asking is free
   const leave = `One action. Leave it and ${v.autoWho} sends the advised reply.`;
-  if (U.pend && U.pend.k === 'm' && U.pend.id === m.id) { U.tray = mailSending(); U.trayH = 90; }
-  else if (U.mc && U.mc.k === 'm' && U.mc.id === m.id) { U.tray = mailCompose('m', m.id, v.title, role, name, v.opts, v.auto, U.mc.i, big, leave); U.trayH = 430; }
-  else { U.tray = mailDock(`<div class="slh"><b>Suggested replies</b>${apPips(g.ap)}</div>${mailRows('m', m.id, v.opts, v.auto, g.ap < 1)}<div class="mrow"><button class="mrb" data-a="mcomp" data-k="m" data-id="${m.id}" data-i="-1" ${g.ap < 1 ? 'disabled' : ''}>${MAILI.reply}Reply</button><p class="mlv">${g.ap < 1 ? 'No actions left this week. Your staff will decide.' : esc(leave)}</p></div>`); U.trayH = 130 + v.opts.length * 58; }
+  const sel = U.mc && U.mc.k === 'm' && U.mc.id === m.id ? U.mc.i : -1, sec = v.second && v.second.text ? v.second : null;
+  U.tray = replyDock('m', m.id, v.opts, v.auto, sel, big, g.ap < 1 ? 'No actions left this week. Your staff will decide.' : leave, g.ap < 1, sec, apPips(g.ap)); U.trayH = 150 + v.opts.length * 58 + (sec ? 90 : 0);
   return h;
 }
 function briefHtml(b, it) {
@@ -64,9 +64,8 @@ function briefHtml(b, it) {
   }
   if (v.why) h += `<p class="mwhy"><b>Why it is yours.</b> ${esc(v.why)}</p>`;
   const leave = 'Free. Leave it and nothing changes.';
-  if (U.pend && U.pend.k === 'b' && U.pend.id === b.id) { U.tray = mailSending(); U.trayH = 90; }
-  else if (U.mc && U.mc.k === 'b' && U.mc.id === b.id) { U.tray = mailCompose('b', b.id, v.title, role, name, v.opts, -1, U.mc.i, false, leave); U.trayH = 430; }
-  else { U.tray = mailDock(`<div class="slh"><b>Suggested replies</b><span>Free</span></div>${mailRows('b', b.id, v.opts, -1, false)}<div class="mrow"><button class="mrb" data-a="mcomp" data-k="b" data-id="${b.id}" data-i="-1">${MAILI.reply}Reply</button><p class="mlv">${leave}</p></div>`); U.trayH = 130 + v.opts.length * 58; }
+  const sel = U.mc && U.mc.k === 'b' && U.mc.id === b.id ? U.mc.i : -1;
+  U.tray = replyDock('b', b.id, v.opts, -1, sel, false, leave, false, null, '<span>Free</span>'); U.trayH = 150 + v.opts.length * 58;
   return h;
 }
 function mailCommit(p) {
@@ -82,8 +81,8 @@ function mailCommit(p) {
 }
 function big(p) { if (p.k !== 'm') return false; const m = G().inbox.find(x => x.id === p.id); return !!(m && /^vote_/.test(m.ev)); }
 function mailSend(d) {
-  const p = { k: d.k, id: +d.id, i: +d.i }; U.mc = null; U.pend = p; U.mfly = (U.mfly || 0) + 1;
-  clearTimeout(mailSend.t); mailSend.t = setTimeout(() => { if (U.pend !== p) return; U.pend = null; mailCommit(p); render(); }, MAIL_RM ? 60 : 3000);
+  const p = { k: d.k, id: +d.id, i: +d.i }; if (!(p.i >= 0)) return; U.mc = null; U.pend = null; U.mfly = (U.mfly || 0) + 1;
+  mailCommit(p); // sent at once: no waiting, no undo (B20)
 }
 const MAIL_RM = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 function mailAfter() {

@@ -89,3 +89,8 @@
 .mtg{background:light-dark(#f3e2e0,#3a2326);color:light-dark(#7a1e2b,#e79aa2)}.msig{border-left-color:#7a1e2b}.mcrest{background:#7a1e2b;color:#fff}
 .msubj{max-width:none!important;width:100%}.rsp{min-width:0}.rsp b{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
+/* reply dock: pick, then send (B20) */
+.srow.sel{background:light-dark(#f3e6e8,#3a2226);box-shadow:inset 4px 0 0 var(--club)}
+.srow.sel .sk{font-weight:800}
+.m2nd{display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;align-items:start;background:var(--paper);border-radius:14px;box-shadow:0 0 0 1px var(--hair);padding:10px 12px;margin:0 0 10px}
+.m2nd .mav{width:40px;height:40px}.m2nd p{margin:0;font-size:14px;line-height:1.35}.m2nd b{display:block;font:800 13px var(--head)}.m2nd small{display:block;font-size:11px;color:var(--soft);margin-bottom:2px}

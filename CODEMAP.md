@@ -111,7 +111,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/10-inbox.js` | 17 KB | render; inbox home (1.6) |  |  |  |
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
 | `ui/12-scenes-cards.js` | 15 KB | game UI helpers |  |  |  |
-| `ui/13-redbox-render.js` | 16 KB | the red box: an email you answer on one screen |  |  |  |
+| `ui/13-redbox-render.js` | 15 KB | the red box: an email you answer on one screen |  |  |  |
 | `ui/14-matchday-gazette.js` | 23 KB | match day: preview, match, gazette (full screens); the Gazette: one design, opened after the match and from th |  |  |  |
 | `ui/15-actions.js` | 18 KB | actions |  |  |  |
 | `ui/16-boot.js` | 0 KB | boot |  |  |  |
@@ -296,7 +296,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: sentEnds, clip2, splitSay, trayHtml, choiceHtml, ticOf, sceneHtml, vOpen, cardOpts, oppShort, fstrip, previewCard, whyPanel, matchCard, weekReport, msStrip, gazette
 
 ### `ui/13-redbox-render.js`
-- Functions: mFirst, mailParas, mailTop, MSV, mailRows, mailDock, mailBanner, mailCompose, mailSending, mailSent, bkStrip, msgHtml, briefHtml, mailCommit, big, mailSend, mailAfter, propHtml, tourCard, tabBadge, vBar, advance, markFresh, render
+- Functions: mFirst, mailParas, mailTop, MSV, mailRows, second2, replyDock, mailDock, mailBanner, mailSent, bkStrip, msgHtml, briefHtml, mailCommit, big, mailSend, mailAfter, propHtml, tourCard, tabBadge, vBar, advance, markFresh, render
 
 ### `ui/14-matchday-gazette.js`
 - Functions: mdOppCols, mdClean, mdP, mdStadium, mdPitch, mdForm, mdPreview, mdTeams, mdMatch, gzEdition, mdPaper, vMatchday, mdKick

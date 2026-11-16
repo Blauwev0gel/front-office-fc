@@ -137,3 +137,9 @@ Doel: elke afdeling beantwoordt dezelfde vier vragen, elk gegeven staat op één
 - **H7 Oude saves:** bestaande staf blijft en valt onder het hoofd. Nieuwe state met veilige defaults: `G.convo`, `G.staffAsk`.
 - Gemeten (16 runs × 3 seizoenen, gematchte seeds, actieve auditstijl), nu tegenover de vorige commit: staf per club in week 30 5,9 tegenover 0; punten per wedstrijd 1,78 tegenover 1,73 (ruis); eindkas £149k tegenover £133k; negatieve kas 10 tegenover 9 runs; verzoeken 4,4 per seizoen per club.
 - Getest: build, alle `node test/*.js` (incl. `mig.js`; `talks.js` toegevoegd aan `test/audit.js` en `tools/auditlib.js`), screenshots op 390 px licht en donker (afdelingslijst, Now met verzoek, People, een gesprek). Tijdens de test gevonden en gerepareerd: de gesprekstray werd alleen bij First team getoond.
+
+### Inbox: versturen en second opinion (besloten 16-11-2026; B20)
+- Antwoorden: tik een antwoord aan (het wordt gemarkeerd), dan Send; direct verstuurd, geen opstelscherm, geen 3 seconden "Sending…", geen Undo. Big decisions houden "Hold to send". (`ui/13-redbox-render.js` `replyDock`, `mailSend`; opstelscherm en wachttijd verwijderd.)
+- Second opinion: wordt gratis meegegeven als het bericht binnenkomt (`engine/08` `addMsg`, één keer berekend voor de determinisme) en staat bovenaan het antwoordblok met gezicht, naam en rol. Oudere berichten: een gratis knop "Ask … for a second opinion".
+- Getest: build, syntaxcheck van de gebouwde pagina, alle `node test/*.js`, browser op 390 px licht en donker (bericht openen, kiezen, versturen: 2 tikken, verstuurd in ±0,6 s).
+- Gevonden tijdens het bouwen: een commentaar in `addMsg` schakelde de rest van de regel uit; gerepareerd. Voortaan controleer ik ook de syntax van `dist/index.html`.

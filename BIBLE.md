@@ -71,7 +71,7 @@ Vastgelegd:
 
 ### 5.2 De week (34× per seizoen)
 1. **Coming up** — wat staat er deze week.
-2. **Inbox / rode map** — routinezaken beslissen afdelingen zelf binnen hun bevoegdheid; alleen
+2. **Inbox / rode map** — antwoorden in twee tikken: kies, dan Send (B20); een second opinion staat erbij. Routinezaken beslissen afdelingen zelf binnen hun bevoegdheid; alleen
    escalaties komen bij jou (boven het limiet, topspeler, clubnaam, zwakke/koude head, kort lijntje)
    plus wat altijd van de CEO is: conflicten tussen afdelingen, bestuur, supporters, pers, en
    gesprekken met de heads zelf.
@@ -184,3 +184,4 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 | B17 | 15-11-2026 | Een verzoek aan de coach over een speler ("Give him minutes") kan hij weigeren, naar de mate waarin hij je mandaat volgt. | Mensen hebben een eigen wil (P7); de CEO kiest nooit het elftal (B1). |
 | B18 | 15-11-2026 | Elk hoofd neemt zijn eigen staf aan en laat ze gaan, binnen het budgetniveau dat de CEO zet. Hij kiest naar zijn kwaliteit en karakter. Boven zijn bedragslimiet vraagt hij het de CEO in een gesprek. | De CEO stuurt mensen, niet hun personeel (P1); het hoofd kiezen weegt zwaarder (P7). |
 | B19 | 15-11-2026 | Wat de CEO nodig heeft, komt als gesprek van het hoofd ("wants a word"), niet als lijst. Eén gespreksmotor voor alle hoofden (de coach-scènes zijn het model). Gesprekken zijn gratis; alleen het eerste gesprek met een hoofd binnen drie weken geeft grip en volle werking. **Herziet B12:** Now toont geen aandachtslijst meer maar het oordeel en de verzoeken van het hoofd. | Druk voel je via mensen (P4), mensen hebben een eigen wil (P7). |
+| B20 | 16-11-2026 | Een bericht beantwoorden kost twee tikken: kies een antwoord, dan Send; het is direct verstuurd, zonder wachttijd of undo. Big decisions blijven 'houd ingedrukt'. Een second opinion komt gratis met het bericht mee en staat boven de antwoorden. | Snel op mobiel (B3); twee stemmen afwegen voor je beslist (P7, P9). |

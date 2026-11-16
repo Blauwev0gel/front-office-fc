@@ -75,7 +75,8 @@ const EV = {}; // filled by events.js
 function defineEvent(id, def) { def.id = id; EV[id] = def; }
 function queueEvent(id, ctx) { if (!EV[id]) return; if (G.queue.some(q => q.id === id) || pendingOf(id)) return; G.queue.push({ id, ctx: ctx || {} }); }
 function pendingOf(id) { return G.inbox.some(m => m.ev === id && !m.done); }
-function addMsg(id, ctx) { const e = EV[id]; const c = ctx || (e.setup ? e.setup() : {}); if (c === null) return false; const m = { id: uid(), ev: id, ctx: c, season: G.season, week: G.week, done: false }; G.inbox.unshift(m); G.cd[id] = absWeek() + (e.cd || 8); if (HOOK.desk) { try { HOOK.desk(e, m); } catch (err) { } } return true; }
+function addMsg(id, ctx) { const e = EV[id]; const c = ctx || (e.setup ? e.setup() : {}); if (c === null) return false; const m = { id: uid(), ev: id, ctx: c, season: G.season, week: G.week, done: false }; G.inbox.unshift(m);
+  if (e.second && staff(e.second.r)) { try { m.second = `${staff(e.second.r).name} (${ROLE[e.second.r].t}): ${e.second.t(c)}`; } catch (err) { } } /* the second voice comes with the message, free */ G.cd[id] = absWeek() + (e.cd || 8); if (HOOK.desk) { try { HOOK.desk(e, m); } catch (err) { } } return true; }
 const safe = f => { try { return f(); } catch (e) { return false; } };
 function genMessages() {
   const forced = G.queue.splice(0, 4); for (const q of forced) addMsg(q.id, q.ctx);
@@ -95,7 +96,7 @@ function autoEvent(e) {
 }
 function secondOpinion(msgId) {
   const m = G.inbox.find(x => x.id === msgId); if (!m || m.done) return null; const e = EV[m.ev]; if (!e.second) return { err: 'No second opinion available.' };
-  const r = e.second.r; if (!staff(r)) return { err: `There is no ${ROLE[r].t} to ask.` }; if (m.second) return { err: 'Already asked.' }; if (G.ap < 1) return { err: 'No action points left this week.' };
-  G.ap--; let t = ''; try { t = e.second.t(m.ctx); } catch (err) { t = 'He has nothing useful to add.'; } m.second = `${staff(r).name} (${ROLE[r].t}): ${t}`; return { out: m.second };
+  const r = e.second.r; if (!staff(r)) return { err: `There is no ${ROLE[r].t} to ask.` }; if (m.second) return { err: 'Already asked.' };
+  let t = ''; try { t = e.second.t(m.ctx); } catch (err) { t = 'He has nothing useful to add.'; } m.second = `${staff(r).name} (${ROLE[r].t}): ${t}`; return { out: m.second };
 }
 

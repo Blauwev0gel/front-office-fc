@@ -435,6 +435,45 @@ Eén korte telling (3 seeds, 12 seizoenen samen, 408 weken, antwoorden willekeur
 | Scouting- en portaalevents | nieuwe events in `events3.js` (`from: 'scout'`/`'dof'`), met `F.recall` voor terugkeer |
 | Turnaround-frequentie | `trouble()` in `turnaround.js`; telling van `turn_call` per seizoen op meer seeds |
 | Briefings die zich opstapelen | `briefs.js` (verloop, `cd`, een maximum aan open briefings) |
+## 19. Hoe het speelt: de academie
+
+Gelezen op 2026-11-16: `academy.js` (vrijwel geheel), `academy3.js` (geheel), `academy2.js` (categorie, jeugdcompetities, weekhook, seizoenshook; de events en het diagnoseblok alleen als lijst). **Niet gelezen**: de teksten van de 7 academie-events en de UI in `ui/` (het scherm met Overview/Setup/Record). Hieronder staat ook één kleine telling (3 seeds, ≤6 seizoenen, willekeurige antwoorden), een aanwijzing en geen meting van een echte speler.
+
+### Structuur
+- **State** `G.acad` (staf, niveau per groep `lv`, reputatie `rep`, `found` = kwaliteit/aantal van de aanwas, cohorten, log, uitvallers), `G.academy` (de spelers), `G.acadX` (proefdag), plus `a.cat`, `a.lg` (jeugdcompetities) en `a.cup`.
+- **Vier groepen** (U14 U16 U18 U21), plafond 10/10/10/6 spelers. **Drie jeugdstafleden** (`ycoach`, `yrec`, `ycare`), gekoppeld aan je academiedirecteur en aan afdelings-perks (`ybonus`).
+- **Spelers** hebben `ca` (nu), `pa` (plafond), `edu` en `wel` (onderwijs en welzijn) en `band`: een **sterrenband** met onzekerheid die kleiner wordt met de leeftijd en het niveau van scouting en coaching. Je ziet dus nooit het echte plafond, alleen een schatting (zelfde idee als bij de scoutrapporten).
+
+### De ketens
+**Instroom (week 28, `acadIntake`).** 3–9 jongens van 12–13, afhankelijk van `yrec`, reputatie, faciliteiten en categorie, plus 0–2 late instromers van 14–15. `academy3` maakt daar de **proefdag** van: de recruiters tonen een lijst (instroom + 3 extra), jij kiest een criterium (hoogste plafond, lokale jongens, het snelst klaar), na 2 weken wordt het automatisch bevestigd. Je kiest dus nooit een kind, alleen wat de recruiters zoeken (pijler P1). Een talent met band ≥4★ geeft het event `wonderkid`.
+
+**Elke week (`acadWeekly`).** Niveau per groep schuift 2% richting een doel (budget, faciliteiten, coach). Elke speler groeit met `(pa−ca)×0,0033×mult` met `mult` uit de groep, coach, faciliteiten, mentors, persoonlijkheid, welzijn en pushes. Technische of fysieke accenten volgen de mandaatschuif. Onderwijs en welzijn trekken naar een doel dat van `ycare`, budget en filosofie afhangt; moraal volgt welzijn. Daarnaast spelen **U18 en U21 een competitie van 12 teams** (`playRound`, poisson, sterkte uit je 11 beste jongens) en er is een **jeugdbeker**. Poaching door andere clubs komt als `acad_poach`. Week 30 geeft de **jaarlijkse audit** (categorie 1–4, score uit faciliteiten, coaching, staf, onderwijs, welzijn, budget).
+
+**Seizoenseinde (`acadSeason`).** Iedereen een jaar ouder. Kans op groeispurt (15% tot 17 jaar), laat bloeien (8%, 16–18) of een knik in het plafond (6%, vanaf 15). **Uitval** per speler van 7% plus extra bij laag welzijn, laag onderwijs of een band onder het niveau. **17 jaar:** scholarship of niet (op band ≥ niveau −0,5). **Vanaf 19:** doorstromen naar de selectie als `ca` ≥ niveau −0,7 −pace×0,7 (of, vanaf 20, het plafond hoog genoeg is) en er plek is (<27 spelers), anders U21 behouden, anders vrijlaten. Daarna spelen-omhoog-, uitleenregels en vervanging van jeugdstaf.
+
+**Terug in het eerste elftal.** `promote` zet de speler in `G.squad` met contract 3 en 60% van het marktsalaris. De coach beslist over speeltijd (jeugdmandaat). `ac_ready` is een briefing: "Is X ready?" (promoveren, nog een seizoen, uitlenen).
+
+### Wat een kleine run laat zien
+Seizoenstelling in tier 6–8 (niveau 5–8 CA):
+- **Doorstroom is zeldzaam**: 0–2 spelers per seizoen naar de selectie, in de meeste seizoenen 0. 8 van 14 seizoenen hadden **geen enkele promotie**.
+- **Wie doorkomt, zit rond het niveau van de divisie** (CA 6,1–8,4 tegen een divisiegemiddelde van 5–7,8) en soms er net boven. Dat is wat B37 vroeg: geen wonderkinderen die het spel kapotmaken.
+- **De academie zelf blijft ±13–18 spelers groot**, 0–3 uitvallers en 0–2 vrijgelaten per seizoen.
+- **Categorie 4 → 3** in een van de drie runs, de twee andere bleven op 4.
+- Eén kanttekening: de eerste spelers die als "eigen jeugd" meetellen zijn de startgeneratie van 17–18-jarigen (`acadInit`). Die zijn niet representatief voor wat de academie later zelf voortbrengt.
+
+### Wat ik opmerk
+- **De wekelijkse "kijk er naar"-laag is dun.** De spelers groeien in een lus waar jij niets van ziet; wat er gebeurt komt op het seizoenseinde en in 7 events en 12 briefings. De wens dat de academie "iets is waar je wekelijks naar zou kijken" (de mentor-/wedstrijdroute) staat nog open; het mechanisme (`playRound`) bestaat wel al en schrijft zelfs een "ster van de wedstrijd" per ronde.
+- **Een verhaallijn per kind ontbreekt.** Alle spelers delen één groeiformule en er is geen terugkerende band tussen jou en een speler, anders dan `wonderkid` en `ac_ready`.
+- **Aanbod en doorstroom zijn ver uit balans**: 3–9 jongens per jaar in, 0–2 eruit. De meeste jaren zie je dus alleen uitvallers en vrijgelaten spelers. Dat is realistisch maar zorgt voor weinig beloning; het is een keuze die bij de bijbel moet passen (pijler langetermijn).
+- **Drie bestanden, drie generaties**: `academy.js` (kern), `academy2.js` (categorie, competities, events), `academy3.js` (proefdag, briefings). Ze wikkelen elkaar via hooks (`acadIntake`, `acadWeekly`, `acadSeason`); samenvoegen is niet nodig maar de volgorde moet blijven.
+
+### Wat dit betekent voor verbeteringen
+| Idee | Eerst bekijken |
+|---|---|
+| Wekelijkse reden om te kijken | `playRound` en `ac_*`-briefings; de U18/U21-wedstrijd zichtbaar maken (mentorroute) |
+| Meer doorstroom of een ander ritme | de drempel in `acadSeason` (`thr`, `pace`), `genYouth` (`pa`) en een meting op meer seizoenen |
+| Verhaal per jeugdspeler | `G.mem`/`F.recall` uit `weekflow.js`; een `wonderkid`-achtige keten in `dossiers.js` |
+| Academie en portaal | `world.js` kent geen eigen jeugd; koppel `G.world` aan de aanwas of aan de poaching |
 ## Bijlage: alle bronbestanden
 
 <!-- generated:files:start -->

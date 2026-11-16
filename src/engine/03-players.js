@@ -10,7 +10,7 @@ const SLOTS = ['GK', 'FB', 'CB', 'CB', 'FB', 'DM', 'CM', 'AM', 'W', 'ST', 'W'];
 
 function calcCA(p) { const w = POSW[p.pos]; let s = 0, n = 0; for (const k in w) { s += p.a[k] * w[k]; n += w[k]; } return s / n; }
 const wageFor = ca => 250 * Math.pow(1.38, ca - 5);
-function upd(p) { p.ca = calcCA(p); const af = p.age <= 21 ? 1.4 : p.age <= 24 ? 1.2 : p.age <= 28 ? 1 : p.age <= 31 ? 0.6 : 0.3; p.value = Math.round(wageFor(p.ca) * 62 * af * (1 + Math.max(0, p.pa - p.ca) * 0.08) / 100) * 100; return p; }
+function upd(p) { p.ca = calcCA(p); const af = p.age <= 21 ? 1.4 : p.age <= 24 ? 1.2 : p.age <= 28 ? 1 : p.age <= 31 ? 0.6 : 0.3; p.value = Math.round(wageFor(p.ca) * 62 * af * Math.pow(1.38, Math.max(0, p.pa - p.ca) * 0.5) / 100) * 100; return p; } // B37: potential is priced on the same scale as wages (half the expected growth), so young talent is no free lunch
 const newStats = () => ({ apps: 0, mins: 0, g: 0, a: 0, xg: 0, xa: 0, prg: 0, dw: 0, dt: 0, rat: 0, yc: 0, rc: 0 });
 function absStars(v) { return clamp(Math.round((0.5 + (v - 3) / 3) * 2) / 2, 0.5, 5); }
 function stars(v) { return clamp(Math.round((2.5 + (v - tierAvg(G.club.tier)) * 0.8) * 2) / 2, 0.5, 5); }

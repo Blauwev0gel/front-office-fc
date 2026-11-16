@@ -53,7 +53,7 @@ for (let r = 0; r < runs; r++) {
       if (g.squad.length < 14 && g.phase === 'season') errs.push(`thin squad ${g.squad.length} s${g.season}w${g.week}`);
       if (weeks > 500) break outer;
     }
-    { const rep = FO.G.lastReport || {}; R.seasons.push({ s: rep.season, tier: rep.tier, pos: rep.pos, cash: FO.G.club.cash, conf: FO.G.board.conf, fans: FO.G.st.fans, sq: FO.G.squad.length, str: +FO.teamStrength().toFixed(2), tavg: +FO.tierAvg(FO.G.club.tier).toFixed(2), wages: FO.playerWages() }); }
+    { const rep = FO.G.lastReport || {}; R.seasons.push({ s: rep.season, tier: rep.tier, pos: rep.pos, cash: FO.G.club.cash, conf: FO.G.board.conf, fans: FO.G.st.fans, sq: FO.G.squad.length, str: +FO.teamStrength().toFixed(2), tavg: +FO.tierAvg(FO.G.club.tier).toFixed(2), wages: FO.playerWages(), core: FO.G.squad.slice().sort((x, y) => y.ca - x.ca).slice(0, 14).map(x => [x.id, +x.ca.toFixed(2), x.age, x.wage]) }); }
     if (FO.G.phase === 'sacked') { R.sacked = FO.G.season; log.push('SACKED s' + FO.G.season + ' w' + FO.G.week + ': ' + FO.G.sackReason); break; }
     const rep = FO.G.lastReport; log.push(`rev ${FO.money(FO.G.ss.rev)} exp ${FO.money(FO.G.ss.exp)} earned ${FO.money(FO.G.ss.earned)} spent ${FO.money(FO.G.ss.spent)} prize ${FO.money(rep.prize)} || S${rep.season} tier${rep.tier} pos${rep.pos} ${rep.moves.join(',')} cash ${FO.money(FO.G.club.cash)} conf ${Math.round(FO.G.board.conf)} squad ${FO.G.squad.length} acad ${FO.G.academy.length} fans ${Math.round(FO.G.st.fans)} cap ${FO.G.club.cap} signings ${FO.G.ss.signings} proj ${(FO.G.projDone||[]).length}/${(FO.G.projects||[]).length} perks ${Object.keys(FO.G.club.perks).length}`);
     if (FO.G.phase !== 'review') break;

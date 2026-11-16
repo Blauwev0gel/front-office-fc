@@ -1,0 +1,195 @@
+<title>Scouting Portal Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one 390px phone column (search, flags, table, player detail) built from the game's own tokens and its three surface levels; a slim bar above it switches theme and explains the data */
+:root{color-scheme:light dark;
+--bg:light-dark(#e3e9e1,#121815);--paper:light-dark(#ffffff,#1b231f);--fill:light-dark(#eef2ec,#232d28);--ink:light-dark(#16201b,#e6eee8);--soft:light-dark(#526157,#a3b2a9);
+--hair:light-dark(rgba(22,32,27,.18),rgba(230,238,232,.18));--sun:#f3d36b;
+--good:light-dark(#1f7a43,#6fcf97);--bad:light-dark(#b92f1a,#ff8a75);--warn:light-dark(#8a5200,#f0b45c);--club:#7a1e2b;--on:#fff;
+--head:"Avenir Next Condensed","Futura","Trebuchet MS","Arial Narrow",sans-serif;--body:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+--t1:32px;--t2:22px;--t3:17px;--t4:15px;--t5:12px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;
+--l1:3px solid var(--ink);--sh1:4px 4px 0 light-dark(#16201b,#000);--r:10px}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:var(--t4)/1.5 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 48px}
+h1,h2,h3,p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+.bar{max-width:390px;margin:0 auto 12px;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.bar small{color:var(--soft);font-size:13px;flex:1 1 200px}
+.tg{display:inline-flex;border:2px solid var(--ink);border-radius:var(--r);overflow:hidden}
+.tg button{font:700 14px var(--body);padding:8px 14px;min-height:44px;background:var(--paper);border:0}
+.tg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.app{max-width:390px;margin:0 auto;display:grid;gap:var(--s3)}
+.hd{display:flex;align-items:center;gap:10px;font:800 var(--t3) var(--head);font-style:italic}
+.hd .sp{margin-left:auto;font:600 13px var(--body);font-style:normal;color:var(--soft)}
+.ib{width:44px;height:44px;display:grid;place-items:center;border:var(--l1);border-radius:var(--r);background:var(--paper);font-size:20px;flex:none}
+.btn{background:var(--club);color:var(--on);border:0;border-radius:var(--r);font:800 var(--t4) var(--head);font-style:italic;min-height:46px;padding:0 16px}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--ink)}.btn.w{width:100%}.btn[disabled]{opacity:.55}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--fill);border-radius:var(--r);padding:3px}
+.seg button{min-height:44px;border:0;background:none;font:800 14px var(--head);border-radius:8px}
+.seg button.on{background:var(--paper);box-shadow:0 1px 0 var(--ink)}
+/* level 1: the open puzzle and the verdict */
+.l1{background:var(--paper);border:var(--l1);box-shadow:var(--sh1);border-radius:var(--r);padding:var(--s4);display:grid;gap:var(--s2)}
+.l1 h3{font:900 var(--t2)/1.1 var(--head);font-style:italic}
+.l1 p{font-size:var(--t4)}
+/* level 2 */
+.l2{background:var(--paper);border:1px solid var(--hair);border-radius:var(--r);padding:var(--s3) var(--s4);display:grid;gap:var(--s2)}
+.sec{font:800 var(--t3) var(--head);font-style:italic;margin-top:var(--s2);display:flex;justify-content:space-between;align-items:baseline}
+.sec small{font:600 13px var(--body);color:var(--soft);font-style:normal}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--hair);background:var(--paper);font:700 14px var(--body)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* player row: level 2 with level 3 lines */
+.pc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px var(--s3);width:100%;text-align:left;background:var(--paper);border:1px solid var(--hair);border-radius:var(--r);padding:var(--s3) var(--s4)}
+.pc b{font:800 var(--t3) var(--head)}.pc .meta{font-size:14px;color:var(--soft)}.pc .ask{font:900 var(--t3) var(--head);text-align:right}
+.pc .stat{grid-column:1/-1;font-size:14px}
+.tags{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
+.tag{font:800 13px var(--head);padding:3px 8px;border-radius:6px;background:var(--fill);border:1px solid var(--hair)}
+.tag.good{color:var(--good);border-color:var(--good)}.tag.bad{color:var(--bad);border-color:var(--bad)}.tag.warn{color:var(--warn);border-color:var(--warn)}
+.flag{min-height:44px;min-width:44px;border:1px solid var(--hair);border-radius:var(--r);background:var(--fill);font:800 14px var(--head)}
+.flag.on{background:var(--ink);color:var(--bg)}
+.row2{display:grid;grid-template-columns:1fr auto;gap:var(--s2);align-items:center}
+.bars{display:grid;gap:7px}
+.br{display:grid;grid-template-columns:96px 1fr 32px;gap:8px;align-items:center;font-size:14px}
+.br i{height:10px;background:var(--fill);border-radius:5px;position:relative;overflow:hidden;border:1px solid var(--hair)}
+.br i b{position:absolute;inset:0 auto 0 0;background:var(--ink)}.br i b.s{background:var(--club)}
+.br span:last-child{text-align:right;color:var(--soft);font-size:13px}
+.kg{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)}
+.kt{background:var(--fill);border-radius:var(--r);padding:var(--s3)}
+.kt small{display:block;font-size:14px;color:var(--soft)}.kt b{display:block;font:800 var(--t2)/1.15 var(--head);margin:2px 0}.kt span{font-size:14px;color:var(--soft)}
+.kt.good b{color:var(--good)}.kt.bad b{color:var(--bad)}
+.unk{color:var(--soft);font-style:italic}
+.dof{border-left:6px solid var(--club)}
+.say{font-size:var(--t4);line-height:1.4}.who{font:800 13px var(--head);color:var(--soft)}
+.tw{overflow-x:auto;border:1px solid var(--hair);border-radius:var(--r);background:var(--paper);max-height:520px;overflow-y:auto}
+table{border-collapse:separate;border-spacing:0;font-size:14px;width:max-content;min-width:100%}
+th,td{padding:10px 10px;border-bottom:1px solid var(--hair);white-space:nowrap;text-align:right}
+th{position:sticky;top:0;background:var(--fill);font:800 13px var(--head);z-index:2;cursor:pointer;min-height:44px}
+td:first-child,th:first-child{position:sticky;left:0;text-align:left;background:var(--paper);z-index:1;border-right:1px solid var(--hair)}
+th:first-child{z-index:3;background:var(--fill)}
+tr.f td:first-child{box-shadow:inset 4px 0 0 var(--club)}
+.toast{position:sticky;bottom:12px;background:var(--ink);color:var(--bg);border-radius:var(--r);padding:12px 16px;font-weight:700;text-align:center}
+.note{font-size:13px;color:var(--soft)}
+</style>
+
+<div class="bar"><div class="tg" role="group" aria-label="Theme"><button id="tl" aria-pressed="false">Light</button><button id="td" aria-pressed="false">Dark</button></div><small>Prototype. All data is generated by the model in notes/moneyball-model.md (market error: medium). It is not saved and not tuned.</small></div>
+<div class="app" id="app"></div>
+
+<script>
+/* ---------- seeded world, following the model: profile, production with luck, market reads the headline stat ---------- */
+let seed=20261116;const rnd=()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const gauss=()=>{let u=0;for(let i=0;i<6;i++)u+=rnd();return(u-3)/Math.sqrt(.5)};
+const poisson=l=>{const L=Math.exp(-l);let k=0,p=1;do{k++;p*=rnd()}while(p>L);return k-1};
+const pick=a=>a[Math.floor(rnd()*a.length)],clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const ATT=['pac','sta','str','hea','tac','mar','pas','vis','dri','cro','fin','com'];
+const W={ST:{fin:3,com:2,hea:2,pac:1,str:1},W:{pac:3,dri:3,cro:2,fin:1},CM:{pas:3,vis:2,sta:2,tac:1},DM:{tac:3,mar:2,pas:1,sta:2},CB:{tac:3,mar:3,hea:2,str:2},FB:{tac:2,pac:2,cro:2,sta:2,mar:1}};
+const POS=['ST','W','CM','DM','CB','FB'],POSW=[1.2,1.3,1.5,1,1.5,1.2];
+const FN=['Ivo','Marek','Tomás','Hamish','Lennart','Joaquim','Sean','Femi','Carlos','Viktor','Gareth','Stefan','Emre','Pranav','Dele','Niko','Ross','Hendrik','Arjen','Clive','Ellis','Kyle','Leo','Sam'];
+const LN=['Brackley','Varley','Aldridge','Okoro','Whitlock','Haddad','Lyle','Pryor','Rourke','Kemp','Duarte','Esteves','Farrow','Nuttall','Tindall','Birtles','Hesketh','Voss','Garrick','Ilesen','Ashby','Benn','Stroud','Wilde'];
+const CL=['Oakwell Rangers','Kelmoor City','Lynfield United','Draymouth Athletic','Queenspool Town','Glenworth Wanderers','Elmbridge Town','Coldbridge Albion','Wilborough Rovers','Ravenborough Wanderers'];
+const STYLES={pressing:{engine:.4,solid:.2,carry:.1,threat:.1,build:.1,aerial:.1},possession:{build:.4,carry:.25,engine:.1,threat:.1,solid:.1,aerial:.05},counter:{carry:.3,threat:.3,engine:.15,solid:.15,build:.05,aerial:.05},direct:{aerial:.35,threat:.25,solid:.2,engine:.1,carry:.05,build:.05}};
+const TRAITS=[['aerial','Aerial'],['engine','Engine'],['build','Build-up'],['carry','Carrying'],['threat','Box threat'],['solid','Solidity']];
+const OUR='pressing',STYLE_L={pressing:'pressing',possession:'possession',counter:'counter-attack',direct:'direct'};
+const price=(ca,age)=>{const af=age<=21?1.3:age<=25?1.15:age<=29?1:age<=31?.7:.45;return 100*Math.pow(1.38,ca-6)*af};
+const money=k=>k>=1000?'£'+(k/1000).toFixed(k>=10000?1:2).replace(/\.?0+$/,'')+'m':'£'+Math.round(k)+'k';
+let players=[];
+function make(i){const pos=(()=>{let r=rnd()*POSW.reduce((a,b)=>a+b),j=0;while(r>POSW[j]){r-=POSW[j];j++}return POS[j]})(),w=W[pos];
+  const ca0=clamp(8.2+gauss()*1.5,4,14),a={};for(const k of ATT)a[k]=clamp((w[k]?ca0+gauss()*1.1+(w[k]-1.5)*.5:ca0-2.5+gauss()*2),1,20);
+  let sw=0,s=0;for(const k in w){s+=a[k]*w[k];sw+=w[k]}const ca=s/sw,age=Math.round(clamp(19+Math.abs(gauss())*4.5+(rnd()<.2?3:0),18,35)),mins=Math.round(1700+rnd()*1200);
+  const tr={aerial:(a.hea*2+a.str)/3,engine:(a.sta*2+a.tac+a.pac)/4,build:(a.pas*2+a.vis+a.com)/4,carry:(a.dri*2+a.pac+a.cro)/4,threat:(a.fin*2+a.com+a.hea)/4,solid:(a.tac+a.mar*2+a.str)/4};
+  const f=mins/2800;let E,H,Hobs,label;
+  if(pos==='ST'){E=16*Math.pow(ca/9,1.6)*f;H=poisson(E);label='Goals';}
+  else if(pos==='W'){E=11*Math.pow(ca/9,1.4)*f;H=poisson(E);label='Goals + assists';}
+  else if(pos==='CM'){E=6*Math.pow(ca/9,1.2)*f;H=poisson(E);label='Assists';}
+  else{E=6.3+(ca-8)*.1;H=E+gauss()*.3/Math.sqrt(mins/2700);label='Rating';}
+  const sd=pos==='ST'||pos==='W'||pos==='CM'?Math.sqrt(Math.max(E,1)):.3/Math.sqrt(mins/2700);
+  const z=clamp((H-E)/sd,-2.6,2.6),perceived=ca+0.7*z;
+  const end=rnd()<.14,needy=rnd()<.12,contract=end?.5:Math.round((1+rnd()*3)*2)/2;
+  const p={id:i,name:pick(FN)+' '+pick(LN),pos,age,club:pick(CL),ca,a,tr,mins,E,H,label,z,xgObs:E*(1+gauss()*.18),perceived,contract,end,needy,
+    ask:price(perceived,age)*(end?.8:1)*(needy?.92:1),fl:false,confirmed:0,estN:gauss()*.35,
+    chars:{prof:pick(['Professional','Professional','Average','Casual']),temp:pick(['Calm','Calm','Hot-headed']),inj:pick(['low','normal','normal','high']),pot:Math.round(clamp(ca+(age<=22?1+rnd()*3:rnd()*.8),4,16)*10)/10},
+    tid:'p'+i};return p}
+function build(){seed=20261116;players=[];for(let i=0;i<48;i++)players.push(make(i));
+  for(const pos of POS){const g=players.filter(p=>p.pos===pos);for(const[k]of TRAITS){const s=g.map(p=>p.tr[k]).sort((x,y)=>x-y);for(const p of g){p.pc=p.pc||{};p.pc[k]=s.indexOf(p.tr[k])/Math.max(1,s.length-1)}}}
+  for(const p of players){const st=STYLES[OUR];p.fit=clamp(TRAITS.reduce((a,[k])=>a+st[k]*(p.pc[k]-.5)*2,0)*.9,-1,1)}}
+build();
+const caEst=p=>p.ca+p.estN*(p.confirmed===2?.2:1);
+const fitS=p=>(p.fit>=0?'+':'')+Math.round(p.fit*100),teamFx=p=>(p.fit*.055>=0?'+':'')+(p.fit*.055).toFixed(2);
+const worth=p=>price(caEst(p)+.4*p.fit,p.age),edge=p=>worth(p)/p.ask-1;
+const pct=v=>(v>=0?'+':'')+Math.round(v*100)+'%';
+/* ---------- state and views ---------- */
+const S={tab:'search',pos:'All',fUnder:false,fFit:false,fEnd:false,sort:'edge',week:1,slots:3,open:null,tset:'Overview',tsort:'edge',tdir:-1,toast:'',targets:new Set()};
+const $=s=>document.querySelector(s),app=$('#app');
+const byId=id=>players.find(p=>p.id===id);
+function toast(t){S.toast=t;render();setTimeout(()=>{if(S.toast===t){S.toast='';render()}},2600)}
+function tags(p){const e=edge(p),t=[];const u=p.confirmed===2?'':' (unconfirmed)';
+  if(e>=.2)t.push(`<span class="tag good">Looks ${pct(e)} cheap${p.confirmed===2?'':'?'}</span>`);else if(e<=-.15)t.push(`<span class="tag bad">Overpriced ${pct(e)}</span>`);
+  if(p.fit>=.3)t.push(`<span class="tag good">Fits ${STYLE_L[OUR]} ${fitS(p)}</span>`);else if(p.fit<=-.3)t.push(`<span class="tag warn">Poor fit ${fitS(p)}</span>`);
+  if(p.end)t.push('<span class="tag warn">Contract ends</span>');if(p.needy)t.push('<span class="tag warn">Seller needs cash</span>');return t.join('')}
+function row(p){return `<div style="display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:8px;align-items:start"><button class="pc" data-open="${p.id}"><span><b>${p.name}</b><br><span class="meta">${p.pos} · ${p.age} · ${p.club}</span></span><span class="ask">${money(p.ask)}</span><span class="stat">${p.label}: <b>${p.label==='Rating'?p.H.toFixed(2):p.H}</b> · expected ≈ ${p.label==='Rating'?p.E.toFixed(2):p.xgObs.toFixed(1)}</span><span class="tags">${tags(p)}</span></button><button class="flag ${p.fl?'on':''}" data-flag="${p.id}" aria-pressed="${p.fl}" aria-label="Flag ${p.name}">${p.fl?'Flagged':'Flag'}</button></div>`}
+function search(){let L=players.filter(p=>(S.pos==='All'||p.pos===S.pos)&&(!S.fUnder||edge(p)>=.2)&&(!S.fFit||p.fit>=.3)&&(!S.fEnd||p.end));
+  const key={edge:p=>-edge(p),fit:p=>-p.fit,price:p=>p.ask,age:p=>p.age}[S.sort];L=L.slice().sort((a,b)=>key(a)-key(b));
+  return `<div class="l1"><h3>Open puzzle: a right-back for a pressing side</h3><p>Pau Reyes (33) leaves in June. We want engine and solidity, not the biggest name. <b>${players.filter(p=>p.pos==='FB'&&p.fl).length}</b> flagged so far.</p></div>
+  <div class="chips">${['All',...POS].map(x=>`<button class="chip ${S.pos===x?'on':''}" data-pos="${x}">${x}</button>`).join('')}</div>
+  <div class="chips"><button class="chip ${S.fUnder?'on':''}" data-t="fUnder">Looks cheap</button><button class="chip ${S.fFit?'on':''}" data-t="fFit">Fits our style</button><button class="chip ${S.fEnd?'on':''}" data-t="fEnd">Contract ending</button></div>
+  <div class="row2"><span class="sec" style="margin:0">${L.length} players <small>Sorted by ${{edge:'value for us',fit:'fit',price:'price',age:'age'}[S.sort]}</small></span><select id="sort" aria-label="Sort" style="min-height:44px;border-radius:10px;border:1px solid var(--hair);background:var(--paper);color:var(--ink);padding:0 10px"><option value="edge">Value for us</option><option value="fit">Fit</option><option value="price">Price</option><option value="age">Age</option></select></div>
+  ${L.slice(0,14).map(row).join('')||'<div class="l2"><p>Nobody matches. Loosen a filter.</p></div>'}${L.length>14?`<p class="note">Showing 14 of ${L.length}. Narrow the search, or open the full table.</p>`:''}`}
+function bar(label,v,strong){return `<div class="br"><span>${label}</span><i><b class="${strong?'s':''}" style="width:${Math.round(v*100)}%"></b></i><span>${Math.round(v*100)}</span></div>`}
+function detail(p){const e=edge(p),w=worth(p),c=p.confirmed===2,st=STYLES[OUR];
+  const why=[];const lz=p.label==='Rating'?(p.H-p.E):(p.H-p.xgObs);
+  if(p.label!=='Rating')why.push(lz<-1.2?`He scored ${p.H} from about ${p.xgObs.toFixed(1)} expected: unlucky, and the market has noticed only the ${p.H}.`:lz>1.2?`He scored ${p.H} from about ${p.xgObs.toFixed(1)} expected: lucky. The price rewards the ${p.H}.`:`Output matches expectation (${p.H} against ${p.xgObs.toFixed(1)}).`);
+  else why.push(p.H>p.E+.15?`His rating is above what his profile suggests, and the price follows it.`:p.H<p.E-.15?`His rating is below what his profile suggests. The price follows the rating, not the player.`:`His rating matches his profile.`);
+  why.push(p.fit>=.3?`He fits our ${STYLE_L[OUR]} side (${fitS(p)}), worth about ${teamFx(p)} on team strength.`:p.fit<=-.3?`He does not fit our ${STYLE_L[OUR]} side (${fitS(p)}), about ${teamFx(p)} on team strength.`:`Neutral fit with our style.`);
+  const ds=dofSays(p);
+  return `<div class="hd"><button class="ib" data-back aria-label="Back">‹</button><span>${p.name}</span><span class="sp">${p.pos} · ${p.age} · ${p.club}</span></div>
+  <section class="l1"><h3>Worth ${money(w)} to us. Asking ${money(p.ask)}.</h3><p style="font-weight:700;color:${e>=.2?'var(--good)':e<=-.15?'var(--bad)':'var(--ink)'}">${pct(e)} ${e>=0?'value':'over price'}${c?'':' (estimate, unconfirmed)'}</p><p>${why.join(' ')}</p></section>
+  <div class="row2"><button class="btn w" data-flag="${p.id}" style="grid-column:1/-1">${p.fl?'Unflag':'Flag for the DoF'}</button></div>
+  <div class="sec">The DoF says</div><div class="l2 dof"><span class="who">Lennart Goodall, Director of Football · cautious, wants proof</span><p class="say">${ds.t}</p>${ds.alt?`<button class="btn ghost" data-open="${ds.alt.id}">Look at ${ds.alt.name} (${money(ds.alt.ask)})</button>`:''}</div>
+  <div class="sec">Profile <small>against ${p.pos}s, 0 to 100</small></div><div class="l2"><div class="bars">${TRAITS.map(([k,l])=>bar(l+(st[k]>=.2?' ★':''),p.pc[k],st[k]>=.2)).join('')}</div><p class="note">★ matters most to a ${STYLE_L[OUR]} side.</p></div>
+  <div class="sec">The numbers</div><div class="kg"><div class="kt"><small>${p.label}</small><b>${p.label==='Rating'?p.H.toFixed(2):p.H}</b><span>in ${p.mins} min</span></div><div class="kt ${lz<-1.2?'good':lz>1.2?'bad':''}"><small>Expected (data)</small><b>${p.label==='Rating'?p.E.toFixed(2):p.xgObs.toFixed(1)}</b><span>noisy until confirmed</span></div><div class="kt"><small>Contract</small><b>${p.contract<=.5?'6 months':p.contract+' yrs'}</b><span>${p.end?'ends in June':'runs on'}</span></div><div class="kt"><small>Seller</small><b>${p.needy?'Needs cash':'Calm'}</b><span>${p.needy?'price may drop':'will not budge'}</span></div></div>
+  <div class="sec">Scouts <small>${S.slots} of 3 slots this week</small></div>
+  <div class="l2">${c?`<p><b>Confirmed.</b> Scouts put his expected output at ${p.label==='Rating'?p.E.toFixed(2):(p.E).toFixed(1)}, about ${p.label==='Rating'?'':Math.abs(p.H-p.E).toFixed(1)+' '+(p.H<p.E?'below':'above')+' what he scored'}. Luck explains roughly ${Math.round(clamp(Math.abs(p.z)/(Math.abs(p.z)+.7),.1,.9)*100)}% of the gap.</p><p>Character: ${p.chars.prof}, ${p.chars.temp.toLowerCase()}. Injury risk ${p.chars.inj}. Potential ${p.chars.pot.toFixed(1)}.</p>`:p.confirmed===1?`<p><b>Scouts are on it.</b> Report arrives next week.</p>`:`<p class="unk">Character, injury risk and potential are unknown. The expected figure above is noisy.</p><button class="btn ghost w" data-confirm="${p.id}" ${S.slots<1?'disabled':''}>Ask scouts to confirm (1 slot, back next week)</button>`}</div>`}
+function dofSays(p){const e=edge(p),c=p.confirmed===2;
+  const alt=players.filter(x=>x.id!==p.id&&x.pos===p.pos&&!x.fl&&edge(x)>e+.12&&x.fit>=.15).sort((a,b)=>edge(b)-edge(a))[0];
+  let t;
+  if(!c&&e>=.2)t=`The numbers look good, but I do not trust one season. Let the scouts confirm before we spend a penny.`;
+  else if(c&&e>=.25)t=`I like it. The price is wrong in our favour and he suits the way we play. I can open talks in the window.`;
+  else if(c&&e>=.1)t=`Fair deal. Not a bargain. I would put him on the shortlist, not on the list.`;
+  else if(e<=-.15)t=`He is expensive for what he gives us. I would let somebody else pay for his last season.`;
+  else if(p.age>=31)t=`He is ${p.age}. I worry about the second year of the deal, not the first.`;
+  else t=`He is a decent player at a fair price. That is the problem: nobody is going to thank us for it.`;
+  if(p.fl&&alt)t+=` Have you seen the other one I found?`;else if(alt&&p.fl===false&&e<.1)t+=` I have a better idea in the same position.`;
+  return{t,alt:p.fl||e<.1?alt:null}}
+function flags(){const F=players.filter(p=>p.fl);if(!F.length)return `<div class="l1"><h3>No flags yet</h3><p>Flag a player in the search. The DoF reacts, and the scouts can confirm the ones you doubt.</p></div>`;
+  return `<div class="sec">${F.length} flagged <small>briefings for the DoF</small></div>${F.map(p=>{const ds=dofSays(p);return `<div class="l2 dof"><div class="row2"><span><b style="font:800 var(--t3) var(--head)">${p.name}</b><br><span class="note">${p.pos} · ${p.age} · asking ${money(p.ask)}</span></span><button class="flag on" data-flag="${p.id}" aria-label="Unflag">Unflag</button></div><span class="who">Lennart Goodall</span><p class="say">${ds.t}</p><div class="row2"><button class="btn ghost" data-open="${p.id}">Open</button><button class="btn" data-target="${p.id}" ${S.targets.has(p.id)?'disabled':''}>${S.targets.has(p.id)?'Target':'Make target'}</button></div></div>`}).join('')}`}
+const SETS={Overview:['pos','age','ask','worth','edge','H','xg','fit'],Attack:['pos','fin','com','dri','cro','pas','vis','pac'],Defend:['pos','tac','mar','hea','str','sta'],Mind:['pos','age','contract','prof','temp','inj']};
+const COL={pos:['Pos',p=>p.pos],age:['Age',p=>p.age],ask:['Ask',p=>money(p.ask),p=>p.ask],worth:['Worth',p=>money(worth(p)),p=>worth(p)],edge:['Edge',p=>pct(edge(p)),p=>edge(p)],H:['Output',p=>p.label==='Rating'?p.H.toFixed(2):p.H,p=>p.H],xg:['Expected',p=>p.label==='Rating'?p.E.toFixed(2):p.xgObs.toFixed(1),p=>p.xgObs],fit:['Fit',p=>fitS(p),p=>p.fit],contract:['Contract',p=>p.contract+'y',p=>p.contract],prof:['Prof.',p=>p.confirmed===2?p.chars.prof:'?'],temp:['Temp.',p=>p.confirmed===2?p.chars.temp:'?'],inj:['Injury',p=>p.confirmed===2?p.chars.inj:'?']};
+for(const k of ATT)COL[k]=[k[0].toUpperCase()+k.slice(1),p=>Math.round(p.a[k]),p=>p.a[k]];
+function table(){const cols=SETS[S.tset],ks=COL[S.tsort]&&COL[S.tsort][2]?COL[S.tsort][2]:(p=>edge(p));let L=players.slice().sort((a,b)=>S.tdir*(ks(a)-ks(b)));
+  return `<div class="l1"><h3>Full table</h3><p>Everything the data shows, for every player. Tap a header to sort. The name stays put.</p></div><div class="chips">${Object.keys(SETS).map(k=>`<button class="chip ${S.tset===k?'on':''}" data-set="${k}">${k}</button>`).join('')}</div>
+  <div class="tw"><table><thead><tr><th>Player</th>${cols.map(c=>`<th data-sort="${c}">${COL[c][0]}${S.tsort===c?(S.tdir<0?' ↓':' ↑'):''}</th>`).join('')}</tr></thead><tbody>${L.map(p=>`<tr class="${p.fl?'f':''}" data-open="${p.id}"><td>${p.name}</td>${cols.map(c=>`<td>${COL[c][1](p)}</td>`).join('')}</tr>`).join('')}</tbody></table></div><p class="note">Flagged players have a red edge on the left.</p>`}
+function render(){let h;
+  if(S.open!=null){h=detail(byId(S.open))}
+  else{h=`<div class="hd"><span>Scouting portal</span><span class="sp">Week ${S.week} · ${S.slots}/3 scout slots</span></div>
+   <div class="seg" role="tablist"><button class="${S.tab==='search'?'on':''}" data-tab="search">Search</button><button class="${S.tab==='flags'?'on':''}" data-tab="flags">Flags (${players.filter(p=>p.fl).length})</button><button class="${S.tab==='table'?'on':''}" data-tab="table">Table</button></div>`
+   +(S.tab==='search'?search():S.tab==='flags'?flags():table())
+   +`<button class="btn ghost w" data-next>Next week (scouts report, slots reset)</button>`}
+  app.innerHTML=h+(S.toast?`<div class="toast" role="status">${S.toast}</div>`:'');const sel=$('#sort');if(sel)sel.value=S.sort}
+app.addEventListener('click',e=>{const t=e.target.closest('[data-open],[data-flag],[data-back],[data-tab],[data-pos],[data-t],[data-confirm],[data-next],[data-set],[data-sort],[data-target]');if(!t)return;const d=t.dataset;
+  if(d.open!=null){S.open=+d.open;window.scrollTo(0,0)}
+  else if(d.back!=null){S.open=null}
+  else if(d.flag!=null){const p=byId(+d.flag);p.fl=!p.fl;toast(p.fl?`${p.name} flagged. The DoF has an opinion.`:`${p.name} unflagged.`);return}
+  else if(d.tab){S.tab=d.tab}
+  else if(d.pos){S.pos=d.pos}
+  else if(d.t){S[d.t]=!S[d.t]}
+  else if(d.confirm!=null){if(S.slots<1)return;S.slots--;byId(+d.confirm).confirmed=1;toast('Scouts are on it. Report next week.');return}
+  else if(d.next!=null){S.week++;S.slots=3;let n=0;players.forEach(p=>{if(p.confirmed===1){p.confirmed=2;n++}});toast(n?`Week ${S.week}: ${n} scout report${n>1?'s':''} arrived.`:`Week ${S.week}. Nothing new from the scouts.`);return}
+  else if(d.set){S.tset=d.set;S.tsort=SETS[d.set].includes('edge')?'edge':SETS[d.set][1]}
+  else if(d.sort){if(S.tsort===d.sort)S.tdir*=-1;else{S.tsort=d.sort;S.tdir=-1}}
+  else if(d.target!=null){S.targets.add(+d.target);toast('The DoF will approach in the summer window.');return}
+  render()});
+app.addEventListener('change',e=>{if(e.target.id==='sort'){S.sort=e.target.value;render()}});
+const root=document.documentElement,tl=$('#tl'),td=$('#td');
+function setT(t){if(t)root.setAttribute('data-theme',t);else root.removeAttribute('data-theme');const d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;tl.setAttribute('aria-pressed',String(!d));td.setAttribute('aria-pressed',String(d))}
+tl.onclick=()=>setT('light');td.onclick=()=>setT('dark');setT(null);render();
+</script>

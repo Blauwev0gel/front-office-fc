@@ -41,3 +41,11 @@ Fasering van de vier soorten vondsten: statistiek tegenover reputatie en fit eer
 - Hoe fit eruitziet voor spelers zonder duidelijk profiel.
 - Hoe sterk de prijs op leeftijd en contract reageert naast de waargenomen CA.
 - Prototype van de portaalweergave (390 px, licht en donker) voordat we engine werk beginnen.
+
+## Prototype (16-11-2026)
+`notes/prototypes/scouting-portal.html`: klikbaar, 390 px, licht en donker, 48 nepspelers uit dit model. Privé artifact: https://claude.ai/artifact/LhhXBnHrCPJb4WjrQpaT63
+Geleerd bij het bouwen:
+- De fit van één speler mag maar een klein deel van het ±0,6 teameffect zijn (≈ fit × 0,055 per speler), anders ontstaan absurde waardes (+150%). In het prototype: fitscore −100..+100, waarde = prijs(CA + 0,4 × fit).
+- Marktfout in de prototypeverdeling: 0,7 CA per standaardeenheid van de kernstatistiek (lager dan de eerste rekensom, omdat contract, geldnood en schattingsruis er bovenop komen). Dan lijken ±31% van de spelers ≥20% goedkoop (onbevestigd), 2 van 48 ≥50%.
+- Aflopend contract is een kleine korting (×0,8), geen ×0,6: de speler vertrekt in juni gratis, dus zijn "te goedkoop" is geen vondst.
+- Het prototype bevat geen keepers en nog geen persoonlijkheid, blessurehistorie of potentieel in de verdeling.

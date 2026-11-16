@@ -161,12 +161,12 @@ F.ddDecide = idx => {
   if (!ddDesc(dec)) { d.dec = null; return; }
   if (dec.type === 'bid') {
     const p = sq().find(x => x.id === dec.pid);
-    if (auto) idx = dec.fee >= p.value * 1.45 && man('dof', 'sell') >= 40 ? 0 : 1;
+    if (auto) idx = ddCase(dec) ? 1 : (dec.fee >= p.value * 1.45 && man('dof', 'sell') >= 40 ? 0 : 1);
     if (idx === 2) { if (chance(0.5)) { dec.fee = Math.round(dec.fee * 1.2 / 100) * 100; idx = 0; out = 'They agree to the higher fee. '; } else { out = `${F.cname(dec.club)} walk away.`; idx = -9; } }
     if (idx === 0) { F.sellPlayer(p, dec.fee, `${p.name} leaves for ${F.cname(dec.club)} on deadline day for ${money(dec.fee)}.`); S().log.push({ k: 'out', t: `${p.name} sold to ${F.cname(dec.club)} for ${money(dec.fee)}.` }); out += `${p.name} is sold for ${money(dec.fee)}.`; }
     else if (idx === 1) { out = `Bid rejected. ${p.name} stays.`; if (p.pers.amb > 15) p.morale = clamp(p.morale - 10, 0, 100); }
   } else if (dec.type === 'late') {
-    const r = g().rec, k = r.know[dec.pid]; if (auto) idx = k && k.grade === 'A' ? 0 : 1;
+    const r = g().rec, k = r.know[dec.pid]; if (auto) idx = ddCase(dec) ? 1 : (k && k.grade === 'A' ? 0 : 1);
     if (idx === 0) { const p = r.pool[dec.pid]; if (F.recForceSign(dec.pid, dec.fee, dec.wage)) { S().log.push({ k: 'in', name: p.name, pos: p.pos }); out = `${p.name} signs on deadline day${dec.fee ? ' for ' + money(dec.fee) : ''}.`; } }
     else out = 'The DoF lets it go.';
   } else { const m = g().inbox.find(x => x.id === dec.mid); if (m && !m.done) out = F.resolve(m, auto ? F.autoIndex(m) : idx, auto ? N(F.EV[m.ev].from) : 'you'); }
@@ -174,7 +174,25 @@ F.ddDecide = idx => {
 };
 function ddClose() {
   const d = S().dd, r = g().rec; d.t = HOURS.length - 1; d.done = true; d.run = false;
-  for (const x of (r ? r.pipe : []).filter(x => x.stage === 'negotiating' || x.stage === 'approach')) { const p = r.pool[x.pid]; if (p && x.deal && x.deal.offer >= x.deal.floor * 0.92 && x.deal.offer <= x.deal.cap && F.recSlotOpen(p, g().rec.know[x.pid])) { F.recForceSign(x.pid, x.deal.offer, Math.min(x.deal.wageAsk, Math.round(F.recWageLimit() * 1.05)), `Done minutes before the deadline at ${money(x.deal.offer)}.`); S().log.push({ k: 'in', name: p.name, pos: p.pos }); ddLine(`${p.name} signs with minutes to spare.`, 'in'); } else { x.stage = 'lost'; x.log.push('Ran out of time at the deadline.'); if (p) ddLine(`Out of time: no deal for ${p.name}.`, 'lost'); } }
+  for (const x of (r ? r.pipe : []).filter(x => x.stage === 'negotiating' || x.stage === 'approach')) {
+    const p = r.pool[x.pid], d = x.deal;
+    // A pending CEO approval is not permission to sign. Nor is an unfinished
+    // negotiation a licence to exceed the current fee or wage envelope.
+    const affordable = x.stage === 'negotiating' && p && d &&
+      d.offer >= d.floor * 0.92 && d.offer <= d.cap &&
+      d.offer <= F.transferBudget() && d.wageAsk <= F.recWageLimit() * 1.05 &&
+      F.recSlotOpen(p, r.know[x.pid]);
+    const signed = affordable && F.recForceSign(x.pid, d.offer, d.wageAsk,
+      `Done minutes before the deadline at ${money(d.offer)}.`);
+    if (signed) {
+      S().log.push({ k: 'in', name: p.name, pos: p.pos });
+      ddLine(`${p.name} signs with minutes to spare.`, 'in');
+    } else {
+      x.stage = 'lost';
+      x.log.push(x.apAsked ? 'CEO approval was not received before the deadline.' : 'Ran out of time or financial room at the deadline.');
+      if (p) ddLine(`Out of time: no deal for ${p.name}.`, 'lost');
+    }
+  }
   const s = S(), ins = s.log.filter(l => l.k === 'in').length, outs = s.log.filter(l => l.k === 'out').length;
   ddLine(`The window is shut. Summer business: ${ins} in, ${outs} out. Squad: ${sq().length} players.`, 'end');
 }

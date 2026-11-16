@@ -126,10 +126,21 @@ function render() {
   else if (g.phase === 'sacked') h = vSacked();
   else { U.tray = ''; h = masthead() + ({ inbox: vInbox, desk: vInbox, news: vNews, club: vClub2, staff: () => U.dept ? vDept(U.dept) : vDepts(), squad: vSquad, league: vLeague2, money: vMoney })[U.tab](); h += ((U.tab === 'inbox' && U.open) || (U.tab === 'staff' && U.dept === 'first')) && U.tray ? U.tray : vBar(); }
   app.innerHTML = h + vSheet() + (U.toast ? `<div class="toast" role="status">${esc(U.toast)}</div>` : '') + (U.flash && U.flashN !== U.flashShown ? (U.flashShown = U.flashN, `<div class="fxtoast" role="status">${esc(U.flash)}</div>`) : '');
-  // When an old icon-only control has no visible text, use its existing
-  // accessible label. Do not replace the element or its data-a action.
-  for (const control of app.querySelectorAll('button[aria-label], [role="button"][aria-label]')) {
-    if (!control.textContent.trim()) control.textContent = control.getAttribute('aria-label') || '';
+  // Icon-only controls need visible words when their SVGs are removed.
+  // Preserve every element, data-a action and existing aria-label.
+  const plainLabels = { close: 'Close', 'close-open': 'Back to inbox',
+    'md-close': 'Back to inbox', 'tick-close': 'Continue',
+    's-back': 'Back', 'md-back': 'Back', dismiss: 'Dismiss',
+    'tab-close': 'Back', 'mcancel': 'Cancel' };
+  for (const control of app.querySelectorAll('button,[role="button"]')) {
+    if (control.textContent.trim()) continue;
+    const action = control.getAttribute('data-a') || '';
+    const label = control.getAttribute('aria-label') || control.getAttribute('title') ||
+      plainLabels[action] || action.replace(/-/g, ' ');
+    if (label) {
+      control.textContent = label;
+      if (!control.hasAttribute('aria-label')) control.setAttribute('aria-label', label);
+    }
   }
   markFresh(); if (U.md && U.md.phase === 'match' && !U.md.ft) MDP.start();
   window.scrollTo(0, y); ddSchedule();

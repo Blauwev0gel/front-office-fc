@@ -66,7 +66,7 @@ function turningPoint(m) {
   if (goals.length) return { m: goals[0].m, t: goals[0].t.replace(/\s*\(xG [\d.]+\)/, '') };
   return null;
 }
-Object.assign(F, { mdStories, mdOutcomes: mdOutcomesShort, mdTurning: turningPoint });
+Object.assign(F, { mdStories, mdOutcomes, mdOutcomesShort, mdTurning: turningPoint }); /* one outcome per story; the short form is for the full-time screen */
 })(FO);
 /* The Gazette: one edition per week, made once at the end of the week and kept for the archive */
 (function (F) {

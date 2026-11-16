@@ -114,10 +114,12 @@ const MDP = {
     this.htq = !U.md.htDone && F.mdHtOffer ? !!F.mdHtOffer(this.m) : false; this.htWait = this.htq && !MAIL_RM; const m = this.m, sc = e.t.replace(/^Half-time:\s*/, '').replace(/\.$/, ''), coach = F.staff('coach'), [a, b] = sc.split('–').map(Number), us = this.home ? a : b, th = this.home ? b : a;
     const line = us > th ? '"Good half. Keep doing the simple things."' : us < th ? '"Not good enough. We can still turn this."' : '"Tight. We need a bit more in the final third."';
     this.card({ k: 'info', m: 45, t: 'Half-time.' });
-    const now = this.root.querySelector('.mdnow'); now.innerHTML = `<div class="mdht"><div class="mdhth"><b>Half-time</b><span>${esc(sc)}</span></div>${coach ? `<div class="mdhtc"><span class="mdcf">${ART.staffFace('coach')}</span><p>${esc(line)}<small>${esc(coach.name)}</small></p></div>` : ''}${this.htq ? `<div class="mdhtq"><p><b>Go into the dressing room?</b> It is about the players, not the tactics.</p><div class="mdrow"><button data-a="md-ht" data-v="in">Go in</button><button data-a="md-ht" data-v="out">Leave it to ${esc(coach ? coach.name.split(' ')[0] : 'the coach')}</button></div></div>` : '<button data-a="md-resume">Second half</button>'}</div>`;
+    const now = this.root.querySelector('.mdnow'); now.innerHTML = `<div class="mdht"><div class="mdhth"><b>Half-time</b><span>${esc(sc)}</span></div>${coach ? `<div class="mdhtc"><span class="mdcf">${ART.staffFace('coach')}</span><p>${esc(line)}<small>${esc(coach.name)}</small></p></div>` : ''}${this.htq ? `<div class="mdhtq"><p><b>Go into the dressing room?</b> It is about the players, not the tactics.</p></div>` : '<button data-a="md-resume">Second half</button>'}</div>`;
+    if (this.htq) { const ctl = this.root.querySelector('.mdctl'); if (ctl) { this.ctlPrev = ctl.innerHTML; ctl.classList.add('ht'); ctl.innerHTML = `<button data-a="md-ht" data-v="in">Go in</button><button data-a="md-ht" data-v="out">Leave it to ${esc(coach ? coach.name.split(' ')[0] : 'the coach')}</button>`; } }
     this.paused = true; clearTimeout(this.t); if (!this.htWait) this.t = setTimeout(() => this.resume(), MAIL_RM ? 200 : this.fast ? 2000 : 3500);
   },
-  resume() { if (!this.paused) return; this.paused = false; ART.SND.whistle(); const now = this.root.querySelector('.mdnow'); if (now) now.innerHTML = ''; this.loop(); },
+  ctlBack() { const ctl = this.root && this.root.querySelector('.mdctl'); if (ctl && this.ctlPrev != null) { ctl.innerHTML = this.ctlPrev; ctl.classList.remove('ht'); this.ctlPrev = null; } },
+  resume() { if (!this.paused) return; this.paused = false; this.ctlBack(); ART.SND.whistle(); const now = this.root.querySelector('.mdnow'); if (now) now.innerHTML = ''; this.loop(); },
   finish() { clearTimeout(this.t); if (!U.md || U.md.m !== this.m) return; ART.SND.whistle(); this.momAll(); const [a, b] = this.paths(); U.md.momTop = a; U.md.momBot = b; U.md.ft = true; this.cur = null; render(); },
   momAll() { // the whole match, so a skipped match still shows its shape
     const ev = this.m.ev, v = []; let cur = 0, j = 0;
@@ -169,7 +171,7 @@ function mdKick() {
   const first = res.ours || res.cup; if (!first) { U.md = null; return; }
   if (res.cup && !res.ours) res.cup.cupWin = g.cup.log.length ? g.cup.log[g.cup.log.length - 1].win : null;
   if (res.cup && res.ours) res.cup.cupWin = g.cup.log.length ? g.cup.log[g.cup.log.length - 1].win : null;
-  U.md = { phase: 'match', m: first, lg: res.ours || res.cup, cup: res.ours ? res.cup : null, out: res.ours ? F.mdOutcomes(res.ours) : [], tp: res.ours ? F.mdTurning(res.ours) : null, prevPos, dec, week: wk, ft: false };
+  U.md = { phase: 'match', m: first, lg: res.ours || res.cup, cup: res.ours ? res.cup : null, out: res.ours ? (F.mdOutcomesShort || F.mdOutcomes)(res.ours) : [], tp: res.ours ? F.mdTurning(res.ours) : null, prevPos, dec, week: wk, ft: false };
   window.scrollTo(0, 0);
 }
 

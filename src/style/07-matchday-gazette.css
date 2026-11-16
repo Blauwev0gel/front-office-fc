@@ -96,3 +96,6 @@
 .mdhtq .mdrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mdhtq .mdrow button:last-child{background:#fffdf6;color:#16201b}
 .mdwhy{margin:0 0 10px;padding-left:18px}.mdwhy li{font-size:14px;line-height:1.4;margin:2px 0}
 .mdsky{margin:6px 0 0;color:var(--soft)}
+/* half-time answers live in the control bar, always on screen */
+.mdctl.ht button:first-child{background:#eef3ee;color:#12251a;border-color:#eef3ee}
+.mdht{max-height:100%;overflow:auto}

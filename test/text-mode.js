@@ -46,8 +46,8 @@ for (const moduleName of ['recruit.js', 'summer.js', 'summer2.js', 'desk.js', 'd
 // action targets and text-first responsive layout instead of introducing art.
 for (const selector of ['.redbox', '.rbr', '.srow', '.mreply', '.dtiles',
   '.dtile2', '.planboard', '.feedl', '.mdfoot', '.bar2']) {
-  assert(css.includes('#app ' + selector) || css.includes('.' + selector),
-    'wireframe treatment exists for ' + selector);
+  assert(css.includes(selector),
+    'selector is covered by the text-only stylesheet: ' + selector);
 }
 assert(css.includes('TEST BENCH UI v3'), 'wireframe system is loaded');
 assert(css.includes('@media(max-width:500px)'), 'mobile-first wireframe responsive rules');

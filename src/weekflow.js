@@ -133,6 +133,10 @@ H.seasonAfterMatch = ours => {
   // echoes that are due appear in this week's Gazette
   const now = F.absWeek(), due = (G.echo || []).filter(e => e.at <= now); G.echo = (G.echo || []).filter(e => e.at > now);
   for (const e of due) { const E = ECHO[e.k]; let t = ''; try { t = E ? E(e.ctx) : ''; } catch (er) { t = ''; } if (t && G.paper) G.paper.stories.push({ h: 'Looking back', t }); }
+  // a rival in our division changed its head coach: one or two such stories a week, the others are forgotten
+  if (G.coachNews && G.coachNews.length && G.paper) { const mine = new Set(G.divs[G.club.tier].clubs); let n = 0;
+    G.coachNews = G.coachNews.filter(x => { if (x.s < G.season - 1 || !mine.has(x.id)) return false; if (n >= 2) return true; n++; const club = F.cname(x.id);
+      G.paper.stories.push({ h: 'On the touchline', t: x.q >= 1.8 ? `${club} have appointed ${x.name} as head coach. The word in the division is that he is very good, which is unhelpful.` : x.q < 0.6 ? `${club} have appointed ${x.name}. He has a great deal of enthusiasm.` : `${club} have appointed ${x.name} as head coach, in place of ${x.old}.` }); return false; }); }
 };
 F.defineBrief('after_big', { role: null, cd: 1, face: 'press', who: () => 'The press officer',
   check: () => { const b = g().bigDone; if (!b || F.absWeek() - b.at > 1) return null; g().bigDone = null; return { ...b, score: 3.4 }; },

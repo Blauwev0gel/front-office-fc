@@ -40,3 +40,8 @@ Probe (1 carrière, onderdelen van teamsterkte per seizoen, `strengthParts` naas
 - Dit is het structurele voordeel, en de reden dat alles hierboven (jeugd, kandidaten, doelen) niets deed.
 
 v6 (eigenaar: geen vlakke bonus, rivalen hebben hun eigen coaches; nog niet gemeten): elke rivaal heeft `c.coach = { name, q }` (`src/engine/02-world-constants.js`: `newCoach`, `orgOf`, `ORG_MEAN`). `q` (0 tot 2,6 sterktepunten) komt bovenop de selectie van de club: gemiddeld 0,8 op tier 8 tot 1,5 op tier 1, spreiding 0,6 (verschil tussen clubs tot 2,6), 16% kans per seizoen op een nieuwe coach, daarnaast kleine drift. Gebruikt in de eerste generatie, de jaarlijkse bijsturing (`src/engine/10-season.js`) en de ambitieregel (`src/season.js`). Oude saves krijgen coaches vanzelf. `test/rivals.js` dekt dit. De namen zijn nog nergens zichtbaar (Gazette of competitiescherm is een mogelijke vervolgstap).
+
+## Rivaalcoaches zichtbaar (eigenaar akkoord)
+- Gazette: een coachwissel bij een club in jouw divisie verschijnt als "On the touchline" (max. twee per week; een zeer goede coach krijgt de droge regel "which is unhelpful"). Registratie bij seizoenseinde in `src/engine/10-season.js` (`G.coachNews`), publicatie in `src/weekflow.js`.
+- Competitiescherm: inklapbaar lijstje "Head coaches" onder de tabel met de coach per club en een woord voor zijn kwaliteit (highly rated, solid, steady, inexperienced). Het lijstje leest alleen bestaande gegevens; het bekijken van het scherm verandert het spel niet.
+- `test/rivals.js` dekt het Gazette-bericht.

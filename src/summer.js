@@ -179,8 +179,10 @@ function ddClose() {
     // A pending CEO approval is not permission to sign. Nor is an unfinished
     // negotiation a licence to exceed the current fee or wage envelope.
     const affordable = x.stage === 'negotiating' && p && d &&
-      d.offer >= d.floor * 0.92 && d.offer <= d.cap &&
-      d.offer <= F.transferBudget() && d.wageAsk <= F.recWageLimit() * 1.05 &&
+      d.offer >= d.floor && d.offer <= d.cap &&
+      d.offer + Math.round(d.offer * 0.08 / 100) * 100 <= F.transferBudget() &&
+      d.wageAsk <= F.recWageLimit() * 1.05 &&
+      (F.playerWages() + d.wageAsk) / Math.max(1, F.revenueAvg()) <= +F.man('fin', 'wageCap') / 100 + 0.05 &&
       F.recSlotOpen(p, r.know[x.pid]);
     const signed = affordable && F.recForceSign(x.pid, d.offer, d.wageAsk,
       `Done minutes before the deadline at ${money(d.offer)}.`);

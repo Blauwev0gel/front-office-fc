@@ -99,10 +99,10 @@ html,body{background:#f6f7f8 !important;color:#18212a !important;
 #app :is(.srow,.dnacard,.cand,.folders button,.tabs button).on,
 #app .srow[aria-pressed="true"]{
   border-color:#424e59 !important;background:#edf0f2 !important}
-#app :is(.btn:not(.ghost),.msend.live,.mdko){
+#app :is(.tray .btn:not(.ghost),.bar2 .btn,.msend.live,.mdko,.mdfoot .btn:not(.ghost)){
   background:#27323c !important;color:#fff !important;
   border:1px solid #27323c !important;font-weight:700 !important}
-#app :is(.btn:not(.ghost),.msend.live,.mdko):hover:not(:disabled){
+#app :is(.tray .btn:not(.ghost),.bar2 .btn,.msend.live,.mdko,.mdfoot .btn:not(.ghost)):hover:not(:disabled){
   background:#3c4752 !important;color:#fff !important}
 #app :is(.btn.ghost,.mcancel){color:#25313a !important;
   border:1px solid #b4bdc5 !important;background:#fff !important}

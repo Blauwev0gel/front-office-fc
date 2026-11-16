@@ -4,20 +4,10 @@ const mdOppCols = id => [MDPAL[(id * 7 + 3) % MDPAL.length], '#fff'];
 const mdClean = t => String(t || '').replace(/\s*\(xG [\d.]+\)/, '');
 const mdP = id => { const g = G(); return g.squad.find(x => x.id === id) || (g.academy || []).find(x => x.id === id) || null; };
 F.storyOf = p => storyOf(p)[0];
-function mdStadium(home, oc, night) {
-  const g = G(), c1 = g.club.colors[0], c2 = g.club.colors[1], sky = night ? ['#1b2440', '#3b3a62'] : ['#a9d3ee', '#e7f1f2'];
-  let crowd = ''; for (let r = 0; r < 4; r++) for (let i = 0; i < 46; i++) { const x = 6 + i * 8.4 + (r % 2) * 4, y = 74 + r * 9, away = home ? i > 38 : i < 30; crowd += `<circle cx="${x}" cy="${y}" r="3.1" fill="${away ? oc[0] : (i + r) % 3 ? c1 : c2}"/>`; }
-  return `<svg viewBox="0 0 390 170" width="100%" class="mdstad" aria-hidden="true"><defs><linearGradient id="mdsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky[0]}"/><stop offset="1" stop-color="${sky[1]}"/></linearGradient><radialGradient id="mdglow"><stop offset="0" stop-color="#fff7cf" stop-opacity=".9"/><stop offset="1" stop-color="#fff7cf" stop-opacity="0"/></radialGradient></defs>
-  <rect width="390" height="170" fill="url(#mdsky)"/>${night ? '<circle cx="320" cy="26" r="9" fill="#f4efd8"/>' : '<circle cx="320" cy="28" r="14" fill="#f3d36b" stroke="#16201b" stroke-width="2.5"/>'}
-  ${[24, 366].map(x => `<g><rect x="${x - 2}" y="14" width="4" height="56" fill="#16201b"/><rect x="${x - 12}" y="8" width="24" height="10" rx="2" fill="#e8e4d6" stroke="#16201b" stroke-width="2"/>${night ? `<circle cx="${x}" cy="13" r="34" fill="url(#mdglow)"/>` : ''}</g>`).join('')}
-  <path d="M0 64h390v52H0z" fill="#2b3440" stroke="#16201b" stroke-width="3"/><path d="M0 64h390v6H0z" fill="${c1}"/>${crowd}
-  <path d="M0 114h390v56H0z" fill="#3d7a4f"/>${[0, 1, 2, 3, 4, 5].map(i => `<path d="M${i * 70} 114h35v56h-35z" fill="#468a5a"/>`).join('')}<path d="M0 114h390" stroke="#16201b" stroke-width="3"/><path d="M195 114v56M155 170a40 22 0 0 1 80 0" stroke="#f4f4ec" stroke-width="2.5" fill="none" opacity=".85"/></svg>`;
-}
-function mdPitch() {
-  let st = ''; for (let i = 0; i < 10; i++) st += `<rect x="${i * 36}" y="0" width="18" height="220" fill="#468a5a"/>`;
-  return `<svg viewBox="0 0 360 220" class="mdpitch" aria-hidden="true"><rect width="360" height="220" fill="#3d7a4f"/>${st}<g fill="none" stroke="#f4f4ec" stroke-width="2.2" opacity=".9"><rect x="8" y="8" width="344" height="204"/><path d="M180 8v204"/><circle cx="180" cy="110" r="28"/><rect x="8" y="58" width="44" height="104"/><rect x="308" y="58" width="44" height="104"/><rect x="8" y="88" width="16" height="44"/><rect x="336" y="88" width="16" height="44"/><path d="M52 88a26 26 0 0 1 0 44M308 88a26 26 0 0 0 0 44"/></g><rect x="0" y="92" width="8" height="36" fill="#f4f4ec" opacity=".35"/><rect x="352" y="92" width="8" height="36" fill="#f4f4ec" opacity=".35"/><circle cx="180" cy="110" r="2.5" fill="#f4f4ec"/></svg>`;
-}
-const MD_BALL = '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="#fff" stroke="#16201b" stroke-width="2"/><path d="M10 5.5l3.5 2.6-1.3 4.1H7.8L6.5 8.1z" fill="#16201b"/></svg>';
+// Text-mode match preview deliberately generates no stadium or pitch drawings.
+function mdStadium() { return ''; }
+function mdPitch() { return ''; }
+const MD_BALL = '';
 const mdForm = arr => `<span class="mdform">${(arr || []).slice(-5).map(r => `<i class="f${r}">${r}</i>`).join('') || '<small>no games yet</small>'}</span>`;
 function mdPreview() {
   const g = G(), P = F.mtPreview(); if (!P) { U.md = null; return vInbox(); }
@@ -60,7 +50,8 @@ const MDP = {
   start() {
     const s = U.md, m = s.m, root = document.querySelector('.mdm'); if (!root || s.ft || this.cur === s.m) return; this.cur = s.m;
     Object.assign(this, { root, m, i: 0, min: 0, mom: [], fast: false, paused: false, home: m.home, end: Math.max(...m.ev.map(e => e.m), 90) });
-    this.players(); this.ball(50, 50, 0); ART.SND.whistle(); this.loop();
+    // Commentary runs from existing match events; no animated 22-player pitch.
+    this.loop();
   },
   side(us) { return this.home ? !!us : !us; },
   players() {
@@ -74,19 +65,35 @@ const MDP = {
   },
   alive() { return this.root && this.root.isConnected && U.md && U.md.m === this.m && !U.md.ft; },
   loop() {
-    const step = MAIL_RM ? 30 : this.fast ? 150 : 360;
-    clearTimeout(this.t); this.t = setTimeout(() => {
-      if (!this.alive()) return this.lost(); if (this.paused) return;
-      this.min++; const e = this.m.ev[this.i]; if (!e) return this.finish();
-      if (e.m > this.min) { if (this.min % 2 === 0) { const lean = e.us != null && e.k !== 'info' ? (this.side(e.us) ? 1 : -1) : 0; this.ball(50 + lean * 12 + (Math.random() - .5) * 36, 22 + Math.random() * 56, step * 2); } this.clock(); this.push(e.us != null && e.k !== 'info' ? (this.side(e.us) ? .25 : -.25) : 0); return this.loop(); }
-      this.i++; this.clock(e.m); this.fire(e);
-    }, step);
+    // One actual engine event per tick, rather than 90 frames of visual movement.
+    clearTimeout(this.t);
+    this.t = setTimeout(() => {
+      if (!this.alive()) return this.lost();
+      if (this.paused) return;
+      const e = this.m.ev[this.i++];
+      if (!e) return this.finish();
+      this.min = e.m; this.clock(e.m); this.fire(e);
+    }, this.fast ? 110 : 650);
   },
   clock(mm) { mm = mm || this.min; const c = this.root.querySelector('.mdclk'); if (c) c.textContent = (mm > 90 && mm <= 95 && this.end <= 96 ? '90+' + (mm - 90) : mm) + "'"; const p = this.root.querySelector('.mdprog b'); if (p) p.style.width = Math.min(100, mm / this.end * 100) + '%'; },
   push(v) { const last = this.mom.length ? this.mom[this.mom.length - 1] : 0; this.mom.push(last * .82 + v); this.draw(); },
   paths() { const n = this.end, pts = this.mom.map((v, i) => [i / n * 360, 27 - Math.max(-25, Math.min(25, v * 14))]); if (!pts.length) return ['', '']; const e = pts[pts.length - 1][0].toFixed(1); return ['M0 27 ' + pts.map(p => `L${p[0].toFixed(1)} ${Math.min(27, p[1]).toFixed(1)}`).join(' ') + ` L${e} 27Z`, 'M0 27 ' + pts.map(p => `L${p[0].toFixed(1)} ${Math.max(27, p[1]).toFixed(1)}`).join(' ') + ` L${e} 27Z`]; },
   draw() { const [a, b] = this.paths(), u = this.root.querySelector('.mu'), t = this.root.querySelector('.mt'); if (u) { u.setAttribute('d', a); t.setAttribute('d', b); } },
   fire(e) {
+    // All match outcomes and timings were generated by the engine in mdKick().
+    // Presentation only: update the score and append a plain commentary line.
+    if (e.k === 'ft') return this.finish();
+    if (e.k === 'info' && /^Half-time/.test(e.t)) return this.half(e);
+    if (e.k === 'goal' && e.sc) {
+      const sc = this.root.querySelector('.mdsc');
+      if (sc) {
+        const a = this.home ? e.sc[0] : e.sc[1], b = this.home ? e.sc[1] : e.sc[0];
+        sc.textContent = a + '–' + b;
+      }
+    }
+    this.card(e);
+    this.loop();
+    return;
     const right = e.us != null ? this.side(e.us) : true, gx = right ? 94 : 6; let wait = this.fast ? 500 : 1100;
     if (e.k === 'info' && /^Half-time/.test(e.t)) { this.ball(50, 50, 600); ART.SND.whistle(); return this.half(e); }
     if (e.k === 'ft') return this.finish();

@@ -66,7 +66,7 @@ assert(!/\\[?data-a[^}]*display\\s*:\\s*none/.test(css),
   const source = uiSource.slice(start, end);
   let replyArgs;
   const msg = new Function('F', 'G', 'ROLE_T', 'ART', 'mailTop', 'mailReply',
-    'fdHtml', 'U', 'esc', 'ticOf', source + '\\nreturn msgHtml;')(
+    'fdHtml', 'U', 'esc', 'ticOf', source + '\nreturn msgHtml;')(
     {msgView:() => ({role:'dof', from:'DoF, Director', title:'Decision',
       body:'Approve or decline', done:false, opts:[{l:'Accept'},{l:'Reject'}],
       auto:0, autoWho:'Your DoF', why:'You are responsible'})},

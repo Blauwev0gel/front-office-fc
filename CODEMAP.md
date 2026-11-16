@@ -78,7 +78,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `briefs.js` | 20 KB | weekly briefings (1.5) Short, state-driven updates and conversations |  |  | dofPrio, dofPrioAt, wageFreezePrev |
 | `academy.js` | 14 KB | youth academy, module 2 part 1 Age groups, academy staff, development model, education and welfare, pathway | acadMigrate, acadInit, acadCost, acadWeekly, acadIntake, acadSeason |  | acad, academy |
 | `academy2.js` | 28 KB | youth academy, module 2 part 2 Category & audit, poaching and tribunals, youth competitions, ROI, academy desk | acadWeekly, acadSeason, acadIncome, acadSale, objMet |  | academy, squad |
-| `recruit.js` | 37 KB | recruitment, module 3 part 1 Player world, scouting department, reports with uncertainty, recruitment pipeline | recWeekly, recCost, recSeason, recMigrate |  | shortlist, rec |
+| `recruit.js` | 38 KB | recruitment, module 3 part 1 Player world, scouting department, reports with uncertainty, recruitment pipeline | recWeekly, recCost, recSeason, recMigrate |  | shortlist, rec |
 | `summer.js` | 18 KB | the transfer summer, module 4 part 1 Five steps between seasons: clear-out, board and budget, market, pre-seas | summerStart, sumMigrate | recWeekly | phase, sum, inbox, lastSummer, squad, preEdge |
 | `season.js` | 18 KB | season rhythm, module 4 part 2 Season blocks with a decision each, board reviews, high-stakes matches, a small | summerStart, seasonWeekly, seasonAfterMatch, recSeason |  | rival, stake, openTarget, matchEdge, blockDone, winterPrev, winBonus, recovery, loanedOut, squad |
 | `summer2.js` | 32 KB | the transfer summer, version 2 A summer meeting with the DoF and staff that ends in a signed summer brief, a t | summerStart | recWeekly | dofStrikes |
@@ -90,7 +90,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `marketing.js` | 7 KB | Marketing department A supporter funnel (reach, fans, season-ticket holders), loyalty that cushions bad result | fanWeekly, deptCost |  | mk |
 | `business.js` | 7 KB | Business department A season budget per department (lean, normal, invest) against what the club can afford, a  | costDisc |  | biz, deptB |
 | `academy3.js` | 5 KB | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid  | acadIntake, seasonAfterMatch |  | acadX, academy |
-| `recruitx.js` | 3 KB | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re | seasonAfterMatch |  | recX |
+| `recruitx.js` | 25 KB | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re | seasonAfterMatch, recWeekly, seasonWeekly, summerStart | recMigrate | recX |
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 18 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
 | `talks.js` | 19 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio, dofStrikes |
@@ -108,7 +108,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/06-sheets-ticker.js` | 21 KB | sheets; ticker |  |  |  |
 | `ui/07-club-league.js` | 8 KB | review & sacked; club, league, staff, academy, review: game screens |  | deptCost |  |
 | `ui/08-departments.js` | 25 KB | departments |  |  |  |
-| `ui/08a-dept-parts.js` | 17 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
+| `ui/08a-dept-parts.js` | 19 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
 | `ui/09-firstteam-review.js` | 12 KB | first team department |  |  |  |
 | `ui/10-inbox.js` | 18 KB | render; inbox home (1.6) |  |  |  |
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
@@ -180,7 +180,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: acadView, acadCatName, scorecard, ACAD_PLANS, finishPreseason
 
 ### `recruit.js`
-- Functions: g, sq, inWin, winKey, winBuys, slotOpen, aiClub, genPool, topUpPool, hireScout, nScouts, chiefAsScout, scoutsAll, report, posBest, posWorst, prioOf, fitsProfile, grade, rng, bandTxt, potTxt, pipeOf, addPipe, setStage, threshold, wageLimit, capFor, ruleIssues, openDeal, negRound, wagePhase, complete, assignScouts, scoutWeek, dofPipeline, scoreRec, worldWeek, G_shortlistMirror, ensure, dossier
+- Functions: g, sq, inWin, winKey, winBuys, coachCoverageNeeds, slotOpen, aiClub, genPool, topUpPool, hireScout, nScouts, chiefAsScout, scoutsAll, report, posBest, posWorst, prioOf, fitsProfile, grade, rng, bandTxt, potTxt, pipeOf, addPipe, setStage, threshold, wageLimit, capFor, ruleIssues, openDeal, negRound, wagePhase, complete, assignScouts, scoutWeek, dofPipeline, scoreRec, worldWeek, G_shortlistMirror, ensure, dossier
 - Exports on `F`: recPlanSuggest, recTogglePrio, recSetKind, REC_KINDS, recView, recScoutAcc, recReport, recScouts, recRules, recSetStage, recAddPipe, recPlanBoard, recSlotOpen, recDeal, recLate, recForceSign, recWageLimit, recPlayer, recBand, recPot, scorecard
 
 ### `summer.js`
@@ -227,8 +227,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: acView, acTrialPick, AC_CRIT
 
 ### `recruitx.js`
-- Functions: g, R, regions, setFocus, invest, record, view
-- Exports on `F`: rxView, rxFocus, rxInvest
+- Functions: g, R, regions, setFocus, invest, record, view, copy, at, state, note, corePlayers, rows, action, refresh, priorities, renewals, requestPolicy, policyLive, policyAnswer
+- Exports on `F`: squadPlanScoutJob, squadPlanAllows, squadPlanPrepare, squadPlanView, squadPlanAsk, recPlanSuggest, squadPlanDelivered, rxView, rxFocus, rxInvest
 
 ### `matchtalk.js`
 - Functions: g, hs, opp, P, sur, crowd, preview
@@ -291,7 +291,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: spark, kfmt, vDepts, headLine, headCard, authHtml, headBtns, instinctRow, fillCol, stadiumSvg, comOverview, comDecisions, mkOverview, mkDecisions, planCard, bizOverview, acPyramid, acDecisions, vDept
 
 ### `ui/08a-dept-parts.js`
-- Functions: relW, compW, netW, gapW, kpiTile, attAttr, attHtml, deskHist, recTiles, regionCard, recRecord, acRecord, acStaff, ftPlanExtra, wantsHtml, cvTalkHtml
+- Functions: relW, compW, netW, gapW, kpiTile, attAttr, attHtml, deskHist, recTiles, regionCard, recRecord, acRecord, acStaff, ftPlanExtra, squadPlanHtml, wantsHtml, cvTalkHtml
 
 ### `ui/09-firstteam-review.js`
 - Functions: vFirst, ftTalkHtml, vReview2, vSacked

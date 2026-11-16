@@ -92,6 +92,8 @@ function act(a, d, el) {
     case 'com-offer': r = F.comOffer(d.k); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND[d.k === 'reject' ? 'click' : 'stamp'](); } break;
     case 'com-price': F.comSetPrice(d.k, +d.v); ART.SND.click(); break;
     case 'com-exp': r = d.v === 'up' ? F.comExpUp() : F.comExpDown(); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
+    case 'squad-plan-open': U.tab = 'staff'; U.dept = 'recruit'; U.dtab = 'now'; U.open = null; window.scrollTo(0, 0); break;
+    case 'squad-plan-ask': F.squadPlanAsk(d.q); break;
     case 'rx-focus': r = F.rxFocus(d.k); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } ART.SND.click(); break;
     case 'rx-invest': r = F.rxInvest(d.k); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
     case 'biz-lv': r = F.bizSetLevel(d.k, d.v); ART.SND.click(); break;

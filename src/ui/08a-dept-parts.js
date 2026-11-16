@@ -93,6 +93,15 @@ function ftPlanExtra() {
 }
 
 /* ---------- talks: requests on Now, the scene (B19) ---------- */
+function squadPlanHtml(){
+  const p=F.squadPlanView();
+  const horizon=(h,title)=>`<section class="panel2"><h3>${title}</h3>${h.rows.length?h.rows.map(r=>`<div style="border-top:1px solid var(--rule);padding:12px 0"><b>${esc(F.POS_L[r.pos])}</b><p>${esc(r.reason)}</p><p class="small"><b>The TD's next step:</b> ${esc(r.action)}</p><p class="small">${r.targets} candidates under observation, ${r.reliable} with more than low confidence${r.scouts.length?'; '+esc(r.scouts.join(', '))+' assigned':''}.</p></div>`).join(''):`<p>${h.status==='closed'?'The window is closed. Unresolved needs feed summer preparation.':'No specific recruitment need justifies a purchase; scouting continues without inventing a target.'}</p>`}</section>`;
+  return `<section aria-label="Rolling squad plan"><div class="sec">The living squad plan <span class="small">Season ${p.season} · week ${p.week}</span></div><div class="panel2"><b>${esc(p.owner)} · ${p.vacant?'responsible post vacant':'Director of Football'}</b><p>${esc(p.summary)}</p><p class="small">Current fee room ${money(p.finance.fees)}; weekly player-wage headroom ${money(p.finance.weeklyRoom)}. These are current limits, not a guaranteed budget for next summer.</p><div class="row" style="flex-wrap:wrap;gap:8px"><button class="btn ghost small" data-a="squad-plan-ask" data-q="winter">Why this winter plan?</button><button class="btn ghost small" data-a="squad-plan-ask" data-q="summer">Talk through summer succession</button><button class="btn ghost small" data-a="squad-plan-ask" data-q="help">What do you need from me?</button></div>${p.discussion?`<div class="bubble" style="margin-top:12px"><div class="who">${esc(p.owner)} · week ${p.discussion.week}</div><p>${esc(p.discussion.answer)}</p></div>`:''}</div>
+    ${horizon(p.winter,`Winter · season ${p.winter.season}${p.winter.status==='closed'?' · closed':''}`)}${horizon(p.summer,`Summer · season ${p.summer.season}`)}
+    <div class="sec">What the scouts are doing</div><div class="panel2">${p.assignments.length?`<ul class="list">${p.assignments.map(a=>`<li style="display:block"><b>${esc(a.name)}</b><p class="small">${esc(a.label)}</p></li>`).join('')}</ul>`:'<p>No scouting staff are available. Appoint a Chief Scout to restore coverage.</p>'}</div>
+    ${p.history.length?`<div class="sec">Why the plan changed</div><div class="panel2">${p.history.map(e=>`<p class="small"><b>S${e.season} · week ${e.week} · ${esc(e.kind)}:</b> ${esc(e.text)}</p>`).join('')}</div>`:''}</section>`;
+}
+
 function wantsHtml(k, st) {
   const rq = F.convoReqs ? F.convoReqs(k) : [];
   const cards = rq.map(r => `<div class="att"><p><b>${esc(F.staff(r.role).name.split(' ')[0])} wants a word.</b> ${esc(r.t)}${r.left <= 1 ? ' <span class="small">If you wait, he decides himself.</span>' : ''}</p><button class="btn small" data-a="cv-open" data-r="${r.role}" data-q="1">Hear him out</button></div>`).join('');

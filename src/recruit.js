@@ -11,8 +11,14 @@ const sq = () => g().squad, N = r => F.staffName(r);
 const inWin = () => F.window_();
 const winKey = () => g().season + (g().phase === 'summer' || g().week <= 4 ? 'S' : 'W');
 const winBuys = pos => ((RC().win || {})[winKey()] || {})[pos] || 0;
+// The coach's available squad feeds the DoF's priorities: only a sustained shortage counts, not one injury.
+function coachCoverageNeeds() {
+  const by = {};
+  for (const p of sq()) { if (!p || !p.pos) continue; const row = by[p.pos] || (by[p.pos] = { available: 0, longOut: 0 }); if ((p.inj || 0) > 4) row.longOut++; else row.available++; }
+  return Object.keys(by).filter(pos => by[pos].longOut > 0 && by[pos].available < (pos === 'GK' ? 1 : 2));
+}
 function slotOpen(p, k) {
-  const n = winBuys(p.pos), have = sq().filter(q => q.pos === p.pos).length, need = F.squadNeeds().includes(p.pos);
+  const n = winBuys(p.pos), have = sq().filter(q => q.pos === p.pos).length, need = F.squadNeeds().includes(p.pos) || coachCoverageNeeds().includes(p.pos);
   const upgrade = k && k.grade === 'A' && k.est >= posBest(p.pos) + 0.5;
   if (n >= 1 && !need) return upgrade && n < 2;
   if (!need && have >= (F.REQ[p.pos] || 2) + 1) return upgrade;
@@ -97,6 +103,7 @@ function ruleIssues(p) { const out = []; if (p.age > +man('dof', 'maxAge')) out.
 /* ---------- negotiation ---------- */
 function openDeal(x, capOverride) {
   const p = RC().pool[x.pid]; if (!p) return setStage(x, 'lost', 'He is no longer available.');
+  if (F.squadPlanAllows && !F.squadPlanAllows(p)) { x.apAsked = false; x.hold = true; return setStage(x, 'recommended', 'On hold: the rolling plan no longer justifies this winter purchase.'); }
   if (!inWin()) { x.apAsked = false; return setStage(x, 'recommended', 'The window is closed. He stays on the list for the next one.'); }
   const neg = F.eff('dof', 1), hard = man('dof', 'hard') / 100;
   const floor = p.club ? Math.round(p.ask * (0.72 + F.rnd() * 0.18 - (neg - 10) * 0.012) * (g().phase === 'season' && g().week >= 17 ? 1.15 : 1) * (F.deptHas && F.deptHas('recruit', 'neg') ? 0.9 : 1) / 100) * 100 : 0;
@@ -144,8 +151,9 @@ function assignScouts() {
   for (const s of scoutsAll()) {
     if (s.assign && s.assign.left > 0) continue;
     if (needMore.length && chance(0.5)) { const x = needMore.shift(); s.assign = { type: 'player', pid: x.pid, reg: r.pool[x.pid].region, left: 1 + (s === staff('scout') ? 0 : ri(0, 1)), label: `Watch ${r.pool[x.pid].name}` }; continue; }
-    const pr = prios.length ? pick(prios) : null, reg = chance(0.7) ? pick(foc) : (s.home || pick(REGK));
-    s.assign = { type: pr ? 'profile' : 'region', pos: pr ? pr.pos : null, kind: pr ? pr.kind : null, reg, left: ri(2, 4), label: pr ? `${F.POS_L[pr.pos]}, ${pr.kind}, in ${REG[reg].name}` : `Sweep ${REG[reg].name}` };
+    const rolling = F.squadPlanScoutJob ? F.squadPlanScoutJob() : null;
+    const pr = rolling || (prios.length ? pick(prios) : null), reg = chance(0.7) ? pick(foc) : (s.home || pick(REGK));
+    s.assign = { type: pr ? 'profile' : 'region', pos: pr ? pr.pos : null, kind: pr ? pr.kind : null, horizon: rolling ? rolling.horizon : null, reg, left: ri(2, 4), label: pr ? `${F.POS_L[pr.pos]}, ${pr.kind}, in ${REG[reg].name}${rolling ? ' · ' + (rolling.horizon === 'winter' ? 'winter cover' : 'summer succession') : ''}` : `Sweep ${REG[reg].name}` };
   }
 }
 function scoutWeek() {
@@ -177,7 +185,7 @@ function dofPipeline() {
   for (const x of r.pipe.filter(x => x.planB && x.stage === 'scouted' && r.pool[x.pid])) { const p = r.pool[x.pid], live = r.pipe.some(y => y !== x && r.pool[y.pid] && r.pool[y.pid].pos === p.pos && ['recommended', 'approach', 'negotiating'].includes(y.stage) && !y.hold); if (!live && slotOpen(p, r.know[x.pid]) && winBuys(p.pos) === 0) { setStage(x, 'recommended', 'Plan A fell through. Plan B is up.'); x.planA = true; x.boost = true; x.wasB = true; } }
   if (!inWin()) return;
   const active = r.pipe.filter(x => ['approach', 'negotiating'].includes(x.stage)).length;
-  const recs = r.pipe.filter(x => x.stage === 'recommended' && r.pool[x.pid] && !x.apAsked && slotOpen(r.pool[x.pid], r.know[x.pid])).sort((a, b) => scoreRec(b) - scoreRec(a));
+  const recs = r.pipe.filter(x => x.stage === 'recommended' && r.pool[x.pid] && !x.apAsked && slotOpen(r.pool[x.pid], r.know[x.pid]) && (!F.squadPlanAllows || F.squadPlanAllows(r.pool[x.pid]))).sort((a, b) => scoreRec(b) - scoreRec(a));
   const upgrade = recs.some(x => r.know[x.pid].grade === 'A' && r.know[x.pid].est > posWorst(r.pool[x.pid].pos) + 0.4);
   const wanted = sq().length < depth + 1 || need.length || (upgrade && sq().length < depth + 4);
   let slots = wanted ? 2 - active : 0;
@@ -192,7 +200,11 @@ function dofPipeline() {
     if (p.ask > threshold()) { x.apAsked = true; setStage(x, 'approach', 'Needs your approval.'); F.queueEvent('rec_approve', { pid: x.pid }); }
     else { setStage(x, 'approach'); openDeal(x); }
   }
-  for (const x of r.pipe.filter(x => x.stage === 'negotiating')) negRound(x);
+  for (const x of r.pipe.filter(x => x.stage === 'negotiating')) {
+    const p = r.pool[x.pid];
+    if (p && F.squadPlanAllows && !F.squadPlanAllows(p)) { x.hold = true; x.apAsked = false; setStage(x, 'recommended', 'On hold: the rolling plan no longer justifies this winter purchase.'); }
+    else negRound(x);
+  }
 }
 function scoreRec(x) { const k = RC().know[x.pid], p = RC().pool[x.pid]; return (k.grade === 'A' ? 3 : 2) + (prioOf(p) ? 1 : 0) + (k.conf === 'high' ? 0.5 : 0) + (F.squadNeeds().includes(p.pos) ? 1.5 : 0) + (g().dofPrio === p.pos ? 1 : 0); }
 function worldWeek() {

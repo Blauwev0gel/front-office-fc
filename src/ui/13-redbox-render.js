@@ -58,6 +58,7 @@ function briefHtml(b, it) {
   const v = F.briefView(b), role = v.role || (it && it.role) || 'club', name = v.who.split(',')[0], roleT = v.who.split(', ')[1] || '', key = 'b' + b.id;
   const tag = v.done ? `<span class="mtg ok">${ART.I.trust}${v.del ? 'Staff call' : 'Replied'}</span>` : `<span class="mtg upd">${F.OPP_IDS && F.OPP_IDS.has(b.t) ? 'Opportunity' : 'Update'}</span>`;
   let h = mailTop(role, name, roleT, v.title, tag, v.text, null);
+  if (b.t === 'squad_plan_update') h += '<button class="btn ghost" data-a="squad-plan-open">Read the rolling squad plan</button>';
   if (v.done) {
     if (U.sentK === key && !v.del) { U.tray = mailSent(name, v.opts[v.choice].l + '.', v.out); U.trayH = 210; return h + fdHtml(b.fd); }
     return h + `<div class="outc"><b>${v.del ? esc(v.by) + ': ' : ''}${esc(v.opts[v.choice].l)}.</b> ${esc(v.out)}</div>` + fdHtml(b.fd);

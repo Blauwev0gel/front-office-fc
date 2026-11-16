@@ -42,6 +42,7 @@ You can also build locally and open `dist/index.html` in a browser.
 python3 build.py                 # writes dist/index.html
 node test/matchday.js            # stories, outcomes, turning points
 node test/gazette.js             # one edition per week, archive, old saves
+node test/squad-plan.js          # rolling winter/summer plan, scouting, renewals, policy boundaries
 node test/sack.js                # dismissal is final
 node test/pathway.js             # the youth pathway storyline
 python3 test/browser/playtest.py # a run of weeks with real clicks (needs Playwright and Chrome)

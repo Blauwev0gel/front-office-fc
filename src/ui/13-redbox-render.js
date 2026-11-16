@@ -49,14 +49,14 @@ function msgHtml(m, it) {
   if (m.ev === 'pw_meet' && F.pwView) h += pwMeetHtml(F.pwView());
   if (m.ev === 'pw_eval' && F.pwView) h += pwEvalHtml(F.pwView());
   if (v.second && !v.second.text && v.second.avail) h += `<p class="small"><button class="linkbtn" data-a="second" data-m="${m.id}">Ask ${esc(v.second.name.split(' ')[0])} for a second opinion</button></p>`; // older messages: asking is free
-  const leave = `One action. Leave it and ${v.autoWho} sends the advised reply.`;
+  const leave = `Leave it and ${v.autoWho} sends the advised reply.`;
   const sel = U.mc && U.mc.k === 'm' && U.mc.id === m.id ? U.mc.i : -1, sec = v.second && v.second.text ? v.second : null;
-  U.tray = replyDock('m', m.id, v.opts, v.auto, sel, big, g.ap < 1 ? 'No actions left this week. Your staff will decide.' : leave, g.ap < 1, sec, apPips(g.ap)); U.trayH = 150 + v.opts.length * 58 + (sec ? 90 : 0);
+  U.tray = replyDock('m', m.id, v.opts, v.auto, sel, big, leave, false, sec, ''); U.trayH = 150 + v.opts.length * 58 + (sec ? 90 : 0);
   return h;
 }
 function briefHtml(b, it) {
   const v = F.briefView(b), role = v.role || (it && it.role) || 'club', name = v.who.split(',')[0], roleT = v.who.split(', ')[1] || '', key = 'b' + b.id;
-  const tag = v.done ? `<span class="mtg ok">${ART.I.trust}${v.del ? 'Staff call' : 'Replied'}</span>` : '<span class="mtg upd">Update</span>';
+  const tag = v.done ? `<span class="mtg ok">${ART.I.trust}${v.del ? 'Staff call' : 'Replied'}</span>` : `<span class="mtg upd">${F.OPP_IDS && F.OPP_IDS.has(b.t) ? 'Opportunity' : 'Update'}</span>`;
   let h = mailTop(role, name, roleT, v.title, tag, v.text, null);
   if (v.done) {
     if (U.sentK === key && !v.del) { U.tray = mailSent(name, v.opts[v.choice].l + '.', v.out); U.trayH = 210; return h + fdHtml(b.fd); }
@@ -65,7 +65,7 @@ function briefHtml(b, it) {
   if (v.why) h += `<p class="mwhy"><b>Why it is yours.</b> ${esc(v.why)}</p>`;
   const leave = 'Free. Leave it and nothing changes.';
   const sel = U.mc && U.mc.k === 'b' && U.mc.id === b.id ? U.mc.i : -1;
-  U.tray = replyDock('b', b.id, v.opts, -1, sel, false, leave, false, null, '<span>Free</span>'); U.trayH = 150 + v.opts.length * 58;
+  U.tray = replyDock('b', b.id, v.opts, -1, sel, false, leave, false, null, ''); U.trayH = 150 + v.opts.length * 58;
   return h;
 }
 function mailCommit(p) {
@@ -114,7 +114,7 @@ function tabBadge(k) {
 }
 function vBar() {
   const g = G(), open = inboxItems().filter(i => i.kind === 'need').length, gr = Math.round(g.grip == null ? 60 : g.grip);
-  return `<div class="bar2"><div class="b2play"><span class="b2l"><button class="aplab" data-a="sheet" data-s="actions" aria-label="${g.ap} actions left this week">${apPips(g.ap)}<small>${g.ap} action${g.ap === 1 ? '' : 's'}</small></button><button class="gripchip ${gr < 30 ? 'lo' : gr >= 70 ? 'hi' : ''}" data-a="sheet" data-s="grip" aria-label="Your grip on the club: ${gr}"><i style="width:${gr}%"></i><b>Grip ${gr}</b></button></span><button class="btn" data-a="play">${ART.I.play}${F.mtPreview && F.mtPreview() ? 'Next match' : 'Play week ' + g.week}${open ? ` <em class="cnt" aria-label="${open} need you">${open}</em>` : ''}</button></div><nav class="b2nav">${[['inbox', 'Inbox'], ['club', 'Club'], ['squad', 'Squad'], ['league', 'League'], ['staff', 'Depts']].map(([k, l]) => `<button class="${U.tab === k ? 'on' : ''}" data-a="tab" data-t="${k}" aria-label="${l}"><span class="nic">${ART.I[k]}${tabBadge(k)}</span>${l}</button>`).join('')}</nav></div>`;
+  return `<div class="bar2"><div class="b2play"><span class="b2l"><button class="gripchip ${gr < 30 ? 'lo' : gr >= 70 ? 'hi' : ''}" data-a="sheet" data-s="grip" aria-label="Your grip on the club: ${gr}"><i style="width:${gr}%"></i><b>Grip ${gr}</b></button></span><button class="btn" data-a="play">${ART.I.play}${F.mtPreview && F.mtPreview() ? 'Next match' : 'Play week ' + g.week}${open ? ` <em class="cnt" aria-label="${open} need you">${open}</em>` : ''}</button></div><nav class="b2nav">${[['inbox', 'Inbox'], ['club', 'Club'], ['squad', 'Squad'], ['league', 'League'], ['staff', 'Depts']].map(([k, l]) => `<button class="${U.tab === k ? 'on' : ''}" data-a="tab" data-t="${k}" aria-label="${l}"><span class="nic">${ART.I[k]}${tabBadge(k)}</span>${l}</button>`).join('')}</nav></div>`;
 }
 function advance() { const nx = inboxItems().find(x => (x.kind === 'need' || x.kind === 'upd') && x.key !== U.open); if (nx) U.open = nx.key; else U.flash = ''; }
 function markFresh() { U.seenB = U.seenB || new Set(); for (const b of document.querySelectorAll('#app .bubble')) { const k = b.textContent.slice(0, 80); if (!U.seenB.has(k)) { b.classList.add('anim'); U.seenB.add(k); } } if (U.seenB.size > 400) U.seenB = new Set(); }

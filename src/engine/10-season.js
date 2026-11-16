@@ -67,7 +67,7 @@ function endSeason() {
 }
 function startSeason() {
   if (over()) return;
-  G.season++; G.week = 1; G.ap = 3; G.form = []; G.inbox = G.inbox.filter(m => !m.done).slice(0, 5); G.queue = [];
+  G.season++; G.week = 1; G.ap = AP_FREE; G.form = []; G.inbox = G.inbox.filter(m => !m.done).slice(0, 5); G.queue = [];
   G.fin.lastRev = G.ss.rev; G.ss = newSeasonStats(); G.fin.revSum = 0; G.fin.revW = 0; G.club.kitty = kittyFor(G.fin.lastRev);
   if (G.club.dna.money === 'owner' && G.club.ownerOn) G.club.cash += M(15000);
   G.paper = { stories: [] }; let filled = 0;

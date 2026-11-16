@@ -18,7 +18,7 @@ function gain(v, why) {
 // wrap the CEO's own actions
 const wrap = (name, v, test) => { const f = F[name]; if (!f) return; F[name] = function (...a) { const r = f.apply(this, a); if (!(r && r.err) && (!test || test(r, a))) gain(v, name); return r; }; };
 wrap('respond', 6); wrap('answerBrief', 3); wrap('ftTalkStart', 5, r => !r || r.fresh !== false); // only a fresh talk builds grip wrap('talk', 5); wrap('pressAnswer', 3);
-wrap('decideProposal', 3); wrap('sum2Answer', 2); wrap('tkAnswer', 3); wrap('ddDecide', 2); wrap('deptHire', 3); wrap('deptBudSet', 1); wrap('setMandate', 2);
+wrap('decideProposal', 3); wrap('sum2Answer', 2); wrap('tkAnswer', 3); wrap('ddDecide', 2); /* B21: mandates, budgets and staff are free now and no longer build grip */
 
 const GRIPK = 14; // grip 100 = +3.6 on every head's attributes, grip 0 = -3.6
 const prevEff = H.effBonus;

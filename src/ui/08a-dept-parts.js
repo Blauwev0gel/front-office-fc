@@ -88,8 +88,8 @@ function ftPlanExtra() {
   const prot = +F.man('acad', 'minGrads'), ment = F.man('acad', 'mentors') === 'yes';
   const push = g.push.medical > 0;
   return `<div class="sec">Youth minutes</div><div class="panel2"><p class="small" style="margin:0">Come from: ${src.join(' · ')}.${v.u21pm != null ? ` Result: ${v.u21pm.toFixed(1)} under-21s start per match.` : ''}</p>
-  <p class="small" style="margin:6px 0 0">From the academy mandate: ${prot ? `${prot} academy player${prot === 1 ? '' : 's'} the DoF may not sell` : 'no academy players protected from sale'}; ${ment ? 'senior pros mentor the scholars' : 'no first-team mentors'}.</p>${F.staff('acad') ? '<button class="linkbtn" data-a="sheet" data-s="mand" data-r="acad">Academy mandate · 1 action</button>' : ''}</div>
-  <div class="sec">Medical</div><div class="panel2"><p class="small" style="margin:0 0 8px">${push ? `Medical push active: fewer injuries and faster recovery, ${g.push.medical} week${g.push.medical === 1 ? '' : 's'} left.` : 'A medical push means fewer injuries and faster recovery for three weeks.'}</p><button class="btn ghost wide" data-a="push" data-d="medical" ${push || g.ap < 1 ? 'disabled' : ''}>Medical push · 1 action</button></div>`;
+  <p class="small" style="margin:6px 0 0">From the academy mandate: ${prot ? `${prot} academy player${prot === 1 ? '' : 's'} the DoF may not sell` : 'no academy players protected from sale'}; ${ment ? 'senior pros mentor the scholars' : 'no first-team mentors'}.</p>${F.staff('acad') ? '<button class="linkbtn" data-a="sheet" data-s="mand" data-r="acad">Academy mandate</button>' : ''}</div>
+  <div class="sec">Medical</div><div class="panel2"><p class="small" style="margin:0 0 8px">${push ? `Medical push active: fewer injuries and faster recovery, ${g.push.medical} week${g.push.medical === 1 ? '' : 's'} left.` : 'A medical push means fewer injuries and faster recovery for three weeks.'}</p><button class="btn ghost wide" data-a="push" data-d="medical" ${push ? 'disabled' : ''}>Medical push</button></div>`;
 }
 
 /* ---------- talks: requests on Now, the scene (B19) ---------- */

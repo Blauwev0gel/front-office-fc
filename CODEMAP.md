@@ -59,7 +59,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 <!-- generated:start -->
 | File | Size | Purpose | Hooks set | Hooks called | State `G.*` written |
 |---|---|---|---|---|---|
-| `engine/01-core.js` | 1 KB | rng & utils |  |  | rs, nid |
+| `engine/01-core.js` | 2 KB | rng & utils |  |  | rs, nid |
 | `engine/02-world-constants.js` | 5 KB | world constants |  |  |  |
 | `engine/03-players.js` | 4 KB | players |  |  |  |
 | `engine/04-staff-dna.js` | 14 KB | staff; DNA |  | effBonus |  |
@@ -67,12 +67,12 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `engine/06-match.js` | 11 KB | match simulation |  | homeEdge, oppStyle, ftInj, say, storyW | msNew |
 | `engine/07-finance-transfers.js` | 14 KB | finance; transfers; academy |  | attendance, gate, acadIncome, recCost, acadCost, ftCost, deptCost, merchMult, costDisc, acadSale | signLog, shortlist, dofSigned, squad, dofNote |
 | `engine/08-weekly-inbox.js` | 8 KB | weekly systems; events & inbox |  | ftDev, fanWeekly, desk |  |
-| `engine/09-meetings-actions-press.js` | 17 KB | management meeting & projects (1.2); player actions; press |  |  | propCd, meeting, projects, projDone, projLog |
+| `engine/09-meetings-actions-press.js` | 17 KB | management meeting & projects (1.2); player actions; press |  |  | propCd, meeting, projects, projDone, projLog, resBy |
 | `engine/10-season.js` | 9 KB | season |  | objMet, acadSeason, recSeason, seasonReprieve, summerStart | squad, academy, lastReport, phase, week, ap, form, inbox, queue, ss, paper, pressDone |
 | `engine/11-staffwork-analysis-briefs.js` | 21 KB | staff work, records & chains (1.1); analysis & scorecards (1.3); weekly briefings (1.5) |  | deskBriefs | later, shortlist, scoutNote, reports, bcd, briefs |
 | `engine/12-week.js` | 8 KB | the week |  | recWeekly, acadWeekly, acadIntake, seasonAfterMatch, edition, seasonWeekly | phase, sackReason, queue, briefs, over, paper, msNew, prev, prevFan, lastMatch, lastCup, ap, later, inbox |
 | `engine/13-newgame-preseason.js` | 7 KB | new game; pre-season planning (1.4) |  | acadInit, summerStart | club, mand, cup, phase, pre, meeting, press, pressDone, paper |
-| `engine/14-save-api.js` | 2 KB | save |  | acadMigrate, recMigrate | v |
+| `engine/14-save-api.js` | 2 KB | save |  | acadMigrate, recMigrate | ap, v |
 | `events.js` | 70 KB | event library (module 1) Each event: from (role/board/fans/press), dept, cd (cooldown weeks), cond, w (weight) |  |  | academy, freezePrev |
 | `events2.js` | 31 KB | desk 2.0 configuration, proposals and storylines (1.2) |  |  |  |
 | `briefs.js` | 20 KB | weekly briefings (1.5) Short, state-driven updates and conversations |  |  | dofPrio, dofPrioAt, wageFreezePrev |
@@ -93,7 +93,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `recruitx.js` | 3 KB | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re | seasonAfterMatch |  | recX |
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 18 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
-| `talks.js` | 14 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio |
+| `talks.js` | 19 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio |
+| `weekflow.js` | 19 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo |
 | `loop.js` | 15 KB | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice | lastChance, seasonReprieve, seasonAfterMatch |  | votes, vote, bgoal, bgLog, wkDelta, wkPrev, wkLog |
 | `dossiers.js` | 28 KB | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar | seasonAfterMatch |  | pressure, dos |
 | `pathway.js` | 27 KB | the pathway question One governance storyline, built to show the core loop: you notice a problem, talk to the  | selBonus, seasonAfterMatch |  | cred, pw, academy, pwLog |
@@ -103,7 +104,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/03-summer-preseason-press.js` | 26 KB | the summer (M4); the summer, version 2 |  |  |  |
 | `ui/04-masthead-news.js` | 1 KB |  |  |  |  |
 | `ui/05-pitches-squad-money.js` | 15 KB | project pitches: one at a time, swipe or tap |  |  |  |
-| `ui/06-sheets-ticker.js` | 22 KB | sheets; ticker |  |  |  |
+| `ui/06-sheets-ticker.js` | 21 KB | sheets; ticker |  |  |  |
 | `ui/07-club-league.js` | 8 KB | review & sacked; club, league, staff, academy, review: game screens |  | deptCost |  |
 | `ui/08-departments.js` | 25 KB | departments |  |  |  |
 | `ui/08a-dept-parts.js` | 17 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
@@ -237,8 +238,12 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: AUTH, setAuth, authView, deskView, DESK_HEADS, deskLimit, auth(r)), deskNote, t, c, err) => log(headOf(r), err ? 1, c)
 
 ### `talks.js`
-- Functions: g, first, C, rel, boost, ask, reqText, lapse, weekly, say, note, common, reqOpts, open, answer, close, view, reqOf, reqsFor
+- Functions: g, first, fixFor, C, rel, boost, ask, reqText, lapse, weekly, say, note, common, reqOpts, open, answer, close, view, reqOf, reqsFor
 - Exports on `F`: convoAsk, convoOpen, convoAnswer, convoClose, convoView, convoReq, convoReqs, CONVO_DEPT
+
+### `weekflow.js`
+- Functions: g, sq, fx, rel, first, topic, quiet, B, P
+- Exports on `F`: weekTopic, OPP_IDS
 
 ### `loop.js`
 - Functions: g, room, sup, voice, backers, snap, diff, form5, band, bump, lift, lastChance, tgt, needFor, blockTick, goalView, comingUp

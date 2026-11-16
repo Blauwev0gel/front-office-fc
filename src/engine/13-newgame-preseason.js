@@ -1,6 +1,6 @@
 /* ---------- new game ---------- */
 function newGame(seed) {
-  G = { v: VERSION, rs: seed || (Date.now() % 2147483647), nid: 1, phase: 'dna', season: 1, week: 1, ap: 3, dna: {}, staff: {}, cands: {}, mand: {}, squad: [], academy: [], inbox: [], queue: [], cd: {}, talks: {}, push: {}, promises: [], form: [], history: [], trophies: [], flags: {}, st: { fans: 55, spons: 50, press: 50 }, board: { conf: 60, obj: [], warned: false }, fin: { last: null, revSum: 0, revW: 0, hist: [] }, ss: newSeasonStats(), cup: null, paper: { headline: '', sub: '', stories: [] } };
+  G = { v: VERSION, rs: seed || (Date.now() % 2147483647), nid: 1, phase: 'dna', season: 1, week: 1, ap: AP_FREE, dna: {}, staff: {}, cands: {}, mand: {}, squad: [], academy: [], inbox: [], queue: [], cd: {}, talks: {}, push: {}, promises: [], form: [], history: [], trophies: [], flags: {}, st: { fans: 55, spons: 50, press: 50 }, board: { conf: 60, obj: [], warned: false }, fin: { last: null, revSum: 0, revW: 0, hist: [] }, ss: newSeasonStats(), cup: null, paper: { headline: '', sub: '', stories: [] } };
   return G;
 }
 function setDNA(d, name, short, city, colors) {

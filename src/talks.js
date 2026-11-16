@@ -11,6 +11,19 @@ const HEADS = ['coach', 'dof', 'scout', 'acad', 'com', 'mkt', 'fin'];
 const DEPT = { coach: 'first', dof: 'recruit', scout: 'recruit', acad: 'academy', com: 'commercial', mkt: 'marketing', fin: 'business' };
 const WAIT = 2; // weeks a request waits before the head decides himself
 const first = r => { const s = staff(r); return s ? s.name.split(' ')[0] : 'He'; };
+const HEAD = { first: 'coach', recruit: 'dof', academy: 'acad', commercial: 'com', marketing: 'mkt', business: 'fin' };
+// what the head proposes when things go badly, from the department's real state
+function fixFor(dk) {
+  const it = (F.deptAttention ? F.deptAttention(dk) : [])[0], G = g(); if (!it) return { cause: '' };
+  const cause = it.t, lv = F.deptBudView ? (F.deptBudView().rows.find(r => r.k === dk) || {}).v : 50;
+  if (it.a === 'dept' && it.x === 'recruit') return { cause, kind: 'squad', l: 'I will talk to the DoF' };
+  if (it.a === 'plan' && F.rxView) { const m = F.rxView().regions.find(r => r.focus === 1); return m && !F.rxView().investIn ? { cause, kind: 'trip', rk: m.k, reg: m.t, l: `Send the scouts to ${m.t}` } : { cause }; }
+  if (it.a === 'people' && lv != null && lv < 50) return { cause, kind: 'budget', dk, l: 'Raise the budget so he can add staff' };
+  if (it.a === 'mand' && it.x === 'acad' && +man('acad', 'budget') < 40) return { cause, kind: 'budget', dk: 'academy', l: 'Back to a normal academy budget' };
+  if (it.a === 'mand' && it.x === 'fin') return { cause, kind: 'cap', l: 'Raise the wage cap one step' };
+  if (it.a === 'mand' && it.x === 'dof' && G.rec) { const cnt = {}; G.rec.pipe.filter(x => x.blocked && G.rec.pool[x.pid]).forEach(x => x.blocked.filter(b => b !== 'wage cap').forEach(b => cnt[b] = (cnt[b] || 0) + 1)); const rule = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0]; return rule ? { cause, kind: 'loosen', rule, l: `Loosen the ${rule} one step` } : { cause }; }
+  return { cause };
+}
 
 function C() { const G = g(); G.convo = G.convo || { cur: null, req: {}, last: {} }; return G.convo; }
 const rel = (r, n) => { const s = staff(r); if (s) s.rel = clamp(s.rel + n, 0, 100); };
@@ -33,6 +46,7 @@ function reqText(role, c) {
   if (c.k === 'squad') return `This squad is below the division average. I can only do so much with it.`;
   if (c.k === 'mandate') return `About the ${c.name}: I am doing it my way. I would rather we talked it through.`;
   if (c.k === 'cold') return `I do not feel backed. We should talk.`;
+  if (c.k === 'verdict') return `${c.vt} ${c.cause || 'I know it is not good enough.'}${c.fix ? ' This is what I need from you.' : ''}`;
   return 'Have you got a minute?';
 }
 // what the head does if you never answer
@@ -69,6 +83,8 @@ function weekly() {
     if (b < 25) ask('acad', { k: 'budget' }); else if (wl < 55) ask('acad', { k: 'welfare', v: Math.round(wl) }); else if (share != null && share < 0.2) ask('acad', { k: 'minutes', v: Math.round(share * 100) });
     else if (staff('acad').rel < 35) ask('acad', { k: 'cold' }); }
   for (const role of ['com', 'mkt', 'fin']) if (fresh(role) && staff(role).rel < 35) ask(role, { k: 'cold' });
+  // a bad verdict is never silent: the head comes to explain it and says what he needs
+  if (F.deptVerdict) for (const dk in HEAD) { const role = HEAD[dk]; if (!fresh(role)) continue; const V = F.deptVerdict(dk); if (V.st !== 'bad' || V.w === 'Vacant') continue; const fx = fixFor(dk); ask(role, { k: 'verdict', v: V.w, vt: V.t, cause: fx.cause, fix: fx.kind ? fx : null }); }
 }
 const prevAfter = H.seasonAfterMatch;
 H.seasonAfterMatch = ours => { if (prevAfter) prevAfter(ours); weekly(); };
@@ -80,7 +96,8 @@ function common(role) {
   const o = [{ id: 'back', t: 'You have my backing', fx: 'Trust up' }, { id: 'push', t: 'I need more from you', fx: 'Sharper, risk on trust' }];
   if (!F.record(role).early) o.push({ id: 'review', t: 'Let us go through the numbers', fx: 'Depends on the numbers' });
   if ((staff(role) || {}).perf < 40) o.push({ id: 'warn', t: 'Results have to improve', fx: 'A warning' });
-  return o;
+  const dk = DEPT[role]; if (F.deptVerdict && dk && HEAD[dk] === role && F.deptVerdict(dk).st === 'bad') o.unshift({ id: 'why', t: 'What is going wrong?', fx: 'He explains' });
+  return o.slice(0, 4);
 }
 function reqOpts(r) {
   if (r.k === 'staff') return [{ id: 'r_yes', t: `Hire ${r.name.split(' ')[0]}`, fx: `${money(r.fee)} now, ${money(r.wage)}/wk` }, { id: 'r_no', t: 'Not now', fx: 'He may be disappointed' }];
@@ -91,6 +108,7 @@ function reqOpts(r) {
   if (r.k === 'welfare') return [{ id: 'r_yes', t: 'Protect the kids more', fx: 'Welfare up, development a little slower' }, { id: 'r_no', t: 'They have to be tough', fx: 'Trust down a little' }];
   if (r.k === 'minutes') return [{ id: 'r_yes', t: 'I will raise it with the coach', fx: 'Coach youth minutes +10 · coach ↓' }, { id: 'r_no', t: 'The coach picks the team', fx: 'Academy ↓' }];
   if (r.k === 'squad') return [{ id: 'r_yes', t: 'I will talk to the DoF', fx: 'Coach ↑ · DoF ↓' }, { id: 'r_no', t: 'Work with what you have', fx: 'Coach ↓' }];
+  if (r.k === 'verdict') return (r.fix ? [{ id: 'r_fix', t: r.fix.l, fx: 'What he asks for' }] : []).concat([{ id: 'back', t: 'You have my backing', fx: 'Trust up' }, { id: 'push', t: 'It has to improve, fast', fx: 'Sharper, risk on trust' }]);
   return [];
 }
 function open(role, fromReq) {
@@ -118,6 +136,15 @@ function answer(id) {
     case 'push': if (P.amb >= 12) { say(role, 'Good. So do I. Watch this space.'); R(-1); B(7, 5); } else if (P.ego >= 13) { say(role, 'With respect, I know my job.'); R(-8); B(-2); } else { say(role, 'Understood. I will push harder.'); R(-3); B(3); } break;
     case 'review': { const rc = F.record(role); if (rc.score >= 62) { say(role, `The numbers back me up. ${rc.verdict}.`); R(6); B(5); } else if (rc.score <= 40) { say(role, P.ego > 15 ? 'I dispute half of those figures. But fine, I will react.' : 'Hard to argue with that. I will fix it.'); R(P.ego > 15 ? -6 : -2); B(6); } else { say(role, 'Mixed. I know.'); R(1); B(2); } break; }
     case 'warn': if (s.perf < 40) { say(role, 'Message received.'); R(-6); B(6); if (P.loy < 8 && s.rel < 40 && chance(0.4)) F.queueEvent('staff_quit', { role }); } else { say(role, 'That is not fair, and you know it.'); R(-10); B(-1); } break;
+    case 'why': { const dk = DEPT[role], V = F.deptVerdict(dk), fx = fixFor(dk); say(role, `${V.t} ${fx.cause || 'Honestly, a bit of everything.'}`); T.req = { k: 'verdict', fix: fx.kind ? fx : null };
+      T.opts = (fx.kind ? [{ id: 'r_fix', t: fx.l, fx: 'What he asks for' }] : []).concat([{ id: 'back', t: 'You have my backing', fx: 'Trust up' }, { id: 'push', t: 'It has to improve, fast', fx: 'Sharper, risk on trust' }]); return; }
+    case 'r_fix': { const fx = r.fix; if (!fx) break;
+      if (fx.kind === 'squad') { say(role, 'Good. Tell him what I need.'); R(3); rel('dof', -2); if (F.recPlanSuggest) { const pos = (F.recPlanSuggest()[0] || {}).pos; if (pos) G.dofPrio = pos; } note('DoF told to find a player'); }
+      if (fx.kind === 'trip') { const out = F.rxInvest ? F.rxInvest(fx.rk) : null; if (out && out.err) say(role, out.err); else { say(role, 'We leave on Monday.'); R(2); note(`Trip to ${fx.reg}`); } }
+      if (fx.kind === 'budget') { if (F.bizSetLevel) F.bizSetLevel(fx.dk, 'normal'); say(role, 'Thank you. You will see the difference.'); R(3); note('Budget: normal'); }
+      if (fx.kind === 'cap') { const f = G.mand.fin, o = ['50', '60', '70', '85']; f.wageCap = o[Math.min(3, Math.max(0, o.indexOf(String(f.wageCap))) + 1)]; say(role, `${f.wageCap}% it is.`); R(2); note(`Wage cap ${f.wageCap}%`); }
+      if (fx.kind === 'loosen') { const m = G.mand.dof, step = (key, o) => { m[key] = o[Math.min(o.length - 1, Math.max(0, o.indexOf(String(m[key]))) + 1)]; }; if (fx.rule === 'wage limit') step('maxWage', ['100', '150', '200', '999']); else if (fx.rule === 'fee limit') step('maxFee', ['0', '25', '50', '100']); else step('maxAge', ['21', '24', '28', '32', '99']); say(role, 'Good. I will look at them again.'); R(3); note(`${fx.rule} loosened`); }
+      break; }
     case 'r_yes':
       if (r.k === 'staff') { const out = F.deptHire(r.dk, r.role, r.i, r.why); if (G.staffAsk) delete G.staffAsk[r.dk]; if (out && out.err) { say(role, `Then we cannot do it: ${out.err.toLowerCase()}`); } else { say(role, 'Thank you. You will see the difference.'); R(3); note(`${r.title} hired`); } }
       if (r.k === 'rules') { const m = G.mand.dof, step = (key, o) => { m[key] = o[Math.min(o.length - 1, Math.max(0, o.indexOf(String(m[key]))) + 1)]; }; if (r.rule === 'wage limit') step('maxWage', ['100', '150', '200', '999']); else if (r.rule === 'fee limit') step('maxFee', ['0', '25', '50', '100']); else step('maxAge', ['21', '24', '28', '32', '99']); say(role, 'Good. I will look at them again.'); R(3); note(`DoF ${r.rule} loosened`); }

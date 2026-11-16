@@ -75,10 +75,10 @@ Vastgelegd:
    escalaties komen bij jou (boven het limiet, topspeler, clubnaam, zwakke/koude head, kort lijntje)
    plus wat altijd van de CEO is: conflicten tussen afdelingen, bestuur, supporters, pers, en
    gesprekken met de heads zelf.
-3. **3 actiepunten per week** — voor second opinions, mandaten en pushes van een afdeling. Gesprekken met de hoofden zijn gratis (B19): een hoofd vraagt om een gesprek als hij iets van de CEO nodig heeft ("wants a word"), en de CEO kan altijd zelf een gesprek openen. Laat je een verzoek twee weken liggen, dan beslist hij zelf.
-4. **Wedstrijddag** — vooraf drie verhalen over eigen spelers; tijdens: commentaar; na: hoe elk
+3. **Geen actiepunten** (B21). De afweging zit in de keuzes zelf: kansen die elkaar uitsluiten, verzoeken die verlopen, en besluiten die het ene hoofd blij maken en het andere niet. Steun aan een afdeling (push) geldt voor één afdeling tegelijk. Elke week heeft een **onderwerp** (B22): derby, transferwindow, bestuursreview, beker, crisis of een stille week. In stille weken komt er **één kans** op je af (B23): een speler, de pers, een rivaal, een lokaal bedrijf, supporters, de gemeente. Hoofden vragen om een gesprek als ze iets nodig hebben of als het slecht gaat (B19).
+4. **Wedstrijddag** — bij big games vóór de aftrap één CEO-keuze (winbonus, kleedkamer, sponsor in de box) en erna een reactie naar de pers (B23); vooraf drie verhalen over eigen spelers; tijdens: commentaar; na: hoe elk
    verhaal afliep en het keerpunt.
-5. **Weekafsluiting** — onbeantwoorde berichten worden door de staf zelf afgehandeld, financiën,
+5. **Weekafsluiting** — onbeantwoorde berichten worden door de staf zelf afgehandeld; besluiten van weken geleden komen soms terug in de Gazette ("Looking back", B24); financiën,
    ontwikkeling, blessures, bestuur, de Gazette en "wat veranderde er".
 
 ### 5.3 Het seizoen
@@ -146,7 +146,7 @@ Aandachtspunten:
    De tests draaien de zomer via de v2-flow: `sumAuto` is sinds `summer2.js` gelijk aan `sum2Auto` (gecorrigeerd 15-11-2026).
 3. ~~`ui.js` is 1.849 regels in één blok~~ — opgeknipt in delen (15-11-2026), build byte-identiek.
 4. **Veel meters tegelijk:** bestuursvertrouwen, 4 backers, grip, verborgen druk, credibility (pathway),
-   DNA-alignment, actiepunten, plus KPI's per afdeling. Sterk voor P2, maar mogelijk in strijd met P4/P5.
+   DNA-alignment, plus KPI's per afdeling (actiepunten zijn afgeschaft, B21). Sterk voor P2, maar mogelijk in strijd met P4/P5.
 5. Tab `money` bestaat in de render, maar staat niet in de tabbalk.
 6. Eerste audit-signaal (20 runs × 5 seizoenen, nog te toetsen): een *actieve* CEO wordt even vaak ontslagen
    als een passieve (35%), een willekeurig klikkende CEO nooit. Coach-mandaten (aanvallend/verdedigend, jeugd)
@@ -185,3 +185,7 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 | B18 | 15-11-2026 | Elk hoofd neemt zijn eigen staf aan en laat ze gaan, binnen het budgetniveau dat de CEO zet. Hij kiest naar zijn kwaliteit en karakter. Boven zijn bedragslimiet vraagt hij het de CEO in een gesprek. | De CEO stuurt mensen, niet hun personeel (P1); het hoofd kiezen weegt zwaarder (P7). |
 | B19 | 15-11-2026 | Wat de CEO nodig heeft, komt als gesprek van het hoofd ("wants a word"), niet als lijst. Eén gespreksmotor voor alle hoofden (de coach-scènes zijn het model). Gesprekken zijn gratis; alleen het eerste gesprek met een hoofd binnen drie weken geeft grip en volle werking. **Herziet B12:** Now toont geen aandachtslijst meer maar het oordeel en de verzoeken van het hoofd. | Druk voel je via mensen (P4), mensen hebben een eigen wil (P7). |
 | B20 | 16-11-2026 | Een bericht beantwoorden kost twee tikken: kies een antwoord, dan Send; het is direct verstuurd, zonder wachttijd of undo. Big decisions blijven 'houd ingedrukt'. Een second opinion komt gratis met het bericht mee en staat boven de antwoorden. | Snel op mobiel (B3); twee stemmen afwegen voor je beslist (P7, P9). |
+| B21 | 16-11-2026 | **Geen actiepunten meer.** De eigenaar overrulet hiervoor bewust B6 (meters pas na een playtest). De afweging komt uit de keuzes zelf (uitsluitende kansen, verlopende verzoeken, hoofden die je tegen elkaar afweegt); een push geldt voor één afdeling tegelijk; grip groeit alleen nog door wat op je bureau landt, niet door vrij sleutelen aan mandaten, budgetten of staf. | De week moet als CEO voelen, niet als het uitgeven van stipjes. |
+| B22 | 16-11-2026 | Elke week heeft een onderwerp dat volgt uit de echte stand: crisis, big game, transferwindow, bestuursreview, beker, seizoensblok, academiemomenten, of een stille week. | De week vertelt wat voor week het is (P4). |
+| B23 | 16-11-2026 | In stille weken komt er één kans op de CEO af, uit een wisselende reeks (speler, pers, rivaal, lokaal bedrijf, supporters, agent, gemeente, legende, goed doel, uitreis, twee uitnodigingen tegelijk). Big games krijgen een CEO-moment vóór de aftrap en een reactie erna. Nooit opstelling of wissels (B1). | Stille weken worden initiatief in plaats van leegte (P1, P9). |
+| B24 | 16-11-2026 | Ongeveer twintig besluiten van de CEO komen 3–8 weken later terug in de Gazette ("Looking back"). | Het seizoen vertelt het verhaal van jouw besluiten (P2, P8). |

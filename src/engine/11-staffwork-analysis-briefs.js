@@ -150,7 +150,7 @@ function genBriefs() {
 }
 function briefView(b) {
   const d = BR[b.t], c = b.ctx, val = v => { try { return typeof v === 'function' ? v(c) : v; } catch (e) { return ''; } };
-  const role = d.role || (c && ROLE[c.role] ? c.role : null); return { role, who: ROLE[role] ? staffName(role) + ', ' + ROLE[role].s : 'Office of the CEO', why: b.why || null, del: !!b.del, by: b.by || null, title: val(d.title), text: val(d.text), opts: d.opts.map(o => ({ l: val(o.l), h: val(o.h) })), done: b.done, out: b.out, choice: b.choice };
+  const role = d.role || (c && ROLE[c.role] ? c.role : null) || (d.face ? val(d.face) : null); return { role, who: d.who ? val(d.who) : ROLE[role] ? staffName(role) + ', ' + ROLE[role].s : 'Office of the CEO', why: b.why || null, del: !!b.del, by: b.by || null, title: val(d.title), text: val(d.text), opts: d.opts.map(o => ({ l: val(o.l), h: val(o.h) })), done: b.done, out: b.out, choice: b.choice };
 }
 function answerBrief(id, i) {
   if (over()) return { err: 'You no longer run the club.' };

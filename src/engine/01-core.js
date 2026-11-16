@@ -6,6 +6,7 @@ let G = null;
 const VERSION = 3;
 const HOOK = {};
 const SEASON_WEEKS = 34;
+const AP_FREE = 99; // B21: no action points; old checks see a full week
 
 /* ---------- rng & utils ---------- */
 function rnd() { let a = G.rs = (G.rs + 0x6D2B79F5) | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }

@@ -12,17 +12,14 @@ function vSheet() {
   }
   if (s.t === 'actions') {
     h = `<div class="sheethead"><span class="chip">Actions</span><button class="iconbtn" data-a="close" aria-label="Close">${ART.I.close}</button></div>
-    <div class="kbig">${g.ap}<small class="small"> of 3 left this week</small></div><div style="margin:6px 0 12px">${apPips(g.ap)}</div>
-    <p>Each decision you take yourself costs one action: answering a decision, a talk with staff or sacking someone. Updates are free. You get three new actions every week.</p>
-    <p class="small">Leave a decision and your staff take their pick. That is fine, but only decisions you take yourself build your grip.</p>`;
+    <p>There is no limit on what you do in a week. Leave a decision and your staff take their pick; only decisions you take yourself build your grip.</p>`;
   }
   if (s.t === 'help') {
     h = `<div class="sheethead"><span class="chip">How it works</span><button class="iconbtn" data-a="close" aria-label="Close">${ART.I.close}</button></div>
     <p style="margin-top:0">You are the CEO. You hire the people, set their mandates and make the calls they bring you. You never pick the team or buy players yourself.</p>
     <div class="panel2">${Object.entries(TOUR).map(([k, t]) => `<div class="helpr"><span class="hic">${ART.I[k]}</span><span><b>${esc(t[0])}</b><small>${esc(t[1])}</small></span></div>`).join('')}</div>
     <div class="sec">Reading the screen</div><div class="panel2">
-      <div class="helpr"><span class="hic">${apPips(3)}</span><span><b>Actions</b><small>Three per week. A decision you take yourself costs one.</small></span></div>
-      <div class="helpr"><span class="hic"><span class="gripchip hi" style="margin:0;min-width:0"><b>Grip</b></span></span><span><b>Grip</b><small>How firmly you steer the club. It lifts or drags every head of department.</small></span></div>
+            <div class="helpr"><span class="hic"><span class="gripchip hi" style="margin:0;min-width:0"><b>Grip</b></span></span><span><b>Grip</b><small>How firmly you steer the club. It lifts or drags every head of department.</small></span></div>
       <div class="helpr"><span class="hic"><i class="lg good"></i></span><span><b>Green</b><small>On track or good.</small></span></div>
       <div class="helpr"><span class="hic"><i class="lg mid"></i></span><span><b>Grey</b><small>Steady, nothing to do.</small></span></div>
       <div class="helpr"><span class="hic"><i class="lg bad"></i></span><span><b>Red</b><small>Needs attention.</small></span></div>
@@ -59,19 +56,19 @@ function vSheet() {
   if (s.t === 'mand') {
     const r = s.r, st = F.staff(r), m = U.draft; const al = previewAlign(r, m);
     h = `<div class="sheethead"><span class="chip">Mandate · club fit ${al}%</span><button class="iconbtn" data-a="close" aria-label="Close">${ART.I.close}</button></div>${staffHead(r)}${leanNote(r, m)}<div id="mand">${sliderRows(r, m, 'md')}</div>${F.MAND[r].sl.concat(F.MAND[r].ru).some(x => RES_KEYS.includes(x[0])) ? '<p class="small">Budget and scouting regions are set on the department\'s Plan tab, at no cost.</p>' : ''}
-    <div class="sheetfoot"><button class="btn ghost" data-a="close">Cancel</button><button class="btn" data-a="mand-save" ${g.ap < 1 ? 'disabled' : ''}>Save mandate<small>Costs 1 action</small></button></div>`;
+    <div class="sheetfoot"><button class="btn ghost" data-a="close">Cancel</button><button class="btn" data-a="mand-save" ${g.ap < 1 ? 'disabled' : ''}>Save mandate</button></div>`;
   }
   if (s.t === 'talk') {
     const roles = F.ROLES.filter(r => g.staff[r.id]);
     const sel = U.talkRole;
-    h = `<div class="spread"><div><div class="kick">One-to-one, costs one action</div><h2>Who do you want to see?</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>
+    h = `<div class="spread"><div><div class="kick">One-to-one</div><h2>Who do you want to see?</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>
     <div class="choice">${roles.map(r => { const s2 = g.staff[r.id]; return `<button class="card ${sel === r.id ? 'on' : ''}" data-a="talk-who" data-r="${r.id}"><b>${esc(s2.name)}</b>${r.t}. Relationship ${relW(s2.rel)} (${r0(s2.rel)}). The numbers: ${F.record(r.id).verdict.toLowerCase()}.<div class="e">${s2.p.ego > 14 ? 'Big ego. ' : ''}${s2.p.amb > 14 ? 'Very ambitious. ' : ''}${s2.p.loy < 7 ? 'Not very loyal.' : ''}</div></button>`; }).join('')}</div>
     ${sel ? `<h3>How do you approach it?</h3><div class="choice">${[['review', 'Go through the numbers', 'Evidence, not opinion. Good numbers earn real credit; bad ones are hard to argue with.'], ['praise', 'Praise his work', 'Builds trust. Some take it as licence to coast.'], ['challenge', 'Challenge him to do more', 'Ambitious people respond. Proud people bristle.'], ['reassure', 'Reassure him', 'Steadies someone who is struggling.'], ['warn', 'Warn him', 'Sharpens minds when results are poor. Unfair otherwise.']].map(([k, l, d]) => `<button class="card" data-a="talk-do" data-t="${k}"><b>${l}</b>${d}</button>`).join('')}</div>` : ''}
     ${U.talkOut ? `<div class="quote" style="font-size:22px">${esc(U.talkOut)}</div>` : ''}`;
   }
   if (s.t === 'push') {
-    h = `<div class="spread"><div><div class="kick">Costs one action, lasts three weeks</div><h2>Back a department</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>
-    <p class="small">Your visible backing lifts that department and its head. Rival departments notice.</p>
+    h = `<div class="spread"><div><div class="kick">Three weeks, one department at a time</div><h2>Back a department</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>
+    <p class="small">Your visible backing lifts that department and its head. Backing another ends it; rival departments notice.</p>
     <div class="choice">${Object.entries({ sporting: 'A small edge on the pitch; scouts spot a little more.', scouting: 'Network grows faster in the focus regions.', academy: 'Prospects develop faster; a better intake if it falls in the window.', commercial: 'Sponsor mood up; more commercial opportunities arrive.', marketing: 'Fan base and brand grow faster.', business: 'Running costs down five percent.', medical: 'Fewer injuries, faster recovery.' }).map(([k, d]) => `<button class="card" data-a="push" data-d="${k}"><b>${k === 'medical' ? 'First team: medical' : F.PUSH[k][0]}</b>${d}${g.push[k] > 0 ? `<div class="e">Already backed: ${g.push[k]} week${g.push[k] > 1 ? 's' : ''} left.</div>` : ''}</button>`).join('')}</div>`;
   }
   if (s.t === 'cands') {
@@ -80,7 +77,7 @@ function vSheet() {
   }
   if (s.t === 'fire') {
     const st = F.staff(s.r), cost = Math.round(st.wage * Math.max(8, st.contract * 20));
-    h = `<div class="spread"><h2>Dismiss ${esc(st.name)}?</h2><button class="x" data-a="close" aria-label="Close">×</button></div>${numbers(s.r)}<p>Compensation: <b class="num">${money(cost)}</b>. The rest of the staff will be unsettled, and the role stays vacant until you appoint someone. Costs one action.</p><div class="row"><button class="btn" data-a="fire" data-r="${s.r}" ${g.ap < 1 ? 'disabled' : ''}>Dismiss</button><button class="btn ghost" data-a="close">Keep him</button></div>`;
+    h = `<div class="spread"><h2>Dismiss ${esc(st.name)}?</h2><button class="x" data-a="close" aria-label="Close">×</button></div>${numbers(s.r)}<p>Compensation: <b class="num">${money(cost)}</b>. The rest of the staff will be unsettled, and the role stays vacant until you appoint someone.</p><div class="row"><button class="btn" data-a="fire" data-r="${s.r}" ${g.ap < 1 ? 'disabled' : ''}>Dismiss</button><button class="btn ghost" data-a="close">Keep him</button></div>`;
   }
   if (s.t === 'quick') {
     h = `<div class="spread"><div><div class="kick">Skip the founding</div><h2>Base club</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>
@@ -97,7 +94,7 @@ function vSheet() {
   }
   if (s.t === 'analysis') {
     const A = F.analysis(), mx = Math.max(0.5, ...A.bars.map(b => Math.abs(b.v)));
-    const lev = l => { if (l.a === 'mand') return `<button class="btn ghost small" data-a="sheet" data-s="mand" data-r="${l.x}">Open ${esc(F.ROLE[l.x].t)} mandate</button>`; if (l.a === 'push') return `<button class="btn ghost small" data-a="push" data-d="${l.x}" ${g.ap < 1 ? 'disabled' : ''}>Back ${esc(F.PUSH[l.x][0].toLowerCase())} (1 action)</button>`; if (l.a === 'talk') return `<button class="btn ghost small" data-a="sheet" data-s="talk" data-r="${l.x}" ${g.ap < 1 ? 'disabled' : ''}>One-to-one</button>`; if (l.a === 'tab') return `<button class="btn ghost small" data-a="tab-close" data-t="${l.x}">Go to ${esc(l.x)}</button>`; return ''; };
+    const lev = l => { if (l.a === 'mand') return `<button class="btn ghost small" data-a="sheet" data-s="mand" data-r="${l.x}">Open ${esc(F.ROLE[l.x].t)} mandate</button>`; if (l.a === 'push') return `<button class="btn ghost small" data-a="push" data-d="${l.x}" ${g.ap < 1 ? 'disabled' : ''}>Back ${esc(F.PUSH[l.x][0].toLowerCase())} </button>`; if (l.a === 'talk') return `<button class="btn ghost small" data-a="sheet" data-s="talk" data-r="${l.x}" ${g.ap < 1 ? 'disabled' : ''}>One-to-one</button>`; if (l.a === 'tab') return `<button class="btn ghost small" data-a="tab-close" data-t="${l.x}">Go to ${esc(l.x)}</button>`; return ''; };
     h = `<div class="spread"><div><div class="kick">Performance analysis</div><h2>Why we are ${F.ord(A.pos)}</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>
     <dl class="figs"><div><dt>Position</dt><dd>${F.ord(A.pos)}</dd></div><div><dt>Board target</dt><dd>${F.ord(A.target)}</dd></div><div><dt>Gap</dt><dd class="${A.gap > 0 ? 'bad' : 'good'}">${A.gap > 0 ? A.gap + ' pts' : 'none'}</dd></div><div><dt>Forecast</dt><dd>${A.fc ? F.ord(A.fc) : '–'}</dd></div><div><dt>Points vs deserved</dt><dd>${A.pts} / ${A.xpts.toFixed(1)}</dd></div></dl>
     <h3 style="margin-top:14px">What drives our results</h3><p class="small">Compared with an average side in this division. Right of the line helps, left hurts.</p>

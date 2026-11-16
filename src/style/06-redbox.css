@@ -94,3 +94,8 @@
 .srow.sel .sk{font-weight:800}
 .m2nd{display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;align-items:start;background:var(--paper);border-radius:14px;box-shadow:0 0 0 1px var(--hair);padding:10px 12px;margin:0 0 10px}
 .m2nd .mav{width:40px;height:40px}.m2nd p{margin:0;font-size:14px;line-height:1.35}.m2nd b{display:block;font:800 13px var(--head)}.m2nd small{display:block;font-size:11px;color:var(--soft);margin-bottom:2px}
+/* the subject of the week (B22) */
+.wtopic{margin:4px 0 12px}.wtopic small{font:800 11px var(--head);letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+.wtopic h2{margin:2px 0 4px;font:900 26px/1.1 var(--head)}.wtopic p{margin:0;font-size:15px;line-height:1.4;color:var(--ink)}
+.wtopic.stake h2,.wtopic.window h2{color:var(--club)}
+.wtopic.crisis h2{color:var(--bad)}

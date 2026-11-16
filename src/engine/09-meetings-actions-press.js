@@ -66,7 +66,7 @@ function msgView(m) {
 }
 function autoIndex(m) { const e = EV[m.ev]; if (!ROLE[e.from] || staff(e.from)) return e.auto ? clamp(e.auto(m.ctx), 0, e.opts.length - 1) : 0; return e.vacant != null ? e.vacant : e.opts.length - 1; }
 function resolve(m, idx, by) {
-  const e = EV[m.ev]; m.done = true; m.choice = idx; m.by = by;
+  const e = EV[m.ev]; m.done = true; m.choice = idx; m.by = by; G.resBy = by;
   let r; try { r = e.opts[idx].f(m.ctx); } catch (err) { r = 'The situation resolved itself.'; } m.outcome = r || 'Done.';
   if (by !== 'you') { let lab = ''; try { lab = typeof e.opts[idx].l === 'function' ? e.opts[idx].l(m.ctx) : e.opts[idx].l; } catch (err) { } G.paper.stories.push({ h: by === 'The board' ? 'Board decision' : by === 'The club office' ? 'Club decision' : 'Staff decision', t: `${by}: ${lab}. ${m.outcome}` }); }
   return m.outcome;
@@ -90,7 +90,7 @@ function talk(role, tone) {
 }
 const PUSH = { sporting: ['First team', 'coach', 'dof'], scouting: ['Scouting', 'scout', null], academy: ['Academy', 'acad', 'dof'], commercial: ['Commercial', 'com', 'mkt'], marketing: ['Marketing', 'mkt', 'com'], business: ['Business', 'fin', null], medical: ['Medical', 'coach', null] };
 function push(dept) {
-  if (G.ap < 1) return { err: 'No action points left this week.' }; G.ap--; G.push[dept] = 3;
+  for (const k in G.push) if (k !== dept) G.push[k] = 0; G.push[dept] = 3; // your attention goes to one department at a time
   const [l, own, rival] = PUSH[dept]; if (staff(own)) staff(own).rel = clamp(staff(own).rel + 3, 0, 100); if (rival && staff(rival)) staff(rival).rel = clamp(staff(rival).rel - 2, 0, 100);
   return { out: `${l} has your full backing for three weeks.${rival && staff(rival) ? ' ' + staff(rival).name + ' notices where your attention is going.' : ''}` };
 }

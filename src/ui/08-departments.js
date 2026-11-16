@@ -1,8 +1,11 @@
 /* ---------- departments ---------- */
-function spark(arr, inv, W = 320, H = 70) {
-  if (!arr || arr.length < 2) return '<p class="small">Not enough weeks yet.</p>';
-  const mn = Math.min(...arr), mx = Math.max(...arr), sp = mx - mn || 1, x = i => 6 + i / (arr.length - 1) * (W - 12), y = v => inv ? 6 + (v - mn) / sp * (H - 12) : H - 6 - (v - mn) / sp * (H - 12);
-  return `<svg class="ftrend" viewBox="0 0 ${W} ${H}" role="img" aria-label="Trend"><polyline points="${arr.map((v, i) => x(i) + ',' + y(v)).join(' ')}"/><circle cx="${x(arr.length - 1)}" cy="${y(arr[arr.length - 1])}" r="4"/></svg>`;
+// Plot values are shown as numbers in text mode; no SVG is generated.
+function spark(arr) {
+  if (!arr || !arr.length) return '<p class="small">No figures yet.</p>';
+  const first = +arr[0], last = +arr[arr.length - 1], change = last - first;
+  const fmt = n => Number.isFinite(n) ? (Math.round(n * 10) / 10).toLocaleString('en-GB') : '–';
+  return '<p class="text-trend">Trend: ' + fmt(first) + ' → ' + fmt(last) +
+    ' (' + (change > 0 ? '+' : '') + fmt(change) + ') over ' + arr.length + ' readings.</p>';
 }
 const kfmt = (k, v) => k === 'commercial' || k === 'business' ? money(v) : k === 'first' ? F.ord(v) : String(v);
 function vDepts() {

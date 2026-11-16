@@ -136,11 +136,16 @@ function complete(x) {
 /* ---------- weekly ---------- */
 function assignScouts() {
   const r = RC(), prios = r.plan.prios || [], foc = [man('scout', 'reg1'), man('scout', 'reg2')];
+  // Coach shortages become scouting work, not merely a bonus when ranking deals.
+  // Respect the CEO's existing recruitment priorities before filling spare capacity.
+  const urgent = recruitmentNeeds().filter(pos => !prios.some(p => p.pos === pos));
+  let urgentAssigned = 0;
   const needMore = r.pipe.filter(x => (x.stage === 'scouted' || x.stage === 'recommended' || x.stage === 'identified') && r.know[x.pid] && r.know[x.pid].conf !== 'high' && r.pool[x.pid] && !scoutsAll().some(s => s.assign && s.assign.pid === x.pid));
   for (const s of scoutsAll()) {
     if (s.assign && s.assign.left > 0) continue;
     if (needMore.length && chance(0.5)) { const x = needMore.shift(); s.assign = { type: 'player', pid: x.pid, reg: r.pool[x.pid].region, left: 1 + (s === staff('scout') ? 0 : ri(0, 1)), label: `Watch ${r.pool[x.pid].name}` }; continue; }
-    const pr = prios.length ? pick(prios) : null, reg = chance(0.7) ? pick(foc) : (s.home || pick(REGK));
+    const gap = urgentAssigned < urgent.length ? urgent[urgentAssigned++] : null;
+    const pr = gap ? { pos: gap, kind: 'proven' } : (prios.length ? pick(prios) : null), reg = chance(0.7) ? pick(foc) : (s.home || pick(REGK));
     s.assign = { type: pr ? 'profile' : 'region', pos: pr ? pr.pos : null, kind: pr ? pr.kind : null, reg, left: ri(2, 4), label: pr ? `${F.POS_L[pr.pos]}, ${pr.kind}, in ${REG[reg].name}` : `Sweep ${REG[reg].name}` };
   }
 }

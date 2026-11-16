@@ -221,17 +221,21 @@ function dofPipeline() {
   const wanted = sq().length < depth + 1 || need.length || (upgrade && sq().length < depth + 4);
   let slots = wanted ? 2 - active : 0;
   if (F.finTight && F.finTight() && (!need.length || F.wageRatio() * 100 > +man('fin', 'wageCap') + 10)) slots = 0; // money first
-  // Finance's operating forecast constrains discretionary recruitment. An
-  // urgent squad gap can still be addressed under the existing wage/fee rules.
-  // No new budget meter: this uses the actual Finance plan and club cash.
-  if (F.bizView) {
-    const fp = F.bizView();
-    const reserve = Math.max(0, (fp.spend - fp.env) * 4);
-    if (fp.spend > fp.env && g().club.cash < reserve && !need.length) slots = 0;
-  }
+  // Finance evaluates each target: a CB shortage must not justify
+  // unrelated discretionary signings while operating costs exceed the plan.
+  const finance = F.bizView ? F.bizView() : null;
+  const financeReserve = finance ? Math.max(0, (finance.spend - finance.env) * 4) : 0;
+  const financeConstrained = !!(finance && finance.spend > finance.env && g().club.cash < financeReserve);
   for (const x of recs) {
     if (slots <= 0) break;
-    const p = r.pool[x.pid]; if (!slotOpen(p, r.know[x.pid]) || r.pipe.some(y => y !== x && ['approach', 'negotiating'].includes(y.stage) && r.pool[y.pid] && r.pool[y.pid].pos === p.pos)) { x.hold = true; continue; } x.hold = false; const iss = ruleIssues(p); x.blocked = null;
+    const p = r.pool[x.pid];
+    if (financeConstrained && !need.includes(p.pos)) {
+      x.hold = true;
+      x.blocked = ['operating budget'];
+      x.note = 'Finance: projected department costs exceed the operating envelope; discretionary recruitment paused.';
+      continue;
+    }
+    if (!slotOpen(p, r.know[x.pid]) || r.pipe.some(y => y !== x && ['approach', 'negotiating'].includes(y.stage) && r.pool[y.pid] && r.pool[y.pid].pos === p.pos)) { x.hold = true; continue; } x.hold = false; const iss = ruleIssues(p); x.blocked = null;
     { const W = F.playerWages(), wr = F.wageRatio(), proj = W > 0 ? wr * (W + (p.wageAsk || 0)) / W : 0; if (proj * 100 > +man('fin', 'wageCap') + 3 && sq().length >= 16) { x.hold = true; x.note = 'Over the wage cap'; continue; } }
     if (iss.length && p.loanable && iss.every(i => i === 'fee limit' || i === 'wage limit') && F.recLoan) { slots--; F.recLoan(x); continue; }
     if (iss.length) { if ((d.p.risk >= 11 || d.p.ego >= 13) && r.know[x.pid].grade === 'A' && !x.exAsked && F.absWeek() - (r.exAt || -99) > 6) { r.exAt = F.absWeek(); x.exAsked = true; F.queueEvent('rec_exception', { pid: x.pid, why: iss }); slots--; } else x.blocked = iss; continue; }

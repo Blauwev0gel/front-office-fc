@@ -86,10 +86,8 @@ function ftPlanExtra() {
   if (v.deal && v.deal.k === 'youth') src.push('his target to start more youngsters');
   if (v.pushN) src.push(`${v.pushN} request${v.pushN === 1 ? '' : 's'} for more minutes`);
   const prot = +F.man('acad', 'minGrads'), ment = F.man('acad', 'mentors') === 'yes';
-  const push = g.push.medical > 0;
   return `<div class="sec">Youth minutes</div><div class="panel2"><p class="small" style="margin:0">Come from: ${src.join(' · ')}.${v.u21pm != null ? ` Result: ${v.u21pm.toFixed(1)} under-21s start per match.` : ''}</p>
-  <p class="small" style="margin:6px 0 0">From the academy mandate: ${prot ? `${prot} academy player${prot === 1 ? '' : 's'} the DoF may not sell` : 'no academy players protected from sale'}; ${ment ? 'senior pros mentor the scholars' : 'no first-team mentors'}.</p>${F.staff('acad') ? '<button class="linkbtn" data-a="sheet" data-s="mand" data-r="acad">Academy mandate</button>' : ''}</div>
-  <div class="sec">Medical</div><div class="panel2"><p class="small" style="margin:0 0 8px">${push ? `Medical push active: fewer injuries and faster recovery, ${g.push.medical} week${g.push.medical === 1 ? '' : 's'} left.` : 'A medical push means fewer injuries and faster recovery for three weeks.'}</p><button class="btn ghost wide" data-a="push" data-d="medical" ${push ? 'disabled' : ''}>Medical push</button></div>`;
+  <p class="small" style="margin:6px 0 0">From the academy mandate: ${prot ? `${prot} academy player${prot === 1 ? '' : 's'} the DoF may not sell` : 'no academy players protected from sale'}; ${ment ? 'senior pros mentor the scholars' : 'no first-team mentors'}.</p>${F.staff('acad') ? '<button class="linkbtn" data-a="sheet" data-s="mand" data-r="acad">Academy mandate</button>' : ''}</div>`;
 }
 
 /* ---------- talks: requests on Now, the scene (B19) ---------- */
@@ -128,4 +126,10 @@ function cvTalkHtml(T) {
   U.tray = T.done ? trayHtml('', `<button class="btn" data-a="${cls}">Back to the department</button>`, '') : trayHtml('<span>You say</span>', T.opts.map((o, j) => choiceHtml({ l: o.t, h: o.fx }, j, `data-a="${ans}" data-id="${o.id}"`, false, false)).join(''), '');
   U.trayH = T.done ? 90 : 60 + T.opts.length * 66;
   return `<div class="ftalk">${sceneHtml(role, s.name, 'talk', 'In his office', '', emo)}${last.map((l, i) => l.who === 'you' ? `<p class="you-said">You: ${esc(l.t)}</p>` : `<div class="bubble ${i < last.length - 1 ? 'old' : ''}">${esc(l.t)}${ticOf(role, l.t) ? `<span class="tic">${esc(ticOf(role, l.t))}</span>` : ''}</div>`).join('')}${T.done && T.fx.length ? `<div class="fxrow">${T.fx.map(x => `<span class="chip">${esc(x)}</span>`).join('')}</div>` : ''}</div><div class="trayspace" style="--tray:${U.trayH}px"></div>`;
+}
+
+// optional, time-bound actions: they live on Overview, with their price, never among the settings
+function ftActions() {
+  const g = G(), push = g.push.medical > 0;
+  return `<div class="sec">You can also</div><div class="group"><div class="row"><div><b>Medical push</b><span>${push ? `Active: ${g.push.medical} week${g.push.medical === 1 ? '' : 's'} left.` : 'Fewer injuries and faster recovery for three weeks.'}</span></div><button class="btn ghost small" data-a="push" data-d="medical" ${push ? 'disabled' : ''}>${push ? 'Active' : 'Start'}</button></div></div>`;
 }

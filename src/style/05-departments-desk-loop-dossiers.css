@@ -163,3 +163,28 @@ i.up,.fdrow .up,.wkd .up i{color:var(--good)}i.dn,.fdrow .dn,.wkd .dn i{color:va
 .hbtns,.hmini .btn{min-height:44px}
 .vcard p{color:var(--ink)}.vcard.bad .vc1 b{color:var(--bad)}.vcard.good .vc1 b{color:var(--good)}
 .dtile2 .dsub .hl{display:flex;margin-bottom:1px}
+/* department screens follow the game's three surface levels (02-game-ui-system.css) and sit on a flat background */
+body:has(.dflat){background-image:none}
+.dflat .small{font-size:14px}
+.dflat .sec{font:800 var(--t3) var(--head);font-style:italic;color:var(--ink);margin:var(--s5) 0 var(--s2);letter-spacing:0;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.dflat .sec .small{font:600 14px var(--body);font-style:normal;color:var(--soft)}
+/* level 1: a decision or the verdict */
+.dflat .vcard,.dflat .need{border:var(--l1);box-shadow:var(--sh1);border-radius:var(--r);border-left-width:3px}
+.dflat .vcard{padding:var(--s4);margin-bottom:var(--s2)}
+.dflat .vc1 b{font:900 var(--t1)/1 var(--head);font-style:italic}.dflat .vc1 p{font-size:var(--t3);line-height:1.35;margin-top:6px}
+.dflat .vq{font-size:var(--t4)}
+.dflat .need{padding:var(--s3) var(--s4)}.dflat .need p{font-size:var(--t4)}
+.dflat .needs{gap:var(--s3)}
+/* level 2: grouped content with a hairline; level 3: rows */
+.dflat .panel2,.dflat .budcard,.dflat .pcard2,.dflat .group,.dflat .kt{background:var(--paper);border:1px solid var(--hair);border-radius:var(--r);box-shadow:none}
+.dflat .kt{padding:var(--s3);border-left-width:1px}.dflat .kt.good,.dflat .kt.bad{border-left-color:var(--hair)}
+.dflat .kt small{font:600 14px var(--body);color:var(--soft)}.dflat .kt b{font:800 var(--t2)/1.15 var(--head)}.dflat .kt span{font-size:14px}
+.dflat .kt.good b{color:var(--good)}.dflat .kt.bad b{color:var(--bad)}
+.dflat .kgrid{gap:var(--s2)}
+.group .row{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);border-bottom:1px solid var(--hair)}
+.group .row:last-child{border:0}.group .row div{flex:1}.group .row b{display:block;font:800 var(--t4) var(--head)}.group .row span{font-size:14px;color:var(--soft)}
+.dflat .hmini{border:1px solid var(--hair);box-shadow:none}
+.dflat .hmini .dt small{font-size:14px}
+.dflat .dtabs{background:var(--fill)}.dflat .dtabs button{font-size:14px}.dflat .dtabs button.on{box-shadow:0 1px 0 var(--ink)}
+.dflat .dtile2{border:1px solid var(--hair);border-radius:var(--r)}.dflat .dtile2.act{border:var(--l1);box-shadow:var(--sh1)}
+.dflat .dtile2 .dt small{font-size:14px}.dflat .dtile2 .dsub{font-size:14px}

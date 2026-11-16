@@ -291,7 +291,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: spark, kfmt, vDepts, headLine, headCard, authHtml, headBtns, instinctRow, fillCol, stadiumSvg, comOverview, comDecisions, mkOverview, mkDecisions, planCard, bizOverview, acPyramid, acDecisions, vDept
 
 ### `ui/08a-dept-parts.js`
-- Functions: relW, compW, netW, gapW, kpiTile, attAttr, attHtml, deskHist, recTiles, regionCard, recRecord, acRecord, acStaff, ftPlanExtra, squadPlanHtml, verdictCard, needsHtml, cvTalkHtml
+- Functions: relW, compW, netW, gapW, kpiTile, attAttr, attHtml, deskHist, recTiles, regionCard, recRecord, acRecord, acStaff, ftPlanExtra, squadPlanHtml, verdictCard, needsHtml, cvTalkHtml, ftActions
 
 ### `ui/09-firstteam-review.js`
 - Functions: vFirst, ftTalkHtml, vReview2, vSacked

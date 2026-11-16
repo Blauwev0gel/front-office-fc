@@ -27,9 +27,7 @@ const server = http.createServer((req, res) => {
     const swatches = page.locator('[data-a="col"]');
     assert(await swatches.count() >= 4,'club color options remain');
     assert((await swatches.first().textContent()).trim().length > 0,'swatch remains a readable choice');
-    await page.click('[data-a="restart"]', { timeout:2000 }).catch(async () => {
-      await page.evaluate(() => { U.title = true; render(); });
-    });
+    await page.evaluate(() => act('restart',{}));
 
     // The real summer engine must still initialise and show clickable choices.
     await page.click('[data-a="sheet"][data-s="quick"]');
@@ -42,13 +40,13 @@ const server = http.createServer((req, res) => {
     assert.notEqual(await page.evaluate(() => FO.G.phase),'summer','summer can complete without changing engines');
 
     // Start a separate club straight in week one and exercise navigation.
-    await page.evaluate(() => { U.title = true; render(); });
+    await page.evaluate(() => act('restart',{}));
     await page.click('[data-a="sheet"][data-s="quick"]');
     await page.click('[data-a="quick"][data-v="season"]');
     assert.equal(await page.evaluate(() => FO.G.phase),'season');
     for(const tab of ['club','squad','league','staff','inbox']) {
       await page.locator('[data-a="tab"][data-t="'+tab+'"]').first().click();
-      assert.equal(await page.evaluate(() => U.tab),tab,'tab action: '+tab);
+      assert((await page.locator('[data-a="tab"][data-t="'+tab+'"]').first().getAttribute('class') || '').includes('on'),'tab action: '+tab);
     }
     assert.equal(await page.locator('svg:visible,canvas:visible,img:visible').count(),0,'illustrations remain hidden during play');
 

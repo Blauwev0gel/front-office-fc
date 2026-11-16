@@ -9,11 +9,18 @@ Doel (B37): 15 tot 20 seizoenen naar de top voor een gewone speler, 1 of 2 herst
 | v1 | rivalen houden momentum (0,18 / 0,65), bestuursdoel = verwachte plek, promotie vult minder bij, kandidaten meer spreiding, coach en DoF wegen zwaarder | 1,3 | 0 van 6 |
 | v2 | step-up-straf bij promotie -1,2, slow fade (`src/levers.js`) | 1,4 | 1 van 6 |
 | v3 | potentieel geprijsd als loon (teruggedraaid, geen effect) | 1,3 | 0 van 6 |
+| v4 | groei met diminishing returns t.o.v. divisieniveau (`develop`), bestuursvertrouwen drijft elk seizoen 12% terug naar 60 | 1,8 | 1 van 6 |
 
 ## Wat we weten
 - v2 werkt onderaan: de eerste tiers duren twee seizoenen. Bovenaan klimt de club weer één divisie per seizoen.
 - De economie is per divisie evenredig (loon per sterktepunt / geldniveau = 0,34 op elke tier). Het geld verklaart de versnelling dus niet.
 - Probe (1 carrière): de kern is jong (±24 jaar), blijvers groeien +0,3 tot +0,5 CA per seizoen, 30 tot 50% van de kern wordt vervangen door aankopen iets boven het kerngemiddelde. Kerngroei ±+0,75 CA per seizoen, terwijl een divisie 1,4 CA kost. De club zit vanaf seizoen 3 +1 tot +2 boven het divisiegemiddelde.
 
+## Stand na v4 (6 carrières)
+Ontslag ±17% (doel 20%), ±0,8 crisisseizoen (plek 10+) per carrière (doel 1 tot 2), tempo divisie 1,8 in S10 (doel: ruim 4 voor 15 tot 20 seizoenen). Het tempo is het open punt. De club zit gemiddeld +1,26 boven het divisiegemiddelde.
+
 ## Volgende hefboom (nog niet gedaan)
+Het structurele voordeel van +1,26 aanpakken: waar komt het vandaan (startselectie, transferefficiëntie van de DoF, jeugd)? Pas daarna verder tunen.
+
+Oude voorstel, deels gedaan in v4:
 De ontwikkelsnelheid van jonge spelers in `develop()` (`src/engine/08-weekly-inbox.js`: `(pa - ca) * 0.0055 * devF`) rechtstreeks verlagen of met het niveau laten afnemen. Plus hefboom D (winnen kost iets: verwachtingen schalen met succes). Meet daarna met een kleine run.

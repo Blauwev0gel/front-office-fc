@@ -155,14 +155,16 @@ function scoutWeek() {
     F.absWeek() > rec.started && F.absWeek() <= rec.due);
   const audit = audits.length ? audits[0][1] : null;
   let auditDone = 0;
+  const audited = new Set();
   for (const s of scoutsAll()) {
     const a = s.assign; if (!a) continue; a.left--;
     if (audit && auditDone < 2) {
       const entries = Object.entries(r.know || {}).filter(([pid, k]) =>
-        r.pool[pid] && k && Number.isFinite(k.sd) && (!a.reg || r.pool[pid].region === a.reg));
+        r.pool[pid] && k && Number.isFinite(k.sd) && !audited.has(pid) && (!a.reg || r.pool[pid].region === a.reg));
       if (entries.length) {
         entries.sort((x,y) => y[1].sd - x[1].sd || String(x[0]).localeCompare(String(y[0])));
-        const [pid] = entries[auditDone % entries.length];
+        const [pid] = entries[0];
+        audited.add(pid);
         report(s, r.pool[pid]);
         auditDone++;
         continue; // Explicit opportunity cost: no new discovery by this scout.

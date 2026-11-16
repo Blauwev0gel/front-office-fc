@@ -56,5 +56,30 @@ assert(css.includes('.srow[aria-pressed="true"]'),
 assert(css.includes('.b2nav button.on'), 'selected navigation tab remains distinct');
 assert(!/\\[?data-a[^}]*display\\s*:\\s*none/.test(css),
   'wireframe must not hide gameplay action controls');
+// Behavioural UI contract: a required Red Box response is free in the
+// engine. Verify the actual generated reply is not disabled at zero AP.
+{
+  const uiSource = read('ui.js');
+  const start = uiSource.indexOf('function msgHtml(');
+  const end = uiSource.indexOf('function briefHtml(', start);
+  assert(start >= 0 && end > start, 'Red Box renderer available');
+  const source = uiSource.slice(start, end);
+  let replyArgs;
+  const msg = new Function('F', 'G', 'ROLE_T', 'ART', 'mailTop', 'mailReply',
+    'fdHtml', 'U', 'esc', 'ticOf', source + '\\nreturn msgHtml;')(
+    {msgView:() => ({role:'dof', from:'DoF, Director', title:'Decision',
+      body:'Approve or decline', done:false, opts:[{l:'Accept'},{l:'Reject'}],
+      auto:0, autoWho:'Your DoF', why:'You are responsible'})},
+    () => ({ap:0}), {}, {I:{}}, () => '<mail>',
+    (...args) => { replyArgs = args; return '<reply>'; },
+    () => '', {}, x => x, () => false);
+  const html = msg({id:1,ev:'wage_cap',done:false});
+  assert(html.includes('<reply>'), 'Red Box response rendered');
+  assert.equal(replyArgs[7],false,'required replies must not be disabled at zero AP');
+  assert(replyArgs[6].includes('No action point required'),'free reply label visible');
+}
+assert(!css.includes('background-color:transparent !important;'), 'do not blank all component backgrounds');
+assert(!css.includes('.scene,.crestbig'), 'meeting participants must not be hidden with art');
+console.log('PASS: required Red Box reply remains free at zero AP');
 console.log('PASS: structural wireframe hierarchy and responsive states');
 console.log('PASS: text mode builds, script parses and all required actions and modules remain');

@@ -295,7 +295,7 @@ F.sum2Edition = () => {
 F.sum2Debrief = () => {
   const s = S(), ev = evalBrief(), T = trait(), met = ev.filter(e => e.met).length;
   let ex = false; const lines = ['"' + ev.map(e => { if (e.met) return `${e.t}: done. ${e.note}.`; const extra = ex ? '' : T.ego >= 13 ? ' With the budget I had, that was always going to be hard.' : ' That one is on me.'; ex = true; return `${e.t}: not done. ${e.note}.${extra}`; }).join(' ') + '"'];
-  return { ev, met, lines, intro: met === ev.length ? `"Everything we agreed is done."` : met === 0 ? `"I know how this looks."` : `"Most of it went to plan. Not all."`, done: s.db };
+  return { ev, met, lines, intro: met === ev.length ? `"Everything we agreed is done."` : met === 0 ? `"I know how this looks."` : met > ev.length / 2 ? `"Most of it went to plan. Not all."` : `"Some of it worked. Too much did not."`, done: s.db };
 };
 F.sum2Talk = k => {
   const s = S(), d = dof(), ev = evalBrief(), met = ev.filter(e => e.met).length, miss = ev.length - met; if (!d || s.db) return;

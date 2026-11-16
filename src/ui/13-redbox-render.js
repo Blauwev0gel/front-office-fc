@@ -46,8 +46,10 @@ function msgHtml(m, it) {
   if (m.ev === 'pw_meet' && F.pwView) h += pwMeetHtml(F.pwView());
   if (m.ev === 'pw_eval' && F.pwView) h += pwEvalHtml(F.pwView());
   if (v.second) h += v.second.text ? `<details class="more" open><summary>Second opinion ${ART.I.chev}</summary><p>${esc(v.second.text)}</p></details>` : v.second.avail ? `<details class="more"><summary>Second opinion: ${esc(v.second.name)} <span class="small">1 action</span></summary><p><button class="btn ghost small" data-a="second" data-m="${m.id}" ${g.ap < 1 ? 'disabled' : ''}>Ask ${esc(v.second.name.split(' ')[0])}</button></p></details>` : '';
-  const leave = `One action. Leave it and ${v.autoWho} sends the advised reply.`;
-  return h + mailReply('m', m.id, name, v.opts, v.auto, big, g.ap < 1 ? 'No actions left this week. Your staff will decide.' : leave, g.ap < 1);
+  // Required Red Box replies are free in the engine (respond()). Only
+  // optional second opinions, talks and initiatives consume CEO actions.
+  const leave = `No action point required. Leave it and ${v.autoWho} sends the advised reply.`;
+  return h + mailReply('m', m.id, name, v.opts, v.auto, big, leave, false);
 }
 function briefHtml(b, it) {
   const v = F.briefView(b), role = v.role || (it && it.role) || 'club', name = v.who.split(',')[0], roleT = v.who.split(', ')[1] || '', key = 'b' + b.id;

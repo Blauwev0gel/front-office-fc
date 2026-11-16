@@ -15,7 +15,7 @@ function endWeek() {
   for (const m of G.inbox.filter(m => !m.done)) { const e = EV[m.ev]; const who = e.from === 'board' ? 'The board' : ROLE[e.from] ? (staff(e.from) ? staff(e.from).name : 'Nobody in charge') : 'The club office'; resolve(m, autoIndex(m), who); }
   if (over()) return { sacked: true };
   lapseMeeting();
-  if (F.deptIssueWorkWeekly) F.deptIssueWorkWeekly();
+  if (FO.deptIssueWorkWeekly) FO.deptIssueWorkWeekly();
   if (HOOK.recWeekly) { dofWork(); HOOK.recWeekly(); } else { scoutWork(); dofWork(); }
   // matches
   const t = G.club.tier, round = G.divs[t] && G.divs[t].fix[G.week - 1];
@@ -48,7 +48,7 @@ function endWeek() {
   if (G.club.cash < -M(4000) && !G.flags.crisisWeek) { queueEvent('cash_crisis', {}); G.flags.crisisWeek = true; } if (G.club.cash > 0) G.flags.crisisWeek = false;
   if (G.club.cash < -M(60000)) G.flags.insolvent = (G.flags.insolvent || 0) + 1; else G.flags.insolvent = 0;
   // paper
-  buildPaper(ours, cup); buildReports(ours); if (F.deptIssueWeekly) F.deptIssueWeekly(); if (HOOK.edition) HOOK.edition(ours, cup);
+  buildPaper(ours, cup); buildReports(ours); if (FO.deptIssueWeekly) FO.deptIssueWeekly(); if (HOOK.edition) HOOK.edition(ours, cup);
   if (G.board.conf <= 0) { sack('The board has run out of patience and relieved you of your duties.', 'board'); return { ours, cup, sacked: true }; }
   if (G.flags.insolvent >= 4) {
     if (G.flags.adminAt != null && G.season - G.flags.adminAt < 3) { sack('The club has entered administration for the second time. The administrators have dismissed you.', 'admin'); return { ours, cup, sacked: true }; }

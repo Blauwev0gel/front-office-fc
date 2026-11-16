@@ -351,6 +351,58 @@ Dit zijn dingen die ik tijdens het werk tegenkwam; ze staan hier zodat we ze ger
 - **Echo**: een gevolg van een eerdere keuze dat in de Gazette terugkomt.
 - **Seeded wereld**: een wereld die uit een seed wordt berekend; alleen wijzigingen worden opgeslagen.
 
+## 17. Hoe het speelt: recruitment en zomer
+
+Gelezen op 2026-11-16: `recruit.js`, `recruitx.js` (kop en structuur), `summer.js` en `summer2.js` (structuur, de brief, de ticker, het debrief), `dofWork` in engine/07. **Niet gemeten**: geen enkel getal hieronder is in een run getoetst. Dit is wat de code doet, niet hoe het voelt.
+
+### Recruitment (`recruit.js`, state `G.rec`)
+
+**Wat de speler ziet en beslist.** Hij stelt prioriteiten per positie (`plan.prios`, soort: jong, bewezen, waarde) en mandaten voor de DoF (`approve`, `maxFee`, `maxWage`, `maxAge`, `hard`, `clauses`, `youth`, `data`, `depth`). Daarbuiten grijpt hij in bij vier events: `rec_approve` (boven de goedkeuringslijn), `rec_exception` (de DoF breekt een regel), `rec_raise` (de verkoper wil meer) en `rec_rival` (een rivaal biedt mee).
+
+**De keten, elke week (`H.recWeekly`).**
+1. `topUpPool`: de pool wordt aangevuld tot 34 spelers in het eigen land en 22 per andere regio, plus minstens `14 + 1,5 × niveau` vrije spelers per positie. Boven 520 spelers worden verre niveaus weggegooid.
+2. Scouts: de chef-scout plus `nScouts()-1` extra scouts (2 + budget/35, +1 met het perk). `assignScouts` geeft elke scout een opdracht: een speler kijken (als er twijfelgevallen zijn, 50%) of een profiel/regio doorzoeken (2–4 weken).
+3. `scoutWeek`: een scout vindt per opdracht met kans `0,45 + vaardigheid/50 (+0,2 met een push)` een kandidaat, die voor 85% de regels van de DoF moet halen. Dan schrijft `report()` een rapport.
+4. `dofPipeline`: bepaalt fasen (identified → scouted → recommended → approach → negotiating → agreed → signed/lost), ten hoogste 2 gelijktijdige onderhandelingen, en alleen als het venster open is.
+5. `negRound`: maximaal 3 rondes, bod per ronde, clausules (sell-on 15%, termijnen), 7% (14% bij een A-grade) kans op een rivaal. Daarna `wagePhase` en `complete`.
+6. `worldWeek`: 1,2% per speler per week dat hij naar een andere club gaat, en dat kost je een target.
+
+**De onzekerheid.** Een rapport (`report`) schat de CA als `echt + bias van de scout + ruis`, met een ruis die kleiner wordt door scoutvaardigheid, netwerk, het data-perk en elk volgend rapport (`sd/√(n+1)`). De speler ziet een sterrenband en een betrouwbaarheid (low/medium/high), nooit het echte getal. De **grade A–D** is een score van de DoF (`grade()`): geschatte CA tegen de selectie, +0,5 bij een passend profiel, +0,6 bij een behoefte, −1,5 als hij het budget ver overstijgt. Dit is dus al een oordeel, en het is wat het portaal juist níet mag doen (B40). De grade zit nu alleen in deze oude pipeline.
+
+**Wat ik opmerk.**
+- De DoF beslist in `dofPipeline` zelf over bijna alles. De speler ziet vooral uitkomsten en vier events. Hoe vaak die events komen is niet gemeten.
+- Onderhandelen is bijna deterministisch: de speler kan alleen de mandaten instellen, en daar zit de speelruimte. Dat past bij de pijler "leiden zonder alles zelf te doen", maar het is ook de plek waar het spel weinig te beslissen geeft.
+- **Twee spelerswerelden:** deze pool (`G.rec.pool`, een paar honderd spelers rond je niveau) en de 14-competitie-wereld van het portaal (`world.js`) delen niets. Een speler uit het portaal kun je niet naar deze pipeline sturen. Dat is slice 3b.
+
+### Recruitx (`recruitx.js`) en de squadplan-helft
+
+Twee losse stukken in één bestand. Het eerste (`rx*`): per regio focus en investeren in je netwerk, plus het trackrecord van de DoF (hits/misses). Het tweede (`squadPlan`, state `G.rec.squadPlan`): een **rollend plan** per positie, met twee horizons (winter en zomer-opvolging), dat de scouts een opdracht geeft (`squadPlanScoutJob`) en de aankoop in de winter kan tegenhouden (`squadPlanAllows`). Dat tweede deel is het deel dat het slechtst zichtbaar is in het spel zelf, en `test/squad-plan.js` faalt al.
+
+### De zomer (`summer.js`, `summer2.js`, state `G.sum`)
+
+**Volgorde.** `summerStart` maakt `G.sum` en zet daar de eindigende contracten in (met advies en eis). `summer2.js` wikkelt dat in `H.summerStart` en zet er `mt` (de vergadering) en `tk` (de ticker) bij. Stappen: **Summer meeting → The summer → Summer edition → Debrief → Season goals**.
+
+**1. De vergadering (`summer2`).** Vier punten: de staat van de club, het geld, wat we nodig hebben, en de zomerbrief. De DoF "reageert" met een eigen karakter (`ego`, `risk`, `loy`, relatie) op wat jij vraagt; `stance(cost)` bepaalt hoe vaak hij tegenstribbelt. Eindproduct: een **brief met KPI's**: tekenen voor twee posities, netto uitgaven onder 90% van het budget, plus "minstens drie transfers" of "een duidelijke A-upgrade". `applyBrief` zet de prioriteiten, `approve`, `maxFee` (100% bij "ster", 50% anders), verkoop- en behoud-vlaggen en plaatst de lijsten in de pipeline als plan A/B.
+
+**2. De ticker.** Zes weken waarin `recWeekly` + `dofWork` draaien. Per week een paar regels (`explain`): onderhandelingen, plan A dat valt en plan B, regels die breken. Een oproep van de DoF (events) onderbreekt, anders beslist hij zelf. Week 4–5: een oefenwedstrijd. Daarna **deadline day** (`F.ddStart`, `summer.js`): een dag met uurmomenten.
+
+**3. De uitgave en het debrief.** `evalBrief` toetst de KPI's; `sum2Edition` geeft een **zomercijfer A–E** (`score = KPI's × 1,2 + clamp(ΔXI × 3) + 0,5 voor ≥1 transfer`). Het debrief (`five()`) beantwoordt vijf vragen: plan gevolgd, uitvoering, pech op de markt, team beter, kosten. Als de zomer slecht liep, kun je de DoF ter verantwoording roepen (`dofStrikes`).
+
+**Wat ik opmerk.**
+- De zomer is de best uitgewerkte verhaallijn van het spel: plan → uitvoering → verantwoording. Het is ook de plek waar de DoF-relatie het meeste doet.
+- **v1 en v2 zijn niet gescheiden.** `summer.js` levert contracten, deadline day, de opruiming en `finishSummer`. `summer2.js` legt de vergadering en ticker eroverheen. Opruimen vergt dus een samenvoeging, geen verwijdering.
+- `dofWork` (engine/07) heeft nog een eigen oude aankooplogica (`if (HOOK.recWeekly) return;`). Met `recruit.js` geladen is die dood code; zonder wordt hij gebruikt. Dat is de enige plek waar v0-gedrag nog in de engine zit.
+- Het zomercijfer weegt de KPI's zwaarder dan de echte teamverbetering. Niet gemeten of dat goed uitpakt.
+
+### Wat dit betekent voor verbeteringen
+| Idee | Eerst bekijken |
+|---|---|
+| Portaal-target in de DoF-pipeline (3b) | `F.recAddPipe`, `RC().pool` en hoe `know` per speler wordt gevuld; een gedeeld `G.rec.know` voor beide werelden |
+| Meer beslissingen bij onderhandelen | `negRound`, `rec_raise`, de mandaatinstellingen; de kans per ronde meten |
+| Zomercijfer eerlijker | `sum2Edition` (de weging), `five()` |
+| Opruimen v1/v2 | `summer.js` + `summer2.js` samenvoegen; `dofWork`-fallback verwijderen |
+| Squadplan zichtbaar of weg | `recruitx.js` tweede helft, `test/squad-plan.js` repareren |
+
 ## Bijlage: alle bronbestanden
 
 <!-- generated:files:start -->

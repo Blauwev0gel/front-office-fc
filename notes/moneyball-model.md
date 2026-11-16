@@ -57,3 +57,11 @@ Prototype v1 zei zelf "Looks +79% cheap", "Worth £600k to us" en liet de DoF ze
 - **Scouts testen de hypothese** achteraf: ze geven een getal (verwacht, karakter, potentieel) en de speler ziet of hij gelijk had. Geen voordeel vooraf.
 - **De DoF is geen orakel:** hij reageert vanuit zijn eigen voorkeur (voorzichtig, wil minuten en betrouwbaarheid), met eigen vooroordelen, en kan ernaast zitten. Zijn eigen alternatief is "wat hij zou kiezen", niet "wat beter is".
 - De gratis cijfers zijn ruisig: de speler kan zich vergissen, en dat is het spel.
+
+## Prototype v3 (16-11-2026): de lus sluit
+Toegevoegd na "dit is leuk, een soort terminal": **langetermijnterugkoppeling**.
+- Flag met hypothese, maak een speler target, open het **zomerraam** (de DoF tekent wat je budget toelaat), speel een **seizoen** (de wereld loopt door, de ontwikkeling en de statistiek worden opnieuw gegenereerd, en je signings spelen).
+- Tabblad **Bets**: per signing wat je betaalde, wat de markt nu vraagt, hoe zijn seizoen liep (output tegenover wat de scouts verwachtten), en of je lezing wordt ondersteund door de uitkomst. Alleen feiten; of je gelijk had volgt uit de cijfers.
+- Geleerd: een verkeerde lezing kan toch winst opleveren door geluk (of juist niet). Dat verschil tussen *goed gelezen* en *goed uitgepakt* is de kern van het spel.
+- Bug onderweg: de helpers `fitS` en `teamFx` waren bij de herbouw naar v2 weggevallen; de test met de volledige lus vond het.
+Nog niet in het prototype: opgeslagen filters, spelers vergelijken, een zoekregel (de eigenaar koos alleen de langetermijnterugkoppeling), keepers, persoonlijkheid in de prijs.

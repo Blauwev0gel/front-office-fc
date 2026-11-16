@@ -45,3 +45,7 @@ v6 (eigenaar: geen vlakke bonus, rivalen hebben hun eigen coaches; nog niet geme
 - Gazette: een coachwissel bij een club in jouw divisie verschijnt als "On the touchline" (max. twee per week; een zeer goede coach krijgt de droge regel "which is unhelpful"). Registratie bij seizoenseinde in `src/engine/10-season.js` (`G.coachNews`), publicatie in `src/weekflow.js`.
 - Competitiescherm: inklapbaar lijstje "Head coaches" onder de tabel met de coach per club en een woord voor zijn kwaliteit (highly rated, solid, steady, inexperienced). Het lijstje leest alleen bestaande gegevens; het bekijken van het scherm verandert het spel niet.
 - `test/rivals.js` dekt het Gazette-bericht.
+
+## v6 uitkomst (6 carrières x 10 seizoenen, willekeurige CEO, rivaalcoaches)
+Divisie S5/S8/S10: 6,0 / 4,5 / 3,3 (v5: 5,5 / 3,0 / 1,7). 22 promoties in 45 seizoenen (±0,5 per seizoen), dus ±14 tot 15 seizoenen naar de top. 2 van 6 ontslagen (seizoen 2 en 3), 13 seizoenen op plek 10+, voordeel t.o.v. rivalengemiddelde +0,57 (was +1,5 t.o.v. het divisiegemiddelde). Mediane kas S10 £2,1m.
+Open: vroege ontslagen (S2, S3) zijn hard voor het herstelverhaal; een zachte beschermperiode in de eerste twee seizoenen is een keuze voor de eigenaar. Steekproef klein.

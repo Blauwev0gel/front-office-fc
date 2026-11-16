@@ -49,13 +49,16 @@ tr.f td:first-child{box-shadow:inset 4px 0 0 var(--club)}
 .sr .v{font:800 15px var(--head);text-align:right}.sr .v small{font:600 13px var(--body);color:var(--soft)}
 .pb{grid-column:1/-1;display:grid;grid-template-columns:1fr 34px;gap:8px;align-items:center}
 .pb i{height:8px;background:var(--fill);border-radius:4px;overflow:hidden;border:1px solid var(--hair)}.pb i u{display:block;height:100%;background:var(--ink)}.pb span{font-size:13px;color:var(--soft);text-align:right}
+.chk{cursor:pointer}button.sr{background:none;border:0;border-bottom:1px solid var(--hair);text-align:left;width:100%;padding:8px 0;color:inherit}
+.hist{display:flex;align-items:flex-end;gap:4px;height:90px}.hist div{flex:1;background:var(--fill);border:1px solid var(--hair);border-radius:3px 3px 0 0}.hist div.me{background:var(--club);border-color:var(--club)}
+.lk{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;text-underline-offset:3px}
 .tags{display:flex;gap:6px;flex-wrap:wrap}.tag{font:800 13px var(--head);padding:3px 8px;border-radius:6px;background:var(--fill);border:1px solid var(--hair)}.tag.warn{color:var(--warn);border-color:var(--warn)}.tag.good{color:var(--good);border-color:var(--good)}
 .kg{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)}.kt{background:var(--fill);border-radius:var(--r);padding:var(--s3)}.kt small{display:block;font-size:14px;color:var(--soft)}.kt b{display:block;font:800 var(--t2)/1.15 var(--head);margin:2px 0}.kt span{font-size:14px;color:var(--soft)}
 .dof{border-left:6px solid var(--club)}.say{line-height:1.4}.who{font:800 13px var(--head);color:var(--soft)}.note{font-size:13px;color:var(--soft)}.unk{color:var(--soft);font-style:italic}
 .flag{min-height:44px;min-width:44px;border:1px solid var(--hair);border-radius:var(--r);background:var(--fill);font:800 14px var(--head);padding:0 12px}.flag.on{background:var(--ink);color:var(--bg)}
 .toast{position:sticky;bottom:12px;background:var(--ink);color:var(--bg);border-radius:var(--r);padding:12px 16px;font-weight:700;text-align:center}
 </style>
-<div class="bar"><div class="tg" role="group" aria-label="Theme"><button id="tl" aria-pressed="false">Light</button><button id="td" aria-pressed="false">Dark</button></div><small>Prototype v4. Real data fields only: 14 attributes, 12 season stats, 4 personality scores. Browse per league, filter on league and age. Never a verdict.</small></div>
+<div class="bar"><div class="tg" role="group" aria-label="Theme"><button id="tl" aria-pressed="false">Light</button><button id="td" aria-pressed="false">Dark</button></div><small>Prototype v5. Real game fields only. Stats adapt to the player's position. Filter on league, position and age. Tap a stat, a club or a player for more. Never a verdict.</small></div>
 <div class="app" id="app"></div>
 <script>
 /* ---------- seeded world: a league is generated on demand from its name; nothing is stored ---------- */
@@ -106,53 +109,78 @@ function league(id){if(LG[id])return LG[id];const D=LEAGUES.find(l=>l.id===id);s
       mine.push(p);L.players.push(p)});
     for(const pos in STARTERS)mine.filter(p=>p.pos===pos).sort((x,y)=>y.ca-x.ca).slice(0,STARTERS[pos]).forEach(p=>p.starter=true)});
   for(const p of L.players){p.mins=p.starter?ri(2000,3000):ri(200,1800);p.wage=Math.round(120*Math.pow(1.38,p.ca-6)/5)*5;produce(p)}
+  for(const p of L.players){p.hist=[];for(let k=1;k<=2;k++){if(p.age-k<17)break;const dev=p.age<=23?.4:.05,t={pos:p.pos,ca:clamp(p.ca-dev*k,2,17),age:p.age-k,mins:p.starter?ri(1800,3000):ri(200,1800)};produce(t);p.hist.push({age:t.age,...t.st})}}
   recalc(L);LG[id]=L;return L}
 const allP=()=>Object.values(LG).flatMap(l=>l.players),byKey=k=>allP().find(p=>p.key===k);
-/* ---------- derived numbers (all plain statistics, no verdicts) ---------- */
+/* ---------- derived numbers (plain statistics, no verdicts) ---------- */
 const m90=p=>Math.max(.1,p.st.mins/90),n1=v=>Math.abs(v)<10&&Math.round(v)!==v?v.toFixed(1):String(Math.round(v));
 const f1=(p,v)=>p.label==='Rating'?v.toFixed(2):n1(v),sg=(p,v)=>(v>=0?'+':'−')+f1(p,Math.abs(v));
-const gap=p=>p.H-p.xgObs,fitS=p=>(p.fit>=0?'+':'')+Math.round(p.fit*100),teamFx=p=>(p.fit*.055>=0?'+':'')+(p.fit*.055).toFixed(2);
-const STAT={g:p=>p.st.g,xg:p=>p.st.xg,a:p=>p.st.a,xa:p=>p.st.xa,prg:p=>p.st.prg,dw:p=>p.st.dw,duel:p=>p.st.dt?p.st.dw/p.st.dt:0,rat:p=>p.st.rat,mins:p=>p.st.mins};
+const fitS=p=>(p.fit>=0?'+':'')+Math.round(p.fit*100),teamFx=p=>(p.fit*.055>=0?'+':'')+(p.fit*.055).toFixed(2);
+const SD={g:{l:'Goals',v:p=>p.st.g,c:1},xg:{l:'xG (data)',v:p=>p.st.xg,c:1},gx:{l:'Goals − xG',v:p=>p.st.g-p.st.xg,c:0},a:{l:'Assists',v:p=>p.st.a,c:1},xa:{l:'xA (data)',v:p=>p.st.xa,c:1},prg:{l:'Progressive actions',v:p=>p.st.prg,c:1},dw:{l:'Duels won',v:p=>p.st.dw,c:1},duelp:{l:'Duel win %',v:p=>p.st.dt?p.st.dw/p.st.dt:0,c:0,pct:1},rat:{l:'Rating',v:p=>p.st.rat,c:0},mins:{l:'Minutes',v:p=>p.st.mins,c:0},apps:{l:'Appearances',v:p=>p.st.apps,c:0,np:1},yc:{l:'Yellow cards',v:p=>p.st.yc,c:0,np:1},rc:{l:'Red cards',v:p=>p.st.rc,c:0,np:1}};
+const TL={mins:'Min',g:'Goals',xg:'xG',gx:'G−xG',a:'Ast',xa:'xA',prg:'Prog',dw:'Duels',duelp:'Duel%',rat:'Rating',apps:'Apps',yc:'YC',rc:'RC'};
+const GEN=['General',['rat','mins','apps']],DIS=['Discipline',['yc','rc']];
+const LAY={ST:[['Scoring',['g','xg','gx']],['Creating',['a','xa','prg']],['Duels',['dw','duelp']],GEN,DIS],W:[['Creating',['a','xa','prg']],['Scoring',['g','xg','gx']],['Duels',['dw','duelp']],GEN,DIS],CM:[['Creating',['a','xa','prg']],['Duels',['dw','duelp']],['Scoring',['g','xg']],GEN,DIS],DM:[['Defending',['dw','duelp']],['Possession',['prg','a','xa']],['Scoring',['g','xg']],GEN,DIS],FB:[['Defending',['dw','duelp']],['Possession',['prg','a','xa']],['Scoring',['g','xg']],GEN,DIS],CB:[['Defending',['dw','duelp']],['Possession',['prg']],['Scoring',['g','xg']],['Creating',['a','xa']],GEN,DIS],GK:[GEN,DIS]};
+const TCOLS={all:['mins','g','xg','a','xa','prg','duelp','rat'],ST:['mins','g','xg','gx','a','xa','prg','rat'],W:['mins','a','xa','prg','g','xg','gx','rat'],CM:['mins','a','xa','prg','g','xg','duelp','rat'],DM:['mins','dw','duelp','prg','a','xa','g','rat'],FB:['mins','dw','duelp','prg','a','xa','g','rat'],CB:['mins','dw','duelp','prg','g','xg','yc','rc','rat'],GK:['mins','apps','rat','yc','rc']};
+const sv=(id,q)=>SD[id].v(q),per=(id,q)=>SD[id].c?sv(id,q)/m90(q):sv(id,q);
+function show(id,q,mode){const d=SD[id],v=sv(id,q);if(d.pct)return Math.round(v*100)+'%';if(id==='rat')return v.toFixed(2);if(id==='gx')return(v>=0?'+':'−')+Math.abs(v).toFixed(1);if(d.c&&mode==='p90')return(v/m90(q)).toFixed(2);return id==='xg'||id==='xa'?v.toFixed(1):String(Math.round(v))}
 const star=v=>{const h=Math.round(clamp(v,.5,5)*2)/2;return '★'.repeat(Math.floor(h))+(h%1?'½':'')};
 const half=v=>{const h=Math.round(clamp(v,.5,5)*2)/2;return Number.isInteger(h)?String(h):String(Math.floor(h))+'½'};
 const stars=(ca,avg)=>clamp(2.5+(ca-avg)*.8,.5,5);
 const hyps=['Unlucky finisher','Lucky season','Fits our press','Late bloomer','Contract run-down','Other'];
-const S={lg:'d8',age:'All',mode:'tot',sort:'mins',dir:-1,limit:60,season:1,budget:900,tab:'leagues',week:1,slots:3,open:null,toast:'',targets:new Set()};
+const POSF=['All','GK','CB','FB','DM','CM','W','ST'];
+const S={lg:'d8',age:'All',pos:'All',mode:'tot',sort:'mins',dir:-1,limit:60,season:1,budget:900,tab:'leagues',week:1,slots:3,stack:[],toast:'',targets:new Set()};
 const $=s=>document.querySelector(s),app=$('#app');
 function toast(t){S.toast=t;render();setTimeout(()=>{if(S.toast===t){S.toast='';render()}},2600)}
-/* ---------- leagues: the table ---------- */
+const go=v=>{S.stack.push(v);window.scrollTo(0,0)},back=()=>{S.stack.pop();window.scrollTo(0,0)};
 const AGES=[['All',()=>true],['≤21',p=>p.age<=21],['22–24',p=>p.age>=22&&p.age<=24],['25–29',p=>p.age>=25&&p.age<=29],['30+',p=>p.age>=30]];
-const val=(p,c)=>{const s=p.st,gk=p.pos==='GK';if(['g','xg','a','xa','prg','dw'].includes(c)&&gk)return -1;const raw={pos:p.pos,age:p.age,club:p.club,mins:s.mins,g:s.g,xg:s.xg,a:s.a,xa:s.xa,prg:s.prg,dw:STAT.duel(p),rat:s.rat,ask:p.ask}[c];return S.mode==='p90'&&['g','xg','a','xa','prg'].includes(c)?raw/m90(p):raw};
-const COLS=[['pos','Pos','l'],['age','Age'],['mins','Min'],['g','Goals'],['xg','xG'],['a','Ast'],['xa','xA'],['prg','Prog'],['dw','Duel%'],['rat','Rating'],['ask','Ask'],['club','Club','l']];
-function cell(p,c){const v=val(p,c);if(v===-1)return '–';if(c==='ask')return money(p.ask);if(c==='dw')return STAT.duel(p)?Math.round(STAT.duel(p)*100)+'%':'–';if(c==='rat')return p.st.rat.toFixed(2);if(c==='pos'||c==='club')return v;if(['g','xg','a','xa','prg'].includes(c))return S.mode==='p90'?v.toFixed(2):n1(v);return v}
-function leagues(){const L=league(S.lg),af=AGES.find(a=>a[0]===S.age)[1];let rows=L.players.filter(p=>!p.signed&&af(p));
-  const key=S.sort,cmp=(a,b)=>{const x=val(a,key),y=val(b,key);return(typeof x==='string'?x.localeCompare(y):x-y)*S.dir};rows=rows.slice().sort(cmp);const shown=rows.slice(0,S.limit);
+/* ---------- leagues: a table whose columns follow the position filter ---------- */
+function leagues(){const L=league(S.lg),af=AGES.find(a=>a[0]===S.age)[1],ids=TCOLS[S.pos==='All'?'all':S.pos];
+  let rows=L.players.filter(p=>!p.signed&&af(p)&&(S.pos==='All'||p.pos===S.pos));
+  if(!['age','ask','club','pos'].includes(S.sort)&&!ids.includes(S.sort))S.sort='mins';const key=S.sort;
+  const k2=p=>key==='age'?p.age:key==='ask'?p.ask:key==='club'?p.club:key==='pos'?p.pos:(S.mode==='p90'?per(key,p):sv(key,p));
+  rows=rows.slice().sort((a,b)=>{const x=k2(a),y=k2(b);return(typeof x==='string'?x.localeCompare(y):x-y)*S.dir});const shown=rows.slice(0,S.limit);
+  const cols=[...(S.pos==='All'?[['pos','Pos','l']]:[]),['age','Age'],...ids.map(i=>[i,TL[i]]),['ask','Ask'],['club','Club','l']];
+  const cell=(p,c)=>c==='pos'?p.pos:c==='age'?p.age:c==='ask'?money(p.ask):c==='club'?p.club:show(c,p,S.mode);
   return `<div class="l2"><select id="lg" class="sel" aria-label="League">${['Domestic','Abroad'].map(g=>`<optgroup label="${g}">${LEAGUES.filter(l=>l.g===g).map(l=>`<option value="${l.id}" ${l.id===S.lg?'selected':''}>${l.name}</option>`).join('')}</optgroup>`).join('')}</select>
+   <div class="chips">${POSF.map(x=>`<button class="chip ${S.pos===x?'on':''}" data-pos="${x}">${x}</button>`).join('')}</div>
    <div class="chips">${AGES.map(a=>`<button class="chip ${S.age===a[0]?'on':''}" data-age="${a[0]}">${a[0]}</button>`).join('')}</div>
    <div class="row2"><span class="note">${rows.length} players · ${L.clubs.length} clubs · season ${S.season}</span><div class="chips"><button class="chip ${S.mode==='tot'?'on':''}" data-mode="tot">Totals</button><button class="chip ${S.mode==='p90'?'on':''}" data-mode="p90">Per 90</button></div></div></div>
-   <div class="tw"><table><thead><tr><th>Player</th>${COLS.map(c=>`<th class="${c[2]||''}" data-sort="${c[0]}">${c[1]}${S.sort===c[0]?(S.dir<0?' ↓':' ↑'):''}</th>`).join('')}</tr></thead><tbody>${shown.map(p=>`<tr class="${p.fl?'f':''}" data-open="${p.key}"><td>${p.name}</td>${COLS.map(c=>`<td class="${c[2]||''}">${cell(p,c[0])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
-   ${rows.length>S.limit?`<button class="btn ghost w" data-more>Show ${Math.min(60,rows.length-S.limit)} more</button>`:''}<p class="note">Tap a header to sort. Tap a player to open. Flagged players have a red edge.</p>`}
-/* ---------- player: FM-style attributes, then FotMob-style stats ---------- */
-function pctl(p,f){const peers=LG[p.lg].players.filter(q=>q.pos===p.pos&&q.st.mins>=900);if(!peers.length)return .5;const v=f(p);return peers.filter(q=>f(q)<=v).length/peers.length}
+   <div class="tw"><table><thead><tr><th>Player</th>${cols.map(c=>`<th class="${c[2]||''}" data-sort="${c[0]}">${c[1]}${S.sort===c[0]?(S.dir<0?' ↓':' ↑'):''}</th>`).join('')}</tr></thead><tbody>${shown.map(p=>`<tr class="${p.fl?'f':''}" data-open="${p.key}"><td>${p.name}</td>${cols.map(c=>`<td class="${c[2]||''}">${cell(p,c[0])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+   ${rows.length>S.limit?`<button class="btn ghost w" data-more>Show ${Math.min(60,rows.length-S.limit)} more</button>`:''}<p class="note">Tap a header to sort, a player to open him.${S.pos==='GK'?' Goalkeepers only have these stats for now.':''}</p>`}
+/* ---------- the player: FM attributes, position-aware stats, career, then the game parts ---------- */
+const peersOf=p=>LG[p.lg].players.filter(q=>q.pos===p.pos&&q.st.mins>=900);
+function pctl(id,p){const pe=peersOf(p);if(!pe.length)return .5;const v=per(id,p);return pe.filter(q=>per(id,q)<=v).length/pe.length}
 function attrRow(p,k){const v=p.a[k],c=p.confirmed===2,t=c?String(Math.round(v)):`${Math.max(1,Math.round(v)-1)}–${Math.min(20,Math.round(v)+1)}`;return `<div class="ar"><span>${ATTR_L[k]}</span><b>${t}</b><i><u style="width:${v/20*100}%"></u></i></div>`}
-function statRow(p,label,total,per,f,pr){const gk=p.pos==='GK';if(gk&&pr==='skip')return '';const q=pr?pctl(p,f):null;return `<div class="sr"><span>${label}</span><span class="v">${total}${per!=null?` <small>${per} /90</small>`:''}</span>${q!=null?`<div class="pb"><i><u style="width:${Math.round(q*100)}%"></u></i><span>${Math.round(q*100)}</span></div>`:''}</div>`}
-function profile(p){const s=p.st,c=p.confirmed===2,L=LG[p.lg],gk=p.pos==='GK',ad=m90(p);
-  const abil=stars(p.ca,L.def.avg),pot=stars(p.pa,L.def.avg);
-  const ds=dofSays(p);
-  const pers=[['prof','Professionalism'],['loy','Loyalty'],['temp','Temperament'],['amb','Ambition']];
-  return `<div class="hd"><button class="ib" data-back aria-label="Back">‹</button><span>${p.name}</span><span class="sp">${p.pos} · ${p.age}<br>${p.club}</span></div>
-  <section class="l1"><h3>Asking ${money(p.ask)}</h3><p>${p.pos} · ${p.age} · ${p.club}, ${L.def.name}.</p><div class="kg"><div class="kt"><small>Ability</small><b>${star(abil)}</b></div><div class="kt"><small>Potential</small><b>${c?star(pot):half(Math.max(.5,pot-.5))+'–'+half(Math.min(5,pot+.5))+' ★'}</b>${c?'':'<span>estimate</span>'}</div><div class="kt"><small>Wage</small><b>${money(p.wage/1000)}</b><span>per week ${p.wage>=1000?'':'(£'+p.wage+')'}</span></div><div class="kt"><small>Contract</small><b>${p.contract<=.5?'6 months':p.contract+' yrs'}</b><span>${p.end?'ends in June':'runs on'}</span></div></div>
+function srow(p,id){const d=SD[id],q=d.np?null:pctl(id,p),pt=d.c?` <small>${(sv(id,p)/m90(p)).toFixed(2)} /90</small>`:'',main=id==='dw'?`${p.st.dw} of ${p.st.dt}`:show(id,p,'tot');
+  return `<button class="sr" data-stat="${id}"><span>${d.l} ›</span><span class="v">${main}${pt}</span>${q!=null?`<div class="pb"><i><u style="width:${Math.round(q*100)}%"></u></i><span>${Math.round(q*100)}</span></div>`:''}</button>`}
+function career(p){const cur={age:p.age,...p.st},rows=[cur,...(p.hist||[])],gk=p.pos==='GK';
+  return `<div class="tw" style="max-height:none"><table><thead><tr><th>Age</th><th>Min</th><th>Apps</th>${gk?'':'<th>Goals</th><th>Ast</th>'}<th>Rating</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${r.age}${i===0?' (now)':''}</td><td>${r.mins}</td><td>${r.apps}</td>${gk?'':`<td>${r.g}</td><td>${r.a}</td>`}<td>${r.rat.toFixed(2)}</td></tr>`).join('')}</tbody></table></div>`}
+function profile(p){const s=p.st,c=p.confirmed===2,L=LG[p.lg],gk=p.pos==='GK',abil=stars(p.ca,L.def.avg),pot=stars(p.pa,L.def.avg),ds=dofSays(p),pers=[['prof','Professionalism'],['loy','Loyalty'],['temp','Temperament'],['amb','Ambition']];
+  return `<div class="hd"><button class="ib" data-back aria-label="Back">‹</button><span>${p.name}</span><span class="sp">${p.pos} · ${p.age}<br><button class="lk" data-club="${p.club}" data-lg="${p.lg}">${p.club}</button></span></div>
+  <section class="l1"><h3>Asking ${money(p.ask)}</h3><p>${p.pos} · ${p.age} · ${p.club}, ${L.def.name}.</p><div class="kg"><div class="kt"><small>Ability</small><b>${star(abil)}</b></div><div class="kt"><small>Potential</small><b>${c?star(pot):half(Math.max(.5,pot-.5))+'–'+half(Math.min(5,pot+.5))+' ★'}</b>${c?'':'<span>estimate</span>'}</div><div class="kt"><small>Wage</small><b>${money(p.wage/1000)}</b><span>per week${p.wage<1000?' (£'+p.wage+')':''}</span></div><div class="kt"><small>Contract</small><b>${p.contract<=.5?'6 months':p.contract+' yrs'}</b><span>${p.end?'ends in June':'runs on'}</span></div></div>
   <button class="btn ${p.fl?'ghost':''} w" data-flag="${p.key}">${p.fl?'Unflag':'Flag for the DoF'}</button></section>
   <div class="sec">Attributes <small>${c?'confirmed by scouts':'scout estimate, ±1'}</small></div><div class="l2">${GROUPS.filter(g=>g[0]!=='Goalkeeping'||gk).map(([g,ks])=>`<div class="gh">${g}</div><div class="ag">${ks.map(k=>attrRow(p,k)).join('')}</div>`).join('')}
    <div class="gh">Personality</div><div class="ag">${pers.map(([k,l])=>`<div class="ar"><span>${l}</span><b>${c?p.pers[k]:'?'}</b><i><u style="width:${c?p.pers[k]/20*100:0}%"></u></i></div>`).join('')}</div>${c?'':'<p class="unk">Personality is unknown until the scouts have been.</p>'}</div>
-  <div class="sec">Season stats <small>bars: rank against ${p.pos}s in ${L.def.name} (0–100)</small></div><div class="l2">
-   ${gk?'':`<div class="gh">Attacking</div>${statRow(p,'Goals',s.g,(s.g/ad).toFixed(2),STAT.g,1)}${statRow(p,'xG (data)',s.xg.toFixed(1),(s.xg/ad).toFixed(2),STAT.xg,1)}${statRow(p,'Goals − xG',sg(p,s.g-s.xg).replace(/^([+−])(.+)$/,'$1$2'),null,q=>q.st.g-q.st.xg,1)}${statRow(p,'Assists',s.a,(s.a/ad).toFixed(2),STAT.a,1)}${statRow(p,'xA (data)',s.xa.toFixed(1),(s.xa/ad).toFixed(2),STAT.xa,1)}${statRow(p,'Progressive actions',s.prg,(s.prg/ad).toFixed(1),q=>q.st.prg/m90(q),1)}
-   <div class="gh">Duels</div>${statRow(p,'Duels won',s.dw+' of '+s.dt,null,STAT.duel,1)}`}
-   <div class="gh">General</div>${statRow(p,'Rating',s.rat.toFixed(2),null,STAT.rat,1)}${statRow(p,'Minutes',s.mins,null,STAT.mins,1)}${statRow(p,'Appearances',s.apps,null,null,0)}
-   <div class="gh">Discipline</div>${statRow(p,'Yellow cards',s.yc,null,null,0)}${statRow(p,'Red cards',s.rc,null,null,0)}</div>
+  <div class="sec">Season stats <small>${p.pos}s in ${L.def.name} · tap a row for more</small></div><div class="l2">${LAY[p.pos].map(([g,ids])=>`<div class="gh">${g}</div>${ids.map(id=>srow(p,id)).join('')}`).join('')}${gk?'<p class="unk">Goalkeeping stats such as saves and clean sheets are not tracked yet.</p>':''}</div>
+  <div class="sec">Career <small>earlier seasons</small></div>${career(p)}
   <div class="sec">Your read <small>${p.fl?'flagged':'not flagged'}</small></div><div class="l2"><p class="note">Why is he interesting? Flagging with a reason is your bet. The scouts can test it.</p><div class="chips">${hyps.map(h=>`<button class="chip ${p.hyp===h?'on':''}" data-hyp="${p.key}" data-h="${h}">${h}</button>`).join('')}</div></div>
   <div class="sec">The DoF says</div><div class="l2 dof"><span class="who">Lennart Goodall, Director of Football · cautious, wants minutes and proof</span><p class="say">${ds.t}</p>${ds.alt?`<p class="note">If it were up to him: ${ds.alt.name}, ${ds.alt.age}, ${ds.alt.st.mins} minutes, ${money(ds.alt.ask)}.</p><button class="btn ghost" data-open="${ds.alt.key}">Look at ${ds.alt.name}</button>`:''}</div>
   <div class="sec">Scouts <small>${S.slots} of 3 slots this week</small></div><div class="l2">${c?`<p><b>Confirmed.</b> The scouts put his expected ${p.label==='Rating'?'rating':'output'} at ${f1(p,p.E)} (±${p.label==='Rating'?'0.05':'0.8'}). Attributes and personality are now exact.</p>${review(p)}`:p.confirmed===1?`<p><b>Scouts are on it.</b> The report arrives next week.</p>`:`<p class="unk">The numbers above are noisy. Scouts give exact attributes, personality, potential and a better expected figure.</p><button class="btn ghost w" data-confirm="${p.key}" ${S.slots<1?'disabled':''}>Ask scouts to confirm (1 slot, back next week)</button>`}</div>`}
+/* ---------- drill-downs: one stat across the league, and a club ---------- */
+function statPage(p,id){const d=SD[id],pe=peersOf(p),v=per(id,p),unit=d.c?' /90':'',fm=x=>d.pct?Math.round(x*100)+'%':id==='rat'?x.toFixed(2):id==='gx'?(x>=0?'+':'−')+Math.abs(x).toFixed(2):x.toFixed(d.c?2:0);
+  const vals=pe.map(q=>per(id,q)).sort((a,b)=>a-b),lo=vals[0]??0,hi=vals[vals.length-1]??1,span=Math.max(1e-9,hi-lo),bins=Array(12).fill(0);vals.forEach(x=>bins[Math.min(11,Math.floor((x-lo)/span*12))]++);
+  const mine=Math.min(11,Math.max(0,Math.floor((v-lo)/span*12))),mx=Math.max(1,...bins);
+  const ranked=pe.slice().sort((a,b)=>per(id,b)-per(id,a)),rank=ranked.findIndex(q=>q.key===p.key)+1,lead=ranked.slice(0,8);
+  const hist=[{age:p.age,st:p.st},...(p.hist||[]).map(h=>({age:h.age,st:h}))];
+  return `<div class="hd"><button class="ib" data-back aria-label="Back">‹</button><span>${d.l}</span><span class="sp">${p.name}<br>${p.pos} · ${p.age}</span></div>
+  <section class="l1"><h3>${fm(v)}${unit}</h3><p>${p.st.mins<900?`Under 900 minutes, so he is not ranked against the ${pe.length} ${p.pos}s in ${LG[p.lg].def.name} who have played 900 or more.`:`${rank}${['st','nd','rd'][rank-1]||'th'} of ${pe.length} ${p.pos}s in ${LG[p.lg].def.name} (900+ minutes).`}</p></section>
+  <div class="sec">Spread <small>${pe.length} ${p.pos}s · red is him</small></div><div class="l2"><div class="hist">${bins.map((n,i)=>`<div class="${i===mine?'me':''}" style="height:${Math.max(3,n/mx*100)}%"></div>`).join('')}</div><div class="row2"><span class="note">${fm(lo)}${unit}</span><span class="note">${fm(hi)}${unit}</span></div></div>
+  <div class="sec">Top of the league <small>same position</small></div><div class="l2">${lead.map((q,i)=>`<button class="sr" data-open="${q.key}"><span>${i+1}. ${q.name} <small class="note">${q.age} · ${q.club}</small></span><span class="v">${fm(per(id,q))}${unit}</span></button>`).join('')}</div>
+  <div class="sec">His seasons</div><div class="l2">${hist.map((h,i)=>{const q={st:h.st};return `<div class="sr"><span>Age ${h.age}${i===0?' (now)':''}</span><span class="v">${fm(per(id,q))}${unit}</span></div>`}).join('')}</div>`}
+function clubPage(lgid,club){const L=LG[lgid],ps=L.players.filter(q=>q.club===club&&!q.signed).sort((a,b)=>PLAN.indexOf(a.pos)-PLAN.indexOf(b.pos)||b.st.mins-a.st.mins),avg=ps.reduce((a,q)=>a+q.age,0)/Math.max(1,ps.length);
+  return `<div class="hd"><button class="ib" data-back aria-label="Back">‹</button><span>${club}</span><span class="sp">${L.def.name}</span></div>
+  <section class="l1"><h3>${club}</h3><p>${ps.length} players, average age ${avg.toFixed(1)}. Tap a player to open him.</p></section>
+  <div class="tw" style="max-height:none"><table><thead><tr><th>Player</th><th class="l">Pos</th><th>Age</th><th>Min</th><th>Rating</th><th>Ask</th></tr></thead><tbody>${ps.map(q=>`<tr class="${q.fl?'f':''}" data-open="${q.key}"><td>${q.name}</td><td class="l">${q.pos}</td><td>${q.age}</td><td>${q.st.mins}</td><td>${q.st.rat.toFixed(2)}</td><td>${money(q.ask)}</td></tr>`).join('')}</tbody></table></div>`}
 function review(p){if(p.confirmed!==2||!p.hyp||p.hyp==='Other')return '';const tg=p.H-p.E;
   const ok={'Unlucky finisher':tg<=-1||(p.label==='Rating'&&tg<=-.15),'Lucky season':tg>=1||(p.label==='Rating'&&tg>=.15),'Fits our press':p.fit>=.3,'Late bloomer':p.pa-p.ca>=1.2,'Contract run-down':p.end}[p.hyp];
   return `<p><b>Your read: “${p.hyp}”.</b> The scouts' expected ${p.label==='Rating'?'rating':'output'} is ${f1(p,p.E)}, against ${f1(p,p.H)} this season. ${ok?'That supports your read.':'That does not support your read.'}</p>`}
@@ -175,21 +203,22 @@ function bets(){const L=allP().filter(p=>p.signed);if(!L.length)return `<div cla
    <div class="kg"><div class="kt"><small>Paid</small><b>${money(p.paid)}</b><span>${p.hyp||'no reason given'}</span></div><div class="kt"><small>Market asks now</small><b>${money(p.ask)}</b><span>${p.ask>=p.paid?'+':'−'}${money(Math.abs(p.ask-p.paid))} on what you paid</span></div></div>
    ${p.lastSeason?`<p class="note">${p.label} with us: ${f1(p,p.H)} in ${p.st.mins} min. Scouts' expected ${f1(p,p.E)}.</p>`:`<p class="unk">He has not played a season for us yet.</p>`}${o?`<p>${o.t}</p>`:''}</div>`}).join('')}`}
 function nextSeason(){for(const L of Object.values(LG)){for(const p of L.players){const dca=p.age<=23?.3+rnd()*.3:p.age<=29?gauss()*.15:p.age>=31?-.3*rnd():0;p.ca=clamp(p.ca+dca,2,17);p.pa=Math.max(p.pa,p.ca);for(const k in W[p.pos])p.a[k]=clamp(p.a[k]+dca,1,20);
-      p.age++;p.mins=p.signed||p.starter?ri(2300,3000):ri(200,1800);p.contract=Math.max(.5,p.contract-1);p.end=p.contract<=.5;p.needy=!p.signed&&rnd()<.12;p.wage=Math.round(120*Math.pow(1.38,p.ca-6)/5)*5;produce(p);if(!p.signed)p.confirmed=0;if(p.signed)p.lastSeason=true}recalc(L)}
+      (p.hist=p.hist||[]).unshift({age:p.age,...p.st});p.age++;p.mins=p.signed||p.starter?ri(2300,3000):ri(200,1800);p.contract=Math.max(.5,p.contract-1);p.end=p.contract<=.5;p.needy=!p.signed&&rnd()<.12;p.wage=Math.round(120*Math.pow(1.38,p.ca-6)/5)*5;produce(p);if(!p.signed)p.confirmed=0;if(p.signed)p.lastSeason=true}recalc(L)}
   S.season++;S.week=1;S.slots=3;S.budget+=400}
-function render(){let h;if(S.open!=null){const p=byKey(S.open);h=profile(p)}
+function render(){const v=S.stack[S.stack.length-1];let h;
+  if(v){h=v.t==='p'?profile(byKey(v.key)):v.t==='s'?statPage(byKey(v.key),v.id):clubPage(v.lg,v.club)}
   else{h=`<div class="hd"><span>Scouting portal</span><span class="sp">Season ${S.season} · Wk ${S.week}<br>${money(S.budget)} · ${S.slots}/3 scouts</span></div>
    <div class="seg" role="tablist"><button class="${S.tab==='leagues'?'on':''}" data-tab="leagues">Leagues</button><button class="${S.tab==='flags'?'on':''}" data-tab="flags">Flags (${allP().filter(p=>p.fl&&!p.signed).length})</button><button class="${S.tab==='bets'?'on':''}" data-tab="bets">Bets (${allP().filter(p=>p.signed).length})</button></div>`
    +(S.tab==='leagues'?leagues():S.tab==='flags'?flags():bets())
    +`<div class="row2" style="grid-template-columns:1fr 1fr"><button class="btn ghost" data-next>Next week</button><button class="btn ghost" data-window ${S.targets.size?'':'disabled'}>Summer window (${S.targets.size})</button></div><button class="btn w" data-season>Play next season</button><p class="note">Next week: scouts report. Summer window: the DoF approaches your targets. Next season: the world moves on and your signings play.</p>`}
   app.innerHTML=h+(S.toast?`<div class="toast" role="status">${S.toast}</div>`:'')}
-app.addEventListener('click',e=>{const t=e.target.closest('[data-open],[data-flag],[data-back],[data-tab],[data-age],[data-mode],[data-sort],[data-more],[data-confirm],[data-next],[data-target],[data-hyp],[data-window],[data-season]');if(!t)return;const d=t.dataset;
+app.addEventListener('click',e=>{const t=e.target.closest('[data-open],[data-flag],[data-back],[data-tab],[data-age],[data-pos],[data-mode],[data-sort],[data-more],[data-confirm],[data-next],[data-target],[data-hyp],[data-window],[data-season],[data-stat],[data-club]');if(!t)return;const d=t.dataset,cur=S.stack[S.stack.length-1];
   if(d.window!=null){const ok=[],no=[];for(const k of [...S.targets]){const p=byKey(k),cost=Math.round(p.ask*(.95+rnd()*.2));if(cost<=S.budget){S.budget-=cost;p.signed=true;p.paid=cost;p.club='Harwick Athletic';p.joined=S.season;p.sigH=p.H;p.sigCa=p.ca;ok.push(p.name)}else no.push(p.name)}S.targets.clear();toast(ok.length?`Signed ${ok.join(', ')}.${no.length?' Could not afford '+no.join(', ')+'.':''}`:`Nobody signed.${no.length?' Could not afford '+no.join(', ')+'.':''}`);return}
-  if(d.season!=null){nextSeason();S.open=null;toast(`Season ${S.season}. The world has moved on.`);return}
+  if(d.season!=null){nextSeason();S.stack=[];toast(`Season ${S.season}. The world has moved on.`);return}
   if(d.hyp!=null){const p=byKey(d.hyp);p.hyp=p.hyp===d.h?null:d.h;if(p.hyp)p.fl=true;toast(p.hyp?`Flagged: “${p.hyp}”.`:'Reason removed.');return}
-  if(d.open!=null){S.open=d.open;window.scrollTo(0,0)}else if(d.back!=null){S.open=null}
+  if(d.open!=null)go({t:'p',key:d.open});else if(d.stat)go({t:'s',key:cur.key,id:d.stat});else if(d.club)go({t:'c',lg:d.lg,club:d.club});else if(d.back!=null)back();
   else if(d.flag!=null){const p=byKey(d.flag);p.fl=!p.fl;if(!p.fl)p.hyp=null;toast(p.fl?`${p.name} flagged. Give a reason below.`:`${p.name} unflagged.`);return}
-  else if(d.tab){S.tab=d.tab}else if(d.age){S.age=d.age;S.limit=60}else if(d.mode){S.mode=d.mode}
+  else if(d.tab){S.tab=d.tab;S.stack=[]}else if(d.age){S.age=d.age;S.limit=60}else if(d.pos){S.pos=d.pos;S.sort='mins';S.dir=-1;S.limit=60}else if(d.mode){S.mode=d.mode}
   else if(d.sort){if(S.sort===d.sort)S.dir*=-1;else{S.sort=d.sort;S.dir=['pos','club'].includes(d.sort)?1:-1}}else if(d.more!=null){S.limit+=60}
   else if(d.confirm!=null){if(S.slots<1)return;S.slots--;byKey(d.confirm).confirmed=1;toast('Scouts are on it. Report next week.');return}
   else if(d.next!=null){S.week++;S.slots=3;let n=0;allP().forEach(p=>{if(p.confirmed===1){p.confirmed=2;n++}});toast(n?`Week ${S.week}: ${n} scout report${n>1?'s':''} arrived.`:`Week ${S.week}. Nothing new from the scouts.`);return}

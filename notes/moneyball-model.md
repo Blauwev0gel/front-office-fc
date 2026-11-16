@@ -73,3 +73,9 @@ Eigenaar: de gegevens moeten gelijk zijn aan wat het spel heeft; een speler moet
 - **Terminal:** tabblad Leagues met een competitiekeuze (acht divisies + zes regio's), leeftijdschips en Totals/Per 90. Geen filter op waarden; sorteren op een kolomkop mag. Verder alleen Flags en Bets.
 - **Seeded wereld, bewezen in klein:** elke competitie (18 clubs, 360 spelers) wordt op aanvraag uit zijn naam gegenereerd in ±35 ms in de browser; er wordt niets opgeslagen. Dit is een eerste aanwijzing voor B38 (seeded wereld), nog geen meting op een telefoon.
 - Lus (hypothese, scouts, zomerraam, seizoen, Bets) ongewijzigd uit v3.
+
+## Prototype v5 (16-11-2026): stats per positie, positiefilter, doorklikken
+- **Stats volgen de positie.** Profiel en tabelkolommen kiezen volgorde en groepen per positie: aanvallers Scoring eerst, vleugels en middenvelders Creating eerst, verdedigers en DM Defending (duels) eerst, keepers alleen wat het spel bijhoudt. Zelfde 12 velden; alleen de weergave verschilt.
+- **Positie is een filter** naast competitie en leeftijd; de kolommen veranderen mee (bijv. CB: duels, duelpercentage, progressieve acties, kaarten).
+- **Doorklikken:** tik op een statistiek voor de verdeling (histogram, hij in rood), de top van de competitie op die positie, zijn rang en zijn eerdere seizoenen; tik op de club voor de selectie; tik op een speler in een lijst om hem te openen. Een loopbaantabel toont eerdere seizoenen (twee worden mee gegenereerd, elk gespeeld seizoen komt erbij). Terug-knop door meerdere niveaus.
+- **Beperking, voor de eerste engine-plak:** het spel houdt maar 12 statistieken bij. Voor keepers en verdedigers is dat dun (geen reddingen, clean sheets, tackles, onderscheppingen, clearances; voor aanvallers geen schoten of schoten op doel; voor middenvelders geen key passes). Meer diepte per positie vraagt dat de wedstrijdsim deze tellers gaat bijhouden. Beslissing voor de eigenaar, niet gedaan.

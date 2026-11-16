@@ -67,12 +67,12 @@ const server = http.createServer((req, res) => { res.setHeader('Content-Type', '
         saved: saved.inbox[0].done, savedAP: saved.ap, sent: !!document.querySelector('.msent'),
         waiting: !!document.querySelector('.msending, .mundo') };
     }, key);
-    assert.deepEqual(instant, { done: true, ap: 2, fee: '0', saved: true, savedAP: 2, sent: true, waiting: false });
+    assert.deepEqual(instant, { done: true, ap: 3, fee: '0', saved: true, savedAP: 3, sent: true, waiting: false });
     await shot('sent-mobile-light');
     await page.reload();
     await page.click('[data-a="continue"]');
     assert.equal(await page.evaluate(id => FO.G.inbox.find(m => m.id === id).done, id), true);
-    assert.equal(await page.evaluate(() => FO.G.ap), 2);
+    assert.equal(await page.evaluate(() => FO.G.ap), 3);
     console.log('PASS: one-screen replies; immediate commit/save; double send; reload');
 
     await fixture(); await rows.nth(1).click();
@@ -82,16 +82,21 @@ const server = http.createServer((req, res) => { res.setHeader('Content-Type', '
     await page.locator('.rbr').first().click();
     assert.equal(await send.isDisabled(), true);
     await fixture('message', 0);
-    assert.equal(await send.isDisabled(), true);
-    assert.equal(await rows.nth(0).isDisabled(), true);
-    assert.equal(await page.locator('.msent').count(), 0);
-    // Exhaust actions after selection to exercise the engine's error path too.
+    assert.equal(await rows.nth(0).isDisabled(), false);
+    assert.equal(await send.isDisabled(), true, 'no reply selected yet');
+    await rows.nth(0).click();
+    assert.equal(await send.isDisabled(), false, 'Red Box replies remain available with zero AP');
+    await send.click();
+    assert.equal(await page.evaluate(() => FO.G.inbox[0].done), true);
+    assert.equal(await page.evaluate(() => FO.G.ap), 0);
+    assert.equal((await saved()).inbox[0].done, true);
+    // AP exhausted after selecting: the response must still succeed.
     await fixture(); await rows.nth(2).click();
     await page.evaluate(() => { FO.G.ap = 0; });
     await send.click();
-    assert.equal(await page.evaluate(() => FO.G.inbox[0].done), false);
-    assert.equal(await page.locator('.msent').count(), 0);
-    await page.locator('.toast').waitFor({ state: 'hidden' });
+    assert.equal(await page.evaluate(() => FO.G.inbox[0].done), true);
+    assert.equal(await page.evaluate(() => FO.G.ap), 0);
+    assert.equal(await page.locator('.msent').count(), 1);
 
     // Reproduce the budget reply in the reported screenshot, then stress long text.
     await fixture('budget'); await rows.nth(0).click();
@@ -107,7 +112,7 @@ const server = http.createServer((req, res) => { res.setHeader('Content-Type', '
     await shot('long-reply-mobile-light');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     console.log('PASS: budget reply, empty draft and long message/recipient layouts');
-    console.log('PASS: leaving, reopening, no actions and failed send');
+    console.log('PASS: leaving and reopening; compulsory replies are free at zero actions');
 
     await fixture('brief', 0); await rows.nth(0).click(); await send.click();
     assert.equal((await saved()).briefs[0].done, true);
@@ -131,7 +136,7 @@ const server = http.createServer((req, res) => { res.setHeader('Content-Type', '
     await shot('confirm-mobile-light');
     await page.keyboard.press('Enter');
     assert.equal((await saved()).inbox[0].done, true);
-    assert.equal((await saved()).ap, 2);
+    assert.equal((await saved()).ap, 3);
     console.log('PASS: big decision confirmation and cancel work by keyboard');
 
     await page.locator('.toast').waitFor({ state: 'hidden' });
@@ -156,7 +161,7 @@ const server = http.createServer((req, res) => { res.setHeader('Content-Type', '
       });
       assert.deepEqual(card, { paper: true, containsText: true, containsSend: true });
       await shot(`reply-${width}-${colorScheme}`);
-      await send.click(); assert.equal((await saved()).ap, 2);
+      await send.click(); assert.equal((await saved()).ap, 3);
     }
     assert.deepEqual(errors, []);
     console.log('PASS: mobile/desktop, light/dark, reduced motion, no overlap or browser errors');

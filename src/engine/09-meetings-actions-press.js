@@ -71,7 +71,9 @@ function resolve(m, idx, by) {
   if (by !== 'you') { let lab = ''; try { lab = typeof e.opts[idx].l === 'function' ? e.opts[idx].l(m.ctx) : e.opts[idx].l; } catch (err) { } G.paper.stories.push({ h: by === 'The board' ? 'Board decision' : by === 'The club office' ? 'Club decision' : 'Staff decision', t: `${by}: ${lab}. ${m.outcome}` }); }
   return m.outcome;
 }
-function respond(msgId, idx) { if (over()) return { err: 'You no longer run the club.' }; const m = G.inbox.find(x => x.id === msgId); if (!m || m.done) return null; if (G.ap < 1) return { err: 'No action points left this week.' }; G.ap--; return { out: resolve(m, idx, 'you') }; }
+// Red Box decisions are the CEO's core responsibility, not optional weekly initiatives.
+// Reserve action points for conversations, second opinions, pushes and mandate changes.
+function respond(msgId, idx) { if (over()) return { err: 'You no longer run the club.' }; const m = G.inbox.find(x => x.id === msgId); if (!m || m.done) return null; return { out: resolve(m, idx, 'you') }; }
 
 /* ---------- player actions ---------- */
 function talk(role, tone) {

@@ -77,13 +77,56 @@ function queueEvent(id, ctx) { if (!EV[id]) return; if (G.queue.some(q => q.id =
 function pendingOf(id) { return G.inbox.some(m => m.ev === id && !m.done); }
 function addMsg(id, ctx) { const e = EV[id]; const c = ctx || (e.setup ? e.setup() : {}); if (c === null) return false; const m = { id: uid(), ev: id, ctx: c, season: G.season, week: G.week, done: false }; G.inbox.unshift(m); G.cd[id] = absWeek() + (e.cd || 8); if (HOOK.desk) { try { HOOK.desk(e, m); } catch (err) { } } return true; }
 const safe = f => { try { return f(); } catch (e) { return false; } };
+// Prioritise live club pressures and unresolved follow-ups before optional colour.
+// Keep the existing event registry, cooldowns, seeded RNG and delegation hook.
+function eventPriority(e) {
+  const w = e.w ? safe(e.w) : 1;
+  if (typeof w !== 'number' || !isFinite(w) || w <= 0) return 0;
+  let factor = 1;
+  const dept = e.dept || e.from;
+  const pressure = {
+    sporting: G.form.slice(-5).filter(x => x === 'L').length >= 3,
+    finance: G.club.cash < 0 || G.board.conf < 35,
+    business: G.club.cash < 0,
+    commercial: G.st.spons < 35,
+    marketing: G.st.fans < 35,
+    academy: G.academy.length < 3
+  };
+  if (pressure[dept]) factor *= 1.7;
+  if (dept === 'sporting' && G.board.conf < 35) factor *= 1.25;
+  if (G.push && G.push[dept] > 0) factor *= 1.3;
+  // Repeated subject matter should not dominate the next few weeks.
+  const recent = (G.inbox || []).some(m => m.ev === e.id && m.done &&
+    (G.season - m.season) * SEASON_WEEKS + G.week - m.week <= 3);
+  if (recent) factor *= 0.5;
+  return w * factor;
+}
 function genMessages() {
-  const forced = G.queue.splice(0, 4); for (const q of forced) addMsg(q.id, q.ctx);
-  const ok = e => !e.forced && e.mode !== 'off' && (G.cd[e.id] || 0) <= absWeek() && !pendingOf(e.id) && (!e.cond || safe(e.cond));
-  let slots = Math.max(0, (chance(0.55) ? 1 : 2) - forced.length), tries = 0;
-  while (slots > 0 && tries++ < 10) { const el = Object.values(EV).filter(e => ok(e) && e.mode !== 'auto'); if (!el.length) break; const e = wpick(el, e => (e.w ? safe(e.w) || 0.5 : 1)); if (addMsg(e.id)) slots--; }
+  // Never discard queued follow-ups when more than four become due together.
+  const forced = G.queue.splice(0, 4);
+  for (const q of forced) if (!addMsg(q.id, q.ctx)) G.queue.push(q);
+  const ok = e => !e.forced && e.mode !== 'off' &&
+    (G.cd[e.id] || 0) <= absWeek() && !pendingOf(e.id) &&
+    (!e.cond || safe(e.cond));
+  const live = G.inbox.filter(m => !m.done).length;
+  // Quiet weeks are valid. Do not manufacture decisions to fill slots.
+  let slots = live >= 3 ? 0 : live >= 1 ? (chance(0.4) ? 1 : 0) :
+    (chance(0.25) ? 0 : chance(0.65) ? 1 : 2);
+  let tries = 0;
+  while (slots > 0 && tries++ < 10) {
+    const el = Object.values(EV).filter(e => ok(e) && e.mode !== 'auto' && eventPriority(e) > 0);
+    if (!el.length) break;
+    const e = wpick(el, eventPriority);
+    if (addMsg(e.id)) slots--;
+  }
+  // Staff still act independently even in weeks with no CEO decisions.
   let n = ri(1, 2); tries = 0;
-  while (n > 0 && tries++ < 10) { const el = Object.values(EV).filter(e => ok(e) && e.mode === 'auto'); if (!el.length) break; const e = wpick(el, e => (e.w ? safe(e.w) || 0.5 : 1) * (G.push[e.dept] > 0 ? 2 : 1)); autoEvent(e); n--; }
+  while (n > 0 && tries++ < 10) {
+    const el = Object.values(EV).filter(e => ok(e) && e.mode === 'auto' && eventPriority(e) > 0);
+    if (!el.length) break;
+    const e = wpick(el, eventPriority);
+    autoEvent(e); n--;
+  }
   if (isMeeting(G.week)) genMeeting();
 }
 function autoEvent(e) {

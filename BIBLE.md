@@ -100,6 +100,7 @@ Run-in (20–29), Finale (30–34). Beker in week 5/11/17/23/29/33. Na week 34: 
 | Spelers | 14 attributen, CA/PA, leeftijd, contract, moraal, persoonlijkheid | `engine/` |
 | Wedstrijdsim | xG-gebaseerd, teamsterkte uit XI + coach-fit | `engine/`, `matchtalk.js`, `matchday.js` |
 | Afdelingen | vier tabs Now / Plan / People / Record (B12): oordeel en verzoeken van het hoofd (B19), mandaat en middelen, mensen (het hoofd beheert zijn staf, B18), record met wat het hoofd namens jou besliste | `depts.js`, `ui/08-departments.js`, `ui/08a-dept-parts.js` |
+| Week en gebeurtenissen | onderwerp van de week, kansen in stille weken, big-game-momenten, terugblikken (B22–B24); gebeurtenissen gewogen op de clubsituatie en vervolgen met herkomst (B31) | `weekflow.js`, `weekloop.js`, `engine/08-weekly-inbox.js` |
 | Gesprekken | het hoofd vraagt om een gesprek of de CEO opent er een; korte scènes met gevolg, gratis | `talks.js`, `firstteam.js` |
 | Bevoegdheid (desk) | short leash / normal / free hand per head, foutkans | `desk.js` |
 | Grip | zakt als je niet zelf beslist; tilt of drukt alle heads | `levers.js` |
@@ -131,7 +132,7 @@ Vastgelegd (B10): droge Britse ironie is de vaste stem van het spel. ❓ Referen
 - **Saves blijven werken.** Nieuwe state via migratie (`VERSION`, nu 3) of een veilige default.
 - **Publicatie** via GitHub Actions: elke push naar `main`, `claude-game` of `chatgpt` bouwt alle drie de versies. Claude werkt op `claude-game` (preview `/claude/`); release = merge naar `main` op verzoek. `docs/index.html` is een verouderde snapshot.
 
-## 9. Huidige staat van de code (analyse 15-11-2026)
+## 9. Huidige staat van de code (analyse 15-11-2026; beslissingen sindsdien: B12–B31, zie het logboek en `design/besluiten-*.md`)
 
 Werkt:
 - Build slaagt (~1,0 MB).
@@ -195,3 +196,4 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 | B28 | 17-11-2026 | Het zomerdebrief beoordeelt de DoF op vijf vragen: plan gevolgd, uitvoering, marktpech, teamsterkte, geld. Marktpech telt niet als eigen fout. | De TD wordt niet alleen op aantallen beoordeeld (P7, P9). |
 | B29 | 17-11-2026 | Twee waarschuwingen aan de DoF leiden tot een gesprek ("Back me or sack me"); waarschuwingen vervallen met één per zomer. | Beslissingen laten een spoor na (P2); mensen met een eigen wil (P7). |
 | B30 | 17-11-2026 | Het data-schuifje van de DoF is een afweging tussen snelheid en zekerheid: data-gedreven beveelt geen onzekere rapporten aan, oog-gedreven wel. | Geen betekenisloze instellingen (P9). |
+| B31 | 17-11-2026 | Gebeurtenissen volgen de clubsituatie: een afdeling onder druk krijgt vaker aandacht, een rustige wordt met rust gelaten, een verwant bericht van de afgelopen weken dempt een nieuw; een week met al drie openstaande berichten krijgt er geen bij. Vervolgberichten onthouden welk besluit ze volgen ("Follow-up", "After: …"); de rode map toont het belangrijkste als "Main issue". Rustige weken blijven mogelijk. | Continuïteit boven volume; gevolgen zijn herkenbaar (P2, P8). |

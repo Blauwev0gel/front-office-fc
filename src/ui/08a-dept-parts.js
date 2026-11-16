@@ -102,11 +102,25 @@ function squadPlanHtml(){
     ${p.history.length?`<div class="sec">Why the plan changed</div><div class="panel2">${p.history.map(e=>`<p class="small"><b>S${e.season} · week ${e.week} · ${esc(e.kind)}:</b> ${esc(e.text)}</p>`).join('')}</div>`:''}</section>`;
 }
 
-function wantsHtml(k, st) {
-  const rq = F.convoReqs ? F.convoReqs(k) : [];
-  const cards = rq.map(r => `<div class="att"><p><b>${esc(F.staff(r.role).name.split(' ')[0])} wants a word.</b> ${esc(r.t)}${r.left <= 1 ? ' <span class="small">If you wait, he decides himself.</span>' : ''}</p><button class="btn small" data-a="cv-open" data-r="${r.role}" data-q="1">Hear him out</button></div>`).join('');
-  return `<p class="verd"><b>${esc(st.verdict.w)}.</b> ${esc(st.verdict.t)}</p>${cards ? `<div class="attl">${cards}</div>` : `<p class="small">Nothing he needs from you this week. Talk to him any time; it is free.</p>`}`;
+// one health vocabulary for every department: the department's own word stays in the sentence
+const HEALTH = { good: 'On track', mid: 'Mixed', bad: 'In trouble' };
+const healthOf = V => V.w === 'Vacant' ? ['bad', 'No head'] : V.early ? ['early', 'Too early'] : [V.st, HEALTH[V.st]];
+const healthHtml = V => { const [c, l] = healthOf(V); return `<span class="hl ${c}"><i></i>${l}</span>`; };
+// the verdict as one card: health, why, and what the head says about it
+function verdictCard(st, role, s) {
+  const V = st.verdict, [c, l] = healthOf(V), line = s ? headLine(role, s, V) : '';
+  return `<section class="vcard ${c}"><div class="vc1"><b>${l}</b><p>${esc(V.t)}</p></div>${line ? `<p class="vq">“${esc(line)}”<small>${esc(s.name.split(' ')[0])}</small></p>` : ''}</section>`;
 }
+// everything that needs the CEO in one card style: head requests, waiting inbox items, the agreement
+function needsHtml(k, role, d) {
+  const rq = F.convoReqs ? F.convoReqs(k) : [], PV = F.pwView ? F.pwView() : null;
+  const cards = rq.map(r => `<div class="need"><p><b>${esc(F.staff(r.role).name.split(' ')[0])} wants a word.</b> ${esc(r.t)}${r.left <= 1 ? ' <span class="small">If you wait, he decides himself.</span>' : ''}</p><button class="btn small" data-a="cv-open" data-r="${r.role}" data-q="1">Hear him out</button></div>`).join('');
+  const items = inboxItems().filter(i => i.kind === 'need' && (i.role === role || (d.also && i.role === d.also))).map(i => `<div class="need"><p><b>${esc(i.subj)}</b> <span class="small">${esc(i.label)}</span></p><button class="btn small" data-a="dinbox" data-key="${i.key}">Open</button></div>`).join('');
+  const ag = PV && PV.ag && PV.stage !== 'closed' && ['coach', 'dof', 'acad'].includes(role) ? `<div class="need"><p><b>Agreement: the ${esc(PV.tname)} question.</b> <span class="small">${role === PV.ag.owner ? 'Responsible' : 'Involved'} · evaluation week ${PV.ag.evalWeek}</span></p><button class="btn small" data-a="pw-open">Open</button></div>` : '';
+  const all = cards + items + ag;
+  return `<div class="sec">Needs you</div>${all ? `<div class="needs">${all}</div>` : '<div class="panel2"><p class="small" style="margin:0">Nothing needs you this week. Talk to him any time; it is free.</p></div>'}`;
+}
+
 function cvTalkHtml(T) {
   const role = T.role, s = F.staff(role); if (!s) return '';
   const coach = role === 'coach', last = T.log.slice(-3), ans = coach ? 'ft-ans' : 'cv-ans', cls = coach ? 'ft-talk-close' : 'cv-close';

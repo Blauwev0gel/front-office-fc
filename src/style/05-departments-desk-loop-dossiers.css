@@ -142,3 +142,24 @@ i.up,.fdrow .up,.wkd .up i{color:var(--good)}i.dn,.fdrow .dn,.wkd .dn i{color:va
 .mdept{display:block;margin:10px 0 0;min-height:44px}
 .choice2{display:grid;gap:8px}.choice2 .btn{min-height:44px;display:grid;justify-items:center}.choice2 .btn small{font-size:11px;font-weight:600}
 .dtile2 .dsub{font-size:12px;font-style:normal;color:var(--soft)}.dchips{display:grid;gap:4px;justify-items:end}
+/* departments: one health vocabulary, one card for the verdict, one card for what needs you */
+.hl{display:inline-flex;align-items:center;gap:5px;font:800 12px var(--head);color:var(--ink)}
+.hl i{width:9px;height:9px;border-radius:50%;background:var(--soft);flex:none}
+.hl.good i{background:var(--good)}.hl.bad i{background:var(--bad)}.hl.mid i{background:#d9a21b}.hl.early i{background:none;border:2px solid var(--soft)}
+.hl.good{color:var(--good)}.hl.bad{color:var(--bad)}
+.dstatb{cursor:default}
+.dtile2 .dsub{display:block;line-height:1.35}.dtile2 .dsub .hl{margin-right:4px}
+.dtile2.act{border-color:var(--ink)}
+.vcard{background:var(--paper);border:var(--l1);border-left:6px solid var(--soft);border-radius:14px;padding:12px 14px;margin-bottom:var(--s3);display:grid;gap:10px}
+.vcard.good{border-left-color:var(--good)}.vcard.bad{border-left-color:var(--bad)}.vcard.mid{border-left-color:#d9a21b}
+.vc1 b{font:900 22px/1.1 var(--head)}.vc1 p{margin:4px 0 0;font-size:15px;line-height:1.35}
+.vq{margin:0;padding-top:10px;border-top:1px dashed var(--hair);font-size:14px;line-height:1.4;font-style:italic;color:var(--soft)}
+.vq small{display:block;font:800 11px var(--head);font-style:normal;margin-top:2px}
+.needs{display:grid;gap:8px}
+.need{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--paper);border:var(--l1);border-left:6px solid var(--acc);border-radius:12px;padding:10px 12px}
+.need p{margin:0;font-size:14px;line-height:1.35}.need .btn{min-height:44px;white-space:nowrap}
+.hdiv{height:1px;background:var(--hair);margin:12px 0}
+.hmini .dface{width:44px;height:44px}
+.hbtns,.hmini .btn{min-height:44px}
+.vcard p{color:var(--ink)}.vcard.bad .vc1 b{color:var(--bad)}.vcard.good .vc1 b{color:var(--good)}
+.dtile2 .dsub .hl{display:flex;margin-bottom:1px}

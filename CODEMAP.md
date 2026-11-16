@@ -107,8 +107,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/05-pitches-squad-money.js` | 15 KB | project pitches: one at a time, swipe or tap |  |  |  |
 | `ui/06-sheets-ticker.js` | 21 KB | sheets; ticker |  |  |  |
 | `ui/07-club-league.js` | 8 KB | review & sacked; club, league, staff, academy, review: game screens |  | deptCost |  |
-| `ui/08-departments.js` | 25 KB | departments |  |  |  |
-| `ui/08a-dept-parts.js` | 19 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
+| `ui/08-departments.js` | 24 KB | departments |  |  |  |
+| `ui/08a-dept-parts.js` | 21 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
 | `ui/09-firstteam-review.js` | 12 KB | first team department |  |  |  |
 | `ui/10-inbox.js` | 18 KB | render; inbox home (1.6) |  |  |  |
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
@@ -291,7 +291,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: spark, kfmt, vDepts, headLine, headCard, authHtml, headBtns, instinctRow, fillCol, stadiumSvg, comOverview, comDecisions, mkOverview, mkDecisions, planCard, bizOverview, acPyramid, acDecisions, vDept
 
 ### `ui/08a-dept-parts.js`
-- Functions: relW, compW, netW, gapW, kpiTile, attAttr, attHtml, deskHist, recTiles, regionCard, recRecord, acRecord, acStaff, ftPlanExtra, squadPlanHtml, wantsHtml, cvTalkHtml
+- Functions: relW, compW, netW, gapW, kpiTile, attAttr, attHtml, deskHist, recTiles, regionCard, recRecord, acRecord, acStaff, ftPlanExtra, squadPlanHtml, verdictCard, needsHtml, cvTalkHtml
 
 ### `ui/09-firstteam-review.js`
 - Functions: vFirst, ftTalkHtml, vReview2, vSacked

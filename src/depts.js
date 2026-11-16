@@ -177,13 +177,13 @@ const BUD_D = { first: 'Training, kit and travel', recruit: 'Scouting trips and 
 function verdict(dk) {
   const G = g(), d = DK[dk], head = staff(d.head); if (!head) return { w: 'Vacant', st: 'bad', t: `Nobody runs ${d.t.toLowerCase()}.` };
   if (dk === 'first') {
-    if ((G.ss.lg || 0) < 3 || G.phase !== 'season') return { w: 'Early days', st: 'mid', t: 'Too few games to judge.' };
+    if ((G.ss.lg || 0) < 3 || G.phase !== 'season') return { w: 'Early days', st: 'mid', early: true, t: 'Too few games to judge.' };
     const pos = F.myPos(), exp = F.expectedRank(), dd = pos - exp, t = `${F.ord(pos)}, expected ${F.ord(exp)}.`;
     return dd <= -2 ? { w: 'Ahead', st: 'good', t } : dd <= 1 ? { w: 'On course', st: 'good', t } : dd <= 3 ? { w: 'Behind', st: 'mid', t } : { w: 'Well behind', st: 'bad', t };
   }
   if (dk === 'recruit') {
     const ev = (F.recEval ? F.recEval(G.season) : []).filter(e => e.verdict === 'Hit' || e.verdict === 'Miss'), hit = ev.filter(e => e.verdict === 'Hit').length, miss = ev.length - hit;
-    if (ev.length < 2) { const win = F.window_(); return { w: win ? 'Window open' : 'Between windows', st: 'mid', t: win ? 'The DoF is working the market.' : 'Signings are judged once they have played.' }; }
+    if (ev.length < 2) { const win = F.window_(); return { w: win ? 'Window open' : 'Between windows', st: 'mid', early: true, t: win ? 'The DoF is working the market.' : 'Signings are judged once they have played.' }; }
     const t = `${hit} hit${hit === 1 ? '' : 's'}, ${miss} miss${miss === 1 ? '' : 'es'} this season.`;
     return hit > miss ? { w: 'Strong', st: 'good', t } : hit === miss ? { w: 'Mixed', st: 'mid', t } : { w: 'Struggling', st: 'bad', t };
   }
@@ -192,7 +192,7 @@ function verdict(dk) {
     return cat <= 2 ? { w: 'Strong', st: 'good', t } : cat === 3 ? { w: 'Steady', st: 'mid', t } : { w: 'Weak', st: 'bad', t };
   }
   const rc = F.record(d.head), v = rc.verdict;
-  return { w: v === 'Too early' ? 'Early days' : v, st: v === 'Strong' ? 'good' : v === 'Poor' ? 'bad' : 'mid', t: v === 'Too early' ? 'Too few weeks to judge.' : `The numbers say: ${v.toLowerCase()}.` };
+  return { w: v === 'Too early' ? 'Early days' : v, st: v === 'Strong' ? 'good' : v === 'Poor' ? 'bad' : 'mid', early: v === 'Too early', t: v === 'Too early' ? 'Too few weeks to judge.' : `The numbers say: ${v.toLowerCase()}.` };
 }
 // At most three things that need the CEO, each with its cause and one action.
 // action: { a: 'talk' | 'mand' | 'plan' | 'people' | 'record' | 'dept', x: role or department, l: button label }

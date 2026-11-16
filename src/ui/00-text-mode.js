@@ -2,6 +2,8 @@
    Keep the real engine, screens, and data-a action handlers. Replace only
    decoration; never change game state, seed, saves, or decision outcomes. */
 (function () {
+  // UI save-key tests intentionally load this prefix without the faces module.
+  if (typeof ART === 'undefined') return;
   const noVisual = () => '';
   // Names, statistics, and choice labels are already rendered by the views.
   // Returning no avatar avoids generating thousands of SVG shapes.

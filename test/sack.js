@@ -41,7 +41,7 @@ function setup(seed) { const FO = boot(); FO.newGame(seed); const d = {}; for (c
 }
 // 2. forced: dismissal inside the weekly hooks in the final week
 { const FO = setup(13), G = FO.G;
-  while (G.week < FO.SEASON_WEEKS && G.phase === 'season') FO.endWeek();
+  while (G.week < FO.SEASON_WEEKS && G.phase === 'season') { G.board.conf = 80; G.st.fans = 60; G.st.press = 60; G.squad.forEach(p => p.morale = 75); FO.endWeek(); } // an absent CEO can be dismissed earlier; this test is about the week-38 hook
   G.votes = { room: G.season }; G.vote = null; // room already used its chance this season
   G.squad.forEach(p => p.morale = 0); // room support 0 -> immediate dismissal in the weekly hook
   const before = G.season; const r = FO.endWeek();

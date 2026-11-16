@@ -30,3 +30,13 @@ De ontwikkelsnelheid van jonge spelers in `develop()` (`src/engine/08-weekly-inb
 - Coach telt relatief aan het divisieniveau: `(eff − tierAvg) × 0,18` op teamsterkte (zwak −0,50, gemiddeld 0, sterk +0,58 op tier 6) en `(eff − tierAvg)/10 × 0,8` in de groeifactor. DoF-prijsinvloed `(eff − tierAvg) × 0,04`.
 - `test/sack.js` aangepast: een volledig afwezige CEO kan nu al in seizoen 1 ontslagen worden (kleedkamerstemming in week 28), dus de test houdt de achterbannen in de aanloop op niveau.
 - Niet aangepakt: effect van de andere staf (scout, academy, commercial, marketing, finance) op resultaten.
+
+## v5 uitkomst (6 carrières x 10 seizoenen) en de echte oorzaak
+v5: divisie S10 1,7 (v4: 1,8), 0 ontslagen, gemiddeld +1,47 boven de divisie. Groeivertraging en relatieve staf veranderden het tempo niet.
+
+Probe (1 carrière, onderdelen van teamsterkte per seizoen, `strengthParts` naast de echte rivalen):
+- selectie (`squad`) ≈ rivalengemiddelde (5,9 tegen 6,2 in S1): basisselectie is goed.
+- coach + stijl + moraal + extra's geven de club van de speler er +1,5 tot +2,5 bovenop (S1: 1,47 + 0,30 + 0,39 + 0,06). Rivalen hebben die niet: hun `str` is het divisiegemiddelde plus ruis.
+- Dit is het structurele voordeel, en de reden dat alles hierboven (jeugd, kandidaten, doelen) niets deed.
+
+v6 (nog niet gemeten): `RIVAL_ORG = 1.2` (`src/engine/02-world-constants.js`): rivalen krijgen een organisatiebonus in de eerste generatie, de jaarlijkse bijsturing en de ambitieregel (`src/season.js`). Verwacht: voordeel +1,5 naar ongeveer +0,3, dus ongeveer 40% promotiekans per seizoen. De 1,2 is een schatting; eerst één run, daarna bijstellen.

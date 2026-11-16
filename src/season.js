@@ -25,8 +25,8 @@ function ambitions() {
   for (let t = 1; t <= 8; t++) {
     const ids = G.divs[t].clubs.filter(i => i !== 0);
     for (const id of ids) { const c = G.clubs[id]; if (c.amb == null) c.amb = gauss() * 0.5; }
-    if (!ids.some(id => G.clubs[id].big)) ids.slice().sort(() => F.rnd() - 0.5).slice(0, 4).forEach(id => { const c = G.clubs[id]; c.big = true; c.amb += 1.4; c.str = Math.max(c.str, tierAvg(t) + c.amb); });
-    for (const id of ids) { const c = G.clubs[id]; c.str += (tierAvg(c.tier) + c.amb - c.str) * 0.35; }
+    if (!ids.some(id => G.clubs[id].big)) ids.slice().sort(() => F.rnd() - 0.5).slice(0, 4).forEach(id => { const c = G.clubs[id]; c.big = true; c.amb += 1.4; c.str = Math.max(c.str, tierAvg(t) + F.RIVAL_ORG + c.amb); });
+    for (const id of ids) { const c = G.clubs[id]; c.str += (tierAvg(c.tier) + F.RIVAL_ORG + c.amb - c.str) * 0.35; }
   }
   const mine = G.divs[G.club.tier].clubs.filter(i => i !== 0);
   if (!G.rival || !mine.includes(G.rival)) G.rival = pick(mine);

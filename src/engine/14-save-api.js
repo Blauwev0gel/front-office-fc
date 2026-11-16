@@ -5,7 +5,7 @@ function load(s) { const g = JSON.parse(s); if (!g || g.v > VERSION) return fals
 return {
   get G() { return G; }, set G(v) { G = v; }, HOOK, absStars, newStats,
   VERSION, SEASON_WEEKS, TIERS, REGIONS, ATTR, ATTR_L, POSW, POS_L, LINE, ROLES, ROLE, MAND, LEAN, STYLES, DNA, PRESS, PUSH, CAPREQ,
-  rnd, ri, pick, chance, clamp, gauss, wpick, uid, ord, money, M, sc, S, tierAvg, stars, upd, wageFor, genPlayer, genStaff, ovr, staff, eff, man, staffName,
+  rnd, ri, pick, chance, clamp, gauss, wpick, uid, ord, money, M, sc, S, RIVAL_ORG, tierAvg, stars, upd, wageFor, genPlayer, genStaff, ovr, staff, eff, man, staffName,
   sack, newGame, setDNA, staffBudget, finishStaff, finishMandates, finishPress, hire, genCands, fire, setMandate, talk, push, respond, msgView, endWeek, startSeason,
   pressView, pressAnswer, PRESS_IDS: () => G.press,
   sortTable, cname, myPos, expectedRank, teamStrength, pickXI, alignment, transferBudget, wageRatio, revenueAvg, playerWages, staffWages, ticketPrice, attendance, sponsorIncome,

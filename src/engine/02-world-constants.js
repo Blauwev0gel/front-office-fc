@@ -1,6 +1,8 @@
 /* ---------- world constants ---------- */
 const TIERS = [null, 'The Premiership', 'First Division', 'Second Division', 'Third Division', 'National Conference', 'Regional Premier', 'County Senior League', 'County League'];
 const tierAvg = t => 5 + (8 - t) * 1.4;
+// B37: the CEO's club gets coach, style, morale and extras on top of its squad (+1.5 to +2.5 measured); rivals have an organisation too
+const RIVAL_ORG = 1.2;
 const S = t => Math.pow(1.38, (8 - t) * 1.4);
 const sc = () => S(G.club.tier);
 const M = x => { const v = x * sc(); const m = v >= 1e6 ? 10000 : v >= 1e5 ? 1000 : v >= 1e4 ? 100 : 10; return Math.round(v / m) * m; };

@@ -19,14 +19,16 @@ function setClub(c) { const r = document.documentElement.style; r.setProperty('-
 function lum(h) { const n = parseInt(h.slice(1), 16), rr = (n >> 16) / 255, gg = (n >> 8 & 255) / 255, bb = (n & 255) / 255; return 0.299 * rr + 0.587 * gg + 0.114 * bb; }
 
 /* ---------- atoms ---------- */
-const stars = v => `<span class="stars" style="--v:${v}" aria-label="${v} stars"></span>`;
-const bar = (v, max = 100, cls = '') => `<div class="bar ${cls}"><i style="width:${Math.max(0, Math.min(100, v / max * 100))}%"></i></div>`;
-const meter = (l, v, max = 100, txt) => `<div class="meter"><span>${l}</span>${bar(v, max)}<span class="num">${txt != null ? txt : r0(v)}</span></div>`;
-function crest(cols, short, size = 52) {
-  const [a, b] = cols || ['#333', '#eee'];
-  return `<svg class="crest" viewBox="0 0 52 60" width="${size}" height="${size * 60 / 52}" aria-hidden="true"><path d="M4 4h44v24c0 15-10 24-22 29C14 52 4 43 4 28z" fill="${a}" stroke="currentColor" stroke-width="1.5"/><path d="M4 22h44v8H4z" fill="${b}"/><path d="M8 8h36v12H8z" fill="none" stroke="${b}" stroke-width="1.2"/><text x="26" y="47" text-anchor="middle" font-family="Oswald,Impact,sans-serif" font-size="13" font-weight="600" fill="${b}">${esc((short || '').slice(0, 3))}</text></svg>`;
+const stars = v => `<span class="text-stars" aria-label="${v} stars">${esc(v)}★</span>`;
+const bar = (v, max = 100, cls = '') => {
+  const pct = max ? Math.round(Math.max(0, Math.min(100, v / max * 100))) : 0;
+  return `<span class="textbar ${esc(cls)}" aria-label="${pct} percent">${pct}%</span>`;
+};
+const meter = (l, v, max = 100, txt) => `<div class="meter"><span>${esc(l)}</span>${bar(v, max)}<span class="num">${txt != null ? esc(txt) : r0(v)}</span></div>`;
+function crest(cols, short) {
+  return `<span class="text-crest" aria-label="Club abbreviation">${esc((short || 'FC').slice(0, 3))}</span>`;
 }
-const apPips = n => `<span class="ap" aria-label="${n} actions left">${[0, 1, 2].map(i => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span>`;
+const apPips = n => ''; // The adjacent button already states the action count.
 const sign = v => v > 0 ? '+' + v : '' + v;
 
 /* ---------- base club: skip the founding ---------- */

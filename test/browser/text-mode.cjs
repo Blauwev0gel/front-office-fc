@@ -49,6 +49,26 @@ const server = http.createServer((req, res) => {
       assert((await page.locator('[data-a="tab"][data-t="'+tab+'"]').first().getAttribute('class') || '').includes('on'),'tab action: '+tab);
     }
     assert.equal(await page.locator('svg:visible,canvas:visible,img:visible').count(),0,'illustrations remain hidden during play');
+    // Validate the actual wireframe structure at phone and desktop widths.
+    for (const width of [390, 920]) {
+      await page.setViewportSize({width,height:844});
+      await page.locator('[data-a="tab"][data-t="inbox"]').first().click();
+      const info = await page.evaluate(() => {
+        const r = s => document.querySelector(s)?.getBoundingClientRect();
+        const rail = r('.bar2'), inbox = r('.redbox');
+        return {
+          width: document.documentElement.scrollWidth,
+          viewport: innerWidth,
+          rail: !!rail && rail.width > 0 && rail.bottom <= innerHeight + 2,
+          inbox: !!inbox && inbox.width > 0 && inbox.right <= innerWidth + 2
+        };
+      });
+      assert(info.width <= info.viewport+2, 'no horizontal overflow at '+width+'px');
+      assert(info.rail, 'bottom action/navigation rail visible at '+width+'px');
+      assert(info.inbox, 'red box remains in viewport at '+width+'px');
+    }
+    await page.setViewportSize({width:390,height:844});
+
 
     // Trigger existing match preview, text commentary and Gazette controls.
     await page.evaluate(() => { FO.G.inbox.filter(m=>!m.done).forEach(m=>m.done=true); render(); });

@@ -16,7 +16,9 @@ for (let r = 0; r < runs; r++) {
   const pick = a => a[Math.floor(FO.rnd() * a.length)];
   const d = {}; for (const q of FO.DNA) d[q.k] = pick(q.o).v;
   FO.setDNA(d, 'Test United', 'TST', 'Testford', ['#123', '#fff']);
-  for (const role of FO.ROLES) FO.hire(role.id, 1);
+  const HIRE = process.env.LONGRUN_HIRE || 'default'; // default: candidate 1, best, worst: by overall rating
+  const hireIdx = r => { const c = FO.G.cands[r] || []; if (HIRE === 'default' || !c.length) return 1; let b = 0; c.forEach((x, i) => { if (HIRE === 'best' ? FO.ovr(x) > FO.ovr(c[b]) : FO.ovr(x) < FO.ovr(c[b])) b = i; }); return b; };
+  for (const role of FO.ROLES) FO.hire(role.id, hireIdx(role.id));
   FO.finishStaff(); FO.finishMandates();
   const doPre = () => { if (FO.G.phase === 'summer') { FO.sumView(); FO.sumPlanner(); FO.sumAuto(FO.rnd, r % 2 === 1); FO.G.lastSum = FO.G.lastSummer; return; } FO.preSetTarget(pick(['safe','accept','bold'])); const fo = FO.FOCUS.filter(f => !FO.G.board.obj.some(o => o.k === f.k)); FO.preToggleFocus(pick(fo).k); FO.preToggleFocus(pick(fo).k); FO.G.meeting && FO.G.meeting.items.forEach((it,i) => { FO.proposalView(it); if (FO.rnd()<0.3) FO.decideProposal(i,'second'); FO.decideProposal(i, FO.rnd()<0.5?'approve':'reject'); }); FO.weekForecast(); FO.finishPreseason(); };
   doPre();
@@ -42,7 +44,7 @@ for (let r = 0; r < runs; r++) {
       FO.DEPTS.forEach(d => FO.deptView(d.k)); FO.deptOverview(); FO.deptBudView();
       if (FO.rnd() < 0.005 && g.ap > 0 && FO.G.staff.coach) FO.ftSack();
       FO.ftView();
-      for (const role of FO.ROLES) if (!g.staff[role.id] && g.cands[role.id]) FO.hire(role.id, 1);
+      for (const role of FO.ROLES) if (!g.staff[role.id] && g.cands[role.id]) FO.hire(role.id, hireIdx(role.id));
       // views must not throw
       g.inbox.forEach(m => FO.msgView(m)); FO.analysis(); FO.scorecard(); if (g.meeting) g.meeting.items.forEach(it => FO.proposalView(it));
       const nSeen = R.seen.size; const res = FO.endWeek(); weeks++; R.weeksN++; { let n = 0; for (const m of g.inbox) { if (!R.seen.has(m.id)) { R.seen.add(m.id); R.msgs.push({ s: g.season, w: m.week, ev: m.ev, from: (FO.EV[m.ev] || {}).from, dept: (FO.EV[m.ev] || {}).dept }); n++; } } R.perWeek.push(n); if (n === 0) R.quiet++; }

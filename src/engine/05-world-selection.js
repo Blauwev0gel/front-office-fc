@@ -20,7 +20,7 @@ function genWorld() {
     for (let i = 0; i < 18; i++) {
       if (t === 8 && i === 0) { G.clubs[0] = { id: 0, name: G.club.name, short: G.club.short, tier: 8, me: true }; ids.push(0); continue; }
       const id = uid(); const town = townName(used);
-      G.clubs[id] = { id, name: town + ' ' + pick(SUFFIX), short: town.slice(0, 3).toUpperCase(), tier: t, str: tierAvg(t) + RIVAL_ORG + gauss() * 1.1 };
+      const coach = newCoach(t); G.clubs[id] = { id, name: town + ' ' + pick(SUFFIX), short: town.slice(0, 3).toUpperCase(), tier: t, coach, str: tierAvg(t) + coach.q + gauss() * 1.1 };
       ids.push(id);
     }
     G.divs[t] = { clubs: ids };

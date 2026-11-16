@@ -1,8 +1,12 @@
 /* ---------- world constants ---------- */
 const TIERS = [null, 'The Premiership', 'First Division', 'Second Division', 'Third Division', 'National Conference', 'Regional Premier', 'County Senior League', 'County League'];
 const tierAvg = t => 5 + (8 - t) * 1.4;
-// B37: the CEO's club gets coach, style, morale and extras on top of its squad (+1.5 to +2.5 measured); rivals have an organisation too
-const RIVAL_ORG = 1.2;
+// B37: the CEO's club gets coach, style, morale and extras on top of its squad (+1.5 to +2.5 measured). Rivals have an
+// organisation too: every club has a head coach whose quality (0 to 2.6 strength points) is added to what its squad is worth.
+// Better coaches work higher up; a coach is replaced now and then; a lucky club has a very good one.
+const ORG_MEAN = t => 0.8 + (8 - t) * 0.1;
+const newCoach = t => ({ name: pick(STAFF_FIRST) + ' ' + pick(STAFF_LAST), q: clamp(ORG_MEAN(t) + gauss() * 0.6, 0, 2.6) });
+const orgOf = c => { if (!c.coach) c.coach = newCoach(c.tier); return c.coach.q; }; /* old saves get their coaches the first time they are needed */
 const S = t => Math.pow(1.38, (8 - t) * 1.4);
 const sc = () => S(G.club.tier);
 const M = x => { const v = x * sc(); const m = v >= 1e6 ? 10000 : v >= 1e5 ? 1000 : v >= 1e4 ? 100 : 10; return Math.round(v / m) * m; };

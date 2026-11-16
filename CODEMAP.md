@@ -75,6 +75,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `engine/14-save-api.js` | 2 KB | save |  | acadMigrate, recMigrate | ap, later, v |
 | `events.js` | 70 KB | event library (module 1) Each event: from (role/board/fans/press), dept, cd (cooldown weeks), cond, w (weight) |  |  | academy, freezePrev |
 | `events2.js` | 31 KB | desk 2.0 configuration, proposals and storylines (1.2) |  |  |  |
+| `events3.js` | 13 KB | event library (module 1, part 3) Two kinds of event that make a long career feel different from a short one: - |  |  |  |
 | `briefs.js` | 20 KB | weekly briefings (1.5) Short, state-driven updates and conversations |  |  | dofPrio, dofPrioAt, wageFreezePrev |
 | `academy.js` | 14 KB | youth academy, module 2 part 1 Age groups, academy staff, development model, education and welfare, pathway | acadMigrate, acadInit, acadCost, acadWeekly, acadIntake, acadSeason |  | acad, academy |
 | `academy2.js` | 28 KB | youth academy, module 2 part 2 Category & audit, poaching and tribunals, youth competitions, ROI, academy desk | acadWeekly, acadSeason, acadIncome, acadSale, objMet |  | academy, squad |
@@ -94,7 +95,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 18 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
 | `talks.js` | 19 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio, dofStrikes |
-| `weekflow.js` | 20 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo |
+| `weekflow.js` | 23 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo, mem |
 | `weekloop.js` | 2 KB | situation-driven week Chance serves the club's situation: an event is likelier when its department is under pr | evWeight |  |  |
 | `loop.js` | 15 KB | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice | lastChance, seasonReprieve, seasonAfterMatch |  | votes, vote, bgoal, bgLog, wkDelta, wkPrev, wkLog |
 | `dossiers.js` | 28 KB | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar | seasonAfterMatch |  | pressure, dos |
@@ -124,7 +125,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: rnd, ri, pick, chance, clamp, gauss, wpick, poisson, shuffle, uid, ord, absWeek
 
 ### `engine/02-world-constants.js`
-- Functions: tierAvg, S, sc, M, money
+- Functions: tierAvg, ORG_MEAN, newCoach, orgOf, S, sc, M, money
 
 ### `engine/03-players.js`
 - Functions: calcCA, wageFor, upd, newStats, absStars, stars, genPlayer
@@ -167,6 +168,9 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 
 ### `events2.js`
 - Functions: g, P, sq, fx, avgW, wageLim, R, stand, regionPick, rankWith, homeGate, pay
+
+### `events3.js`
+- Functions: g, P, sq, fx, rel
 
 ### `briefs.js`
 - Functions: g, sq, rel, boost, fx, avg, inWindowSoon
@@ -243,8 +247,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: convoAsk, convoOpen, convoAnswer, convoClose, convoView, convoReq, convoReqs, CONVO_DEPT
 
 ### `weekflow.js`
-- Functions: g, sq, fx, rel, first, topic, quiet, B, P, htOffer, htChoice
-- Exports on `F`: weekTopic, OPP_IDS, mdHtOffer, mdHtChoice
+- Functions: g, sq, fx, rel, first, topic, quiet, B, P, keepCtx, recall, htOffer, htChoice
+- Exports on `F`: weekTopic, OPP_IDS, mdHtOffer, mdHtChoice, recall
 
 ### `weekloop.js`
 - Functions: g, heat, heat0, weight
@@ -291,7 +295,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: spark, kfmt, vDepts, headLine, headCard, authHtml, headBtns, instinctRow, fillCol, stadiumSvg, comOverview, comDecisions, mkOverview, mkDecisions, planCard, bizOverview, acPyramid, acDecisions, vDept
 
 ### `ui/08a-dept-parts.js`
-- Functions: relW, compW, netW, gapW, kpiTile, attAttr, attHtml, deskHist, recTiles, regionCard, recRecord, acRecord, acStaff, ftPlanExtra, squadPlanHtml, verdictCard, needsHtml, cvTalkHtml, ftActions, accHtml
+- Functions: relW, compW, netW, gapW, kpiTile, attAttr, attHtml, deskHist, recTiles, regionCard, recRecord, acKids, acRecord, acStaff, ftPlanExtra, squadPlanHtml, verdictCard, needsHtml, cvTalkHtml, ftActions, accHtml
 
 ### `ui/09-firstteam-review.js`
 - Functions: vFirst, ftTalkHtml, vReview2, vSacked

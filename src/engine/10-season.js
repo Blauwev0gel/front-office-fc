@@ -32,7 +32,7 @@ function endSeason() {
   if (G.club.tier < t) { G.board.conf = clamp(G.board.conf + 6, 0, 100); G.st.fans = clamp(G.st.fans + 8, 0, 100); G.club.stepUp = G.season + 1; }
   if (G.club.tier > t) { G.board.conf = clamp(G.board.conf - 15, 0, 100); G.st.fans = clamp(G.st.fans - 10, 0, 100); if (G.board.conf < 30 && G.season - (G.board.second || -99) >= 4) { G.board.second = G.season; G.board.conf = 32; rep.second = true; } }
   if (CAPREQ[G.club.tier] && G.club.cap < CAPREQ[G.club.tier]) { const cost = Math.round((CAPREQ[G.club.tier] - G.club.cap) * 12 * sc() / 100) * 100; G.club.cash -= cost; G.club.cap = CAPREQ[G.club.tier]; rep.licence = `Licensing: temporary stands to reach ${CAPREQ[G.club.tier].toLocaleString('en-GB')} seats cost ${money(cost)}.`; }
-  for (const id in G.clubs) { const c = G.clubs[id]; if (c.me) continue; c.str += (tierAvg(c.tier) + RIVAL_ORG - c.str) * 0.18 + gauss() * 0.65; }
+  for (const id in G.clubs) { const c = G.clubs[id]; if (c.me) continue; if (!c.coach || chance(0.16)) c.coach = newCoach(c.tier); else c.coach.q = clamp(c.coach.q + (ORG_MEAN(c.tier) - c.coach.q) * 0.1 + gauss() * 0.15, 0, 2.6); c.str += (tierAvg(c.tier) + c.coach.q - c.str) * 0.18 + gauss() * 0.65; /* B37: the club's coach is part of its strength */ }
   // players
   rep.leavers = []; rep.renewed = [];
   const med = G.squad.map(p => p.ca).sort((a, b) => a - b)[Math.floor(G.squad.length / 2)] || 0;

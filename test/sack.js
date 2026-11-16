@@ -51,7 +51,7 @@ function setup(seed) { const FO = boot(); FO.newGame(seed); const d = {}; for (c
 }
 // 3. dismissed by the board at the end of the season, after the clubs have changed division
 { const FO = setup(14), G = FO.G;
-  while (G.week < FO.SEASON_WEEKS && G.phase === 'season') FO.endWeek();
+  while (G.week < FO.SEASON_WEEKS && G.phase === 'season') { G.board.conf = 80; G.st.fans = 60; G.st.press = 60; G.squad.forEach(p => p.morale = 75); FO.endWeek(); } // an absent CEO can be dismissed earlier; this test is about the season review
   G.votes = { board: G.season }; // the board already gave its one more summer this season
   const tier = G.club.tier; let r, err = null;
   G.board.conf = 6; G.board.obj = [{ k: 'league', target: 1, t: 'Win the league', bold: true }]; // survives the week, fails the review

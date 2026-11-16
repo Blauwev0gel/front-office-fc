@@ -198,7 +198,8 @@ function makeBrief() {
   kpis.push({ k: 'net', t: `Net spend under ${money(Math.round(b * 0.9 / 100) * 100)}`, v: Math.round(b * 0.9) });
   if (p.approach === 'star') kpis.push({ k: 'star', t: `Land a clear upgrade (grade A)` });
   else { const target = Math.max(1, Math.min(3, p.prios.length)); kpis.push({ k: 'count', t: `At least ${target} useful signing${target === 1 ? '' : 's'}`, v: target }); }
-  s.mt.brief = { kpis, prios: p.prios, approach: p.approach, sell: p.sell.slice(), keep: p.keep.slice(), approve: p.approve, budget: b, lists: p.lists };
+  const names = {}; for (const ids of Object.values(p.lists)) for (const id of ids) { const target = R.pool[id] || sq().find(q => q.id === id); if (target) names[id] = target.name; }
+  s.mt.brief = { kpis, prios: p.prios, approach: p.approach, sell: p.sell.slice(), keep: p.keep.slice(), approve: p.approve, budget: b, lists: p.lists, names };
   say('dof', `"Then this is what I will be judged on." He slides the summer brief across the table.`);
 }
 function applyBrief() {
@@ -278,7 +279,7 @@ F.sum2Edition = () => {
   const B = s.mt.brief, R = g().rec;
   const plans = (B ? B.prios : []).map(pos => {
     const ids = (B.lists[pos] || []).slice(0, 2);
-    const name = id => { const p = R.pool[id] || sq().find(q => q.id === id) || R.log.find(l => l.pid === id); return p ? p.name : 'Unknown target'; };
+    const name = id => { const p = R.pool[id] || sq().find(q => q.id === id) || R.log.find(l => l.pid === id); return p ? p.name : (B.names && B.names[id]) || 'Unavailable target'; };
     const signed = R.log.find(l => l.s === g().season && l.pos === pos && ids.includes(l.pid));
     const replacement = !signed && R.log.find(l => l.s === g().season && l.pos === pos);
     const failed = ids.map(id => R.pipe.find(x => x.pid === id)).find(x => x && x.stage === 'lost');

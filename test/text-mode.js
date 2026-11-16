@@ -6,7 +6,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const read = require('./src.js');
-const ui = read('ui.js'), css = read('style.css');
+const ui = read('ui.js');
+const styleDir = path.join(__dirname, '../src/style');
+const css = fs.readdirSync(styleDir).filter(x => x.endsWith('.css')).sort()
+  .map(x => fs.readFileSync(path.join(styleDir, x), 'utf8')).join('');
 const html = fs.readFileSync(path.join(__dirname, '../dist/index.html'), 'utf8');
 const script = html.match(/<script>([\s\S]*?)<\/script>/);
 assert(script && script[1], 'standalone game script present');

@@ -21,10 +21,10 @@ function slotOpen(p, k) {
 
 /* ---------- player pool ---------- */
 function aiClub(t) { const ids = g().divs[clamp(t, 1, 8)].clubs.filter(x => x !== 0); return pick(ids); }
-function genPool(reg, t) {
-  const pos = pick(POSK), age = ri(17, 33), ca = tierAvg(t) + gauss() * 1.4 + (age > 28 ? 0.3 : 0) - (age < 21 ? 0.8 : 0);
+function genPool(reg, t, free, fpos) {
+  const pos = fpos || pick(POSK), age = ri(17, 33), ca = tierAvg(t) + gauss() * 1.4 + (age > 28 ? 0.3 : 0) - (age < 21 ? 0.8 : 0);
   const p = F.genPlayer({ pos, age, ca, region: reg });
-  p.club = chance(0.06 + t * 0.035) ? null : aiClub(t); p.contract = p.club ? ri(0, 3) : 0;
+  p.club = free || chance(0.06 + t * 0.035) ? null : aiClub(t); p.contract = p.club ? ri(0, 3) : 0;
   if (!p.club) { for (const k in F.POSW[pos]) p.a[k] = clamp(p.a[k] - 0.8, 1, 20); upd(p); }
   p.ask = p.club ? Math.round(p.value * REG[reg].cost * (0.9 + F.rnd() * 0.35) * (p.contract === 0 ? 0.35 : 1) / 100) * 100 : 0;
   p.wageAsk = Math.round(wageFor(p.ca) * (1 + (age > 28 ? 0.15 : 0)) * (0.95 + F.rnd() * 0.25) / 5) * 5;
@@ -38,7 +38,11 @@ function topUpPool() {
   const r = RC(), t = g().club.tier, have = {};
   for (const id in r.pool) { const p = r.pool[id]; if (Math.abs(p.inTier - t) <= 1) have[p.region] = (have[p.region] || 0) + 1; }
   for (const k of REGK) { const want = k === 'dom' ? 34 : 22; for (let i = have[k] || 0; i < want; i++) { const p = genPool(k, clamp(t + ri(-1, 1), 1, 8)); r.pool[p.id] = p; } }
-  const ids = Object.keys(r.pool); if (ids.length > 330) { for (const id of ids) { const p = r.pool[id]; if (Math.abs(p.inTier - t) >= 2 && !r.know[id] && chance(0.6)) delete r.pool[id]; } }
+  // free agents: every position keeps a deep market near our level, because rules (age, wage cap) and scouting thin it out; lower tiers have more
+  const fmin = 14 + Math.round(t * 1.5), fh = {};
+  for (const id in r.pool) { const p = r.pool[id]; if (!p.club && Math.abs(p.inTier - t) <= 1) fh[p.pos] = (fh[p.pos] || 0) + 1; }
+  for (const pos of POSK) for (let i = fh[pos] || 0; i < fmin; i++) { const p = genPool(chance(0.6) ? 'dom' : pick(REGK), clamp(t + ri(-1, 1), 1, 8), true, pos); r.pool[p.id] = p; }
+  const ids = Object.keys(r.pool); if (ids.length > 520) { for (const id of ids) { const p = r.pool[id]; if (Math.abs(p.inTier - t) >= 2 && !r.know[id] && chance(0.6)) delete r.pool[id]; } }
 }
 
 /* ---------- scouts ---------- */

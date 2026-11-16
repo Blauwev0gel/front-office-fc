@@ -20,14 +20,14 @@ const LIM = { coach: 900, dof: 1500, acad: 900, com: 2200, mkt: 900, fin: 1600 }
 const LIMF = [0.4, 1, 2.5];
 
 // always the CEO's call
-const CORE = new Set(['coach_authority', 'coach_poached', 'coach_dof_clash', 'com_mkt_clash', 'grad_minutes', 'style_drift', 'naming_rights', 'rebrand', 'documentary', 'cash_crisis', 'fin_alarm', 'wage_cap', 'stand_objection', 'exception_review', 'rec_exception', 'dof_rule', 'star_unrest', 'acad_welfare', 'clash_tour', 'clash_budget', 'clash_prospect', 'clash_event']);
+const CORE = new Set(['squad_plan_policy', 'coach_authority', 'coach_poached', 'coach_dof_clash', 'com_mkt_clash', 'grad_minutes', 'style_drift', 'naming_rights', 'rebrand', 'documentary', 'cash_crisis', 'fin_alarm', 'wage_cap', 'stand_objection', 'exception_review', 'rec_exception', 'dof_rule', 'star_unrest', 'acad_welfare', 'clash_tour', 'clash_budget', 'clash_prospect', 'clash_event']);
 const CLASH = new Set(['coach_dof_clash', 'com_mkt_clash', 'grad_minutes', 'clash_tour', 'clash_budget', 'clash_prospect', 'clash_event']);
 // core, unless a strong head has a free hand: exceptions to his own rules
 const SOFT = new Set(['wage_cap', 'star_unrest', 'exception_review', 'rec_exception', 'dof_rule', 'acad_welfare', 'style_drift']);
 // could hurt the club's name
 const REP = new Set(['bet_sponsor', 'doc_episode', 'transfer_request', 'wonderkid', 'acad_release', 'player_ego']);
 // briefs that stay with the CEO; every other staff brief is routine
-const CEO_B = new Set(['big_game', 'stake_match', 'pre_box', 'staff_distant', 'chairman_call', 'block_opening', 'block_autumn', 'block_winter', 'block_runin', 'block_finale', 'biz_budget', 'biz_review', 'biz_refi', 'winter_deadline', 'one_free', 'one_rein', 'one_leash']);
+const CEO_B = new Set(['squad_plan_update', 'big_game', 'stake_match', 'pre_box', 'staff_distant', 'chairman_call', 'block_opening', 'block_autumn', 'block_winter', 'block_runin', 'block_finale', 'biz_budget', 'biz_review', 'biz_refi', 'winter_deadline', 'one_free', 'one_rein', 'one_leash']);
 
 function auth(r) { const G = g(); G.auth = G.auth || {}; const h = headOf(r); return G.auth[h] == null ? 1 : G.auth[h]; }
 function setAuth(r, v) { const G = g(); G.auth = G.auth || {}; if (!HEADS.includes(r)) return { err: 'Unknown department.' }; const old = auth(r); v = clamp(+v, 0, 2); if (old === v) return { out: '' }; G.auth[r] = v; const s = staff(r);
@@ -94,6 +94,7 @@ const BAUTO = {
 };
 function briefAmt(b) { if (b.t === 'com_offer') { const o = F.comView && F.comView().X.offer; return o ? o.wk : 0; } return amtOf(b.ctx); }
 H.deskBriefs = list => {
+  if (F.squadPlanDelivered) for (const b of list) if (b.t === 'squad_plan_update') F.squadPlanDelivered(b.ctx.revision);
   for (const b of list) {
     const d = F.BR[b.t]; if (!d || CEO_B.has(b.t) || !d.role || !ROLE[d.role]) continue;
     const h = headOf(d.role), s = staff(h); if (!s) continue; const a = auth(h);

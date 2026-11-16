@@ -16,6 +16,7 @@ function endWeek() {
   if (over()) return { sacked: true };
   lapseMeeting();
   if (FO.deptIssueWorkWeekly) FO.deptIssueWorkWeekly();
+  if (FO.squadPlanPrepare) FO.squadPlanPrepare();
   if (HOOK.recWeekly) { dofWork(); HOOK.recWeekly(); } else { scoutWork(); dofWork(); }
   // matches
   const t = G.club.tier, round = G.divs[t] && G.divs[t].fix[G.week - 1];

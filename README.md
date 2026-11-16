@@ -42,6 +42,7 @@ You can also build locally and open `dist/index.html` in a browser.
 python3 build.py                 # writes dist/index.html
 node test/matchday.js            # stories, outcomes, turning points
 node test/gazette.js             # one edition per week, archive, old saves
+node test/squad-plan.js          # rolling winter/summer plan, scouting, renewals, policy boundaries
 node test/sack.js                # dismissal is final
 node test/pathway.js             # the youth pathway storyline
 python3 test/browser/playtest.py # a run of weeks with real clicks (needs Playwright and Chrome)
@@ -55,6 +56,8 @@ output directory to save the mobile and desktop screenshots.
 To preview: build, run the relevant tests, and push to your assigned branch.
 To release: merge the approved changes into `main`. GitHub Actions publishes
 the new main version and preserves both previews. No manual HTML copy is needed.
+
+Recruitment maintains a rolling squad plan throughout the season. The Recruitment overview shows winter cover, summer succession, actual scouting assignments and the reasons priorities changed; the DoF handles affordable renewals and brings financial policy changes to the CEO. Existing saves acquire this plan on their next recruitment update or when the overview opens.
 
 ## Ground rules
 

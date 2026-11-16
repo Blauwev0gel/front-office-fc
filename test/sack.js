@@ -54,7 +54,7 @@ function setup(seed) { const FO = boot(); FO.newGame(seed); const d = {}; for (c
   while (G.week < FO.SEASON_WEEKS && G.phase === 'season') { G.board.conf = 80; G.st.fans = 60; G.st.press = 60; G.squad.forEach(p => p.morale = 75); FO.endWeek(); } // an absent CEO can be dismissed earlier; this test is about the season review
   G.votes = { board: G.season }; // the board already gave its one more summer this season
   const tier = G.club.tier; let r, err = null;
-  G.board.conf = 6; G.board.obj = [{ k: 'league', target: 1, t: 'Win the league', bold: true }]; // survives the week, fails the review
+  G.board.conf = 25; G.board.obj = [{ k: 'league', target: 1, t: 'Win the league', bold: true }, { k: 'cash', target: 1e12, t: 'Impossible cash target' }, { k: 'fans', target: 101, t: 'Impossible supporter target' }, { k: 'brand', target: 101, t: 'Impossible brand target' }, { k: 'grads', target: 99, t: 'Impossible graduates target' }]; /* several unmet targets, so the review penalty is large whatever the final table looks like */ // survives the week, fails the review
   try { r = FO.endWeek(); } catch (e) { err = e; }
   ok(!err, 'season-end dismissal does not crash' + (err ? ': ' + err.message : ''));
   ok(G.phase === 'sacked' && !!G.over && G.over.cause === 'season', 'dismissed at the season review (phase ' + G.phase + ', cause ' + (G.over && G.over.cause) + ')');

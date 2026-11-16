@@ -89,7 +89,7 @@ function record(P, seasonNo, week) {
   const cur = season(P, ca, ageNow, seasonNo, frac), full = season(P, ca, ageNow, seasonNo, 1), mk_ = market(P, ca, ageNow, last || full);
   const hist = []; for (let k = 2; k <= 3; k++) { const ag = ageNow - k; if (ag < 17) break; hist.push({ age: ag, ...season(P, P.caAt(ag), ag, seasonNo - k, 1).st }); }
   const left = P.endSeason - seasonNo, end = left <= 0, contract = end ? .5 : left + 1;
-  const wage = Math.round(120 * Math.pow(1.38, ca - 6) / 5) * 5, needy = (hstr(P.hs + '|needy|' + seasonNo) % 100) < 12;
+  const wage = Math.round(F.wageFor(ca) / 5) * 5, needy = (hstr(P.hs + '|needy|' + seasonNo) % 100) < 12;
   return { key: P.key, lg: P.lg, club: P.club.name, clubKey: P.club.id, pos: P.pos, name: P.name, age: ageNow, a: attrsAt(P, ca), pers: P.pers, ca, pa: Math.max(P.pa, ca), contract, end, needy, wage, st: last ? last.st : full.st, cur: cur.st, hist, ask: mk_.ask * (end ? .8 : 1) * (needy ? .92 : 1), perceived: mk_.perceived, z: mk_.z, truth: { xgT: (last || full).tr.xgT, xaT: (last || full).tr.xaT }, signed: false };
 }
 function ours() { const G = g(); return G.squad.map(p => ({ key: 'me|' + p.id, lg: 'd' + G.club.tier, club: G.club.name, clubKey: 0, pos: p.pos, name: p.name, age: p.age, a: p.a, pers: p.pers, ca: p.ca, pa: p.pa || p.ca, contract: p.contract, end: p.contract <= 0, needy: false, wage: p.wage, st: p.lastSeason || p.st, cur: p.st, hist: [], ask: 0, perceived: p.ca, z: 0, truth: {}, signed: true, ours: true, pid: p.id })); }
@@ -104,5 +104,15 @@ function worldLeagues() { return LGS.map(d => ({ id: d.id, name: leagueName(d.id
 function worldLeague(id) { return { id, name: leagueName(id), clubs: clubsOf(id).map(c => c.name), players: leaguePlayers(id) }; }
 function worldPlayer(key) { if (key.startsWith('me|')) return ours().find(p => p.key === key) || null; const [lg, cid, slot] = key.split('|'); const c = clubsOf(lg).find(x => String(x.id) === cid); if (!c) return null; const P = build(lg, c, +slot, g().season); return P.key === key ? record(P, g().season, g().week) : null; }
 function worldRemove(key) { const w = WS(); w.moved[key] = g().season; for (const id in cache) delete cache[id]; }
-Object.assign(F, { worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN: PLAN });
+/* ---------- what the CEO does in the portal: flags with a reason, scouts who confirm (all saved in G.world) ---------- */
+const WX = () => { const w = WS(); w.flags = w.flags || {}; w.know = w.know || {}; return w; };
+const aw = () => F.absWeek();
+// scout slots per week: a chief scout gives three, without one the DoF's own people manage one
+function worldSlots() { const w = WX(); if (w.usedAt !== aw()) { w.usedAt = aw(); w.used = 0; } const total = F.staff('scout') ? 3 : 1; return { total, left: Math.max(0, total - w.used) }; }
+function worldMeta(key) { const w = WX(), f = w.flags[key], k = w.know[key]; return { fl: !!f, hyp: f ? f.hyp || null : null, confirmed: k ? (aw() > k.at ? 2 : 1) : 0 }; }
+function worldFlag(key, hyp) { const w = WX(); w.flags[key] = w.flags[key] || { at: aw() }; if (hyp !== undefined) w.flags[key].hyp = hyp; }
+function worldUnflag(key) { delete WX().flags[key]; }
+function worldConfirm(key) { const w = WX(), s = worldSlots(); if (w.know[key]) return { err: 'The scouts have already been asked.' }; if (s.left < 1) return { err: 'No scout is free this week.' }; w.know[key] = { at: aw() }; w.used = (w.used || 0) + 1; return { ok: true }; }
+function worldFlagged() { return Object.keys(WX().flags).map(key => ({ key, ...WX().flags[key] })); }
+Object.assign(F, { worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN: PLAN, worldSlots, worldMeta, worldFlag, worldUnflag, worldConfirm, worldFlagged });
 })(FO);

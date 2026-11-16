@@ -4,6 +4,8 @@ function act(a, d, el) {
   const g = G(); let r;
   switch (a) {
     case 'quick': quickStart(d.v === 'season'); break;
+    case 'portal-open': U.portal = true; PLP(); window.scrollTo(0, 0); break;
+    case 'pl': plAct(d); break;
     case 'new': U.title = false; F.newGame(); U.setup = { step: 0, name: '', short: '', city: '', col: 0, dna: {} }; U.hire = {}; break;
     case 'continue': if (loadGame()) { U.title = false; setClub(G().club.colors); } break;
     case 'restart': wipe(); U.title = true; F.G = null; break;
@@ -72,7 +74,7 @@ function act(a, d, el) {
     case 'cv-ans': F.convoAnswer(d.id); ART.SND.card(); ART.vib(15); break;
     case 'cv-close': F.convoClose(); U.tray = ''; window.scrollTo(0, 0); break;
     case 'godept': U.tab = 'staff'; U.open = null; U.sheet = null; U.dept = d.k; U.dtab = 'now'; U.tray = ''; window.scrollTo(0, 0); break;
-    case 'dept': U.dept = d.k || null; U.dtab = d.v || 'now'; U.tray = ''; window.scrollTo(0, 0); break;
+    case 'dept': U.portal = false; U.dept = d.k || null; U.dtab = d.v || 'now'; U.tray = ''; window.scrollTo(0, 0); break;
     case 'dtab': U.dtab = d.v; window.scrollTo(0, 0); break;
     case 'dsec': U.dsec = U.dsec || {}; U.dsec[d.k] = !(U.dsec[d.k] != null ? U.dsec[d.k] : d.d === '1'); break;
     case 'dcand': U.sheet = { t: 'dcand', k: d.k, r: d.r }; break;
@@ -152,7 +154,7 @@ document.addEventListener('input', e => {
   else { G().mand[role][k] = v; const m = document.querySelector('.setup .meter .num'), b = document.querySelector('.setup .meter .bar i'); const al = F.alignment(); if (m) { m.textContent = al; b.style.width = al + '%'; } }
 });
 document.addEventListener('change', e => {
-  const t = e.target; if (t.dataset.sl && t.dataset.p === 'pb') { saveGame(); render(); return; } if (t.dataset.sl && t.dataset.p !== 'md') { saveGame(); return; } if (!t.dataset.ru) return; const role = t.dataset.ru, k = t.dataset.k;
+  const t = e.target; if (t.dataset.a === 'pl-sel') { plAct({ do: 'lg', x: t.value }); render(); return; } if (t.dataset.sl && t.dataset.p === 'pb') { saveGame(); render(); return; } if (t.dataset.sl && t.dataset.p !== 'md') { saveGame(); return; } if (!t.dataset.ru) return; const role = t.dataset.ru, k = t.dataset.k;
   if (t.dataset.p === 'md') { U.draft[k] = t.value; render(); } else { G().mand[role][k] = t.value; U.mandOpen = role; saveGame(); render(); }
 });
 

@@ -92,7 +92,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `business.js` | 7 KB | Business department A season budget per department (lean, normal, invest) against what the club can afford, a  | costDisc |  | biz, deptB |
 | `academy3.js` | 5 KB | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid  | acadIntake, seasonAfterMatch |  | acadX, academy |
 | `recruitx.js` | 25 KB | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re | seasonAfterMatch, recWeekly, seasonWeekly, summerStart | recMigrate | recX |
-| `world.js` | 13 KB | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store |  |  | world |
+| `world.js` | 14 KB | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store |  |  | world |
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 18 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
 | `talks.js` | 19 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio, dofStrikes |
@@ -111,6 +111,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/07-club-league.js` | 9 KB | review & sacked; club, league, staff, academy, review: game screens |  | deptCost |  |
 | `ui/08-departments.js` | 25 KB | departments |  |  |  |
 | `ui/08a-dept-parts.js` | 21 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
+| `ui/08b-portal.js` | 26 KB | navigation; leagues: a table whose columns follow the position filter; the player; drill-downs |  |  |  |
 | `ui/09-firstteam-review.js` | 12 KB | first team department |  |  |  |
 | `ui/10-inbox.js` | 18 KB | render; inbox home (1.6) |  |  |  |
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
@@ -236,8 +237,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: squadPlanScoutJob, squadPlanAllows, squadPlanPrepare, squadPlanView, squadPlanAsk, recPlanSuggest, squadPlanDelivered, rxView, rxFocus, rxInvest
 
 ### `world.js`
-- Functions: g, hstr, mk, WS, LGDEF, leagueName, clubsOf, lineage, build, attrsAt, season, market, record, ours, leaguePlayers, worldLeagues, worldLeague, worldPlayer, worldRemove
-- Exports on `F`: worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN
+- Functions: g, hstr, mk, WS, LGDEF, leagueName, clubsOf, lineage, build, attrsAt, season, market, record, ours, leaguePlayers, worldLeagues, worldLeague, worldPlayer, worldRemove, WX, aw, worldSlots, worldMeta, worldFlag, worldUnflag, worldConfirm, worldFlagged
+- Exports on `F`: worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN, worldSlots, worldMeta, worldFlag, worldUnflag, worldConfirm, worldFlagged
 
 ### `matchtalk.js`
 - Functions: g, hs, opp, P, sur, crowd, preview
@@ -301,6 +302,9 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 
 ### `ui/08a-dept-parts.js`
 - Functions: relW, compW, netW, gapW, kpiTile, attAttr, attHtml, deskHist, recTiles, regionCard, recRecord, acKids, acRecord, acStaff, ftPlanExtra, squadPlanHtml, verdictCard, needsHtml, cvTalkHtml, ftActions, accHtml
+
+### `ui/08b-portal.js`
+- Functions: PLP, plAvgRat, plSt, plShow, plStars, plByKey, plMinFor, plPeers, plStars2, plPct, plHead, plFit, plGo, plAct, plLeagues, plAttrRow, plSrow, plCareer, plReview, plDof, plProfile, plStatPage, plClub, plFlags, vPortal, portalCard
 
 ### `ui/09-firstteam-review.js`
 - Functions: vFirst, ftTalkHtml, vReview2, vSacked

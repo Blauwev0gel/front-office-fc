@@ -104,6 +104,7 @@ function acDecisions(V) {
 }
 const DTABS = [['now', 'Overview'], ['plan', 'Setup'], ['record', 'Record']], DTAB_OLD = { over: 'now', dec: 'plan', data: 'record', people: 'plan' };
 function vDept(k) {
+  if (k === 'recruit' && U.portal && F.worldLeague) return vPortal();
   const g = G(), v = F.deptView(k), d = v.d, st = v.status, role = d.head, s = v.head;
   let tab = DTAB_OLD[U.dtab] || U.dtab || 'now'; if (!DTABS.some(t => t[0] === tab)) tab = 'now';
   const head = `<div class="ohead"><button class="iconbtn" data-a="dept" data-k="" aria-label="Back to departments">${ART.I.back}</button><span class="pos">${esc(d.t)}</span></div>`;
@@ -114,7 +115,7 @@ function vDept(k) {
   if (tab === 'now') {
     const kpis = st.rows.length ? `<div class="sec">The numbers</div><div class="kgrid">${st.rows.slice(0, 4).map(kpiTile).join('')}</div>` : '';
     const vis = k === 'commercial' && F.comView ? comOverview(F.comView()) : k === 'marketing' && F.mkView ? mkOverview(F.mkView()) : k === 'business' && F.bizView ? bizOverview() : FP ? `<div class="sec">Form</div><div class="panel2">${FP.form}</div>` : '';
-    body = (s ? verdictCard(st, role, s) + needsHtml(k, role, d) + (FP ? ftActions() : '') + (k === 'academy' && F.acView ? acDecisions(F.acView()) : '') : headCard(k, v)) + kpis + vis + (k === 'academy' && g.acad ? acKids() : '') + (k === 'recruit' && F.squadPlanView ? accHtml(k, 'sqp', 'Squad plan', 'Winter and summer targets', squadPlanHtml(), false) : '');
+    body = (s ? verdictCard(st, role, s) + needsHtml(k, role, d) + (FP ? ftActions() : '') + (k === 'academy' && F.acView ? acDecisions(F.acView()) : '') : headCard(k, v)) + kpis + vis + (k === 'academy' && g.acad ? acKids() : '') + (k === 'recruit' && F.worldLeague ? portalCard() : '') + (k === 'recruit' && F.squadPlanView ? accHtml(k, 'sqp', 'Squad plan', 'Winter and summer targets', squadPlanHtml(), false) : '');
   }
   let peopleHtml = '';
   {

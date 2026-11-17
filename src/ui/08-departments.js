@@ -11,6 +11,11 @@ const kfmt = (k, v) => k === 'commercial' || k === 'business' ? money(v) : k ===
 function vDepts() {
   const O = F.deptOverview();
   const priority = O.filter(o => !o.s || o.status.st === 'bad');
+  const pending = inboxItems().filter(i => isBox(i) && O.some(o => o.head === i.role || o.also === i.role));
+  const pendingHtml = pending.length ? `<section class="fo-staff-pending"><h3>Waiting for your decision</h3>
+    ${pending.map(i => `<button class="fo-task-link" data-a="dinbox" data-key="${i.key}">
+      <span><b>${esc(i.subj)}</b><small>${esc(i.from)} · opens at your desk</small></span><strong>Open</strong></button>`).join('')}</section>` : '';
+
   const card = o => {
     const title = o.s ? o.s.name : 'Vacant — appointment needed';
     const staffed = o.s ? `${o.staffOn} of ${o.slots} supporting staff active` : 'No responsible head';
@@ -24,6 +29,7 @@ function vDepts() {
   return `${tourCard('staff')}<section class="ceo-dept-intro"><h2>Your departments</h2>
     <p>The heads run their departments. You set mandates, hold conversations and decide exceptions.</p>
     <p class="small">${O.length} departments · ${priority.length ? priority.length + ' need attention' : 'No urgent concerns'}</p></section>
+    ${pendingHtml}
     ${priority.length ? `<section class="ceo-dept-group"><h3>Needs attention</h3><div class="ceo-dept-list">${priority.map(card).join('')}</div></section>` : ''}
     <section class="ceo-dept-group"><h3>${priority.length ? 'Other departments' : 'Department overview'}</h3>
       <div class="ceo-dept-list">${O.filter(o=>!priority.includes(o)).map(card).join('')}</div></section>

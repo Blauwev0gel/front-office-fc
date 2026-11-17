@@ -230,3 +230,13 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 - Match preview is a self-contained football screen displaying fixture context, league positions, form, real narratives and a clear kick-off action. The live match retains generated event commentary and Gazette progression.
 - The UX change must not alter match outcomes, staff autonomy, transfers, financial state or save keys. Do not resurrect Grip or AP.
 - This is an implemented interface redesign, **not** evidence of full device/browser accessibility QA. Only CI/build checks and owner visual review can establish those separately.
+
+## B21 — Desk V2: football club headquarters (chatgpt, November 2026)
+
+- The old Desk status strip, backer bars, Red Box, separate story/decision/history panels, and prominent folders are replaced by football-week context, real pressure, decisions, next match, staff updates, club matters, Gazette and club records.
+- True CEO decisions (`kind: need`) are prominent; additional items beyond two are expandable. Optional briefings (`kind: upd`, except coach debrief) are explicitly optional and initially collapsed.
+- The fixture card contains the sole Desk progression action, including fixture-free week continuation. The floating duplicate Play control is removed. The existing engine handles open requests and delegation.
+- Negative cash and materially low stakeholder scores produce actual context alerts; ordinary weeks remain quiet. Board/Fans/Room continue to use the existing stakeholder engine.
+- Club matters combines ongoing dossiers, pathways, staff delegation and decision-history references without duplicating game state. Original detail routes are preserved.
+- Club records replaces nine prominent folders with five broad filters and optional specialist archives. The Desk tab resets to the live home view, while archived record navigation remains usable.
+- Main implementation: `src/ui/10-inbox.js`, `src/ui/12-scenes-cards.js`, `src/ui/13-redbox-render.js`, `src/ui/15-actions.js` and `src/style/zz-text-only.css`. No changes to game engine or save format.

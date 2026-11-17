@@ -38,11 +38,10 @@ function mdMatch() {
     ${motm ? `<div class="mdmotm"><span class="mdmf">${ART.playerFace(motm, 'happy')}</span><div><em>Player of the match</em><b>${esc(motm.name)}</b>${motm.lastRat ? `<span class="mdrt">${motm.lastRat.toFixed(1)}</span>` : ''}</div></div>` : ''}
     ${s.out && s.out.length ? `<h3>How the stories ended</h3><ul class="mdouts">${s.out.map(o => { const p = mdP(o.pid); return `<li>${p ? `<span class="mdsf sm">${ART.playerFace(p, o.mood)}</span>` : ''}<p>${esc(o.t)}</p></li>`; }).join('')}</ul>` : ''}
     <button class="mdko" data-a="md-after">${s.replay ? 'Back to the Gazette' : s.cup ? 'To the cup tie' : 'Read the Gazette'}</button></section>`;
-  } else foot = `<div class="mdfeed"><div class="mdnow"></div><ul class="mdpast" aria-live="polite"></ul></div><div class="mdctl"><button data-a="md-speed">2x speed</button><button data-a="md-skip">Skip to full time</button></div>`;
+  } else foot = `<div class="mdfeed" aria-label="Live match events"><div class="mdnow" aria-live="polite"></div><ul class="mdpast"></ul></div><div class="mdctl"><button data-a="md-speed">2x speed</button><button data-a="md-skip">Simulate to full time</button></div>`;
   return `<div class="mds mdm ${ft ? 'ft' : ''}"><div class="mdbug"><div class="mdbt">${crest(L.c, L.s, 30)}<b>${esc(L.s)}</b></div><div class="mdbs"><b class="mdsc">${sc}</b><span class="mdclk">${ft ? (m.pens || m.ev.some(e => e.m > 95) ? 'AET' : 'FT') : "0'"}</span></div><div class="mdbt r"><b>${esc(R.s)}</b>${crest(R.c, R.s, 30)}</div></div>
   <div class="mdprog"><b style="width:${ft ? 100 : 0}%"></b></div>
-  <div class="mdpw">${mdPitch()}<span class="mdball">${MD_BALL}</span><div class="mdgf"></div><span class="mddir l">${esc(L.s)} attack</span><span class="mddir r">${esc(R.s)} attack</span></div>
-  <div class="mdmom"><svg viewBox="0 0 360 54" preserveAspectRatio="none"><path class="mu" d="${ft ? s.momTop || '' : ''}"/><path class="mt" d="${ft ? s.momBot || '' : ''}"/><path d="M0 27h360" stroke="currentColor" stroke-opacity=".25"/><path d="M180 0v54" stroke="currentColor" stroke-opacity=".15" stroke-dasharray="3 3"/></svg><div class="mdmoml"><span>${esc(L.s)}</span><small>Momentum</small><span>${esc(R.s)}</span></div></div>
+  <div class="ceo-match-head"><b>${ft ? 'FINAL WHISTLE' : 'LIVE MATCH COMMENTARY'}</b><span>${esc(m.comp || 'League')} · ${esc(m.oppName)}</span></div>
   ${foot}</div>`;
 }
 /* the live match: a small player that animates the existing DOM, no re-render */
@@ -93,19 +92,6 @@ const MDP = {
     }
     this.card(e);
     this.loop();
-    return;
-    const right = e.us != null ? this.side(e.us) : true, gx = right ? 94 : 6; let wait = this.fast ? 500 : 1100;
-    if (e.k === 'info' && /^Half-time/.test(e.t)) { this.ball(50, 50, 600); ART.SND.whistle(); return this.half(e); }
-    if (e.k === 'ft') return this.finish();
-    if (e.k === 'ch') { this.ball(right ? 80 : 20, 35 + Math.random() * 30, 420); setTimeout(() => this.alive() && this.ball(gx + (right ? -4 : 4), 44 + Math.random() * 12, 260), 420); this.push(right ? 1.2 : -1.2); }
-    if (e.k === 'goal') {
-      this.ball(right ? 82 : 18, 50, 380); setTimeout(() => this.alive() && this.ball(gx + (right ? 3 : -3), 50, 220), 380);
-      setTimeout(() => { if (!this.alive()) return; const sc = this.root.querySelector('.mdsc'), hs = this.home ? e.sc[0] : e.sc[1], as = this.home ? e.sc[1] : e.sc[0]; if (sc) { sc.innerHTML = `${hs}<i>–</i>${as}`; sc.classList.remove('pop'); void sc.offsetWidth; sc.classList.add('pop'); }
-        const gf = this.root.querySelector('.mdgf'), p = e.us && e.pid ? mdP(e.pid) : null; if (gf) { gf.className = 'mdgf on ' + (e.us ? 'us' : 'them'); gf.innerHTML = e.us ? `${p ? `<span class="mdgface">${ART.playerFace(p, 'happy')}</span>` : ''}<b>GOAL!</b>${p ? `<small>${esc(p.name)}</small>` : ''}` : `<b>${esc(oppShort(this.m.oppName))} score</b>`; setTimeout(() => { gf.className = 'mdgf'; }, this.fast ? 900 : 1800); }
-        if (e.us) { ART.SND.cheer(); ART.vib([80, 40, 80]); } else ART.SND.bad(); }, 600);
-      this.push(right ? 2 : -2); wait = this.fast ? 1300 : 2500;
-    }
-    this.card(e); clearTimeout(this.t); this.t = setTimeout(() => this.loop(), MAIL_RM ? 150 : wait);
   },
   card(e) {
     const now = this.root.querySelector('.mdnow'), past = this.root.querySelector('.mdpast'); if (!now) return;

@@ -61,7 +61,7 @@ function vReview2() {
 function vSacked() {
   const g = G();
   const o = g.over || {}, CAUSE = { board: 'Board confidence ran out', season: 'Season review by the board', admin: 'Second administration', 'vote:board': 'Lost a vote of confidence: the board', 'vote:fans': 'Lost a vote of confidence: the supporters', 'vote:press': 'Lost a vote of confidence: the press storm', 'vote:room': 'Lost a vote of confidence: the dressing room' };
-  const facts = [['Cause', CAUSE[o.cause] || 'Dismissed'], ['When', o.season ? `Season ${o.season}, week ${o.week}` : `Season ${g.season}`], ['League position', o.pos ? `${F.ord(o.pos)} in the ${F.TIERS[o.tier || g.club.tier]}` : F.TIERS[g.club.tier]], ...(F.backers ? F.backers().map(b => [b.t, String(b.v)]) : [])];
+  const facts = [['Cause', CAUSE[o.cause] || 'Dismissed'], ['When', o.season ? `Season ${o.season}, week ${o.week}` : `Season ${g.season}`], ['League position', o.pos ? `${F.ord(o.pos)} in the ${F.TIERS[o.tier || g.club.tier]}` : F.TIERS[g.club.tier]], ...(F.backers ? F.backers().map(b => [bkT(b.t), b.mood]) : [])];
   return `<div class="setup"><div class="hero"><div class="kick">Final edition</div><h1>CEO dismissed</h1><p>${esc(g.sackReason)} You leave ${esc(g.club.name)} after ${g.season} season${g.season > 1 ? 's' : ''}.</p>
   <dl class="figs endfig">${facts.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>${g.trophies.length ? `<p>Honours: ${esc(g.trophies.join(', '))}.</p>` : ''}
   <div class="row" style="margin-top:18px"><button class="btn" data-a="restart">Found a new club</button><button class="btn ghost" data-a="sheet" data-s="quick">Base club</button></div></div></div>`;

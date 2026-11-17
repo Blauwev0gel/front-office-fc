@@ -24,16 +24,21 @@ function inboxItems() {
   const order = { need: 0, upd: 1, info: 2, done: 3 }; return out.sort((a, b) => order[a.kind] - order[b.kind]);
 }
 function nextFix() { const g = G(), r = g.divs[g.club.tier].fix[g.week - 1]; if (!r) return null; const f = r.find(x => x[0] === 0 || x[1] === 0); const home = f[0] === 0, opp = home ? f[1] : f[0]; return { name: F.cname(opp), short: F.cname(opp).split(' ')[0], home, pos: F.sortTable(g.club.tier).indexOf(opp) + 1 }; }
+/* B52: one way to show a backer on every screen: a name, a mood, a direction and a state colour. Old saves may carry the old names. */
+function bkT(t) { return t === 'Supporters' ? 'Fans' : t === 'Dressing room' ? 'Squad' : t; }
+function bkSt(v) { return v <= 20 ? 'lo' : v < 55 ? 'mid' : 'ok'; }
+function bkArrow(d) { return d > 0 ? '<i class="up" aria-hidden="true">↑</i>' : d < 0 ? '<i class="dn" aria-hidden="true">↓</i>' : ''; }
+function bkDir(d) { return d > 0 ? ', rising' : d < 0 ? ', falling' : ''; }
 function backersHtml() {
   if (!F.backers) return ''; const B = F.backers();
   /* B51: the backers are felt, not read: a mood and a direction, the numbers only in the sheet */
-  return `<button class="bkrs" data-a="sheet" data-s="backers" aria-label="Your backers: ${B.map(b => `${b.t} ${b.mood.toLowerCase()}${b.d > 0 ? ', rising' : b.d < 0 ? ', falling' : ''}`).join('; ')}">${B.map(b => `<span class="bk ${b.danger ? 'lo' : ''}"><small>${ART.I[b.ic] || ''}${esc(b.t === 'Dressing room' ? 'Room' : b.t === 'Supporters' ? 'Fans' : b.t)}</small><b class="mood">${esc(b.mood)}${b.d > 0 ? '<i class="up" aria-hidden="true">↑</i>' : b.d < 0 ? '<i class="dn" aria-hidden="true">↓</i>' : ''}</b></span>`).join('')}</button>`;
+  return `<button class="bkrs" data-a="sheet" data-s="backers" aria-label="Your backers: ${B.map(b => `${bkT(b.t)} ${b.mood.toLowerCase()}${bkDir(b.d)}`).join('; ')}">${B.map(b => `<span class="bk ${b.danger ? 'lo' : ''}"><small>${ART.I[b.ic] || ''}${esc(bkT(b.t))}</small><b class="mood">${esc(b.mood)}${b.d > 0 ? '<i class="up" aria-hidden="true">↑</i>' : b.d < 0 ? '<i class="dn" aria-hidden="true">↓</i>' : ''}</b></span>`).join('')}</button>`;
 }
 function comingHtml() {
   if (!F.comingUp) return ''; const C = F.comingUp(); if (!C.length) return '';
   return `<section class="cup2"><h3>Coming up</h3>${C.map(c => `<div class="cu ${c.hot ? 'hot' : ''} ${c.bad ? 'bad' : ''}"><span>${ART.I[c.ic] || ART.I.info}</span><p><b>${esc(c.t)}</b>${esc(c.s)}</p></div>`).join('')}</section>`;
 }
-const BKT = { board: 'Board', fans: 'Supporters', press: 'Press', room: 'Dressing room' };
+const BKT = { board: 'Board', fans: 'Fans', press: 'Press', room: 'Squad' };
 function dossierCard(d) {
   const dots = Array.from({ length: d.n }, (_, k) => `<i class="${k < d.part ? 'done' : k === d.part ? 'now' : ''}"></i>`).join('');
   return `<div class="dosc"><div class="dosh"><span class="dface">${ART.staffFace(d.who)}</span><div><small>Dossier</small><h2>${esc(d.t)}</h2></div></div>
@@ -79,8 +84,8 @@ function caseHtml(c) {
   if (!c) return ''; return `<dl class="xcase"><div><dt>Limit</dt><dd>${esc(c.limit)}</dd></div><div><dt>Why</dt><dd>${esc(c.why)}</dd></div><div><dt>Alternatives</dt><dd>${esc(c.alt)}</dd></div><div><dt>Likely effect</dt><dd>${esc(c.effect)}</dd></div></dl>`;
 }
 function fdHtml(fd) {
-  if (!fd || !F.BACKERS) return ''; const T = { board: 'Board', fans: 'Supporters', press: 'Press', room: 'Dressing room' };
-  return `<div class="fdrow" aria-label="How your backers reacted">${Object.entries(fd).map(([k, d]) => `<span class="${d > 0 ? 'up' : 'dn'}">${T[k]} ${d > 0 ? '+' : ''}${d}</span>`).join('')}</div>`;
+  if (!fd || !F.BACKERS) return ''; const T = BKT;
+  return `<div class="fdrow" aria-label="How your backers reacted">${Object.entries(fd).map(([k, d]) => `<span class="${d > 0 ? 'up' : 'dn'}" aria-label="${T[k]} ${d > 0 ? 'up' : 'down'}">${T[k]} ${d > 0 ? '↑' : '↓'}${Math.abs(d) >= 6 ? (d > 0 ? '↑' : '↓') : ''}</span>`).join('')}</div>`;
 }
 const FOLDERS = [['all', 'Inbox', 'inbox'], ['need', 'Needs you', 'bulb'], ['match', 'Matches', 'play'], ['staff', 'Staff', 'staff'], ['reports', 'Reports', 'info'], ['press', 'Press', 'press'], ['players', 'Players', 'squad'], ['dos', 'Dossiers', 'info'], ['done', 'Decided', 'trust']];
 const FOLD_T = Object.fromEntries(FOLDERS.map(f => [f[0], f[1]]));

@@ -201,3 +201,9 @@ body:has(.dflat){background-image:none}
 .acc.open .acch span{display:none}
 .dflat .dstat{font-size:13px}
 .dflat .kgrid+.acc,.dflat .panel2+.acc{margin-top:var(--s3)}
+/* B52: the backers in state colours (not the club colour), the mood first, the number small */
+.bkrow.ok em u{background:var(--good)}.bkrow.mid em u{background:var(--soft)}.bkrow.lo em u{background:var(--bad)}
+.bkmood{display:inline-flex;align-items:center;gap:4px;font:800 15px var(--head)}.bkrow.lo .bkmood{color:var(--bad)}.bkmood i{font:800 14px var(--body);font-style:normal}
+.bkvoice{margin:4px 0 6px!important;font-size:14px!important}.bknum{white-space:nowrap;color:var(--soft)}
+.wkd b{font:800 14px/1.15 var(--head)}
+

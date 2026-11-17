@@ -87,10 +87,10 @@ function vSheet() {
     <p class="small" style="margin-top:8px">Week 1 skips the summer window, pre-season and the first press day: your staff handle them.</p>`;
   }
   if (s.t === 'backers') {
-    const B = F.backers(), D = { board: 'Owns your contract. Results against the target, money and promises.', fans: 'Results, ticket prices, community and respect for the club\'s identity.', press: 'Stories, access and how you handle scandals. Sponsors and the club\'s brand follow the tone.', room: 'Morale of the first-team squad: playing time, bonuses, the coach.' };
+    const B = F.backers(), D = { board: 'Owns your contract. Moved by results against the target, money and promises.', fans: 'Fill the stands and lift the home crowd. Moved by results, ticket prices and respect for the club\'s identity.', press: 'Sponsors and the club\'s brand follow their tone. Moved by stories, access and how you handle scandals.', room: 'How hard the team plays for you. Moved by playing time, bonuses and the coach.' };
     h = `<div class="spread"><div><div class="kick">Four groups hold your fate</div><h2>Your backers</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>
-    <p class="small">Let one fall below ${F.VOTE_AT} and you face a vote of confidence. Survive it and you get one more chance this season, not two.</p>
-    ${B.map(b => `<div class="bkrow ${b.danger ? 'lo' : ''}"><div class="spread"><b>${ART.I[b.ic] || ''} ${esc(b.t)}</b><span class="num">${b.v}${b.d ? ` <small class="${b.d > 0 ? 'good' : 'bad'}">${b.d > 0 ? '+' : ''}${b.d} this week</small>` : ''}</span></div><em><u style="width:${b.v}%"></u></em><p><i>${esc(b.voice)}</i> ${esc(D[b.k])}</p></div>`).join('')}`;
+    <p class="small">If one of them turns to revolt you face a vote of confidence. Survive it and you get one more chance this season, not two.</p>
+    ${B.map(b => `<div class="bkrow ${bkSt(b.v)}"><div class="spread"><b>${ART.I[b.ic] || ''} ${esc(bkT(b.t))}</b><span class="bkmood">${esc(b.mood)}${bkArrow(b.d)}</span></div><p class="bkvoice"><i>${esc(b.voice)}</i></p><em><u style="width:${b.v}%"></u></em><p class="small">${esc(D[b.k])} <span class="bknum">${b.v} of 100${b.d && b.v > 0 && b.v < 100 ? `, ${b.d > 0 ? 'up' : 'down'} this week` : ''}</span></p></div>`).join('')}`;
   }
   if (s.t === 'analysis') {
     const A = F.analysis(), mx = Math.max(0.5, ...A.bars.map(b => Math.abs(b.v)));

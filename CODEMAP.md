@@ -99,7 +99,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `talks.js` | 19 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio, dofStrikes |
 | `weekflow.js` | 25 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo, coachNews, mem |
 | `weekloop.js` | 2 KB | situation-driven week Chance serves the club's situation: an event is likelier when its department is under pr | evWeight |  |  |
-| `loop.js` | 15 KB | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice | lastChance, seasonReprieve, seasonAfterMatch |  | votes, vote, bgoal, bgLog, wkDelta, wkPrev, wkLog |
+| `loop.js` | 16 KB | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice | lastChance, seasonReprieve, seasonAfterMatch |  | votes, vote, bgoal, bgLog, wkDelta, wkPrev, wkLog |
 | `dossiers.js` | 28 KB | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar | seasonAfterMatch |  | pressure, dos |
 | `pathway.js` | 27 KB | the pathway question One governance storyline, built to show the core loop: you notice a problem, talk to the  | selBonus, seasonAfterMatch |  | cred, pw, academy, pwLog |
 | `matchday.js` | 10 KB | match day Before kick-off: three stories about our own players | storyW, edition |  | mdS, eds |
@@ -108,7 +108,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/03-summer-preseason-press.js` | 27 KB | the summer (M4); the summer, version 2 |  |  |  |
 | `ui/04-masthead-news.js` | 1 KB |  |  |  |  |
 | `ui/05-pitches-squad-money.js` | 15 KB | project pitches: one at a time, swipe or tap |  |  |  |
-| `ui/06-sheets-ticker.js` | 21 KB | sheets; ticker |  |  |  |
+| `ui/06-sheets-ticker.js` | 22 KB | sheets; ticker |  |  |  |
 | `ui/07-club-league.js` | 9 KB | review & sacked; club, league, staff, academy, review: game screens |  | deptCost |  |
 | `ui/08-departments.js` | 25 KB | departments |  |  |  |
 | `ui/08a-dept-parts.js` | 21 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
@@ -266,8 +266,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: weekHeat
 
 ### `loop.js`
-- Functions: g, room, sup, voice, backers, snap, diff, form5, band, bump, lift, lastChance, tgt, needFor, blockTick, goalView, comingUp
-- Exports on `F`: respond, answerBrief, backers, comingUp, goalView, BACKERS, VOTE_AT, backerMood
+- Functions: g, room, sup, voice, backers, snap, diff, form5, band, bump, softEdges, lift, lastChance, tgt, needFor, blockTick, goalView, comingUp
+- Exports on `F`: respond, answerBrief, backerAdd, backers, comingUp, goalView, BACKERS, VOTE_AT, backerMood
 
 ### `dossiers.js`
 - Functions: g, bk, cash, rel, nm, star, kid, press, pv, pSignal, defineDossier, heatT, D, start, stepDone, dosView
@@ -315,7 +315,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: vFirst, ftTalkHtml, vReview2, vSacked
 
 ### `ui/10-inbox.js`
-- Functions: isRead, markRead, first, inboxItems, nextFix, backersHtml, comingHtml, dossierCard, archiveHtml, pwMeetHtml, pwEvalHtml, agreementHtml, pathwayCard, credHtml, caseHtml, fdHtml, isDis, rowThumb, rowHtml, isBox, boxRow, deskRow, vInbox
+- Functions: isRead, markRead, first, inboxItems, nextFix, bkT, bkSt, bkArrow, bkDir, backersHtml, comingHtml, dossierCard, archiveHtml, pwMeetHtml, pwEvalHtml, agreementHtml, pathwayCard, credHtml, caseHtml, fdHtml, isDis, rowThumb, rowHtml, isBox, boxRow, deskRow, vInbox
 
 ### `ui/11-players.js`
 - Functions: strengths, roleOf, starsTxt, pcard, hashN, storyOf, attrGroups, formBars, profileHtml, scoutLine

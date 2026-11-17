@@ -58,7 +58,7 @@ B('coach_flying', { role: 'coach', cd: 6,
   title: () => 'Three wins on the bounce', text: () => `${N('coach')}: "The group is flying. I would like to keep the same eleven for a while."`,
   opts: [
     { l: 'Agree: settled team', h: 'Rotation −15', f: () => { g().mand.coach.rotation = clamp(g().mand.coach.rotation - 15, 0, 100); rel('coach', 3); return 'Same team, same rhythm.'; } },
-    { l: 'Praise the whole squad', h: 'Squad morale +4', f: () => { sq().forEach(p => p.morale = clamp(p.morale + 4, 0, 100)); return 'A note from the CEO on every locker.'; } },
+    { l: 'Praise the whole squad', h: 'Squad morale ↑', f: () => { sq().forEach(p => p.morale = clamp(p.morale + 4, 0, 100)); return 'A note from the CEO on every locker.'; } },
     { l: 'Keep rotating', h: 'Fringe players stay sharp', f: () => { rel('coach', -1); return 'He accepts, without enthusiasm.'; } }] });
 B('injury_blow', { role: 'coach', cd: 4,
   check: () => { const best = sq().slice().sort((a, b) => b.ca - a.ca).slice(0, 6); const p = best.find(p => p.inj >= 4 && !p.injNoted); return p ? (p.injNoted = true, { pid: p.id, name: p.name, w: p.inj, score: 2.2 }) : null; },
@@ -116,7 +116,7 @@ B('mood_drop', { role: 'mkt', cd: 6,
   check: () => g().prev && g().st.fans < 50 && g().prev.fans - g().st.fans >= 3 ? { m: Math.round(g().st.fans), score: 1.6 } : null,
   title: () => 'Marketing: the mood is turning', text: c => `Supporter mood is down to ${c.m}. Social channels are getting louder. ${N('mkt')} wants to get ahead of it.`,
   opts: [
-    { l: 'Write an open letter', h: 'Fans +3', f: () => { fx('fans', 3); return 'Honest and well received.'; } },
+    { l: 'Write an open letter', h: 'Fans ↑', f: () => { fx('fans', 3); return 'Honest and well received.'; } },
     { l: 'Host a fan forum', h: () => `−${money(M(400))} · fans +5, some heat`, f: () => { fx('cash', -M(400)); fx('fans', 5); fx('press', -1); return 'Two hours of hard questions. People respect that you came.'; } },
     { l: 'Let results do the talking', h: '', f: () => 'Silence.' }] });
 B('project_check', { role: 'fin', cd: 4,
@@ -138,7 +138,7 @@ B('big_game', { role: 'coach', cd: 3,
   check: () => { const G = g(), r = G.divs[G.club.tier].fix[G.week - 1]; if (!r) return null; const f = r.find(x => x[0] === 0 || x[1] === 0); const opp = f[0] === 0 ? f[1] : f[0], tab = F.sortTable(G.club.tier), pos = tab.indexOf(opp) + 1; return pos <= 3 || Math.abs(pos - F.myPos()) <= 1 ? { opp: F.cname(opp), pos, home: f[0] === 0, score: 1.3 } : null; },
   title: c => `Big game: ${c.opp} (${F.ord(c.pos)}) ${c.home ? 'at home' : 'away'}`, text: c => `${c.pos <= 3 ? 'One of the best sides in the division.' : 'A direct rival in the table.'} ${N('coach')} asks if you want to say anything to the players.`,
   opts: [
-    { l: 'Visit the dressing room', h: 'Squad morale +3', f: () => { sq().forEach(p => p.morale = clamp(p.morale + 3, 0, 100)); return 'A short speech. The room listens.'; } },
+    { l: 'Visit the dressing room', h: 'Squad morale ↑', f: () => { sq().forEach(p => p.morale = clamp(p.morale + 3, 0, 100)); return 'A short speech. The room listens.'; } },
     { l: 'Tell the coach to be brave', h: 'Attack +10', f: () => { g().mand.coach.attack = clamp(g().mand.coach.attack + 10, 0, 100); return 'Go and win it.'; } },
     { l: 'Leave it to him', h: '', f: () => { rel('coach', 1); return 'He appreciates the trust.'; } }] });
 B('staff_distant', { role: null, cd: 6,
@@ -153,6 +153,6 @@ B('chairman_call', { role: null, cd: 5,
   title: () => 'The chairman calls', text: c => `Board confidence is ${c.c}%. "I just want to understand what is happening."`,
   opts: [
     { l: 'Walk him through the numbers', h: 'Works if performances back you', f: () => { const A = F.analysis(); if (A.xpts - A.pts >= 2 || A.pos <= A.target) { fx('board', 4); return 'He is reassured by the underlying numbers.'; } fx('board', -1); return 'The numbers do not help your case.'; } },
-    { l: 'Promise improvement', h: 'Board +2 now', f: () => { fx('board', 2); return 'He will hold you to it.'; } },
+    { l: 'Promise improvement', h: 'Board ↑ now', f: () => { fx('board', 2); return 'He will hold you to it.'; } },
     { l: 'Keep it short', h: '', f: () => { fx('board', -1); return 'A brief, cool call.'; } }] });
 })(FO);

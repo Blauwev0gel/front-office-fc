@@ -586,7 +586,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 ## Bijlage: alle bronbestanden
 
 <!-- generated:files:start -->
-62 bronbestanden, samen ongeveer 1013 KB.
+62 bronbestanden, samen ongeveer 1015 KB.
 
 | Bestand | KB | Doel |
 |---|---|---|
@@ -630,7 +630,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `talks.js` | 19 | talks with the heads One conversation engine for every head (B19) |
 | `weekflow.js` | 25 | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week |
 | `weekloop.js` | 2 | situation-driven week Chance serves the club's situation: an event is likelier when its department is under pr |
-| `loop.js` | 15 | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice |
+| `loop.js` | 16 | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice |
 | `dossiers.js` | 28 | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar |
 | `pathway.js` | 27 | the pathway question One governance storyline, built to show the core loop: you notice a problem, talk to the |
 | `matchday.js` | 10 | match day Before kick-off: three stories about our own players |
@@ -639,7 +639,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `ui/03-summer-preseason-press.js` | 27 | the summer (M4); the summer, version 2 |
 | `ui/04-masthead-news.js` | 1 |  |
 | `ui/05-pitches-squad-money.js` | 15 | project pitches: one at a time, swipe or tap |
-| `ui/06-sheets-ticker.js` | 21 | sheets; ticker |
+| `ui/06-sheets-ticker.js` | 22 | sheets; ticker |
 | `ui/07-club-league.js` | 9 | review & sacked; club, league, staff, academy, review: game screens |
 | `ui/08-departments.js` | 25 | departments |
 | `ui/08a-dept-parts.js` | 21 | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |

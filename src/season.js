@@ -65,8 +65,8 @@ const blockBrief = (k, role, title, text, opts) => B('block_' + k, { role, cd: 1
   check: () => { const G = g(), b = BLOCKS.find(b => b.k === k); if (G.phase !== 'season' || G.week < b.a || G.week > b.a + 1 || done(k)) return null; return { score: 4 }; },
   title, text, opts: opts.map(o => ({ ...o, f: c => { markDone(k); return o.f(c); } })) });
 blockBrief('opening', 'coach', 'The opening weeks', () => `${N('coach')}: "The first six weeks set the tone. How do you want to handle them?"`, [
-  { l: 'Give the new signings time', h: 'Unsettled players settle faster · board −1', f: () => { sq().forEach(p => { if (!p.settle && chance(0.6)) { p.settle = true; p.morale = 62; } }); fx('conf', -1); return 'No pressure on the new faces for now.'; } },
-  { l: 'Promise 1.6 points a game', h: 'Board +3 now · checked in week 7', f: () => { const t = g().divs[g().club.tier].tab[0]; g().openTarget = { pts: t.pts, p: t.p }; fx('conf', 3); return 'The board will check after six games.'; } },
+  { l: 'Give the new signings time', h: 'Unsettled players settle faster · board ↓', f: () => { sq().forEach(p => { if (!p.settle && chance(0.6)) { p.settle = true; p.morale = 62; } }); fx('conf', -1); return 'No pressure on the new faces for now.'; } },
+  { l: 'Promise 1.6 points a game', h: 'Board ↑ now · checked in week 7', f: () => { const t = g().divs[g().club.tier].tab[0]; g().openTarget = { pts: t.pts, p: t.p }; fx('conf', 3); return 'The board will check after six games.'; } },
   { l: 'Leave it to the coach', h: '', f: () => 'The coach sets his own pace.' }]);
 blockBrief('autumn', null, 'The long middle', () => 'Ten weeks without a window. Where should the club put its energy?', [
   { l: 'Back the academy', h: 'Academy backing for three weeks', f: () => { g().push.academy = 3; return 'The academy has your attention.'; } },
@@ -92,7 +92,7 @@ B('stake_match', { role: 'coach', cd: 1,
   text: c => c.kind === 'derby' ? `The game the town cares about most. Win and the supporters are behind us for weeks. Lose and it stings.` : `${F.cname(c.opp)} are ${ord(c.op)}, we are ${ord(F.myPos())}. Points here count double in the table and in the boardroom.`,
   opts: [
     { l: 'Win bonus for this game', h: c => `${money(M(400))} · small edge`, f: () => { fx('cash', -M(400)); g().matchEdge = { w: g().week, v: 0.25 }; return 'The players know what is on the line.'; } },
-    { l: 'Visit the dressing room', h: 'Morale +3', f: () => { sq().forEach(p => p.morale = clamp(p.morale + 3, 0, 100)); return 'A short speech. The room listens.'; } },
+    { l: 'Visit the dressing room', h: 'Morale ↑', f: () => { sq().forEach(p => p.morale = clamp(p.morale + 3, 0, 100)); return 'A short speech. The room listens.'; } },
     { l: 'Keep it normal', h: '', f: () => 'Just another game, says the coach.' }] });
 const bw = H.seasonAfterMatch; H.seasonAfterMatch = ours => { bw(ours); if (g().winBonus && g().week >= 29) g().matchEdge = { w: g().week + 1, v: 0.12 }; };
 

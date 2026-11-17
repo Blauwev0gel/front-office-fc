@@ -82,3 +82,7 @@ Getoond = `(ruw − a) × b`, afgerond en tussen 0 en 100: Fans `(st.fans − 25
 
 ## 4. Meting (wacht op toestemming)
 Een kleine run: 3 seeds × 4 seizoenen, met een goede en een slechte CEO-stijl (willekeurige antwoorden tegenover de beste optie volgens de staf), voor en na het voorstel. Ik meet per week de vier waarden en grip: hoe vaak ze boven 90 of onder 10 staan, hoe vaak een stemming valt, waar grip gemiddeld staat. Kosten: ±2–4 minuten rekentijd per variant, twee varianten.
+
+## 5. Besluit en uitvoering (17-11-2026, B52)
+Geen meting. Zachte randen plus seizoensreset; detailscherm stem eerst met het getal klein; namen Board, Fans, Press, Squad. Gebouwd: punten 1, 2, 5, 6, 7, 8 en 9 opgelost; punt 3 (events trekken niet gelijk) en punt 4 (twee schalen) zijn beschreven en de schrijfplekken gaan via één functie, maar de getallen in dossiers en pathway zijn niet omgerekend om de balans niet ongemeten te veranderen. Punt 10 (hoe vaak grip laag staat) is niet gemeten.
+

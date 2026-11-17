@@ -22,6 +22,7 @@ function endSeason() {
   for (const o of G.board.obj) { const met = objMet(o); rep.objectives.push({ t: o.t, met }); bd += met ? (o.bold ? 7 : 4) : o.k === 'league' ? -(8 + Math.max(0, pos - o.target) * 1.5) * (o.bold ? 1.3 : 1) : o.soft ? -3 : -7; }
   for (const p of G.promises.filter(p => p.season === G.season)) { if (p.status === 'open') p.status = promiseMet(p) ? 'kept' : 'broken'; rep.promises.push({ t: p.t, kept: p.status === 'kept' }); if (p.status === 'kept') { G.st.fans = clamp(G.st.fans + 5, 0, 100); G.st.press = clamp(G.st.press + 4, 0, 100); } else { G.st.fans = clamp(G.st.fans - 8, 0, 100); G.st.press = clamp(G.st.press - 6, 0, 100); bd -= 3; } }
   const reg = (60 - G.board.conf) * 0.12; /* B37: goodwill cannot be banked for ever */ G.board.conf = clamp(G.board.conf + bd + reg, 0, 100); rep.boardDelta = Math.round(bd + reg);
+  G.st.fans += (55 - G.st.fans) * 0.25; G.st.press += (50 - G.st.press) * 0.25; for (const p of G.squad) p.morale += (65 - p.morale) * 0.25; /* B52: a new season, a new mood */
   if (G.club.cash < 0 && G.club.dna.money !== 'debt') { G.club.deduct = 6; rep.deduct = 6; G.board.conf = clamp(G.board.conf - 6, 0, 100); }
   // promotion/relegation across pyramid
   const up = {}, down = {};

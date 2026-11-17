@@ -12,9 +12,9 @@ const { clamp, chance, staff, money, M, ord } = F;
 const room = () => { const sq = g().squad.slice().sort((a, b) => b.ca - a.ca).slice(0, 18); return sq.length ? sq.reduce((a, p) => a + p.morale, 0) / sq.length : 60; };
 const BK = [
   { k: 'board', t: 'Board', ic: 'board', get: () => g().board.conf, put: v => { g().board.conf = clamp(v, 0, 100); } },
-  { k: 'fans', t: 'Supporters', ic: 'fans', get: () => (g().st.fans - 25) * 1.33, put: v => { g().st.fans = clamp(v / 1.33 + 25, 0, 100); } },
+  { k: 'fans', t: 'Fans', ic: 'fans', get: () => (g().st.fans - 25) * 1.33, put: v => { g().st.fans = clamp(v / 1.33 + 25, 0, 100); } },
   { k: 'press', t: 'Press', ic: 'press', get: () => (g().st.press - 30) * 1.43, put: v => { g().st.press = clamp(v / 1.43 + 30, 0, 100); } },
-  { k: 'room', t: 'Dressing room', ic: 'squad', get: () => (room() - 35) * 1.54, put: v => { const want = v / 1.54 + 35, d = want - room(); g().squad.forEach(p => p.morale = clamp(p.morale + d, 0, 100)); } }];
+  { k: 'room', t: 'Squad', ic: 'squad', get: () => (room() - 35) * 1.54, put: v => { const want = v / 1.54 + 35, d = want - room(); g().squad.forEach(p => p.morale = clamp(p.morale + d, 0, 100)); } }];
 const sup = k => clamp(Math.round(BK.find(b => b.k === k).get()), 0, 100);
 const VOICE = {
   board: ['Board members are counting votes.', 'The chairman has stopped returning calls.', 'The board is watching, quietly.', 'The board nods along in meetings.', 'The board toasts you at lunch.'],
@@ -59,6 +59,11 @@ const OPTS = {
     { l: 'Meet the senior players alone', p: () => 0.55, after: () => { const s = staff('coach'); if (s) s.rel = clamp(s.rel - 5, 0, 100); }, h: 'Coach ↓', f: () => 'A long evening in the players\' lounge.' },
     { l: 'A bonus for the whole squad', p: () => 0.76, after: () => { g().club.cash -= M(3000); }, h: () => `−${money(M(3000))}`, f: () => 'Money talks. The squad listens.' }] };
 function bump(k, d) { const b = BK.find(x => x.k === k); b.put(clamp(b.get() + d, 0, 100)); }
+// B52: dossiers, the pathway and the votes all add to a backer through this one function. Their numbers are on the shown scale
+// (fans ×1.33, press ×1.43, squad ×1.54 of the raw value); events use the raw scale. Converting them would change the balance.
+F.backerAdd = (k, d) => { if (BK.some(x => x.k === k)) bump(k, d); };
+// soft edges: near 0 or 100 a backer drifts back a little each week, so a meter never sits on its limit for ever
+function softEdges() { for (const b of BK) { const v = b.get(); if (v > 80) b.put(v - (v - 80) * 0.1); else if (v < 20) b.put(v + (20 - v) * 0.1); } }
 function lift(k) { const b = BK.find(x => x.k === k); b.put(Math.max(b.get(), 35)); }
 for (const k in VT) {
   const v = VT[k];
@@ -119,6 +124,7 @@ H.seasonAfterMatch = ours => {
     G.vote = null;
   } else
   for (const b of BK) if (sup(b.k) <= VOTE_AT && !G.vote) { if (!lastChance(b.k) && b.k !== 'board') F.sack(VT[b.k].lose + ' There was no second chance this season.', 'vote:' + b.k); break; }
+  softEdges(); /* after the votes: a vote is judged on where you really are */
   const now = snap(); G.wkDelta = G.wkPrev ? diff(G.wkPrev, now) || {} : {}; G.wkPrev = now;
   G.wkLog = (G.wkLog || []).concat([{ s: G.season, w: G.week, r: ours ? ours.result : null, ...now }]).slice(-40);
 };

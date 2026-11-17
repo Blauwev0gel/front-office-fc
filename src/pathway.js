@@ -18,7 +18,7 @@ const g = () => F.G, H = F.HOOK;
 const { clamp, chance, staff, money, M, man, tierAvg, POS_L } = F;
 const nm = r => { const s = staff(r); return s ? s.name : 'Nobody'; };
 const first = r => nm(r).split(' ')[0];
-const bk = (k, d) => { if (!F.BACKERS) return; const b = F.BACKERS.find(x => x.k === k); b.put(clamp(b.get() + d, 0, 100)); };
+const bk = (k, d) => { if (F.backerAdd) F.backerAdd(k, d); }; /* shown scale, see loop.js */
 const rel = (r, n) => { const s = staff(r); if (s) s.rel = clamp(s.rel + n, 0, 100); };
 const sq = () => g().squad;
 const P = () => g().pw;

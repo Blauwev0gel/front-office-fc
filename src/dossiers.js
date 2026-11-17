@@ -8,7 +8,7 @@
 'use strict';
 const g = () => F.G, H = F.HOOK;
 const { clamp, chance, pick, staff, money, M } = F;
-const bk = (k, d) => { const b = F.BACKERS.find(x => x.k === k); b.put(clamp(b.get() + d, 0, 100)); };
+const bk = (k, d) => { if (F.backerAdd) F.backerAdd(k, d); }; /* shown scale, see loop.js */
 const cash = v => { g().club.cash += v; };
 const rel = (r, n) => { const s = staff(r); if (s) s.rel = clamp(s.rel + n, 0, 100); };
 const nm = r => { const s = staff(r); return s ? s.name.split(' ')[0] : 'Nobody'; };

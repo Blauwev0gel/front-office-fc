@@ -67,6 +67,20 @@ assert(F.specialistCases('academy').some(c=>c.kind==='brief:ac_ready'));
 const once=F.save();
 assert.equal(F.answerBrief(acadBrief,1),null,'same youth response cannot be repeated');
 assert.equal(F.save(),once);
+// A specialist hire and dismissal use the original hiring market, salary and
+// compensation, but share the same accountable case and history.
+const openRole=F.deptView('commercial').open[0].role;
+const candidate=F.deptCands('commercial',openRole)[0];
+const staffingBefore=F.G.club.cash;
+const appointed=F.specialistAct('department.hire',{k:'commercial',r:openRole,i:0});
+assert(!appointed.err,'department specialist appointment should complete');
+assert(F.deptView('commercial').staff.some(x=>x.id===candidate.id));
+assert(F.G.club.cash<staffingBefore,'signing-on fee charged once');
+const departure=F.specialistAct('department.dismiss',{k:'commercial',id:candidate.id});
+assert(!departure.err,'employee dismissal applies real notice costs');
+assert(!F.deptView('commercial').staff.some(x=>x.id===candidate.id));
+assert(F.specialistCases('commercial').some(c=>c.kind==='department.hire'));
+assert(F.specialistCases('commercial').some(c=>c.kind==='department.dismiss'));
 const initialPathway=F.save();
 const noPath=F.specialistAct('academy.pathway',{k:'youth'});
 assert(noPath.err,'no invented pathway without an existing player agreement');

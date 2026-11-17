@@ -22,22 +22,24 @@ function mailBanner() {
   const b = U.bn; if (!b || b.n === U.bnShown) return ''; U.bnShown = b.n;
   return `<div class="mbn" role="status"><span class="mbav">${ART.staffFace(b.role, 'happy')}</span><div><div class="mbt"><b>${esc(b.name)}</b><span>now</span></div><small>Re: ${esc(b.subj)}</small><p>${esc(clip2(b.txt)[0])}</p></div></div>`;
 }
-function mailReply(k, id, name, opts, auto, isBig, leave, dis) {
-  // Differentiate an optional staff briefing from a binding CEO decision.
-  // Both share one-tap commitment; neither should pretend to be an email chore.
-  const briefing = k === 'b';
-  const heading = briefing ? 'Your response (optional)' : isBig ? 'Board decision' : 'Your decision';
-  const guide = briefing
-    ? 'You can reply, ask about the issue, or continue without answering.'
-    : 'Choose a direction. Your response takes effect immediately.';
+function mailReply(k, id, name, opts, auto, isBig, leave, dis, docket) {
+  // The same case dossier drives decisions and consultations. The underlying
+  // F.respond/F.answerBrief handlers continue to own all actual effects.
+  const briefing = docket ? docket.type === 'consultation' : k === 'b';
+  const governance = docket ? docket.type === 'governance' : isBig;
+  const heading = briefing ? 'Your response (optional)' : governance ? 'Board decision' : 'Your decision';
+  const guide = briefing ? 'You can reply or continue without answering.' :
+    'Choose a direction. Your response takes effect immediately.';
+  const noResponse = docket ? docket.noResponse : leave;
   return '<section class="mreply fo-case-response" aria-label="' + esc(heading) + '">' +
     '<header class="mrhead"><span class="fo-case-kind">' +
-    (briefing ? 'STAFF CONSULTATION' : isBig ? 'GOVERNANCE' : 'CEO AUTHORITY') +
+    (briefing ? 'STAFF CONSULTATION' : governance ? 'GOVERNANCE' :
+      docket && docket.type === 'exception' ? 'OUTSIDE THE MANDATE' : 'CEO AUTHORITY') +
     '</span><h3>' + esc(heading) + '</h3><p class="mrto">Responsible: <b>' +
     esc(name) + '</b></p></header>' +
     '<p class="one-tap-hint">' + esc(guide) + '</p>' +
     mailRows(k, id, opts, auto) +
-    '<p class="mlv"><b>If you do nothing:</b> ' + esc(leave) + '</p></section>';
+    '<p class="mlv"><b>If you do nothing:</b> ' + esc(noResponse) + '</p></section>';
 }
 function mailSent(name, line, out) {
   return `<section class="mreply"><div class="msent" role="status" tabindex="-1"><div class="msh"><span class="mok">${ART.I.trust}</span><b>Sent to ${esc(mFirst(name))}</b></div><p class="msaid">${esc(line)}</p><p class="mout">${esc(clip2(out)[0])}</p></div><button class="mnext" data-a="mnext">Next matter ${ART.I.chev}</button></section>` + mailBanner();
@@ -61,7 +63,7 @@ function msgHtml(m, it) {
   if (m.ev === 'pw_eval' && F.pwView) h += pwEvalHtml(F.pwView());
   if (v.second) h += v.second.text ? `<details class="more" open><summary>Second opinion ${ART.I.chev}</summary><p>${esc(v.second.text)}</p></details>` : v.second.avail ? `<details class="more"><summary>Second opinion: ${esc(v.second.name)}</summary><p><button class="btn ghost small" data-a="second" data-m="${m.id}">Ask ${esc(v.second.name.split(' ')[0])}</button></p></details>` : '';
   const leave = `If you leave it, ${v.autoWho} decides under the current mandate.`;
-  return h + mailReply('m', m.id, name, v.opts, v.auto, big, leave, false);
+  return h + mailReply('m', m.id, name, v.opts, v.auto, big, leave, false, F.caseView('m', m.id));
 }
 function briefHtml(b, it) {
   const v = F.briefView(b), role = v.role || (it && it.role) || 'club', name = v.who.split(',')[0], roleT = v.who.split(', ')[1] || '', key = 'b' + b.id;
@@ -74,7 +76,7 @@ function briefHtml(b, it) {
   }
   if (v.why) h += `<p class="mwhy"><b>Why it is yours.</b> ${esc(v.why)}</p>`;
   const leave = 'Leave this update without replying and nothing changes.';
-  return h + mailReply('b', b.id, name, v.opts, -1, false, leave, false);
+  return h + mailReply('b', b.id, name, v.opts, -1, false, leave, false, F.caseView('b', b.id));
 }
 function mailCommit(p) {
   const bk0 = F.backers ? F.backers().map(b => b.v) : null;

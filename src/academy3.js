@@ -43,6 +43,18 @@ const prevAfter = H.seasonAfterMatch;
 H.seasonAfterMatch = ours => { if (prevAfter) prevAfter(ours); const X = T(); if (X.trial && F.absWeek() >= X.trial.until) confirm(true); };
 
 /* ---------- briefs ---------- */
+/* ---------- the weekly U18 match: a short word as the mentor (B38, B48) ---------- */
+// Opt-in: it runs without you. Unanswered, the boy just plays on. Every choice costs something (welfare, or a harder season), none is tactics.
+F.defineBrief('ac_match', { role: 'acad', cd: 2,
+  check: () => { const a = g().acad, L = a && a.lg && a.lg.U18 && a.lg.U18.last, X = T(); if (!L || !L.pid || F.absWeek() - L.at > 1 || X.matchAt === L.at) return null; const p = g().academy.find(x => x.id === L.pid); if (!p || p.loanOut) return null;
+    X.matchAt = L.at; return { score: 2.2, pid: p.id, name: p.name, age: p.age, us: L.us, them: L.them, opp: L.opp, home: L.home, tired: (p.wel || 70) < 55 }; },
+  title: c => `U18: ${c.us > c.them ? 'won' : c.us < c.them ? 'lost' : 'drew'} ${c.us}–${c.them} ${c.home ? 'against' : 'at'} ${c.opp}`,
+  text: c => `${c.name} (${c.age}) was the best of ours. ${c.tired ? 'He looks tired, though, and the coaches say so.' : c.us > c.them ? 'The lads are buzzing.' : 'He still wants the ball every time.'} A word from you would mean something.`,
+  opts: [
+    { l: c => c.tired ? 'Give him a rest' : 'Praise him in front of the group', h: c => c.tired ? 'Welfare ↑ · slower this week' : 'Morale ↑ · welfare ↑', f: c => { const p = g().academy.find(x => x.id === c.pid); if (!p) return 'He has moved on.'; if (c.tired) { p.wel = clamp((p.wel || 60) + 8, 0, 100); return `${c.name} gets a quiet week. The coaches approve.`; } p.wel = clamp((p.wel || 60) + 4, 0, 100); p.morale = clamp((p.morale || 65) + 6, 0, 100); return `${c.name} walks taller. So do the lads around him.`; } },
+    { l: 'Push him: play up with the older boys', h: 'Develops faster this season · welfare ↓', f: c => { const p = g().academy.find(x => x.id === c.pid); if (!p) return 'He has moved on.'; p.playUp = true; p.wel = clamp((p.wel || 60) - 3, 0, 100); return `${c.name} trains with the older group from Monday. He says he can handle it. He is ${c.age}.`; } },
+    { l: 'Leave him be', h: 'Free', f: () => 'The academy gets on with it.' }] });
+
 F.defineBrief('ac_trial', { role: 'acad', cd: 30,
   check: () => { const X = T().trial; return X && !X.briefed ? (X.briefed = true, { score: 3.5 }) : null; },
   title: () => 'Trial day: pick the intake',

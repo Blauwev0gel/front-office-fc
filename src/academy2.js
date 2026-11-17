@@ -45,7 +45,7 @@ function playRound(k) {
     const h = order[i], w = order[n - 1 - i], sh = h === 0 ? ourStr(k) : L.teams.find(x => x.id === h).str, sw = w === 0 ? ourStr(k) : L.teams.find(x => x.id === w).str, d = sh - sw + 0.3;
     const hg = poisson(1.45 * Math.exp(0.16 * d)), ag = poisson(1.2 * Math.exp(-0.16 * d)), H2 = L.tab[h], W = L.tab[w];
     H2.p++; W.p++; H2.gf += hg; H2.ga += ag; W.gf += ag; W.ga += hg; if (hg > ag) { H2.w++; W.l++; H2.pts += 3; } else if (hg < ag) { W.w++; H2.l++; W.pts += 3; } else { H2.d++; W.d++; H2.pts++; W.pts++; }
-    if (h === 0 || w === 0) { const us = h === 0 ? hg : ag, them = h === 0 ? ag : hg, opp = L.teams.find(x => x.id === (h === 0 ? w : h)).n; const pl = g().academy.filter(p => grp(p) === k && !p.loanOut); const star = pl.length ? pick(pl.slice().sort((x, y) => y.ca - x.ca).slice(0, 3)) : null; L.last = { us, them, opp, star: star ? star.name : null, home: h === 0 }; }
+    if (h === 0 || w === 0) { const us = h === 0 ? hg : ag, them = h === 0 ? ag : hg, opp = L.teams.find(x => x.id === (h === 0 ? w : h)).n; const pl = g().academy.filter(p => grp(p) === k && !p.loanOut); const star = pl.length ? pick(pl.slice().sort((x, y) => y.ca - x.ca).slice(0, 3)) : null; L.last = { us, them, opp, star: star ? star.name : null, pid: star ? star.id : null, at: F.absWeek(), home: h === 0 }; }
   }
   L.round++;
 }

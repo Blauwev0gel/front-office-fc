@@ -27,7 +27,7 @@ const SOFT = new Set(['wage_cap', 'star_unrest', 'exception_review', 'rec_except
 // could hurt the club's name
 const REP = new Set(['bet_sponsor', 'doc_episode', 'transfer_request', 'wonderkid', 'acad_release', 'player_ego']);
 // briefs that stay with the CEO; every other staff brief is routine
-const CEO_B = new Set(['squad_plan_update', 'big_game', 'stake_match', 'pre_box', 'staff_distant', 'chairman_call', 'block_opening', 'block_autumn', 'block_winter', 'block_runin', 'block_finale', 'biz_budget', 'biz_review', 'biz_refi', 'winter_deadline', 'one_free', 'one_rein', 'one_leash', 'ac_trial']);
+const CEO_B = new Set(['ac_match', 'squad_plan_update', 'big_game', 'stake_match', 'pre_box', 'staff_distant', 'chairman_call', 'block_opening', 'block_autumn', 'block_winter', 'block_runin', 'block_finale', 'biz_budget', 'biz_review', 'biz_refi', 'winter_deadline', 'one_free', 'one_rein', 'one_leash', 'ac_trial']);
 
 function auth(r) { const G = g(); G.auth = G.auth || {}; const h = headOf(r); return G.auth[h] == null ? 1 : G.auth[h]; }
 function setAuth(r, v) { const G = g(); G.auth = G.auth || {}; if (!HEADS.includes(r)) return { err: 'Unknown department.' }; const old = auth(r); v = clamp(+v, 0, 2); if (old === v) return { out: '' }; G.auth[r] = v; const s = staff(r);

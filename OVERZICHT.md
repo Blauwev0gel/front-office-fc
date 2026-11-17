@@ -418,7 +418,7 @@ Eén korte telling (3 seeds, 12 seizoenen samen, 408 weken, antwoorden willekeur
 - **0,9 nieuw bericht per week, ±31 per seizoen.** Dat past bij de bedoeling ("één of twee subjecten per week").
 - **59 van de 123 events kwamen langs.** De rest is niet gezien: voorwaarden die zelden waar zijn, of geforceerde events die een situatie nodig hebben.
 - **Herhaling**: de top-3 (`board_review` 29, `press_interview` 25, `staff_raise` 22) is 21% van alle berichten, de top-10 41%. `board_review` en `press_interview` zijn bewust vast (bestuursreview, persgesprek), maar `staff_raise` is willekeurig en komt het vaakst. Over 12 seizoenen is dat zichtbaar herhaling.
-- **Briefings**: de telling per week (2,5) telt open briefings elke week opnieuw, dus het zegt vooral dat ze blijven staan, niet dat er 2,5 nieuwe zijn. De meest voorkomende (`rec_report` 110, `coach_debrief` 102, `squad_plan_update` 86, `u18_report` 63, `stake_match` 54) staan dus lang open; een speler die ze niet beantwoordt, ziet een groeiend rijtje.
+- **Briefings**: `genBriefs` stelt elke week een **nieuwe** lijst samen (maximaal 3, één per rol, zwaarste score eerst); wat je niet beantwoordt, verdwijnt aan het einde van de week. De telling in de run (2,5 per week) telt dus presentie per week, geen ophoping. De vaakst voorkomende zijn `rec_report` 110, `coach_debrief` 102, `squad_plan_update` 86, `u18_report` 63 en `stake_match` 54 van 408 weken. *(Een eerdere versie van dit hoofdstuk beweerde ten onrechte dat ze zich opstapelen.)*
 
 ### Wat ik opmerk
 - **De gewichten sturen goed, maar de inhoud is breed en dun**: 123 events voor 10 afdelingen is ±12 per afdeling, en met cooldowns van tot 20+ weken ziet iemand over 15 seizoenen veel hetzelfde. Dat is het langetermijnprobleem dat B34 (geheugen en echo's) deels oploste: oude keuzes komen terug, maar alleen als de keuze er was.
@@ -433,7 +433,7 @@ Eén korte telling (3 seeds, 12 seizoenen samen, 408 weken, antwoorden willekeur
 | Meer variatie in een afdeling | de ±12 events per afdeling in `events*.js`; `defineDossier` voor ketens |
 | Scouting- en portaalevents | nieuwe events in `events3.js` (`from: 'scout'`/`'dof'`), met `F.recall` voor terugkeer |
 | Turnaround-frequentie | `trouble()` in `turnaround.js`; telling van `turn_call` per seizoen op meer seeds |
-| Briefings die zich opstapelen | `briefs.js` (verloop, `cd`, een maximum aan open briefings) |
+| Te veel van dezelfde briefing | `briefs.js` (`genBriefs`: één per rol, `cd`, score); een briefing die elke week wint, heeft een te hoge score of een te korte `cd` |
 ## 19. Hoe het speelt: de academie
 
 Gelezen op 2026-11-16: `academy.js` (vrijwel geheel), `academy3.js` (geheel), `academy2.js` (categorie, jeugdcompetities, weekhook, seizoenshook; de events en het diagnoseblok alleen als lijst). **Niet gelezen**: de teksten van de 7 academie-events en de UI in `ui/` (het scherm met Overview/Setup/Record). Hieronder staat ook één kleine telling (3 seeds, ≤6 seizoenen, willekeurige antwoorden), een aanwijzing en geen meting van een echte speler.
@@ -584,7 +584,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 ## Bijlage: alle bronbestanden
 
 <!-- generated:files:start -->
-62 bronbestanden, samen ongeveer 1007 KB.
+62 bronbestanden, samen ongeveer 1009 KB.
 
 | Bestand | KB | Doel |
 |---|---|---|
@@ -619,7 +619,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `commercial.js` | 10 | Commercial department The stadium as a system (three stands, demand, price, matchday experience), sponsor offe |
 | `marketing.js` | 7 | Marketing department A supporter funnel (reach, fans, season-ticket holders), loyalty that cushions bad result |
 | `business.js` | 7 | Business department A season budget per department (lean, normal, invest) against what the club can afford, a |
-| `academy3.js` | 5 | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid |
+| `academy3.js` | 7 | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid |
 | `recruitx.js` | 25 | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re |
 | `world.js` | 18 | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store |
 | `turnaround.js` | 7 | the turnaround (B37, B44) When it goes properly wrong, the board asks what the CEO intends to do |

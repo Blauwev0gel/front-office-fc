@@ -77,8 +77,8 @@ function act(a, d, el) {
       break;
     case 'dept-issue': r = F.specialistAct('department.issue',{k:d.k,v:d.v,c:d.c}); if (r && r.err) toast(r.err); else if (r) { saveGame(); toast(r.out); } break;
     case 'dcand': U.sheet = { t: 'dcand', k: d.k, r: d.r }; break;
-    case 'dhire': r = F.deptHire(d.k, d.r, +d.i); U.sheet = null; if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); ART.vib(30); } break;
-    case 'dletgo': r = F.deptLetGo(d.k, +d.id); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } break;
+    case 'dhire': r = F.specialistAct('department.hire',{k:d.k,r:d.r,i:d.i}); U.sheet = null; if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); ART.vib(30); } break;
+    case 'dletgo': r = F.specialistAct('department.dismiss',{k:d.k,id:d.id}); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } break;
     case 'dinbox': U.tab = 'inbox'; U.open = d.key; U.dept = null; window.scrollTo(0, 0); break;
     case 'ft-talk': r = F.ftTalkStart(); if (r && r.err) { toast(r.err); return; } U.tab = 'staff'; U.dept = 'first'; ART.SND.ring(); window.scrollTo(0, 0); break;
     case 'ft-ans': r = F.specialistAct('firstteam.response',{id:d.id}); if (r && r.err) toast(r.err); ART.SND.card(); ART.vib(15); break;
@@ -86,7 +86,7 @@ function act(a, d, el) {
     case 'ft-buy': r = F.specialistAct('firstteam.support',{v:'buy',k:d.k}); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
     case 'ft-cancel': r = F.specialistAct('firstteam.support',{v:'cancel',k:d.k}); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } break;
     case 'ft-sackq': U.sheet = { t: 'sack' }; break;
-    case 'ft-sack': r = F.ftSack(); U.sheet = null; if (r && r.err) toast(r.err); else { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); U.dtab = 'over'; window.scrollTo(0, 0); } break;
+    case 'ft-sack': r = F.specialistAct('firstteam.sack'); U.sheet = null; if (r && r.err) toast(r.err); else { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); U.dtab = 'over'; window.scrollTo(0, 0); } break;
     case 'sqtable': U.sqTable = d.v != null ? d.v === '1' : !U.sqTable; break;
     case 'sp-conflict': r = F.specialistResolveConflict(d.id,d.v);
       if(r&&r.err) toast(r.err);
@@ -109,13 +109,13 @@ function act(a, d, el) {
     case 'tour-ok': g.flags.tour = Object.assign({}, g.flags.tour, { [d.k]: 1 }); if (d.k === 'inbox') g.flags.howto = true; break;
     case 'preset': { const vals = PRESETS[d.r][+d.i][1], tgt = d.p === 'md' ? U.draft : g.mand[d.r]; Object.assign(tgt, vals); ART.SND.card(); break; }
     case 'ru-set': { const tgt = d.p === 'md' ? U.draft : g.mand[d.r]; tgt[d.k] = d.v; ART.SND.click(); break; }
-    case 'dd-dec': F.ddDecide(+d.i); U.ddDecEnd = null; break;
+    case 'dd-dec': r=F.specialistAct('recruit.deadline',{i:d.i}); if(r&&r.err)toast(r.err); U.ddDecEnd = null; break;
     case 'dd-pause': G().sum.dd.run = !G().sum.dd.run; break;
     case 'dd-skip': F.ddSkip(); break;
     case 'target': U.recMsg = ''; U.ptab = 'over'; U.sheet = { t: 'target', id: +d.id }; break;
     case 'recplan': U.sheet = { t: 'recplan' }; break;
-    case 'rec-prio': F.recTogglePrio(d.p, d.k); break;
-    case 'rec-kind': F.recSetKind(d.p, d.k); break;
+    case 'rec-prio': r=F.specialistAct('recruit.priority',{pos:d.p,k:d.k}); if(r&&r.err)toast(r.err); break;
+    case 'rec-kind': r=F.specialistAct('recruit.profile',{pos:d.p,k:d.k}); if(r&&r.err)toast(r.err); break;
     case 'rec-appr': r = F.specialistAct('recruit.approval',{v:d.v}); if (r && r.err) toast(r.err); break;
     case 'prio-all': U.prioAll = true; break;
     case 'agr-review': r = F.agreementRespond(d.id, d.v);

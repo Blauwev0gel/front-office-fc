@@ -136,11 +136,26 @@ function genMessages() {
   if (isMeeting(G.week)) genMeeting();
 }
 function autoEvent(e) {
-  let c; try { c = e.setup ? e.setup() : {}; } catch (err) { return; } if (c === null) return;
+  let c;
+  try { c = e.setup ? e.setup() : {}; } catch (err) { return; }
+  if (c === null) return;
+  const m = { ev: e.id, ctx: c };
+  const idx = autoIndex(m);
+  if (!e.opts || !e.opts[idx]) return;
+  const who = e.from === 'board' ? 'The board' : ROLE[e.from] ?
+    (staff(e.from) ? staff(e.from).name : 'Nobody in charge') : 'The club office';
+  const effect = runChoiceEffect(() => e.opts[idx].f(c));
+  if (effect.err) return; // failed work must not create a false Gazette success
   G.cd[e.id] = absWeek() + (e.cd || 8);
-  const m = { ev: e.id, ctx: c }, idx = autoIndex(m), who = e.from === 'board' ? 'The board' : ROLE[e.from] ? (staff(e.from) ? staff(e.from).name : 'Nobody in charge') : 'The club office';
-  let r, lab = '', title = ''; try { r = e.opts[idx].f(c); lab = typeof e.opts[idx].l === 'function' ? e.opts[idx].l(c) : e.opts[idx].l; title = typeof e.title === 'function' ? e.title(c) : e.title; } catch (err) { return; }
-  G.paper.stories.push({ h: `${ROLE[e.from] ? ROLE[e.from].s : 'Club'} handled it`, t: `${title}. ${who}: ${lab}. ${r || ''}`, auto: 1 });
+  let lab = '', title = '';
+  try {
+    lab = typeof e.opts[idx].l === 'function' ? e.opts[idx].l(c) : e.opts[idx].l;
+    title = typeof e.title === 'function' ? e.title(c) : e.title;
+  } catch (ignore) { title = e.id; }
+  G.paper.stories.push({
+    h: `${ROLE[e.from] ? ROLE[e.from].s : 'Club'} handled it`,
+    t: `${title}. ${who}: ${lab}. ${effect.result || ''}`, auto: 1
+  });
 }
 function secondOpinion(msgId) {
   const m = G.inbox.find(x => x.id === msgId); if (!m || m.done) return null; const e = EV[m.ev]; if (!e.second) return { err: 'No second opinion available.' };

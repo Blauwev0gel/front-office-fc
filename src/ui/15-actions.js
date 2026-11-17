@@ -88,6 +88,10 @@ function act(a, d, el) {
     case 'ft-sackq': U.sheet = { t: 'sack' }; break;
     case 'ft-sack': r = F.ftSack(); U.sheet = null; if (r && r.err) toast(r.err); else { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); U.dtab = 'over'; window.scrollTo(0, 0); } break;
     case 'sqtable': U.sqTable = d.v != null ? d.v === '1' : !U.sqTable; break;
+    case 'sp-conflict': r = F.specialistResolveConflict(d.id,d.v);
+      if(r&&r.err) toast(r.err);
+      else if(r&&r.out){U.flash=r.out;U.flashN=(U.flashN||0)+1;ART.SND.stamp();}
+      break;
     case 'com-offer': r = F.specialistAct('commercial.offer',{k:d.k}); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND[d.k === 'reject' ? 'click' : 'stamp'](); } break;
     case 'com-price': r = F.specialistAct('commercial.price',{k:d.k,v:d.v}); if (r && r.err) toast(r.err); ART.SND.click(); break;
     case 'com-exp': r = F.specialistAct('commercial.experience',{v:d.v}); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;

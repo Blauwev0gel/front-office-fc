@@ -70,8 +70,8 @@ function vSheet() {
   if (s.t === 'recplan') { h = `<div class="spread"><div><div class="kick">Recruitment plan</div><h2>What should we look for?</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>${recPlanBlock()}<div class="row" style="margin-top:12px"><button class="btn" data-a="close">Done</button></div>`; }
   if (s.t === 'mand') {
     const r = s.r, st = F.staff(r), m = U.draft; const al = previewAlign(r, m);
-    h = `<div class="sheethead"><span class="chip">Mandate · club fit ${al}%</span><button class="iconbtn" data-a="close" aria-label="Close">${ART.I.close}</button></div>${staffHead(r)}${leanNote(r, m)}<div id="mand">${sliderRows(r, m, 'md')}</div>
-    <div class="sheetfoot"><button class="btn ghost" data-a="close">Cancel</button><button class="btn" data-a="mand-save">Save mandate</button></div>`;
+    h = `<div class="sheethead"><span class="chip">Mandate · club fit ${al}%</span><button class="iconbtn" data-a="close" aria-label="Close">${ART.I.close}</button></div>${staffHead(r)}<div id="mand">${mandateAgreement(r, m, 'md')}</div>
+    <div class="sheetfoot"><button class="btn ghost" data-a="close">Cancel</button><button class="btn" data-a="mand-save">Agree direction</button></div>`;
   }
   if (s.t === 'talk') {
     const roles = F.ROLES.filter(r => g.staff[r.id]);

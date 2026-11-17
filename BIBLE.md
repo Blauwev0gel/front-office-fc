@@ -248,3 +248,13 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 - This covers all six departments, every numbered UI module, the dispatcher and static registered event/brief definitions, plus 197 screen/state design targets and a dependency-aware 47-task implementation backlog.
 - The proposed unified case lifecycle, authority model, communication types and save-compatible integration are documented in `docs/ux-rebuild/07-DECISION-ENGINE-REDESIGN.md`.
 - **Status boundary:** documentation and static source survey only. No gameplay code was modified or tested for the audit. Instrumented runtime state coverage, per-event counterfactual outcomes and visual acceptance are outstanding. Do not mark the total rebuild DONE.
+
+
+## B23 — Decision integrity and unified case docket (chatgpt, 2026-11-17)
+
+- Source of completed code changes: `docs/ux-rebuild/12-IMPLEMENTATION-STATUS.md`.
+- Inbox messages, briefings and staff-auto events now roll back incomplete effects; no false “Noted” or fake autonomous Gazette success after thrown effect.
+- Departmental board proposals use the same atomic effect boundary and a real Finance reserve check; old action-point restriction in their UI was retired.
+- `F.caseView(kind,id)` is a **read-only** common docket for event, briefing and proposal types; current specialized engine APIs remain authoritative.
+- One-to-one conversations now use a focused two-stage UI across all six appointed heads, with a one-response-per-opening guard and actual performance context. The underlying tone-based talk system is retained pending a proper agreement/review model.
+- A deterministic decision regression is part of the ChatGPT CI gate. This is a **partial functional milestone**, not the completed 47-task whole-game rebuild; all remaining screens and interaction systems stay tracked in the audit.

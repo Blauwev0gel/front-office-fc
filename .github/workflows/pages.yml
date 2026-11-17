@@ -65,6 +65,7 @@ jobs:
                 node test/no-actions.js
                 node test/ceocore.js
                 node test/stories.js
+                node test/stakeholders.js
                 # Browser QA is run manually by the owner; CI gates the engine and UI contracts.
               fi
               node -e 'const fs=require("fs"),vm=require("vm");const html=fs.readFileSync("dist/index.html","utf8");if(html.includes("/*CSS*/")||html.includes("/*JS*/"))throw Error("Unresolved build placeholder");const script=html.match(/<script>([\s\S]*?)<\/script>/);if(!script)throw Error("Missing game script");new vm.Script(script[1]);'

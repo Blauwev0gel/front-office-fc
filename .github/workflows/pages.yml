@@ -60,7 +60,13 @@ jobs:
               mkdir -p dist
               python build.py
               node test/preview-save.js
-              if [ "$branch" = chatgpt ]; then node test/text-mode.js; node test/ceocore.js; node test/stories.js; fi
+              if [ "$branch" = chatgpt ]; then
+                node test/text-mode.js
+                node test/no-actions.js
+                node test/ceocore.js
+                node test/stories.js
+                node test/browser/retro-runtime.cjs
+              fi
               node -e 'const fs=require("fs"),vm=require("vm");const html=fs.readFileSync("dist/index.html","utf8");if(html.includes("/*CSS*/")||html.includes("/*JS*/"))throw Error("Unresolved build placeholder");const script=html.match(/<script>([\s\S]*?)<\/script>/);if(!script)throw Error("Missing game script");new vm.Script(script[1]);'
             )
             target="site/$branch"

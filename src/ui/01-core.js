@@ -28,7 +28,6 @@ const meter = (l, v, max = 100, txt) => `<div class="meter"><span>${esc(l)}</spa
 function crest(cols, short) {
   return `<span class="text-crest" aria-label="Club abbreviation">${esc((short || 'FC').slice(0, 3))}</span>`;
 }
-const apPips = n => ''; // The adjacent button already states the action count.
 const sign = v => v > 0 ? '+' + v : '' + v;
 
 /* ---------- base club: skip the founding ---------- */

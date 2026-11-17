@@ -155,7 +155,7 @@ function briefView(b) {
 function answerBrief(id, i) {
   if (over()) return { err: 'You no longer run the club.' };
   const b = (G.briefs || []).find(x => x.id === id); if (!b || b.done) return null; const o = BR[b.t].opts[i];
-  if (o.ap && G.ap < 1) return { err: 'No action points left this week.' }; if (o.ap) G.ap--;
+  
   let r = ''; try { r = o.f(b.ctx) || 'Noted.'; } catch (e) { r = 'Noted.'; } b.done = true; b.choice = i; b.out = r; return { out: r };
 }
 

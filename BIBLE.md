@@ -75,15 +75,13 @@ Vastgelegd:
    escalaties komen bij jou (boven het limiet, topspeler, clubnaam, zwakke/koude head, kort lijntje)
    plus wat altijd van de CEO is: conflicten tussen afdelingen, bestuur, supporters, pers, en
    gesprekken met de heads zelf.
-3. **3 actiepunten per week** — voor second opinions, gesprekken, pushes van een afdeling.
+3. **Geen actiepunten** — second opinions, gesprekken, wijzigingen van mandaten en afdelingsopdrachten zijn beschikbaar zonder wekelijkse kliklimiet. Werkelijke uitvoeringskosten, relaties, verantwoordelijkheden en latere gevolgen blijven bepalend (B16).
 4. **Wedstrijddag** — vooraf drie verhalen over eigen spelers; tijdens: commentaar; na: hoe elk
    verhaal afliep en het keerpunt.
 5. **Weekafsluiting** — onbeantwoorde berichten worden door de staf zelf afgehandeld, financiën,
    ontwikkeling, blessures, bestuur, de Gazette en "wat veranderde er".
 
-Antwoorden staan direct onder de ontvangen mail: één set keuzes, een direct leesbaar antwoord en
-**Send**. Selecteren voert niets uit; verzenden verwerkt en bewaart de beslissing direct, zonder
-kunstmatige wachttijd of Undo-venster. Grote beslissingen vragen een expliciete tweede bevestiging (B12).
+Antwoorden staan direct onder de ontvangen mail: **één tik op een optie voert het besluit meteen uit en slaat het op**, met direct zichtbare terugkoppeling. Geen aparte selectie, Send-knop, actiepuntkosten of tweede bevestiging, ook niet bij een zwaar besluit. Dit vervangt de oude B12-flow (B16).
 
 ### 5.3 Het seizoen
 Vijf blokken met elk een doel: Opening (1–6), Autumn (7–15), Winter (16–19, korte transferwindow),
@@ -150,7 +148,7 @@ Aandachtspunten:
    Let op: de tests simuleren de zomer nog via de v1-route (`sumAuto`), niet via de v2-flow die de speler ziet.
 3. ~~`ui.js` is 1.849 regels in één blok~~ — opgeknipt in delen (15-11-2026), build byte-identiek.
 4. **Veel meters tegelijk:** bestuursvertrouwen, 4 backers, grip, verborgen druk, credibility (pathway),
-   DNA-alignment, actiepunten, plus KPI's per afdeling. Sterk voor P2, maar mogelijk in strijd met P4/P5.
+   DNA-alignment en KPI's per afdeling. Het verouderde actiepuntensysteem is op `chatgpt` verwijderd (B16); test of de overige meters P2 versterken zonder P4/P5 te schaden.
 5. Tab `money` bestaat in de render, maar staat niet in de tabbalk.
 6. Eerste audit-signaal (20 runs × 5 seizoenen, nog te toetsen): een *actieve* CEO wordt even vaak ontslagen
    als een passieve (35%), een willekeurig klikkende CEO nooit. Coach-mandaten (aanvallend/verdedigend, jeugd)
@@ -184,3 +182,4 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 | B13 | 16-11-2026 | **Test vóór push; bundel samenhangende wijzigingen; controleer Actions en los failures op vóór nieuwe pushes.** Geen groen vinkje claimen zonder de relevante tests echt uit te voeren. | Herhaalde commits naar `chatgpt` veroorzaakten onnodig veel workflow-runs; een foutieve CSS-testassertie liet publicaties falen, hoewel de code kon bouwen. Eén push bouwt alle drie de versies. |
 | B14 | 16-11-2026 | **Clubverhalen ontstaan uit echte clubtoestand, lopen 8–15 weken door en laten staf zelfstandig handelen.** Begin met trainer–TD, talentontwikkeling en financiële druk. CEO stelt richting, kiest geen elftal of transfers; stille weken zijn toegestaan. | Losse mails vormen geen carrièreverhaal. Bestaande events, dossiers, pathway, stafmandaten, financiën en Gazette blijven de enige uitvoerende engines. Maximaal twee gelijktijdige verhaallijnen, expliciete afhandeling in savegames en geen gegarandeerd gescript resultaat. |
 | B15 | 16-11-2026 | **Uitsluitend de `chatgpt`-preview heeft een blijvende retro tekst-/wireframemodus.** Alle schermen (oprichting, zomer, inbox, gesprekken, afdelingen, tabellen, wedstrijddag en Gazette) gebruiken één monospace-designsysteem met rechte kaders, rustige tinten en duidelijke mobiele bediening. Geen illustraties, effecten of decoratieve animaties; wel alle bestaande tekstinformatie en acties. | Minder visuele ruis en eenvoudiger engine-testing op telefoons. De CSS vervangt zijn vorige versie in plaats van extra overlappende lagen toe te voegen. Geen wijzigingen op `main` of `claude-game`; geen engine-, save- of spelregels gewijzigd. |
+| B16 | 16-11-2026 | **`chatgpt` heeft geen actiepunten meer; alle Red Box- en briefingkeuzes zijn één tik = direct besluiten en bewaren.** Ook gesprekken, second opinions, mandaten, ontslag en afdelingsopdrachten zijn niet AP-gated. Geen Send/draft/extra bevestiging, zelfs niet voor votes. | CEO-aandacht wordt gestuurd door reële gevolgen en stafautonomie, niet door een kunstmatige weeklimiet. Oude saves migreren zonder `G.ap`. Geen exploit bij identieke mandaten/herhaald steunen of dezelfde week hetzelfde gesprek. Retro-schermen moeten aantoonbaar leesbare kleuren en bruikbare knoppen hebben. **Vervangt het interactieontwerp in B12 op `chatgpt`.** |

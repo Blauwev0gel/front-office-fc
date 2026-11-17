@@ -1,6 +1,6 @@
 /* ---------- save ---------- */
 function save() { return JSON.stringify(G); }
-function load(s) { const g = JSON.parse(s); if (!g || g.v > VERSION) return false; G = g; if (G.v < 2) { G.v = 2; if (HOOK.acadMigrate) HOOK.acadMigrate(); } if (G.v < 3) { G.v = 3; if (HOOK.recMigrate) HOOK.recMigrate(); } return true; }
+function load(s) { const g = JSON.parse(s); if (!g || g.v > VERSION) return false; G = g; delete G.ap; if (G.v < 2) { G.v = 2; if (HOOK.acadMigrate) HOOK.acadMigrate(); } if (G.v < 3) { G.v = 3; if (HOOK.recMigrate) HOOK.recMigrate(); } return true; }
 
 return {
   get G() { return G; }, set G(v) { G = v; }, HOOK, absStars, newStats,

@@ -438,6 +438,70 @@ body{
   #app .b2nav button{font-size:9px!important;padding-inline:1px!important}
   #app .srow{padding:9px!important}
 }
+/* TEXT LEGIBILITY SAFETY: original graphic skins used white text on dark panels.
+   Reset unstyled descendants to inherit the paper/ink color; explicit semantic and
+   inverse-color styles above remain more specific. Never use transparent backgrounds
+   across the whole game, since that would erase real information surfaces. */
+#app :where(*):not(svg):not(path){color:inherit!important}
+#app :is(.presshall,.mcard,.mdpvv,.mdht,.mdmotm,.mdmi,.mdrt,
+  .mdclk,.mdpli,.mdgface,.mchead,.callhead,.motm,.podium,.nextfix,
+  .mdsh,.mdnsec,.mdhth,.mddanger,.mdnp,.mdmoml,.medal,.press-card){
+  background:var(--paper)!important;color:var(--ink)!important;
+  border-color:var(--rule)!important}
+#app :is(.presshall,.mcard,.mdpvv,.mdht,.mdmotm,.mdmi,.mdrt,
+  .mdclk,.mdpli,.mdgface,.mchead,.callhead,.motm,.podium,.nextfix,
+  .mdsh,.mdnsec,.mdhth,.mddanger,.mdnp,.mdmoml) :is(span,b,strong,small,em,i,p){
+  color:inherit!important}
+#app :is(.mdpli,.feed2 li,.mdrt){border-bottom:1px solid var(--hair)!important;
+  background:var(--paper)!important;color:var(--ink)!important}
+#app .mdpli span{color:var(--soft)!important}
+#app .mdpvv{margin-bottom:10px!important;padding:8px 10px!important}
+#app .presshall{padding:12px!important}
+#app :is(.mcard,.mdht,.mdmotm,.mdpvv,.callhead,.nextfix){box-shadow:none!important;
+  border:1px solid var(--rule)!important}
+#app :is(.mdm,.mds,.sheet.live) :is(.btn,.mdko,.mdback,button:not(.ghost)){
+  color:var(--ink)!important;background:var(--paper)!important;
+  border:1px solid var(--rule)!important}
+#app :is(.mdm,.mds,.sheet.live) :is(.btn,.mdko,.mdback,button:not(.ghost)):focus-visible{
+  outline:3px solid var(--club)!important}
+#app .mdfoot :is(.btn:not(.ghost),.mdko),
+#app .bar2 .b2play .btn,
+#app .tray .btn:not(.ghost){
+  color:var(--paper)!important;background:var(--club)!important;
+  border:2px solid var(--ink)!important}
+#app .mdfoot :is(.btn:not(.ghost),.mdko) *,
+#app .bar2 .b2play .btn *,
+#app .tray .btn:not(.ghost) *{color:inherit!important}
+#app :is(.btn.danger,.mddanger,.dstat.bad){color:var(--bad)!important;
+  background:var(--paper)!important;border-color:var(--bad)!important}
+#app :is(.good,.up){color:var(--good)!important}
+#app :is(.bad,.dn,.warn){font-weight:800!important}
+#app .one-tap-hint{display:block!important;background:var(--fill)!important;
+  color:var(--ink)!important;padding:9px!important;
+  border:1px dashed var(--rule)!important;margin:10px 0!important;
+  font-size:12px!important}
+#app .mreply .srow{cursor:pointer!important;padding:15px 12px!important;
+  min-height:54px!important;border:1px solid var(--rule)!important;
+  background:var(--paper)!important;color:var(--ink)!important}
+#app .mreply .srow:hover,#app .mreply .srow:focus-visible{
+  background:var(--fill)!important;border-color:var(--club)!important}
+#app .mreply .srow :is(.sk,.sfx,small){color:inherit!important}
+#app .mreply .srow small{display:block!important;font-size:11px!important;
+  color:var(--soft)!important}
+#app .mreply .srow::after{display:none!important}
+#app .mreply .mlv{font-size:12px!important;color:var(--soft)!important}
+#app .mreply .msent{background:var(--fill)!important;color:var(--ink)!important;
+  border:1px solid var(--rule)!important;padding:12px!important}
+#app .mreply .mnext{display:block!important;width:100%!important;margin-top:12px!important;
+  background:var(--club)!important;color:var(--paper)!important;
+  padding:12px!important;border:2px solid var(--ink)!important;
+  min-height:48px!important}
+#app .mreply .mnext *{color:inherit!important}
+#app .bar2 .b2l{flex:0 0 auto!important}
+#app .bar2 .gripchip{padding:8px 10px!important;min-height:44px!important;
+  background:var(--paper)!important;color:var(--ink)!important;
+  border:1px solid var(--rule)!important}
+#app :is(.srow,.rbr,.dkr,.dtile2,.choice button){overflow-wrap:anywhere!important}
 @media(prefers-reduced-motion:reduce){
   #app *,#app *::before,#app *::after{animation:none!important;transition:none!important}
 }

@@ -3,8 +3,8 @@ function readSetup() { const v = id => { const e = $('#' + id); return e ? e.val
 function act(a, d, el) {
   const g = G(); let r;
   switch (a) {
-    case 'quick': U.mc = null; U.mconfirm = null; U.sentK = null; quickStart(d.v === 'season'); break;
-    case 'new': U.mc = null; U.mconfirm = null; U.sentK = null; U.title = false; F.newGame(); U.setup = { step: 0, name: '', short: '', city: '', col: 0, dna: {} }; U.hire = {}; break;
+    case 'quick': U.sentK = null; quickStart(d.v === 'season'); break;
+    case 'new': U.sentK = null; U.title = false; F.newGame(); U.setup = { step: 0, name: '', short: '', city: '', col: 0, dna: {} }; U.hire = {}; break;
     case 'continue': if (loadGame()) { U.title = false; setClub(G().club.colors); } break;
     case 'restart': wipe(); U.title = true; F.G = null; break;
     case 'col': readSetup(); U.setup.col = +d.i; break;
@@ -12,7 +12,7 @@ function act(a, d, el) {
     case 's-back': readSetup(); U.setup.step = Math.max(0, U.setup.step - 1); break;
     case 'dna': U.setup.dna[d.k] = d.v; break;
     case 'found': { const s = U.setup; F.setDNA(Object.assign({}, s.dna), s.name, s.short, s.city, PALETTES[s.col]); setClub(PALETTES[s.col]); window.scrollTo(0, 0); break; }
-    case 'pick': U.hire[d.r] = +d.i; ART.SND.card(); { const ix = F.ROLES.findIndex(r => r.id === d.r), nx = F.ROLES.slice(ix + 1).find(r => U.hire[r.id] == null); if (nx) setTimeout(() => { U.hireRole = nx.id; render(); window.scrollTo(0, 0); }, 450); } break;
+    case 'pick': U.hire[d.r] = +d.i; ART.SND.card(); { const ix = F.ROLES.findIndex(r => r.id === d.r), nx = F.ROLES.slice(ix + 1).find(r => U.hire[r.id] == null); if (nx) { U.hireRole = nx.id; window.scrollTo(0, 0); } } break;
     case 'hire-tab': U.hireRole = d.r; window.scrollTo(0, 0); break;
     case 'unpick': delete U.hire[d.r]; break;
     case 'hire-all': for (const k in U.hire) F.hire(k, U.hire[k]); F.finishStaff(); window.scrollTo(0, 0); break;
@@ -20,13 +20,11 @@ function act(a, d, el) {
     case 'press': { const q = F.PRESS.find(p => p.id === d.q); let ans = q.a[+d.i]; if (typeof ans === 'function') ans = ans(); U.quote = F.pressAnswer(d.q, +d.i); U.quoteP = !!ans[1]; U.pressI++; break; }
     case 'press-next': U.quote = null; if (U.pressI >= g.press.length) { F.finishPress(); U.tab = 'inbox'; window.scrollTo(0, 0); } break;
     case 'tab': U.tab = d.t; U.sub = null; U.dept = null; if (d.t === 'inbox') { U.open = null; U.flash = ''; } window.scrollTo(0, 0); break;
-    case 'mpick': U.mc = { k: d.k, id: +d.id, i: +d.i }; U.mconfirm = null; break;
-    case 'mcancel': U.mconfirm = null; break;
-    case 'msend': mailSend(d); break;
-    case 'mnext': U.sentK = null; U.mc = null; U.mconfirm = null; advance(); window.scrollTo(0, 0); break;
+    case 'mchoose': mailSend(d); break; // commit and save immediately
+    case 'mnext': U.sentK = null; advance(); window.scrollTo(0, 0); break;
     case 'opt': r = F.respond(+d.m, +d.i); if (r && r.err) toast(r.err); else if (r && U.open) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.card(); ART.vib(15); advance(); } break;
-    case 'open': if (!d.k) break; if (d.k.startsWith('an') && false) { markRead(d.k); U.sheet = { t: 'analysis' }; break; } if (d.k.startsWith('ms') && !d.k.startsWith('msw')) { markRead(d.k); const it = inboxItems().find(x => x.key === d.k); if (it) { U.ptab = 'story'; U.sheet = { t: 'player', id: it.pid }; } break; } U.open = d.k; U.flash = ''; U.mc = null; U.sentK = null; U.edI = 0; window.scrollTo(0, 0); break;
-    case 'close-open': U.open = null; U.flash = ''; U.mc = null; U.mconfirm = null; break;
+    case 'open': if (!d.k) break; if (d.k.startsWith('an') && false) { markRead(d.k); U.sheet = { t: 'analysis' }; break; } if (d.k.startsWith('ms') && !d.k.startsWith('msw')) { markRead(d.k); const it = inboxItems().find(x => x.key === d.k); if (it) { U.ptab = 'story'; U.sheet = { t: 'player', id: it.pid }; } break; } U.open = d.k; U.flash = ''; U.sentK = null; U.edI = 0; window.scrollTo(0, 0); break;
+    case 'close-open': U.open = null; U.flash = ''; break;
     case 'dismiss': g.dis = g.dis || {}; g.dis[d.k] = F.absWeek(); for (const x in g.dis) if (g.dis[x] < F.absWeek() - 6) delete g.dis[x]; markRead(d.k); if (U.open === d.k) U.open = null; ART.SND.click(); break;
     case 'filt': U.filt = d.v; break;
     case 'md-kick': mdKick(); break;
@@ -56,7 +54,7 @@ function act(a, d, el) {
     case 'tab-close': U.sheet = null; U.tab = d.t; window.scrollTo(0, 0); break;
     case 'veil': if (el === document.querySelector('.veil')) U.sheet = null; else return; break;
     case 'player': U.ptab = 'over'; U.sheet = { t: 'player', id: +d.id }; break;
-    case 'mt-ans': if (d.k === 'sign') { U.signing = true; ART.SND.stamp(); ART.vib(40); setTimeout(() => { U.signing = false; F.sum2Answer(+d.i); saveGame(); render(); window.scrollTo(0, 0); }, 900); break; } ART.SND.card(); F.sum2Answer(+d.i); break;
+    case 'mt-ans': ART.SND.card(); F.sum2Answer(+d.i); break; // immediate, single-commit summer decision
     case 'sound': ART.SND.toggle(); break;
     case 'tk-ans': F.tkAnswer(+d.i); break;
     case 'tk-pause': G().sum.tk.run = !G().sum.tk.run; break;
@@ -135,10 +133,9 @@ function act(a, d, el) {
     case 'next-season': F.startSeason(); U.pressI = 0; U.quote = null; U.lt = null; window.scrollTo(0, 0); break;
   }
   saveGame(); render();
-  // Rendering replaces the buttons; preserve keyboard focus in the reply flow.
-  if (a === 'mpick') document.querySelector('.mreply .srow[aria-pressed="true"]')?.focus({ preventScroll: true });
-  if (a === 'msend' || a === 'mcancel') {
-    const target = document.querySelector(U.mc ? '.mreply .msend' : '.mreply .msent');
+  // One-tap choice has been committed; move focus to its result for accessibility.
+  if (a === 'mchoose') {
+    const target = document.querySelector('.mreply .msent');
     if (target) {
       target.focus({ preventScroll: true });
       const rect = target.getBoundingClientRect(), edge = document.querySelector('.bar2')?.getBoundingClientRect().top || innerHeight;

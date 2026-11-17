@@ -138,7 +138,7 @@ function autoEvent(e) {
 }
 function secondOpinion(msgId) {
   const m = G.inbox.find(x => x.id === msgId); if (!m || m.done) return null; const e = EV[m.ev]; if (!e.second) return { err: 'No second opinion available.' };
-  const r = e.second.r; if (!staff(r)) return { err: `There is no ${ROLE[r].t} to ask.` }; if (m.second) return { err: 'Already asked.' }; if (G.ap < 1) return { err: 'No action points left this week.' };
-  G.ap--; let t = ''; try { t = e.second.t(m.ctx); } catch (err) { t = 'He has nothing useful to add.'; } m.second = `${staff(r).name} (${ROLE[r].t}): ${t}`; return { out: m.second };
+  const r = e.second.r; if (!staff(r)) return { err: `There is no ${ROLE[r].t} to ask.` }; if (m.second) return { err: 'Already asked.' }; 
+  let t = ''; try { t = e.second.t(m.ctx); } catch (err) { t = 'He has nothing useful to add.'; } m.second = `${staff(r).name} (${ROLE[r].t}): ${t}`; return { out: m.second };
 }
 

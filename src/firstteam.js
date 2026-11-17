@@ -171,10 +171,11 @@ function line() {
 const say = (who, t) => ft().talk.log.push({ who, t });
 const BOOST = (s, b, w) => { s.boost = clamp(s.boost + b, -10, 12); s.boostW = Math.max(s.boostW, w || 4); };
 function talkStart() {
-  const G = g(), s = staff('coach'); if (!s) return { err: 'There is no head coach.' }; if (G.ap < 1) return { err: 'No action points left this week.' };
+  const G = g(), s = staff('coach'); if (!s) return { err: 'There is no head coach.' }; 
   const S = ft(); if (S.talk && !S.talk.done) return {};
-  G.ap--; const recent = (G.talks.coach || -99) > F.absWeek() - 3; G.talks.coach = F.absWeek();
-  S.talk = { step: 0, log: [], k: recent ? 0.5 : 1, fx: [] };
+  const gap = F.absWeek() - (G.talks.coach ?? -99), recent = gap < 3;
+  G.talks.coach = F.absWeek();
+  S.talk = { step: 0, log: [], k: gap < 1 ? 0 : recent ? 0.5 : 1, fx: [] };
   say('coach', hs(s.name + G.week) % 2 ? 'You wanted a word?' : 'Door is open. What is on your mind?');
   S.talk.opts = topics();
   return {};

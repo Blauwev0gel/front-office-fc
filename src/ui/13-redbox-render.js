@@ -9,21 +9,26 @@ function mailTop(role, name, roleT, title, tag, body, emo) {
 }
 const MSV = d => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const MAILI = { send: MSV('<path d="M12 19V5M5 12l7-7 7 7"/>') };
-function mailRows(k, id, opts, auto, i, dis) {
-  return `<div class="slist" role="group" aria-label="Suggested replies">${opts.map((o, j) => `<button class="srow ${j === auto ? 'isadv' : ''}" data-a="mpick" data-k="${k}" data-id="${id}" data-i="${j}" aria-pressed="${j === i}" ${dis ? 'disabled' : ''}><span class="sk">${esc(o.l)}${j === auto ? '<small>Advised</small>' : ''}</span><span class="sfx">${ART.fx(o.h)}</span></button>`).join('')}</div>`;
+function mailRows(k, id, opts, auto) {
+  return '<div class="slist" role="group" aria-label="Choose and send your reply">' +
+    opts.map((o, j) => '<button type="button" class="srow ' + (j === auto ? 'isadv' : '') +
+      '" data-a="mchoose" data-k="' + k + '" data-id="' + id +
+      '" data-i="' + j + '" aria-label="Send reply: ' + esc(o.l) + '">' +
+      '<span class="sk">' + esc(o.l) +
+      (j === auto ? '<small>Staff recommendation</small>' : '') +
+      '</span><span class="sfx">' + ART.fx(o.h) + '</span></button>').join('') + '</div>';
 }
 function mailBanner() {
   const b = U.bn; if (!b || b.n === U.bnShown) return ''; U.bnShown = b.n;
   return `<div class="mbn" role="status"><span class="mbav">${ART.staffFace(b.role, 'happy')}</span><div><div class="mbt"><b>${esc(b.name)}</b><span>now</span></div><small>Re: ${esc(b.subj)}</small><p>${esc(clip2(b.txt)[0])}</p></div></div>`;
 }
 function mailReply(k, id, name, opts, auto, isBig, leave, dis) {
-  const i = U.mc && U.mc.k === k && U.mc.id === id ? U.mc.i : -1, o = opts[i];
-  const confirming = isBig && U.mconfirm === k + id;
-  return `<section class="mreply" aria-label="Your reply"><header class="mrhead"><div><h3>Your reply</h3><p class="mrto">To <b>${esc(name)}</b></p></div><span class="mrstate">Draft</span></header>
-  ${mailRows(k, id, opts, auto, i, dis)}
-  <div class="mcb" aria-live="polite">${o ? `<span class="mrlabel">Your message</span><p class="mln">${esc(o.l)}.</p>` : '<p class="mph">Choose a reply above to prepare your message.</p>'}</div>
-  ${confirming ? '<p class="mconfirm" role="status">This is a big decision. Confirm your selected reply to send it.</p>' : ''}
-  <div class="mrow"><p class="mlv">${esc(leave)}</p>${confirming ? '<button class="mcancel" data-a="mcancel">Cancel</button>' : ''}<button class="msend ${o && !dis ? 'live' : ''}" data-a="msend" data-k="${k}" data-id="${id}" data-i="${i}" ${o && !dis ? '' : 'disabled'}>${MAILI.send}<span>${confirming ? 'Confirm and send' : 'Send'}</span></button></div></section>`;
+  return '<section class="mreply" aria-label="Your reply">' +
+    '<header class="mrhead"><h3>Your decision</h3><p class="mrto">To <b>' +
+    esc(name) + '</b></p></header>' +
+    '<p class="one-tap-hint">Tap a reply to send it immediately. The decision is final.</p>' +
+    mailRows(k, id, opts, auto) +
+    '<p class="mlv">' + esc(leave) + '</p></section>';
 }
 function mailSent(name, line, out) {
   return `<section class="mreply"><div class="msent" role="status" tabindex="-1"><div class="msh"><span class="mok">${ART.I.trust}</span><b>Sent to ${esc(mFirst(name))}</b></div><p class="msaid">${esc(line)}</p><p class="mout">${esc(clip2(out)[0])}</p></div><button class="mnext" data-a="mnext">Next email ${ART.I.chev}</button></section>` + mailBanner();
@@ -45,10 +50,8 @@ function msgHtml(m, it) {
   h += `<p class="mwhy"><b>Why it is yours.</b> ${esc(v.why)}</p>`;
   if (m.ev === 'pw_meet' && F.pwView) h += pwMeetHtml(F.pwView());
   if (m.ev === 'pw_eval' && F.pwView) h += pwEvalHtml(F.pwView());
-  if (v.second) h += v.second.text ? `<details class="more" open><summary>Second opinion ${ART.I.chev}</summary><p>${esc(v.second.text)}</p></details>` : v.second.avail ? `<details class="more"><summary>Second opinion: ${esc(v.second.name)} <span class="small">1 action</span></summary><p><button class="btn ghost small" data-a="second" data-m="${m.id}" ${g.ap < 1 ? 'disabled' : ''}>Ask ${esc(v.second.name.split(' ')[0])}</button></p></details>` : '';
-  // Required Red Box replies are free in the engine (respond()). Only
-  // optional second opinions, talks and initiatives consume CEO actions.
-  const leave = `No action point required. Leave it and ${v.autoWho} sends the advised reply.`;
+  if (v.second) h += v.second.text ? `<details class="more" open><summary>Second opinion ${ART.I.chev}</summary><p>${esc(v.second.text)}</p></details>` : v.second.avail ? `<details class="more"><summary>Second opinion: ${esc(v.second.name)}</summary><p><button class="btn ghost small" data-a="second" data-m="${m.id}">Ask ${esc(v.second.name.split(' ')[0])}</button></p></details>` : '';
+  const leave = `If you leave it, ${v.autoWho} decides under the current mandate.`;
   return h + mailReply('m', m.id, name, v.opts, v.auto, big, leave, false);
 }
 function briefHtml(b, it) {
@@ -61,7 +64,7 @@ function briefHtml(b, it) {
     return h + `<div class="outc"><b>${v.del ? esc(v.by) + ': ' : ''}${esc(v.opts[v.choice].l)}.</b> ${esc(v.out)}</div>` + fdHtml(b.fd);
   }
   if (v.why) h += `<p class="mwhy"><b>Why it is yours.</b> ${esc(v.why)}</p>`;
-  const leave = 'Free. Leave it and nothing changes.';
+  const leave = 'Leave this update without replying and nothing changes.';
   return h + mailReply('b', b.id, name, v.opts, -1, false, leave, false);
 }
 function mailCommit(p) {
@@ -69,7 +72,7 @@ function mailCommit(p) {
   const r = p.k === 'm' ? F.respond(p.id, p.i) : F.answerBrief(p.id, p.i);
   if (!r || r.err) { if (r && r.err) toast(r.err); return; }
   // Persist the committed decision before rendering or playing feedback.
-  saveGame(); U.mc = null; U.mconfirm = null;
+  saveGame();
   let role = 'club', name = 'Club office', subj = '';
   if (p.k === 'm') { const m = G().inbox.find(x => x.id === p.id), v = F.msgView(m); role = v.role || 'club'; name = v.from.split(',')[0]; subj = v.title; }
   else { const b = (G().briefs || []).find(x => x.id === p.id), v = F.briefView(b); role = v.role || 'club'; name = v.who.split(',')[0]; subj = v.title; }
@@ -79,20 +82,20 @@ function mailCommit(p) {
 }
 function big(p) { if (p.k !== 'm') return false; const m = G().inbox.find(x => x.id === p.id); return !!(m && /^vote_/.test(m.ev)); }
 function mailSend(d) {
-  const p = { k: d.k, id: +d.id, i: +d.i }, selected = U.mc;
-  if (!selected || selected.k !== p.k || selected.id !== p.id || selected.i !== p.i) return;
-  const item = p.k === 'm' ? G().inbox.find(x => x.id === p.id) : p.k === 'b' ? (G().briefs || []).find(x => x.id === p.id) : null;
-  if (!item || item.done) return;
+  const p = { k: d.k, id: +d.id, i: +d.i };
+  if (!['m','b'].includes(p.k) || !Number.isInteger(p.id) || !Number.isInteger(p.i)) return;
+  const item = p.k === 'm' ? G().inbox.find(x => x.id === p.id) :
+    (G().briefs || []).find(x => x.id === p.id);
+  if (!item || item.done) return; // immediate double-tap protection
   const v = p.k === 'm' ? F.msgView(item) : F.briefView(item);
-  if (!Number.isInteger(p.i) || p.i < 0 || p.i >= v.opts.length) return;
-  if (big(p) && U.mconfirm !== p.k + p.id) { U.mconfirm = p.k + p.id; return; }
-  mailCommit(p);
+  if (p.i < 0 || p.i >= v.opts.length) return;
+  mailCommit(p); // resolve once, persist, and show the result: no draft/send/confirm stage
 }
 const MAIL_RM = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function propHtml(idx, row) { return pitchDeck(G().meeting, 'Project pitches', true); }
 const TOUR = {
-  inbox: ['This week', 'What needs you this week. Decisions cost an action and build your grip; leave them and your staff decide.'],
+  inbox: ['This week', 'Tap one reply to make a decision. Every decision takes effect immediately; leave an issue and your staff decide under their mandates.'],
   club: ['Your club', 'How the club is doing: who backs you, the board\'s objectives, the money and your projects.'],
   squad: ['Your squad', 'The coach\'s likely eleven and the rest of the squad. Tap any player for his profile. You never pick the team yourself.'],
   league: ['The league', 'Where you stand, who is next and how the cup is going. Top three go up, bottom three go down.'],
@@ -108,8 +111,21 @@ function tabBadge(k) {
   return '';
 }
 function vBar() {
-  const g = G(), open = inboxItems().filter(i => i.kind === 'need').length, gr = Math.round(g.grip == null ? 60 : g.grip);
-  return `<div class="bar2"><div class="b2play"><span class="b2l"><button class="aplab" data-a="sheet" data-s="actions" aria-label="${g.ap} actions left this week">${apPips(g.ap)}<small>${g.ap} action${g.ap === 1 ? '' : 's'}</small></button><button class="gripchip ${gr < 30 ? 'lo' : gr >= 70 ? 'hi' : ''}" data-a="sheet" data-s="grip" aria-label="Your grip on the club: ${gr}"><i style="width:${gr}%"></i><b>Grip ${gr}</b></button></span><button class="btn" data-a="play">${ART.I.play}${F.mtPreview && F.mtPreview() ? 'Next match' : 'Play week ' + g.week}${open ? ` <em class="cnt" aria-label="${open} need you">${open}</em>` : ''}</button></div><nav class="b2nav">${[['inbox', 'Inbox'], ['club', 'Club'], ['squad', 'Squad'], ['league', 'League'], ['staff', 'Depts']].map(([k, l]) => `<button class="${U.tab === k ? 'on' : ''}" data-a="tab" data-t="${k}" aria-label="${l}"><span class="nic">${ART.I[k]}${tabBadge(k)}</span>${l}</button>`).join('')}</nav></div>`;
+  const g = G(), open = inboxItems().filter(i => i.kind === 'need').length,
+    gr = Math.round(g.grip == null ? 60 : g.grip);
+  return '<div class="bar2"><div class="b2play"><span class="b2l">' +
+    '<button class="gripchip ' + (gr < 30 ? 'lo' : gr >= 70 ? 'hi' : '') +
+    '" data-a="sheet" data-s="grip" aria-label="Your grip on the club: ' + gr +
+    '"><b>Grip ' + gr + '</b></button></span>' +
+    '<button class="btn" data-a="play">' +
+    (F.mtPreview && F.mtPreview() ? 'Next match' : 'Play week ' + g.week) +
+    (open ? ' <em class="cnt" aria-label="' + open + ' need you">' + open + '</em>' : '') +
+    '</button></div><nav class="b2nav">' +
+    [['inbox','Inbox'],['club','Club'],['squad','Squad'],['league','League'],['staff','Depts']]
+      .map(([k,l]) => '<button class="' + (U.tab===k?'on':'') +
+        '" data-a="tab" data-t="' + k + '" aria-label="' + l + '">' +
+        '<span class="nic">' + ART.I[k] + tabBadge(k) + '</span>' + l + '</button>').join('') +
+    '</nav></div>';
 }
 function advance() { const nx = inboxItems().find(x => (x.kind === 'need' || x.kind === 'upd') && x.key !== U.open); if (nx) U.open = nx.key; else U.flash = ''; }
 function markFresh() { U.seenB = U.seenB || new Set(); for (const b of document.querySelectorAll('#app .bubble')) { const k = b.textContent.slice(0, 80); if (!U.seenB.has(k)) { b.classList.add('anim'); U.seenB.add(k); } } if (U.seenB.size > 400) U.seenB = new Set(); }

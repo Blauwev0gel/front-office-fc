@@ -31,7 +31,7 @@ assert(ui.includes('control.getAttribute(\'aria-label\')'),
 const required = [
   'new', 'continue', 'dna', 'pick', 'hire-all', 'mand-done',
   'mt-ans', 'tk-ans', 'tk-skip', 'dd-dec', 'dd-skip', 'db-talk',
-  'mpick', 'msend', 'tab', 'dept', 'mand-save', 'md-kick',
+  'mchoose', 'tab', 'dept', 'mand-save', 'md-kick',
   'md-skip', 'md-after', 'md-done', 's2-finish', 'next-season'
 ];
 for (const action of required) {
@@ -82,8 +82,8 @@ assert(css.includes('.srow[aria-pressed="true"]'),
 assert(css.includes('.b2nav button.on'), 'selected navigation tab remains distinct');
 assert(!/\\[?data-a[^}]*display\\s*:\\s*none/.test(css),
   'wireframe must not hide gameplay action controls');
-// Behavioural UI contract: a required Red Box response is free in the
-// engine. Verify the actual generated reply is not disabled at zero AP.
+// Behavioural UI contract: reply options are immediately clickable and
+// never depend on an action-point counter.
 {
   const uiSource = read('ui.js');
   const start = uiSource.indexOf('function msgHtml(');
@@ -96,16 +96,30 @@ assert(!/\\[?data-a[^}]*display\\s*:\\s*none/.test(css),
     {msgView:() => ({role:'dof', from:'DoF, Director', title:'Decision',
       body:'Approve or decline', done:false, opts:[{l:'Accept'},{l:'Reject'}],
       auto:0, autoWho:'Your DoF', why:'You are responsible'})},
-    () => ({ap:0}), {}, {I:{}}, () => '<mail>',
+    () => ({}), {}, {I:{}}, () => '<mail>',
     (...args) => { replyArgs = args; return '<reply>'; },
     () => '', {}, x => x, () => false);
   const html = msg({id:1,ev:'wage_cap',done:false});
   assert(html.includes('<reply>'), 'Red Box response rendered');
-  assert.equal(replyArgs[7],false,'required replies must not be disabled at zero AP');
-  assert(replyArgs[6].includes('No action point required'),'free reply label visible');
+  assert.equal(replyArgs[7],false,'required replies remain available');
+  assert(replyArgs[6].includes('If you leave it'),'delegation consequences remain explained');
 }
+assert(ui.includes('data-a="mchoose"'),'reply buttons invoke the commit action directly');
+assert(ui.includes("case 'mchoose': mailSend(d);"),'one-tap action dispatches to mailSend');
+assert(!ui.includes('data-a="msend"')&&!ui.includes('data-a="mpick"'),
+  'no draft/select/send buttons remain');
+assert(!ui.includes('data-s="actions"'),'old action-point sheet is removed');
+assert(!ui.includes('apPips('),'no visible action-point gauge');
+assert(!ui.includes('Costs 1 action')&&!ui.includes('actions left this week'),
+  'no misleading action-point strings');
+assert(!/G\.ap\s*(?:[<>=+\-]|--)/.test(read('engine.js')),
+  'the game engine cannot gate any action on AP');
+assert(!/\bap\s*:\s*3\b/.test(read('engine.js')),
+  'new games do not create the action-point field');
+assert(css.includes('.one-tap-hint'),'retro one-tap explanation is visible');
+assert(css.includes(':where(*):not(svg)'),'paper/ink text inheritance fallback');
 assert(!css.includes('background-color:transparent !important;'), 'do not blank all component backgrounds');
 assert(!css.includes('.scene,.crestbig'), 'meeting participants must not be hidden with art');
-console.log('PASS: required Red Box reply remains free at zero AP');
+console.log('PASS: all Red Box choices execute in one tap with no AP cost');
 console.log('PASS: structural wireframe hierarchy and responsive states');
 console.log('PASS: text mode builds, script parses and all required actions and modules remain');

@@ -12,14 +12,14 @@ A small-screen, pure text / wireframe interface for The Front Office. Think late
 - **Shapes:** rectangular panels, 1px standard separators, 2px for primary framing, no gradients, shadows, portraits, SVG/canvas/video art or decorative animation.
 - **Navigation:** six top-level text tabs remain horizontally scrollable; five fixed bottom actions remain visible with a large \`Next match\`/play control. The mobile layout allows safe-area padding and bottom content reserve.
 - **Forms:** founding and hiring choices, summer agenda, scouting and finance forms stay actual form controls. The selected choice has high-contrast reverse coloring and visible border, not just an icon.
-- **Inbox:** Red Box, conversation, reply selection, delayed consequences and story history remain readable, with square outlined groups and a high-contrast submit action. The CEO Core and Club Story panels remain folded by default.
+- **Inbox (B16 update):** each option directly commits with one tap. No selecting a draft, sending separately, action points, or additional confirmation. Feedback appears immediately and the save is updated. CEO Core and Club Story panels remain folded.
 - **Departments:** one-column cards on phones, two-column department overview when spacious. Data tables retain their columns and overflow within their own scroll wrappers.
 - **Summer:** participant names stay visible despite art stripping. Agenda / steps / letters and the transfer deadline ticker are text-led.
 - **Matchday:** entirely separate screen (preview → running commentary → full time → Gazette), with readable score, event log, fast-forward/sim controls and bottom button tray. No stadium illustration is generated.
 
 ## Technical constraints and regression guard
 
-\`src/ui/00-text-mode.js\` already replaces avatars, icons and office drawing with text and does not mutate game state; retain it. \`src/ui/14-matchday-gazette.js\` already omits the pitch and stadium art. No engine or action-router change is necessary.
+\`src/ui/00-text-mode.js\` already replaces avatars, icons and office drawing with text and does not mutate game state; retain it. \`src/ui/14-matchday-gazette.js\` already omits the pitch and stadium art. The B16 follow-up replaces the old action-point gates and introduces immediate reply dispatch while preserving the original decision engines.
 
 \`test/text-mode.js\` has static contracts for complete compiled JS, required actions, monospace system, square controls, responsive rules, selected states, retained summer participants and presence of all key retro screen selectors.
 

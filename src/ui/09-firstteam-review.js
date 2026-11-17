@@ -33,12 +33,12 @@ function vFirst(parts) {
   <div class="sec">Target</div>${deal}
   <div class="sec">Fitness</div>${fit}
   <div class="sec">Support staff</div>${res}
-  <div class="ftacts"><button class="btn" data-a="ft-talk" ${g.ap < 1 ? 'disabled' : ''}>${ART.I.phone} Talk to ${esc(sur)}</button><button class="btn ghost danger" data-a="ft-sackq">Sack</button></div><p class="small" style="text-align:center">A talk costs one action. ${g.ap} left this week.</p>`;
+  <div class="ftacts"><button class="btn" data-a="ft-talk" >${ART.I.phone} Talk to ${esc(sur)}</button><button class="btn ghost danger" data-a="ft-sackq">Sack</button></div><p class="small" style="text-align:center">Conversations are available freely. Repeating the same talk immediately has less effect.</p>`;
 }
 function ftTalkHtml(v) {
   const T = v.talk, s = v.s, last = T.log.slice(-3);
   const emo = T.done ? (T.fx.some(x => /down|deflated|−/i.test(x)) ? 'worried' : 'happy') : null;
-  U.tray = T.done ? trayHtml('', `<button class="btn" data-a="ft-talk-close">Back to the first team</button>`, '') : trayHtml(`<span>You say</span>${apPips(G().ap)}`, T.opts.map((o, j) => choiceHtml({ l: o.t, h: o.fx }, j, `data-a="ft-ans" data-id="${o.id}"`, false, false)).join(''), '');
+  U.tray = T.done ? trayHtml('', `<button class="btn" data-a="ft-talk-close">Back to the first team</button>`, '') : trayHtml(`<span>You say</span>`, T.opts.map((o, j) => choiceHtml({ l: o.t, h: o.fx }, j, `data-a="ft-ans" data-id="${o.id}"`, false, false)).join(''), '');
   U.trayH = T.done ? 90 : 60 + T.opts.length * 66;
   return `<div class="ftalk">${sceneHtml('coach', s.name, 'talk', 'In his office', '', emo)}${last.map((l, i) => l.who === 'you' ? `<p class="you-said">You: ${esc(l.t)}</p>` : `<div class="bubble ${i < last.length - 1 ? 'old' : ''}">${esc(l.t)}${ticOf('coach', l.t) ? `<span class="tic">${esc(ticOf('coach', l.t))}</span>` : ''}</div>`).join('')}${T.done && T.fx.length ? `<div class="fxrow">${T.fx.map(x => `<span class="chip">${esc(x)}</span>`).join('')}</div>` : ''}</div><div class="trayspace" style="--tray:${U.trayH}px"></div>`;
 }

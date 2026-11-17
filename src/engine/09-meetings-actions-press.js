@@ -28,8 +28,8 @@ function decideProposal(i, choice) {
   const it = G.meeting && G.meeting.items[i]; if (!it || it.status !== 'open') return { err: 'Already decided.' };
   const d = PROP[it.id], s = staff(it.owner);
   if (choice === 'second') {
-    const r = proposalView(it).secondRole; if (!staff(r)) return { err: `There is no ${ROLE[r].t} to ask.` }; if (it.second) return { err: 'Already asked.' }; if (!G.meeting.pre && G.ap < 1) return { err: 'No action points left this week.' };
-    if (!G.meeting.pre) G.ap--; const est = clamp(it.p + gauss() * clamp(0.18 - eff(r, 0) / 120, 0.03, 0.15), 0.05, 0.97);
+    const r = proposalView(it).secondRole; if (!staff(r)) return { err: `There is no ${ROLE[r].t} to ask.` }; if (it.second) return { err: 'Already asked.' }; 
+    const est = clamp(it.p + gauss() * clamp(0.18 - eff(r, 0) / 120, 0.03, 0.15), 0.05, 0.97);
     it.second = { name: staff(r).name, role: ROLE[r].t, est, t: est < it.pc - 0.12 ? 'thinks the pitch is optimistic' : est > it.pc + 0.08 ? 'is more positive than the pitch' : 'broadly agrees with the pitch' };
     return { out: `${staff(r).name} gives it ${Math.round(est * 100)}% and ${it.second.t}.` };
   }
@@ -71,15 +71,15 @@ function resolve(m, idx, by) {
   if (by !== 'you') { let lab = ''; try { lab = typeof e.opts[idx].l === 'function' ? e.opts[idx].l(m.ctx) : e.opts[idx].l; } catch (err) { } G.paper.stories.push({ h: by === 'The board' ? 'Board decision' : by === 'The club office' ? 'Club decision' : 'Staff decision', t: `${by}: ${lab}. ${m.outcome}` }); }
   return m.outcome;
 }
-// Red Box decisions are the CEO's core responsibility, not optional weekly initiatives.
-// Reserve action points for conversations, second opinions, pushes and mandate changes.
+// CEO authority is controlled by mandates, consequences and staff trust, not a weekly action-point currency.
 function respond(msgId, idx) { if (over()) return { err: 'You no longer run the club.' }; const m = G.inbox.find(x => x.id === msgId); if (!m || m.done) return null; return { out: resolve(m, idx, 'you') }; }
 
 /* ---------- player actions ---------- */
 function talk(role, tone) {
-  const s = staff(role); if (!s) return { err: 'That position is vacant.' }; if (G.ap < 1) return { err: 'No action points left this week.' };
+  const s = staff(role); if (!s) return { err: 'That position is vacant.' };
   if (tone === 'review' && record(role).early) return { err: 'Too early in the season: there are not enough numbers to review yet.' };
-  G.ap--; const recent = (G.talks[role] || -99) > absWeek() - 3; G.talks[role] = absWeek(); const k = recent ? 0.5 : 1;
+  const last = G.talks[role] ?? -99, gap = absWeek() - last, recent = gap < 3;
+  G.talks[role] = absWeek(); const k = gap < 1 ? 0 : recent ? 0.5 : 1;
   const { ego, amb, loy } = s.p; let rel = 0, boost = 0, t = '';
   if (tone === 'review') { const rc = record(role); if (rc.score >= 62) { rel = 6; boost = 5; t = `The numbers back him up (${rc.verdict.toLowerCase()}). ${s.name} appreciates that you have done your homework.`; } else if (rc.score <= 40) { rel = ego > 15 ? -6 : -2; boost = 6; t = ego > 15 ? `${s.name} disputes every figure, but he knows they are bad. Expect a reaction.` : `Hard to argue with the data. ${s.name} accepts the review and commits to fixing it.`; } else { rel = 1; boost = 2; t = `A useful, unspectacular review. The numbers are mixed and ${s.name} knows it.`; } }
   if (tone === 'praise') { if (s.perf >= 55) { rel = 6; boost = 4; t = `${s.name} appreciates the recognition and pushes on.`; } else if (ego > 13) { rel = 3; boost = -3; t = `${s.name} takes the praise as licence to coast.`; } else { rel = 4; boost = 1; t = `${s.name} is grateful, if a little surprised.`; } }
@@ -92,12 +92,17 @@ function talk(role, tone) {
 }
 const PUSH = { sporting: ['First team', 'coach', 'dof'], scouting: ['Scouting', 'scout', null], academy: ['Academy', 'acad', 'dof'], commercial: ['Commercial', 'com', 'mkt'], marketing: ['Marketing', 'mkt', 'com'], business: ['Business', 'fin', null], medical: ['Medical', 'coach', null] };
 function push(dept) {
-  if (G.ap < 1) return { err: 'No action points left this week.' }; G.ap--; G.push[dept] = 3;
+  if (G.push[dept] > 0) return { out: 'This department already has your backing for ' + G.push[dept] + ' more week(s).' };
+  G.push[dept] = 3;
   const [l, own, rival] = PUSH[dept]; if (staff(own)) staff(own).rel = clamp(staff(own).rel + 3, 0, 100); if (rival && staff(rival)) staff(rival).rel = clamp(staff(rival).rel - 2, 0, 100);
   return { out: `${l} has your full backing for three weeks.${rival && staff(rival) ? ' ' + staff(rival).name + ' notices where your attention is going.' : ''}` };
 }
 function setMandate(role, m, free) {
-  const old = G.mand[role]; if (!free) { if (G.ap < 1) return { err: 'No action points left this week.' }; G.ap--; }
+  const old = G.mand[role];
+  if (!old || !m) return { err: 'No mandate available.' };
+  if (!free && Object.keys(m).every(k => String(m[k]) === String(old[k])) &&
+      Object.keys(old).every(k => String(old[k]) === String(m[k])))
+    return { out: 'Mandate unchanged.' };
   G.mand[role] = Object.assign({}, m); const s = staff(role); let t = 'New mandate issued.';
   if (s && !free) { let dist = 0; for (const x of MAND[role].sl) dist += Math.abs((m[x[0]] || 0) - (old[x[0]] || 0)); for (const x of MAND[role].ru) if (m[x[0]] !== old[x[0]]) dist += 25;
     if (dist > 90) { s.rel = clamp(s.rel - 4 - (s.p.ego - 10) * 0.4, 0, 100); t = `${s.name} accepts the new mandate but finds the change of course hard to explain to his department.`; }
@@ -105,7 +110,7 @@ function setMandate(role, m, free) {
   return { out: t };
 }
 function fire(role) {
-  const s = staff(role); if (!s) return { err: 'Vacant.' }; if (G.ap < 1) return { err: 'No action points left this week.' }; G.ap--;
+  const s = staff(role); if (!s) return { err: 'Vacant.' };
   const cost = Math.round(s.wage * Math.max(8, s.contract * 20)); G.club.cash -= cost; G.staff[role] = null; G.cands[role] = genCands(role);
   G.st.press = clamp(G.st.press - 2, 0, 100); for (const r of ROLES) if (G.staff[r.id]) G.staff[r.id].rel = clamp(G.staff[r.id].rel - 2, 0, 100);
   if (role === 'coach' && G.week > 2) G.board.conf = clamp(G.board.conf + (myPos() > expectedRank() ? 3 : -4), 0, 100);

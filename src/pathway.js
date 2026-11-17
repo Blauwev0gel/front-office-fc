@@ -247,7 +247,6 @@ function close(how) {
 // change course between evaluations: explain it first, and it is not a broken promise
 function changeCourse(k) {
   const p = P(); if (!p || p.stage !== 'run' || !p.ag || p.ag.route === k) return { err: 'Nothing to change.' };
-  if (g().ap < 1) return { err: 'No action points left this week.' }; g().ap--;
   credAdd(0, `Explained a change of course on ${p.tname} before the evaluation.`, 'chg' + p.w0 + k); rel(p.ag.owner, -1);
   p.log.push({ w: g().week, t: `You change course and explain why: ${ROUTES[k].t.toLowerCase()}.` }); p.comp = null;
   return { out: agree(k, false) };

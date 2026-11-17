@@ -211,10 +211,8 @@ function issuePlan(dk, key, choice) {
   const meeting = issueMeeting(dk,key);
   if (meeting.err) return meeting;
   if (meeting.active) return { err: 'An assignment is already underway. Review it before starting another.' };
-  if (g().ap < 1) return { err: 'No actions left this week.' };
   const opt = (APPROACH[dk] || []).find(x => x[2] === choice);
   if (!opt && choice !== 'accept') return { err: 'Unknown approach.' };
-  g().ap--;
   const now = F.absWeek(), rec = issueRecords();
   rec[issueKey(dk,key)] = {
     choice: opt ? 'plan' : 'accept', approach: opt ? opt[2] : null,

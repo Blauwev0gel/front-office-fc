@@ -113,7 +113,18 @@ function worldSlots() { const w = WX(); if (w.usedAt !== aw()) { w.usedAt = aw()
 function worldMeta(key) { const w = WX(), f = w.flags[key], k = w.know[key]; return { fl: !!f, hyp: f ? f.hyp || null : null, confirmed: k ? (aw() > k.at ? 2 : 1) : 0 }; }
 function worldFlag(key, hyp) { const w = WX(); w.flags[key] = w.flags[key] || { at: aw() }; if (hyp !== undefined) w.flags[key].hyp = hyp; }
 function worldUnflag(key) { delete WX().flags[key]; }
-function worldConfirm(key) { const w = WX(), s = worldSlots(); if (w.know[key]) return { err: 'The scouts have already been asked.' }; if (s.left < 1) return { err: 'No scout is free this week.' }; w.know[key] = { at: aw() }; w.used = (w.used || 0) + 1; return { ok: true }; }
+// B45: a flagged player can become a target: he moves into the DoF's pipeline (recruit.js) with his own price and attributes
+function worldTargetState(key) { const f = WX().flags[key]; if (!f || !f.target) return null; const r = g().rec, x = r && r.pipe.find(y => y.pid === f.target); return { pid: f.target, stage: x ? x.stage : 'gone', blocked: x && x.blocked ? x.blocked : null, note: x && x.note || null }; }
+function worldTarget(key) {
+  const f = WX().flags[key]; if (!f) return { err: 'Flag him first.' };
+  const ts = worldTargetState(key); if (ts && !['lost', 'gone'].includes(ts.stage)) return { err: 'He is already on the DoF\'s list.' };
+  const rec = worldPlayer(key); if (!rec || rec.ours) return { err: 'He is not available.' }; if (!F.recTarget) return { err: 'Recruitment is not available.' };
+  const d = LGDEF(rec.lg), r = F.recTarget({ ...rec, reg: d.reg, domClub: typeof rec.clubKey === 'number' && rec.clubKey > 0 ? rec.clubKey : null, tier: d.tier || null }, key, f.hyp);
+  if (r.err) return r; f.target = r.pid; return { ok: true };
+}
+// signed through the pipeline: he leaves the world, and the bet is kept
+function worldSigned(key, p) { const f = WX().flags[key]; if (f) f.signed = { s: g().season, w: g().week, ca: +p.ca.toFixed(1), name: p.name }; worldRemove(key); }
+function worldConfirm(key) { const w = WX(), s = worldSlots(); if (w.know[key]) return { err: 'The scouts have already been asked.' }; if (s.left < 1) return { err: 'No scout is free this week.' }; w.know[key] = { at: aw() }; w.used = (w.used || 0) + 1; const t = w.flags[key] && w.flags[key].target; if (t && F.recMoreReport) F.recMoreReport(t); return { ok: true }; }
 function worldFlagged() { return Object.keys(WX().flags).map(key => ({ key, ...WX().flags[key] })); }
-Object.assign(F, { worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN: PLAN, worldSlots, worldMeta, worldFlag, worldUnflag, worldConfirm, worldFlagged });
+Object.assign(F, { worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN: PLAN, worldSlots, worldMeta, worldFlag, worldUnflag, worldConfirm, worldFlagged, worldTarget, worldTargetState, worldSigned });
 })(FO);

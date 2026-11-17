@@ -1,6 +1,6 @@
 # Ontwerpnotitie: portaal plak 3b (targets en één wereld)
 
-*Status: voorstel, niet gebouwd. Wacht op het besluit onderaan.*
+*Status: route B gebouwd (17-11-2026, B45), zonder de tab Bets. Route A is uitgesteld.*
 
 **Doel.** Wat je in het portaal vindt, kun je ook kopen. Eén keten van data tot handtekening tot achteraf zien of je gelijk had.
 **Pijler.** Je beslist waarop je inzet en wie je gelooft (leiden), niet over de onderhandeling zelf. Het portaal oordeelt niet (B40).

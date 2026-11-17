@@ -37,4 +37,24 @@ ok(L3.players.length === L1.players.length && !L3.players.some(p => p.name === g
 const s = F.save(); ok(F.load(s) && F.worldLeague('d8').players.every(p => !(p.name === gone.name && p.club === gone.club)), 'the world survives save and load, including what the CEO changed');
 // foreign leagues
 const Lf = F.worldLeague('ibe'); ok(Lf.clubs.length === 18 && Lf.players.length === 360, 'a foreign league has 18 clubs and 360 players');
+// B45: a flagged player becomes a target and runs through the DoF's pipeline
+{
+  const dom = F.worldLeague('d' + F.G.club.tier).players.find(p => !p.ours && p.pos === 'CM' && p.contract >= 1), fo = F.worldLeague('ibe').players.find(p => !p.ours && p.pos === 'ST');
+  ok(F.worldTarget(dom.key).err, 'an unflagged player cannot be made a target');
+  F.worldFlag(dom.key, 'Hidden quality'); F.worldFlag(fo.key, 'Undervalued');
+  const rs = G.rng || null, seedBefore = G.rs;
+  const a = F.worldTarget(dom.key), b = F.worldTarget(fo.key); ok(a.ok && b.ok, 'flagged players can be made targets' + (a.err || b.err || ''));
+  const ts = F.worldTargetState(dom.key), P = F.G.rec.pool[ts.pid], x = F.G.rec.pipe.find(y => y.pid === ts.pid);
+  ok(P && P.wkey === dom.key && P.name === dom.name && P.ca > dom.ca - .5 && P.ca < dom.ca + .5, 'the pool player is the same person (name, ability)');
+  ok(Object.keys(dom.a).every(k => P.a[k] === dom.a[k]), 'with the same fourteen attributes');
+  ok(P.ask === Math.round(dom.ask / 100) * 100, 'and the same asking price as in the portal (' + P.ask + ' vs ' + dom.ask + ')');
+  ok(x && x.stage === 'recommended' && x.ceo, 'he starts as recommended and marked as the CEO\'s target'); ok(F.G.rec.know[ts.pid] && F.G.rec.know[ts.pid].n >= 1, 'the DoF starts with one scout report');
+  const PF = F.G.rec.pool[F.worldTargetState(fo.key).pid]; ok(PF.fclub === fo.club && F.G.clubs[PF.club], 'a player from abroad carries his club name and a stand-in club id');
+  ok(F.worldTarget(dom.key).err, 'a second attempt is refused while he is on the list');
+  x.stage = 'lost'; ok(F.worldTarget(dom.key).ok && Object.values(F.G.rec.pool).filter(p => p.wkey === dom.key).length === 1, 'after a failed attempt he can be a target again, with one pool entry');
+  const live = F.save(); ok(F.load(live) && F.worldTargetState(dom.key).pid && F.G.rec.pool[F.worldTargetState(dom.key).pid], 'the link survives save and load');
+  const t2 = F.worldTargetState(fo.key).pid, was = F.G.rec.pool[t2]; was.club = 1; const sq0 = F.G.squad.length;
+  F.worldSigned(fo.key, { ca: 7.2, name: fo.name }); ok(F.worldLeague('ibe').players.every(p => p.key !== fo.key || p.name !== fo.name) && WXs(fo.key).signed.name === fo.name, 'once signed he leaves the world and the bet is kept');
+  function WXs(k) { return F.G.world.flags[k]; }
+}
 console.log(fails ? `\n${fails} FAILED` : '\nall ok'); process.exit(fails ? 1 : 0);

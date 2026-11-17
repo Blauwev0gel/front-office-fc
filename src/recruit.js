@@ -8,6 +8,7 @@ const REG = F.REGIONS, REGK = Object.keys(REG), POSK = F.POSW_KEYS();
 const STAGES = ['identified', 'scouted', 'recommended', 'approach', 'negotiating', 'agreed', 'signed', 'lost'];
 const SCOUT_BIO = ['Former lower-league striker with a notebook habit', 'Ex-video analyst who likes the stands', 'Spent years running youth trials', 'Freelance scout with contacts everywhere', 'Retired teacher who never misses a game'];
 const sq = () => g().squad, N = r => F.staffName(r);
+const cn = p => p.fclub || F.cname(p.club); // the seller's name; players from abroad carry theirs
 const inWin = () => F.window_();
 const winKey = () => g().season + (g().phase === 'summer' || g().week <= 4 ? 'S' : 'W');
 const winBuys = pos => ((RC().win || {})[winKey()] || {})[pos] || 0;
@@ -103,23 +104,23 @@ function ruleIssues(p) { const out = []; if (p.age > +man('dof', 'maxAge')) out.
 /* ---------- negotiation ---------- */
 function openDeal(x, capOverride) {
   const p = RC().pool[x.pid]; if (!p) return setStage(x, 'lost', 'He is no longer available.');
-  if (F.squadPlanAllows && !F.squadPlanAllows(p)) { x.apAsked = false; x.hold = true; return setStage(x, 'recommended', 'On hold: the rolling plan no longer justifies this winter purchase.'); }
+  if (!x.ceo && F.squadPlanAllows && !F.squadPlanAllows(p)) { x.apAsked = false; x.hold = true; return setStage(x, 'recommended', 'On hold: the rolling plan no longer justifies this winter purchase.'); }
   if (!inWin()) { x.apAsked = false; return setStage(x, 'recommended', 'The window is closed. He stays on the list for the next one.'); }
   const neg = F.eff('dof', 1), hard = man('dof', 'hard') / 100;
   const floor = p.club ? Math.round(p.ask * (0.72 + F.rnd() * 0.18 - (neg - 10) * 0.012) * (g().phase === 'season' && g().week >= 17 ? 1.15 : 1) * (F.deptHas && F.deptHas('recruit', 'neg') ? 0.9 : 1) / 100) * 100 : 0;
   x.deal = { club: p.club, ask: p.ask, floor, cap: capOverride != null ? capOverride : Math.max(capFor(p), 0), offer: 0, round: 0, wageAsk: p.wageAsk, sellon: false, inst: false, rounds: [], rivalAsked: false };
-  setStage(x, 'negotiating', p.club ? `Opening talks with ${F.cname(p.club)}.` : 'Talks with the player\'s agent.');
+  setStage(x, 'negotiating', p.club ? `Opening talks with ${cn(p)}.` : 'Talks with the player\'s agent.');
 }
 function negRound(x) {
   const p = RC().pool[x.pid], d = x.deal; if (!p) return setStage(x, 'lost', 'He signed elsewhere.');
   d.round++; const hard = man('dof', 'hard') / 100, cl = man('dof', 'clauses');
   if (p.club) {
     d.offer = d.round === 1 ? Math.round(Math.min(d.cap, d.ask * (0.85 - hard * 0.2)) / 100) * 100 : Math.round(Math.min(d.cap, d.offer + (Math.min(d.cap, d.ask) - d.offer) * 0.6) / 100) * 100;
-    if (cl !== 'none' && !d.sellon && d.offer < d.floor) { d.sellon = true; d.floor = Math.round(d.floor * 0.9 / 100) * 100; d.rounds.push(`Adds a 15% sell-on clause; ${F.cname(p.club)} lower their price.`); }
+    if (cl !== 'none' && !d.sellon && d.offer < d.floor) { d.sellon = true; d.floor = Math.round(d.floor * 0.9 / 100) * 100; d.rounds.push(`Adds a 15% sell-on clause; ${cn(p)} lower their price.`); }
     if (cl === 'all' && !d.inst && d.offer < d.floor) { d.inst = true; d.floor = Math.round(d.floor * 0.95 / 100) * 100; d.rounds.push('Offers to pay in two instalments.'); }
-    if (d.offer >= d.floor * (1 + gauss() * 0.04)) { d.rounds.push(`Round ${d.round}: ${money(d.offer)} accepted by ${F.cname(p.club)}.`); d.fee = d.offer; return wagePhase(x); }
-    const counter = Math.round(Math.max(d.floor, (d.ask + d.offer) / 2) / 100) * 100; d.rounds.push(`Round ${d.round}: ${money(d.offer)} rejected. ${F.cname(p.club)} want ${money(counter)}.`);
-    if (d.round >= 3 || (d.offer >= d.cap && counter > d.cap)) { if (counter <= d.cap * 1.35 && !d.capAsked) { d.capAsked = true; F.queueEvent('rec_raise', { pid: x.pid, counter }); return; } return setStage(x, 'lost', `Talks collapse: ${F.cname(p.club)} will not go below ${money(counter)}.`); }
+    if (d.offer >= d.floor * (1 + gauss() * 0.04)) { d.rounds.push(`Round ${d.round}: ${money(d.offer)} accepted by ${cn(p)}.`); d.fee = d.offer; return wagePhase(x); }
+    const counter = Math.round(Math.max(d.floor, (d.ask + d.offer) / 2) / 100) * 100; d.rounds.push(`Round ${d.round}: ${money(d.offer)} rejected. ${cn(p)} want ${money(counter)}.`);
+    if (d.round >= 3 || (d.offer >= d.cap && counter > d.cap)) { if (counter <= d.cap * 1.35 && !d.capAsked) { d.capAsked = true; F.queueEvent('rec_raise', { pid: x.pid, counter }); return; } return setStage(x, 'lost', `Talks collapse: ${cn(p)} will not go below ${money(counter)}.`); }
     // rivals
     if (!d.rivalAsked && chance(0.07 + (RC().know[x.pid] && RC().know[x.pid].grade === 'A' ? 0.07 : 0))) { d.rivalAsked = true; F.queueEvent('rec_rival', { pid: x.pid, rival: aiClub(Math.max(1, g().club.tier - 1)), bid: Math.round(d.offer * 1.15 / 100) * 100 }); }
   } else { d.fee = 0; return wagePhase(x); }
@@ -137,7 +138,8 @@ function complete(x) {
   p.fee = now + agent; p.wage = d.wage; delete p.pool; delete p.ask; delete p.wageAsk; delete r.pool[p.id];
   const k = r.know[p.id]; p.pCA = k ? k.est : p.ca; p.pPA = k ? k.pest : p.pa; if (d.sellon) p.sellOn = 0.15;
   { const w = (r.win = r.win || {}), kk = winKey(); w[kk] = w[kk] || {}; w[kk][p.pos] = (w[kk][p.pos] || 0) + 1; }
-  F.sign(p); setStage(x, 'signed', d.fee ? `Signed for ${money(d.fee)}${d.inst ? ' (instalments)' : ''}${d.sellon ? ' with a sell-on clause' : ''}. Agent fee ${money(agent)}.` : `Signed on a free, ${money(d.wage)}/wk.`);
+  const wkey = p.wkey; delete p.wkey; delete p.fclub;
+  F.sign(p); if (wkey && F.worldSigned) F.worldSigned(wkey, p); setStage(x, 'signed', d.fee ? `Signed for ${money(d.fee)}${d.inst ? ' (instalments)' : ''}${d.sellon ? ' with a sell-on clause' : ''}. Agent fee ${money(agent)}.` : `Signed on a free, ${money(d.wage)}/wk.`);
   r.log.unshift({ s: g().season, w: g().week, name: p.name, fee: d.fee, wage: d.wage, est: k ? +k.est.toFixed(2) : null, by: k ? k.byId : null, pos: p.pos, pid: p.id, surplus: winBuys(p.pos) > 1 });
   for (const y of r.pipe) { const q = r.pool[y.pid]; if (!q || q.pos !== p.pos || y === x || !['negotiating', 'approach', 'recommended'].includes(y.stage)) continue; if (!slotOpen(q, r.know[y.pid])) { if (y.stage !== 'recommended') setStage(y, 'recommended', 'On hold: position covered.'); y.apAsked = false; y.hold = true; } }
   if (d.fee > 0) g().paper.stories.push({ h: 'Deal done', t: `${N('dof')} completes the signing of ${p.name} after ${d.round} round${d.round === 1 ? '' : 's'} of talks.` });
@@ -185,14 +187,14 @@ function dofPipeline() {
   for (const x of r.pipe.filter(x => x.planB && x.stage === 'scouted' && r.pool[x.pid])) { const p = r.pool[x.pid], live = r.pipe.some(y => y !== x && r.pool[y.pid] && r.pool[y.pid].pos === p.pos && ['recommended', 'approach', 'negotiating'].includes(y.stage) && !y.hold); if (!live && slotOpen(p, r.know[x.pid]) && winBuys(p.pos) === 0) { setStage(x, 'recommended', 'Plan A fell through. Plan B is up.'); x.planA = true; x.boost = true; x.wasB = true; } }
   if (!inWin()) return;
   const active = r.pipe.filter(x => ['approach', 'negotiating'].includes(x.stage)).length;
-  const recs = r.pipe.filter(x => x.stage === 'recommended' && r.pool[x.pid] && !x.apAsked && slotOpen(r.pool[x.pid], r.know[x.pid]) && (!F.squadPlanAllows || F.squadPlanAllows(r.pool[x.pid]))).sort((a, b) => scoreRec(b) - scoreRec(a));
+  const recs = r.pipe.filter(x => x.stage === 'recommended' && r.pool[x.pid] && !x.apAsked && (x.ceo || slotOpen(r.pool[x.pid], r.know[x.pid])) && (x.ceo || !F.squadPlanAllows || F.squadPlanAllows(r.pool[x.pid]))).sort((a, b) => scoreRec(b) - scoreRec(a));
   const upgrade = recs.some(x => r.know[x.pid].grade === 'A' && r.know[x.pid].est > posWorst(r.pool[x.pid].pos) + 0.4);
-  const wanted = sq().length < depth + 1 || need.length || (upgrade && sq().length < depth + 4);
+  const wanted = sq().length < depth + 1 || need.length || (upgrade && sq().length < depth + 4) || recs.some(x => x.ceo);
   let slots = wanted ? 2 - active : 0;
   if (F.finTight && F.finTight() && (!need.length || F.wageRatio() * 100 > +man('fin', 'wageCap') + 10)) slots = 0; // money first
   for (const x of recs) {
     if (slots <= 0) break;
-    const p = r.pool[x.pid]; if (!slotOpen(p, r.know[x.pid]) || r.pipe.some(y => y !== x && ['approach', 'negotiating'].includes(y.stage) && r.pool[y.pid] && r.pool[y.pid].pos === p.pos)) { x.hold = true; continue; } x.hold = false; const iss = ruleIssues(p); x.blocked = null;
+    const p = r.pool[x.pid]; if ((!x.ceo && !slotOpen(p, r.know[x.pid])) || r.pipe.some(y => y !== x && ['approach', 'negotiating'].includes(y.stage) && r.pool[y.pid] && r.pool[y.pid].pos === p.pos)) { x.hold = true; continue; } x.hold = false; const iss = ruleIssues(p).filter(i => !(x.ceo && i === 'age limit')); x.blocked = null; /* the CEO named him himself: the age limit is not asked again */
     { const W = F.playerWages(), wr = F.wageRatio(), proj = W > 0 ? wr * (W + (p.wageAsk || 0)) / W : 0; if (proj * 100 > +man('fin', 'wageCap') + 3 && sq().length >= 16) { x.hold = true; x.note = 'Over the wage cap'; continue; } }
     if (iss.length && p.loanable && iss.every(i => i === 'fee limit' || i === 'wage limit') && F.recLoan) { slots--; F.recLoan(x); continue; }
     if (iss.length) { if ((d.p.risk >= 11 || d.p.ego >= 13) && r.know[x.pid].grade === 'A' && !x.exAsked && F.absWeek() - (r.exAt || -99) > 6) { r.exAt = F.absWeek(); x.exAsked = true; F.queueEvent('rec_exception', { pid: x.pid, why: iss }); slots--; } else x.blocked = iss; continue; }
@@ -202,11 +204,11 @@ function dofPipeline() {
   }
   for (const x of r.pipe.filter(x => x.stage === 'negotiating')) {
     const p = r.pool[x.pid];
-    if (p && F.squadPlanAllows && !F.squadPlanAllows(p)) { x.hold = true; x.apAsked = false; setStage(x, 'recommended', 'On hold: the rolling plan no longer justifies this winter purchase.'); }
+    if (p && !x.ceo && F.squadPlanAllows && !F.squadPlanAllows(p)) { x.hold = true; x.apAsked = false; setStage(x, 'recommended', 'On hold: the rolling plan no longer justifies this winter purchase.'); }
     else negRound(x);
   }
 }
-function scoreRec(x) { const k = RC().know[x.pid], p = RC().pool[x.pid]; return (k.grade === 'A' ? 3 : 2) + (prioOf(p) ? 1 : 0) + (k.conf === 'high' ? 0.5 : 0) + (F.squadNeeds().includes(p.pos) ? 1.5 : 0) + (g().dofPrio === p.pos ? 1 : 0); }
+function scoreRec(x) { const k = RC().know[x.pid], p = RC().pool[x.pid]; return (x.ceo ? 1.5 : 0) + (k.grade === 'A' ? 3 : 2) + (prioOf(p) ? 1 : 0) + (k.conf === 'high' ? 0.5 : 0) + (F.squadNeeds().includes(p.pos) ? 1.5 : 0) + (g().dofPrio === p.pos ? 1 : 0); }
 function worldWeek() {
   const r = RC();
   if (inWin()) for (const id in r.pool) { const p = r.pool[id]; if (chance(0.012)) { const x = pipeOf(+id); if (x && ['negotiating', 'agreed'].includes(x.stage)) continue; if (x && !['signed', 'lost'].includes(x.stage)) { setStage(x, 'lost', `${p.name} joins another club.`); g().paper.stories.push({ h: 'Target lost', t: `${p.name}, on our list, has joined another club.` }); } p.club = aiClub(p.inTier); p.contract = ri(1, 3); p.ask = Math.round(p.value * REG[p.region].cost * (1 + F.rnd() * 0.3) / 100) * 100; } }
@@ -223,6 +225,23 @@ H.recSeason = rep => {
   if (g().wageFreezePrev) { g().mand.dof.maxWage = g().wageFreezePrev; delete g().wageFreezePrev; }
 };
 function G_shortlistMirror() { g().shortlist = []; }
+
+/* ---------- targets from the scouting portal (B45): a flagged world player becomes a pool player ---------- */
+// One identity, one price: the portal's asking price and his attributes are used as they are; the DoF's knowledge starts with one scout report.
+function targetFromWorld(rec, key, hyp) {
+  ensure(); const r = RC(), sc = scoutsAll()[0] || staff('dof'); if (!sc) return { err: 'You need a scout or a Director of Football to follow a target.' };
+  for (const id in r.pool) if (r.pool[id].wkey === key) delete r.pool[id];
+  const p = F.genPlayer({ pos: rec.pos, age: rec.age, ca: rec.ca, region: rec.reg });
+  p.name = rec.name; p.a = Object.assign({}, rec.a); Object.assign(p.pers, rec.pers); upd(p); p.pa = Math.max(p.ca, rec.pa);
+  p.club = rec.domClub != null ? rec.domClub : aiClub(g().club.tier); if (rec.domClub == null) p.fclub = rec.club;
+  p.contract = Math.max(0, Math.round(rec.contract)); p.ask = Math.round(rec.ask / 100) * 100; p.wageAsk = Math.round(rec.wage * (rec.age > 28 ? 1.15 : 1.05) / 5) * 5;
+  p.pool = true; p.inTier = rec.tier || g().club.tier; p.loanable = false; p.wkey = key; r.pool[p.id] = p;
+  report(sc, p);
+  const x = addPipe(p.id, 'recommended'); x.ceo = true; x.log.push(hyp && hyp !== 'Other' ? `Target set by the CEO: ${hyp}.` : 'Target set by the CEO.');
+  return { pid: p.id };
+}
+F.recTarget = targetFromWorld;
+F.recMoreReport = pid => { const r = RC(), p = r && r.pool[pid], sc = scoutsAll()[0] || staff('dof'); if (p && sc) report(sc, p); };
 
 /* ---------- setup & migration ---------- */
 function ensure() {
@@ -275,7 +294,7 @@ F.scorecard = () => { const cards = sc0(), c = cards.find(x => x.k === 'recruit'
 
 /* ---------- escalations ---------- */
 const E = F.defineEvent, P = id => RC().pool[id];
-const dossier = c => { const p = P(c.pid), k = RC().know[c.pid]; if (!p || !k) return 'He is no longer available.'; return `${p.name} (${p.age}, ${F.POS_L[p.pos]}, ${REG[p.region].name}${p.club ? ', ' + F.cname(p.club) : ', free agent'}). ${k.by} rates him ${bandTxt(k)} now, ${potTxt(k)} potential, confidence ${k.conf}, ${k.n} report${k.n === 1 ? '' : 's'}, grade ${k.grade}. Asking ${p.club ? money(p.ask) : 'no fee'}, wages around ${money(p.wageAsk)}/wk.`; };
+const dossier = c => { const p = P(c.pid), k = RC().know[c.pid]; if (!p || !k) return 'He is no longer available.'; return `${p.name} (${p.age}, ${F.POS_L[p.pos]}, ${REG[p.region].name}${p.club ? ', ' + cn(p) : ', free agent'}). ${k.by} rates him ${bandTxt(k)} now, ${potTxt(k)} potential, confidence ${k.conf}, ${k.n} report${k.n === 1 ? '' : 's'}, grade ${k.grade}. Asking ${p.club ? money(p.ask) : 'no fee'}, wages around ${money(p.wageAsk)}/wk.`; };
 E('rec_approve', { forced: 1, from: 'dof', dept: 'sporting', cd: 1, why: () => `The deal is above the approval line in the DoF mandate (${threshold() === 0 ? 'every deal' : money(Math.round(threshold()))}).`,
   second: { r: 'coach', t: c => { const p = P(c.pid); if (!p) return 'Gone.'; const best = posBest(p.pos), k = RC().know[c.pid]; return k.est > best + 0.3 ? '"He would walk into my team."' : k.est > best - 0.5 ? '"Useful competition for the starter."' : '"A squad player at best."'; } },
   title: c => `Approve the move for ${P(c.pid) ? P(c.pid).name : 'the target'}?`, body: c => dossier(c),
@@ -293,7 +312,7 @@ E('rec_exception', { forced: 1, from: 'dof', dept: 'sporting', cd: 1, why: c => 
     { l: 'Hold the line', h: 'DoF trust ↓', f: c => { const x = pipeOf(c.pid); if (x) setStage(x, 'lost', 'Blocked by the rules.'); if (staff('dof')) staff('dof').rel = clamp(staff('dof').rel - 4, 0, 100); return 'He drops it.'; } }],
   auto: () => 1 });
 E('rec_raise', { forced: 1, from: 'dof', dept: 'sporting', cd: 1, why: 'The seller wants more than the DoF may pay.',
-  title: c => `Talks stuck on ${P(c.pid) ? P(c.pid).name : 'a target'}`, body: c => { const x = pipeOf(c.pid), p = P(c.pid); if (!x || !p) return 'Gone.'; return `${x.deal.rounds.slice(-2).join(' ')} Our ceiling is ${money(x.deal.cap)}. ${F.cname(p.club)} want ${money(c.counter)}.`; },
+  title: c => `Talks stuck on ${P(c.pid) ? P(c.pid).name : 'a target'}`, body: c => { const x = pipeOf(c.pid), p = P(c.pid); if (!x || !p) return 'Gone.'; return `${x.deal.rounds.slice(-2).join(' ')} Our ceiling is ${money(x.deal.cap)}. ${cn(p)} want ${money(c.counter)}.`; },
   opts: [
     { l: c => `Go to ${money(c.counter)}`, h: 'Deal likely', f: c => { const x = pipeOf(c.pid); if (!x || !P(c.pid)) return 'Gone.'; x.deal.cap = c.counter; x.deal.offer = c.counter; x.deal.fee = c.counter; x.deal.rounds.push(`We meet the price: ${money(c.counter)}.`); wagePhase(x); return x.stage === 'signed' ? 'Deal done.' : 'Fee agreed; personal terms next.'; } },
     { l: 'Split the difference', h: 'Maybe', f: c => { const x = pipeOf(c.pid); if (!x || !P(c.pid)) return 'Gone.'; const mid = Math.round((x.deal.cap + c.counter) / 2 / 100) * 100; if (chance(0.55)) { x.deal.fee = mid; x.deal.rounds.push(`Met halfway at ${money(mid)}.`); wagePhase(x); return 'They accept the compromise.'; } setStage(x, 'lost', 'They refuse to budge.'); return 'They walk away.'; } },

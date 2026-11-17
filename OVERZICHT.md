@@ -584,7 +584,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 ## Bijlage: alle bronbestanden
 
 <!-- generated:files:start -->
-62 bronbestanden, samen ongeveer 992 KB.
+62 bronbestanden, samen ongeveer 996 KB.
 
 | Bestand | KB | Doel |
 |---|---|---|
@@ -608,7 +608,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `briefs.js` | 20 | weekly briefings (1.5) Short, state-driven updates and conversations |
 | `academy.js` | 14 | youth academy, module 2 part 1 Age groups, academy staff, development model, education and welfare, pathway |
 | `academy2.js` | 28 | youth academy, module 2 part 2 Category & audit, poaching and tribunals, youth competitions, ROI, academy desk |
-| `recruit.js` | 38 | recruitment, module 3 part 1 Player world, scouting department, reports with uncertainty, recruitment pipeline |
+| `recruit.js` | 40 | recruitment, module 3 part 1 Player world, scouting department, reports with uncertainty, recruitment pipeline |
 | `summer.js` | 17 | the transfer summer, shared parts What summer2.js builds on: expiring contracts and the squad planner, what th |
 | `season.js` | 18 | season rhythm, module 4 part 2 Season blocks with a decision each, board reviews, high-stakes matches, a small |
 | `summer2.js` | 32 | the transfer summer, version 2 A summer meeting with the DoF and staff that ends in a signed summer brief, a t |
@@ -621,7 +621,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `business.js` | 7 | Business department A season budget per department (lean, normal, invest) against what the club can afford, a |
 | `academy3.js` | 5 | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid |
 | `recruitx.js` | 25 | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re |
-| `world.js` | 14 | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store |
+| `world.js` | 15 | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store |
 | `turnaround.js` | 7 | the turnaround (B37, B44) When it goes properly wrong, the board asks what the CEO intends to do |
 | `matchtalk.js` | 8 | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f |
 | `desk.js` | 18 | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head |
@@ -641,7 +641,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `ui/07-club-league.js` | 9 | review & sacked; club, league, staff, academy, review: game screens |
 | `ui/08-departments.js` | 25 | departments |
 | `ui/08a-dept-parts.js` | 21 | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |
-| `ui/08b-portal.js` | 26 | navigation; leagues: a table whose columns follow the position filter; the player; drill-downs |
+| `ui/08b-portal.js` | 27 | navigation; leagues: a table whose columns follow the position filter; the player; drill-downs |
 | `ui/09-firstteam-review.js` | 12 | first team department |
 | `ui/10-inbox.js` | 18 | render; inbox home (1.6) |
 | `ui/11-players.js` | 9 | players: cards, profiles, stories |

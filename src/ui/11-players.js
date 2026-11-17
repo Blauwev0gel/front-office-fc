@@ -12,7 +12,7 @@ function strengths(p, k) {
 function roleOf(p) { const g = G(); if (!g.squad.includes(p)) return ''; const L = F.pickXI(false); if (L.xi.some(x => x.p === p)) return 'First choice'; if (L.bench.includes(p)) return 'Bench'; return p.age <= 21 ? 'Prospect' : 'Squad player'; }
 function starsTxt(v) { return `<span class="stx">${v}★</span>`; }
 function pcard(p, o) {
-  o = o || {}; const k = o.k, face = p.pool ? ART.poolFace(p) : ART.playerFace(p), meta = o.meta || `${p.age}, ${F.POS_L[p.pos]}${p.pool ? (p.club ? ', ' + F.cname(p.club) : ', free agent') : ''}`;
+  o = o || {}; const k = o.k, face = p.pool ? ART.poolFace(p) : ART.playerFace(p), meta = o.meta || `${p.age}, ${F.POS_L[p.pos]}${p.pool ? (p.club ? ', ' + (p.fclub || F.cname(p.club)) : ', free agent') : ''}`;
   const lvl = k ? F.recBand(k) : starsTxt(F.stars(p.ca));
   return `<button class="pcd ${o.cls || ''}" data-a="${p.pool ? 'target' : 'player'}" data-id="${p.id}" aria-label="Open profile of ${esc(p.name)}"><span class="pf">${face}</span><span class="pm"><b>${esc(p.name)}</b><small>${esc(meta)}</small>${o.noStr ? '' : `<span class="strengths">${strengths(p, k)}</span>`}</span><span class="pr">${lvl}${k ? `<i class="gr g${k.grade}">${k.grade}</i>` : ''}</span></button>`;
 }
@@ -36,7 +36,7 @@ function formBars(p) { const rs = p.rats || []; if (!rs.length) return '<p class
 function profileHtml(p, k, x) {
   const g = G(), pool = !!p.pool, st = p.st || {}, rat = st.apps ? (st.rat / st.apps).toFixed(2) : '–', tab = U.ptab || 'over', role = pool ? (x ? STG_L[x.stage] : 'Target') : roleOf(p) || (g.academy.includes(p) ? 'Academy' : '');
   const now = k ? F.recBand(k) : starsTxt(g.academy.includes(p) ? F.absStars(p.ca) : F.stars(p.ca)), pot = k ? F.recPot(k) : starsTxt(g.academy.includes(p) && p.band ? p.band[1] : F.stars(p.pa));
-  const head = `<div class="ph"><div class="portrait">${pool ? ART.poolFace(p) : ART.playerFace(p)}</div><div><b>${esc(p.name)}</b><div class="pmeta">${p.age}, ${F.POS_L[p.pos].toLowerCase()}, ${F.REGIONS[p.region].name}<br>${pool ? (p.club ? esc(F.cname(p.club)) + ', asking ' + money(p.ask) : 'Free agent') : money(p.wage) + '/wk, ' + p.contract + 'y left'}</div>${role ? `<span class="rolebadge">${esc(role)}</span>` : ''}</div></div>
+  const head = `<div class="ph"><div class="portrait">${pool ? ART.poolFace(p) : ART.playerFace(p)}</div><div><b>${esc(p.name)}</b><div class="pmeta">${p.age}, ${F.POS_L[p.pos].toLowerCase()}, ${F.REGIONS[p.region].name}<br>${pool ? (p.club ? esc((p.fclub || F.cname(p.club))) + ', asking ' + money(p.ask) : 'Free agent') : money(p.wage) + '/wk, ' + p.contract + 'y left'}</div>${role ? `<span class="rolebadge">${esc(role)}</span>` : ''}</div></div>
   <div class="lvls"><span>Now ${now}</span><span>Potential ${pot}</span>${k ? `<i class="gr g${k.grade}">${k.grade}</i>` : ''}</div><div class="strengths">${strengths(p, k)}</div>
   <div class="tabs3">${[['over', 'Overview'], ['stats', 'Stats'], ['story', 'Story']].map(([t, l]) => `<button class="${tab === t ? 'on' : ''}" data-a="ptab" data-v="${t}">${l}</button>`).join('')}</div>`;
   let body = '';

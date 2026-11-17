@@ -47,7 +47,9 @@ const ini = F => (F.G.agr || []).filter(a => a.k === 'ini');
 
 // D. a DoF who does not deliver: he had money, nobody came
 { const F = game(705); weakDefence(F); talk(F, 't_form', 'i_plan'); if (F.convoView('dof')) talk(F, 'i_order'); const a = ini(F)[0]; a.funds = 5000;
-  let k = 0; while (!a.res && k++ < 20 && F.G.phase === 'season') { answerAll(F); F.endWeek(); F.G.squad = F.G.squad.filter(p => p.pos !== a.pos || a.base.includes(p.id)); a.done = 0; if (!a.res) for (let i = a.n0; i < F.G.ft.games.length; i++) F.G.ft.games[i] = { r: 'L', ug: 0, tg: 3, ux: 0.7, tx: 2.2, o: 'X', h: 1 }; }
+  // Isolated evaluation fixture: never remove a real signing after the recruitment engine completed it.
+  a.work = { window: 1, reports: 2, tries: 0, scoutW: 2 }; a.matches = [{ r: 'L', ug: 0, tg: 3, ux: 0.7, tx: 2.2 }];
+  a.by = F.absWeek(); F.HOOK.seasonAfterMatch(null);
   ok(['not delivered', 'failed'].includes(a.res) && a.ex.execK !== 'delivered', `with money and no signing, it is not delivered (${a.res})`); ok(/Not delivered|Worked on it/.test(a.ex.exec), `and the review says why: ${a.ex.exec}`); }
 
 // E. circumstances change: the team recovers before anyone arrives
@@ -57,7 +59,7 @@ const ini = F => (F.G.agr || []).filter(a => a.k === 'ini');
 
 // luck and judgement apart: backing the coach, results bad but chances against fell
 { const F = game(707); weakDefence(F); talk(F, 't_form', 'i_back'); const a = ini(F)[0];
-  for (let k = 0; k < 4; k++) { answerAll(F); F.endWeek(); } for (let i = a.n0; i < F.G.ft.games.length; i++) F.G.ft.games[i] = { r: 'L', ug: 0, tg: 3, ux: 1.2, tx: 0.9, o: 'X', h: 1 };
+  for (let k = 0; k < 4; k++) { answerAll(F); F.endWeek(); } a.matches = Array.from({ length: 4 }, () => ({ r: 'L', ug: 0, tg: 3, ux: 1.2, tx: 0.9, o: 'X', h: 1 })); // isolated review fixture
   a.by = F.absWeek(); F.HOOK.seasonAfterMatch(null); // the review runs on these games
   ok(a.res === 'unlucky', `good numbers, bad results: unlucky, not failed (${a.res})`);
   F.endWeek(); const m = F.G.inbox.find(x => x.ev === 'ini_review' && !x.done); ok(!!m, 'the CEO is asked for his verdict');

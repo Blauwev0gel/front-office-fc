@@ -217,3 +217,16 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 - One owning page per concern: cash/board on Club, squad and players on Squad, standings on League, mandates and staff on Departments. The Inbox cash shortcut now opens Club.
 - Retired Grip must not appear in Club or trigger warning badges. Board, Fans and Room remain the primary accountable constituencies.
 - See `docs/CEO_UX_ARCHITECTURE_V1.md` for page contracts, wireframes, data tiers, scenario gates and deferred work. UI contract: `test/ux-architecture.cjs`. Browser visual QA is owner-run.
+
+
+## B20 — The Front Office unified UI rebuild (chatgpt)
+
+- The old five/six-item competing menus are replaced by **four stable destinations**: Desk (inbox), Football (Squad + League local views), Club (financial and board health), People (departments, mandates and employees). The existing route keys, decision handlers and engine stay intact for old saves.
+- Match progression is a primary action on the Desk only. Staff and football detail views no longer display a misleading universal Play button; it remains possible to return to Desk with one tap.
+- Pages use one dark retro club header, current Season/Week identity, contextual page title, clearly selected four-way navigation, and accessible local football/department controls.
+- Football's squad has three mutually exclusive views: likely XI, all players and advanced statistics, without nested duplicated tabs. Player dossiers include ability/potential, key season numbers and simple Overview/Statistics/Career tabs.
+- Club's first screen prioritizes cash trajectory, board objectives, three stakeholders and actual projects. Identity, promises and history remain available on demand.
+- People lists problems first and links genuine pending departmental decisions to the sole owning Red Box action. Department details separate briefing, staff, evidence, and mandates/work.
+- Match preview is a self-contained football screen displaying fixture context, league positions, form, real narratives and a clear kick-off action. The live match retains generated event commentary and Gazette progression.
+- The UX change must not alter match outcomes, staff autonomy, transfers, financial state or save keys. Do not resurrect Grip or AP.
+- This is an implemented interface redesign, **not** evidence of full device/browser accessibility QA. Only CI/build checks and owner visual review can establish those separately.

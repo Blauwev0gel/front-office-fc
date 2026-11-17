@@ -58,9 +58,9 @@ const OPTS = {
     { l: 'A bonus for the whole squad', p: () => 0.76, after: () => { g().club.cash -= M(3000); }, h: () => `−${money(M(3000))}`, f: () => 'Money talks. The squad listens.' }] };
 function bump(k, d) { const b = BK.find(x => x.k === k); b.put(clamp(b.get() + d, 0, 100)); }
 function lift(k) { const b = BK.find(x => x.k === k); b.put(Math.max(b.get(), 35)); }
-for (const k of BK.map(b => b.k)) {
+for (const k in VT) {
   const v = VT[k];
-  F.defineEvent('vote_' + k, { forced: 1, ceo: 1, from: v.from, dept: 'board', cd: 1, why: () => `${BK.find(b => b.k === k).t} support fell below ${VOTE_AT}. This is your last chance.`,
+  F.defineEvent('vote_' + k, { forced: 1, ceo: 1, from: v.from, dept: 'board', cd: 1, why: () => `${(BK.find(b => b.k === k) || {t:'Press'}).t} support fell below ${VOTE_AT}. This is your last chance.`, 
     setup: () => ({ k }),
     title: v.title, body: () => `${v.body} ${voice(k)}`,
     opts: OPTS[k].map(o => ({ l: o.l, h: c => `${band(o.p())}${o.h ? ' · ' + (typeof o.h === 'function' ? o.h() : o.h) : ''}`, f: () => {

@@ -116,7 +116,7 @@ function act(a, d, el) {
     case 'prio-all': U.prioAll = true; break;
     case 'mand-save': r = F.setMandate(U.sheet.r, U.draft); if (r.err) toast(r.err); else { U.sheet = null; toast(r.out); } break;
     case 'talk-who': U.talkRole = d.r; U.talkOut = null; break;
-    case 'talk-do': r = F.talk(U.talkRole, d.t); if (r.err) toast(r.err); else U.talkOut = r.out; break;
+    case 'talk-do': if (U.talkOut) break; r = F.talk(U.talkRole, d.t); if (r.err) toast(r.err); else U.talkOut = r.out; break;
     case 'push': r = F.push(d.d); if (r.err) toast(r.err); else { U.sheet = null; toast(r.out); } break;
     case 'hire': F.hire(d.r, +d.i); U.sheet = null; toast(`${F.staff(d.r).name} appointed. Check the mandate.`); break;
     case 'fire': r = F.fire(d.r); U.sheet = null; if (r.err) toast(r.err); else toast(r.out); break;

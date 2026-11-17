@@ -25,6 +25,20 @@ This is **completed code** on the chatgpt branch, not just an architecture propo
 - **Project decisions:** engine-enforced Finance reserve limits, ability to ask for second opinion without legacy action point, clear difference between revision and final approval. CaseView includes proposal information.
 - **CI:** `test/decision-integrity.js` is a ChatGPT branch publishing gate; exact most recent workflow status must be checked separately rather than assumed from earlier green runs.
 
+## Integrated accountability chain — delivered in code (following session)
+
+**Scenario implemented across all seven senior roles spanning six departments:** staff appointment or existing mandate → CEO mandate/working direction → durable agreement with responsible employee and six-game-week checkpoint → existing autonomous departmental execution → evidence from real F.record(role) scorecard → game-week review with source metrics → CEO renews, acknowledges or revises the mandate → outcome retained in the save and accessible from People and Desk.
+
+- `G.agreements` is a JSON-save-compatible log keyed by stable ID, role, employee name, mandate snapshot, baseline evidence, due week, measured result, review decision and closure.
+- `F.agreementWeekly()` is integrated into the authoritative `F.endWeek()` after staff and scorecard updates. A review is never created merely because a page was opened.
+- Mandate changes supersede an outstanding agreement without deleting history. Appointments start an agreement; a head leaving closes an agreement; season turnover closes old evidence and uses a new scorecard baseline. Old saves initialize the store when needed.
+- `G.conversations` stores actual selected talk, week, employee, real changes in relationship and motivation, and the linked agreement ID. `F.conversationView()` exposes the history.
+- `F.caseView('a', id)` and `F.caseView('c', id)` expose read-only agreement and conversation dossiers alongside the existing events/briefs/proposals.
+- People pages display current accountable head, agreed direction, baseline/current score, six-week review evidence and one-tap renew/acknowledge/revise routes. Desk shows reviews due and links to responsible departments. One-to-one meetings connect to the actual mandate editor.
+- `test/decision-integrity.js` covers all seven appointed heads, a mandate change, automatic review, save/load, one-time renewal and conversation-to-agreement provenance.
+
+**Important limit:** this establishes a functional accountability lifecycle for **mandate-based leadership**. It does not yet replace every specialized transfer, academy pathway, sponsor negotiation, marketing offer, board event or coaching conversation engine, nor does it prove all 197 interface states visually complete. Those remain roadmap tasks.
+
 ## Completion boundary
 
 - **No gameplay balancing or all-screen reimplementation is claimed.**

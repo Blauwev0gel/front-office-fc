@@ -681,3 +681,61 @@ html,body{background:var(--bg)!important}
   #app .fo-location h1{font-size:26px!important}
   #app .fo-mainnav .fo-tab{font-size:14px!important}
 }
+
+/* Unified Club and Matchday presentation */
+#app :is(.fo-club-fin,.fo-club-panel,.fo-club-archive,.fo-match-context){
+  padding:13px!important;margin:0 0 12px!important;
+  border:1px solid var(--hair)!important;border-top:3px solid var(--ink)!important;
+  background:var(--paper)!important;color:var(--ink)!important}
+#app .fo-club-fin.risk{border-top-color:var(--bad)!important}
+#app .fo-sectionline{display:flex;align-items:baseline;justify-content:space-between;gap:7px;
+  border-bottom:1px solid var(--hair);margin-bottom:10px;padding-bottom:8px}
+#app .fo-sectionline h2{font-size:16px!important;margin:0!important}
+#app .fo-sectionline>span{font-size:9px!important;font-weight:800;letter-spacing:.03em;text-align:right}
+#app .fo-finance-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#app .fo-finance-grid>div{padding:9px;border:1px solid var(--hair);min-width:0}
+#app .fo-finance-grid small{font-size:10px!important;display:block;margin-bottom:5px}
+#app .fo-finance-grid b{font-size:17px!important;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#app .fo-goal,#app .fo-trust{display:flex;align-items:center;justify-content:space-between;
+  gap:10px;border-bottom:1px solid var(--hair);padding:10px 0;font-size:12px}
+#app .fo-goal>span,#app .fo-trust>span{min-width:0;overflow-wrap:anywhere}
+#app .fo-goal>b,#app .fo-trust>b{flex:0 0 auto;max-width:105px;text-align:right;font-size:11px}
+#app .fo-goal.behind>b{color:var(--bad)!important}
+#app .fo-textlink{min-height:45px!important;margin-top:8px!important;padding:9px!important;
+  width:100%;text-align:left!important;font-weight:800!important;
+  background:var(--fill)!important;color:var(--ink)!important;border:1px solid var(--rule)!important}
+#app .fo-club-archive summary{min-height:48px!important;font-weight:800!important}
+#app .fo-club-archive[open] summary{border-bottom:1px solid var(--hair);margin-bottom:10px}
+#app .fo-matchday{background:var(--bg)!important}
+#app .fo-match-banner{background:var(--ink)!important;color:var(--paper)!important;
+  padding:17px 14px!important;border-bottom:3px solid #adbf91}
+#app .fo-match-banner>*{color:var(--paper)!important}
+#app .fo-match-banner>span{display:block;font-size:10px;font-weight:800;letter-spacing:.1em}
+#app .fo-match-banner h1{color:#fff!important;font-size:clamp(20px,4.7vw,28px)!important;
+  margin:12px 0!important;line-height:1.35!important;overflow-wrap:anywhere}
+#app .fo-match-banner h1 small{color:#bed1b8!important;font-size:12px!important}
+#app .fo-match-banner p{font-size:11px!important;margin:0!important;color:#d2e1cf!important}
+#app .fo-match-comparison{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+#app .fo-match-comparison>div{border:1px solid var(--rule);padding:12px;
+  background:var(--paper)!important;display:flex;flex-direction:column;gap:4px}
+#app .fo-match-comparison small{font-size:10px!important}
+#app .fo-match-comparison b{font-size:22px!important}
+#app .fo-match-comparison span{font-size:12px!important}
+#app .fo-match-context h2{font-size:15px!important;margin:0 0 8px!important}
+#app .fo-match-context p{margin:5px 0!important}
+#app .fo-match-story{display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+  border:0!important;border-bottom:1px solid var(--hair)!important;padding:12px 0!important;
+  width:100%;min-height:54px!important;text-align:left!important;
+  background:var(--paper)!important;color:var(--ink)!important}
+#app .fo-match-story b{font-size:12px}
+#app .fo-match-story span{font-size:11px}
+#app .fo-match-note{padding:12px;background:var(--fill)!important;
+  border-left:3px solid var(--warn);font-size:11px!important}
+#app .fo-preview-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);
+  gap:8px;margin:15px 0!important}
+#app .fo-preview-actions button{min-height:54px!important;font-weight:800!important;padding:10px 7px!important}
+#app .fo-secondary-action{background:var(--paper)!important;color:var(--ink)!important;
+  border:1px solid var(--ink)!important}
+#app .fo-primary-action{background:var(--ink)!important;color:var(--paper)!important;
+  border:2px solid var(--ink)!important}
+@media(min-width:580px){#app .fo-finance-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}

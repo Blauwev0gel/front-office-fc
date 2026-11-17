@@ -91,6 +91,7 @@ function vSheet() {
       ['warn','Issue a formal warning','This may damage trust, especially if the warning is unfair.']
     ];
     const record = person ? F.record(selected) : null;
+    const agreement = person && F.agreementView ? F.agreementView(selected).active : null;
     const last = person && g.talks ? g.talks[selected] : null;
     const gap = last == null ? null : F.absWeek() - last;
     const approach = person ? `<div class="fo-meeting-dossier">
@@ -98,6 +99,9 @@ function vSheet() {
       <span class="fo-case-kind">ONE-TO-ONE · ${esc(F.ROLE[selected].t)}</span>
       <h2>${esc(person.name)}</h2>
       <p>${esc(record.verdict)} · Relationship ${Math.round(person.rel)}/100</p>
+      ${agreement ? `<div class="fo-meeting-agreement"><b>Current agreement:</b> ${esc(agreement.reason)}.
+        ${agreement.state === 'review' ? 'The six-week evidence review is due.' :
+          'Next review in ' + Math.max(0, agreement.due - F.absWeek()) + ' week(s).'}</div>` : ''}
       <p class="small">${gap == null ? 'No earlier meeting on record.' :
         gap < 3 ? 'You spoke recently. Repeating a conversation now has reduced impact.' :
         'You last met ' + gap + ' game weeks ago.'}</p>
@@ -107,6 +111,8 @@ function vSheet() {
           ${key === 'review' && record.early ? 'disabled title="Not enough performance evidence yet"' : ''}>
           <b>${label}</b><small>${detail}</small></button>`).join('')}</div>` : ''}
       ${U.talkOut ? `<div class="fo-meeting-outcome" role="status"><b>Conversation outcome</b><p>${esc(U.talkOut)}</p>
+        <p class="small">A conversation alone is not a formal change of responsibilities. Agree a direction to set an evaluated commitment.</p>
+        <button data-a="sheet" data-s="mand" data-r="${selected}">Agree direction and review date</button>
         <button data-a="close">Return to your club</button></div>` : ''}
       </div>` : '';
     h = `<div class="fo-meeting">

@@ -74,3 +74,68 @@ Derived from literal data-a attributes in numbered UI fragments. **This does not
 | unpick | src/ui/02-setup.js |
 | veil | src/ui/06-sheets-ticker.js |
 | ysack | src/ui/05-pitches-squad-money.js |
+
+## UI modules 08–16
+
+| Action attribute | Source modules with literal reference |
+|---|---|
+| acad-close | src/ui/09-firstteam-review.js |
+| ag | src/ui/09-firstteam-review.js |
+| auth | src/ui/08-departments.js |
+| biz-lv | src/ui/08-departments.js |
+| biz-prop | src/ui/08-departments.js |
+| brief | src/ui/12-scenes-cards.js |
+| close-open | src/ui/12-scenes-cards.js |
+| com-exp | src/ui/08-departments.js |
+| com-offer | src/ui/08-departments.js |
+| com-price | src/ui/08-departments.js |
+| com-promo | src/ui/08-departments.js |
+| dcand | src/ui/08-departments.js |
+| dept | src/ui/08-departments.js, src/ui/09-firstteam-review.js |
+| dept-go | src/ui/12-scenes-cards.js |
+| dept-meeting | src/ui/08-departments.js |
+| dinbox | src/ui/08-departments.js |
+| dismiss | src/ui/12-scenes-cards.js |
+| dletgo | src/ui/08-departments.js |
+| dtab | src/ui/08-departments.js |
+| ed-open | src/ui/14-matchday-gazette.js |
+| filt | src/ui/10-inbox.js |
+| ft-ans | src/ui/09-firstteam-review.js |
+| ft-buy | src/ui/09-firstteam-review.js |
+| ft-cancel | src/ui/09-firstteam-review.js |
+| ft-sackq | src/ui/08-departments.js, src/ui/09-firstteam-review.js |
+| ft-talk | src/ui/08-departments.js, src/ui/09-firstteam-review.js |
+| ft-talk-close | src/ui/09-firstteam-review.js |
+| mchoose | src/ui/13-redbox-render.js |
+| md-after | src/ui/14-matchday-gazette.js |
+| md-close | src/ui/14-matchday-gazette.js |
+| md-done | src/ui/14-matchday-gazette.js |
+| md-kick | src/ui/14-matchday-gazette.js |
+| md-resume | src/ui/14-matchday-gazette.js |
+| md-skip | src/ui/14-matchday-gazette.js |
+| md-speed | src/ui/14-matchday-gazette.js |
+| mk-camp | src/ui/08-departments.js |
+| mk-comm | src/ui/08-departments.js |
+| mnext | src/ui/13-redbox-render.js |
+| next-season | src/ui/09-firstteam-review.js |
+| open | src/ui/10-inbox.js, src/ui/12-scenes-cards.js |
+| play | src/ui/10-inbox.js |
+| player | src/ui/08-departments.js, src/ui/09-firstteam-review.js, src/ui/12-scenes-cards.js, src/ui/14-matchday-gazette.js |
+| ptab | src/ui/11-players.js |
+| pw-ask | src/ui/10-inbox.js |
+| pw-change | src/ui/10-inbox.js |
+| pw-open | src/ui/08-departments.js |
+| replay | src/ui/12-scenes-cards.js, src/ui/14-matchday-gazette.js |
+| restart | src/ui/09-firstteam-review.js |
+| rx-focus | src/ui/08-departments.js |
+| rx-invest | src/ui/08-departments.js |
+| second | src/ui/13-redbox-render.js |
+| sheet | src/ui/08-departments.js, src/ui/09-firstteam-review.js, src/ui/10-inbox.js |
+| squad-plan-ask | src/ui/08-departments.js |
+| squad-plan-open | src/ui/13-redbox-render.js |
+| tab | src/ui/09-firstteam-review.js, src/ui/10-inbox.js, src/ui/13-redbox-render.js |
+| tour-ok | src/ui/13-redbox-render.js |
+
+## Reconciliation rule
+
+Compare these literal callsites with all 125 switch cases in 10-ACTION-REGISTRY.md. No source literal alone proves accessibility or successful execution; handlers with no literal callsite may be dynamically constructed or dead. All must be explicitly classified by implementation, including event-specific dynamic routes.

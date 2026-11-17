@@ -75,10 +75,14 @@ H.desk = (e, m) => {
   const h = headOf(e.from), s = staff(h);
   let idx = F.autoIndex(m), err = 0;
   if (e.opts.length > 1 && chance(errChance(h))) { const alt = e.opts.map((_, i) => i).filter(i => i !== idx); idx = pick(alt); err = 1; }
-  m.del = 1; m.err = err; m.authAt = auth(h);
-  m.why = 'Within ' + AUTH[m.authAt].t.toLowerCase() + ' authority (' + money(limit(h, m.authAt)) + ' limit).';
+  const authAt = auth(h);
+  const whyText = 'Within ' + AUTH[authAt].t.toLowerCase() + ' authority (' + money(limit(h, authAt)) + ' limit).';
   const n0 = g().paper.stories.length;
-  F.resolve(m, idx, s.name);
+  const resolved = F.resolve(m, idx, s.name);
+  // A failed effect is still pending. Do not reward, penalize, or log an
+  // employee decision that the simulation did not actually complete.
+  if (resolved && resolved.err) return;
+  m.del = 1; m.err = err; m.authAt = authAt; m.why = whyText;
   const st = g().paper.stories[n0]; if (st) { st.auto = 1; st.h = `${DSHORT[h]} handled it${err ? ', badly' : ''}`; }
   if (err) { slip(h); m.outcome = (m.outcome || '') + ' It goes against your mandate.'; }
   else if (F.gripGain) F.gripGain(1, 'desk');

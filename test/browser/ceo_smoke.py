@@ -56,6 +56,7 @@ async def main():
         await page.reload()
         await page.locator('[data-a=continue]').click()
         assert await page.evaluate("FO.G.phase") == "summer"
+        print("WINTER DEBUG", await page.evaluate("""() => ({text: document.body.innerText.slice(0,700), html: document.querySelector('#app')?.innerHTML.slice(0,450), titleButtons: [...document.querySelectorAll('button')].map(x=>[x.dataset.a,x.innerText.slice(0,60)])})"""), "pageErrors", errors, flush=True)
         assert await page.locator(".steps").count() > 0, "Winter meeting progress/navigation is missing"
         assert "Winter meeting" in await page.locator("body").inner_text(), "Winter meeting is not rendered"
         for theme in ["light", "dark"]:

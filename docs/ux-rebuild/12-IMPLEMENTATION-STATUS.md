@@ -17,6 +17,14 @@ This is **completed code** on the chatgpt branch, not just an architecture propo
 | Conversations | Six-head selection → focused one-to-one with actual performance, relationship, last-meeting context and differentiated choices; one response per open conversation | `src/ui/06-sheets-ticker.js`, `src/ui/15-actions.js` |
 | Regressions | Repeatable rollbacks, one-time commits, case model types, proposal finance limits and invalid tone checks added to ChatGPT CI workflow | `test/decision-integrity.js`, `.github/workflows/pages.yml` |
 
+## Additional screen implementation delivered
+
+- **Founding mandates and six-head mandate sheets:** replace slider-first interface with working-direction choices, actual staff fit and optional advanced policy controls. Previous mandates and engine behavior remain authoritative. Source: `src/ui/02-setup.js`, `src/ui/06-sheets-ticker.js`, `src/style/zz-text-only.css`.
+- **Six department overview screens:** every department now explicitly describes its separate responsibility and renders real head/staff positions, concerns and projects before its existing specialist workflows. Source: `src/ui/08-departments.js`, `src/style/zz-text-only.css`.
+- **One-to-one conversation UX:** focused mobile layout, performance context, selected person and tone trade-offs, one committed response per opened conversation. Does not yet implement durable negotiated multiweek agreements.
+- **Project decisions:** engine-enforced Finance reserve limits, ability to ask for second opinion without legacy action point, clear difference between revision and final approval. CaseView includes proposal information.
+- **CI:** `test/decision-integrity.js` is a ChatGPT branch publishing gate; exact most recent workflow status must be checked separately rather than assumed from earlier green runs.
+
 ## Completion boundary
 
 - **No gameplay balancing or all-screen reimplementation is claimed.**

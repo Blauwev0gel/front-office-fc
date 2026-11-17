@@ -50,7 +50,7 @@ function vOpen() {
   else if (i.t === 'dossier') body = dossierCard(i.ref);
   else if (i.t === 'pathway') body = pathwayCard(F.pwView());
   else if (i.t === 'ms') body = msStrip(i);
-  const head = `<div class="ohead"><button class="iconbtn" data-a="close-open" aria-label="Back to ${esc(FOLD_T[f])}">${ART.I.back}</button><span class="pos">${esc(FOLD_T[f])}</span>${i.kind === 'info' ? `<button class="archbtn" data-a="dismiss" data-k="${i.key}">Archive</button>` : ''}<button class="iconbtn" data-a="open" data-k="${nx ? nx.key : ''}" ${nx ? '' : 'disabled'} aria-label="Next">${ART.I.chev}</button></div>`;
+  const head = `<nav class="ohead" aria-label="Message navigation"><button class="iconbtn mailnav" data-a="close-open" aria-label="Back to ${esc(FOLD_T[f])}">← Back</button><span class="pos">${esc(FOLD_T[f])}</span>${i.kind === 'info' ? `<button class="archbtn" data-a="dismiss" data-k="${i.key}">Archive</button>` : ''}${nx ? `<button class="iconbtn mailnav" data-a="open" data-k="${nx.key}" aria-label="Next message">Next →</button>` : ''}</nav>`;
   return `${head}${i.t === 'msg' || (i.t === 'brief' && i.bt !== 'coach_debrief') ? bkStrip() : ''}<article class="om">${body}</article>${U.tray ? '<div class="trayspace" style="--tray:' + U.trayH + 'px"></div>' : ''}`;
 }
 function cardOpts(b, v) {

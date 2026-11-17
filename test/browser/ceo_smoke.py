@@ -56,6 +56,8 @@ async def main():
         await page.reload()
         await page.locator('[data-a=continue]').click()
         assert await page.evaluate("FO.G.phase") == "summer"
+        assert await page.locator(".steps").count() > 0, "Winter meeting progress/navigation is missing"
+        assert "Winter meeting" in await page.locator("body").inner_text(), "Winter meeting is not rendered"
         for theme in ["light", "dark"]:
             await page.evaluate("(theme) => {document.documentElement.dataset.theme=theme;}", theme)
             await check("winter-" + theme)
@@ -70,6 +72,8 @@ async def main():
         await page.reload()
         await page.locator('[data-a=continue]').click()
         assert await page.evaluate("FO.G.phase") == "summer"
+        assert await page.locator(".steps").count() > 0, "Summer meeting progress/navigation is missing"
+        assert "Summer meeting" in await page.locator("body").inner_text(), "Summer meeting is not rendered"
         for theme in ["light", "dark"]:
             await page.evaluate("(theme) => {document.documentElement.dataset.theme=theme;}", theme)
             await check("summer-" + theme)

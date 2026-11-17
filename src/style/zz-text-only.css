@@ -965,3 +965,16 @@ html,body{background:var(--bg)!important}
  #app .dw-stat b{font-size:14px!important}
  #app .dw-attention{max-width:103px}
 }
+
+/* Real-world pressure replaces generic warning counters on the CEO Desk. */
+#app .dw-risk-list{display:flex;flex-direction:column;gap:6px;padding:9px 10px 0}
+#app .dw-risk-list button{width:100%;display:flex;flex-direction:column;align-items:flex-start;
+ gap:4px;min-height:56px!important;padding:10px!important;
+ text-align:left!important;border:1px solid var(--bad)!important;
+ border-left:4px solid var(--bad)!important;
+ background:var(--paper)!important;color:var(--ink)!important}
+#app .dw-risk-list b{font-size:12px!important;color:var(--bad)!important}
+#app .dw-risk-list span{font-size:11px!important;color:var(--soft)!important}
+#app .dw-archive-extra{background:var(--paper)!important;border:1px solid var(--hair)!important;
+ margin:0 0 13px!important;padding:8px 11px!important}
+#app .dw-archive-extra summary{min-height:44px!important;font-size:12px!important;font-weight:800}

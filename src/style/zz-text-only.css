@@ -1000,3 +1000,36 @@ html,body{background:var(--bg)!important}
 #app .fo-proposal-context b{font-size:12px!important;display:block}
 #app .fo-proposal-context p{font-size:11px!important;margin:8px 0!important}
 #app .fo-proposal-context small{display:block;font-size:11px!important;color:var(--soft)!important}
+
+/* Structured CEO one-to-ones: accountable people, real context, single tap response. */
+#app .fo-meeting{padding:4px!important;color:var(--ink)!important}
+#app .fo-meeting .sheethead h2{font-size:20px!important;margin:0!important}
+#app .fo-meeting-people{display:flex;flex-direction:column;gap:0;
+ border-top:1px solid var(--hair)!important}
+#app .fo-meeting-person{display:flex;align-items:center;justify-content:space-between;
+ gap:12px;width:100%;min-height:66px!important;padding:11px 4px!important;
+ border:0!important;border-bottom:1px solid var(--hair)!important;
+ background:var(--paper)!important;color:var(--ink)!important;text-align:left!important}
+#app .fo-meeting-person span{display:flex;flex-direction:column;min-width:0;gap:4px}
+#app .fo-meeting-person b{font-size:13px!important;overflow-wrap:anywhere}
+#app .fo-meeting-person small{font-size:11px!important;color:var(--soft)!important}
+#app .fo-meeting-person strong{font-size:11px!important;text-align:right}
+#app .fo-meeting-dossier{padding:5px 0!important}
+#app .fo-meeting-back{min-height:44px!important;border:1px solid var(--hair)!important;
+ background:var(--fill)!important;color:var(--ink)!important;
+ text-align:left!important;width:100%;padding:8px!important;margin:0 0 13px!important}
+#app .fo-meeting-dossier h2{font-size:22px!important;margin:8px 0!important}
+#app .fo-meeting-dossier h3{font-size:14px!important;margin:18px 0 9px!important}
+#app .fo-meeting-dossier p{font-size:12px!important;margin:7px 0!important}
+#app .fo-meeting-options{display:flex;flex-direction:column;gap:7px}
+#app .fo-meeting-choice{display:flex;flex-direction:column;align-items:flex-start;gap:5px;
+ width:100%;min-height:59px!important;text-align:left!important;padding:11px!important;
+ background:var(--paper)!important;color:var(--ink)!important;
+ border:1px solid var(--rule)!important}
+#app .fo-meeting-choice b{font-size:13px!important}
+#app .fo-meeting-choice small{font-size:11px!important;color:var(--soft)!important;line-height:1.4!important}
+#app .fo-meeting-choice:disabled{opacity:.5!important}
+#app .fo-meeting-outcome{margin:14px 0!important;padding:12px!important;
+ border-left:4px solid var(--good)!important;background:var(--fill)!important}
+#app .fo-meeting-outcome button{width:100%;min-height:46px!important;
+ background:var(--ink)!important;color:var(--paper)!important;margin-top:9px!important}

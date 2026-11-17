@@ -14,7 +14,9 @@ const BK = [
   { k: 'board', t: 'Board', ic: 'board', get: () => g().board.conf, put: v => { g().board.conf = clamp(v, 0, 100); } },
   { k: 'fans', t: 'Supporters', ic: 'fans', get: () => (g().st.fans - 25) * 1.33, put: v => { g().st.fans = clamp(v / 1.33 + 25, 0, 100); } },
   { k: 'room', t: 'Dressing room', ic: 'squad', get: () => (room() - 35) * 1.54, put: v => { const want = v / 1.54 + 35, d = want - room(); g().squad.forEach(p => p.morale = clamp(p.morale + d, 0, 100)); } }];
-const sup = k => clamp(Math.round(BK.find(b => b.k === k).get()), 0, 100);
+const pressLegacy = { k: 'press', t: 'Press', get: () => (g().st.press - 30) * 1.43, put: v => { g().st.press = clamp(v / 1.43 + 30, 0, 100); } };
+const bkFor = k => BK.find(b => b.k === k) || (k === 'press' ? pressLegacy : null);
+const sup = k => clamp(Math.round(bkFor(k).get()), 0, 100);
 const VOICE = {
   board: ['Board members are counting votes.', 'The chairman has stopped returning calls.', 'The board is watching, quietly.', 'The board nods along in meetings.', 'The board toasts you at lunch.'],
   fans: ['A banner with your face on it. Not a kind one.', 'The phone-in shows have a new favourite target.', 'Supporters are waiting to be convinced.', 'Your name gets the odd cheer.', 'Your name is sung. Occasionally in tune.'],
@@ -56,7 +58,7 @@ const OPTS = {
     { l: 'Back the coach in public', p: () => 0.1 + (staff('coach') ? staff('coach').rel / 100 * 0.8 : 0.2), f: () => 'You stand next to the coach at the press conference.' },
     { l: 'Meet the senior players alone', p: () => 0.55, after: () => { const s = staff('coach'); if (s) s.rel = clamp(s.rel - 5, 0, 100); }, h: 'Coach ↓', f: () => 'A long evening in the players\' lounge.' },
     { l: 'A bonus for the whole squad', p: () => 0.76, after: () => { g().club.cash -= M(3000); }, h: () => `−${money(M(3000))}`, f: () => 'Money talks. The squad listens.' }] };
-function bump(k, d) { const b = BK.find(x => x.k === k); b.put(clamp(b.get() + d, 0, 100)); }
+function bump(k, d) { const b = bkFor(k); b.put(clamp(b.get() + d, 0, 100)); }
 function lift(k) { const b = BK.find(x => x.k === k); b.put(Math.max(b.get(), 35)); }
 for (const k in VT) {
   const v = VT[k];

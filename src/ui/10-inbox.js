@@ -232,13 +232,17 @@ function vInbox() {
     '<section class="dw-decisions" aria-label="CEO decisions">'+
       '<div class="dw-heading"><h2>Needs your attention</h2><span>'+
         (critical.length ? critical.length+' decision'+(critical.length===1?'':'s') : 'NO DECISIONS')+'</span></div>'+
-      (critical.length ? critical.map(x=>deskDecisionCard(x,false)).join('') :
+      (critical.length ? critical.slice(0,2).map(x=>deskDecisionCard(x,false)).join('')+
+        (critical.length>2 ? '<details class="dw-fold"><summary>'+ (critical.length-2)+
+        ' additional decision'+(critical.length===3?'':'s')+'</summary>'+
+        critical.slice(2).map(x=>deskDecisionCard(x,false)).join('')+'</details>' : '') :
         '<p class="dw-no-decision"><b>Nothing requires your approval.</b> '+
         'Your people can continue working within their mandates.</p>')+
       (optional.length ? '<details class="dw-fold dw-advice"><summary>'+
         optional.length+' staff update'+(optional.length===1?'':'s')+' with optional responses</summary>'+
         optional.map(x=>deskDecisionCard(x,true)).join('')+'</details>' : '')+
     '</section>'+
+    deskNextMatch(g,nf,pv)+
     '<section class="dw-people" aria-label="Updates from the club">'+
       '<div class="dw-heading"><h2>From the club</h2><span>'+
         (allUpdateCount ? allUpdateCount+' updates' : 'OPERATING NORMALLY')+'</span></div>'+
@@ -254,7 +258,6 @@ function vInbox() {
     (pap ? '<button class="dw-gazette" data-a="open" data-k="'+esc(pap.key)+'">'+
       '<span>THE '+esc(g.club.city.toUpperCase())+' GAZETTE</span><b>'+
       esc((F.edView(0)||{}).head||g.paper.headline)+'</b><small>Read the latest edition →</small></button>' : '')+
-    deskNextMatch(g,nf,pv)+
     '<section class="dw-records"><div class="dw-heading"><h2>Club records</h2></div>'+
       '<p class="dw-muted">Messages, results, reports and earlier decisions remain available.</p>'+
       '<button class="dw-textlink" data-a="filt" data-v="records">Browse club records →</button>'+

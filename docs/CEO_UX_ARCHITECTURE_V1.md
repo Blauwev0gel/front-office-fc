@@ -1,3 +1,5 @@
+> **Historical V1 architecture.** Superseded by BIBLE.md § B20 (four global destinations: Desk, Football, Club, People). The original five-tab comparison and V1 wireframes below are historical, not instructions for the current chatgpt UI rebuild. Matchday remains contextual, Football contains Squad and League views, and the old routes remain compatible.
+
 # THE FRONT OFFICE — CEO UX architecture V1 (chatgpt)
 
 ## Evidence and decision

@@ -258,3 +258,13 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 - `F.caseView(kind,id)` is a **read-only** common docket for event, briefing and proposal types; current specialized engine APIs remain authoritative.
 - One-to-one conversations now use a focused two-stage UI across all six appointed heads, with a one-response-per-opening guard and actual performance context. The underlying tone-based talk system is retained pending a proper agreement/review model.
 - A deterministic decision regression is part of the ChatGPT CI gate. This is a **partial functional milestone**, not the completed 47-task whole-game rebuild; all remaining screens and interaction systems stay tracked in the audit.
+
+
+## B24 — Mandate-to-outcome leadership loop (chatgpt, 2026-11-17)
+
+- Source of implemented work: `docs/ux-rebuild/12-IMPLEMENTATION-STATUS.md`.
+- All senior roles (DoF, Head Coach, Chief Scout, Academy, Commercial, Marketing and Finance) can hold a persistent leadership agreement based on their existing actual mandate.
+- The employee continues existing autonomous work. After six game weeks the game captures current scorecard evidence, creates one review, and lets the CEO renew, acknowledge or revise direction.
+- Appointments, dismissals/replacements, amended mandates and new seasons preserve historical agreements without reusing stale performance baselines.
+- One-to-one meetings now retain actual selected responses and observed relationship/motivation changes, linked to current agreements. These records are persisted in the save and can be reopened.
+- The full specialized department/conversation/event refactor remains **open**. This is a structurally integrated accountability slice, not completion of the 47-task game rebuild.

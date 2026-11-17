@@ -19,7 +19,7 @@ function vSheet() {
     <p style="margin-top:0">You are the CEO. You hire the people, set their mandates and make the calls they bring you. You never pick the team or buy players yourself.</p>
     <div class="panel2">${Object.entries(TOUR).map(([k, t]) => `<div class="helpr"><span class="hic">${ART.I[k]}</span><span><b>${esc(t[0])}</b><small>${esc(t[1])}</small></span></div>`).join('')}</div>
     <div class="sec">Reading the screen</div><div class="panel2">
-            <div class="helpr"><span class="hic"><span class="gripchip hi" style="margin:0;min-width:0"><b>Grip</b></span></span><span><b>Grip</b><small>How firmly you steer the club. It lifts or drags every head of department.</small></span></div>
+            <div class="helpr"><span class="hic"><span class="gripchip lo" style="margin:0;min-width:0"><b>Drifting</b></span></span><span><b>Drifting</b><small>Appears when your staff decide without your direction. Take decisions yourself and it goes away.</small></span></div>
       <div class="helpr"><span class="hic"><i class="lg good"></i></span><span><b>Green</b><small>On track or good.</small></span></div>
       <div class="helpr"><span class="hic"><i class="lg mid"></i></span><span><b>Grey</b><small>Steady, nothing to do.</small></span></div>
       <div class="helpr"><span class="hic"><i class="lg bad"></i></span><span><b>Red</b><small>Needs attention.</small></span></div>
@@ -87,7 +87,7 @@ function vSheet() {
     <p class="small" style="margin-top:8px">Week 1 skips the summer window, pre-season and the first press day: your staff handle them.</p>`;
   }
   if (s.t === 'backers') {
-    const B = F.backers(), D = { board: 'Owns your contract. Results against the target, money and promises.', fans: 'Results, ticket prices, community and respect for the club\'s identity.', press: 'Stories, access and how you handle scandals.', room: 'Morale of the first-team squad: playing time, bonuses, the coach.' };
+    const B = F.backers(), D = { board: 'Owns your contract. Results against the target, money and promises.', fans: 'Results, ticket prices, community and respect for the club\'s identity.', press: 'Stories, access and how you handle scandals. Sponsors and the club\'s brand follow the tone.', room: 'Morale of the first-team squad: playing time, bonuses, the coach.' };
     h = `<div class="spread"><div><div class="kick">Four groups hold your fate</div><h2>Your backers</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>
     <p class="small">Let one fall below ${F.VOTE_AT} and you face a vote of confidence. Survive it and you get one more chance this season, not two.</p>
     ${B.map(b => `<div class="bkrow ${b.danger ? 'lo' : ''}"><div class="spread"><b>${ART.I[b.ic] || ''} ${esc(b.t)}</b><span class="num">${b.v}${b.d ? ` <small class="${b.d > 0 ? 'good' : 'bad'}">${b.d > 0 ? '+' : ''}${b.d} this week</small>` : ''}</span></div><em><u style="width:${b.v}%"></u></em><p><i>${esc(b.voice)}</i> ${esc(D[b.k])}</p></div>`).join('')}`;

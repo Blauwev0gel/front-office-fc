@@ -78,5 +78,5 @@ Niet gevonden: of een speler de uitleg van grip ooit opent; hoe vaak elke stemmi
 
 Klein en af om te beginnen: de vier tegels op het homescherm vervangen door stemmen met richting en kleur, de grip-pil vervangen door een signaal bij laag. Geen nieuwe state.
 
-## 6. Vragen aan de eigenaar
-Zie de vraagtool in de sessie: richting, grip, ontslagroutes en Press.
+## 6. Besluit van de eigenaar (17-11-2026, B51)
+Richting **A** (stemmen, geen getallen); grip alleen als signaal bij laag; de stemmingen blijven zoals nu; Press krijgt een echt effect op sponsors en merk. Gebouwd in dezelfde sessie. Richting B blijft een kandidaat na een paar seizoenen spelen.

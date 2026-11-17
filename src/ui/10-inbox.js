@@ -26,7 +26,8 @@ function inboxItems() {
 function nextFix() { const g = G(), r = g.divs[g.club.tier].fix[g.week - 1]; if (!r) return null; const f = r.find(x => x[0] === 0 || x[1] === 0); const home = f[0] === 0, opp = home ? f[1] : f[0]; return { name: F.cname(opp), short: F.cname(opp).split(' ')[0], home, pos: F.sortTable(g.club.tier).indexOf(opp) + 1 }; }
 function backersHtml() {
   if (!F.backers) return ''; const B = F.backers();
-  return `<button class="bkrs" data-a="sheet" data-s="backers" aria-label="Your backers: ${B.map(b => b.t + ' ' + b.v).join(', ')}">${B.map(b => `<span class="bk ${b.danger ? 'lo' : ''}"><small>${ART.I[b.ic] || ''}${esc(b.t === 'Dressing room' ? 'Room' : b.t === 'Supporters' ? 'Fans' : b.t)}</small><b>${b.v}${b.d ? `<i class="${b.d > 0 ? 'up' : 'dn'}">${b.d > 0 ? '+' : ''}${b.d}</i>` : ''}</b><em><u style="width:${b.v}%"></u></em></span>`).join('')}</button>`;
+  /* B51: the backers are felt, not read: a mood and a direction, the numbers only in the sheet */
+  return `<button class="bkrs" data-a="sheet" data-s="backers" aria-label="Your backers: ${B.map(b => `${b.t} ${b.mood.toLowerCase()}${b.d > 0 ? ', rising' : b.d < 0 ? ', falling' : ''}`).join('; ')}">${B.map(b => `<span class="bk ${b.danger ? 'lo' : ''}"><small>${ART.I[b.ic] || ''}${esc(b.t === 'Dressing room' ? 'Room' : b.t === 'Supporters' ? 'Fans' : b.t)}</small><b class="mood">${esc(b.mood)}${b.d > 0 ? '<i class="up" aria-hidden="true">↑</i>' : b.d < 0 ? '<i class="dn" aria-hidden="true">↓</i>' : ''}</b></span>`).join('')}</button>`;
 }
 function comingHtml() {
   if (!F.comingUp) return ''; const C = F.comingUp(); if (!C.length) return '';

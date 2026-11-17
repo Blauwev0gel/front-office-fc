@@ -88,7 +88,7 @@ H.edition = (ours, cup) => {
     match: matchSum(ours), cup: matchSum(cup), tp: ours && F.mdTurning ? F.mdTurning(ours) : null, outs: ours && F.mdOutcomes ? F.mdOutcomes(ours) : [],
     coach: coach ? { t: coach, by: F.staffName ? F.staffName('coach') : '' } : null, dec,
     table: tab.slice(lo, lo + 5).map((id, k) => ({ p: lo + k + 1, n: F.cname(id), pts: G.divs[G.club.tier].tab[id].pts, me: id === 0 })), pos: me + 1, prevPos: G.prev ? G.prev.pos : null, tier: F.TIERS[G.club.tier],
-    bk: F.backers ? F.backers().map(b => ({ t: b.t, v: b.v, d: b.d })) : [] };
+    bk: F.backers ? F.backers().map(b => ({ t: b.t, v: b.v, d: b.d, mood: b.mood })) : [] };
   G.eds = [ed].concat(G.eds || []).slice(0, KEEP);
   return ed;
 };

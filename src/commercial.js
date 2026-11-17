@@ -54,7 +54,7 @@ H.deptCost = () => { const o = prevCost ? prevCost() : {}; const X = C(); if (X.
 const SECT = [['Local trade', ['Hollis Builders', 'Marlow Dental', 'Fenwick Print', 'Riverside Garage', 'Copperfield Plumbing']], ['Brewery', ['Old Kiln Ales', 'Harbour Brewing', 'Three Bells Lager']], ['Car dealer', ['Northgate Motors', 'Ashby Autos', 'Bridgeway Cars']], ['Tech', ['Cloudloom', 'Brightpixel', 'Datafold']], ['Betting', ['QuickOdds', 'BetHarbour', 'LuckyLine']], ['Bank', ['Weald Building Society', 'Kingsmere Bank']]];
 function newOffer() {
   const G = g(), [sect, names] = pick(SECT), long = chance(0.5), weeks = long ? 102 : 34;
-  const base = M(ri(300, 800)) * F.S(G.club.tier) / F.S(8) * (0.8 + F.eff('com', 0) / 25) * (has('sm') ? 1.2 : 1) * (long ? 0.85 : 1.15) * (sect === 'Betting' ? 1.35 : 1) * (0.8 + G.club.brand / 250);
+  const base = M(ri(300, 800)) * F.S(G.club.tier) / F.S(8) * (0.8 + F.eff('com', 0) / 25) * (has('sm') ? 1.2 : 1) * (long ? 0.85 : 1.15) * (sect === 'Betting' ? 1.35 : 1) * (0.8 + G.club.brand / 250) * (0.85 + (G.st.press || 50) / 333); /* B51: a hostile press makes sponsors careful */
   return { name: pick(names), sect, wk: Math.round(base / 10) * 10, weeks, exp: F.absWeek() + 3, briefed: false };
 }
 function offerWeekly() {

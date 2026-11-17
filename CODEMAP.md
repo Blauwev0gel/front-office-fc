@@ -267,7 +267,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 
 ### `loop.js`
 - Functions: g, room, sup, voice, backers, snap, diff, form5, band, bump, lift, lastChance, tgt, needFor, blockTick, goalView, comingUp
-- Exports on `F`: respond, answerBrief, backers, comingUp, goalView, BACKERS, VOTE_AT
+- Exports on `F`: respond, answerBrief, backers, comingUp, goalView, BACKERS, VOTE_AT, backerMood
 
 ### `dossiers.js`
 - Functions: g, bk, cash, rel, nm, star, kid, press, pv, pSignal, defineDossier, heatT, D, start, stepDone, dosView

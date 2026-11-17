@@ -156,7 +156,7 @@ button.dept.dtile{display:flex;align-items:center;gap:10px;width:100%;text-align
 .hbtns.in{margin:0;flex:none;gap:4px}.hbtns.in .btn{padding:6px 8px;font-size:12px;flex:none}.hbtns.in .btn svg{display:none}
 .gripchip{position:relative;display:inline-flex;align-items:center;margin-left:8px;height:22px;min-width:70px;border:2px solid var(--ink);border-radius:11px;background:var(--paper);overflow:hidden;padding:0 8px;font:900 11px var(--head);color:var(--ink)}
 .gripchip i{position:absolute;left:0;top:0;bottom:0;background:light-dark(#cfe3d4,#2a4a33)}.gripchip.lo i{background:light-dark(#f3c9c9,#5a2323)}.gripchip.hi i{background:light-dark(#9fd3ae,#2f6b41)}
-.gripchip b{position:relative}
+.gripchip b{position:relative}.gripchip.drift{height:44px;min-width:0;padding:0 14px;border-radius:22px;font-size:13px;background:light-dark(#f3c9c9,#5a2323);border-color:var(--bad);color:var(--ink)}
 .dtabs button{color:var(--ink);min-height:44px}.dtabs button:not(.on){opacity:.78}
 .iconbtn{min-width:44px;min-height:44px}
 

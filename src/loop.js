@@ -23,7 +23,8 @@ const VOICE = {
   room: ['Senior players have a group chat about you.', 'The dressing room goes quiet when you walk in.', 'The players get on with it.', 'The squad believes in the plan.', 'The dressing room would run through walls.'] };
 const voice = k => { const v = sup(k); return VOICE[k][v < 8 ? 0 : v < 25 ? 1 : v < 55 ? 2 : v < 78 ? 3 : 4]; };
 const VOTE_AT = 5, DANGER = 20;
-function backers() { const G = g(), d = G.wkDelta || {}; return BK.map(b => ({ k: b.k, t: b.t, ic: b.ic, v: sup(b.k), d: d[b.k] || 0, voice: voice(b.k), danger: sup(b.k) <= DANGER })); }
+const MOOD = ['Revolt', 'Angry', 'Wary', 'Content', 'Thrilled'], moodBand = v => v < 8 ? 0 : v < 25 ? 1 : v < 55 ? 2 : v < 78 ? 3 : 4;
+function backers() { const G = g(), d = G.wkDelta || {}; return BK.map(b => ({ k: b.k, t: b.t, ic: b.ic, v: sup(b.k), d: d[b.k] || 0, voice: voice(b.k), mood: MOOD[moodBand(sup(b.k))], danger: sup(b.k) <= DANGER })); }
 const snap = () => { const o = {}; for (const b of BK) o[b.k] = sup(b.k); return o; };
 
 /* ---------- debrief: how every decision moved the backers ---------- */
@@ -139,5 +140,5 @@ function comingUp() {
   return out.slice(0, 6);
 }
 
-Object.assign(F, { backers, comingUp, goalView, BACKERS: BK, VOTE_AT });
+Object.assign(F, { backers, comingUp, goalView, BACKERS: BK, VOTE_AT, backerMood: v => MOOD[moodBand(v)] });
 })(FO);

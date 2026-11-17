@@ -41,10 +41,10 @@ function kpiWeekly(res) {
   if (c.dna.identity === 'community' && man('com', 'tickets') > 55) df -= 0.4;
   const al = alignment(); if (al < 60) df -= 0.5;
   st.fans = clamp(st.fans + df, 0, 100);
-  st.spons = clamp(st.spons + (50 + c.brand * 0.2 - st.spons) * 0.04 + (res === 'W' ? 0.5 : 0) + (G.push.commercial > 0 ? 1.5 : 0), 0, 100);
+  st.spons = clamp(st.spons + (50 + c.brand * 0.2 - st.spons) * 0.04 + (res === 'W' ? 0.5 : 0) + (G.push.commercial > 0 ? 1.5 : 0) + (st.press - 50) * 0.02, 0, 100); /* B51: the press shapes how sponsors see the club */
   st.press = clamp(st.press + (50 - st.press) * 0.05 + (res === 'W' ? 0.6 : res === 'L' ? -0.6 : 0), 0, 100);
   const brandT = 25 + eff('mkt', 0) * 1.6 + eff('mkt', 1) * 0.8 + man('mkt', 'budget') * 0.15 + man('mkt', 'reach') * 0.08 + (8 - c.tier) * 3;
-  c.brand = clamp(c.brand + (brandT - c.brand) * 0.03 + (G.push.marketing > 0 ? 1 : 0), 0, 100);
+  c.brand = clamp(c.brand + (brandT - c.brand) * 0.03 + (G.push.marketing > 0 ? 1 : 0) + (st.press - 50) * 0.006, 0, 100); /* B51: and the brand */
   // scouting network
   if (staff('scout')) { for (const k in c.net) { const focus = k === man('scout', 'reg1') ? 1 : k === man('scout', 'reg2') ? 0.6 : 0; const g = focus * (0.25 + eff('scout', 2) / 40 + man('scout', 'budget') / 200 + (G.push.scouting > 0 ? 1.2 : 0)); c.net[k] = clamp(c.net[k] + g - 0.08, 0, 100); } }
   else for (const k in c.net) c.net[k] = clamp(c.net[k] - 0.2, 0, 100);

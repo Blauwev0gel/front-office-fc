@@ -57,10 +57,40 @@ function authHtml(role) {
     <div class="seg wide" role="radiogroup" aria-label="Authority for ${esc(s.name)}">${A.opts.map((t, i) => `<button role="radio" aria-checked="${A.a === i}" class="${A.a === i ? 'on' : ''}" data-a="auth" data-r="${role}" data-v="${i}">${esc(t)}</button>`).join('')}</div>
     <p class="small">${esc(A.s)} Signs off alone up to ${money(A.lim)} a week. Wrong calls: ${A.err >= 18 ? 'frequent' : A.err >= 8 ? 'occasional' : 'rare'}.</p></div>`;
 }
+function agreementHtml(role) {
+  if (!F.agreementView) return '';
+  const v = F.agreementView(role), a = v.active;
+  if (!a) return '';
+  const due = Math.max(0, a.due - F.absWeek());
+  const isReview = a.state === 'review';
+  const baseline = a.baseline && a.baseline.score != null ? a.baseline.score + '/100' : 'Insufficient data';
+  const current = a.check ? a.check.score + '/100' : 'Review not due';
+  return `<section class="fo-working-agreement">
+    <div class="fo-agreement-title"><span>LEADERSHIP AGREEMENT</span>
+      <b>${isReview ? 'Evidence review due' : 'In execution'}</b></div>
+    <h3>${esc(a.head)} · ${esc(F.ROLE[role].t)}</h3>
+    <p>The department head executes your agreed mandate independently.
+      The next conversation is based on results, not an arbitrary trust bonus.</p>
+    <div class="fo-agreement-evidence">
+      <div><small>When agreed</small><b>${baseline}</b></div>
+      <div><small>${isReview ? 'At review' : 'Next review'}</small><b>${isReview ? current : 'In ' + due + ' wk'}</b></div>
+    </div>
+    ${isReview ? `<p><b>Assessment:</b> ${esc(a.outcome)}</p>
+      ${a.check && a.check.lines && a.check.lines.length ?
+        '<details class="fo-agreement-lines"><summary>Review the evidence</summary>' +
+          a.check.lines.map(line => '<div><span>' + esc(line[0]) + '</span><b>' + esc(line[1]) + '</b></div>').join('') +
+        '</details>' : ''}
+      <div class="fo-agreement-actions">
+        <button data-a="agr-review" data-id="${esc(a.id)}" data-v="continue">Renew direction · 6 weeks</button>
+        <button data-a="sheet" data-s="mand" data-r="${role}">Change the agreement</button>
+        <button data-a="agr-review" data-id="${esc(a.id)}" data-v="close">Acknowledge review</button>
+      </div>` : '<p class="small">Your employee continues working. No CEO action is needed before the review.</p>'}
+  </section>`;
+}
 function headBtns(role, s) {
   const g = G(), sur = s.name.split(' ').slice(-1)[0];
   const PV = F.pwView ? F.pwView() : null, agChip = PV && PV.ag && PV.stage !== 'closed' && ['coach', 'dof', 'acad'].includes(role) ? `<button class="agchip" data-a="pw-open"><span>${ART.I.info}</span><b>Agreement: the ${esc(PV.tname)} question</b><small>${role === PV.ag.owner || (role === 'coach' && PV.ag.owner === PV.ag.owner && PV.ag.ownerName === s.name) ? 'Responsible' : 'Involved'} · evaluation week ${PV.ag.evalWeek}</small></button>` : '';
-  return agChip + authHtml(role) + `<div class="hbtns"><button class="btn small" ${role === 'coach' ? 'data-a="ft-talk"' : `data-a="sheet" data-s="talk" data-r="${role}"`} >${ART.I.phone} Talk</button><button class="btn ghost small" data-a="sheet" data-s="mand" data-r="${role}">Mandate</button><button class="btn ghost small danger" ${role === 'coach' ? 'data-a="ft-sackq"' : `data-a="sheet" data-s="fire" data-r="${role}"`} >Sack</button></div>`;
+  return agChip + authHtml(role) + agreementHtml(role) + `<div class="hbtns"><button class="btn small" ${role === 'coach' ? 'data-a="ft-talk"' : `data-a="sheet" data-s="talk" data-r="${role}"`} >${ART.I.phone} Talk</button><button class="btn ghost small" data-a="sheet" data-s="mand" data-r="${role}">Mandate</button><button class="btn ghost small danger" ${role === 'coach' ? 'data-a="ft-sackq"' : `data-a="sheet" data-s="fire" data-r="${role}"`} >Sack</button></div>`;
 }
 function instinctRow(role) {
   const s = F.staff(role); if (!s) return ''; const L = F.LEAN[role], k = L[0], m = F.man(role, k), MD = F.MAND[role].sl.find(x => x[0] === k); if (!MD) return '';
@@ -202,7 +232,7 @@ function vDept(k) {
     body = (k === 'recruit' && F.squadPlanView ? squadPlanHtml() : '') + issuesHtml + resolvedHtml + kpis + vis + mand;
   }
   if (tab === 'people') {
-    const scoutC = d.also ? (() => { const sc = v.also; return sc ? `<div class="pcard2 senior"><span class="pf">${ART.staffFace(d.also)}</span><span class="pm"><b>${esc(sc.name)}</b><small>Chief scout, ${starsTxt(F.stars(F.ovr(sc)))}</small></span><span class="pb"><button class="linkbtn" data-a="sheet" data-s="mand" data-r="scout">Mandate</button><button class="linkbtn" data-a="sheet" data-s="talk" data-r="scout" >Talk</button></span></div>` : `<div class="pcard2 senior"><span class="pf empty">${ART.I.staff}</span><span class="pm"><b>No chief scout</b><small>Scouting runs on luck</small></span><button class="btn small" data-a="sheet" data-s="cands" data-r="scout">Hire</button></div>`; })() : '';
+    const scoutC = d.also ? (() => { const sc = v.also; return sc ? `<div class="pcard2 senior"><span class="pf">${ART.staffFace(d.also)}</span><span class="pm"><b>${esc(sc.name)}</b><small>Chief scout, ${starsTxt(F.stars(F.ovr(sc)))}</small></span><span class="pb"><button class="linkbtn" data-a="sheet" data-s="mand" data-r="scout">Mandate</button><button class="linkbtn" data-a="sheet" data-s="talk" data-r="scout" >Talk</button></span></div>${agreementHtml('scout')}` : `<div class="pcard2 senior"><span class="pf empty">${ART.I.staff}</span><span class="pm"><b>No chief scout</b><small>Scouting runs on luck</small></span><button class="btn small" data-a="sheet" data-s="cands" data-r="scout">Hire</button></div>`; })() : '';
     const cards = v.staff.map(st => `<div class="pcard2 ${st.on ? '' : 'pending'}"><span class="pf">${ART.face(st.id * 17 + 5, { role: d.face, age: st.age, bg: '#fff' })}</span><span class="pm"><b>${esc(st.name)}</b><small>${esc(st.title)}</small><span class="traits"><span title="${esc(st.tdesc)}">${esc(st.trait)}</span></span><small class="pw">${esc(st.what)}. ${money(st.wage)}/wk</small>${st.on ? '' : `<small class="pw">Starts in ${st.left} wk</small>`}</span><button class="linkbtn" data-a="dletgo" data-k="${k}" data-id="${st.id}">Let go</button></div>`).join('');
     const open = v.used < v.slots ? `<div class="sec">Open roles <span class="small">${v.slots - v.used} free</span></div><div class="oroles">${v.open.map(o => `<button class="orole" data-a="dcand" data-k="${k}" data-r="${o.role}"><b>${esc(o.title)}</b><small>${esc(o.what)}</small><em>from ${money(o.wage)}/wk</em></button>`).join('')}</div>` : `<p class="small">All ${v.slots} staff roles are filled. More room comes with a higher division.</p>`;
     body = `${scoutC}<div class="sec">Staff <span class="small">${v.used} of ${v.slots}</span></div>${cards || '<p class="small">Nobody yet. The head does everything alone.</p>'}${open}`;

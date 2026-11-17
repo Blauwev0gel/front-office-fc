@@ -49,6 +49,24 @@ const priceTwo=F.specialistAct('commercial.price',{k:'home',v:-0.1});
 assert(!priceOne.err&&!priceTwo.err);
 assert.equal(priceOne.caseId,priceTwo.caseId,'price changes coalesce into one policy case');
 assert.equal(F.specialistCases('commercial').find(c=>c.id===priceOne.caseId).revisions.length,1);
+// The existing Academy briefing is not replaced by a fake general-purpose vote.
+// Its original youth player state changes once, and the common history tracks it.
+const youth=F.G.academy[0];
+assert(youth,'real academy player available');
+F.G.briefs=F.G.briefs||[];
+const acadBrief=911551;
+F.G.briefs.push({id:acadBrief,t:'ac_ready',ctx:{pid:youth.id,name:youth.name},done:false});
+const academyBefore=F.specialistCases('academy').length;
+const academyReply=F.answerBrief(acadBrief,1);
+assert(!academyReply.err,'academy director recommendation can be answered');
+assert.equal(F.G.academy.find(p=>p.id===youth.id).keep,true,
+ 'the specialist Academy engine makes the real development decision');
+assert(F.specialistCases('academy').length>academyBefore,
+ 'Academy response participates in same outcome ledger');
+assert(F.specialistCases('academy').some(c=>c.kind==='brief:ac_ready'));
+const once=F.save();
+assert.equal(F.answerBrief(acadBrief,1),null,'same youth response cannot be repeated');
+assert.equal(F.save(),once);
 const initialPathway=F.save();
 const noPath=F.specialistAct('academy.pathway',{k:'youth'});
 assert(noPath.err,'no invented pathway without an existing player agreement');

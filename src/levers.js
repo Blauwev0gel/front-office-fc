@@ -23,7 +23,9 @@ wrap('decideProposal', 3); wrap('sum2Answer', 2); wrap('tkAnswer', 3); wrap('ddD
 const GRIPK = 14; // grip 100 = +3.6 on every head's attributes, grip 0 = -3.6
 const prevEff = H.effBonus;
 const GW = { coach: 1, dof: 1, scout: 1, acad: 1, com: 0.4, mkt: 0.6, fin: 0.3 };
-H.effBonus = (r, i) => (prevEff ? prevEff(r, i) : 0) + ((g().grip == null ? 60 : g().grip) - 50) / GRIPK * (GW[r] != null ? GW[r] : 1);
+// Preserve the prior hook, but do not reward repetitive CEO clicks with a
+// universal staff skill boost. Real mandates and staff attributes drive outcomes.
+H.effBonus = (r, i) => (prevEff ? prevEff(r, i) : 0);
 
 // a step up: the first season in a new division is harder, and fades as the squad adapts
 const prevExtra = H.ftExtra; H.ftExtra = () => (prevExtra ? prevExtra() : 0) - (g().club.stepUp === g().season ? 0.45 * Math.max(0, 1 - g().week / 38) : 0);

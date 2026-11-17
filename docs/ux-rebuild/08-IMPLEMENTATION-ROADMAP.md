@@ -65,9 +65,9 @@
 2. **Decision core:** UX-006..012. Introduce adapters and a unified case view; retain authoritative engine calls until migration tests prove parity.
 3. **Season startup:** UX-013..020. Users complete founding → first summer → press → Week 1 with shared decision UI.
 4. **Normal season:** UX-021..027. Build the Desk and football information system in a coherent whole.
-5. **Responsible club:** UX-028..040. Each of the six departments has its own integrated flow and exception routes; do not group them into a generic page-only sprint.
-6. **Football climax:** UX-041..043. Matchday/Gazette as one state machine.
-7. **Season and cleanup:** UX-044..end. Complete multi-season path and remove abandoned legacy UI.
+5. **Responsible club:** UX-028..039. Each of the six departments has its own integrated flow and exception routes; do not group them into a generic page-only sprint.
+6. **Football climax:** UX-040..042. Matchday/Gazette as one state machine.
+7. **Season and cleanup:** UX-043..047. Complete multi-season path and remove abandoned legacy UI.
 
 ## Delivery format per development milestone
 

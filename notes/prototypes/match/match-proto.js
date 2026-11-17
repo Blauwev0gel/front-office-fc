@@ -37,7 +37,9 @@ module.exports = function protoMatch(F, opts = {}) {
   const live = side => (side === 'us' ? us : them).filter(p => p.on);
   const add = e => { ev.push(e); return e; };
   const energy = side => { const l = live(side).filter(p => p.pos !== 'GK'); return l.length ? l.reduce((a, p) => a + p.en, 0) / l.length : 100; };
-  add({ m: 0, k: 'ko', w: 1 });
+  const poss = []; add({ m: 0, k: 'ko', w: 1 });
+  const REFF = ['Martin', 'Graham', 'Paul', 'Stuart', 'Neil', 'Keith', 'Andrew', 'Darren'], REFL = ['Oakley', 'Prescott', 'Hartigan', 'Wilmot', 'Coulter', 'Ransome', 'Thewlis', 'Bramall'];
+  const referee = REFF[ri(0, REFF.length - 1)] + ' ' + REFL[ri(0, REFL.length - 1)];
   // ---------- 19 blocks of five minutes (the last one is stoppage time) ----------
   const BLOCKS = 19;
   for (let b = 0; b < BLOCKS; b++) {
@@ -55,7 +57,7 @@ module.exports = function protoMatch(F, opts = {}) {
     if (diff < 0) adj += (0.25 + att * 0.3) * (m0 >= 60 ? 1.3 : 1); else if (diff > 0) adj -= (0.25 + (m0 >= 65 ? (1 - att) * 0.25 : 0)) * (m0 >= 60 ? 1.3 : 1);
     if (phase === 'start') adj += (intn - 0.5) * 0.3;
     if (home && fill > 0.85 && phase === 'end') adj += 0.12;
-    const share = 1 / (1 + Math.exp(-0.6 * (d0 + adj)));
+    const share = 1 / (1 + Math.exp(-0.6 * (d0 + adj))); poss.push(Math.round(clamp(0.5 + (share - 0.5) * 0.7 + (rnd() - 0.5) * 0.08, 0.25, 0.75) * 100)); /* ball possession in this block: follows the balance of play, flattened like real possession */
     // attacks in this block (both sides together): more with an attacking coach and an open opponent, fewer in rain
     const n = poisson(2.25 * (0.85 + 0.3 * att) * style.vol * (wx.rain ? 0.92 : 1) * (b === 18 ? 0.8 : 1)), acts = [];
     for (let i = 0; i < n; i++) acts.push({ m: m0 + ri(1, 5), side: chance(share) ? 'us' : 'them' });
@@ -98,5 +100,5 @@ module.exports = function protoMatch(F, opts = {}) {
   }
   add({ m: 94, k: 'ft', w: 3, score: { ...sc } });
   ev.sort((a, b) => a.m - b.m || (a.k === 'ht' ? -1 : 0));
-  return { opp: { id: oppId, name: P.name, short: opp.short || P.name.split(' ')[0].slice(0, 3).toUpperCase(), star: star && star.name }, home, rival: P.rival, wx, fill, att, intn, d0: +d0.toFixed(2), sc, xg: { us: +xg.us.toFixed(2), them: +xg.them.toFixed(2) }, shots, sot, red, ev, us: us.map(p => ({ id: p.id, name: p.name, pos: p.pos, en: Math.round(p.en), on: p.on, st: st.get(p.id) || null })), them: them.map(p => ({ id: p.id, name: p.name, pos: p.pos, star: !!p.star, st: st.get(p.id) || null })), club: { name: G.club.name, short: G.club.short, colors: G.club.colors } };
+  return { poss, referee, att: home ? F.attendance() : null, city: G.club.city, oppTown: P.name.split(' ')[0], week: G.week, tier: F.TIERS ? F.TIERS[G.club.tier] : 'League', opp: { id: oppId, name: P.name, short: opp.short || P.name.split(' ')[0].slice(0, 3).toUpperCase(), star: star && star.name }, home, rival: P.rival, wx, fill, att, intn, d0: +d0.toFixed(2), sc, xg: { us: +xg.us.toFixed(2), them: +xg.them.toFixed(2) }, shots, sot, red, ev, us: us.map(p => ({ id: p.id, name: p.name, pos: p.pos, en: Math.round(p.en), on: p.on, st: st.get(p.id) || null })), them: them.map(p => ({ id: p.id, name: p.name, pos: p.pos, star: !!p.star, st: st.get(p.id) || null })), club: { name: G.club.name, short: G.club.short, colors: G.club.colors } };
 };

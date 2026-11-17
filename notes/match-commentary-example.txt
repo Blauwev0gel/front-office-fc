@@ -1,38 +1,41 @@
-Harwick Athletic v Kingford Borough | 1-3 | xG 0.67-2.42 | moments 36, beats 70
+Harwick Athletic v Kingford Borough | 2-1 | xG 0.38-2.34 | moments 39, beats 65
 stories: Callum Cole (New signing); Finley Ingham (Top scorer); Ben Oakes (Under pressure)
  0' [big] Harwick Athletic v Kingford Borough. Kick-off. | Watch Jonas Doherty, their dangerous man.   ⟨Nobody expects anything from us⟩
  3' [small] Kingford have it now. We hold our shape.   ⟨Expected goals so far: 0.0 – 0.0⟩
- 7' [normal] A cross from Whitlock… Doherty is waiting… | Saved! Josh Tanner gathers it.   ⟨Expected goals so far: 0.0 – 0.1⟩
- 8' [small] Dunmore has a go. Never troubling the keeper.   ⟨Expected goals so far: 0.0 – 0.2⟩
-11' [small] Marsden snatches at it. Wide.   ⟨Expected goals so far: 0.0 – 0.3⟩
-17' [normal] Quill slides it through for Doherty… | Josh Tanner gets a hand to it!   ⟨Kingford pressing: 4 shots in ten minutes⟩
-17' [normal] Ingham gets to the byline, and crosses… | Straight at Dunmore.   ⟨Kingford pressing: 4 shots in ten minutes⟩
-23' [small] Half a chance for Radcliffe, over the bar.   ⟨Expected goals so far: 0.1 – 0.6⟩
-23' [small] Doherty shoots wide.   ⟨Expected goals so far: 0.1 – 0.6⟩
-26' [small] Doherty lifts it over.   ⟨Kingford pressing: 4 shots in ten minutes⟩
-30' [goal] Quill carries it forward for Kingford. | Ellery rolls it to Marsden, twenty-five yards out… | … | Felix Marsden scores. Kingford lead. | 0–1.   ⟨Kingford pressing: 4 shots in ten minutes⟩
-31' [small] Fairley has a go. Never troubling the keeper.   ⟨Kingford pressing: 4 shots in ten minutes⟩
-34' [small] Half a chance for Doherty, over the bar.   ⟨Expected goals so far: 0.1 – 0.8⟩
-41' [small] Eccles lifts it over.   ⟨Expected goals so far: 0.2 – 1.0⟩
-41' [normal] Doherty is in on goal… | Josh Tanner gets a hand to it!   ⟨Expected goals so far: 0.2 – 1.0⟩
-44' [small] Ellery snatches at it. Wide.   ⟨Expected goals so far: 0.2 – 1.1⟩
-45' [big] Half-time. 0–1. | Kingford have had the better of it: 3 shots to 11.   ⟨Expected goals: 0.2 – 1.1⟩
-50' [normal] Oakes lines one up from distance… | Saved! Dylan Dunmore gathers it.   ⟨Oakes: under pressure⟩
-55' [big] Through the middle for Kingford. | It falls to Dunmore… | … | Saved! Josh Tanner at full stretch.   ⟨Expected goals so far: 0.3 – 1.5⟩
-55' [normal] Marsden lines one up from distance… | Josh Tanner gets a hand to it!   ⟨Expected goals so far: 0.3 – 1.5⟩
-60' [goal] Lowther wins it back and looks up. | Marsden whips it in from the right… | … | Lewis Dunmore finishes. That hurts. | 0–2. The home end goes quiet.   ⟨Expected goals so far: 0.3 – 1.6⟩
-65' [normal] Lowther rolls it to Marsden, twenty-five yards out… | Saved! Josh Tanner gathers it.   ⟨Kingford pressing: 4 shots in ten minutes⟩
-67' [small] Jessop on, Oakes off, out on his feet.   ⟨Oakes: under pressure⟩
-67' [goal] Eccles finds Fowler in space. | Fowler lays it off to Cole… | … | GOAL! Callum Cole buries it. | Harwick are level, 1–2.   ⟨Cole: new signing⟩
-68' [small] Change for Kingford: Sefton for Doherty.   ⟨Expected goals so far: 0.4 – 1.7⟩
-68' [normal] Brennan gets to the byline, and crosses… | Saved! Josh Tanner gathers it.   ⟨Expected goals so far: 0.4 – 1.7⟩
-72' [small] Nuttall on, Fairley off, out on his feet.   ⟨Expected goals so far: 0.4 – 1.7⟩
-72' [small] Fairbank on, Ellery off.   ⟨Expected goals so far: 0.4 – 1.7⟩
-75' [big] We break at speed. | Meijer whips it in from the right… | … | He drags it past the post.   ⟨Expected goals so far: 0.7 – 1.7⟩
-78' [small] Carver on, Garside off, out on his feet.   ⟨Expected goals so far: 0.7 – 1.7⟩
-82' [small] Marsden tries from distance, well over.   ⟨12 minutes left⟩
-87' [small] Marsden shoots wide.   ⟨7 minutes left⟩
-93' [goal] Fairbank is in on goal… | … | In. Ellis Fairbank at the far post. | 1–3.   ⟨1 minute left⟩
-94' [normal] Brennan slides it through for Dunmore… | Josh Tanner gets a hand to it!   ⟨Kingford pressing: 4 shots in ten minutes⟩
-94' [normal] Sefton whips it in from the right… | Josh Tanner gets a hand to it!   ⟨Kingford pressing: 4 shots in ten minutes⟩
-94' [big] Full time. 1–3. | Kingford have had the better of it: 6 shots to 21.   ⟨Expected goals: 0.7 – 2.4⟩
+14' [small] Doherty snatches at it. Wide.   ⟨Expected goals so far: 0.0 – 0.1⟩
+16' [goal] We break at speed. | A cross from Pike… Oakes is waiting… | … | IT'S IN! Ben Oakes! | 1–0.   ⟨Oakes: under pressure⟩
+21' [small] Fairbank shoots wide.   ⟨Expected goals so far: 0.1 – 0.3⟩
+24' [big] Lowther finds Ellery in space. | Ellery slides it through for Fairbank… | … | Saved! Josh Tanner at full stretch. | We got away with that.   ⟨Expected goals so far: 0.1 – 0.7⟩
+26' [normal] Oakes lays it off to Cole… | Straight at Dunmore.   ⟨Cole: new signing⟩
+43' [small] Doherty has a go. Never troubling the keeper.   ⟨Expected goals so far: 0.3 – 0.8⟩
+44' [small] Half a chance for Doherty, over the bar.   ⟨Expected goals so far: 0.3 – 0.9⟩
+45' [big] Half-time. 1–0. | Kingford have had the better of it: 2 shots to 5.   ⟨Expected goals: 0.3 – 0.9⟩
+48' [goal] Through the middle for Harwick. | Cole is in on goal… | … | GOAL! Callum Cole buries it. | Callum Cole is in line for his first game since signing.   ⟨Cole: new signing⟩
+51' [small] Doherty's shot is blocked by Fowler.   ⟨Kingford pressing: 4 shots in ten minutes⟩
+51' [small] Half a chance for Radcliffe, over the bar.   ⟨Kingford pressing: 4 shots in ten minutes⟩
+57' [normal] Brennan gets to the byline, and crosses… | Josh Tanner gets a hand to it!   ⟨Expected goals so far: 0.4 – 1.1⟩
+60' [small] Marsden has a go. Never troubling the keeper.   ⟨Kingford pressing: 4 shots in ten minutes⟩
+63' [small] Kingford pass it around. We wait.   ⟨Expected goals so far: 0.4 – 1.2⟩
+68' [small] Marsden lifts it over.   ⟨Expected goals so far: 0.4 – 1.3⟩
+68' [small] Ellery's shot is blocked by Cole.   ⟨Cole: new signing⟩
+69' [small] Jessop on, Oakes off, out on his feet.   ⟨Oakes: under pressure⟩
+71' [normal] It falls to Pritchard… | Saved! Josh Tanner gathers it.   ⟨Expected goals so far: 0.4 – 1.5⟩
+72' [small] Change for Harwick: Nuttall for Fairley.   ⟨Kingford pressing: 4 shots in ten minutes⟩
+72' [normal] Dunmore whips it in from the right… | Josh Tanner gets a hand to it!   ⟨Kingford pressing: 4 shots in ten minutes⟩
+74' [small] Change for Kingford: Pritchard for Doherty.   ⟨Kingford pressing: 5 shots in ten minutes⟩
+74' [small] Ellery tries from distance, well over.   ⟨Kingford pressing: 5 shots in ten minutes⟩
+75' [normal] Marsden lines one up from distance… | Saved! Josh Tanner gathers it.   ⟨Kingford pressing: 6 shots in ten minutes⟩
+79' [small] Change for Harwick: Carver for Garside.   ⟨Kingford pressing: 5 shots in ten minutes⟩
+79' [small] Marsden on, Ellery off, out on his feet.   ⟨Kingford pressing: 5 shots in ten minutes⟩
+79' [small] Half a chance for Marsden, over the bar.   ⟨Kingford pressing: 5 shots in ten minutes⟩
+81' [small] Jessop snatches at it. Wide.   ⟨Kingford pressing: 6 shots in ten minutes⟩
+83' [small] Jessop on, Dunmore off, out on his feet.   ⟨Kingford pressing: 4 shots in ten minutes⟩
+86' [small] Pritchard snatches at it. Wide.   ⟨8 minutes left⟩
+89' [small] Half a chance for Whitlock, over the bar.   ⟨Kingford pressing: 4 shots in ten minutes⟩
+90' [small] Pritchard snatches at it. Wide.   ⟨Kingford pressing: 4 shots in ten minutes⟩
+91' [small] A booking for Birtles.   ⟨Kingford pressing: 5 shots in ten minutes⟩
+91' [goal] Quill wins it back and looks up. | Brennan whips it in from the right… | … | Felix Marsden scores. Kingford are level. | 2–1.   ⟨Kingford pressing: 5 shots in ten minutes⟩
+94' [small] Jessop's shot is blocked by Fowler.   ⟨Kingford pressing: 6 shots in ten minutes⟩
+94' [normal] Marsden slides it through for Pritchard… | Josh Tanner gets a hand to it!   ⟨Kingford pressing: 6 shots in ten minutes⟩
+94' [big] Full time. 2–1. | Kingford have had the better of it: 3 shots to 23.   ⟨Expected goals: 0.4 – 2.3⟩
+95' [normal] Marsden rolls it to Marsden, twenty-five yards out… | Josh Tanner gets a hand to it!   ⟨Kingford pressing: 7 shots in ten minutes⟩

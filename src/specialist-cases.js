@@ -77,6 +77,8 @@ function evidence(d) {
     }
     if(d==='academy') {
       return {...base, academy:g.academy?.length, graduates:g.squad?.filter(p=>p.academy).length,
+        heldForDevelopment:g.academy?.filter(p=>p.keep).length||0,
+        loanPath:g.academy?.filter(p=>p.loanOut).length||0,
         pathway:F.pwView?.()?.ag?.route || null};
     }
     if(d==='first') {
@@ -283,7 +285,8 @@ function specialistAct(kind,p={}) {
 function evidenceComparison(before,after,dept) {
   const keys={
     recruit:[['squad','Squad size'],['transferBudget','Transfer budget'],['deals','Completed signings']],
-    academy:[['academy','Academy players'],['graduates','Academy graduates']],
+    academy:[['academy','Academy players'],['graduates','Academy graduates'],
+      ['heldForDevelopment','Retained youth prospects'],['loanPath','Loan development routes']],
     commercial:[['signed','Sponsor contracts'],['revenue','Sponsor income']],
     marketing:[['reach','Marketing reach'],['loyalty','Supporter loyalty'],
       ['brand','Club brand']],

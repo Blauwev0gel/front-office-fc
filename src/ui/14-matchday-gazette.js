@@ -74,7 +74,7 @@ const MDP = {
     const has = new Set(B.map(x => x.m)), poss = m.poss || [], nm = n => n.split(' ')[0];
     for (let mm = 2; mm <= 93; mm += 4) { if ([0, 1, 2, 3].some(k => has.has(mm + k))) continue; const p = poss[Math.min(poss.length - 1, Math.floor((mm - 1) / 5))] || 50, us = p >= 50, T = us ? nm(g.club.name) : nm(m.oppName);
       steps.push({ m: mm, t: [`${T} keep the ball in midfield.`, `${T} pass it across the back.`, `A spell of possession for ${T}.`, `${T} probe, looking for an opening.`][mm % 4], side: us ? 'us' : 'them', hold: 450 }); }
-    steps.sort((a, b) => a.m - b.m); this.steps = steps; const est = steps.reduce((a, x) => a + (x.hold || 0), 0) * 0.8 + 94 * 75; this.k = Math.max(0.65, Math.min(1.2, 40000 / est)); // every match lasts about 40 seconds this.orphan = KEY.filter(e => !used.has(e)); this.KEY = KEY;
+    steps.sort((a, b) => a.m - b.m); this.steps = steps; const est = steps.reduce((a, x) => a + (x.hold || 0), 0) * 0.8 + 94 * 75; this.k = Math.max(0.65, Math.min(1.2, 40000 / est)); /* every match lasts about 40 seconds */ this.orphan = KEY.filter(e => !used.has(e)); this.KEY = KEY;
   },
   sp(ms) { return MAIL_RM ? Math.min(ms, 120) : ms * (this.fast ? 0.4 : 0.8) * (this.k || 1); },
   sc2(s) { return this.H ? [s.us, s.them] : [s.them, s.us]; },

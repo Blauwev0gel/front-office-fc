@@ -87,6 +87,19 @@ function agreementHtml(role) {
       </div>` : '<p class="small">Your employee continues working. No CEO action is needed before the review.</p>'}
   </section>`;
 }
+function specialistConflictHtml(dk) {
+  const conflicts=F.specialistConflicts?.(dk)||[];
+  if(!conflicts.length)return '';
+  return '<section class="fo-specialist-conflicts" aria-label="Interdepartmental decisions">'+
+    '<div class="sec">Cross-department decisions <small>'+conflicts.length+' needs you</small></div>'+
+    conflicts.map(c=>'<article class="fo-specialist-conflict"><span>STRATEGIC CONFLICT</span>'+
+      '<h3>'+esc(c.title)+'</h3><p>'+esc(c.explanation)+'</p>'+
+      '<small>'+esc(c.evidence)+'</small>'+
+      '<p><b>Involved:</b> '+esc(c.first)+' / '+esc(c.second)+'</p>'+
+      c.options.map(o=>'<button data-a="sp-conflict" data-id="'+esc(c.id)+
+        '" data-v="'+esc(o.k)+'">'+esc(o.label)+'</button>').join('')+
+      '</article>').join('')+'</section>';
+}
 function specialistRecordsHtml(dk) {
   if (!F.specialistCases) return '';
   const cases=F.specialistCases(dk).slice(0,8);
@@ -282,5 +295,5 @@ function vDept(k) {
     body = inbox + (k === 'recruit' && F.rxView ? rxDecisions(F.rxView()) : '') + (k === 'academy' && F.acView ? acDecisions(F.acView()) : '') + (k === 'commercial' && F.comView ? comDecisions(F.comView()) : '') + (k === 'marketing' && F.mkView ? mkDecisions(F.mkView()) : '') + (FP ? `<div class="sec">Target</div>${FP.deal}` : '') + bud + fac + proj + log;
   }
   const mini = v.head ? `<div class="hmini"><span class="dface">${ART.staffFace(d.head)}</span><span class="dt"><b>${esc(v.head.name)}</b><small>${esc(F.ROLE[d.head].t)}</small></span>${headBtns(d.head, v.head).replace('class="hbtns"', 'class="hbtns in"')}</div>` : headCard(k, v);
-  return `${head}${overview}${tab === 'over' ? headCard(k, v) : mini}${tabs}${body}${(tab==='over'||tab==='dec')?specialistRecordsHtml(k):''}`;
+  return `${head}${overview}${tab === 'over' ? headCard(k, v) : mini}${tabs}${body}${(tab==='over'||tab==='dec')?specialistConflictHtml(k)+specialistRecordsHtml(k):''}`;
 }

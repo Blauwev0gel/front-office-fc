@@ -150,6 +150,21 @@ function deskDecisionCard(i, optional) {
     (intro ? '<span class="dw-decision-desc">'+esc(intro)+'</span>' : '')+
     '<strong>'+(optional?'Read and respond':'Review decision')+' →</strong></button>';
 }
+function deskSpecialistReviews() {
+  if (!F.specialistCases) return '';
+  const routes={recruit:'recruit',academy:'academy',commercial:'commercial',
+    marketing:'marketing',business:'business',first:'first'};
+  const all=F.specialistCases().filter(c=>c.status==='review'||c.status==='interrupted');
+  if(!all.length)return '';
+  return '<section class="dw-specialist-reviews" aria-label="Department execution reports">'+
+    '<div class="dw-heading"><h2>Department results</h2><span>'+all.length+' FOLLOW-UPS</span></div>'+
+    all.slice(0,4).map(c=>'<button class="dw-specialist-link" data-a="dept-go" data-k="'+
+      esc(routes[c.dept]||c.dept)+'" data-v="over"><b>'+esc(c.title)+'</b>'+
+      '<small>'+esc(c.head)+' · '+esc(c.status==='interrupted'?'Execution interrupted':
+        'Four-week evidence available')+'</small><span>View results →</span></button>').join('')+
+    (all.length>4?'<p class="small">More results are available in the relevant departments.</p>':'')+
+    '</section>';
+}
 function deskLeadershipReviews() {
   if (!F.agreementView) return '';
   const dept = { coach:'first', dof:'recruit', scout:'recruit',
@@ -259,6 +274,7 @@ function vInbox() {
         optional.map(x=>deskDecisionCard(x,true)).join('')+'</details>' : '')+
     '</section>'+
     deskLeadershipReviews()+
+    deskSpecialistReviews()+
     deskNextMatch(g,nf,pv)+
     '<section class="dw-people" aria-label="Updates from the club">'+
       '<div class="dw-heading"><h2>From the club</h2><span>'+

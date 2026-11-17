@@ -75,11 +75,45 @@ function vSheet() {
   }
   if (s.t === 'talk') {
     const roles = F.ROLES.filter(r => g.staff[r.id]);
-    const sel = U.talkRole;
-    h = `<div class="spread"><div><div class="kick">One-to-one meeting</div><h2>Who do you want to see?</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>
-    <div class="choice">${roles.map(r => { const s2 = g.staff[r.id]; return `<button class="card ${sel === r.id ? 'on' : ''}" data-a="talk-who" data-r="${r.id}"><b>${esc(s2.name)}</b>${r.t}. Relationship ${r0(s2.rel)}. The numbers: ${F.record(r.id).verdict.toLowerCase()}.<div class="e">${s2.p.ego > 14 ? 'Big ego. ' : ''}${s2.p.amb > 14 ? 'Very ambitious. ' : ''}${s2.p.loy < 7 ? 'Not very loyal.' : ''}</div></button>`; }).join('')}</div>
-    ${sel ? `<h3>How do you approach it?</h3><div class="choice">${[['review', 'Go through the numbers', 'Evidence, not opinion. Good numbers earn real credit; bad ones are hard to argue with.'], ['praise', 'Praise his work', 'Builds trust. Some take it as licence to coast.'], ['challenge', 'Challenge him to do more', 'Ambitious people respond. Proud people bristle.'], ['reassure', 'Reassure him', 'Steadies someone who is struggling.'], ['warn', 'Warn him', 'Sharpens minds when results are poor. Unfair otherwise.']].map(([k, l, d]) => `<button class="card" data-a="talk-do" data-t="${k}"><b>${l}</b>${d}</button>`).join('')}</div>` : ''}
-    ${U.talkOut ? `<div class="quote" style="font-size:22px">${esc(U.talkOut)}</div>` : ''}`;
+    const selected = U.talkRole, person = selected ? F.staff(selected) : null;
+    const selection = roles.map(r => {
+      const st = g.staff[r.id], perf = F.record(r.id);
+      const mood = st.rel < 35 ? 'Relationship strained' : st.rel >= 70 ? 'Strong working relationship' : 'Normal working relationship';
+      return `<button class="fo-meeting-person" data-a="talk-who" data-r="${r.id}">
+        <span><b>${esc(st.name)}</b><small>${esc(r.t)} · ${esc(mood)}</small></span>
+        <strong>${esc(perf.verdict)} →</strong></button>`;
+    }).join('');
+    const toneOptions = [
+      ['review','Review performance','Discuss evidence against the agreed expectations.'],
+      ['praise','Recognise good work','Credibility depends on actual performance; confidence can become complacency.'],
+      ['challenge','Ask for improvement','Ambition can motivate; an outspoken head may resist.'],
+      ['reassure','Express confidence','More meaningful when results or confidence are poor.'],
+      ['warn','Issue a formal warning','This may damage trust, especially if the warning is unfair.']
+    ];
+    const record = person ? F.record(selected) : null;
+    const last = person && g.talks ? g.talks[selected] : null;
+    const gap = last == null ? null : F.absWeek() - last;
+    const approach = person ? `<div class="fo-meeting-dossier">
+      <button class="fo-meeting-back" data-a="talk-who" data-r="">← All department heads</button>
+      <span class="fo-case-kind">ONE-TO-ONE · ${esc(F.ROLE[selected].t)}</span>
+      <h2>${esc(person.name)}</h2>
+      <p>${esc(record.verdict)} · Relationship ${Math.round(person.rel)}/100</p>
+      <p class="small">${gap == null ? 'No earlier meeting on record.' :
+        gap < 3 ? 'You spoke recently. Repeating a conversation now has reduced impact.' :
+        'You last met ' + gap + ' game weeks ago.'}</p>
+      <h3>How do you want to approach the conversation?</h3>
+      <div class="fo-meeting-options">${toneOptions.map(([key,label,detail]) =>
+        `<button class="fo-meeting-choice" data-a="talk-do" data-t="${key}"
+          ${key === 'review' && record.early ? 'disabled title="Not enough performance evidence yet"' : ''}>
+          <b>${label}</b><small>${detail}</small></button>`).join('')}</div>
+      ${U.talkOut ? `<div class="fo-meeting-outcome" role="status"><b>Conversation outcome</b><p>${esc(U.talkOut)}</p>
+        <button data-a="close">Return to your club</button></div>` : ''}
+      </div>` : '';
+    h = `<div class="fo-meeting">
+      <div class="sheethead"><h2>${person ? 'Conversation' : 'Meet your department heads'}</h2>
+        <button class="iconbtn" data-a="close" aria-label="Close">${ART.I.close}</button></div>
+      ${person ? approach : `<p class="small">Choose a person. Conversations affect working relationships, but they do not replace formal mandates.</p>
+      <div class="fo-meeting-people">${selection || '<p>No department heads have been appointed.</p>'}</div>`}</div>`;
   }
   if (s.t === 'push') {
     h = `<div class="spread"><div><div class="kick">Lasts three weeks</div><h2>Back a department</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>

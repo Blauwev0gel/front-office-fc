@@ -844,3 +844,20 @@ html,body{background:var(--bg)!important}
 #app .fo-table td.points{font-weight:900!important}
 @media(max-width:350px){#app .fo-division-switch{grid-template-columns:67px minmax(0,1fr) 67px}
   #app .fo-table{font-size:10px!important}#app .fo-table td,#app .fo-table th{padding:8px 2px!important}}
+
+/* Authentic team sheet instead of an unusable positioned graphic pitch. */
+#app .fo-team-sheet,#app .fo-squad-reserves{margin:0 0 12px!important;padding:12px!important;
+  background:var(--paper)!important;border:1px solid var(--hair)!important;border-top:3px solid var(--ink)!important}
+#app .fo-team-sheet .fo-sectionline{margin-bottom:8px}
+#app .fo-xi-group h3{font-size:11px!important;text-transform:uppercase!important;
+  letter-spacing:.06em!important;margin:13px 0 4px!important;color:var(--soft)!important}
+#app .fo-xi-row{display:grid!important;grid-template-columns:44px minmax(0,1fr) 36px;
+  gap:8px;align-items:center;min-height:45px!important;padding:8px 4px!important;
+  width:100%;text-align:left!important;border:0!important;border-top:1px solid var(--hair)!important;
+  background:var(--paper)!important;color:var(--ink)!important}
+#app .fo-xi-pos{border:1px solid var(--hair);padding:3px 2px;text-align:center;
+  font-size:10px;font-weight:800}
+#app .fo-xi-row strong{min-width:0;font-size:12px;overflow-wrap:anywhere}
+#app .fo-xi-ability{text-align:right;font-size:12px;font-weight:800}
+#app .fo-squad-reserves summary{padding:10px 4px!important;font-size:13px;font-weight:800}
+#app .fo-squad-reserves[open] summary{border-bottom:1px solid var(--hair);margin-bottom:7px}

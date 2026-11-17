@@ -861,3 +861,115 @@ html,body{background:var(--bg)!important}
 #app .fo-xi-ability{text-align:right;font-size:12px;font-weight:800}
 #app .fo-squad-reserves summary{padding:10px 4px!important;font-size:13px;font-weight:800}
 #app .fo-squad-reserves[open] summary{border-bottom:1px solid var(--hair);margin-bottom:7px}
+
+/* Desk V2: a football-club headquarters rather than an email dashboard.
+   All existing game routes/engine messages remain accessible through the archive. */
+#app :is(.dw-week,.dw-decisions,.dw-people,.dw-matters,.dw-fixture,.dw-records,.dw-archive-title){
+ background:var(--paper)!important;color:var(--ink)!important;
+ margin:0 0 12px!important;padding:12px!important;
+ border:1px solid var(--hair)!important;border-top:3px solid var(--ink)!important}
+#app .dw-week{border-top:0!important;padding:0 0 12px!important}
+#app .dw-week-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+ background:var(--ink)!important;color:#fff!important;padding:15px 12px}
+#app .dw-week-top h2{color:#fff!important;font-size:20px!important;margin:5px 0 0!important}
+#app .dw-kicker{font-size:10px;font-weight:900;letter-spacing:.07em}
+#app .dw-week-top .dw-kicker{color:#d1e3cc!important}
+#app .dw-attention{flex:0 1 auto;max-width:118px;text-align:right;
+ border:1px solid #b6cdb0;color:#f3f8ec!important;
+ font-size:10px;font-weight:900;padding:7px;overflow-wrap:normal;word-break:normal}
+#app .dw-scoreboard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:9px 10px 0}
+#app .dw-stat{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+ min-height:73px!important;gap:5px;min-width:0;padding:8px 6px!important;
+ color:var(--ink)!important;background:var(--fill)!important;
+ border:1px solid var(--hair)!important;text-align:left!important}
+#app .dw-stat small{font-size:10px!important;color:var(--soft)!important}
+#app .dw-stat b{font-size:17px!important;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#app .dw-stat span:not(.dw-result){font-size:10px;color:var(--soft)!important}
+#app .dw-results{display:flex;flex-wrap:wrap;gap:3px}
+#app .dw-result{display:inline-flex;align-items:center;justify-content:center;min-width:20px;
+ padding:2px;border:1px solid var(--rule);font-size:11px;font-weight:900}
+#app .dw-result.W{background:#d6e8d5!important;color:#17452c!important}
+#app .dw-result.D{background:#ede6cb!important;color:#665324!important}
+#app .dw-result.L{background:#f1d6d3!important;color:#87272c!important}
+#app .dw-empty{font-size:10px!important}
+#app .dw-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+ padding-bottom:9px;margin:0 0 7px;border-bottom:1px solid var(--hair)}
+#app .dw-heading h2{font-size:15px!important;margin:0!important}
+#app .dw-heading>span,#app .dw-heading>button{font-size:10px!important;font-weight:900!important;
+ letter-spacing:.03em;text-align:right}
+#app .dw-heading>button{min-height:44px!important;background:var(--paper)!important;
+ color:var(--ink)!important;border:1px solid var(--hair)!important;padding:8px!important}
+#app .dw-decisions{border-top:3px solid #725225!important}
+#app .dw-decision{display:flex;flex-direction:column;align-items:stretch;gap:6px;
+ min-height:70px!important;width:100%;text-align:left!important;padding:11px 10px!important;
+ margin:8px 0!important;border:1px solid var(--rule)!important;border-left:4px solid #8a6731!important;
+ color:var(--ink)!important;background:var(--paper)!important}
+#app .dw-decision-source{font-size:10px;color:var(--soft)!important;font-weight:800}
+#app .dw-decision>b{font-size:14px!important;color:var(--ink)!important;overflow-wrap:anywhere}
+#app .dw-decision-desc{font-size:11px;color:var(--soft)!important;line-height:1.5}
+#app .dw-decision>strong{font-size:11px!important;color:#214b35!important;text-decoration:underline;
+ text-underline-offset:3px}
+#app .dw-no-decision{padding:8px 0;margin:0!important;font-size:12px!important}
+#app .dw-no-decision b{display:block;font-size:13px}
+#app .dw-people{border-top-color:var(--good)!important}
+#app .dw-update{display:flex;flex-direction:column;gap:4px;align-items:flex-start;
+ text-align:left!important;width:100%;min-height:63px!important;
+ padding:10px 3px!important;border:0!important;border-bottom:1px solid var(--hair)!important;
+ background:var(--paper)!important;color:var(--ink)!important}
+#app .dw-update small{font-size:10px!important;text-transform:uppercase;color:var(--soft)!important}
+#app .dw-update b{font-size:12px!important;overflow-wrap:anywhere}
+#app .dw-update>span{font-size:11px;color:var(--soft)!important}
+#app .dw-staff-note{padding:9px 10px;margin:10px 0!important;background:var(--fill)!important;
+ border-left:3px solid var(--good);font-size:11px!important}
+#app .dw-muted{font-size:11px!important;color:var(--soft)!important}
+#app .dw-textlink{min-height:45px!important;width:100%;text-align:left!important;
+ padding:8px 6px!important;border:1px solid var(--hair)!important;
+ color:var(--ink)!important;background:var(--fill)!important;font-weight:800!important;font-size:12px!important;
+ margin:8px 0 0!important}
+#app .dw-matter{display:flex;flex-direction:column;gap:5px;
+ width:100%;text-align:left!important;padding:10px 2px!important;margin:0!important;
+ border:0!important;border-bottom:1px solid var(--hair)!important;
+ background:var(--paper)!important;color:var(--ink)!important}
+#app .dw-matter b{font-size:12px!important}
+#app .dw-matter small{font-size:11px!important;color:var(--soft)!important}
+#app .dw-fold{border-top:1px solid var(--hair)!important;margin:10px 0 0!important;padding:0!important}
+#app .dw-fold summary{min-height:46px!important;font-weight:800!important;font-size:12px!important;
+ padding:12px 2px!important}
+#app .dw-fold h3{font-size:12px!important;margin:13px 0 6px!important;text-transform:uppercase!important}
+#app .dw-record{border-bottom:1px solid var(--hair);padding:9px 0}
+#app .dw-record b{display:block;font-size:12px}
+#app .dw-record small{font-size:10px!important}
+#app .dw-record p{font-size:11px!important;margin:3px 0!important}
+#app .dw-gazette{display:flex;flex-direction:column;gap:8px;align-items:flex-start;
+ width:100%;min-height:92px!important;text-align:left!important;
+ padding:13px!important;margin:0 0 12px!important;border:2px solid var(--ink)!important;
+ background:var(--paper)!important;color:var(--ink)!important}
+#app .dw-gazette>span{font-size:10px!important;font-weight:900!important;letter-spacing:.08em}
+#app .dw-gazette>b{font-size:15px!important}
+#app .dw-gazette>small{font-size:11px!important;text-decoration:underline}
+#app .dw-fixture{border-top:3px solid var(--good)!important}
+#app .dw-opponent{display:flex;flex-direction:column;gap:5px;margin:12px 0}
+#app .dw-opponent>small{font-size:10px!important;font-weight:900!important;letter-spacing:.07em}
+#app .dw-opponent b{font-size:19px!important;overflow-wrap:anywhere}
+#app .dw-opponent>span,#app .dw-match-goal{font-size:11px!important;color:var(--soft)!important}
+#app .dw-match-cta{width:100%;min-height:51px!important;background:var(--ink)!important;
+ color:#fff!important;border:2px solid #10271d!important;font-size:14px!important;font-weight:900!important}
+#app .dw-archive-title>span{font-size:10px;font-weight:900;letter-spacing:.07em}
+#app .dw-archive-title h2{font-size:21px!important;margin:6px 0!important}
+#app .dw-archive-title p{font-size:12px!important;margin:0!important}
+#app .dw-back{width:100%;min-height:48px!important;margin:0 0 11px!important;
+ text-align:left!important;padding:10px!important;background:var(--paper)!important;
+ color:var(--ink)!important;border:1px solid var(--rule)!important;font-weight:800!important}
+#app .dw-archive-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:5px;margin:0 0 12px!important}
+#app .dw-archive-nav button{min-width:0!important;min-height:44px!important;
+ padding:8px 3px!important;background:var(--paper)!important;color:var(--ink)!important;
+ border:1px solid var(--hair)!important;font-size:11px!important;font-weight:800!important}
+#app .dw-archive-nav button.on{background:var(--ink)!important;color:var(--paper)!important}
+#app .dw-archive-list{margin:0 0 14px!important}
+@media(max-width:350px){
+ #app .dw-scoreboard{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #app .dw-form{grid-column:2}
+ #app .dw-stat b{font-size:14px!important}
+ #app .dw-attention{max-width:103px}
+}

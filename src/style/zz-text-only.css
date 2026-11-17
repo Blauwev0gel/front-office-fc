@@ -588,3 +588,96 @@ body{
 #app .mdm .mdfeed{min-height:220px;max-height:55vh;overflow:auto}
 #app .mdm .mdctl button{min-height:48px}
 @media(min-width:390px){#app .ceo-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* FRONT OFFICE · UNIFIED GAME UI V5
+   This replaces the competing masthead, menu and squad controls with one
+   game-wide system.  Legacy data views remain readable and functional. */
+:root,:root[data-theme=light],:root[data-theme=dark]{
+  --bg:#e6e9df;--paper:#fbfcf8;--fill:#eef1e8;
+  --ink:#173028;--soft:#4e6055;--rule:#64766b;--hair:#cad2c7;
+  --club:#214939;--acc:#214939;--good:#285d42;--bad:#a03436;--warn:#79572a;
+}
+html,body{background:var(--bg)!important}
+#app{max-width:800px!important;margin:0 auto!important;
+  padding:0 10px calc(158px + env(safe-area-inset-bottom))!important}
+#app .fo-header{display:flex;align-items:stretch;gap:8px;
+  margin:0 -10px 0;padding:9px 12px;background:var(--ink)!important;color:var(--paper)!important;
+  border-bottom:3px solid #b5ca9e}
+#app .fo-brand{display:flex;gap:10px;min-width:0;align-items:center;text-align:left;
+  flex:1;border:0!important;background:transparent!important;color:var(--paper)!important;
+  padding:4px 0!important}
+#app .fo-brand span:last-child{display:flex;flex-direction:column;min-width:0;gap:2px}
+#app .fo-brand b{color:var(--paper)!important;font-weight:800!important;font-size:14px!important;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#app .fo-brand small{font-size:11px!important;color:#d9e7d4!important}
+#app .fo-monogram{display:inline-flex;align-items:center;justify-content:center;
+  min-width:42px;height:42px;border:2px solid #afc9a4;color:var(--paper)!important;
+  background:#2e5a43!important;font-size:12px!important;font-weight:900}
+#app .fo-help{min-width:44px;align-self:center;border:1px solid #b8cdb3!important;
+  background:#2e5a43!important;color:#fff!important;font-weight:800}
+#app .fo-location{display:flex;gap:10px;align-items:center;padding:13px 10px 11px;
+  border-bottom:2px solid var(--ink);margin:0 0 12px;background:var(--paper)!important}
+#app .fo-location h1{font-size:22px!important;margin:3px 0!important}
+#app .fo-location p{font-size:11px!important;margin:0!important;color:var(--soft)!important}
+#app .fo-eyebrow{font-size:10px;font-weight:800;letter-spacing:.07em;color:#466554!important}
+#app .fo-local,#app .fo-squadnav{display:grid;gap:6px;margin:0 0 14px;align-items:stretch}
+#app .fo-local{grid-template-columns:1fr 1fr}
+#app .fo-squadnav{grid-template-columns:repeat(3,minmax(0,1fr));margin:0 10px 12px}
+#app :is(.fo-local,.fo-squadnav) button{border:1px solid var(--rule)!important;
+  background:var(--paper)!important;color:var(--ink)!important;
+  font-size:12px!important;min-height:46px!important;padding:7px!important;
+  font-weight:700!important;white-space:normal!important}
+#app :is(.fo-local,.fo-squadnav) button.on{
+  background:var(--ink)!important;color:var(--paper)!important;border-color:var(--ink)!important}
+#app .fo-command{position:fixed;bottom:calc(63px + env(safe-area-inset-bottom));left:50%;
+  transform:translateX(-50%);z-index:28;width:min(800px,100%);padding:7px 10px 5px;
+  background:var(--paper)!important;border-top:1px solid var(--ink)}
+#app .fo-play{width:100%;min-height:49px!important;
+  background:var(--ink)!important;color:var(--paper)!important;
+  border:2px solid #0f271c!important;font-size:15px!important;
+  font-weight:900!important;text-transform:uppercase!important;letter-spacing:.03em}
+#app .fo-play small{font-size:10px!important;font-weight:600!important;color:#d9e7d4!important}
+#app .fo-mainnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  z-index:29;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  width:min(800px,100%);height:calc(63px + env(safe-area-inset-bottom));padding:0 6px env(safe-area-inset-bottom);
+  background:var(--paper)!important;border-top:2px solid var(--ink)}
+#app .fo-mainnav .fo-tab{min-width:0!important;width:100%;border:0!important;
+  border-right:1px solid var(--hair)!important;background:var(--paper)!important;
+  color:var(--ink)!important;padding:8px 3px!important;font-size:12px!important;
+  font-weight:800!important;text-transform:uppercase!important;letter-spacing:0!important;
+  display:flex;align-items:center;justify-content:center;gap:4px;flex-direction:column}
+#app .fo-mainnav .fo-tab:last-child{border-right:0!important}
+#app .fo-mainnav .fo-tab.on{background:var(--ink)!important;color:var(--paper)!important}
+#app .fo-navcount{display:inline-flex;padding:1px 5px;border:1px solid currentColor;
+  font-size:10px!important;line-height:1.2;font-weight:900}
+#app #fo-main{min-width:0}
+#app #fo-main :is(.sec,.sec2,.itemh){margin-top:17px!important}
+#app :is(.ceo-dept-group,.ceo-dept-intro,.ceo-league-pulse,.ceo-squad-pulse){
+  border:1px solid var(--hair)!important;border-top:3px solid var(--ink)!important;
+  margin:0 0 12px!important;padding:12px!important}
+#app .ceo-player-row{border-bottom:1px solid var(--hair)!important}
+#app .ceo-dept-row{border-top:1px solid var(--hair)!important}
+#app :is(.rbr,.dkr,.ceo-dept-row,.ceo-player-row,.paperpin,.fo-tab,.fo-play):focus-visible{
+  outline:3px solid #b07e2c!important;outline-offset:-3px!important}
+#app .redbox{border-color:var(--ink)!important}
+#app .redbox .rbh{border-bottom:2px solid var(--ink)!important}
+#app .ceo-dept-secondary{margin:0 0 15px!important}
+#app .ceo-dept-secondary summary{padding:11px!important;background:var(--paper)!important;
+  border:1px solid var(--rule)!important}
+#app .dtabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:6px!important;overflow:visible!important}
+#app .dtabs button{min-width:0!important;min-height:46px!important;white-space:normal!important}
+#app .mds{padding-bottom:25px!important}
+#app .mdm .mdfeed{max-height:none!important;min-height:220px!important;overflow:visible!important}
+#app .mdm .mdctl{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
+#app .mdm .mdctl button{min-height:52px!important}
+@media(max-width:350px){
+  #app .fo-mainnav .fo-tab{font-size:11px!important}
+  #app .fo-squadnav button{font-size:11px!important;padding:5px!important}
+  #app .fo-play{font-size:13px!important}
+}
+@media(min-width:680px){
+  #app .fo-location{padding:16px 18px}
+  #app .fo-location h1{font-size:26px!important}
+  #app .fo-mainnav .fo-tab{font-size:14px!important}
+}

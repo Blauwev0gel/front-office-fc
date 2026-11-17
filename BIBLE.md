@@ -191,3 +191,12 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 - Board, supporters, press and dressing room remain distinct backer systems, with a vote-of-confidence threshold and explanations in the Backers sheet. Do not remove or merge these without separate counterfactual gameplay evidence.
 - Grip was an activity counter rather than a distinct club outcome: it lost five points every week and penalised trust and staff even when delegation was appropriate. Automatic decay, low-Grip penalties and the universal staff-skill modifier are disabled. The legacy saved field is retained for compatibility; its persistent footer chip is removed. CEO decisions remain meaningful through mandates, relationships, board, backers, costs and recorded consequences.
 - Browser-only visual QA is owner-run, not a publishing gate. Engine, one-tap, save, stories and text-mode CI checks remain mandatory. These changes are limited to the `chatgpt` branch.
+
+
+## B17 — Simplified CEO stakeholder model (Model B; chatgpt only)
+
+- The persistent CEO accountability model has **three** stakeholder scores: Board (employment/targets), Supporters (fan trust and club identity), and Dressing room (squad morale). These are backed by existing state and vote-of-confidence rules, not invented new currencies.
+- **Press is contextual, not a fourth firing meter.** Existing press sentiment, questions, Gazette and narrative reactions remain, but new weekly low-press confidence votes are not generated. A legacy `vote_press` event remains defined so pending old saves can resolve safely.
+- **Grip is retired as a gameplay incentive.** No passive decay, no low-Grip relationship penalty, no universal staff skill bonus; the old value remains in saves for compatibility and is not shown as a permanent status. Mandates, delegation outcomes, staffing and actual stakeholder consequences determine CEO quality.
+- The inbox shows only the three accountable constituencies, with plain-language bands (supportive, stable, uneasy, at risk, crisis). The Backers sheet explains the causes and crisis threshold; news and press remain contextual.
+- Regression gate: `node test/stakeholders.js` checks visible stakeholder keys, Press isolation, Grip neutrality and old-save compatibility. Browser layout testing is performed by the owner.

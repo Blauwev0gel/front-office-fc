@@ -134,3 +134,133 @@
 | SRC-078 | `rxDecisions()` | Component or helper | Defined in source; route check required |
 | SRC-079 | `vDept()` | Screen/view/overlay candidate | Defined in source; route check required |
 
+
+## Remaining UI entry points
+
+### src/ui/09-firstteam-review.js
+
+| Registry ID | Function | Classification | Source status |
+|---|---|---|---|
+| SRC-080 | `vFirst()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-081 | `ftTalkHtml()` | Component or helper | Defined in source; route check required |
+| SRC-082 | `vAcademy2()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-083 | `vReview2()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-084 | `vSacked()` | Screen/view/overlay candidate | Defined in source; route check required |
+
+### src/ui/10-inbox.js
+
+| Registry ID | Function | Classification | Source status |
+|---|---|---|---|
+| SRC-085 | `markRead()` | Component or helper | Defined in source; route check required |
+| SRC-086 | `inboxItems()` | Component or helper | Defined in source; route check required |
+| SRC-087 | `nextFix()` | Component or helper | Defined in source; route check required |
+| SRC-088 | `backersHtml()` | Component or helper | Defined in source; route check required |
+| SRC-089 | `comingHtml()` | Component or helper | Defined in source; route check required |
+| SRC-090 | `dossierCard()` | Component or helper | Defined in source; route check required |
+| SRC-091 | `archiveHtml()` | Component or helper | Defined in source; route check required |
+| SRC-092 | `pwMeetHtml()` | Component or helper | Defined in source; route check required |
+| SRC-093 | `pwEvalHtml()` | Component or helper | Defined in source; route check required |
+| SRC-094 | `agreementHtml()` | Component or helper | Defined in source; route check required |
+| SRC-095 | `pathwayCard()` | Component or helper | Defined in source; route check required |
+| SRC-096 | `credHtml()` | Component or helper | Defined in source; route check required |
+| SRC-097 | `caseHtml()` | Component or helper | Defined in source; route check required |
+| SRC-098 | `fdHtml()` | Component or helper | Defined in source; route check required |
+| SRC-099 | `isDis()` | Component or helper | Defined in source; route check required |
+| SRC-100 | `rowThumb()` | Component or helper | Defined in source; route check required |
+| SRC-101 | `rowHtml()` | Component or helper | Defined in source; route check required |
+| SRC-102 | `boxRow()` | Component or helper | Defined in source; route check required |
+| SRC-103 | `deskRow()` | Component or helper | Defined in source; route check required |
+| SRC-104 | `deskWeekHeader()` | Component or helper | Defined in source; route check required |
+| SRC-105 | `deskNextMatch()` | Component or helper | Defined in source; route check required |
+| SRC-106 | `deskDecisionCard()` | Component or helper | Defined in source; route check required |
+| SRC-107 | `deskMatters()` | Component or helper | Defined in source; route check required |
+| SRC-108 | `deskArchive()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-109 | `vInbox()` | Screen/view/overlay candidate | Defined in source; route check required |
+
+### src/ui/11-players.js
+
+| Registry ID | Function | Classification | Source status |
+|---|---|---|---|
+| SRC-110 | `strengths()` | Component or helper | Defined in source; route check required |
+| SRC-111 | `roleOf()` | Component or helper | Defined in source; route check required |
+| SRC-112 | `starsTxt()` | Component or helper | Defined in source; route check required |
+| SRC-113 | `pcard()` | Component or helper | Defined in source; route check required |
+| SRC-114 | `hashN()` | Component or helper | Defined in source; route check required |
+| SRC-115 | `storyOf()` | Component or helper | Defined in source; route check required |
+| SRC-116 | `attrGroups()` | Component or helper | Defined in source; route check required |
+| SRC-117 | `formBars()` | Component or helper | Defined in source; route check required |
+| SRC-118 | `profileHtml()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-119 | `scoutLine()` | Component or helper | Defined in source; route check required |
+
+### src/ui/12-scenes-cards.js
+
+| Registry ID | Function | Classification | Source status |
+|---|---|---|---|
+| SRC-120 | `sentEnds()` | Component or helper | Defined in source; route check required |
+| SRC-121 | `clip2()` | Component or helper | Defined in source; route check required |
+| SRC-122 | `splitSay()` | Component or helper | Defined in source; route check required |
+| SRC-123 | `trayHtml()` | Component or helper | Defined in source; route check required |
+| SRC-124 | `choiceHtml()` | Component or helper | Defined in source; route check required |
+| SRC-125 | `ticOf()` | Component or helper | Defined in source; route check required |
+| SRC-126 | `sceneHtml()` | Component or helper | Defined in source; route check required |
+| SRC-127 | `vOpen()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-128 | `cardOpts()` | Component or helper | Defined in source; route check required |
+| SRC-129 | `oppShort()` | Component or helper | Defined in source; route check required |
+| SRC-130 | `fstrip()` | Component or helper | Defined in source; route check required |
+| SRC-131 | `previewCard()` | Component or helper | Defined in source; route check required |
+| SRC-132 | `whyPanel()` | Component or helper | Defined in source; route check required |
+| SRC-133 | `matchCard()` | Component or helper | Defined in source; route check required |
+| SRC-134 | `weekReport()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-135 | `msStrip()` | Component or helper | Defined in source; route check required |
+| SRC-136 | `gazette()` | Screen/view/overlay candidate | Defined in source; route check required |
+
+### src/ui/13-redbox-render.js
+
+| Registry ID | Function | Classification | Source status |
+|---|---|---|---|
+| SRC-137 | `mailParas()` | Component or helper | Defined in source; route check required |
+| SRC-138 | `mailTop()` | Component or helper | Defined in source; route check required |
+| SRC-139 | `mailRows()` | Component or helper | Defined in source; route check required |
+| SRC-140 | `mailBanner()` | Component or helper | Defined in source; route check required |
+| SRC-141 | `mailReply()` | Component or helper | Defined in source; route check required |
+| SRC-142 | `mailSent()` | Component or helper | Defined in source; route check required |
+| SRC-143 | `bkStrip()` | Component or helper | Defined in source; route check required |
+| SRC-144 | `msgHtml()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-145 | `briefHtml()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-146 | `mailCommit()` | Component or helper | Defined in source; route check required |
+| SRC-147 | `big()` | Component or helper | Defined in source; route check required |
+| SRC-148 | `mailSend()` | Component or helper | Defined in source; route check required |
+| SRC-149 | `propHtml()` | Component or helper | Defined in source; route check required |
+| SRC-150 | `tourCard()` | Component or helper | Defined in source; route check required |
+| SRC-151 | `tabBadge()` | Component or helper | Defined in source; route check required |
+| SRC-152 | `vBar()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-153 | `advance()` | Component or helper | Defined in source; route check required |
+| SRC-154 | `markFresh()` | Component or helper | Defined in source; route check required |
+| SRC-155 | `render()` | Screen/view/overlay candidate | Defined in source; route check required |
+
+### src/ui/14-matchday-gazette.js
+
+| Registry ID | Function | Classification | Source status |
+|---|---|---|---|
+| SRC-156 | `mdStadium()` | Component or helper | Defined in source; route check required |
+| SRC-157 | `mdPitch()` | Component or helper | Defined in source; route check required |
+| SRC-158 | `mdPreview()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-159 | `mdTeams()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-160 | `mdMatch()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-161 | `gzEdition()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-162 | `mdPaper()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-163 | `vMatchday()` | Screen/view/overlay candidate | Defined in source; route check required |
+| SRC-164 | `mdKick()` | Screen/view/overlay candidate | Defined in source; route check required |
+
+### src/ui/15-actions.js
+
+| Registry ID | Function | Classification | Source status |
+|---|---|---|---|
+| SRC-165 | `readSetup()` | Component or helper | Defined in source; route check required |
+| SRC-166 | `act()` | Component or helper | Defined in source; route check required |
+
+### src/ui/16-boot.js
+
+| Registry ID | Function | Classification | Source status |
+|---|---|---|---|
+

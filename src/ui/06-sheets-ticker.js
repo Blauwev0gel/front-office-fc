@@ -102,9 +102,9 @@ function vSheet() {
     <p class="small" style="margin-top:8px">Week 1 skips the summer window, pre-season and the first press day: your staff handle them.</p>`;
   }
   if (s.t === 'backers') {
-    const B = F.backers(), D = { board: 'Owns your contract. Results against the target, money and promises.', fans: 'Results, ticket prices, community and respect for the club\'s identity.', press: 'Stories, access and how you handle scandals.', room: 'Morale of the first-team squad: playing time, bonuses, the coach.' };
-    h = `<div class="spread"><div><div class="kick">Four groups hold your fate</div><h2>Your backers</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>
-    <p class="small">Let one fall below ${F.VOTE_AT} and you face a vote of confidence. Survive it and you get one more chance this season, not two.</p>
+    const B = F.backers(), D = { board: 'Your employer: judges results against targets, finances and promises.', fans: 'Supporters respond to results, ticket prices, community and club identity.', room: 'Squad morale: playing time, bonuses, results and the coach.' };
+    h = `<div class="spread"><div><div class="kick">Three groups shape your future</div><h2>Your backers</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>
+    <p class="small">Board, supporters and dressing room can trigger a crisis below ${F.VOTE_AT}. Press coverage still shapes stories and reactions, but cannot independently dismiss you. Delegating within a mandate is not a reputation penalty.</p>
     ${B.map(b => `<div class="bkrow ${b.danger ? 'lo' : ''}"><div class="spread"><b>${ART.I[b.ic] || ''} ${esc(b.t)}</b><span class="num">${b.v}${b.d ? ` <small class="${b.d > 0 ? 'good' : 'bad'}">${b.d > 0 ? '+' : ''}${b.d} this week</small>` : ''}</span></div><em><u style="width:${b.v}%"></u></em><p><i>${esc(b.voice)}</i> ${esc(D[b.k])}</p></div>`).join('')}`;
   }
   if (s.t === 'analysis') {

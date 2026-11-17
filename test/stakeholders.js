@@ -13,7 +13,7 @@ F.finishStaff();F.finishMandates();if(F.G.phase==='summer')F.sumAuto(F.rnd,true)
 F.preSetTarget('accept');F.finishPreseason();for(const id of F.G.press)F.pressAnswer(id,1);F.finishPress();
 assert.equal(F.G.phase,'season');
 assert.deepEqual(Array.from(F.backers(),x=>x.k),['board','fans','room']);
-const before=F.backers().map(x=>x.v);
+const before=Array.from(F.backers(),x=>x.v);
 F.G.st.press=0;assert.deepEqual(Array.from(F.backers(),x=>x.v),before,'press should not be a fourth stakeholder score');
 assert(!F.G.queue.some(x=>x.ev==='vote_press'),'press cannot trigger a new dismissal vote');
 // The ledger records actual changes, with provenance, and survives save/load.

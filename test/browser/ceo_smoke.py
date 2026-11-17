@@ -56,9 +56,9 @@ async def main():
         await page.reload()
         await page.locator('[data-a=continue]').click()
         assert await page.evaluate("FO.G.phase") == "summer"
-        print("WINTER DEBUG", await page.evaluate("""() => ({text: document.body.innerText.slice(0,700), html: document.querySelector('#app')?.innerHTML.slice(0,450), titleButtons: [...document.querySelectorAll('button')].map(x=>[x.dataset.a,x.innerText.slice(0,60)])})"""), "pageErrors", errors, flush=True)
-        assert await page.locator(".steps").count() > 0, "Winter meeting progress/navigation is missing"
-        assert "Winter meeting" in await page.locator("body").inner_text(), "Winter meeting is not rendered"
+        winter_text = await page.locator("#app").inner_text()
+        assert "Winter window" in winter_text and "Your response" in winter_text, "The interactive winter meeting is not rendered"
+        assert await page.locator('[data-a="mt-ans"]').count() > 0, "Winter meeting has no response actions"
         for theme in ["light", "dark"]:
             await page.evaluate("(theme) => {document.documentElement.dataset.theme=theme;}", theme)
             await check("winter-" + theme)
@@ -73,8 +73,9 @@ async def main():
         await page.reload()
         await page.locator('[data-a=continue]').click()
         assert await page.evaluate("FO.G.phase") == "summer"
-        assert await page.locator(".steps").count() > 0, "Summer meeting progress/navigation is missing"
-        assert "Summer meeting" in await page.locator("body").inner_text(), "Summer meeting is not rendered"
+        summer_text = await page.locator("#app").inner_text()
+        assert "The summer" in summer_text and "Your response" in summer_text, "The interactive summer meeting is not rendered"
+        assert await page.locator('[data-a="mt-ans"]').count() > 0, "Summer meeting has no response actions"
         for theme in ["light", "dark"]:
             await page.evaluate("(theme) => {document.documentElement.dataset.theme=theme;}", theme)
             await check("summer-" + theme)

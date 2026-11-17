@@ -105,6 +105,9 @@ Het gewicht bepaalt ook hoe lang een regel blijft staan.
 - bij elf namen per club is variatie per seizoen nodig.
 
 ## Deel 3: het scherm (zie het prototype)
+
+*Versie 2 (feedback eigenaar): teletekst- en CM-stijl, elk paneel op een vaste plek met een vaste hoogte (gemeten: geen enkel paneel verschuift tijdens of na de wedstrijd), en een livescore-lijst met de thuisploeg links en de uitploeg rechts. Wat hieronder over kaarten en kleuren van het spel staat, geldt voor versie 1.*
+
 - **Bovenaan, vast:** de stand, de klok en een voortgangsbalk.
 - **Zonebalk** met vijf vakken (zestien, eigen helft, midden, hun helft, hun zestien) en een bal die naar de plek van de laatste gebeurtenis gaat, plus wie aanvalt. **Het veld met 22 stippen verdwijnt:** het liet posities zien die niet bestonden.
 - **Momentum uit wat er gebeurde** (goal, grote kans, schot, rustig stuk), met verval per minuut.

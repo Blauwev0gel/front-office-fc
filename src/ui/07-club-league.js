@@ -68,18 +68,50 @@ function vClub2() {
   </details>`;
 }
 function vLeague2() {
-  const g = G(), t = U.lt || g.club.tier, tab = F.sortTable(t), dv = g.divs[t], full = U.lfull;
-  const nf = t === g.club.tier ? nextFix() : null;
-  const dot = id => { const PALS = [['#1d4ed8', '#fff'], ['#b91c1c', '#fff'], ['#15803d', '#fde047'], ['#111', '#fff'], ['#f59e0b', '#111'], ['#7c3aed', '#fff'], ['#0e7490', '#fff'], ['#be185d', '#fff'], ['#854d0e', '#fde68a'], ['#475569', '#f1f5f9']]; const cl = id === 0 ? g.club.colors : PALS[(id * 7 + 3) % PALS.length]; return `<i class="cdot" style="background:${cl[0]};box-shadow:inset 0 -4px 0 ${cl[1]}"></i>`; };
-  const mine = t === g.club.tier, rank = mine ? tab.indexOf(0) + 1 : null, our = mine ? dv.tab[0] : null;
-  const leaguePulse = mine ? `<section class="ceo-league-pulse" aria-label="League position"><h2>League overview</h2>
-    <div class="ceo-metrics"><span><b>${F.ord(rank)}</b> position</span><span><b>${our.pts}</b> points</span><span><b>${our.p}</b> played</span><span><b>${F.ord(F.analysis().target)}</b> target</span></div>
-    <p class="small">Results and expectations belong here. Staff decisions belong in Departments.</p></section>` : '';
-  return `${tourCard('league')}${leaguePulse}<div class="tierstep"><button class="iconbtn" data-a="lt" data-t="${Math.max(1, t - 1)}" ${t === 1 ? 'disabled' : ''} aria-label="Higher division">${ART.I.up}</button><div><b>${F.TIERS[t]}</b><small>Tier ${t} of 8</small></div><button class="iconbtn" data-a="lt" data-t="${Math.min(8, t + 1)}" ${t === 8 ? 'disabled' : ''} aria-label="Lower division">${ART.I.down}</button></div>
-  ${nf ? `<div class="nextfix"><small>Next match</small><b>${nf.home ? 'vs' : 'at'} ${esc(nf.name)}</b><span>${F.ord(nf.pos)} in the table</span></div>` : ''}
-  ${t === g.club.tier && g.form.length ? `<div class="formrow">${g.form.slice(-8).map(r => `<i class="f${r}">${r}</i>`).join('')}</div>` : ''}
-  <div class="ltab ${full ? 'full' : ''}"><div class="lr lh"><span>#</span><span>Club</span><span>P</span>${full ? '<span>W</span><span>D</span><span>L</span>' : ''}<span>GD</span><span>Pts</span></div>
-  ${tab.map((id, i) => { const r = dv.tab[id]; return `<div class="lr ${id === 0 ? 'me' : ''} ${i < 3 && t > 1 ? 'up' : ''} ${i >= 15 && t < 8 ? 'dn' : ''}"><span>${i + 1}</span><span class="cn">${dot(id)}${esc(F.cname(id))}</span><span>${r.p}</span>${full ? `<span>${r.w}</span><span>${r.d}</span><span>${r.l}</span>` : ''}<span>${r.gf - r.ga > 0 ? '+' : ''}${r.gf - r.ga}</span><b>${r.pts}</b></div>`; }).join('')}</div>
-  <div class="spread" style="margin-top:6px"><span class="small">${t > 1 ? 'Top 3 go up' : 'Top 3 win honours'}${t < 8 ? ', bottom 3 go down' : ''}.</span><button class="linkbtn" data-a="lfull" style="margin:0">${full ? 'Short table' : 'Full table'}</button></div>
-  ${t === g.club.tier ? `<div class="sec">National Cup</div><div class="planboard">${g.cup.log.length ? g.cup.log.map(l => `<div class="pl ${l.win ? 'done' : 'open'}"><i class="dot"></i>${cap(l.rd)}: ${esc(l.opp)}<span>${esc(l.s)}</span></div>`).join('') : '<div class="pl open"><i class="dot"></i>First round<span>week 5</span></div>'}</div>` : ''}`;
+  const g = G(), t = U.lt || g.club.tier, ids = F.sortTable(t), dv = g.divs[t], full = !!U.lfull;
+  const mine = t === g.club.tier, rank = mine ? ids.indexOf(0) + 1 : null, our = mine ? dv.tab[0] : null;
+  const nf = mine ? nextFix() : null;
+  const cup = g.cup && g.cup.log || [];
+  const rows = ids.map((id,i) => {
+    const r = dv.tab[id], gd = r.gf-r.ga, own = id === 0 && mine;
+    const cls = own ? 'own' : i < 3 && t > 1 ? 'promote' : i >= ids.length-3 && t < 8 ? 'relegate' : '';
+    return `<tr class="${cls}"><td>${i+1}</td><td class="club">${esc(F.cname(id))}${own ? '<small> YOUR CLUB</small>' : ''}</td>
+      <td>${r.p}</td>${full ? `<td>${r.w}</td><td>${r.d}</td><td>${r.l}</td>` : ''}
+      <td>${gd > 0 ? '+' : ''}${gd}</td><td class="points">${r.pts}</td></tr>`;
+  }).join('');
+  return `${tourCard('league')}
+    <section class="fo-competition-head">
+      <div class="fo-sectionline"><h2>League table</h2><span>SEASON ${g.season}</span></div>
+      <div class="fo-division-switch">
+        <button data-a="lt" data-t="${Math.max(1,t-1)}" ${t===1?'disabled':''} aria-label="Higher division">Higher</button>
+        <b>${esc(F.TIERS[t])}</b>
+        <button data-a="lt" data-t="${Math.min(8,t+1)}" ${t===8?'disabled':''} aria-label="Lower division">Lower</button>
+      </div>
+      ${mine ? `<div class="fo-league-standing">
+        <span><b>${F.ord(rank)}</b><small>Position</small></span>
+        <span><b>${our.pts}</b><small>Points</small></span>
+        <span><b>${our.p}</b><small>Played</small></span>
+        <span><b>${F.ord(F.analysis().target)}</b><small>Target</small></span>
+      </div>` : ''}
+      <p class="small">${t>1?'Top three promoted':'Top three contest the honours'}${t<8?', bottom three relegated':''}.</p>
+    </section>
+    ${nf ? `<section class="fo-fixture-callout"><span>NEXT FIXTURE</span>
+       <b>${nf.home?'Home vs':'Away at'} ${esc(nf.name)}</b>
+       <small>Opposition rank: ${F.ord(nf.pos)} · Week ${g.week}</small>
+       <button data-a="tab" data-t="inbox">Return to desk for matchday</button>
+    </section>` : ''}
+    ${mine && g.form.length ? `<div class="fo-form"><b>LAST RESULTS</b>
+      ${g.form.slice(-8).map(r=>`<span class="form-${r}">${r}</span>`).join('')}</div>` : ''}
+    <section class="fo-league-section">
+      <div class="fo-sectionline"><h2>Standings</h2>
+        <button class="fo-text-toggle" data-a="lfull">${full?'Simple table':'Full statistics'}</button></div>
+      <div class="fo-table-scroll"><table class="fo-table ${full?'expanded':''}">
+        <thead><tr><th>#</th><th>Club</th><th>P</th>${full?'<th>W</th><th>D</th><th>L</th>':''}<th>GD</th><th>Pts</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
+    </section>
+    ${mine ? `<section class="fo-league-section"><div class="fo-sectionline"><h2>National Cup</h2><span>THIS SEASON</span></div>
+      ${cup.length ? cup.map(x=>`<div class="fo-goal"><span>${esc(cap(x.rd))} · ${esc(x.opp)}</span>
+        <b class="${x.win?'good':'bad'}">${esc(x.s)}</b></div>`).join('') :
+        '<p class="small">The first cup round is scheduled for week 5.</p>'}</section>` : ''}
+  `;
 }

@@ -75,7 +75,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `engine/14-save-api.js` | 2 KB | save |  | acadMigrate, recMigrate | ap, later, v |
 | `events.js` | 70 KB | event library (module 1) Each event: from (role/board/fans/press), dept, cd (cooldown weeks), cond, w (weight) |  |  | academy, freezePrev |
 | `events2.js` | 31 KB | desk 2.0 configuration, proposals and storylines (1.2) |  |  |  |
-| `events3.js` | 13 KB | event library (module 1, part 3) Two kinds of event that make a long career feel different from a short one: - |  |  |  |
+| `events3.js` | 18 KB | event library (module 1, part 3) Two kinds of event that make a long career feel different from a short one: - |  |  |  |
 | `briefs.js` | 20 KB | weekly briefings (1.5) Short, state-driven updates and conversations |  |  | dofPrio, dofPrioAt, wageFreezePrev |
 | `academy.js` | 14 KB | youth academy, module 2 part 1 Age groups, academy staff, development model, education and welfare, pathway | acadMigrate, acadInit, acadCost, acadWeekly, acadIntake, acadSeason |  | acad, academy |
 | `academy2.js` | 28 KB | youth academy, module 2 part 2 Category & audit, poaching and tribunals, youth competitions, ROI, academy desk | acadWeekly, acadSeason, acadIncome, acadSale, objMet |  | academy, squad |
@@ -92,7 +92,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `business.js` | 7 KB | Business department A season budget per department (lean, normal, invest) against what the club can afford, a  | costDisc |  | biz, deptB |
 | `academy3.js` | 5 KB | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid  | acadIntake, seasonAfterMatch |  | acadX, academy |
 | `recruitx.js` | 25 KB | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re | seasonAfterMatch, recWeekly, seasonWeekly, summerStart | recMigrate | recX |
-| `world.js` | 16 KB | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store |  |  | world |
+| `world.js` | 18 KB | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store | seasonWeekly |  | world |
 | `turnaround.js` | 7 KB | the turnaround (B37, B44) When it goes properly wrong, the board asks what the CEO intends to do | ftExtra, seasonWeekly |  | turn, turnLast, turnAsk |
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 18 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
@@ -173,7 +173,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: g, P, sq, fx, avgW, wageLim, R, stand, regionPick, rankWith, homeGate, pay
 
 ### `events3.js`
-- Functions: g, P, sq, fx, rel
+- Functions: g, P, sq, fx, rel, flagsN, tg
 
 ### `briefs.js`
 - Functions: g, sq, rel, boost, fx, avg, inWindowSoon
@@ -238,8 +238,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: squadPlanScoutJob, squadPlanAllows, squadPlanPrepare, squadPlanView, squadPlanAsk, recPlanSuggest, squadPlanDelivered, rxView, rxFocus, rxInvest
 
 ### `world.js`
-- Functions: g, hstr, mk, WS, LGDEF, leagueName, clubsOf, lineage, build, attrsAt, season, market, record, ours, leaguePlayers, worldLeagues, worldLeague, worldPlayer, worldRemove, WX, aw, worldSlots, worldMeta, snapOf, worldFlag, worldUnflag, worldTargetState, worldTarget, worldSigned, worldConfirm, worldBets, worldFlagged
-- Exports on `F`: worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN, worldSlots, worldMeta, worldFlag, worldUnflag, worldConfirm, worldFlagged, worldTarget, worldTargetState, worldSigned, worldBets
+- Functions: g, hstr, mk, WS, LGDEF, leagueName, clubsOf, lineage, build, attrsAt, season, market, record, ours, leaguePlayers, worldLeagues, worldLeague, worldPlayer, worldRemove, WX, aw, worldSlots, worldMeta, snapOf, worldFlag, worldUnflag, worldTargetState, worldTarget, worldSigned, worldConfirm, headOf, worldBetCheck, worldBets, worldFlagged
+- Exports on `F`: worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN, worldSlots, worldMeta, worldFlag, worldUnflag, worldConfirm, worldFlagged, worldTarget, worldTargetState, worldSigned, worldBets, worldBetCheck
 
 ### `turnaround.js`
 - Functions: g, abs, fx, ord, lossesLast5, ppg, snap, trouble, start, edge, STATE

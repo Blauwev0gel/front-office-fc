@@ -128,7 +128,17 @@ function worldTarget(key) {
 function worldSigned(key, p) { const f = WX().flags[key]; if (f) f.signed = { s: g().season, w: g().week, ca: +p.ca.toFixed(1), name: p.name, pid: p.id }; worldRemove(key); }
 function worldConfirm(key) { const w = WX(), s = worldSlots(); if (w.know[key]) return { err: 'The scouts have already been asked.' }; if (s.left < 1) return { err: 'No scout is free this week.' }; w.know[key] = { at: aw() }; w.used = (w.used || 0) + 1; const t = w.flags[key] && w.flags[key].target; if (t && F.recMoreReport) F.recMoreReport(t); return { ok: true }; }
 // the bets: every flag with its snapshot, and how he looks now (as our player if we signed him). A bet settles once a season has passed.
+// does the player look the way the flag said, a season later? true / false, or null when there is no test (yet)
+const headOf = (pos, st, truth) => { const rate = !(pos === 'ST' || pos === 'W' || pos === 'CM' || pos === 'AM'); return { rate, H: pos === 'ST' ? st.g : pos === 'W' ? st.g + st.a : (pos === 'CM' || pos === 'AM') ? st.a : (st.apps ? st.rat / st.apps : 0), E: truth ? (pos === 'ST' ? truth.xgT : pos === 'W' ? truth.xgT + truth.xaT : truth.xaT) : 0 }; };
+function worldBetCheck(b) { const t = b.snap, n = b.now; if (!n || !b.ready || !b.hyp || b.hyp === 'Other') return null;
+  const hT = headOf(t.pos, t.st, t.truth), hN = headOf(n.pos, n.st, null), up = hT.rate ? .15 : Math.max(1, (hT.E || 0) * .15), d = hN.H - hT.H;
+  const ok = { 'Unlucky finisher': d >= up, 'Lucky season': d <= -up, 'Late bloomer': n.ca - t.ca >= .5, 'Contract run-down': !!b.signed || n.ask < t.ask * .9 }[b.hyp];
+  return ok === undefined ? null : ok; }
 function worldBets() { const w = WX(); return Object.keys(w.flags).map(key => { const f = w.flags[key]; if (!f.snap) return null; const now = f.signed ? worldPlayer('me|' + f.signed.pid) : worldPlayer(key); return { key, hyp: f.hyp || null, snap: f.snap, signed: f.signed || null, target: f.target || null, now, ready: g().season > f.snap.s }; }).filter(Boolean); }
 function worldFlagged() { return Object.keys(WX().flags).map(key => ({ key, ...WX().flags[key] })); }
-Object.assign(F, { worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN: PLAN, worldSlots, worldMeta, worldFlag, worldUnflag, worldConfirm, worldFlagged, worldTarget, worldTargetState, worldSigned, worldBets });
+Object.assign(F, { worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN: PLAN, worldSlots, worldMeta, worldFlag, worldUnflag, worldConfirm, worldFlagged, worldTarget, worldTargetState, worldSigned, worldBets, worldBetCheck });
+// a bet settles at the start of a season: one at a time, so it never becomes a list
+{ const prevW = F.HOOK.seasonWeekly; F.HOOK.seasonWeekly = () => { if (prevW) prevW(); const G = g(), staff = F.staff;
+  if (G.phase === 'season' && G.week === 3 && F.worldBets && staff('scout')) { const b = F.worldBets().find(x => x.ready && x.now && x.hyp && x.hyp !== 'Other' && !(G.world.flags[x.key] || {}).told);
+    if (b) { G.world.flags[b.key].told = G.season; const r = F.worldBetCheck(b); if (r !== null) F.queueEvent('pl_bet_settled', { key: b.key, name: b.snap.name, hyp: b.hyp, held: r, signed: !!b.signed }); } } }; }
 })(FO);

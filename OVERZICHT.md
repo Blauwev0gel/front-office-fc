@@ -133,10 +133,10 @@ evolueren (`str` trekt naar het divisiegemiddelde plus hun coach, B37); spelers 
 |---|---|---|---|
 | `seasonAfterMatch` | na elke eigen wedstrijd (veel modules: tevredenheid, doelen, gesprekken, verhaallijnen) | `season.js`, `firstteam.js`, `depts.js`, `levers.js`, `commercial.js`, `academy3.js`, `recruitx.js`, `desk.js`, `talks.js`, `weekflow.js`, `loop.js`, `dossiers.js`, `pathway.js` | `engine/12-week.js` |
 | `ftExtra` | extra teamsterkte in punten (pushes, analist, voorseizoen, step-up straf, turnaround) | `firstteam.js`, `depts.js`, `levers.js`, `turnaround.js` | `engine/05-world-selection.js` |
+| `seasonWeekly` | eenmaal per week aan het einde van de weeklus, voor de nieuwe berichten | `season.js`, `recruitx.js`, `world.js`, `turnaround.js` | `engine/12-week.js` |
 | `summerStart` | start van de zomer (ketting: season, summer, summer2) | `summer.js`, `season.js`, `summer2.js`, `recruitx.js` | `engine/10-season.js`, `engine/13-newgame-preseason.js` |
 | `deptCost` | wekelijkse kosten per afdeling | `depts.js`, `commercial.js`, `marketing.js` | `engine/07-finance-transfers.js`, `levers.js`, `ui/07-club-league.js` |
 | `effBonus` | extra effectiviteit van een staflid (afdelingsperks, desk) | `depts.js`, `levers.js`, `desk.js` | `engine/04-staff-dna.js` |
-| `seasonWeekly` | eenmaal per week aan het einde van de weeklus, voor de nieuwe berichten | `season.js`, `recruitx.js`, `turnaround.js` | `engine/12-week.js` |
 | `acadIntake` | jaarlijkse instroom van de academie (week 28) | `academy.js`, `academy3.js` | `engine/12-week.js` |
 | `acadSeason` | academie aan het seizoenseinde | `academy.js`, `academy2.js` | `engine/10-season.js` |
 | `acadWeekly` | wekelijkse academie (ontwikkeling, welzijn, competitie) | `academy.js`, `academy2.js` | `engine/12-week.js` |
@@ -584,7 +584,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 ## Bijlage: alle bronbestanden
 
 <!-- generated:files:start -->
-62 bronbestanden, samen ongeveer 1000 KB.
+62 bronbestanden, samen ongeveer 1007 KB.
 
 | Bestand | KB | Doel |
 |---|---|---|
@@ -604,7 +604,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `engine/14-save-api.js` | 2 | save |
 | `events.js` | 70 | event library (module 1) Each event: from (role/board/fans/press), dept, cd (cooldown weeks), cond, w (weight) |
 | `events2.js` | 31 | desk 2.0 configuration, proposals and storylines (1.2) |
-| `events3.js` | 13 | event library (module 1, part 3) Two kinds of event that make a long career feel different from a short one: - |
+| `events3.js` | 18 | event library (module 1, part 3) Two kinds of event that make a long career feel different from a short one: - |
 | `briefs.js` | 20 | weekly briefings (1.5) Short, state-driven updates and conversations |
 | `academy.js` | 14 | youth academy, module 2 part 1 Age groups, academy staff, development model, education and welfare, pathway |
 | `academy2.js` | 28 | youth academy, module 2 part 2 Category & audit, poaching and tribunals, youth competitions, ROI, academy desk |
@@ -621,7 +621,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `business.js` | 7 | Business department A season budget per department (lean, normal, invest) against what the club can afford, a |
 | `academy3.js` | 5 | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid |
 | `recruitx.js` | 25 | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re |
-| `world.js` | 16 | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store |
+| `world.js` | 18 | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store |
 | `turnaround.js` | 7 | the turnaround (B37, B44) When it goes properly wrong, the board asks what the CEO intends to do |
 | `matchtalk.js` | 8 | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f |
 | `desk.js` | 18 | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head |

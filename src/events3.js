@@ -109,4 +109,41 @@ E('top_poached', { from: 'board', dept: 'first team', cd: 100, why: 'A bigger cl
     { l: 'Let him talk to them', h: 'Free · trust ↓ · focus ↓ for a while', f: () => { const s = staff('coach'); if (!s) return 'There is no coach.'; rel('coach', -8); s.boost = clamp(s.boost - 3, -10, 12); s.boostW = 6; return `${s.name} takes the call in the car park, where everyone can see him.`; } },
     { l: 'Refuse permission', h: 'Free · trust ↓ a lot', f: () => { const s = staff('coach'); if (!s) return 'There is no coach.'; rel('coach', -12); return `${s.name} accepts the decision. He also accepts that it has been noted.`; } }],
   auto: () => 0 });
+
+/* ---------- the scouting portal talks back (B47) ---------- */
+// Three moments around the portal: a scout's hunch about a player you have not flagged, an agent who calls about a player you did,
+// and the day a bet is settled. They only exist when the portal has been used or there is a scout, and none of them judges the player.
+const flagsN = () => F.worldFlagged ? F.worldFlagged().length : 0;
+const tg = key => { const ts = F.worldTargetState && F.worldTargetState(key); return ts && !['lost', 'gone'].includes(ts.stage); };
+E('pl_hunch', { from: 'scout', dept: 'scouting', cd: 16, why: 'A scout has seen something in the numbers.',
+  cond: () => !!F.worldLeague && !!staff('scout') && g().phase === 'season' && g().week >= 3 && g().week <= 30 && flagsN() < 5,
+  w: () => 1.1,
+  setup: () => { const t = g().club.tier, L = F.worldLeague('d' + t).players.filter(p => !p.ours && p.age <= 30 && p.st.mins >= 1500 && !F.worldMeta(p.key).fl && (p.z <= -1.2 || (p.age <= 22 && p.pa - p.ca >= 2))); if (!L.length) return null;
+    const p = pick(L), late = p.z > -1.2; return { key: p.key, name: p.name, pos: p.pos, age: p.age, club: p.club, ask: p.ask, hyp: late ? 'Late bloomer' : 'Unlucky finisher' }; },
+  title: c => `${staff('scout') ? staff('scout').name.split(' ')[0] : 'The scout'} has a hunch about ${c.name}`,
+  body: c => c.hyp === 'Late bloomer' ? `"${c.name}, ${c.age}, ${c.pos} at ${c.club}. Young, and the ceiling looks higher than the price. I would not wait a year." He does not say it is a certainty. He never does.` : `"${c.name}, ${c.pos} at ${c.club}. The chances are there, the numbers are not. I think the season has been unkind to him." He leaves the printout on your desk.`,
+  opts: [
+    { l: 'Flag him with that reason', h: 'Your bet · see it in Bets after the season', f: c => { F.worldFlag(c.key, c.hyp); rel('scout', 3); return `${c.name} is flagged as "${c.hyp}". It is your bet now.`; } },
+    { l: 'Flag him and have the scouts check', h: 'Uses a scout slot this week', f: c => { F.worldFlag(c.key, c.hyp); rel('scout', 4); const r = F.worldConfirm(c.key); return r.err ? `${c.name} is flagged. ${r.err}` : `${c.name} is flagged and the scouts are on it. A report next week.`; } },
+    { l: 'Not interested', h: 'Free · the scout notes it', f: () => { rel('scout', -2); return 'He nods and takes the printout back.'; } }],
+  auto: () => 2 });
+E('pl_agent', { from: 'dof', dept: 'sporting', cd: 22, why: 'An agent has heard you are interested.',
+  cond: () => !!staff('dof') && g().phase === 'season' && g().week >= 2 && g().week <= 30 && F.worldFlagged && F.worldFlagged().some(f => !tg(f.key) && !f.signed),
+  setup: () => { const f = F.worldFlagged().filter(f => !tg(f.key) && !f.signed && F.worldPlayer(f.key)); if (!f.length) return null; const x = pick(f), p = F.worldPlayer(x.key); return { key: x.key, name: p.name, pos: p.pos, age: p.age, club: p.club, ask: p.ask }; },
+  title: c => `An agent calls about ${c.name}`,
+  body: c => `${staff('dof') ? staff('dof').name.split(' ')[0] : 'The DoF'}: "Word travels. ${c.name}'s agent knows we looked. He says the player would listen, and that two other clubs are asking too." The asking price is ${money(c.ask)}.`,
+  opts: [
+    { l: 'Make him a target', h: 'He goes on the DoF\'s list · mandates apply', f: c => { const r = F.worldTarget(c.key); return r.err ? r.err : `${c.name} is on the DoF's list. The agent says he will tell the other clubs nothing. He will tell them everything.`; } },
+    { l: 'Tell the agent to wait', h: 'Free · the interest may cool', f: () => { rel('dof', 1); return 'The DoF says "we will be in touch". The agent hears "no".'; } },
+    { l: 'Drop him from the flags', h: 'Your read is closed', f: c => { F.worldUnflag(c.key); return `${c.name} is off the flag list.`; } }],
+  auto: () => 1 });
+E('pl_bet_settled', { forced: 1, from: 'scout', dept: 'scouting', cd: 6, why: 'A bet you made has been settled by a season of play.',
+  setup: () => null,
+  title: c => `Your read on ${c.name}: ${c.held ? 'it held up' : 'it did not hold up'}`,
+  body: c => `${staff('scout') ? staff('scout').name.split(' ')[0] : 'The scout'} went back over ${c.name}. You flagged him as "${c.hyp}". ${c.held ? 'A season later the numbers moved the way you said.' : 'A season later the numbers moved the other way.'}${c.signed ? ' He is one of ours now.' : ''}`,
+  opts: [
+    { l: c => c.held && !c.signed ? 'Make him a target' : 'Note it', h: c => c.held && !c.signed ? 'He goes on the DoF\'s list' : 'Free', f: c => { rel('scout', 2); if (c.held && !c.signed && F.worldTarget) { const r = F.worldTarget(c.key); if (!r.err) return `${c.name} is on the DoF's list.`; } return 'Noted.'; } },
+    { l: c => c.held ? 'Credit the scouts' : 'Ask what we missed', h: c => c.held ? 'Scout trust ↑' : 'A short sample, probably', f: c => { rel('scout', c.held ? 4 : 1); return c.held ? 'The scout says it was your read. It was a bit of both.' : 'He admits the sample was short. You both write it down.'; } },
+    { l: 'Move on', h: 'Free', f: () => 'The file is closed.' }],
+  auto: () => 2 });
 })(FO);

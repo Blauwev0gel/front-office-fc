@@ -20,7 +20,7 @@ const LIM = { coach: 900, dof: 1500, acad: 900, com: 2200, mkt: 900, fin: 1600 }
 const LIMF = [0.4, 1, 2.5];
 
 // always the CEO's call
-const CORE = new Set(['squad_plan_policy', 'coach_authority', 'coach_poached', 'coach_dof_clash', 'com_mkt_clash', 'grad_minutes', 'style_drift', 'naming_rights', 'rebrand', 'documentary', 'cash_crisis', 'fin_alarm', 'wage_cap', 'stand_objection', 'exception_review', 'rec_exception', 'dof_rule', 'star_unrest', 'acad_welfare', 'clash_tour', 'clash_budget', 'clash_prospect', 'clash_event']);
+const CORE = new Set(['pl_hunch', 'pl_bet_settled', 'pl_agent', 'squad_plan_policy', 'coach_authority', 'coach_poached', 'coach_dof_clash', 'com_mkt_clash', 'grad_minutes', 'style_drift', 'naming_rights', 'rebrand', 'documentary', 'cash_crisis', 'fin_alarm', 'wage_cap', 'stand_objection', 'exception_review', 'rec_exception', 'dof_rule', 'star_unrest', 'acad_welfare', 'clash_tour', 'clash_budget', 'clash_prospect', 'clash_event']);
 const CLASH = new Set(['coach_dof_clash', 'com_mkt_clash', 'grad_minutes', 'clash_tour', 'clash_budget', 'clash_prospect', 'clash_event']);
 // core, unless a strong head has a free hand: exceptions to his own rules
 const SOFT = new Set(['wage_cap', 'star_unrest', 'exception_review', 'rec_exception', 'dof_rule', 'acad_welfare', 'style_drift']);

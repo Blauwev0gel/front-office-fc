@@ -125,10 +125,7 @@ function plTarget(p, m) { if (p.ours || !m.fl) return ''; const ts = F.worldTarg
   if (live) return `<p class="pl-note"><b>On the DoF's list:</b> ${PL_TSTAGE[ts.stage] || ts.stage}. ${ts.blocked ? `He is stuck on: ${esc(ts.blocked.join(', '))}. Change the DoF's mandate to let him through.` : ts.note ? esc(ts.note) + '.' : 'Mandates and the approval line apply as usual.'}</p>`;
   return `${ts ? '<p class="pl-note">The last attempt fell through.</p>' : ''}<button class="btn wide" data-a="pl" data-do="target" data-x="${esc(p.key)}">Make him a target for the DoF</button>`; }
 // the bets: what you flagged, what you believed, and how he looks a season later. The portal reports; it does not judge the player (B40).
-function plBetCheck(b) { const t = b.snap, n = b.now; if (!n || !b.ready || !b.hyp || b.hyp === 'Other') return null;
-  const hT = plHead({ pos: t.pos, st: t.st, truth: t.truth || {}, ca: t.ca }), hN = plHead({ pos: n.pos, st: n.st, truth: {}, ca: n.ca }), rate = hT.label === 'Rating', up = rate ? .15 : Math.max(1, (hT.E || 0) * .15), d = hN.H - hT.H;
-  const ok = { 'Unlucky finisher': d >= up, 'Lucky season': d <= -up, 'Late bloomer': n.ca - t.ca >= .5, 'Contract run-down': !!b.signed || n.ask < t.ask * .9 }[b.hyp];
-  return ok === undefined ? null : ok; }
+const plBetCheck = b => F.worldBetCheck(b);
 function plBets() { const L = F.worldBets(); if (!L.length) return `<div class="pl-c1"><h3>No bets yet</h3><p>Flag a player with a reason. After a season you see here whether your read held up.</p></div>`;
   const avg = F.tierAvg(G().club.tier), chk = L.map(plBetCheck), held = chk.filter(x => x === true).length, not = chk.filter(x => x === false).length;
   return `<div class="pl-sec">${L.length} bet${L.length === 1 ? '' : 's'} <small>${held} held up · ${not} did not · ${L.length - held - not} open</small></div>${L.map((b, i) => { const t = b.snap, n = b.now, r = chk[i], hT = plHead({ pos: t.pos, st: t.st, truth: t.truth || {}, ca: t.ca }), hN = n ? plHead({ pos: n.pos, st: n.st, truth: {}, ca: n.ca }) : null, rate = hT.label === 'Rating', f = x => rate ? x.toFixed(2) : Math.round(x);

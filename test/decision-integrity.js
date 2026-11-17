@@ -104,4 +104,42 @@ const beforeInvalidTalk = F.save();
 assert(F.talk('dof','not-a-real-tone').err);
 assert.equal(F.save(),beforeInvalidTalk,'invalid conversation option cannot consume cooldown or change state');
 
-console.log('PASS: failed decisions rollback; successful choices commit once; events, briefings, proposals and conversations remain compatible');
+// Full leadership agreement lifecycle: staff appointed, mandate committed,
+// autonomous weeks pass, performance evidence appears, CEO reviews and renews.
+F.G.phase = 'season';
+for (const role of F.ROLES) {
+  const hired = F.hire(role.id,0);
+  assert(hired, 'all seven heads including Chief Scout can be hired');
+  const active = F.agreementView(role.id).active;
+  assert(active && active.state === 'running', role.id + ' must receive an agreement');
+  assert(active.head === hired.name);
+}
+const original = F.agreementView('fin').active;
+assert.equal(original.due - original.start,6);
+assert.equal(F.agreementView().history.length,7);
+const financeMandate = Object.assign({},F.G.mand.fin,{ risk: Math.min(100,F.G.mand.fin.risk+10) });
+const changed = F.setMandate('fin',financeMandate);
+assert(changed && changed.out);
+assert.equal(F.G.agreements.find(a=>a.id===original.id).state,'superseded',
+  'replacing finance policy closes old agreement without destroying history');
+const active = F.agreementView('fin').active;
+assert(active && active.id !== original.id && active.state==='running');
+F.G.week += 6;
+F.agreementWeekly();
+const due = F.agreementView('fin').active;
+assert(due && due.state==='review' && due.check,'six game weeks create genuine evidence review');
+assert(due.check.lines.length>0,'review has actual departmental evidence');
+assert(F.G.paper.stories.some(e=>e.h==='Leadership review due'));
+const recorded = F.save();
+assert(F.load(recorded),'agreements survive regular saves');
+assert.equal(F.agreementView('fin').active.id,due.id);
+const next = F.agreementRespond(due.id,'continue');
+assert(next && next.next);
+assert.equal(F.agreementView('fin').active.state,'running');
+assert.equal(F.agreementView('fin').active.start,F.absWeek());
+assert(F.agreementRespond(due.id,'continue').err,'evidence review cannot renew twice');
+const afterReview = F.save();
+F.agreementWeekly();
+assert.equal(F.save(),afterReview,'same-week evaluation is idempotent');
+
+console.log('PASS: failed decisions rollback; successful choices commit once; events, briefings, proposals, conversations and leadership review remain compatible');

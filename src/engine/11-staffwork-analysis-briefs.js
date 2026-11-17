@@ -2,15 +2,6 @@
 function later(id, ctx, a, b) { (G.later = G.later || []).push({ at: absWeek() + ri(a, b), id, ctx: ctx || {}, of: G.resOf || '' }); } /* 'of' names the decision this follows */
 function kittyFor(rev) { const d = G.club.dna; let k = Math.max(M(7000), (rev || 0) * 0.1); k *= { self: 0.7, owner: 1.4, debt: 1.2 }[d.money] || 1; if (d.origin === 'investor') k *= 1.4; return Math.round(k / 100) * 100; }
 function snapStart() { G.ss.start = { spons: sponsorIncome(), fanbase: G.club.fanbase, cash: G.club.cash, brand: G.club.brand }; }
-function scoutWork() {
-  const s = staff('scout'); G.shortlist = (G.shortlist || []).filter(p => absWeek() - p.found < 12);
-  if (!s) { G.scoutNote = null; return; }
-  const games = 2 + Math.round(man('scout', 'budget') / 25 + eff('scout', 2) / 6);
-  const n = chance(0.35 + man('scout', 'budget') / 200) ? (chance(0.3) ? 2 : 1) : 0, need = squadNeeds(), added = [];
-  for (let i = 0; i < n; i++) { const pos = need.length && chance(0.6) ? pick(need) : chance(0.5) ? weakestPos() : pick(Object.keys(REQ)); const cands = [0, 1, 2].map(() => genTarget(pos, chance(0.2))).sort((a, b) => scoreTarget(b) - scoreTarget(a)); const p = cands[0]; const worst = G.squad.filter(x => x.pos === pos).sort((a, b) => a.ca - b.ca)[0]; if (worst && p.pCA < worst.ca - 0.3 && !need.includes(pos)) continue; p.found = absWeek(); G.shortlist.push(p); added.push(p); }
-  G.shortlist = G.shortlist.slice(-8);
-  G.scoutNote = { games, added: added.map(p => ({ name: p.name, age: p.age, pos: p.pos, reg: p.region, s: stars(p.pCA), ps: stars(p.pPA) })) };
-}
 function buildReports(o) {
   const R = [], add = (role, t) => R.push({ role, t }), dn = G.dofNote, sn = G.scoutNote;
   for (const r of ROLES) if (!staff(r.id)) add(r.id, `Nobody is running ${r.dept}. Decisions there fall to chance.`);

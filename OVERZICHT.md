@@ -219,7 +219,7 @@ evolueren (`str` trekt naar het divisiegemiddelde plus hun coach, B37); spelers 
 | `engine/07-finance-transfers.js` | `signLog`, `shortlist`, `dofSigned`, `squad`, `dofNote` |
 | `engine/09-meetings-actions-press.js` | `propCd`, `meeting`, `projects`, `projDone`, `projLog`, `resBy`, `resOf` |
 | `engine/10-season.js` | `coachNews`, `squad`, `academy`, `lastReport`, `phase`, `week`, `ap`, `form`, `inbox`, `queue`, `ss`, `paper`, `pressDone` |
-| `engine/11-staffwork-analysis-briefs.js` | `later`, `shortlist`, `scoutNote`, `reports`, `bcd`, `briefs` |
+| `engine/11-staffwork-analysis-briefs.js` | `later`, `reports`, `bcd`, `briefs` |
 | `engine/12-week.js` | `phase`, `sackReason`, `queue`, `briefs`, `over`, `paper`, `msNew`, `prev`, `prevFan`, `lastMatch`, `lastCup`, `ap`, `later`, `inbox` |
 | `engine/13-newgame-preseason.js` | `club`, `mand`, `cup`, `phase`, `pre`, `meeting`, `press`, `pressDone`, `paper` |
 | `engine/14-save-api.js` | `ap`, `later`, `v` |
@@ -585,7 +585,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 ## Bijlage: alle bronbestanden
 
 <!-- generated:files:start -->
-62 bronbestanden, samen ongeveer 997 KB.
+62 bronbestanden, samen ongeveer 993 KB.
 
 | Bestand | KB | Doel |
 |---|---|---|
@@ -595,11 +595,11 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `engine/04-staff-dna.js` | 14 | staff; DNA |
 | `engine/05-world-selection.js` | 4 | world; squad & selection |
 | `engine/06-match.js` | 15 | match simulation |
-| `engine/07-finance-transfers.js` | 14 | finance; transfers; academy |
+| `engine/07-finance-transfers.js` | 11 | finance; transfers |
 | `engine/08-weekly-inbox.js` | 9 | weekly systems; events & inbox |
 | `engine/09-meetings-actions-press.js` | 17 | management meeting & projects (1.2); player actions; press |
 | `engine/10-season.js` | 9 | season |
-| `engine/11-staffwork-analysis-briefs.js` | 21 | staff work, records & chains (1.1); analysis & scorecards (1.3); weekly briefings (1.5) |
+| `engine/11-staffwork-analysis-briefs.js` | 20 | staff work, records & chains (1.1); analysis & scorecards (1.3); weekly briefings (1.5) |
 | `engine/12-week.js` | 8 | the week |
 | `engine/13-newgame-preseason.js` | 7 | new game; pre-season planning (1.4) |
 | `engine/14-save-api.js` | 2 | save |

@@ -16,7 +16,7 @@ function endWeek() {
   if (over()) return { sacked: true };
   lapseMeeting();
   if (FO.squadPlanPrepare) FO.squadPlanPrepare();
-  if (HOOK.recWeekly) { dofWork(); HOOK.recWeekly(); } else { scoutWork(); dofWork(); }
+  dofWork(); if (HOOK.recWeekly) HOOK.recWeekly();
   // matches
   const t = G.club.tier, round = G.divs[t] && G.divs[t].fix[G.week - 1];
   let ours = null;
@@ -41,7 +41,7 @@ function endWeek() {
   weeklyFinance(ours && ours.home); projectsWeekly();
   for (const p of G.squad) { develop(p, 1); if (p.inj > 0) p.inj -= G.push.medical > 0 ? 2 : 1; if (p.susp > 0 && !(ours && ours.ev.some(e => e.red && e.t.includes(p.name)))) p.susp--; p.morale = clamp(p.morale + (ours ? (ours.result === 'W' ? 3 : ours.result === 'L' ? -3 : 0) : 0) + (65 - p.morale) * 0.05 + (G.push.sporting > 0 ? 1.5 : 0) - (p.st.apps < G.week / 3 && p.pers.amb > 14 && G.week > 6 ? 1 : 0), 0, 100); }
   if (HOOK.acadWeekly) HOOK.acadWeekly(); else for (const p of G.academy) develop(p, (0.7 + eff('acad', 0) / 25 + G.club.fac.youth * 0.05) * (G.push.academy > 0 ? 1.5 : 1));
-  if (G.week === 28) { if (HOOK.acadIntake) HOOK.acadIntake(); else academyIntake(); }
+  if (G.week === 28) { if (HOOK.acadIntake) HOOK.acadIntake(); }
   kpiWeekly(ours && ours.result); staffWeekly(); boardWeekly(ours && ours.result);
   if (HOOK.seasonAfterMatch) HOOK.seasonAfterMatch(ours);
   if (over()) { buildPaper(ours, cup); if (HOOK.edition) HOOK.edition(ours, cup); return { ours, cup, sacked: true }; }

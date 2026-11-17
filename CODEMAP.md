@@ -65,11 +65,11 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `engine/04-staff-dna.js` | 14 KB | staff; DNA |  | effBonus |  |
 | `engine/05-world-selection.js` | 4 KB | world; squad & selection |  | coachAct, selBonus, ftExtra | clubs, divs |
 | `engine/06-match.js` | 15 KB | match simulation |  | homeEdge, oppStyle, ftInj, say, storyW | msNew |
-| `engine/07-finance-transfers.js` | 14 KB | finance; transfers; academy |  | attendance, gate, acadIncome, recCost, acadCost, ftCost, deptCost, merchMult, costDisc, acadSale | signLog, shortlist, dofSigned, squad, dofNote |
+| `engine/07-finance-transfers.js` | 11 KB | finance; transfers |  | attendance, gate, acadIncome, recCost, acadCost, ftCost, deptCost, merchMult, costDisc, acadSale | signLog, shortlist, dofSigned, squad, dofNote |
 | `engine/08-weekly-inbox.js` | 9 KB | weekly systems; events & inbox |  | ftDev, fanWeekly, desk, evWeight |  |
 | `engine/09-meetings-actions-press.js` | 17 KB | management meeting & projects (1.2); player actions; press |  |  | propCd, meeting, projects, projDone, projLog, resBy, resOf |
 | `engine/10-season.js` | 9 KB | season |  | objMet, acadSeason, recSeason, seasonReprieve, summerStart | coachNews, squad, academy, lastReport, phase, week, ap, form, inbox, queue, ss, paper, pressDone |
-| `engine/11-staffwork-analysis-briefs.js` | 21 KB | staff work, records & chains (1.1); analysis & scorecards (1.3); weekly briefings (1.5) |  | deskBriefs | later, shortlist, scoutNote, reports, bcd, briefs |
+| `engine/11-staffwork-analysis-briefs.js` | 20 KB | staff work, records & chains (1.1); analysis & scorecards (1.3); weekly briefings (1.5) |  | deskBriefs | later, reports, bcd, briefs |
 | `engine/12-week.js` | 8 KB | the week |  | recWeekly, acadWeekly, acadIntake, seasonAfterMatch, edition, seasonWeekly | phase, sackReason, queue, briefs, over, paper, msNew, prev, prevFan, lastMatch, lastCup, ap, later, inbox |
 | `engine/13-newgame-preseason.js` | 7 KB | new game; pre-season planning (1.4) |  | acadInit, summerStart | club, mand, cup, phase, pre, meeting, press, pressDone, paper |
 | `engine/14-save-api.js` | 2 KB | save |  | acadMigrate, recMigrate | ap, later, v |
@@ -143,7 +143,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: wxFor, expRand, simOurMatch, whyLines, quickSim, applyResult
 
 ### `engine/07-finance-transfers.js`
-- Functions: playerWages, staffWages, ticketPrice, attendance, revenueAvg, estRevenue, sponsorIncome, wageRatio, transferBudget, weeklyFinance, window_, squadNeeds, weakestPos, genTarget, scoreTarget, allowed, sign, staffName, protectedIds, administration, sellPlayer, dofWork, academyIntake
+- Functions: playerWages, staffWages, ticketPrice, attendance, revenueAvg, estRevenue, sponsorIncome, wageRatio, transferBudget, weeklyFinance, window_, squadNeeds, weakestPos, genTarget, sign, staffName, protectedIds, administration, sellPlayer, dofWork
 
 ### `engine/08-weekly-inbox.js`
 - Functions: develop, staffWeekly, kpiWeekly, boardWeekly, defineEvent, queueEvent, pendingOf, addMsg, safe, genMessages, autoEvent, secondOpinion
@@ -155,7 +155,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: setObjectives, objMet, promiseMet, endSeason, startSeason, newSeasonStats
 
 ### `engine/11-staffwork-analysis-briefs.js`
-- Functions: later, kittyFor, snapStart, scoutWork, buildReports, avgRat, squadAvgRat, record, xPts, forecast, analysis, scorecard, defineBrief, genBriefs, briefView, answerBrief
+- Functions: later, kittyFor, snapStart, buildReports, avgRat, squadAvgRat, record, xPts, forecast, analysis, scorecard, defineBrief, genBriefs, briefView, answerBrief
 
 ### `engine/12-week.js`
 - Functions: sack, over, endWeek, buildPaper

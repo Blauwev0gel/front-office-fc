@@ -67,12 +67,6 @@ function genTarget(pos, free) {
   p.pCA = p.ca + gauss() * nCA; p.pPA = Math.max(p.pCA, p.pa + gauss() * nPA);
   return p;
 }
-function scoreTarget(p) { const y = man('dof', 'youth') / 100; return (p.prio ? 1.2 : 0) + p.pCA * (1 - y * 0.45) + p.pPA * y * 0.45 + (p.age <= 23 ? y * 0.6 : 0) - (p.age >= 30 ? y * 0.8 : 0); }
-function allowed(p, budget) {
-  const avgW = playerWages() / Math.max(1, G.squad.length);
-  const r = { fee: p.fee <= (man('dof', 'maxFee') === '0' ? 0 : budget * (+man('dof', 'maxFee')) / 100) && p.fee <= budget, age: p.age <= +man('dof', 'maxAge'), wage: p.wage <= avgW * (+man('dof', 'maxWage')) / 100 + 1, cap: (playerWages() + p.wage) / Math.max(1, revenueAvg()) <= +man('fin', 'wageCap') / 100 + 0.05 };
-  r.ok = r.fee && r.age && r.wage && r.cap; return r;
-}
 function sign(p, viaRule) {
   G.club.cash -= p.fee; p.contract = ri(2, 4); p.morale = 72; p.joined = G.season; p.st = newStats();
   if (chance(REGIONS[p.region].adapt * (staff('acad') ? 1 : 1))) { p.settle = false; p.morale = 45; }
@@ -122,36 +116,4 @@ function dofWork() {
     if (top || prot.has(p.id)) queueEvent('bid_star', { pid: p.id, fee, club: pick(G.divs[Math.max(1, G.club.tier - ri(0, 2))].clubs.filter(x => x !== 0)) });
     else if (rnd() < man('dof', 'sell') / 100 * 0.7 + (fee / p.value - 1)) sellPlayer(p, fee, `${d.name} accepts a ${money(fee)} bid for ${p.name}.`);
   }
-  // signings
-  if (HOOK.recWeekly) return;
-  const need = squadNeeds(), full = G.squad.length >= depth + 1 && !need.length;
-  if (!chance(G.squad.length < depth ? 0.75 : full ? 0.3 : 0.4)) return;
-  const pos = G.dofPrio && chance(0.7) ? G.dofPrio : need.length ? pick(need) : chance(0.5) ? weakestPos() : pick(Object.keys(REQ));
-  const budget = transferBudget(), free = man('dof', 'maxFee') === '0';
-  const listed = (G.shortlist || []).filter(p => p.pos === pos), pool = listed.slice(); const nt = Math.max(2, 3 + Math.round(eff('dof', 2) / 6) - listed.length); for (let i = 0; i < nt; i++) pool.push(genTarget(pos, free || chance(0.25)));
-  const worst = G.squad.filter(p => p.pos === pos).sort((a, b) => a.ca - b.ca)[0];
-  const ok = pool.filter(p => allowed(p, budget).ok).sort((a, b) => scoreTarget(b) - scoreTarget(a));
-  const best = ok[0], bestAny = pool.filter(p => p.fee <= Math.max(budget * 1.6, G.club.cash * 0.6)).sort((a, b) => scoreTarget(b) - scoreTarget(a))[0];
-  if (bestAny && (!best || scoreTarget(bestAny) > scoreTarget(best) + 1.3) && (d.p.risk >= 11 || d.p.ego >= 13) && !pendingOf('dof_rule')) {
-    const why = allowed(bestAny, budget); queueEvent('dof_rule', { player: bestAny, why: Object.keys(why).filter(k => k !== 'ok' && !why[k]) }); return;
-  }
-  G.dofSigned = null;
-  if (best && (!worst || need.includes(pos) || scoreTarget(best) > worst.ca + 0.4)) { if (chance(0.55 + eff('dof', 1) / 40)) { sign(best); if (full && worst && !protectedIds().has(worst.id)) { const fee = Math.round(worst.value * 0.5 / 100) * 100; sellPlayer(worst, fee, `${d.name} moves ${worst.name} on ${fee ? 'for ' + money(fee) : 'on a free'} to make room.`); } } }
-  const blk = new Set(); for (const p of pool.filter(p => !allowed(p, budget).ok && scoreTarget(p) > (best ? scoreTarget(best) : 0))) { const w = allowed(p, budget); for (const k of ['fee', 'age', 'wage', 'cap']) if (!w[k]) blk.add({ fee: 'fee limit', age: 'age limit', wage: 'wage limit', cap: 'wage cap' }[k]); }
-  G.dofNote = { pos, n: pool.length, listed: listed.length, signed: G.dofSigned, blocked: [...blk] };
 }
-
-/* ---------- academy ---------- */
-function academyIntake() {
-  const c = G.club, n = clamp(2 + Math.round(c.fac.youth / 3 + eff('acad', 1) / 8), 2, 7), loc = man('acad', 'local') / 100, tech = man('acad', 'technical') / 100;
-  const got = [];
-  for (let i = 0; i < n; i++) {
-    const reg = chance(loc) ? 'dom' : pick(Object.keys(REGIONS));
-    const p = genPlayer({ age: ri(15, 17), ca: tierAvg(c.tier) - 3.5 - (8 - c.tier) * 0.25 + gauss() * 0.9 + c.fac.youth * 0.08, region: reg, academy: true, tech: tech > 0.6, phys: tech < 0.4, paBonus: (perk('partner') ? 0.6 : 0) + (eff('acad', 1) - 10) * 0.12 + c.fac.youth * 0.25 + (1 - loc) * 0.6 + (G.push.academy > 0 ? 0.5 : 0) });
-    p.wage = Math.round(M(40) / 5) * 5; p.contract = 3; got.push(p); G.academy.push(p);
-  }
-  const best = got.sort((a, b) => b.pa - a.pa)[0];
-  G.paper.stories.push({ h: 'Academy intake', t: `${got.length} new youngsters join the academy. ${staffName('acad')} rates ${best.name} (${best.pos}) highest.` });
-  if (stars(best.pa) >= 4) queueEvent('wonderkid', { pid: best.id });
-}
-

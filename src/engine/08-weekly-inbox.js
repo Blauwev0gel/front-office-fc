@@ -112,6 +112,12 @@ function genMessages() {
   // Quiet weeks are valid. Do not manufacture decisions to fill slots.
   let slots = live >= 3 ? 0 : live >= 1 ? (chance(0.4) ? 1 : 0) :
     (chance(0.25) ? 0 : chance(0.65) ? 1 : 2);
+  // The first weeks establish the club and its staff before optional drama.
+  // Forced escalations, deadlines and scheduled board meetings still arrive.
+  // Staff continue their own autonomous work below, even in a quiet week.
+  if (G.season === 1 && G.week <= 3) {
+    slots = G.week === 1 ? 0 : Math.min(slots, 1);
+  }
   let tries = 0;
   while (slots > 0 && tries++ < 10) {
     const el = Object.values(EV).filter(e => ok(e) && e.mode !== 'auto' && eventPriority(e) > 0);

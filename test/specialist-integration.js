@@ -98,6 +98,15 @@ const blockedState=F.save();
 const blocked=F.specialistAct('commercial.offer',{k:'accept'});
 assert(blocked.err,'direct sponsor accept must be blocked pending CEO settlement');
 assert.equal(F.save(),blockedState,'rejected direct route cannot silently mutate the offer');
+// The older briefing handler must not sidestep the same authority boundary.
+const sponsorBriefId=911552;
+F.G.briefs.push({id:sponsorBriefId,t:'com_offer',
+  ctx:{score:3,name:F.G.com.offer.name},done:false});
+const beforeBriefBypass=F.save();
+const bypass=F.answerBrief(sponsorBriefId,0);
+assert(bypass&&bypass.err,'briefing cannot approve a restricted sponsor');
+assert.equal(F.save(),beforeBriefBypass,'failed briefing leaves the full game unchanged');
+assert.equal(F.G.briefs.find(b=>b.id===sponsorBriefId).done,false);
 const marketingRel=F.staff('mkt').rel,comRel=F.staff('com').rel;
 const settled=F.specialistResolveConflict('sponsor','reject');
 assert(!settled.err,'conflict can be resolved through authoritative commercial engine');

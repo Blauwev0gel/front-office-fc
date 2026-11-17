@@ -978,3 +978,17 @@ html,body{background:var(--bg)!important}
 #app .dw-archive-extra{background:var(--paper)!important;border:1px solid var(--hair)!important;
  margin:0 0 13px!important;padding:8px 11px!important}
 #app .dw-archive-extra summary{min-height:44px!important;font-size:12px!important;font-weight:800}
+
+/* A decision is a governance moment; a briefing is optional consultation. */
+#app .fo-case-response .fo-case-kind{display:block;margin:0 0 4px;
+ font-size:10px;letter-spacing:.08em;font-weight:900;color:var(--soft)!important}
+#app .fo-case-response .mrhead{border-bottom:1px solid var(--hair)!important;
+ padding-bottom:9px!important;margin-bottom:10px!important}
+#app .fo-case-response .mrhead h3{font-size:16px!important;margin:5px 0!important}
+#app .fo-case-response .one-tap-hint{padding:8px 10px!important;
+ background:var(--fill)!important;border-left:3px solid var(--good)!important;
+ color:var(--ink)!important;font-size:12px!important}
+#app .fo-case-response .mlv{padding:12px!important;margin:12px 0!important;
+ background:var(--paper)!important;border:1px solid var(--hair)!important;
+ color:var(--soft)!important;font-size:11px!important;line-height:1.5!important}
+#app .fo-case-response .mlv b{color:var(--ink)!important}

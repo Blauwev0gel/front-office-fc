@@ -43,7 +43,7 @@ function endWeek() {
   for (const p of G.squad) { develop(p, 1); if (p.inj > 0) p.inj -= G.push.medical > 0 ? 2 : 1; if (p.susp > 0 && !(ours && ours.ev.some(e => e.red && e.t.includes(p.name)))) p.susp--; p.morale = clamp(p.morale + (ours ? (ours.result === 'W' ? 3 : ours.result === 'L' ? -3 : 0) : 0) + (65 - p.morale) * 0.05 + (G.push.sporting > 0 ? 1.5 : 0) - (p.st.apps < G.week / 3 && p.pers.amb > 14 && G.week > 6 ? 1 : 0), 0, 100); }
   if (HOOK.acadWeekly) HOOK.acadWeekly(); else for (const p of G.academy) develop(p, (0.7 + eff('acad', 0) / 25 + G.club.fac.youth * 0.05) * (G.push.academy > 0 ? 1.5 : 1));
   if (G.week === 28) { if (HOOK.acadIntake) HOOK.acadIntake(); else academyIntake(); }
-  kpiWeekly(ours && ours.result); staffWeekly(); boardWeekly(ours && ours.result);
+  kpiWeekly(ours && ours.result); staffWeekly(); boardWeekly(ours && ours.result); agreementWeekly();
   if (HOOK.seasonAfterMatch) HOOK.seasonAfterMatch(ours);
   if (over()) { buildPaper(ours, cup); if (HOOK.edition) HOOK.edition(ours, cup); return { ours, cup, sacked: true }; }
   if (G.club.cash < -M(4000) && !G.flags.crisisWeek) { queueEvent('cash_crisis', {}); G.flags.crisisWeek = true; } if (G.club.cash > 0) G.flags.crisisWeek = false;

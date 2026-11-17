@@ -1062,3 +1062,16 @@ html,body{background:var(--bg)!important}
  #app .fo-mandate-profiles button{font-size:11px!important}
  #app .fo-mandate-signal small{font-size:9px!important}
 }
+
+/* Founding: six real leadership roles remain visible while setting mandates. */
+#app .setup .mtabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:6px!important;overflow:visible!important;margin:10px 0 13px!important}
+#app .setup .mtabs button{min-width:0!important;min-height:64px!important;
+ padding:7px 3px!important;display:flex!important;align-items:center!important;
+ justify-content:center!important;flex-direction:column!important;gap:4px!important;
+ background:var(--paper)!important;color:var(--ink)!important;
+ border:1px solid var(--rule)!important}
+#app .setup .mtabs button.on{background:var(--ink)!important;color:var(--paper)!important}
+#app .setup .mtabs button small{font-size:10px!important;white-space:normal!important;
+ text-align:center!important;overflow-wrap:anywhere!important}
+#app .setup .mtabs .mface{max-height:28px;overflow:hidden}

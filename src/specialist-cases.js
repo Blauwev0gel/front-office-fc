@@ -37,7 +37,7 @@ function area(kind, p) {
 }
 function owner(kind, p) {
   const d = area(kind,p);
-  const role = HEAD[d] || F.DEPT?.[d]?.head;
+  const role = ['recruit.invest','recruit.focus'].includes(kind) ? 'scout' : HEAD[d] || F.DEPT?.[d]?.head;
   return { role, name:F.staff(role)?.name || 'Vacant' };
 }
 function evidence(d) {
@@ -148,7 +148,7 @@ function specialistConflicts(d) {
   const pending=F.G.specialistFinanceRequest;
   if(pending && (!d||d===area(pending.kind,pending.params)||d==='business') &&
       financeObjection(pending.kind,pending.params)) {
-    const rd=area(pending.kind,pending.params),head=F.staff(HEAD[rd]);
+    const rd=area(pending.kind,pending.params),head=F.staff(owner(pending.kind,pending.params).role);
     out.push({id:'finance',department:rd,title:'Finance challenges the spending plan',
       first:head?.name||'Department head',second:F.staff('fin')?.name||'Finance Director',
       explanation:'The responsible head wants to proceed, but Finance reports that departmental spending exceeds the sustainable budget envelope.',
@@ -165,7 +165,7 @@ function specialistResolveConflict(id,stance) {
     const g=F.G,pending=g.specialistFinanceRequest;
     if(!pending||!financeObjection(pending.kind,pending.params))
       return {err:'The finance concern is no longer current.'};
-    const before=F.save(),d=area(pending.kind,pending.params),head=F.staff(HEAD[d]);
+    const before=F.save(),d=area(pending.kind,pending.params),head=F.staff(owner(pending.kind,pending.params).role);
     const finance=F.staff('fin');
     if(stance==='defer') {
       g.specialistFinanceRequest=null;

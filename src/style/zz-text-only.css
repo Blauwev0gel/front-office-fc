@@ -532,3 +532,11 @@ body{
 @media(prefers-reduced-motion:reduce){
   #app *,#app *::before,#app *::after{animation:none!important;transition:none!important}
 }
+
+/* CEO inbox: explicit navigation must never collapse into vertical letter stacks. */
+#app .ohead{display:grid!important;grid-template-columns:minmax(96px,auto) minmax(0,1fr) minmax(96px,auto)!important;align-items:center!important;gap:8px!important;min-width:0!important}
+#app .ohead .mailnav{width:auto!important;min-width:96px!important;max-width:100%!important;min-height:48px!important;padding:10px 12px!important;white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;line-height:1.2!important;font-size:14px!important}
+#app .ohead .mailnav:last-child{grid-column:3!important}
+#app .ohead .pos{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;text-align:center!important}
+#app .ohead .archbtn{min-height:44px!important;white-space:nowrap!important}
+@media(max-width:390px){#app .ohead{gap:4px!important;grid-template-columns:minmax(86px,auto) minmax(0,1fr) minmax(86px,auto)!important}#app .ohead .mailnav{min-width:86px!important;padding:8px!important;font-size:13px!important}#app .ohead .pos{font-size:11px!important}}

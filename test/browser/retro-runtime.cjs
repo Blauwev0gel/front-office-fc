@@ -118,6 +118,9 @@ async function main(){
   await call('Page.navigate',{url:'http://127.0.0.1:'+server.address().port+'/front-office-fc/chatgpt/'});
   await wait('document.readyState==="complete"&&!!document.querySelector(\'[data-a="new"]\')');
   await audit('title');await click('[data-a="new"]');await audit('founding');
+  // Quick start belongs to the title screen, not the in-progress founding flow.
+  await evaluate('(()=>{act("restart",{});return true})()');
+  await wait('!!document.querySelector(\'[data-a="sheet"][data-s="quick"]\')');
   await click('[data-a="sheet"][data-s="quick"]');
   await click('[data-a="quick"][data-v="season"]');
   await wait('typeof FO!=="undefined"&&FO.G&&FO.G.phase==="season"');

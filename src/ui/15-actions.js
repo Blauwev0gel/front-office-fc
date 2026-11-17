@@ -39,7 +39,7 @@ function act(a, d, el) {
     case 'review': { U.sheet = null; U.tab = 'inbox'; const f = inboxItems().find(i => i.kind === 'need'); U.open = f ? f.key : null; U.flash = ''; break; }
     case 'pw-ask': F.pwAsk(d.r); break;
     case 'pw-open': U.tab = 'inbox'; U.dept = null; U.open = 'pathway'; window.scrollTo(0, 0); break;
-    case 'pw-change': r = F.pwChange(d.k); if (r && r.err) toast(r.err); else if (r) U.flash = r.out; break;
+    case 'pw-change': r = F.specialistAct('academy.pathway',{k:d.k}); if (r && r.err) toast(r.err); else if (r) U.flash = r.out; break;
     case 'auth': r = F.setAuth(d.r, +d.v); if (r && r.err) toast(r.err); else if (r && r.out) toast(r.out); break;
     case 'second': r = F.secondOpinion(+d.m); if (r && r.err) toast(r.err); break;
     case 'brief': r = F.answerBrief(+d.b, +d.i); if (r && r.err) toast(r.err); else if (r && U.open) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.card(); ART.vib(15); advance(); } break;
@@ -71,35 +71,35 @@ function act(a, d, el) {
     case 'dtab': U.dtab = d.v; window.scrollTo(0, 0); break;
     case 'dept-meeting': U.sheet = { t: 'dept-issue', k: d.k, v: d.v }; break;
     case 'dept-plan':
-      r = F.deptIssuePlan(d.k, d.v, d.c);
+      r = F.specialistAct('department.plan',{k:d.k,v:d.v,c:d.c});
       if (r && r.err) toast(r.err);
       else if (r) { U.sheet = null; saveGame(); toast(r.out); ART.SND.stamp(); }
       break;
-    case 'dept-issue': r = F.deptIssueDecision(d.k, d.v, d.c); if (r && r.err) toast(r.err); else if (r) { saveGame(); toast(r.out); } break;
+    case 'dept-issue': r = F.specialistAct('department.issue',{k:d.k,v:d.v,c:d.c}); if (r && r.err) toast(r.err); else if (r) { saveGame(); toast(r.out); } break;
     case 'dcand': U.sheet = { t: 'dcand', k: d.k, r: d.r }; break;
     case 'dhire': r = F.deptHire(d.k, d.r, +d.i); U.sheet = null; if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); ART.vib(30); } break;
     case 'dletgo': r = F.deptLetGo(d.k, +d.id); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } break;
     case 'dinbox': U.tab = 'inbox'; U.open = d.key; U.dept = null; window.scrollTo(0, 0); break;
     case 'ft-talk': r = F.ftTalkStart(); if (r && r.err) { toast(r.err); return; } U.tab = 'staff'; U.dept = 'first'; ART.SND.ring(); window.scrollTo(0, 0); break;
-    case 'ft-ans': F.ftTalkAnswer(d.id); ART.SND.card(); ART.vib(15); break;
+    case 'ft-ans': r = F.specialistAct('firstteam.response',{id:d.id}); if (r && r.err) toast(r.err); ART.SND.card(); ART.vib(15); break;
     case 'ft-talk-close': F.ftTalkClose(); U.tray = ''; window.scrollTo(0, 0); break;
-    case 'ft-buy': r = F.ftResBuy(d.k); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
-    case 'ft-cancel': r = F.ftResCancel(d.k); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } break;
+    case 'ft-buy': r = F.specialistAct('firstteam.support',{v:'buy',k:d.k}); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
+    case 'ft-cancel': r = F.specialistAct('firstteam.support',{v:'cancel',k:d.k}); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } break;
     case 'ft-sackq': U.sheet = { t: 'sack' }; break;
     case 'ft-sack': r = F.ftSack(); U.sheet = null; if (r && r.err) toast(r.err); else { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); U.dtab = 'over'; window.scrollTo(0, 0); } break;
     case 'sqtable': U.sqTable = d.v != null ? d.v === '1' : !U.sqTable; break;
-    case 'com-offer': r = F.comOffer(d.k); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND[d.k === 'reject' ? 'click' : 'stamp'](); } break;
-    case 'com-price': F.comSetPrice(d.k, +d.v); ART.SND.click(); break;
-    case 'com-exp': r = d.v === 'up' ? F.comExpUp() : F.comExpDown(); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
+    case 'com-offer': r = F.specialistAct('commercial.offer',{k:d.k}); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND[d.k === 'reject' ? 'click' : 'stamp'](); } break;
+    case 'com-price': r = F.specialistAct('commercial.price',{k:d.k,v:d.v}); if (r && r.err) toast(r.err); ART.SND.click(); break;
+    case 'com-exp': r = F.specialistAct('commercial.experience',{v:d.v}); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
     case 'squad-plan-open': U.tab = 'staff'; U.dept = 'recruit'; U.dtab = 'over'; U.open = null; window.scrollTo(0, 0); break;
     case 'squad-plan-ask': F.squadPlanAsk(d.q); break;
-    case 'rx-focus': r = F.rxFocus(d.k); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } ART.SND.click(); break;
-    case 'rx-invest': r = F.rxInvest(d.k); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
-    case 'biz-lv': r = F.bizSetLevel(d.k, d.v); ART.SND.click(); break;
-    case 'biz-prop': F.bizPropose(); r = F.bizApply(); U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); break;
-    case 'mk-camp': r = F.mkCamp(d.k); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
-    case 'mk-comm': F.mkComm(+d.v); ART.SND.click(); break;
-    case 'com-promo': r = F.comPromo(); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } break;
+    case 'rx-focus': r = F.specialistAct('recruit.focus',{k:d.k}); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } ART.SND.click(); break;
+    case 'rx-invest': r = F.specialistAct('recruit.invest',{k:d.k}); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
+    case 'biz-lv': r = F.specialistAct('business.level',{k:d.k,v:d.v}); if (r && r.err) toast(r.err); ART.SND.click(); break;
+    case 'biz-prop': r = F.specialistAct('business.plan'); U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); break;
+    case 'mk-camp': r = F.specialistAct('marketing.campaign',{k:d.k}); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
+    case 'mk-comm': r = F.specialistAct('marketing.community',{v:d.v}); if (r && r.err) toast(r.err); ART.SND.click(); break;
+    case 'com-promo': r = F.specialistAct('commercial.promo'); if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; } break;
     case 'dept-go': U.tab = 'staff'; U.dept = d.k; U.dtab = d.v || 'over'; U.tray = ''; window.scrollTo(0, 0); break;
     case 'tour-reset': g.flags.tour = {}; U.sheet = null; break;
     case 'tour-ok': g.flags.tour = Object.assign({}, g.flags.tour, { [d.k]: 1 }); if (d.k === 'inbox') g.flags.howto = true; break;
@@ -112,7 +112,7 @@ function act(a, d, el) {
     case 'recplan': U.sheet = { t: 'recplan' }; break;
     case 'rec-prio': F.recTogglePrio(d.p, d.k); break;
     case 'rec-kind': F.recSetKind(d.p, d.k); break;
-    case 'rec-appr': g.mand.dof = g.mand.dof || {}; g.mand.dof.approve = d.v; break;
+    case 'rec-appr': r = F.specialistAct('recruit.approval',{v:d.v}); if (r && r.err) toast(r.err); break;
     case 'prio-all': U.prioAll = true; break;
     case 'agr-review': r = F.agreementRespond(d.id, d.v);
       if (r && r.err) toast(r.err); else if (r && r.out) toast(r.out); break;

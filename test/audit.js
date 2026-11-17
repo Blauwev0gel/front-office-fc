@@ -26,13 +26,13 @@ function run(seed, style, opts = {}) {
       for (const m of g.inbox.filter(m => !m.done)) {
         const v = FO.msgView(m); out.msgs++; out.words.push((v.body || '').split(/\s+/).length);
         out.ev[m.ev] = (out.ev[m.ev] || 0) + 1;
-        if (style === 'passive' || opts.noInbox || g.ap < 1) continue;
+        if (style === 'passive' || opts.noInbox) continue;
         const i = style === 'active' ? v.auto : style === 'risky' ? v.opts.length - 1 : Math.floor(FO.rnd() * v.opts.length);
         (out.evChoice[m.ev] = out.evChoice[m.ev] || []).push(i); FO.respond(m.id, i);
       }
       if (g.meeting && g.meeting.week === g.week && g.meeting.season === g.season) g.meeting.items.forEach((it, i) => FO.decideProposal(i, opts.props || (style === 'passive' ? 'reject' : 'approve')));
       (g.briefs || []).forEach(b => { out.briefN++; out.briefs[b.t] = (out.briefs[b.t] || 0) + 1; if (style !== 'passive' && !opts.noBrief && !b.done) { const v = FO.briefView(b); FO.answerBrief(b.id, style === 'risky' ? v.opts.length - 1 : 0); } });
-      if (style === 'active' && !opts.noTalk && g.ap > 0 && g.week % 4 === 0 && g.staff.coach) { FO.ftTalkStart(); let n = 0; while (g.ft.talk && !g.ft.talk.done && n++ < 5) FO.ftTalkAnswer(g.ft.talk.opts[0].id); FO.ftTalkClose(); }
+      if (style === 'active' && !opts.noTalk && g.week % 4 === 0 && g.staff.coach) { FO.ftTalkStart(); let n = 0; while (g.ft.talk && !g.ft.talk.done && n++ < 5) FO.ftTalkAnswer(g.ft.talk.opts[0].id); FO.ftTalkClose(); }
       const res = FO.endWeek(); out.weeks++; out.proj = (out.proj || 0) + ((g.projects || []).length ? 0 : 0); out.meet = (out.meet || 0) + (g.meeting && g.meeting.week === g.week ? 1 : 0);
       for (const st of (g.paper && g.paper.stories) || []) out.paper[st.h] = (out.paper[st.h] || 0) + 1;
       for (const role of FO.ROLES) if (!g.staff[role.id] && g.cands[role.id]) FO.hire(role.id, 1);

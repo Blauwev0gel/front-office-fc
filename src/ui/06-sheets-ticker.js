@@ -105,7 +105,9 @@ function vSheet() {
     const B = F.backers(), D = { board: 'Your employer: judges results against targets, finances and promises.', fans: 'Supporters respond to results, ticket prices, community and club identity.', room: 'Squad morale: playing time, bonuses, results and the coach.' };
     h = `<div class="spread"><div><div class="kick">Three groups shape your future</div><h2>Your backers</h2></div><button class="x" data-a="close" aria-label="Close">×</button></div>
     <p class="small">Board, supporters and dressing room can trigger a crisis below ${F.VOTE_AT}. Press coverage still shapes stories and reactions, but cannot independently dismiss you. Delegating within a mandate is not a reputation penalty.</p>
-    ${B.map(b => `<div class="bkrow ${b.danger ? 'lo' : ''}"><div class="spread"><b>${ART.I[b.ic] || ''} ${esc(b.t)}</b><span class="num">${b.v}${b.d ? ` <small class="${b.d > 0 ? 'good' : 'bad'}">${b.d > 0 ? '+' : ''}${b.d} this week</small>` : ''}</span></div><em><u style="width:${b.v}%"></u></em><p><i>${esc(b.voice)}</i> ${esc(D[b.k])}</p></div>`).join('')}`;
+    ${B.map(b => `<div class="bkrow ${b.danger ? 'lo' : ''}"><div class="spread"><b>${ART.I[b.ic] || ''} ${esc(b.t)}</b><span class="num">${b.v}${b.d ? ` <small class="${b.d > 0 ? 'good' : 'bad'}">${b.d > 0 ? '+' : ''}${b.d} this week</small>` : ''}</span></div><em><u style="width:${b.v}%"></u></em><p><i>${esc(b.voice)}</i> ${esc(D[b.k])}</p></div>`).join('')}
+    <h3>Recent changes</h3>
+    ${(F.stakeholderHistory ? F.stakeholderHistory(8) : []).slice().reverse().map(e => `<p class="small"><b>Week ${e.week} · ${esc(e.reason || e.source)}</b> — ${Object.entries(e.changes).map(([k,v]) => esc(k) + ' ' + (v > 0 ? '+' : '') + v).join(', ')}</p>`).join('') || '<p class="small">No significant changes recorded yet.</p>'}`;
   }
   if (s.t === 'analysis') {
     const A = F.analysis(), mx = Math.max(0.5, ...A.bars.map(b => Math.abs(b.v)));

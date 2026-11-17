@@ -124,6 +124,7 @@ function talk(role, tone) {
     return { err: 'This conversation response is not available.' };
   const s = staff(role); if (!s) return { err: 'That position is vacant.' };
   if (tone === 'review' && record(role).early) return { err: 'Too early in the season: there are not enough numbers to review yet.' };
+  const priorRelation = s.rel, priorBoost = s.boost;
   const last = G.talks[role] ?? -99, gap = absWeek() - last, recent = gap < 3;
   G.talks[role] = absWeek(); const k = gap < 1 ? 0 : recent ? 0.5 : 1;
   const { ego, amb, loy } = s.p; let rel = 0, boost = 0, t = '';
@@ -134,7 +135,21 @@ function talk(role, tone) {
   if (tone === 'warn') { if (s.perf < 40) { rel = -6; boost = 6; t = `${s.name} gets the message. Results had better improve.`; if (loy < 8 && s.rel < 40 && chance(0.4)) queueEvent('staff_quit', { role }); } else { rel = -10; boost = -1; t = `${s.name} feels the warning is unfair. Trust has taken a hit.`; } }
   s.rel = clamp(s.rel + rel * k, 0, 100); s.boost = clamp(s.boost + boost * k, -10, 12); s.boostW = 4;
   if (recent) t += ' (A second talk so soon has less effect.)';
+  if (!Array.isArray(G.conversations)) G.conversations = [];
+  const active = Array.isArray(G.agreements) ?
+    G.agreements.findLast(a => a.role === role && a.head === s.name &&
+      (a.state === 'running' || a.state === 'review')) : null;
+  G.conversations.push({
+    id:'talk-' + (G.nid++), role, head:s.name, approach:tone, at:absWeek(),
+    season:G.season, week:G.week, text:t,
+    before:{ relationship:priorRelation, motivation:priorBoost },
+    after:{ relationship:s.rel, motivation:s.boost },
+    agreementId:active ? active.id : null
+  });
   return { out: t };
+}
+function conversationView(role) {
+  return (G.conversations || []).filter(x => !role || x.role === role).slice(-8).reverse();
 }
 const PUSH = { sporting: ['First team', 'coach', 'dof'], scouting: ['Scouting', 'scout', null], academy: ['Academy', 'acad', 'dof'], commercial: ['Commercial', 'com', 'mkt'], marketing: ['Marketing', 'mkt', 'com'], business: ['Business', 'fin', null], medical: ['Medical', 'coach', null] };
 function push(dept) {

@@ -143,6 +143,77 @@ function push(dept) {
   const [l, own, rival] = PUSH[dept]; if (staff(own)) staff(own).rel = clamp(staff(own).rel + 3, 0, 100); if (rival && staff(rival)) staff(rival).rel = clamp(staff(rival).rel - 2, 0, 100);
   return { out: `${l} has your full backing for three weeks.${rival && staff(rival) ? ' ' + staff(rival).name + ' notices where your attention is going.' : ''}` };
 }
+/* Persistent leadership agreements. A mandate is a binding instruction:
+   staff continue executing it autonomously; evaluation uses actual department
+   scorecard evidence instead of generated boosts or fake success rates. */
+function agreementStore() {
+  if (!Array.isArray(G.agreements)) G.agreements = [];
+  return G.agreements;
+}
+function agreementView(role) {
+  const history = agreementStore().filter(a => !role || a.role === role);
+  const active = history.findLast(a => a.state === 'running' || a.state === 'review');
+  return { active: active || null, history: history.slice(-8).reverse() };
+}
+function beginAgreement(role, reason) {
+  const s = staff(role);
+  if (!s || !G.mand[role] || !MAND[role]) return null;
+  const records = agreementStore();
+  const week = absWeek(), identity = s.name;
+  for (const a of records) if (a.role === role && (a.state === 'running' || a.state === 'review')) {
+    a.state = 'superseded'; a.closedWeek = week;
+    a.outcome = 'Replaced by a new leadership direction before the scheduled review.';
+  }
+  const snapshot = record(role);
+  const a = {
+    id: 'mand-' + (G.nid++), role, head: identity, reason: reason || 'CEO direction',
+    start: week, due: week + 6, state: 'running',
+    mandate: Object.assign({}, G.mand[role]),
+    baseline: { score: snapshot.early ? null : snapshot.score, verdict: snapshot.verdict,
+      lines: snapshot.lines.slice(0, 3).map(line => line.slice()) },
+    check: null, outcome: null, closedWeek: null
+  };
+  records.push(a);
+  return a;
+}
+function agreementWeekly() {
+  if (!G.agreements) return;
+  for (const a of G.agreements) {
+    if (a.state !== 'running') continue;
+    if (staff(a.role)?.name !== a.head) {
+      a.state = 'closed'; a.closedWeek = absWeek();
+      a.outcome = 'The responsible head left the role. This agreement is no longer in force.';
+      continue;
+    }
+    if (absWeek() < a.due) continue;
+    const current = record(a.role), delta = a.baseline.score == null ? null : current.score - a.baseline.score;
+    a.check = { score: current.score, verdict: current.verdict, delta,
+      lines: current.lines.slice(0, 3).map(line => line.slice()), at: absWeek() };
+    a.state = 'review';
+    a.outcome = delta == null ?
+      'The first six weeks are complete. Performance evidence is now available for a review.' :
+      delta >= 5 ? 'Performance has improved since the agreement.' :
+      delta <= -5 ? 'Performance has declined since the agreement.' :
+      'The measured performance has been broadly stable.';
+    G.paper.stories.push({ h: 'Leadership review due',
+      t: staff(a.role).name + ': ' + a.outcome + ' The CEO can review the mandate with the department head.' });
+  }
+}
+function agreementRespond(id, option) {
+  const a = agreementStore().find(x => x.id === id);
+  if (!a || a.state !== 'review') return { err: 'This review is not awaiting a decision.' };
+  if (!['continue', 'close'].includes(option)) return { err: 'Unknown review response.' };
+  if (staff(a.role)?.name !== a.head) return { err: 'The head has changed. This agreement is no longer current.' };
+  a.state = 'closed'; a.closedWeek = absWeek();
+  a.response = option;
+  if (option === 'continue') {
+    const next = beginAgreement(a.role, 'Renewed after evidence review');
+    return { out: 'You have renewed the existing direction with ' + a.head +
+      '. A new review is due in six weeks.', next: next.id };
+  }
+  return { out: 'The six-week evaluation with ' + a.head +
+    ' has been acknowledged. The existing mandate stays in force until changed.' };
+}
 function setMandate(role, m, free) {
   const old = G.mand[role];
   if (!old || !m) return { err: 'No mandate available.' };
@@ -150,6 +221,7 @@ function setMandate(role, m, free) {
       Object.keys(old).every(k => String(old[k]) === String(m[k])))
     return { out: 'Mandate unchanged.' };
   G.mand[role] = Object.assign({}, m); const s = staff(role); let t = 'New mandate issued.';
+  if (!free && G.phase === 'season') beginAgreement(role, 'Updated strategic mandate');
   if (s && !free) { let dist = 0; for (const x of MAND[role].sl) dist += Math.abs((m[x[0]] || 0) - (old[x[0]] || 0)); for (const x of MAND[role].ru) if (m[x[0]] !== old[x[0]]) dist += 25;
     if (dist > 90) { s.rel = clamp(s.rel - 4 - (s.p.ego - 10) * 0.4, 0, 100); t = `${s.name} accepts the new mandate but finds the change of course hard to explain to his department.`; }
     const lk = LEAN[role][0]; if (Math.abs(m[lk] - s.lean) < 20) { s.rel = clamp(s.rel + 3, 0, 100); t += ` ${s.name} likes this direction.`; } }

@@ -114,6 +114,8 @@ function act(a, d, el) {
     case 'rec-kind': F.recSetKind(d.p, d.k); break;
     case 'rec-appr': g.mand.dof = g.mand.dof || {}; g.mand.dof.approve = d.v; break;
     case 'prio-all': U.prioAll = true; break;
+    case 'agr-review': r = F.agreementRespond(d.id, d.v);
+      if (r && r.err) toast(r.err); else if (r && r.out) toast(r.out); break;
     case 'mand-save': r = F.setMandate(U.sheet.r, U.draft); if (r.err) toast(r.err); else { U.sheet = null; toast(r.out); } break;
     case 'talk-who': U.talkRole = d.r; U.talkOut = null; break;
     case 'talk-do': if (U.talkOut) break; r = F.talk(U.talkRole, d.t); if (r.err) toast(r.err); else U.talkOut = r.out; break;

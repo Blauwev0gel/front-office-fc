@@ -61,10 +61,11 @@ function build(lg, club, slot, season) {
 function attrsAt(P, ca) { const a = {}, d = ca - P.ca0; for (const k of ATTR) a[k] = clamp(P.raw[k] + (P.a_[k] || (k === 'han' || k === 'ref') && P.pos === 'GK' ? d : d * .5), 1, 20); return a; }
 /* ---------- a season of statistics: rates by position, scaled by ability, with luck ---------- */
 function season(P, ca, age, seasonNo, frac) {
+  const K = F.STATK;
   const r = mk(`${P.hs}|S${seasonNo}`), R = B[P.pos];
   const full = P.isStart ? r.ri(2200, SW * 90) : r.ri(200, 1800), mins = Math.round(full * frac), f = mins / 90, q = Math.pow(ca / 7, 1.5), qx = Math.pow(ca / 7, 1.2), qd = .6 + .4 * ca / 7;
   const xgT = R.xg * qx * f, xaT = R.xa * qx * f, xg = Math.max(0, xgT * (1 + r.gauss() * .15)), xa = Math.max(0, xaT * (1 + r.gauss() * .15)), g_ = r.pois(xg), a_ = r.pois(xa);
-  const sh = g_ + r.pois(xg / (0.11 * Math.pow(ca / 7, .6))), sot = Math.min(sh, g_ + r.pois(Math.max(0, sh - g_) * .33)), kp = a_ + r.pois(xa / .13);
+  const sh = g_ + r.pois(xg / (K.xgPerShot * Math.pow(ca / 7, .6))), sot = Math.min(sh, g_ + r.pois(Math.max(0, sh - g_) * K.sotShare)), kp = a_ + r.pois(xa / K.xaPerKeyPass);
   const dt = Math.round(R.dt * f * (.9 + r() * .2)), dw = Math.round(dt * clamp(R.dwr + (ca - 7) * .012 + r.gauss() * .02, .25, .75)), prg = Math.round(R.prg * (.6 + .4 * q) * f * (.9 + r() * .2));
   const tk = r.pois(R.tk * qd * f), ic = r.pois(R.ic * qd * f), cl = r.pois(R.cl * qd * f);
   let sv = 0, cs = 0, ga = 0; const defends = P.pos === 'GK' || P.pos === 'CB' || P.pos === 'FB';

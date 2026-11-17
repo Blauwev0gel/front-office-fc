@@ -1,4 +1,6 @@
 /* ---------- match simulation ---------- */
+// How chances relate to shots and key passes. One set of numbers: the seeded world (world.js) reads them through F.STATK.
+const STATK = { xgPerShot: 0.11, sotShare: 0.33, xaPerKeyPass: 0.13, gkXgPerShot: 0.2 };
 function wxFor(s, w, o) { let h = (s * 73856093) ^ (w * 19349663) ^ (o * 83492791); h = (h ^ (h >>> 13)) * 1274126177 >>> 0; return { rain: h % 100 < 25, night: (h >>> 8) % 100 < 30 }; }
 function expRand(m) { return -Math.log(1 - rnd()) * m; }
 function simOurMatch(oppId, home, comp) {
@@ -83,11 +85,11 @@ function simOurMatch(oppId, home, comp) {
     rat = clamp(rat, 4, 10);
     // B42: position counters, derived like progressive actions and duels: from the player's xG/xA, attributes and the match shape
     const ln = LINE[p.pos], oppPress = 1.3 - share * 0.6;
-    const sh = s.g + poisson(s.xg / 0.11), sot = Math.min(sh, s.g + poisson(Math.max(0, sh - s.g) * 0.33)), kp = s.a + poisson(s.xa / 0.13);
+    const sh = s.g + poisson(s.xg / STATK.xgPerShot), sot = Math.min(sh, s.g + poisson(Math.max(0, sh - s.g) * STATK.sotShare)), kp = s.a + poisson(s.xa / STATK.xaPerKeyPass);
     const tk = poisson(f * (ln === 'DF' ? 2.4 : ln === 'MF' ? 2.2 : ln === 'FW' ? 0.7 : 0) * (0.55 + p.a.tac / 22) * oppPress);
     const ic = poisson(f * (ln === 'DF' ? 1.7 : ln === 'MF' ? 1.4 : ln === 'FW' ? 0.4 : 0.2) * (0.55 + (p.a.mar + p.a.vis) / 44) * oppPress);
     const cl = poisson(f * (ln === 'DF' ? 4.2 : ln === 'MF' ? 1.1 : ln === 'FW' ? 0.3 : 0.6) * (0.5 + p.a.hea / 20) * (1.35 - share * 0.7));
-    let sv = 0; if (ln === 'GK') { const oppShots = tg + poisson(txg / 0.2), oppSot = tg + poisson(Math.max(0, oppShots - tg) * 0.33); sv = Math.max(0, oppSot - tg); }
+    let sv = 0; if (ln === 'GK') { const oppShots = tg + poisson(txg / STATK.gkXgPerShot), oppSot = tg + poisson(Math.max(0, oppShots - tg) * STATK.sotShare); sv = Math.max(0, oppSot - tg); }
     const cs = (ln === 'GK' || ln === 'DF') && tg === 0 && mn >= 60 ? 1 : 0, ga = ln === 'GK' && mn >= 45 ? tg : 0;
     const st = p.st; for (const [k, v] of [['sh', sh], ['sot', sot], ['kp', kp], ['tk', tk], ['ic', ic], ['cl', cl], ['sv', sv], ['cs', cs], ['ga', ga]]) st[k] = (st[k] || 0) + v;
     st.apps++; st.mins += mn; st.g += s.g; st.a += s.a; st.xg += s.xg; st.xa += s.xa; st.prg += prg; st.dw += dw; st.dt += dt; st.rat += rat; st.yc += s.yc; st.rc += s.rc;

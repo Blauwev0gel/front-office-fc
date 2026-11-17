@@ -16,6 +16,14 @@ The CEO fantasy requires alignment between **who has authority**, **how a player
 6. **Matchday has historical parallel UI.** ui/14-matchday-gazette.js is the staged Matchday; ui/06-sheets-ticker.js still has a ticker path. Verify reachability before retiring older controls.
 7. **Saves matter.** engine/14-save-api.js stores G as JSON and migrates older versions, removing legacy action points. A unified decision model must migrate state and avoid duplicate commits.
 
+## Specific defects and already-existing protections
+
+- **Concrete correctness issue:** answerBrief() catches exceptions from selected option effects, substitutes “Noted.”, and marks the briefing done anyway. A failed action can therefore appear successfully answered. Fix failure propagation and atomic commit behavior in the first decision-engine milestone.
+- **Over-generalized response design:** decideProposal() already distinguishes asking for a second opinion, revising terms, declining and approving a funded project. That workflow should not be flattened to a single generic choice component.
+- **Mandate agreement gap:** setMandate() updates the stored mandate and relationship immediately; it does not itself create an objective, evidence checkpoint or written two-party agreement. Those additions require actual new system design.
+- **Existing pacing protection:** genMessages() deliberately allows quiet weeks and limits optional event slots in the first three weeks. Diagnose any remaining week-one overload from forced events, briefs or other sources before removing the pacing system.
+- **Existing staff autonomy:** autoEvent() resolves staff-owned events and writes a Gazette item. What is missing is consistent long-lived causal access rather than a basic ability for departments to act.
+
 ## Risks still requiring evidence
 
 - Number of response choices does not establish decision quality; actual option/outcome code needs a counterfactual review.

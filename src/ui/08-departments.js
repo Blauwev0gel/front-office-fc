@@ -87,6 +87,31 @@ function agreementHtml(role) {
       </div>` : '<p class="small">Your employee continues working. No CEO action is needed before the review.</p>'}
   </section>`;
 }
+function specialistRecordsHtml(dk) {
+  if (!F.specialistCases) return '';
+  const cases=F.specialistCases(dk).slice(0,8);
+  if (!cases.length) return '';
+  const open=cases.filter(c=>c.status==='executing'||c.status==='review');
+  const render=c=>'<div class="fo-specialist-case">'+
+    '<span class="fo-specialist-state">'+(c.status==='review'?'REVIEW READY':
+      c.status==='interrupted'?'INTERRUPTED':'IN EXECUTION')+'</span>'+
+    '<b>'+esc(c.title)+'</b>'+
+    '<small>Responsible: '+esc(c.head)+' · season '+c.season+', week '+c.week+'</small>'+
+    '<p>'+esc(c.result)+'</p>'+
+    (c.financeConcern?'<p class="fo-specialist-conflict">'+esc(c.financeConcern)+'</p>':'')+
+    (c.review?'<p><b>Follow-up:</b> '+esc(c.review.text)+'</p>':
+      '<small>Evaluation after four game weeks. Staff continue their own work.</small>')+
+    '<details><summary>Evidence and actual changes</summary>'+
+    '<pre>'+esc(JSON.stringify({before:c.before,after:c.review?.evidence||c.after},null,2))+'</pre>'+
+    '</details></div>';
+  return '<section class="fo-specialist-records" aria-label="Department decision follow-up">'+
+    '<div class="sec">Decisions & execution <small>'+open.length+' active or reviewing</small></div>'+
+    open.slice(0,4).map(render).join('')+
+    (cases.length>open.length?'<details class="fo-specialist-archive"><summary>Decision history ('+
+      (cases.length-open.length)+')</summary>'+
+      cases.filter(c=>!open.includes(c)).map(render).join('')+'</details>':'')+
+    '</section>';
+}
 function headBtns(role, s) {
   const g = G(), sur = s.name.split(' ').slice(-1)[0];
   const PV = F.pwView ? F.pwView() : null, agChip = PV && PV.ag && PV.stage !== 'closed' && ['coach', 'dof', 'acad'].includes(role) ? `<button class="agchip" data-a="pw-open"><span>${ART.I.info}</span><b>Agreement: the ${esc(PV.tname)} question</b><small>${role === PV.ag.owner || (role === 'coach' && PV.ag.owner === PV.ag.owner && PV.ag.ownerName === s.name) ? 'Responsible' : 'Involved'} · evaluation week ${PV.ag.evalWeek}</small></button>` : '';
@@ -257,5 +282,5 @@ function vDept(k) {
     body = inbox + (k === 'recruit' && F.rxView ? rxDecisions(F.rxView()) : '') + (k === 'academy' && F.acView ? acDecisions(F.acView()) : '') + (k === 'commercial' && F.comView ? comDecisions(F.comView()) : '') + (k === 'marketing' && F.mkView ? mkDecisions(F.mkView()) : '') + (FP ? `<div class="sec">Target</div>${FP.deal}` : '') + bud + fac + proj + log;
   }
   const mini = v.head ? `<div class="hmini"><span class="dface">${ART.staffFace(d.head)}</span><span class="dt"><b>${esc(v.head.name)}</b><small>${esc(F.ROLE[d.head].t)}</small></span>${headBtns(d.head, v.head).replace('class="hbtns"', 'class="hbtns in"')}</div>` : headCard(k, v);
-  return `${head}${overview}${tab === 'over' ? headCard(k, v) : mini}${tabs}${body}`;
+  return `${head}${overview}${tab === 'over' ? headCard(k, v) : mini}${tabs}${body}${(tab==='over'||tab==='dec')?specialistRecordsHtml(k):''}`;
 }

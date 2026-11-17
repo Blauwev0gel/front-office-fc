@@ -85,13 +85,15 @@ $('ven').textContent=H?`${M.city}, home`:`${M.oppTown}, away`;
 const GOALS=M.ev.filter(e=>e.k==='goal'),KEY=M.ev.filter(e=>['goal','red','yellow','sub','injury','ht'].includes(e.k));
 // the ticker sequence: every beat is one line; quiet minutes get a short possession line, so the bar is never empty
 const steps=[];const has=new Set(B.map(m=>m.m));
-for(const mo of B){if(mo.k==='ft')continue;for(const b of mo.beats){if(b.k==='pause'){steps.push({m:mo.m,pause:true,hold:b.hold});continue;}steps.push({m:mo.m,t:b.t,side:mo.side,goal:!!b.goal,red:mo.k==='red'&&b.k==='out',after:b.k==='after',hold:b.hold||600,mo});}}
+const used=new Set();const keyFor=mo=>{const e=KEY.find(e=>!used.has(e)&&e.m===mo.m&&e.k===mo.k&&(e.k==='ht'||e.side===mo.side));if(e)used.add(e);return e||null;};
+for(const mo of B){if(mo.k==='ft')continue;const ke=keyFor(mo);let given=false;for(const b of mo.beats){if(b.k==='pause'){steps.push({m:mo.m,pause:true,hold:b.hold});continue;}const st={m:mo.m,t:b.t,side:mo.side,goal:!!b.goal,red:mo.k==='red'&&b.k==='out',after:b.k==='after',hold:b.hold||600,mo};if(ke&&!given&&(b.k==='out')){st.key=ke;given=true;}steps.push(st);}}
+const orphan=KEY.filter(e=>!used.has(e));
 for(let m=2;m<=93;m+=4){if([0,1,2,3].some(k=>has.has(m+k)))continue;const p=M.poss[Math.min(18,Math.floor((m-1)/5))],us=p>=50;const T=us?nm(M.club.name):nm(M.opp.name);const lines=[`${T} keep the ball in midfield.`,`${T} pass it across the back.`,`A spell of possession for ${T}.`,`${T} probe, looking for an opening.`];steps.push({m,t:lines[m%4],side:us?'us':'them',hold:450,quiet:true});}
 steps.sort((a,b)=>a.m-b.m||(a.quiet?-1:0));
 let i=0,min=0,fast=false,paused=false,done=false,t=null,sh,sot,xg,scs;
 const RM=matchMedia('(prefers-reduced-motion: reduce)').matches,sp=ms=>RM?Math.min(ms,120):fast?ms*.4:ms*.8;
 function fit(){const p=$('tl');p.style.fontSize='';let f=parseFloat(getComputedStyle(p).fontSize);while(p.scrollWidth>p.clientWidth&&f>12){f-=1;p.style.fontSize=f+'px';}}
-function tick1(s){const tk=$('tk');tk.className='tk'+(s.goal?' goal':s.red?' red':s.after?' after':'');$('tside').className='side '+(s.side||'');$('tl').innerHTML=`<span class="m">${s.m>90?'90+'+(s.m-90):s.m}'</span>${s.t}`;fit();
+function tick1(s){if(s.key)key(s.key);const tk=$('tk');tk.className='tk'+(s.goal?' goal':s.red?' red':s.after?' after':'');$('tside').className='side '+(s.side||'');$('tl').innerHTML=`<span class="m">${s.m>90?'90+'+(s.m-90):s.m}'</span>${s.t}`;fit();
  if(s.goal){const g=GOALS.find(e=>e.m===s.m&&e.side===s.side);if(g){scs=g.score;const [h,a]=sc2(g.score);$('hg').textContent=h;$('ag').textContent=a;const el=g.side===hS?$('hg'):$('ag');el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');scorers();}}}
 function scorers(){const by=side=>GOALS.filter(e=>e.side===side&&e.m<=min).reduce((o,e)=>{(o[sur(e.who)]=o[sur(e.who)]||[]).push(e.m);return o;},{});const f=o=>Object.entries(o).map(([n,ms])=>`<b>${n}</b> <span>${ms.join(', ')}</span>`).join(' · ');$('hs').innerHTML=f(by(hS));$('as').innerHTML=f(by(aS));}
 function poss(m){const p=M.poss[Math.min(18,Math.floor((Math.max(1,m)-1)/5))];const h=H?p:100-p;$('ph').textContent=h+'%';$('pa').textContent=(100-h)+'%';$('pb').style.gridTemplateColumns=`${h}fr ${100-h}fr`;$('ph').style.background=`var(--${hS})`;$('ph').style.color=`var(--${hS}On)`;$('pa').style.background=`var(--${aS})`;$('pa').style.color=`var(--${aS}On)`;}
@@ -113,12 +115,12 @@ function why(){const out=[],xu=M.xg.us,xt=M.xg.them,gu=M.sc.us,gt=M.sc.them;
 function report(){$('p2').innerHTML=done?`<div class="rp"><h4>${M.sc.us>M.sc.them?'A win':M.sc.us<M.sc.them?'A defeat':'A draw'}, ${scoreTxt(M.sc)}</h4><ul>${why().map(x=>`<li>${x}</li>`).join('')}</ul></div>`:`<div class="rp"><h4>Match report</h4><p>The report follows at full time: why we won or lost, from the real factors.</p></div>`;}
 function step(){if(done)return;if(paused){t=setTimeout(step,200);return;}
  const s=steps[i];if(!s)return finish();
- if(s.m>min){min++;clock(min);count(min);poss(min);for(const e of KEY.filter(e=>e.m===min&&e.k!=='ht'))key(e);if(min===45||(min===46&&!KEY.some(e=>e.k==='ht'&&e.m===45))){const ht=KEY.find(e=>e.k==='ht');if(ht&&ht.m===min)key(ht);}t=setTimeout(step,sp(steps[i]&&steps[i].m>min+1?45:95));return;}
+ if(s.m>min){min++;clock(min);count(min);poss(min);for(const e of orphan.filter(e=>e.m===min))key(e);t=setTimeout(step,sp(steps[i]&&steps[i].m>min+1?45:95));return;}
  i++;if(s.pause){const p=$('tl');p.innerHTML+=' …';t=setTimeout(step,sp(s.hold));return;}
  if(s.mo&&s.mo.k==='ht')$('half').textContent='Half-time';
  tick1(s);t=setTimeout(step,sp(s.hold));}
 function finish(){if(done)return;done=true;clearTimeout(t);
- for(let m=min+1;m<=94;m++){min=m;count(m);for(const e of KEY.filter(e=>e.m===m))key(e);}
+ for(let k=i;k<steps.length;k++)if(steps[k].key)key(steps[k].key);for(let m=min+1;m<=94;m++){min=m;count(m);for(const e of orphan.filter(e=>e.m===m))key(e);}
  min=94;clock(94);poss(94);const [h,a]=sc2(M.sc);$('hg').textContent=h;$('ag').textContent=a;scorers();$('half').textContent='Full time';
  const ft=B.find(mo=>mo.k==='ft');tick1({m:94,t:`Full time. ${scoreTxt(M.sc)}.`,side:null});report();
  $('bP').textContent='Watch again';$('bP').onclick=restart;$('bF').disabled=true;$('bS').disabled=true;}

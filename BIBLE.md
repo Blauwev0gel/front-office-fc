@@ -268,3 +268,15 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 - Appointments, dismissals/replacements, amended mandates and new seasons preserve historical agreements without reusing stale performance baselines.
 - One-to-one meetings now retain actual selected responses and observed relationship/motivation changes, linked to current agreements. These records are persisted in the save and can be reopened.
 - The full specialized department/conversation/event refactor remains **open**. This is a structurally integrated accountability slice, not completion of the 47-task game rebuild.
+
+
+## B25 — Specialist execution and interdepartmental accountability (chatgpt, 2026-11-17)
+
+- Source: `docs/ux-rebuild/12-IMPLEMENTATION-STATUS.md` (latest specialist integration section).
+- Specialized decisions across First Team, Recruitment, Academy, Commercial, Marketing and Business use the common transactional execution gate and shared follow-up ledger while retaining each underlying specialist game's real implementation.
+- Policy editing is coalesced, not treated as a new urgent CEO case for each tap. Actual results are compared with recorded indicators four weeks later; reports do not claim every change is caused by one action.
+- Finance's budget objections now matter when scouting, campaign or commercial investment is outside the sustainable departmental envelope. The CEO may explicitly authorize an exception or defer.
+- Community-identity clubs must address Marketing's objections before accepting a betting sponsor. Commercial contract economics and fan impacts remain driven by its original engine. Staff reactions to the CEO's direction are preserved.
+- Original event/brief response handlers, including Academy development actions, contribute to the same case history without replaying the underlying specialist action.
+- Tests cover actual departmental state mutation, rollbacks, deadlines/reviews, legacy route bypass prevention, persisted saves and cross-functional outcomes.
+- **Outstanding:** no claim of browser-based every-screen coverage or independent verification of every conditional event in the repository. Preserve the distinction between a green build, the integrated gameplay milestone, and the unfinished broader 47-task rebuild.

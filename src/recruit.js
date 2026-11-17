@@ -85,7 +85,7 @@ function fitsProfile(p, k, pr) { if (!pr) return false; if (pr.kind === 'young')
 function grade(p, k) {
   const ref = Math.max(posWorst(p.pos), posBest(p.pos) - 1), pr = prioOf(p);
   let d = k.est - ref + (k.pest - k.est) * (man('dof', 'youth') / 100) * 0.3 + (fitsProfile(p, k, pr) ? 0.5 : 0) + (F.squadNeeds().includes(p.pos) ? 0.6 : 0);
-  const budget = F.transferBudget() + extraAuth(); if (p.ask > budget * 1.3) d -= 1.5;
+  const budget = F.transferBudget() + extraAuth(p); if (p.ask > budget * 1.3) d -= 1.5;
   return d >= 1 ? 'A' : d >= 0.3 ? 'B' : d >= -0.5 ? 'C' : 'D';
 }
 const rng = (a, b) => a === b ? `${a}★` : `${a}–${b}★`;
@@ -95,14 +95,22 @@ const potTxt = k => rng(F.stars(Math.max(k.est, k.pest - k.psd * 0.75)), F.stars
 /* ---------- pipeline ---------- */
 const pipeOf = id => RC().pipe.find(x => x.pid === id);
 function addPipe(id, stage) { let x = pipeOf(id); if (!x) { x = { pid: id, stage, since: F.absWeek(), log: [] }; RC().pipe.push(x); } else if (STAGES.indexOf(stage) > STAGES.indexOf(x.stage) && x.stage !== 'lost') { x.stage = stage; x.since = F.absWeek(); } return x; }
-function setStage(x, st, why) { x.stage = st; x.since = F.absWeek(); if (why) x.log.push(why); }
+function setStage(x, st, why) { x.stage = st; x.since = F.absWeek(); if (why) x.log.push(why); if (st === 'lost' && RC().extraPid === x.pid) { RC().extra = 0; RC().extraPid = null; } } // an exception for one player ends with him
 // spending authority above the transfer budget: an exceptional CEO authorisation from the protected reserve (agreements.js),
 // capped live by the cash above the budget, so the same money is never counted twice and no money is created
-function extraAuth() { const r = RC(), a = (r.extra || 0) + (F.agrAuth ? F.agrAuth() : 0); return Math.max(0, Math.min(a, g().club.cash - F.transferBudget())); }
-F.recExtraAuth = () => extraAuth();
+/* Money for transfers, three layers kept apart:
+   authority  = the transfer budget Finance sets (ordinary) + purpose-bound exceptions (a CEO agreement for one position,
+                or a CEO exception for one player); an exception never helps an unrelated deal;
+   commitment = bids on the table in other negotiations, which the same money cannot back twice;
+   settlement = the cash deducted when a signing completes (F.sign), checked again at that moment against current finances. */
+function committed(except) { return RC().pipe.filter(y => y !== except && y.stage === 'negotiating' && y.deal).reduce((a, y) => a + (y.deal.offer || 0), 0); }
+function extraAuth(p) { const r = RC(); let a = 0; if (p) { if (r.extra && (r.extraPid == null || r.extraPid === p.id)) a += r.extra; if (F.agrAuthFor) a += F.agrAuthFor(p.pos); }
+  return Math.max(0, Math.min(a, g().club.cash - F.transferBudget())); }
+F.recExtraAuth = p => extraAuth(p);
+F.recCommitted = () => committed(null);
 function threshold() { const a = man('dof', 'approve'); return a === '999' ? Infinity : a === '0' ? 0 : F.transferBudget() * (+a) / 100; }
 function wageLimit() { const mw = man('dof', 'maxWage'); if (mw === '999') return Infinity; const l = F.playerWages() / Math.max(1, sq().length) * (+mw) / 100; return sq().length < 17 ? Math.max(l, wageFor(tierAvg(g().club.tier)) * 1.3) : l; }
-function capFor(p) { const b = F.transferBudget() + extraAuth(), mf = man('dof', 'maxFee'); const lim = mf === '0' ? 0 : b * (+mf) / 100; return Math.round(Math.min(lim, b) / 100) * 100; }
+function capFor(p, x) { const b = Math.max(0, F.transferBudget() + extraAuth(p) - committed(x)), mf = man('dof', 'maxFee'); const lim = mf === '0' ? 0 : b * (+mf) / 100; return Math.round(Math.min(lim, b) / 100) * 100; }
 function ruleIssues(p) { const out = []; if (p.age > +man('dof', 'maxAge')) out.push('age limit'); if (p.club && p.ask * 0.75 > capFor(p)) out.push('fee limit'); if (p.wageAsk > wageLimit() * 1.25) out.push('wage limit'); const leaving = sq().filter(q => q.sellFlag || q.expiring).reduce((a, q) => a + q.wage, 0); if ((F.playerWages() - leaving + p.wageAsk) / Math.max(1, F.revenueAvg()) > +man('fin', 'wageCap') / 100 + 0.05) out.push('wage cap'); return out; }
 
 /* ---------- negotiation ---------- */
@@ -112,12 +120,13 @@ function openDeal(x, capOverride) {
   if (!inWin()) { x.apAsked = false; return setStage(x, 'recommended', 'The window is closed. He stays on the list for the next one.'); }
   const neg = F.eff('dof', 1), hard = man('dof', 'hard') / 100;
   const floor = p.club ? Math.round(p.ask * (0.72 + F.rnd() * 0.18 - (neg - 10) * 0.012) * (g().phase === 'season' && g().week >= 17 ? 1.15 : 1) * (F.deptHas && F.deptHas('recruit', 'neg') ? 0.9 : 1) / 100) * 100 : 0;
-  x.deal = { club: p.club, ask: p.ask, floor, cap: capOverride != null ? capOverride : Math.max(capFor(p), 0), offer: 0, round: 0, wageAsk: p.wageAsk, sellon: false, inst: false, rounds: [], rivalAsked: false };
+  x.deal = { club: p.club, ask: p.ask, floor, ceo: capOverride != null ? 1 : 0, cap: capOverride != null ? capOverride : Math.max(capFor(p, x), 0), offer: 0, round: 0, wageAsk: p.wageAsk, sellon: false, inst: false, rounds: [], rivalAsked: false };
   setStage(x, 'negotiating', p.club ? `Opening talks with ${cn(p)}.` : 'Talks with the player\'s agent.');
 }
 function negRound(x) {
   const p = RC().pool[x.pid], d = x.deal; if (!p) return setStage(x, 'lost', 'He signed elsewhere.');
   d.round++; const hard = man('dof', 'hard') / 100, cl = man('dof', 'clauses');
+  { const live = liveCap(p, x); if (live < d.cap) { d.rounds.push(`Our finances changed: the ceiling drops from ${money(d.cap)} to ${money(live)}.`); d.cap = live; } if (p.club && d.cap < d.floor * 0.6) return setStage(x, 'lost', `Finances changed: we can no longer get near ${cn(p)}'s price.`); }
   if (p.club) {
     d.offer = d.round === 1 ? Math.round(Math.min(d.cap, d.ask * (0.85 - hard * 0.2)) / 100) * 100 : Math.round(Math.min(d.cap, d.offer + (Math.min(d.cap, d.ask) - d.offer) * 0.6) / 100) * 100;
     if (cl !== 'none' && !d.sellon && d.offer < d.floor) { d.sellon = true; d.floor = Math.round(d.floor * 0.9 / 100) * 100; d.rounds.push(`Adds a 15% sell-on clause; ${cn(p)} lower their price.`); }
@@ -129,8 +138,13 @@ function negRound(x) {
     if (!d.rivalAsked && chance(0.07 + (RC().know[x.pid] && RC().know[x.pid].grade === 'A' ? 0.07 : 0))) { d.rivalAsked = true; F.queueEvent('rec_rival', { pid: x.pid, rival: aiClub(Math.max(1, g().club.tier - 1)), bid: Math.round(d.offer * 1.15 / 100) * 100 }); }
   } else { d.fee = 0; return wagePhase(x); }
 }
+// the most this deal may cost now: the DoF's mandate (with exceptions bound to this player or position), minus other bids;
+// a CEO-approved price may go past the mandate, never past the cash the club has left after other bids
+function liveCap(p, x) { const cash = Math.max(0, g().club.cash - committed(x)); return Math.round(Math.min(x.deal.ceo ? Math.max(x.deal.cap, capFor(p, x)) : capFor(p, x), cash) / 100) * 100; }
 function wagePhase(x) {
   const p = RC().pool[x.pid], d = x.deal, lim = wageLimit();
+  if (p.club && d.fee > 0) { const live = liveCap(p, x), cashNow = Math.round((d.inst ? d.fee * 0.6 : d.fee) + d.fee * 0.08); // settlement check at the moment of signing
+    if (d.fee > live || cashNow > g().club.cash - committed(x)) { d.rounds.push(`Before signing, Finance checks again: ${money(d.fee)} no longer fits (${money(live)} now).`); if (live >= d.floor && d.round < 5) { d.cap = live; d.offer = live; delete d.fee; return setStage(x, 'negotiating', `Finances changed. Back to ${cn(p)} with ${money(live)}.`); } return setStage(x, 'lost', `Finances changed before he signed: ${money(d.fee)} is more than we can now commit.`); } }
   d.wage = Math.round(Math.min(d.wageAsk, lim * 1.05) / 5) * 5;
   if (d.wage >= d.wageAsk * 0.97 || chance(Math.pow(d.wage / d.wageAsk, 4))) { d.rounds.push(`Personal terms agreed at ${money(d.wage)}/wk.`); setStage(x, 'agreed'); return complete(x); }
   d.rounds.push(`He wants ${money(d.wageAsk)}/wk; we can offer ${money(d.wage)}.`); setStage(x, 'lost', `${p.name} rejects our wage offer.`);
@@ -143,11 +157,11 @@ function complete(x) {
   const k = r.know[p.id]; p.pCA = k ? k.est : p.ca; p.pPA = k ? k.pest : p.pa; if (d.sellon) p.sellOn = 0.15;
   { const w = (r.win = r.win || {}), kk = winKey(); w[kk] = w[kk] || {}; w[kk][p.pos] = (w[kk][p.pos] || 0) + 1; }
   const wkey = p.wkey; delete p.wkey; delete p.fclub;
-  F.sign(p); if (wkey && F.worldSigned) F.worldSigned(wkey, p); setStage(x, 'signed', d.fee ? `Signed for ${money(d.fee)}${d.inst ? ' (instalments)' : ''}${d.sellon ? ' with a sell-on clause' : ''}. Agent fee ${money(agent)}.` : `Signed on a free, ${money(d.wage)}/wk.`);
+  const ord = F.transferBudget(); F.sign(p); if (F.agrUse) F.agrUse(p.pos, Math.max(0, d.fee - ord), p.name); if (wkey && F.worldSigned) F.worldSigned(wkey, p); setStage(x, 'signed', d.fee ? `Signed for ${money(d.fee)}${d.inst ? ' (instalments)' : ''}${d.sellon ? ' with a sell-on clause' : ''}. Agent fee ${money(agent)}.` : `Signed on a free, ${money(d.wage)}/wk.`);
   r.log.unshift({ s: g().season, w: g().week, name: p.name, fee: d.fee, wage: d.wage, est: k ? +k.est.toFixed(2) : null, by: k ? k.byId : null, pos: p.pos, pid: p.id, surplus: winBuys(p.pos) > 1 });
   for (const y of r.pipe) { const q = r.pool[y.pid]; if (!q || q.pos !== p.pos || y === x || !['negotiating', 'approach', 'recommended'].includes(y.stage)) continue; if (!slotOpen(q, r.know[y.pid])) { if (y.stage !== 'recommended') setStage(y, 'recommended', 'On hold: position covered.'); y.apAsked = false; y.hold = true; } }
   if (d.fee > 0) g().paper.stories.push({ h: 'Deal done', t: `${N('dof')} completes the signing of ${p.name} after ${d.round} round${d.round === 1 ? '' : 's'} of talks.` });
-  r.extra = 0;
+  if (r.extraPid == null || r.extraPid === p.id) { r.extra = 0; r.extraPid = null; }
 }
 
 /* ---------- weekly ---------- */
@@ -196,7 +210,7 @@ function dofPipeline() {
   const active = r.pipe.filter(x => ['approach', 'negotiating'].includes(x.stage)).length;
   const recs = r.pipe.filter(x => x.stage === 'recommended' && r.pool[x.pid] && !x.apAsked && (x.ceo || slotOpen(r.pool[x.pid], r.know[x.pid])) && (x.ceo || !F.squadPlanAllows || F.squadPlanAllows(r.pool[x.pid]))).sort((a, b) => scoreRec(b) - scoreRec(a));
   const upgrade = recs.some(x => r.know[x.pid].grade === 'A' && r.know[x.pid].est > posWorst(r.pool[x.pid].pos) + 0.4);
-  const wanted = sq().length < depth + 1 || need.length || (upgrade && sq().length < depth + 4) || recs.some(x => x.ceo);
+  const agreedPos = F.agrPrios ? F.agrPrios().map(a => a.pos) : [], wanted = sq().length < depth + 1 || need.length || (upgrade && sq().length < depth + 4) || recs.some(x => x.ceo || agreedPos.includes(r.pool[x.pid].pos)); // a position agreed with the CEO is a want
   let slots = wanted ? 2 - active : 0;
   if (F.finTight && F.finTight() && (!need.length || F.wageRatio() * 100 > +man('fin', 'wageCap') + 10)) slots = 0; // money first
   for (const x of recs) {
@@ -282,7 +296,7 @@ F.recView = () => {
   ensure(); const r = RC();
   if (!r.plan.set) { r.plan.set = true; if (!r.plan.prios.length) r.plan.prios = F.recPlanSuggest().slice(0, 2).map(x => ({ pos: x.pos, kind: x.kind })); }
   const rows = r.pipe.map(x => { const p = r.pool[x.pid] || sq().find(s => s.id === x.pid), k = r.know[x.pid]; return { x, p, k }; }).filter(o => o.p);
-  return { r, rows, scouts: scoutsAll(), plan: r.plan, budget: F.transferBudget() + extraAuth(), threshold: threshold(), wageLimit: wageLimit(), STAGES, inWin: inWin() };
+  return { r, rows, scouts: scoutsAll(), plan: r.plan, budget: F.transferBudget(), exc: F.agrAuthList ? F.agrAuthList() : [], committed: committed(null), threshold: threshold(), wageLimit: wageLimit(), STAGES, inWin: inWin() };
 };
 
 F.recScoutAcc = s => { const errs = RC().log.filter(l => l.by === s.id && l.est != null).map(l => { const p = sq().find(q => q.name === l.name && q.pos === l.pos); return p ? Math.abs(F.stars(l.est) - F.stars(p.ca)) : null; }).filter(v => v != null); return errs.length ? { n: errs.length, err: errs.reduce((a, b) => a + b, 0) / errs.length } : null; };
@@ -290,7 +304,7 @@ F.recReport = report; F.recScouts = scoutsAll; F.recRules = ruleIssues; F.recSet
 F.recPlanBoard = () => { ensure(); const r = RC(); return (r.plan.prios || []).map(pr => { const pos = pr.pos, rows = r.pipe.filter(x => r.pool[x.pid] && r.pool[x.pid].pos === pos), busy = rows.find(x => ['negotiating', 'approach'].includes(x.stage)), next = rows.filter(x => x.stage === 'recommended' && !x.hold)[0], signed = r.log.find(l => l.s === g().season && l.pos === pos && winBuys(pos) > 0); const st = winBuys(pos) > 0 ? 'done' : busy ? 'busy' : 'open'; return { pos, st, who: st === 'done' ? (signed ? signed.name + ' signed' : 'Signed') : busy ? r.pool[busy.pid].name + (busy.stage === 'approach' ? ', your call' : ', talks') : next ? r.pool[next.pid].name + ' next' : `${rows.filter(x => x.stage === 'scouted').length} on the list`, pid: busy ? busy.pid : next ? next.pid : null }; }); };
 F.recSlotOpen = slotOpen;
 F.recDeal = () => { ensure(); dofPipeline(); };
-F.recLate = () => { ensure(); const r = RC(), b = F.transferBudget() + extraAuth(); return Object.values(r.pool).filter(p => { const k = r.know[p.id], x = pipeOf(p.id); return k && (k.grade === 'A' || k.grade === 'B') && k.conf !== 'low' && (!x || ['scouted', 'recommended'].includes(x.stage)) && slotOpen(p, k) && p.ask * 1.2 <= b && !ruleIssues(p).filter(i => i !== 'fee limit').length; }).sort((a, b2) => (r.know[b2.id].est - r.know[a.id].est))[0] || null; };
+F.recLate = () => { ensure(); const r = RC(), b = F.transferBudget(); return Object.values(r.pool).filter(p => { const k = r.know[p.id], x = pipeOf(p.id); return k && (k.grade === 'A' || k.grade === 'B') && k.conf !== 'low' && (!x || ['scouted', 'recommended'].includes(x.stage)) && slotOpen(p, k) && p.ask * 1.2 <= b && !ruleIssues(p).filter(i => i !== 'fee limit').length; }).sort((a, b2) => (r.know[b2.id].est - r.know[a.id].est))[0] || null; };
 F.recForceSign = (pid, fee, wage, note) => { const r = RC(), p = r.pool[pid]; if (!p) return false; const x = addPipe(pid, 'approach'); x.deal = { club: p.club, ask: p.ask, floor: fee, cap: fee, offer: fee, fee, round: 1, wageAsk: p.wageAsk, wage, sellon: false, inst: false, rounds: [note || `Deadline-day deal: ${money(fee)}.`] }; setStage(x, 'agreed'); complete(x); return true; };
 F.recWageLimit = wageLimit;
 F.recPlayer = id => { const r = RC(); return { p: r.pool[id], k: r.know[id], x: pipeOf(id) }; };
@@ -315,7 +329,7 @@ E('rec_exception', { forced: 1, from: 'dof', dept: 'sporting', cd: 1, why: c => 
   second: { r: 'scout', t: c => { const p = P(c.pid); if (!p) return 'Gone.'; const est = p.ca + gauss() * 0.4; return `"I have him at ${F.stars(est)}★. ${est >= posBest(p.pos) ? 'Better than what we have.' : 'Not clearly better than what we have.'}"`; } },
   title: c => `DoF wants an exception for ${P(c.pid) ? P(c.pid).name : 'a target'}`, body: c => dossier(c),
   opts: [
-    { l: 'Allow the exception', h: 'Rules bend for this deal · DoF trust ↑', f: c => { const x = pipeOf(c.pid), p = P(c.pid); if (!x || !p) return 'Gone.'; RC().extra = Math.max(0, Math.round(p.ask - capFor(p))); setStage(x, 'approach'); openDeal(x, Math.round(p.ask * 1.05 / 100) * 100); if (staff('dof')) staff('dof').rel = clamp(staff('dof').rel + 5, 0, 100); return 'Talks open outside the usual limits.'; } },
+    { l: 'Allow the exception', h: 'Rules bend for this deal · DoF trust ↑', f: c => { const x = pipeOf(c.pid), p = P(c.pid); if (!x || !p) return 'Gone.'; RC().extra = Math.max(0, Math.round(p.ask - capFor(p))); RC().extraPid = p.id; setStage(x, 'approach'); openDeal(x, Math.round(p.ask * 1.05 / 100) * 100); if (staff('dof')) staff('dof').rel = clamp(staff('dof').rel + 5, 0, 100); return 'Talks open outside the usual limits.'; } },
     { l: 'Hold the line', h: 'DoF trust ↓', f: c => { const x = pipeOf(c.pid); if (x) setStage(x, 'lost', 'Blocked by the rules.'); if (staff('dof')) staff('dof').rel = clamp(staff('dof').rel - 4, 0, 100); return 'He drops it.'; } }],
   auto: () => 1 });
 E('rec_raise', { forced: 1, from: 'dof', dept: 'sporting', cd: 1, why: 'The seller wants more than the DoF may pay.',

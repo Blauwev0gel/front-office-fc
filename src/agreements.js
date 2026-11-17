@@ -108,7 +108,12 @@ function views(sig) {
   return out;
 }
 // what Finance can expose from the protected reserve: real cash above the transfer budget, half of it at most, none when cash is short
-function reserveOffer(V) { if (!V.fin || !V.dof) return 0; const run = F.finRunway ? F.finRunway() : null; if (run != null && run <= 10) return 0; const head = g().club.cash - (F.transferBudget ? F.transferBudget() : 0); return head > 0 ? Math.round(head * 0.4 / 100) * 100 : 0; }
+function reserveOffer(V) { return V && V.fin && V.dof ? liveOffer() : 0; }
+// THE one place an exposure of the protected reserve is priced, for every route, always from current figures:
+// cash above the transfer budget, minus exceptions already granted and bids already on the table; 40% of that at most; none when cash is short
+function liveOffer() { if (!staff('fin') || !staff('dof')) return 0; const run = F.finRunway ? F.finRunway() : null; if (run != null && run <= 10) return 0;
+  const head = g().club.cash - (F.transferBudget ? F.transferBudget() : 0) - authLeft() - (F.recCommitted ? F.recCommitted() : 0); return head > 0 ? Math.round(head * 0.4 / 100) * 100 : 0; }
+const authLeft = () => open().filter(a => a.kind === 'plan' && a.funds && !a.done).reduce((t, a) => t + Math.max(0, a.funds - (a.used || 0)), 0);
 // why the scouts come back empty: the price (budget) or the rules (age, wage); read from the real market
 function marketWhy(pos) { const G = g(), R = G.rec; if (!R) return 'nobody available'; const t = G.club.tier, ma = +F.man('dof', 'maxAge'), wl = F.recView ? F.recView().wageLimit : Infinity, budget = (F.transferBudget ? F.transferBudget() : 0) + (F.recExtraAuth ? F.recExtraAuth() : 0);
   const near = Object.values(R.pool).filter(p => p.pos === pos && Math.abs(p.inTier - t) <= 1), rules = near.filter(p => p.age <= ma && p.wageAsk <= wl * 1.15), cheap = rules.filter(p => !p.club || p.ask * 0.8 <= budget);
@@ -166,7 +171,7 @@ function execute(a) {
     const sig = signal(), now = sig || { S: stats(games().slice(-4)), k: a.sk, area: a.sk === 'attack' ? ['ST', 'W', 'AM'] : ['CB', 'FB'] }, V = views(Object.assign({}, now, { t: a.st }));
     const recP = V.dof && V.dof.weak && V.coach && V.coach.rec === 'plan', recB = !sig || (V.coach && V.coach.rec === 'back' && !(V.dof && V.dof.weak));
     a.res = 'merged'; a.out = recP ? 'They agree: strengthen.' : recB ? 'They agree: the squad is good enough.' : 'They still disagree.';
-    F.queueEvent('ini_joint', { rec: recP ? 'plan' : recB ? 'back' : 'split', pos: V.dof ? V.dof.pos : null, sk: a.sk, st: a.st, cv: V.coach ? V.coach.t : '', dv: V.dof ? V.dof.t : '', cn: V.coach ? V.coach.n : '', dn: V.dof ? V.dof.n : '', funds: V.fin && V.fin.ok ? Math.round(V.fin.tb * 0.5 / 100) * 100 : 0 });
+    F.queueEvent('ini_joint', { rec: recP ? 'plan' : recB ? 'back' : 'split', pos: V.dof ? V.dof.pos : null, sk: a.sk, st: a.st, cv: V.coach ? V.coach.t : '', dv: V.dof ? V.dof.t : '', cn: V.coach ? V.coach.n : '', dn: V.dof ? V.dof.n : '' });
   }
 }
 /* REVIEW: three questions kept apart, so a head is judged on his own part.
@@ -213,13 +218,17 @@ H.seasonAfterMatch = o => { if (prevAfter2) prevAfter2(o); for (const a of list(
 
 /* the two follow-ups the CEO answers: the joint recommendation, and the review of the agreement */
 const E = F.defineEvent;
+// accepting the joint recommendation: the same rules as the direct route; reserve money only if the CEO says so, priced now
+function jointPlan(c, reserve) { const sig = signal() || { S: stats(games().slice(-4)), k: c.sk, t: c.st, area: ['CB', 'FB'] }, V = views(sig); if (!V.dof) return 'There is no DoF.'; V.dof.pos = c.pos || V.dof.pos;
+  const offer = reserve ? liveOffer() : 0, a = iniAgree('plan', sig, V, offer); startIni(a, V); return reserve && !offer ? `Finance has nothing to expose now. ${c.dn} works within the budget.` : `${c.dn} has the job${offer ? `, with up to ${money(offer)} from the reserve for this position` : ''}.`; }
 E('ini_joint', { forced: 1, from: 'dof', dept: 'sporting', ceo: 1, cd: 1, why: 'You asked the coach and the DoF for one plan.',
   title: c => c.rec === 'split' ? 'Coach and DoF still disagree' : `Coach and DoF: ${c.rec === 'plan' ? 'strengthen' : 'stay the course'}`,
   body: c => `${c.cn}: "${c.cv}" ${c.dn}: "${c.dv}"`,
   opts: [{ l: c => `Back ${c.cn} with this squad`, h: 'Judged after five games', f: c => { const sig = signal() || { S: stats(games().slice(-4)), k: c.sk, t: c.st, area: ['CB', 'FB'] }, V = views(sig); startIni(iniAgree('back', sig, V), V); return `${c.cn} gets his five games.`; } },
-    { l: c => `${c.dn} fixes the ${posL(c.pos || 'CB')} position`, h: c => c.funds ? `${money(c.funds)} extra · judged after the window` : 'No extra money', f: c => { const sig = signal() || { S: stats(games().slice(-4)), k: c.sk, t: c.st, area: ['CB', 'FB'] }, V = views(sig); if (V.dof) V.dof.pos = c.pos || V.dof.pos; if (!V.dof) return 'There is no DoF.'; startIni(iniAgree('plan', sig, V, c.funds), V); return `${c.dn} has the job.`; } },
+    { l: c => `${c.dn} fixes the ${posL(c.pos || 'CB')} position, within budget`, h: () => `Ordinary budget ${money(F.transferBudget ? F.transferBudget() : 0)} · judged after the window`, f: c => jointPlan(c, false) },
+    { l: () => liveOffer() ? `…and allow up to ${money(liveOffer())} from the reserve` : '…and expose part of the reserve', h: () => liveOffer() ? 'Less cash cover · only for this position · Finance ↓' : 'Finance: there is no reserve to expose right now', f: c => jointPlan(c, true) },
     { l: 'Leave it as it is', h: 'No change', f: () => { g().iniSeen = F.absWeek(); return 'Nothing changes. You keep watching.'; } }],
-  auto: () => 2 }); // unanswered, nothing changes: an investigation never authorises itself
+  auto: () => 3 }); // unanswered, nothing changes: an investigation never authorises itself
 E('ini_review', { forced: 1, from: 'board', dept: 'board', ceo: 1, cd: 1, why: 'An agreement you made has reached its review week.',
   title: c => `Review: ${c.t.toLowerCase()}`, body: c => c.out,
   opts: [{ l: 'Credit him', h: 'Trust ↑ · he remembers', f: c => { const s = staff(c.owner); if (s) { s.rel = clamp(s.rel + (['idle', 'worse'].includes(c.execK) ? 0 : 3), 0, 100); } const a = list().find(x => x.id === c.id); if (a) a.ceo = 'credit'; return ['idle', 'worse'].includes(c.execK) ? 'You credit him anyway. He knows he did not deliver.' : 'You make a point of it in the staff meeting.'; } },
@@ -231,7 +240,11 @@ E('ini_review', { forced: 1, from: 'board', dept: 'board', ceo: 1, cd: 1, why: '
 F.agrPrios = () => { const G = g(), out = []; for (const a of open()) if ((a.k === 'pos' || a.kind === 'plan') && !a.done && a.pos && !out.some(x => x.pos === a.pos)) out.push({ pos: a.pos, why: `${a.ordered ? 'Ordered by' : 'Agreed with'} the CEO in week ${a.mw}` });
   if (G.dofPrio && G.dofPrioAt != null && F.absWeek() - G.dofPrioAt < 8 && !out.some(x => x.pos === G.dofPrio)) out.push({ pos: G.dofPrio, why: `The CEO's priority since week ${G.week - (F.absWeek() - G.dofPrioAt)}` }); return out.slice(0, 2); };
 // exceptional spending authority from the reserve, while the agreement runs and nobody has been signed for it
-F.agrAuth = () => open().filter(a => a.kind === 'plan' && a.funds && !a.done).reduce((m, a) => Math.max(m, a.funds), 0);
+F.agrAuth = () => authLeft(); // total still authorised (each agreement its own remainder; never summed into one pot for any deal)
+F.agrAuthFor = pos => open().filter(a => a.kind === 'plan' && a.funds && !a.done && a.pos === pos).reduce((t, a) => t + Math.max(0, a.funds - (a.used || 0)), 0);
+F.agrAuthList = () => open().filter(a => a.kind === 'plan' && a.funds && !a.done).map(a => ({ pos: a.pos, amt: Math.max(0, a.funds - (a.used || 0)), t: a.t, mw: a.mw }));
+// a signing at that position draws on its exception only for the part above the ordinary budget; the rest is released when the agreement ends
+F.agrUse = (pos, over, name) => { for (const a of open().filter(a => a.kind === 'plan' && a.funds && !a.done && a.pos === pos)) { const u = Math.min(over, Math.max(0, a.funds - (a.used || 0))); a.used = (a.used || 0) + u; (a.log = a.log || []).push({ w: g().week, t: `${name} signed${u ? `, using ${money(u)} of the ${money(a.funds)} from the reserve` : ' within the ordinary budget; the reserve was not touched'}.` }); break; } };
 F.iniSignal = () => (iniOpen() || (g().iniSeen != null && F.absWeek() - g().iniSeen < 3)) ? null : signal();
 F.iniActive = iniOpen;
 

@@ -102,3 +102,43 @@ Daarnaast `G.iniSeen` (de laatste keer dat de CEO "wait" koos). Een migratie is 
   - idle of worse: −.
 - Het oordeel van de CEO werkt door: wie een head de schuld geeft van goed werk of van een eigen opdracht, verliest meer vertrouwen.
 - **Test:** `test/initiative-fixes.js` §4, plus geen herhaalde reviews en oude saves.
+
+## Financiële integriteit (tweede review, vanaf 55a131d)
+
+### Drie lagen geld, apart gehouden (`recruit.js`)
+1. **Bevoegdheid:** het transferbudget dat Finance berekent (`transferBudget()`, elke keer opnieuw uit de kas), plus **uitzonderingen met een doel**:
+   - een CEO-afspraak voor **één positie** (`F.agrAuthFor(pos)`, met `funds` en `used` per afspraak);
+   - een CEO-uitzondering voor **één speler** (`rec.extra` met `rec.extraPid`).
+
+   Een uitzondering helpt nooit een andere deal (`extraAuth(p)`).
+2. **Verplichting:** biedingen die openstaan in andere onderhandelingen (`committed()`). Hetzelfde geld kan geen twee biedingen dekken. `capFor(p, x)` trekt ze af.
+3. **Afrekening:** de kas gaat pas omlaag bij `F.sign`. Vlak daarvoor rekent Finance in `wagePhase` opnieuw na met de kas en het plafond van dat moment (`liveCap`).
+   - Past de deal nog binnen het plafond, dan gaat de DoF terug met een lager bod.
+   - Past hij niet meer, dan gaat de deal niet door, met de reden erbij.
+   - Ook elke onderhandelingsronde volgt het actuele plafond.
+
+### Eén manier om de reserve aan te spreken (`agreements.js`)
+`liveOffer()` is de enige plek waar een uitzondering wordt geprijsd. Die werkt altijd met de cijfers van dat moment:
+- de kas boven het transferbudget, min de uitzonderingen die al zijn toegekend, min de openstaande biedingen;
+- daarvan hooguit 40%;
+- niets als de kas nog 10 weken of minder meegaat.
+
+Zowel de directe route als de joint review gebruiken hem. Het advies van de joint review legt geen bedrag vast. De CEO kiest apart "within budget" of "…and allow up to £X from the reserve", en dat bedrag wordt berekend op de dag van het besluit. Laat hij het liggen, dan verandert er niets (`auto: 3`).
+
+### Gebruik en vrijgave
+- Een signing op die positie gebruikt de uitzondering alleen voor het deel boven het gewone budget (`F.agrUse`). Dat komt in het log van de afspraak.
+- Wat over is, vervalt zodra de afspraak klaar is (signing of beoordeling).
+- Een uitzondering voor één speler vervalt als die deal mislukt.
+
+### Gevonden tijdens de end-to-end test
+Een afgesproken positie telde in `dofPipeline` niet als "gewenst". Daardoor kon de DoF hem laten liggen als de selectie al groot was. Dat is hersteld.
+
+### Tests
+`test/transfer-integrity.js` doorloopt de echte pipeline: aanraden, onderhandelen, ondertekenen, met de kascontrole bij elke ondertekening. Het dekt:
+- de uitzondering gebruikt voor een signing op de juiste positie, en daarna vrijgegeven;
+- een niet-gerelateerde speler die er niet bij kan;
+- de joint review zonder bedrag, met een aanbod dat op de dag van het besluit wordt herberekend, en die bij negeren niets verandert;
+- een kas die daalt tijdens de onderhandeling;
+- twee concurrerende deals;
+- opslaan tijdens een onderhandeling;
+- een gewone signing zonder initiatief.

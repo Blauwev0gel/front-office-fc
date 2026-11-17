@@ -15,21 +15,57 @@ function secPromises() {
   return pr.length ? `<div class="sec">Your public promises</div><div class="planboard">${pr.map(p => { const ok = p.status !== 'broken' && F.promiseMet(p); return `<div class="pl ${ok ? 'done' : 'open'}"><i class="dot"></i>${esc(p.t)}<span>${p.status === 'broken' ? 'Broken' : ok ? 'On track' : 'At risk'}</span></div>`; }).join('')}</div>` : '';
 }
 function vClub2() {
-  const g = G(), c = g.club, R = ART.rep(), wf = F.weekForecast(), dc = F.HOOK.deptCost ? Object.values(F.HOOK.deptCost()).reduce((x, y) => x + y, 0) : 0, net = wf.rev - wf.cost - dc, run = F.finRunway ? F.finRunway() : null;
-  const lab = (k, v) => { const q = F.DNA.find(q => q.k === k); const o = q && q.o.find(o => o.v === v); return o ? o.l : ''; };
-  const al = F.alignment(), on = g.board.obj.filter(o => F.objMet(o)).length;
-  const objs = g.board.obj.map(o => `<div class="pl ${F.objMet(o) ? 'done' : 'open'}"><i class="dot"></i>${esc(o.t)}<span>${F.objMet(o) ? 'On track' : 'Off track'}</span></div>`).join('');
-  const projs = g.projects || [], proj = projs.map(pr => { const v = F.PROP[pr.id]; let t = ''; try { t = typeof v.title === 'function' ? v.title(pr.ctx) : v.title; } catch (e) { } const tot = pr.due - pr.start, left = pr.due - F.absWeek(); return `<div class="proj"><span>${esc(t)}</span><i><b style="width:${Math.max(4, Math.min(100, (tot - Math.max(0, left)) / Math.max(1, tot) * 100))}%"></b></i><em>${Math.max(0, left)} wk</em></div>`; }).join('');
-  const done = (g.projLog || []).slice(0, 5).map(l => `<div class="scr2"><span>${esc(l.title)}</span><b class="${l.ok ? 'good' : 'bad'}">${l.ok ? 'Delivered' : 'Failed'}</b></div>`).join('');
-  const hist = g.history.slice(-6).reverse().map(h => `<div class="scr2"><span>Season ${h.season}</span><b>${F.ord(h.pos)}<small> ${F.TIERS[h.tier]}</small></b></div>`).join('');
-  return `${tourCard('club')}<section class="clubhero"><div class="ch1">${crest(c.colors, c.short, 64)}<div><h2>${esc(c.name)}</h2><span class="small">${F.TIERS[c.tier]}, ${c.cap.toLocaleString('en-GB')} seats</span><div class="traits">${F.DNA.slice(0, 4).map(q => `<span>${esc(lab(q.k, c.dna[q.k]))}</span>`).join('')}</div></div></div>
-    <div class="replv"><span>CEO level ${R.lv}</span><b>${R.title}</b><i><b style="width:${R.prog * 100}%"></b></i></div></section>
-  <div class="sec">Stakeholder confidence <span class="small">Board · Fans · Room</span></div><div class="panel2">${F.backers ? F.backers().map(b => mrow(b.ic, b.t, b.v, 100, String(b.v), b.danger ? 'lo' : '')).join('') : ''}${mrow('club', 'DNA fit', al, 100, r0(al) + '%', al < 60 ? 'lo' : '')}<p class="small" style="margin:6px 0 0">${al < 60 ? 'Your choices drift from the club DNA. Fans and board notice.' : 'Your choices fit the club DNA.'}</p></div>
-  <div class="sec">Board objectives <span class="small">${on} of ${g.board.obj.length} on track</span></div><div class="objprog"><b style="width:${g.board.obj.length ? on / g.board.obj.length * 100 : 0}%"></b></div><div class="planboard">${objs}</div>
-  ${secPromises()}${credHtml()}
-  <div class="sec">Money</div><div class="panel2"><div class="money1"><div><small>Cash</small><b class="${c.cash < 0 ? 'bad' : ''}">${money(c.cash)}</b></div><div><small>Per week</small><b class="${net < 0 ? 'bad' : 'good'}">${net >= 0 ? '+' : ''}${money(net)}</b></div><div><small>${run != null ? 'Runway' : 'Debt'}</small><b class="${run != null && run <= 8 ? 'bad' : ''}">${run != null ? run + ' wk' : money(c.debt || 0)}</b></div></div><div class="scr2"><span>Transfer budget</span><b>${money(F.transferBudget())}</b></div><button class="linkbtn" data-a="dept-go" data-k="business" data-v="data">Full finances in Business ${ART.I.chev}</button></div>
-  <div class="sec">Projects ${projs.length ? `<span class="small">${projs.length} under way</span>` : ''}</div><div class="panel2">${proj || '<p class="small" style="margin:0">No projects under way. Staff pitch new ones in the board meetings.</p>'}${done ? `<div class="sub2">Completed</div>${done}` : ''}</div>
-  ${g.trophies.length || hist ? `<div class="sec">History</div><div class="panel2">${g.trophies.length ? `<div class="cabinet">${g.trophies.map(t => `<span>${ART.I.league}${esc(t)}</span>`).join('')}</div>` : ''}${hist}</div>` : ''}`;
+  const g = G(), c = g.club, forecast = F.weekForecast();
+  const deptCost = F.HOOK.deptCost ? Object.values(F.HOOK.deptCost()).reduce((x,y)=>x+y,0) : 0;
+  const net = forecast.rev - forecast.cost - deptCost;
+  const runway = F.finRunway ? F.finRunway() : null;
+  const objs = g.board.obj || [], on = objs.filter(o => F.objMet(o)).length;
+  const bk = F.backers ? F.backers() : [];
+  const financeRisk = c.cash < 0 || (runway != null && runway <= 8);
+  const goals = objs.map(o => `<div class="fo-goal ${F.objMet(o) ? 'on' : 'behind'}">
+    <span>${esc(o.t)}</span><b>${F.objMet(o) ? 'ON TRACK' : 'AT RISK'}</b></div>`).join('');
+  const supporters = bk.map(b => `<div class="fo-trust">
+    <span>${esc(b.t)}</span><b class="${b.danger ? 'bad' : ''}">${b.v}/100</b></div>`).join('');
+  const projects = (g.projects || []).map(pr => {
+    const v = F.PROP[pr.id];let t = '';
+    try {t = typeof v.title === 'function' ? v.title(pr.ctx) : v.title;}catch(e){t = pr.id;}
+    const left = Math.max(0,pr.due-F.absWeek());
+    return `<div class="fo-goal"><span>${esc(t)}</span><b>${left} wk</b></div>`;
+  }).join('');
+  const hist = (g.history || []).slice(-6).reverse().map(x =>
+    `<div class="fo-goal"><span>Season ${x.season} · ${esc(F.TIERS[x.tier])}</span><b>${F.ord(x.pos)}</b></div>`).join('');
+  const R = ART.rep();
+  return `${tourCard('club')}
+  <section class="fo-club-fin ${financeRisk ? 'risk' : ''}">
+    <div class="fo-sectionline"><h2>Club finances</h2><span>${financeRisk ? 'ACTION MAY BE NEEDED' : 'WEEKLY OUTLOOK'}</span></div>
+    <div class="fo-finance-grid">
+      <div><small>Cash available</small><b>${money(c.cash)}</b></div>
+      <div><small>Net per week</small><b class="${net < 0 ? 'bad' : 'good'}">${net >= 0 ? '+' : ''}${money(net)}</b></div>
+      <div><small>${runway == null ? 'Club debt' : 'Cash runway'}</small><b>${runway == null ? money(c.debt || 0) : runway + ' weeks'}</b></div>
+    </div>
+    <button class="fo-textlink" data-a="dept-go" data-k="business" data-v="data">Open full financial report</button>
+  </section>
+  <section class="fo-club-panel">
+    <div class="fo-sectionline"><h2>Board expectations</h2><span>${on}/${objs.length} ON TRACK</span></div>
+    ${goals || '<p>No objectives set.</p>'}
+  </section>
+  <section class="fo-club-panel">
+    <div class="fo-sectionline"><h2>People who matter</h2><span>THREE GROUPS</span></div>
+    ${supporters}
+    <button class="fo-textlink" data-a="sheet" data-s="backers">Why their confidence changed</button>
+  </section>
+  <section class="fo-club-panel">
+    <div class="fo-sectionline"><h2>Work underway</h2><span>${(g.projects || []).length} PROJECTS</span></div>
+    ${projects || '<p class="small">No active projects. Department heads bring proposals to meetings.</p>'}
+  </section>
+  <details class="fo-club-archive"><summary>Club identity, promises & history</summary>
+    <p><b>${esc(c.name)}</b> · ${esc(F.TIERS[c.tier])} · ${c.cap.toLocaleString('en-GB')} seats</p>
+    <p class="small">Club DNA: ${F.DNA.map(q => {const x=q.o.find(o=>o.v===c.dna[q.k]);return x?x.l:'';}).filter(Boolean).map(esc).join(' · ')}</p>
+    <p class="small">CEO: ${esc(R.title)} · Level ${R.lv}</p>
+    ${secPromises()}${credHtml()}
+    ${g.trophies && g.trophies.length ? `<h3>Honours</h3><p>${esc(g.trophies.join(', '))}</p>` : ''}
+    ${hist ? `<h3>Previous seasons</h3>${hist}` : ''}
+  </details>`;
 }
 function vLeague2() {
   const g = G(), t = U.lt || g.club.tier, tab = F.sortTable(t), dv = g.divs[t], full = U.lfull;

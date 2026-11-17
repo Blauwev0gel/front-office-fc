@@ -61,6 +61,27 @@ F.G.week+=4;F.specialistWeekly();
 const review=F.specialistCases('recruit').find(c=>c.id===focus.caseId);
 assert.equal(review.status,'review','review after four game weeks');
 assert(review.review?.evidence,'review has current source evidence');
+// Real commercial/marketing disagreement: the existing commercial engine may
+// not bypass a values conflict from its direct route or a legacy briefing.
+F.G.club.dna.identity='community';
+F.G.com.offer={name:'Controversial Betting Co',sect:'Betting',wk:200,weeks:12};
+const conflicts=F.specialistConflicts('commercial');
+assert.equal(conflicts.length,1,'community-club betting sponsor raises interdepartmental issue');
+const blockedState=F.save();
+const blocked=F.specialistAct('commercial.offer',{k:'accept'});
+assert(blocked.err,'direct sponsor accept must be blocked pending CEO settlement');
+assert.equal(F.save(),blockedState,'rejected direct route cannot silently mutate the offer');
+const marketingRel=F.staff('mkt').rel,comRel=F.staff('com').rel;
+const settled=F.specialistResolveConflict('sponsor','reject');
+assert(!settled.err,'conflict can be resolved through authoritative commercial engine');
+assert(!F.G.com.offer,'rejected offer removed by commercial engine');
+assert.equal(F.staff('mkt').rel,marketingRel+3);
+assert.equal(F.staff('com').rel,comRel-2);
+assert(F.G.specialistConflictLog.some(c=>c.choice==='reject'));
+assert.equal(F.specialistConflicts('commercial').length,0,'conflict closed after sponsor rejected');
+const beforeRepeat=F.save();
+assert(F.specialistResolveConflict('sponsor','reject').err,'cannot resolve stale offer again');
+assert.equal(F.save(),beforeRepeat);
 const final=F.save();F.specialistWeekly();assert.equal(F.save(),final,'same-week follow-up idempotent');
 assert.equal(F.G.club.deals.filter(d=>d.name==='Test Local Partner').length,1);
 assert(F.G.club.cash<originalCash,'actual costs from campaign have taken effect');

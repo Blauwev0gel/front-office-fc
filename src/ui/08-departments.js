@@ -155,7 +155,11 @@ function vDept(k) {
   const head = `<div class="ohead"><button class="iconbtn" data-a="dept" data-k="" aria-label="Back to departments">${ART.I.back}</button><span class="pos">${esc(d.t)}</span><span class="dstat ${v.status.st}">${v.status.l}</span></div>`;
   if (k === 'first' && v.head) { const T = F.ftView(); if (T.talk) return head + ftTalkHtml(T); }
   const FP = k === 'first' && v.head ? vFirst(true) : null;
-  const tabs = `<div class="dtabs" role="tablist">${[['over', 'Overview'], ['people', 'People'], ['data', 'Data'], ['dec', 'Decisions']].map(([t, l]) => `<button role="tab" class="${tab === t ? 'on' : ''}" data-a="dtab" data-v="${t}">${l}</button>`).join('')}</div>`;
+  const tabs = `<nav class="fo-dept-sections" aria-label="${esc(d.t)} views">
+    ${[['over', 'Briefing'], ['people', 'Staff'], ['data', 'Evidence'], ['dec', 'Mandates & work']].map(([t, l]) =>
+    `<button class="${tab === t ? 'on' : ''}" aria-current="${tab === t ? 'page' : 'false'}"
+        data-a="dtab" data-v="${t}">${l}</button>`).join('')}
+  </nav>`;
   let body = '';
   if (tab === 'over') {
     const kpis = `<div class="kgrid">${v.status.rows.slice(0, 4).map(r => `<div class="kt ${r.ok === true ? 'good' : r.ok === false ? 'bad' : ''}"><small>${esc(r.l)}</small><b>${esc(r.v)}</b>${r.ref ? `<span>${esc(r.ref)}</span>` : ''}</div>`).join('')}</div>`;

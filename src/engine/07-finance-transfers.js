@@ -92,6 +92,13 @@ function administration() {
   for (const r of ['scout', 'acad', 'mkt']) if (G.mand[r]) G.mand[r] = Object.assign({}, G.mand[r], { budget: 10 });
   if (G.paper) G.paper.stories.unshift({ h: 'Club enters administration', t: `Ten points deducted. ${sold.length ? sold.join(' and ') + ' sold to raise cash.' : ''} The administrators keep you on, for now. A second time and you are gone.` });
 }
+/* Sales only happen while a window is open (B49). Outside it a deal is agreed and completes when the next window opens. */
+function agreeSale(p, fee, how, doneMsg) {
+  if (window_()) { sellPlayer(p, fee, how); return doneMsg; }
+  p.sale = { fee, how, s: G.season }; const next = G.phase === 'season' && G.week < 17 ? 'the winter window opens' : 'the summer window opens';
+  return `Agreed. ${p.name} leaves when ${next}. Until then he is still ours.`;
+}
+function settleSales() { if (!window_()) return; for (const p of G.squad.slice()) { if (!p.sale) continue; const s = p.sale; delete p.sale; sellPlayer(p, s.fee, s.how); } }
 function sellPlayer(p, fee, how) {
   if (p.academy && HOOK.acadSale) HOOK.acadSale(p, fee);
   G.squad = G.squad.filter(x => x !== p); G.club.cash += fee; G.ss.sales++; G.ss.earned += fee;
@@ -99,7 +106,7 @@ function sellPlayer(p, fee, how) {
   G.paper.stories.push({ h: fee ? 'Sale' : 'Release', t: how || `${p.name} leaves ${fee ? 'for ' + money(fee) : 'on a free'}.` });
 }
 function dofWork() {
-  G.dofNote = null; const d = staff('dof'); if (!d || !window_()) return;
+  G.dofNote = null; settleSales(); const d = staff('dof'); if (!d || !window_()) return;
   const depth = 20 + Math.round(man('dof', 'depth') / 100 * 6), prot = protectedIds();
   // flagged for sale by the CEO
   const flag = G.squad.find(p => p.sellFlag && !prot.has(p.id)); if (flag && chance(0.6)) { const fee = Math.round(flag.value * (0.55 + rnd() * 0.3) / 100) * 100; flag.sellFlag = false; sellPlayer(flag, fee, `${d.name} sells ${flag.name} for ${money(fee)}, as you asked.`); }
@@ -110,7 +117,7 @@ function dofWork() {
     if (cand && chance(0.5)) { const n = G.squad.filter(p => p.pos === cand.pos).length, fee = Math.round(cand.value * (0.45 + rnd() * 0.25) / 100) * 100; sellPlayer(cand, fee, `${d.name} sells ${cand.name} for ${money(fee)}: our ${ordWord(n)} ${POS_L[cand.pos].toLowerCase()}, surplus to needs.`); }
   }
   // incoming bids for our players
-  const sellable = G.squad.filter(p => p.joined < G.season || G.phase !== 'summer' && p.joined < G.season + 1 && G.week > 19);
+  const sellable = G.squad.filter(p => !p.sale && (p.joined < G.season || G.phase !== 'summer' && p.joined < G.season + 1 && G.week > 19));
   if (chance(0.2) && G.squad.length > 16 && sellable.length) {
     const p = pick(sellable); const fee = Math.round(p.value * (0.85 + rnd() * 0.45) / 100) * 100; const top = G.squad.slice().sort((a, b) => b.ca - a.ca).slice(0, 3).includes(p);
     if (top || prot.has(p.id)) queueEvent('bid_star', { pid: p.id, fee, club: pick(G.divs[Math.max(1, G.club.tier - ri(0, 2))].clubs.filter(x => x !== 0)) });

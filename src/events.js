@@ -33,11 +33,11 @@ function REG(c) { return F.REGIONS[c.player.region].name; }
 
 E('bid_star', { forced: 1, from: 'dof', dept: 'sporting', cd: 3,
   title: c => `${F.cname(c.club)} bid ${money(c.fee)} for ${P(c.pid) ? P(c.pid).name : 'a player'}`,
-  body: c => { const p = P(c.pid); if (!p) return 'The player has already left.'; const pr = g().promises.find(x => x.k === 'keep' && x.pid === c.pid && x.status === 'open'); return `${p.name} (${p.age}, ${F.stars(p.ca)}★) is one of our key players. Our valuation: ${money(p.value)}. ${pr ? 'You publicly promised he was not for sale.' : ''} ${p.pers.amb > 14 ? 'He is ambitious and knows about the interest.' : ''}`; },
+  body: c => { const p = P(c.pid); if (!p) return 'The player has already left.'; const pr = g().promises.find(x => x.k === 'keep' && x.pid === c.pid && x.status === 'open'); return `${p.name} (${p.age}, ${F.stars(p.ca)}★) is one of our key players. Our valuation: ${money(p.value)}. ${pr ? 'You publicly promised he was not for sale.' : ''} ${p.pers.amb > 14 ? 'He is ambitious and knows about the interest.' : ''} ${F.window_() ? '' : 'The window is closed: any deal completes when it opens.'}`; },
   opts: [
-    { l: 'Accept the bid', h: c => `+${money(c.fee)} · squad weaker · fans may object`, f: c => { const p = P(c.pid); if (!p || !sq().includes(p)) return 'He has already gone.'; F.sellPlayer(p, c.fee, `${p.name} joins ${F.cname(c.club)} for ${money(c.fee)}.`); adj('fans', -3); return `${p.name} is sold for ${money(c.fee)}.`; } },
+    { l: 'Accept the bid', h: c => `+${money(c.fee)} · squad weaker · fans may object`, f: c => { const p = P(c.pid); if (!p || !sq().includes(p)) return 'He has already gone.'; const r = F.agreeSale(p, c.fee, `${p.name} joins ${F.cname(c.club)} for ${money(c.fee)}.`, `${p.name} is sold for ${money(c.fee)}.`); adj('fans', -3); return r; } },
     { l: 'Reject it', h: 'Keeps the player · may unsettle him', f: c => { const p = P(c.pid); if (!p) return 'He has already gone.'; if (p.pers.amb > 14) { p.morale = clamp(p.morale - 15, 0, 100); return `${p.name} is unhappy to be denied the move.`; } adj('fans', 2); return `Bid rejected. Supporters approve.`; } },
-    { l: 'Let the DoF push for more', h: 'Chance of a better fee, or they walk away', f: c => { const p = P(c.pid); if (!p || !sq().includes(p)) return 'He has already gone.'; if (chance(0.3 + F.eff('dof', 1) / 40)) { const fee = Math.round(c.fee * 1.25 / 100) * 100; F.sellPlayer(p, fee, `${N('dof')} squeezes ${money(fee)} out of ${F.cname(c.club)} for ${p.name}.`); return `Sold for ${money(fee)}.`; } return `${F.cname(c.club)} walk away. ${p.name} stays.`; } }],
+    { l: 'Let the DoF push for more', h: 'Chance of a better fee, or they walk away', f: c => { const p = P(c.pid); if (!p || !sq().includes(p)) return 'He has already gone.'; if (chance(0.3 + F.eff('dof', 1) / 40)) { const fee = Math.round(c.fee * 1.25 / 100) * 100; return F.agreeSale(p, fee, `${N('dof')} squeezes ${money(fee)} out of ${F.cname(c.club)} for ${p.name}.`, `Sold for ${money(fee)}.`); } return `${F.cname(c.club)} walk away. ${p.name} stays.`; } }],
   auto: c => { const pr = g().promises.some(x => x.k === 'keep' && x.pid === c.pid && x.status === 'open'); if (pr) return 1; return man('dof', 'sell') > 65 ? 2 : man('dof', 'sell') > 40 ? 2 : 1; } });
 
 E('raise_demand', { from: 'dof', dept: 'sporting', cd: 6, cond: () => sq().length > 12 && week() > 3,
@@ -364,7 +364,7 @@ E('pitch', { from: 'fin', dept: 'business', cd: 25,
 E('wage_cap', { from: 'fin', dept: 'business', cd: 10, cond: () => F.G.fin.revW > 4 && F.wageRatio() > +man('fin', 'wageCap') / 100,
   title: () => 'Wages are over the cap', body: () => `${N('fin')} reports wages at ${Math.round(F.wageRatio() * 100)}% of revenue, above the ${man('fin', 'wageCap')}% cap you set.`,
   opts: [
-    { l: 'Sell the highest earner', h: 'Wages ↓ · squad weaker', f: () => { const p = sq().slice().sort((a, b) => b.wage - a.wage)[0]; if (!p) return 'Nothing to sell.'; F.sellPlayer(p, Math.round(p.value * 0.8 / 100) * 100, `${p.name} is sold to bring wages under control.`); return `${p.name} is sold.`; } },
+    { l: 'Sell the highest earner', h: 'Wages ↓ · squad weaker', f: () => { const p = sq().slice().sort((a, b) => b.wage - a.wage)[0]; if (!p) return 'Nothing to sell.'; return F.agreeSale(p, Math.round(p.value * 0.8 / 100) * 100, `${p.name} is sold to bring wages under control.`, `${p.name} is sold.`); } },
     { l: 'Raise the cap by 10 points', h: 'Finance ↓ · more risk', f: () => { const opts = ['50', '60', '70', '85']; const i = Math.min(3, opts.indexOf(man('fin', 'wageCap')) + 1); F.G.mand.fin.wageCap = opts[i]; rel('fin', -5); return `Cap raised to ${opts[i]}%.`; } },
     { l: 'Freeze recruitment', h: 'No new wages', f: () => { if (F.G.mand.dof.maxFee !== '0') F.G.freezePrev = F.G.mand.dof.maxFee || '50'; F.G.mand.dof.maxFee = '0'; rel('dof', -4); return 'The DoF is told: free agents only until the summer.'; } }],
   auto: () => 2, vacant: 1 });
@@ -394,7 +394,7 @@ E('loan_offer', { from: 'fin', dept: 'business', cd: 40, cond: () => g().club.ca
 E('cash_crisis', { forced: 1, from: 'fin', dept: 'business', cd: 6,
   title: () => 'Cash crisis', body: () => `The bank balance is ${money(g().club.cash)}. Wages are due on Friday. ${N('fin')} needs a decision.`,
   opts: [
-    { l: 'Sell our most valuable player', h: 'Cash ↑↑ · squad ↓', f: () => { const p = sq().slice().sort((a, b) => b.value - a.value)[0]; if (!p) return 'Nobody to sell.'; const fee = Math.round(p.value * 0.85 / 100) * 100; F.sellPlayer(p, fee, `Fire sale: ${p.name} goes for ${money(fee)}.`); fx({ fans: -5 }); return `${p.name} is sold for ${money(fee)}.`; } },
+    { l: 'Sell our most valuable player', h: 'Cash ↑↑ · squad ↓', f: () => { const p = sq().slice().sort((a, b) => b.value - a.value)[0]; if (!p) return 'Nobody to sell.'; const fee = Math.round(p.value * 0.85 / 100) * 100; const r = F.agreeSale(p, fee, `Fire sale: ${p.name} goes for ${money(fee)}.`, `${p.name} is sold for ${money(fee)}.`); fx({ fans: -5 }); return r; } },
     { l: 'Emergency loan', h: () => `+${money(M(25000))} · debt ↑`, f: () => { adj('cash', M(25000)); g().club.debt += M(28000); fx({ board: -3 }); return 'The bank helps, at a price.'; } },
     { l: 'Slash all department budgets', h: 'Budgets to minimum · staff ↓', f: () => { for (const r of ['scout', 'acad', 'mkt']) F.G.mand[r].budget = 10; F.G.mand.fin.invest = 0; ['scout', 'acad', 'mkt', 'fin'].forEach(r => rel(r, -5)); return 'Every department is cut to the bone.'; } }],
   auto: () => man('fin', 'risk') > 50 ? 1 : 2, vacant: 1 });
@@ -527,7 +527,7 @@ E('coach_authority', { forced: 1, from: 'coach', dept: 'first team', cd: 4,
 E('transfer_request', { forced: 1, from: 'dof', dept: 'sporting', cd: 4,
   title: c => `${c.name} hands in a transfer request`, body: c => { const p = P(c.pid); return p && sq().includes(p) ? `Still angry about the refused raise, ${c.name} wants out. Valuation ${money(p.value)}. His morale is ${Math.round(p.morale)}.` : 'He has already left.'; },
   opts: [
-    { l: 'Sell him', h: c => { const p = P(c.pid); return p ? `About ${money(Math.round(p.value * 0.9))}` : ''; }, f: c => { const p = P(c.pid); if (!p || !sq().includes(p)) return 'Already gone.'; const fee = Math.round(p.value * 0.9 / 100) * 100; F.sellPlayer(p, fee, `${p.name} gets his move, for ${money(fee)}.`); return `Sold for ${money(fee)}.`; } },
+    { l: 'Sell him', h: c => { const p = P(c.pid); return p ? `About ${money(Math.round(p.value * 0.9))}` : ''; }, f: c => { const p = P(c.pid); if (!p || !sq().includes(p)) return 'Already gone.'; const fee = Math.round(p.value * 0.9 / 100) * 100; return F.agreeSale(p, fee, `${p.name} gets his move, for ${money(fee)}.`, `Sold for ${money(fee)}.`); } },
     { l: 'Refuse: he is under contract', h: 'Player sulks · squad morale ↓', f: c => { const p = P(c.pid); if (p) p.morale = clamp(p.morale - 20, 0, 100); adj('morale', -2); return 'The request is rejected. The atmosphere sours.'; } },
     { l: 'Give him the raise after all', h: 'Wage ↑ · you look weak', f: c => { const p = P(c.pid); if (!p) return 'Gone.'; p.wage = Math.round(F.wageFor(p.ca) * 1.3 / 5) * 5; p.morale = 70; fx({ press: -2 }); return 'He withdraws the request. Others will have noticed.'; } }],
   auto: () => man('dof', 'sell') > 50 ? 0 : 1 });

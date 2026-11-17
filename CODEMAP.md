@@ -143,7 +143,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: wxFor, expRand, simOurMatch, whyLines, quickSim, applyResult
 
 ### `engine/07-finance-transfers.js`
-- Functions: playerWages, staffWages, ticketPrice, attendance, revenueAvg, estRevenue, sponsorIncome, wageRatio, transferBudget, weeklyFinance, window_, squadNeeds, weakestPos, genTarget, sign, staffName, protectedIds, administration, sellPlayer, dofWork
+- Functions: playerWages, staffWages, ticketPrice, attendance, revenueAvg, estRevenue, sponsorIncome, wageRatio, transferBudget, weeklyFinance, window_, squadNeeds, weakestPos, genTarget, sign, staffName, protectedIds, administration, agreeSale, settleSales, sellPlayer, dofWork
 
 ### `engine/08-weekly-inbox.js`
 - Functions: develop, staffWeekly, kpiWeekly, boardWeekly, defineEvent, queueEvent, pendingOf, addMsg, safe, genMessages, autoEvent, secondOpinion

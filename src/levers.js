@@ -59,7 +59,7 @@ F.defineEvent('fin_alarm', { forced: 1, from: 'fin', dept: 'business', cd: 10,
   why: 'Finance projects the bank balance below zero within six weeks.',
   opts: [
     { l: 'Cut every department budget', h: 'Costs ↓ · staff and results ↓', f: () => { for (const k of ['first', 'recruit', 'academy', 'commercial', 'marketing']) { const B = F.deptBudView().rows.find(x => x.k === k); if (B) F.deptBudSet(k, B.v - 20); } return 'Budgets cut across the club. Nobody is happy, but the bleeding slows.'; } },
-    { l: 'Sell a player now', h: 'Cash ↑ · a starter leaves', f: () => { const prot = new Set(F.protectedIds ? F.protectedIds() : []); const p = g().squad.filter(x => !prot.has(x.id)).sort((a, b) => b.value - a.value)[0]; if (!p) return 'Nobody we can sell.'; const fee = Math.round(p.value * 0.8 / 100) * 100; F.sellPlayer(p, fee, null); return `${p.name} sold for ${money(fee)}. The DoF is not pleased.`; } },
+    { l: 'Sell a player now', h: 'Cash ↑ · a starter leaves', f: () => { const prot = new Set(F.protectedIds ? F.protectedIds() : []); const p = g().squad.filter(x => !prot.has(x.id)).sort((a, b) => b.value - a.value)[0]; if (!p) return 'Nobody we can sell.'; const fee = Math.round(p.value * 0.8 / 100) * 100; return F.agreeSale(p, fee, null, `${p.name} sold for ${money(fee)}. The DoF is not pleased.`); } },
     { l: 'Take a bank loan', h: () => `+${money(M(25000))} now · debt ↑`, f: () => { g().club.cash += M(25000); g().club.debt = (g().club.debt || 0) + M(27500); return 'The bank lends, at a price. Interest is due every week.'; } },
     { l: 'Ride it out', h: 'Hope results bring money', f: () => 'Finance logs your decision. Nervously.' }],
   auto: () => man('fin', 'risk') > 60 && (g().club.debt || 0) < M(80000) ? 2 : 0, vacant: 3 });

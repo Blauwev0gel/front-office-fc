@@ -82,10 +82,10 @@ module.exports = function protoMatch(F, opts = {}) {
       const goal = onT && chance(clamp(q / (0.3 + q * 0.9) * (1 + (shooter.a.com - 10) * 0.02) * (1 - (gk.a.ref - 10) * 0.025), 0.02, 0.95));
       if (blocked) S(stopper).cl++;
       if (onT) { sot[A.side]++; ss.sot++; if (!goal) S(gk).sv++; }
-      const kind = header ? 'header' : close ? 'close' : edge2 ? 'distance' : 'box';
+      const kind = header ? 'header' : close ? 'close' : edge2 ? 'distance' : 'box'; const flank = wide ? (chance(0.5) ? 'left' : 'right') : 'centre', before = { ...sc };
       if (goal) { sc[A.side]++; ss.g++; if (creator) S(creator).a++;
-        add({ m: A.m, k: 'goal', side: A.side, who: shooter.name, whoId: shooter.id, star: !!shooter.star, by: creator.name, byId: creator.id, from: builder.name, kind, wide, xg: +q.toFixed(2), score: { ...sc }, w: 5 }); }
-      else add({ m: A.m, k: onT ? 'save' : blocked ? 'block' : 'miss', side: A.side, who: shooter.name, whoId: shooter.id, by: creator.name, keeper: gk.name, stop: stopper.name, kind, xg: +q.toFixed(2), big: q > 0.25, w: q > 0.25 ? 2.2 : onT ? 0.9 : 0.4 });
+        add({ m: A.m, k: 'goal', side: A.side, who: shooter.name, whoId: shooter.id, star: !!shooter.star, by: creator.name, byId: creator.id, from: builder.name, kind, wide, flank, xg: +q.toFixed(2), score: { ...sc }, before, shotN: ss.sh, goalsN: ss.g, w: 5 }); }
+      else add({ m: A.m, k: onT ? 'save' : blocked ? 'block' : 'miss', side: A.side, who: shooter.name, whoId: shooter.id, by: creator.name, from: builder.name, keeper: gk.name, stop: stopper.name, kind, wide, flank, xg: +q.toFixed(2), big: q > 0.25, score: { ...sc }, shotN: ss.sh, star: !!shooter.star, w: q > 0.25 ? 2.2 : onT ? 0.9 : 0.4 });
     }
     // injuries: tired legs break more often; a forced change if there is one left
     for (const side of ['us', 'them']) for (const p of live(side)) { if (p.pos === 'GK') continue; if (chance(0.0016 * (1.6 - p.en / 100) * (side === 'us' && F.HOOK.ftInj ? F.HOOK.ftInj() : 1))) { p.on = false; const e = add({ m: m0 + ri(1, 5), k: 'injury', side, who: p.name, w: 1.6 });

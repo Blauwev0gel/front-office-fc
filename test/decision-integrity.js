@@ -114,6 +114,16 @@ for (const role of F.ROLES) {
   assert(active && active.state === 'running', role.id + ' must receive an agreement');
   assert(active.head === hired.name);
 }
+const firstTalk = F.talk('fin','praise');
+assert(firstTalk && firstTalk.out,'staff conversation should resolve');
+const transcript = F.conversationView('fin')[0];
+assert(transcript && transcript.head === F.staff('fin').name);
+assert.equal(transcript.agreementId,F.agreementView('fin').active.id,
+  'conversation must be causally linked to a real active commitment');
+assert.equal(F.caseView('c',transcript.id).type,'conversation');
+assert.equal(F.caseView('c',transcript.id).status,'resolved');
+assert.equal(F.caseView('a',transcript.agreementId).status,'running');
+assert.equal(F.caseView('a',transcript.agreementId).options.length,0);
 const original = F.agreementView('fin').active;
 assert.equal(original.due - original.start,6);
 assert.equal(F.agreementView().history.length,7);
@@ -128,6 +138,8 @@ F.G.week += 6;
 F.agreementWeekly();
 const due = F.agreementView('fin').active;
 assert(due && due.state==='review' && due.check,'six game weeks create genuine evidence review');
+assert.equal(F.caseView('a',due.id).status,'review');
+assert(F.caseView('a',due.id).options.some(o=>o.id==='continue'));
 assert(due.check.lines.length>0,'review has actual departmental evidence');
 assert(F.G.paper.stories.some(e=>e.h==='Leadership review due'));
 const recorded = F.save();

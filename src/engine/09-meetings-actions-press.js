@@ -177,7 +177,12 @@ function beginAgreement(role, reason) {
   return a;
 }
 function agreementWeekly() {
-  if (!G.agreements) return;
+  // Existing saves and newly founded clubs enter this system without migration
+  // steps; active departmental mandates become the first six-week agreements.
+  if (!G.agreements) {
+    agreementStore();
+    for (const r of ROLES) if (staff(r.id)) beginAgreement(r.id, 'Season operating mandate');
+  }
   for (const a of G.agreements) {
     if (a.state !== 'running') continue;
     if (staff(a.role)?.name !== a.head) {
@@ -236,7 +241,7 @@ function fire(role) {
   return { out: `${s.name} is gone. Compensation paid: ${money(cost)}.` };
 }
 function genCands(role) { const t = G.club.tier; return [genStaff(role, t, 1.2), genStaff(role, t, 0), genStaff(role, t, -1)].sort((a, b) => b.wage - a.wage); }
-function hire(role, idx) { const s = G.cands[role][idx]; if (!s) return; G.staff[role] = s; s.rel = 60; G.cands[role] = null; if (G.phase === 'season') G.paper.stories.push({ h: 'Appointment', t: `${s.name} is appointed ${ROLE[role].t}.` }); return s; }
+function hire(role, idx) { const s = G.cands[role][idx]; if (!s) return; G.staff[role] = s; s.rel = 60; G.cands[role] = null; if (G.phase === 'season') { beginAgreement(role, 'Newly appointed department head'); G.paper.stories.push({ h: 'Appointment', t: `${s.name} is appointed ${ROLE[role].t}.` }); } return s; }
 
 /* ---------- press ---------- */
 const PRESS = [

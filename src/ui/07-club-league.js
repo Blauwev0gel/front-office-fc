@@ -35,7 +35,11 @@ function vLeague2() {
   const g = G(), t = U.lt || g.club.tier, tab = F.sortTable(t), dv = g.divs[t], full = U.lfull;
   const nf = t === g.club.tier ? nextFix() : null;
   const dot = id => { const PALS = [['#1d4ed8', '#fff'], ['#b91c1c', '#fff'], ['#15803d', '#fde047'], ['#111', '#fff'], ['#f59e0b', '#111'], ['#7c3aed', '#fff'], ['#0e7490', '#fff'], ['#be185d', '#fff'], ['#854d0e', '#fde68a'], ['#475569', '#f1f5f9']]; const cl = id === 0 ? g.club.colors : PALS[(id * 7 + 3) % PALS.length]; return `<i class="cdot" style="background:${cl[0]};box-shadow:inset 0 -4px 0 ${cl[1]}"></i>`; };
-  return `${tourCard('league')}<div class="tierstep"><button class="iconbtn" data-a="lt" data-t="${Math.max(1, t - 1)}" ${t === 1 ? 'disabled' : ''} aria-label="Higher division">${ART.I.up}</button><div><b>${F.TIERS[t]}</b><small>Tier ${t} of 8</small></div><button class="iconbtn" data-a="lt" data-t="${Math.min(8, t + 1)}" ${t === 8 ? 'disabled' : ''} aria-label="Lower division">${ART.I.down}</button></div>
+  const mine = t === g.club.tier, rank = mine ? tab.indexOf(0) + 1 : null, our = mine ? dv.tab[0] : null;
+  const leaguePulse = mine ? `<section class="ceo-league-pulse" aria-label="League position"><h2>League overview</h2>
+    <div class="ceo-metrics"><span><b>${F.ord(rank)}</b> position</span><span><b>${our.pts}</b> points</span><span><b>${our.p}</b> played</span><span><b>${F.ord(F.analysis().target)}</b> target</span></div>
+    <p class="small">Results and expectations belong here. Staff decisions belong in Departments.</p></section>` : '';
+  return `${tourCard('league')}${leaguePulse}<div class="tierstep"><button class="iconbtn" data-a="lt" data-t="${Math.max(1, t - 1)}" ${t === 1 ? 'disabled' : ''} aria-label="Higher division">${ART.I.up}</button><div><b>${F.TIERS[t]}</b><small>Tier ${t} of 8</small></div><button class="iconbtn" data-a="lt" data-t="${Math.min(8, t + 1)}" ${t === 8 ? 'disabled' : ''} aria-label="Lower division">${ART.I.down}</button></div>
   ${nf ? `<div class="nextfix"><small>Next match</small><b>${nf.home ? 'vs' : 'at'} ${esc(nf.name)}</b><span>${F.ord(nf.pos)} in the table</span></div>` : ''}
   ${t === g.club.tier && g.form.length ? `<div class="formrow">${g.form.slice(-8).map(r => `<i class="f${r}">${r}</i>`).join('')}</div>` : ''}
   <div class="ltab ${full ? 'full' : ''}"><div class="lr lh"><span>#</span><span>Club</span><span>P</span>${full ? '<span>W</span><span>D</span><span>L</span>' : ''}<span>GD</span><span>Pts</span></div>

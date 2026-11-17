@@ -109,6 +109,16 @@ function execute(kind,p) {
 /* Real cross-department disagreement: commercial revenue vs club identity.
    The sponsor remains the original commercial engine's offer; no duplicate
    bargaining simulation or invented offer outcome is created here. */
+const SPEND_ACTIONS=new Set(['recruit.invest','marketing.campaign','commercial.experience']);
+function financeObjection(kind,p) {
+  if(!SPEND_ACTIONS.has(kind)||F.G.phase!=='season'||!F.bizView)return false;
+  const dept=area(kind,p);
+  return !!(F.staff('fin')&&F.staff(HEAD[dept])&&F.bizView().ok===false);
+}
+function financeAllowed(kind,p) {
+  const override=F.G.specialistFinancePermission;
+  return override?.kind===kind && JSON.stringify(override.params)===JSON.stringify(p);
+}
 function sponsorConflict(offer) {
   const g=F.G,dna=g.club?.dna||{};
   const identity=dna.identity==='community'||dna.origin==='fans'||
@@ -135,9 +145,50 @@ function specialistConflicts(d) {
         {k:'reject',label:'Protect the identity; decline'}]
     });
   }
+  const pending=F.G.specialistFinanceRequest;
+  if(pending && (!d||d===area(pending.kind,pending.params)||d==='business') &&
+      financeObjection(pending.kind,pending.params)) {
+    const rd=area(pending.kind,pending.params),head=F.staff(HEAD[rd]);
+    out.push({id:'finance',department:rd,title:'Finance challenges the spending plan',
+      first:head?.name||'Department head',second:F.staff('fin')?.name||'Finance Director',
+      explanation:'The responsible head wants to proceed, but Finance reports that departmental spending exceeds the sustainable budget envelope.',
+      evidence:LABEL[pending.kind]+' · requested in game week '+pending.week,
+      options:[{k:'authorize',label:'Authorize this exception, accept the financial risk'},
+        {k:'defer',label:'Defer the expense and protect the cash plan'}]});
+  }
   return out;
 }
 function specialistResolveConflict(id,stance) {
+  if(id==='finance') {
+    if(!['authorize','defer'].includes(stance))
+      return {err:'Unknown finance response.'};
+    const g=F.G,pending=g.specialistFinanceRequest;
+    if(!pending||!financeObjection(pending.kind,pending.params))
+      return {err:'The finance concern is no longer current.'};
+    const before=F.save(),d=area(pending.kind,pending.params),head=F.staff(HEAD[d]);
+    const finance=F.staff('fin');
+    if(stance==='defer') {
+      g.specialistFinanceRequest=null;
+      if(!g.specialistConflictLog)g.specialistConflictLog=[];
+      g.specialistConflictLog.push({kind:'finance',choice:'defer',dept:d,season:g.season,
+        week:g.week,action:pending.kind,outcome:'Expense deferred by the CEO.'});
+      return {out:'You have deferred the expense. No money was spent.'};
+    }
+    try {
+      g.specialistFinancePermission={kind:pending.kind,params:pending.params};
+      const result=specialistAct(pending.kind,pending.params);
+      if(result.err){F.load(before);return result;}
+      if(finance)finance.rel=F.clamp(finance.rel-3,0,100);
+      if(head)head.rel=F.clamp(head.rel+2,0,100);
+      delete g.specialistFinancePermission;
+      g.specialistFinanceRequest=null;
+      if(!g.specialistConflictLog)g.specialistConflictLog=[];
+      g.specialistConflictLog.push({kind:'finance',choice:'authorize',dept:d,
+        season:g.season,week:g.week,action:pending.kind,caseId:result.caseId,
+        outcome:result.out});
+      return result;
+    } catch(err){F.load(before);return {err:'The finance decision failed; the game was restored.'};}
+  }
   if(id!=='sponsor'||!['approve','counter','reject'].includes(stance))
     return {err:'Unknown cross-department decision.'};
   const offer=F.comView?.()?.offer;
@@ -170,6 +221,10 @@ function specialistResolveConflict(id,stance) {
 }
 function specialistAct(kind,p={}) {
   if(!AREA[kind])return {err:'Unknown specialist decision.'};
+  if(financeObjection(kind,p) && !financeAllowed(kind,p)) {
+    F.G.specialistFinanceRequest={kind,params:copy(p),week:F.G.week,season:F.G.season};
+    return {err:'Finance objects to the new expense. Review the departmental disagreement before proceeding.'};
+  }
   const d=area(kind,p), o=owner(kind,p);
   const before=F.save(), start=evidence(d);
   let result;

@@ -200,3 +200,11 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 - **Grip is retired as a gameplay incentive.** No passive decay, no low-Grip relationship penalty, no universal staff skill bonus; the old value remains in saves for compatibility and is not shown as a permanent status. Mandates, delegation outcomes, staffing and actual stakeholder consequences determine CEO quality.
 - The inbox shows only the three accountable constituencies, with plain-language bands (supportive, stable, uneasy, at risk, crisis). The Backers sheet explains the causes and crisis threshold; news and press remain contextual.
 - Regression gate: `node test/stakeholders.js` checks visible stakeholder keys, Press isolation, Grip neutrality and old-save compatibility. Browser layout testing is performed by the owner.
+
+
+## B18 — Model B stakeholder engine integration (chatgpt)
+
+- Grip action wrappers and weekly maintenance are retired, not just hidden. Legacy save fields may still exist; they have no gameplay effect.
+- Stakeholder changes from inbox responses, brief answers, block-goal results and weekly simulation are recorded in a bounded `stakeLog` with season, week, source, reason and per-stakeholder deltas. The Backers sheet exposes recent changes. The weekly aggregate is explicitly labelled as such; it must not falsely attribute autonomous effects to the CEO.
+- Board, supporters and dressing room remain three mechanically distinct sources (board confidence, supporter sentiment, aggregate player morale). Press is narrative/contextual and not a new confidence-vote trigger.
+- Future improvement: source-level tracing for each autonomous weekly mutation, paired multi-season balance tests and finer differentiation of short-term reactions vs long-term confidence. Do not claim those are complete until tested.

@@ -19,7 +19,8 @@ function foSection() {
 }
 function masthead() {
   const g = G(), c = g.club, where = foSection(), deep = U.open || U.dept;
-  const label = U.dept ? 'Department' : U.open ? 'Correspondence' :
+  const department = U.dept && F.DEPT && F.DEPT[U.dept] ? F.DEPT[U.dept].t : 'Department';
+  const label = U.dept ? department : U.open ? 'Correspondence' :
     U.tab === 'league' ? 'League table' : U.tab === 'squad' ? 'First team' : where.title;
   return `<header class="fo-header">
     <button class="fo-brand" data-a="tab" data-t="inbox" aria-label="Return to your desk">
@@ -30,7 +31,7 @@ function masthead() {
   </header>
   <div class="fo-location">
     <div><span class="fo-eyebrow">${deep ? esc(where.title) + ' / ' : 'THE FRONT OFFICE / '}${esc(label)}</span>
-      <h1>${deep ? (U.dept ? 'Department details' : 'Your correspondence') : where.title}</h1>
+      <h1>${deep ? (U.dept ? esc(department) : 'Your correspondence') : where.title}</h1>
       <p>${deep ? 'Review the information and choose what happens next.' : where.description}</p></div>
   </div>`;
 }

@@ -1171,3 +1171,8 @@ html,body{background:var(--bg)!important}
  background:var(--paper)!important;color:var(--ink)!important;
  border:1px solid var(--rule)!important;font-size:12px!important;font-weight:800!important}
 #app .fo-specialist-conflict button:first-of-type{background:var(--ink)!important;color:var(--paper)!important}
+
+#app .fo-specialist-ack{display:block;width:100%;min-height:45px!important;
+ margin:10px 0!important;padding:10px!important;text-align:left!important;
+ font-size:12px!important;font-weight:900!important;background:var(--ink)!important;
+ color:var(--paper)!important;border:1px solid var(--ink)!important}

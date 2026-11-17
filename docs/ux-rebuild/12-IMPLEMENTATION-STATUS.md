@@ -61,3 +61,30 @@ This is **completed code** on the chatgpt branch, not just an architecture propo
 - Do not remove a real game engine while replacing its UI.
 - Do not turn consultation into compulsory CEO bureaucracy.
 - Do not claim the full 47-task plan complete based on a green build alone.
+
+
+## Fase 1 — specialist decision integration (2026-11-17, latest)
+
+### Committed code
+
+- `src/specialist-cases.js` is assembled after `ceocore.js` and before the UI through `build.py`. This supplies a **single transactional gateway** `F.specialistAct`, preserving the specialist engine that actually effects each decision, while guarding thrown errors and engine refusals.
+- Migrated **23 direct UI action handlers** across `ui/15-actions.js`: recruitment focus/investment/approval/priorities/profiles/deadline decisions; academy pathways; Commercial offers/prices/experience/promotion; Marketing campaigns/community; Business budgets/proposals; coach conversations/support/dismissal; department issue plans, decisions and specialist appointments/departures.
+- Existing `F.answerBrief` and `F.respond` now also produce the same specialist outcome record for legitimate department replies, including Academy youth actions, sponsor decisions, Finance briefings and recruitment exceptions. The original event/brief option remains the only authoritative side-effect writer.
+- Every recorded specialist decision includes real source ID, week, department, accountable head, decision, **actual immediate state evidence**, observed execution status and a four-week evidence checkpoint. Repeated policy controls coalesce into one case per week rather than creating approval spam.
+- `F.caseView('s', id)` makes specialist outcomes available in the shared read-only case model; `F.specialistCases` exposes current and prior cases. `F.specialistAcknowledge` closes a completed review once without erasing the history.
+- People/Department pages display decision execution, real before/after source evidence, finance objections and acknowledgment. The Desk surfaces due evaluations and interdepartmental disputes. These are wired to actual engine records, not mock KPIs.
+- **Commercial–Marketing:** community-identity clubs cannot authorize a betting sponsor through the old sponsor button or briefing without resolving the conflicting perspectives. CEO may approve, negotiate, or decline; original sponsor deal economics and fan reaction remain authoritative, while the relevant heads respond differently.
+- **Finance–Recruitment/Marketing/Commercial:** when Finance reports spending outside its envelope, new scouting trips, campaigns or matchday investment require an explicit CEO exception or deferral. Rejected proposals spend nothing. Original cash limits and actual operational costs still apply after authorization.
+
+### Validation
+
+- `test/specialist-integration.js` exercises real recruitment/marketing/commercial/business/coaching paths, positive Academy development through its native briefing, specialist appointments/departures, prevention of duplicate sponsor approvals, transaction rollback, save/load, four-week review and one-time acknowledgment.
+- Cross-department tests cover sponsor-vs-identity and Finance-vs-Scouting outcomes, including changed employee relationships and the inability of legacy sponsor briefings to bypass the restriction.
+- Existing `test/decision-integrity.js` and other repository tests remain CI gates; GitHub Actions' most recent complete result must be checked before marking this release validated.
+
+### What remains open
+
+- This is a **substantial functional implementation of the requested Phase 1 specialist integration**, not a certificate that all 105 event/brief keys and 197 screen/state design targets were individually playtested.
+- Some specialized engines still own their existing negotiations and conditional rules, intentionally: a generic case wrapper does **not** replace realistic transfer, Academy, finance or match logic. Further event-by-event semantic review and scripted browser journey coverage are necessary to establish literal completeness.
+- Four-week reviews show **observed** changes, not claimed causal attribution for every cash/fan/football metric.
+- Browser visual/touch QA has not been performed. A green build is not equivalent to a full mobile UI acceptance test.

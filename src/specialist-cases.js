@@ -196,6 +196,25 @@ function specialistAct(kind,p={}) {
     return {err:'This decision failed. The game was restored; nothing was committed.'};
   }
 }
+function evidenceComparison(before,after,dept) {
+  const keys={
+    recruit:[['squad','Squad size'],['transferBudget','Transfer budget'],['deals','Completed signings']],
+    academy:[['academy','Academy players'],['graduates','Academy graduates']],
+    commercial:[['signed','Sponsor contracts'],['revenue','Sponsor income']],
+    marketing:[['reach','Marketing reach'],['loyalty','Supporter loyalty'],
+      ['brand','Club brand']],
+    business:[['weeklySpend','Department spending'],['debt','Outstanding debt']],
+    first:[['points','League position']]
+  };
+  const notes=[];
+  for(const [k,label] of (keys[dept]||[])) {
+    if(before[k]==null||after[k]==null||before[k]===after[k])continue;
+    notes.push(label+': '+before[k]+' → '+after[k]);
+  }
+  if(before.cash!=null&&after.cash!=null&&before.cash!==after.cash)
+    notes.push('Cash: '+F.money(before.cash)+' → '+F.money(after.cash));
+  return notes.slice(0,5);
+}
 function specialistWeekly() {
   const g=F.G;
   if(!Array.isArray(g.specialistCases))return;
@@ -210,8 +229,11 @@ function specialistWeekly() {
     if(now()<c.due)continue;
     const latest=evidence(c.dept);
     c.status='review';
-    c.review={at:now(), evidence:latest,
-      text:'Four weeks of departmental work have passed. Compare the current evidence with the original decision.'};
+    const observations=evidenceComparison(c.after||c.before,latest,c.dept);
+    c.review={at:now(), evidence:latest, observations,
+      text:observations.length?'Observed after four weeks: '+observations.join('; ')+
+        '. These changes may also reflect matches and other club activity.':
+        'Four weeks have passed. The recorded indicators have not changed materially.'};
     g.paper?.stories?.push({h:'Department decision review',
       t:c.title+' — '+(F.staff(c.role)?.name||'the club')+
         ' reports that the follow-up evidence is available in People.'});

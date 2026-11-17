@@ -36,9 +36,24 @@ function formBars(p) { const rs = p.rats || []; if (!rs.length) return '<p class
 function profileHtml(p, k, x) {
   const g = G(), pool = !!p.pool, st = p.st || {}, rat = st.apps ? (st.rat / st.apps).toFixed(2) : '–', tab = U.ptab || 'over', role = pool ? (x ? STG_L[x.stage] : 'Target') : roleOf(p) || (g.academy.includes(p) ? 'Academy' : '');
   const now = k ? F.recBand(k) : starsTxt(g.academy.includes(p) ? F.absStars(p.ca) : F.stars(p.ca)), pot = k ? F.recPot(k) : starsTxt(g.academy.includes(p) && p.band ? p.band[1] : F.stars(p.pa));
-  const head = `<div class="ph"><div class="portrait">${pool ? ART.poolFace(p) : ART.playerFace(p)}</div><div><b>${esc(p.name)}</b><div class="pmeta">${p.age}, ${F.POS_L[p.pos].toLowerCase()}, ${F.REGIONS[p.region].name}<br>${pool ? (p.club ? esc(F.cname(p.club)) + ', asking ' + money(p.ask) : 'Free agent') : money(p.wage) + '/wk, ' + p.contract + 'y left'}</div>${role ? `<span class="rolebadge">${esc(role)}</span>` : ''}</div></div>
-  <div class="lvls"><span>Now ${now}</span><span>Potential ${pot}</span>${k ? `<i class="gr g${k.grade}">${k.grade}</i>` : ''}</div><div class="strengths">${strengths(p, k)}</div>
-  <div class="tabs3">${[['over', 'Overview'], ['stats', 'Stats'], ['story', 'Story']].map(([t, l]) => `<button class="${tab === t ? 'on' : ''}" data-a="ptab" data-v="${t}">${l}</button>`).join('')}</div>`;
+  const head = `<div class="fo-player-identity">
+    <span>PLAYER DOSSIER · ${esc(F.POS_L[p.pos])}</span>
+    <h2>${esc(p.name)}</h2>
+    <p>${p.age} years · ${esc(F.REGIONS[p.region].name)} · ${esc(role)}</p>
+    <div class="fo-player-ability"><div><small>Current ability</small><b>${now}</b></div>
+      <div><small>Potential</small><b>${pot}</b></div></div>
+    ${pool ? `<p>Transfer interest: ${p.club ? esc(F.cname(p.club)) : 'Free agent'} · ${money(p.ask || 0)}</p>` :
+      `<p>${money(p.wage)}/week · ${p.contract} season${p.contract === 1 ? '' : 's'} left · Value ${money(p.value)}</p>`}
+  </div>
+  ${!pool ? `<div class="fo-player-facts"><span><b>${st.apps || 0}</b><small>Apps</small></span>
+    <span><b>${st.g || 0}</b><small>Goals</small></span>
+    <span><b>${rat}</b><small>Rating</small></span>
+    <span><b>${r0(p.morale || 0)}</b><small>Morale</small></span></div>` : ''}
+  <nav class="fo-profile-tabs" aria-label="Player details">
+    ${[['over', 'Overview'], ['stats', 'Statistics'], ['story', 'Career']].map(([t,l]) =>
+      `<button class="${tab === t ? 'on' : ''}" aria-current="${tab === t ? 'page' : 'false'}"
+        data-a="ptab" data-v="${t}">${l}</button>`).join('')}
+  </nav>`;
   let body = '';
   if (tab === 'over') {
     body = attrGroups(p, k);

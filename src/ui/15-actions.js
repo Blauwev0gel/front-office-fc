@@ -20,7 +20,7 @@ function act(a, d, el) {
     case 'press': { const q = F.PRESS.find(p => p.id === d.q); let ans = q.a[+d.i]; if (typeof ans === 'function') ans = ans(); U.quote = F.pressAnswer(d.q, +d.i); U.quoteP = !!ans[1]; U.pressI++; break; }
     case 'press-next': U.quote = null; if (U.pressI >= g.press.length) { F.finishPress(); U.tab = 'inbox'; window.scrollTo(0, 0); } break;
     case 'fo-squad': U.sqTable = d.v !== 'xi'; U.sq = d.v === 'stats' ? 'mb' : 'profile'; window.scrollTo(0, 0); break;
-    case 'tab': U.tab = d.t; U.sub = null; U.dept = null; if (d.t === 'inbox') { U.open = null; U.flash = ''; } window.scrollTo(0, 0); break;
+    case 'tab': U.tab = d.t; U.sub = null; U.dept = null; if (d.t === 'inbox') { U.open = null; U.flash = ''; U.filt = 'all'; } window.scrollTo(0, 0); break;
     case 'mchoose': mailSend(d); break; // commit and save immediately
     case 'mnext': U.sentK = null; advance(); window.scrollTo(0, 0); break;
     case 'opt': r = F.respond(+d.m, +d.i); if (r && r.err) toast(r.err); else if (r && U.open) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.card(); ART.vib(15); advance(); } break;

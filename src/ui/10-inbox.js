@@ -150,6 +150,22 @@ function deskDecisionCard(i, optional) {
     (intro ? '<span class="dw-decision-desc">'+esc(intro)+'</span>' : '')+
     '<strong>'+(optional?'Read and respond':'Review decision')+' →</strong></button>';
 }
+function deskLeadershipReviews() {
+  if (!F.agreementView) return '';
+  const dept = { coach:'first', dof:'recruit', scout:'recruit',
+    acad:'academy', com:'commercial', mkt:'marketing', fin:'business' };
+  const reviews = F.ROLES.map(r => F.agreementView(r.id).active)
+    .filter(a => a && a.state === 'review');
+  if (!reviews.length) return '';
+  return '<section class="dw-agreement-reviews" aria-label="Leadership evaluations">' +
+    '<div class="dw-heading"><h2>Leadership reviews</h2><span>' + reviews.length + ' DUE</span></div>' +
+    '<p class="small">Six weeks of work are complete. Evaluate actual results before setting the next direction.</p>' +
+    reviews.map(a =>
+      '<button class="dw-agreement-link" data-a="dept-go" data-k="' + dept[a.role] + '" data-v="over">' +
+      '<b>' + esc(a.head) + ' · ' + esc(F.ROLE[a.role].t) + '</b>' +
+      '<span>' + esc(a.outcome) + '</span><strong>Review with department →</strong></button>'
+    ).join('') + '</section>';
+}
 function deskMatters(items, core, storyState) {
   const dos = F.dosView ? F.dosView() : null, PV = F.pwView ? F.pwView() : null;
   const active = [];
@@ -242,6 +258,7 @@ function vInbox() {
         optional.length+' staff update'+(optional.length===1?'':'s')+' with optional responses</summary>'+
         optional.map(x=>deskDecisionCard(x,true)).join('')+'</details>' : '')+
     '</section>'+
+    deskLeadershipReviews()+
     deskNextMatch(g,nf,pv)+
     '<section class="dw-people" aria-label="Updates from the club">'+
       '<div class="dw-heading"><h2>From the club</h2><span>'+

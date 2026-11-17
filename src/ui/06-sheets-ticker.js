@@ -102,10 +102,10 @@ function vSheet() {
         gap < 3 ? 'You spoke recently. Repeating a conversation now has reduced impact.' :
         'You last met ' + gap + ' game weeks ago.'}</p>
       <h3>How do you want to approach the conversation?</h3>
-      <div class="fo-meeting-options">${toneOptions.map(([key,label,detail]) =>
+      ${!U.talkOut ? `<div class="fo-meeting-options">${toneOptions.map(([key,label,detail]) =>
         `<button class="fo-meeting-choice" data-a="talk-do" data-t="${key}"
           ${key === 'review' && record.early ? 'disabled title="Not enough performance evidence yet"' : ''}>
-          <b>${label}</b><small>${detail}</small></button>`).join('')}</div>
+          <b>${label}</b><small>${detail}</small></button>`).join('')}</div>` : ''}
       ${U.talkOut ? `<div class="fo-meeting-outcome" role="status"><b>Conversation outcome</b><p>${esc(U.talkOut)}</p>
         <button data-a="close">Return to your club</button></div>` : ''}
       </div>` : '';

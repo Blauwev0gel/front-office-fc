@@ -84,6 +84,7 @@ function fdHtml(fd) {
 }
 const FOLDERS = [['all', 'Inbox', 'inbox'], ['need', 'Needs you', 'bulb'], ['match', 'Matches', 'play'], ['staff', 'Staff', 'staff'], ['reports', 'Reports', 'info'], ['press', 'Press', 'press'], ['players', 'Players', 'squad'], ['dos', 'Dossiers', 'info'], ['done', 'Decided', 'trust']];
 const FOLD_T = Object.fromEntries(FOLDERS.map(f => [f[0], f[1]]));
+FOLD_T.records = 'Club records';
 function isDis(k) { const g = G(); return !!(g.dis && g.dis[k]); }
 function rowThumb(i) {
   if (i.t === 'paper') return `<span class="av paper">${ART.I.press}</span>`;
@@ -187,19 +188,22 @@ function deskMatters(items, core, storyState) {
     '</details>' : '')+'</section>';
 }
 function deskArchive(items) {
-  const shown = [['all','All'],['need','Decisions'],['staff','Staff'],['match','Football'],
-    ['dos','Matters'],['done','Resolved'],['press','Press'],['reports','Reports'],['players','Players']];
-  const f = FOLD_T[U.filt] ? U.filt : 'all', subset = f==='all' ? items.filter(x=>x.kind!=='done') :
+  const shown = [['records','All'],['need','Decisions'],['staff','Staff'],['match','Football'],['dos','Matters']];
+  const f = FOLD_T[U.filt] ? U.filt : 'records';
+  const subset = f==='records' ? items.filter(x=>x.kind!=='done') :
     f==='need' ? items.filter(isBox) : items.filter(x=>x.fold===f);
   const intro = '<button class="dw-back" data-a="filt" data-v="all">← Back to Desk</button>'+
-    '<header class="dw-archive-title"><span>CLUB RECORDS</span><h2>'+esc(FOLD_T[f]||'All messages')+'</h2>'+
-    '<p>Browse the club record. Reading an update is optional.</p></header>';
-  return intro+'<nav class="dw-archive-nav" aria-label="Browse club records">'+
-    shown.filter(x=>x[0]!=='all').map(([k,label])=>'<button data-a="filt" data-v="'+k+'" class="'+
-    (k===f?'on':'')+'">'+label+'</button>').join('')+'</nav>'+
-    '<ul class="inbox dw-archive-list">'+
+    '<header class="dw-archive-title"><span>CLUB RECORDS</span><h2>'+esc(FOLD_T[f]||'All records')+'</h2>'+
+    '<p>Browse reports, club matters and previous decisions. Reading is optional.</p></header>';
+  const tabs = '<nav class="dw-archive-nav" aria-label="Browse club records">'+
+    shown.map(([k,label])=>'<button data-a="filt" data-v="'+k+'" aria-current="'+
+    (k===f?'page':'false')+'" class="'+(k===f?'on':'')+'">'+label+'</button>').join('')+'</nav>';
+  const secondary = '<details class="dw-fold dw-archive-extra"><summary>Other records</summary>'+
+    [['reports','Reports'],['press','Press'],['players','Players'],['done','Resolved']].map(([k,label])=>
+      '<button class="dw-textlink" data-a="filt" data-v="'+k+'">'+label+' →</button>').join('')+'</details>';
+  return intro+tabs+'<ul class="inbox dw-archive-list">'+
     (subset.map(rowHtml).join('') || '<li class="empty">No records in this category.</li>')+'</ul>'+
-    (f==='dos'?archiveHtml():'');
+    secondary+(f==='dos'?archiveHtml():'');
 }
 function vInbox() {
   if (U.open) return vOpen();
@@ -239,7 +243,7 @@ function vInbox() {
         '<p class="dw-muted">No new reports. Department heads are carrying out their work.</p>')+
       (deskView && deskView.n ? '<p class="dw-staff-note">'+deskView.n+
         ' decision'+(deskView.n===1?'':'s')+' handled by your staff.</p>' : '')+
-      (allUpdateCount>updates.length ? '<button class="dw-textlink" data-a="filt" data-v="staff">Browse staff reports →</button>' : '')+
+      (allUpdateCount>updates.length ? '<button class="dw-textlink" data-a="filt" data-v="records">View all updates →</button>' : '')+
     '</section>'+
     deskMatters(items,core,story)+
     (pap ? '<button class="dw-gazette" data-a="open" data-k="'+esc(pap.key)+'">'+
@@ -248,7 +252,7 @@ function vInbox() {
     deskNextMatch(g,nf,pv)+
     '<section class="dw-records"><div class="dw-heading"><h2>Club records</h2></div>'+
       '<p class="dw-muted">Messages, results, reports and earlier decisions remain available.</p>'+
-      '<button class="dw-textlink" data-a="filt" data-v="staff">Browse messages & reports →</button>'+
+      '<button class="dw-textlink" data-a="filt" data-v="records">Browse club records →</button>'+
       (items.some(x=>x.kind==='done') ? '<button class="dw-textlink" data-a="filt" data-v="done">Resolved this week →</button>' : '')+
     '</section>';
 }

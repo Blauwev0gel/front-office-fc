@@ -92,6 +92,8 @@ function vSheet() {
     ];
     const record = person ? F.record(selected) : null;
     const agreement = person && F.agreementView ? F.agreementView(selected).active : null;
+    const meetings = person && F.conversationView ? F.conversationView(selected)
+      .filter(c => c.head === person.name).slice(0,3) : [];
     const last = person && g.talks ? g.talks[selected] : null;
     const gap = last == null ? null : F.absWeek() - last;
     const approach = person ? `<div class="fo-meeting-dossier">
@@ -114,6 +116,12 @@ function vSheet() {
         <p class="small">A conversation alone is not a formal change of responsibilities. Agree a direction to set an evaluated commitment.</p>
         <button data-a="sheet" data-s="mand" data-r="${selected}">Agree direction and review date</button>
         <button data-a="close">Return to your club</button></div>` : ''}
+      ${meetings.length ? `<details class="fo-meeting-history"><summary>Previous conversations (${meetings.length})</summary>
+        ${meetings.map(c=>`<div><b>Week ${c.week} · ${esc(c.approach)}</b>
+          <p>${esc(c.text)}</p>
+          <small>Relationship: ${Math.round(c.before.relationship)} → ${Math.round(c.after.relationship)}
+            ${c.agreementId ? ' · Linked to agreement ' + esc(c.agreementId) : ''}</small></div>`).join('')}
+      </details>` : ''}
       </div>` : '';
     h = `<div class="fo-meeting">
       <div class="sheethead"><h2>${person ? 'Conversation' : 'Meet your department heads'}</h2>

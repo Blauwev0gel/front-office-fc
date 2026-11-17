@@ -37,7 +37,7 @@ function vOpen() {
   const g = G(), items = inboxItems(), idx = items.findIndex(i => i.key === U.open);
   if (idx < 0) { U.open = null; return vInbox(); }
   const i = items[idx]; markRead(i.key);
-  const f = FOLD_T[U.filt] ? U.filt : 'all', pool = items.filter(x => f === 'all' ? !isDis(x.key) || x.key === i.key : x.fold === f), pi = pool.findIndex(x => x.key === i.key), nx = pool[pi + 1];
+  const f = FOLD_T[U.filt] ? U.filt : 'all', pool = items.filter(x => (f === 'all' || f === 'records') ? !isDis(x.key) || x.key === i.key : x.fold === f), pi = pool.findIndex(x => x.key === i.key), nx = pool[pi + 1];
   U.tray = '';
   let body = '';
   if (i.t === 'paper') body = gazette();

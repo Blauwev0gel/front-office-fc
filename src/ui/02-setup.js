@@ -66,25 +66,50 @@ function says(role, k, v, lo, hi) {
     coach: { attack: v > 65 ? 'Goes for goals and concedes more.' : v < 35 ? 'Sits deep and keeps it tight.' : 'Balanced approach.', youthMins: v > 65 ? 'Young players get real minutes.' : v < 35 ? 'Veterans first, kids wait.' : 'Picks on form, whatever the age.', rotation: v > 65 ? 'Rotates a lot: fresher legs, less rhythm.' : v < 35 ? 'Same eleven every week.' : 'Rotates when needed.', intensity: v > 65 ? 'Hard sessions: sharper team, more injuries.' : v < 35 ? 'Light sessions: fewer injuries, less sharp.' : 'Normal training load.' } };
   const t = S[role] && S[role][k]; return t || (v > 65 ? `Leans to ${hi.toLowerCase()}.` : v < 35 ? `Leans to ${lo.toLowerCase()}.` : 'Balanced.');
 }
-function sliderRows(role, m, prefix) {
+function sliderRows(role, m, prefix, showPresets = true) {
   const D = F.MAND[role], P = PRESETS[role] || [];
   const isP = vals => Object.entries(vals).every(([k, v]) => String(m[k]) === String(v));
   const cur = P.findIndex(([, vals]) => isP(vals));
-  const preset = P.length ? `<div class="sec">Style</div><div class="seg wide">${P.map(([l], i) => `<button class="${cur === i ? 'on' : ''}" data-a="preset" data-r="${role}" data-i="${i}" data-p="${prefix}">${l}</button>`).join('')}<button class="${cur < 0 ? 'on' : ''}" tabindex="-1" aria-disabled="true">Custom</button></div>` : '';
+  const preset = showPresets && P.length ? `<div class="sec">Style</div><div class="seg wide">${P.map(([l], i) => `<button class="${cur === i ? 'on' : ''}" data-a="preset" data-r="${role}" data-i="${i}" data-p="${prefix}">${l}</button>`).join('')}<button class="${cur < 0 ? 'on' : ''}" tabindex="-1" aria-disabled="true">Custom</button></div>` : '';
   const dials = D.sl.map(([k, lo, hi]) => { const v = +m[k]; return `<div class="dial"><label class="dlab" for="${prefix}-${k}">${esc(lo)} or ${esc(hi.toLowerCase())}</label><div class="ends"><span>${END_IC[lo] ? ART.I[END_IC[lo]] : ''}${esc(lo)}</span><span>${esc(hi)}${END_IC[hi] ? ART.I[END_IC[hi]] : ''}</span></div><input class="dial-r" type="range" min="0" max="100" step="5" id="${prefix}-${k}" value="${v}" data-sl="${role}" data-k="${k}" data-p="${prefix}" style="--v:${v}%" aria-valuetext="${v} of 100"><div class="says" id="says-${prefix}-${k}">${esc(says(role, k, v, lo, hi))}</div></div>`; }).join('');
   const rules = D.ru.map(([k, l, opts]) => { const cv = String(m[k]), ci = Math.max(0, opts.findIndex(o => o[0] === cv));
     if (opts.length <= 4 && opts.every(o => o[1].length <= 14)) return `<div class="rule"><span class="rl">${esc(l)}</span><div class="seg wide">${opts.map(o => `<button class="${cv === o[0] ? 'on' : ''}" data-a="ru-set" data-r="${role}" data-k="${k}" data-v="${o[0]}" data-p="${prefix}">${esc(o[1])}</button>`).join('')}</div></div>`;
     return `<div class="stepper"><span class="rl">${esc(l)}</span><div class="ctl"><button class="iconbtn" data-a="ru-set" data-r="${role}" data-k="${k}" data-v="${opts[Math.max(0, ci - 1)][0]}" data-p="${prefix}" ${ci === 0 ? 'disabled' : ''} aria-label="Previous option">${ART.I.back}</button><b>${esc(opts[ci][1])}</b><button class="iconbtn" data-a="ru-set" data-r="${role}" data-k="${k}" data-v="${opts[Math.min(opts.length - 1, ci + 1)][0]}" data-p="${prefix}" ${ci === opts.length - 1 ? 'disabled' : ''} aria-label="Next option">${ART.I.chev}</button></div></div>`; }).join('');
   return `${preset}<div class="sec">How they work</div>${dials}${rules ? `<div class="sec">Hard rules</div>${rules}` : ''}`;
 }
+function mandateAgreement(role, m, prefix) {
+  const person = F.staff(role), D = F.MAND[role], styles = PRESETS[role] || [];
+  const parts = D.sl.slice(0, 3).map(([key, left, right]) => {
+    const value = Number(m[key]), direction = value >= 62 ? right : value <= 38 ? left : 'Balanced';
+    return `<span class="fo-mandate-signal"><b>${esc(direction)}</b><small>${esc(left)} / ${esc(right)}</small></span>`;
+  }).join('');
+  const strategy = `<div class="fo-mandate-profiles" role="group" aria-label="Strategy for ${esc(F.ROLE[role].t)}">
+    ${styles.map(([label,vals],i) => {
+      const active = Object.entries(vals).every(([key,v]) => String(m[key]) === String(v));
+      return `<button class="${active ? 'on' : ''}" data-a="preset" data-r="${role}" data-i="${i}" data-p="${prefix}">
+        ${esc(label)}</button>`;
+    }).join('')}</div>`;
+  return `<section class="fo-mandate-agreement">
+    <div class="fo-mandate-heading"><span>WORKING DIRECTION</span>
+      <h3>What should ${person ? esc(person.name.split(' ')[0]) : 'the department head'} prioritise?</h3></div>
+    <p>Choose a broad direction. The head manages day-to-day execution within the agreed rules.</p>
+    ${strategy}
+    <div class="fo-mandate-signals">${parts}</div>
+    ${leanNote(role,m)}
+    <details class="fo-mandate-details">
+      <summary>Fine-tune policy and authority limits</summary>
+      ${sliderRows(role,m,prefix,false)}
+    </details>
+  </section>`;
+}
 function staffHead(role) { const s = F.staff(role); if (!s) return ''; const L = F.LEAN[role]; const trait = s.lean >= 60 ? L[2] : s.lean <= 40 ? L[1] : 'No strong view'; return `<div class="staffhead"><div class="portrait">${ART.staffFace(role)}</div><div><b>${esc(s.name)}</b><span class="small">${esc(F.ROLE[role].t)}</span><div class="traits"><span>${esc(trait)}</span>${s.p.ego >= 14 ? '<span>Big ego</span>' : ''}${s.p.risk >= 14 ? '<span>Risk-taker</span>' : s.p.risk <= 6 ? '<span>Careful</span>' : ''}${s.p.loy >= 15 ? '<span>Loyal</span>' : ''}</div></div></div>`; }
 function leanNote(role, m) { const s = F.staff(role); if (!s) return ''; const L = F.LEAN[role], k = L[0], d = Math.abs(m[k] - s.lean); return d > 40 ? `<p class="small bad" style="margin:4px 0">This mandate goes against ${esc(s.name.split(' ')[0])}'s instincts. Expect friction.</p>` : d < 20 ? `<p class="small good" style="margin:4px 0">${esc(s.name.split(' ')[0])} agrees with this direction.</p>` : ''; }
 function vSetupMandates() {
   const g = G(), al = F.alignment(), roles = F.ROLES.filter(r => g.staff[r.id]), open = U.mandOpen || roles[0].id;
   return `<div class="setup"><div class="sumhead"><h1>Mandates</h1><span class="chip" style="margin-left:auto">Club fit ${al}%</span></div>
-  <p class="small" style="margin:0 0 12px">Your staff work on their own, inside the mandate you give them. Pick a style or tune the dials. Later, changing a mandate costs an action.</p>
+  <p class="small" style="margin:0 0 12px">Your heads run their departments. Set a direction, then let them act. You can adjust a mandate later through the head's profile.</p>
   <div class="mtabs">${roles.map(r => `<button class="${open === r.id ? 'on' : ''}" data-a="mand-tab" data-r="${r.id}" aria-label="${esc(r.t)}"><span class="mface">${ART.staffFace(r.id)}</span><small>${esc(F.ROLE[r.id].s)}</small></button>`).join('')}</div>
-  ${staffHead(open)}${leanNote(open, g.mand[open])}${sliderRows(open, g.mand[open], 'su-' + open)}
+  ${staffHead(open)}${mandateAgreement(open, g.mand[open], 'su-' + open)}
   <div class="trayspace" style="--tray:110px"></div></div>${trayHtml('', `<button class="btn" data-a="mand-done">Issue mandates</button>`, `${roles.length} staff members, all reviewed in one go`)}`;
 }
 function recPlanBlock() {

@@ -12,27 +12,18 @@ function vSheet() {
   }
   if (s.t === 'actions') {
     h = `<div class="sheethead"><span class="chip">Actions</span><button class="iconbtn" data-a="close" aria-label="Close">${ART.I.close}</button></div>
-    <p>There is no limit on what you do in a week. Leave a decision and your staff take their pick; only decisions you take yourself build your grip.</p>`;
+    <p>There is no limit on what you do in a week. Leave a decision and the head who owns it decides, in his own way. A quiet week costs nothing.</p>`;
   }
   if (s.t === 'help') {
     h = `<div class="sheethead"><span class="chip">How it works</span><button class="iconbtn" data-a="close" aria-label="Close">${ART.I.close}</button></div>
     <p style="margin-top:0">You are the CEO. You hire the people, set their mandates and make the calls they bring you. You never pick the team or buy players yourself.</p>
     <div class="panel2">${Object.entries(TOUR).map(([k, t]) => `<div class="helpr"><span class="hic">${ART.I[k]}</span><span><b>${esc(t[0])}</b><small>${esc(t[1])}</small></span></div>`).join('')}</div>
     <div class="sec">Reading the screen</div><div class="panel2">
-            <div class="helpr"><span class="hic"><span class="gripchip lo" style="margin:0;min-width:0"><b>Drifting</b></span></span><span><b>Drifting</b><small>Appears when your staff decide without your direction. Take decisions yourself and it goes away.</small></span></div>
       <div class="helpr"><span class="hic"><i class="lg good"></i></span><span><b>Green</b><small>On track or good.</small></span></div>
       <div class="helpr"><span class="hic"><i class="lg mid"></i></span><span><b>Grey</b><small>Steady, nothing to do.</small></span></div>
       <div class="helpr"><span class="hic"><i class="lg bad"></i></span><span><b>Red</b><small>Needs attention.</small></span></div>
       <div class="helpr"><span class="hic"><em class="nbadge">2</em></span><span><b>Badges</b><small>Something waits for you on that tab.</small></span></div></div>
     <button class="btn ghost wide" data-a="tour-reset" style="margin-top:12px">Show the tab tips again</button>`;
-  }
-  if (s.t === 'grip') {
-    const gr = Math.round(g.grip == null ? 60 : g.grip), bon = (gr - 50) / 14, L = (g.gripLog || []).slice(-12);
-    h = `<div class="sheethead"><span class="chip">Your grip on the club</span><button class="iconbtn" data-a="close" aria-label="Close">${ART.I.close}</button></div>
-    <div class="kbig">${gr}<small class="small"> of 100</small></div><div class="budbar"><b class="${gr < 30 ? 'over' : ''}" style="width:${gr}%"></b></div>
-    <p>A club drifts when nobody steers it. Every decision you take yourself, a talk, a press answer or a call in the summer, builds grip. Each week without them, it slips.</p>
-    <div class="panel2"><div class="scr2"><span>Effect on every head of department</span><b class="${bon >= 0 ? 'good' : 'bad'}">${bon >= 0 ? '+' : '−'}${Math.abs(bon).toFixed(1)} on their skills</b></div><div class="scr2"><span>Most you can gain in a week</span><b>16</b></div><div class="scr2"><span>Lost every week</span><b>5</b></div>${gr < 25 ? '<div class="scr2"><span>Board and staff</span><b class="bad">Losing faith every week</b></div>' : ''}</div>
-    ${L.length > 1 ? `<div class="sec">Last weeks</div><div class="panel2">${spark(L)}</div>` : ''}`;
   }
   if (s.t === 'sack') {
     const q = F.ftSackQuote(), c = F.staff('coach'); if (!q || !c) { U.sheet = null; return ''; }

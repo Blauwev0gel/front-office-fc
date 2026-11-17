@@ -232,7 +232,7 @@ function targetFromWorld(rec, key, hyp) {
   ensure(); const r = RC(), sc = scoutsAll()[0] || staff('dof'); if (!sc) return { err: 'You need a scout or a Director of Football to follow a target.' };
   for (const id in r.pool) if (r.pool[id].wkey === key) delete r.pool[id];
   const p = F.genPlayer({ pos: rec.pos, age: rec.age, ca: rec.ca, region: rec.reg });
-  p.name = rec.name; p.a = Object.assign({}, rec.a); Object.assign(p.pers, rec.pers); upd(p); p.pa = Math.max(p.ca, rec.pa);
+  p.name = rec.name; p.a = Object.assign({}, rec.a); Object.assign(p.pers, rec.pers); upd(p); p.ca = rec.ca; p.pa = Math.max(p.ca, rec.pa); // the same ability as the portal shows (recomputing from rounded attributes drifted)
   p.club = rec.domClub != null ? rec.domClub : aiClub(g().club.tier); if (rec.domClub == null) p.fclub = rec.club;
   p.contract = Math.max(0, Math.round(rec.contract)); p.ask = Math.round(rec.ask / 100) * 100; p.wageAsk = Math.round(rec.wage * (rec.age > 28 ? 1.15 : 1.05) / 5) * 5;
   p.pool = true; p.inTier = rec.tier || g().club.tier; p.loanable = false; p.wkey = key; r.pool[p.id] = p;

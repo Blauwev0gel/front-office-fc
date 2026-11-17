@@ -102,8 +102,7 @@ Run-in (20–29), Finale (30–34). Beker in week 5/11/17/23/29/33. Na week 34: 
 | Afdelingen | drie weergaven Overview / Setup / Record (B12, B34): oordeel en verzoeken van het hoofd (B19), mandaat en middelen, mensen (het hoofd beheert zijn staf, B18), record met wat het hoofd namens jou besliste | `depts.js`, `ui/08-departments.js`, `ui/08a-dept-parts.js` |
 | Week en gebeurtenissen | onderwerp van de week, kansen in stille weken, big-game-momenten, terugblikken (B22–B24); gebeurtenissen gewogen op de clubsituatie en vervolgen met herkomst (B31) | `weekflow.js`, `weekloop.js`, `engine/08-weekly-inbox.js` |
 | Gesprekken | het hoofd vraagt om een gesprek of de CEO opent er een; korte scènes met gevolg, gratis | `talks.js`, `firstteam.js` |
-| Bevoegdheid (desk) | short leash / normal / free hand per head, foutkans | `desk.js` |
-| Grip | zakt als je niet zelf beslist; tilt of drukt alle heads | `levers.js` |
+| Bevoegdheid (desk) | short leash / normal / free hand per head; escalaties met een reden; het hoofd voert uit vanuit zijn profiel (kwaliteit, risico, bevoegdheid), B54 | `desk.js` |
 | Backers | 4 achterbannen met eigen stem, vote of confidence | `loop.js` |
 | Events & briefings | ±80 events, korte state-gedreven updates | `events*.js`, `briefs.js` |
 | Dossiers | 8 verhaallijnen in 3 delen, heat bepaalt het einde | `dossiers.js` |
@@ -146,7 +145,7 @@ Aandachtspunten:
    zijn geen dubbelingen maar aanvullende delen. `summer.js` levert nog de stappen waarop `summer2.js` draait.
    De tests draaien de zomer via de v2-flow: `sumAuto` is sinds `summer2.js` gelijk aan `sum2Auto` (gecorrigeerd 15-11-2026).
 3. ~~`ui.js` is 1.849 regels in één blok~~ — opgeknipt in delen (15-11-2026), build byte-identiek.
-4. **Veel meters tegelijk:** bestuursvertrouwen, 4 backers, grip, verborgen druk, credibility (pathway),
+4. **Veel meters tegelijk:** bestuursvertrouwen, 4 backers, verborgen druk, credibility (pathway),
    DNA-alignment, plus KPI's per afdeling (actiepunten zijn afgeschaft, B21). Sterk voor P2, maar mogelijk in strijd met P4/P5.
 5. Tab `money` bestaat in de render, maar staat niet in de tabbalk.
 6. Eerste audit-signaal (20 runs × 5 seizoenen, nog te toetsen): een *actieve* CEO wordt even vaak ontslagen

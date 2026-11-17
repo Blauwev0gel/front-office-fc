@@ -9,9 +9,9 @@ const g = () => F.G, H = F.HOOK;
 const { clamp, chance, pick, staff, eff, money, M, ROLE, man } = F;
 
 const AUTH = [
-  { t: 'Short leash', s: 'Checks most things with you. Few mistakes, a full inbox.' },
+  { t: 'Short leash', s: 'Anything with money or a player in it comes to you. Few mistakes, a full inbox.' },
   { t: 'Normal', s: 'Decides routine matters. Escalates money, big names and risk.' },
-  { t: 'Free hand', s: 'Decides almost everything. Mistakes weigh heavier.' }];
+  { t: 'Free hand', s: 'Decides almost everything. A bold head takes real gambles; mistakes weigh heavier.' }];
 const HEADS = ['coach', 'dof', 'acad', 'com', 'mkt', 'fin'];
 const DNAME = { coach: 'the first team', dof: 'recruitment', acad: 'the academy', com: 'commercial', mkt: 'marketing', fin: 'finance' };
 const DSHORT = { coach: 'First team', dof: 'Recruitment', acad: 'Academy', com: 'Commercial', mkt: 'Marketing', fin: 'Finance' };
@@ -36,7 +36,15 @@ function setAuth(r, v) { const G = g(); G.auth = G.auth || {}; if (!HEADS.includ
 function limit(h, a) { return M(LIM[h] || 1200) * LIMF[a]; }
 function amtOf(c) { if (!c) return 0; const n = v => (typeof v === 'number' && isFinite(v) ? v : 0); return Math.max(n(c.wk), n(c.ask) - n(c.cur), n(c.cost) / 20, n(c.cash) / 20, n(c.fee) / 20, n(c.bid) / 20); }
 function top3(pid) { const sq = g().squad.slice().sort((a, b) => b.ca - a.ca).slice(0, 3); return sq.some(p => p.id === pid); }
-function errChance(h) { const a = auth(h); return clamp((5 - lvl(h)) * 0.04, 0.01, 0.22) * [0.7, 1, 1.4][a]; }
+/* B54: how a head carries out a call. He always takes the option his mandate points to; what varies is how well it turns out.
+   A risk-taker with a free hand goes for more and it can pay off or backfire; a weak head misjudges more often; a careful one rarely.
+   Competence is measured against the division. All of it is seeded and every outcome names its cause. */
+function carry(h) {
+  const s = staff(h), a = auth(h), c = lvl(h), P = s.p || {}, n = first(s);
+  if (a === 2 && P.risk >= 13) return chance(clamp(0.45 + c * 0.06, 0.2, 0.85)) ? { k: 'win', why: `${n} went for more than the safe option: he likes a gamble, and it paid off.` } : { k: 'err', why: `${n} gambled with the free hand you gave him, and it backfired.` };
+  const p = clamp((4 - c) * 0.035, 0, 0.18) * [0.6, 1, 1.3][a] * (P.risk <= 7 ? 0.6 : 1);
+  return chance(p) ? { k: 'err', why: c < 1 ? `${n} misjudged it: he is short of the level this division asks.` : `${n} misjudged it.` } : { k: 'ok', why: '' };
+}
 const lvl = (h, i) => eff(h, i) - F.tierAvg(g().club.tier); // strength relative to the division
 const first = s => s ? s.name.split(' ')[0] : 'Nobody';
 
@@ -51,9 +59,10 @@ function reason(e, c) {
   if (amt > lim) return `${money(amt)} a week is above what ${first(s)} may sign off alone (${money(lim)} at ${AUTH[a].t.toLowerCase()}).`;
   if (c && c.pid && top3(c.pid) && a < 2) return `It involves one of our three best players. ${first(s)} wants your view first.`;
   if (REP.has(e.id) && (a === 0 || (a === 1 && lvl(h) < 4))) return `It could hurt the club's name. ${first(s)} will not take that risk without you.`;
-  if (a === 0 && chance(0.55)) return `${first(s)} is on a short leash, so he checks with you.`;
-  if (s.rel < 35 && chance(0.4)) return `${first(s)} wants your cover. Your relationship is cold (${Math.round(s.rel)}).`;
-  if (lvl(h) < 1 && a < 2 && chance(0.35)) return `${first(s)} is unsure of himself on this one and passes it up.`;
+  // B54: no escalations on a coin flip; each has a reason the CEO can change
+  if (a === 0 && (amt > 0 || (c && c.pid))) return `${first(s)} is on a short leash: anything with money or a player in it comes to you.`;
+  if (s.rel < 35 && amt > lim * 0.4) return `${first(s)} wants your cover on money like this. Your relationship is cold (${Math.round(s.rel)}).`;
+  if (lvl(h) < 1 && a < 2 && amt > lim * 0.5) return `${first(s)} is out of his depth with this much money and passes it up.`;
   return null;
 }
 function coreWhy(e) {
@@ -67,6 +76,7 @@ function coreWhy(e) {
 function log(h, err, t, c) { const G = g(); G.desk = G.desk || { n: 0, err: 0, by: {} }; G.desk.n++; if (err) G.desk.err++; const b = G.desk.by[h] = G.desk.by[h] || { n: 0, err: 0, errW: [] }; b.n++; if (err) { b.err++; b.errW.push(F.absWeek()); b.errW = b.errW.slice(-6); }
   if (t && !/^(noted|nothing to add|ok|fine)\b/i.test(c || '')) { b.hist = (b.hist || []).concat([{ w: G.week, s: G.season, t, c: c || '', err: err ? 1 : 0 }]).slice(-8); } } // the last calls, for the department's Record
 const txt = (x, c) => { try { return typeof x === 'function' ? x(c) : (x || ''); } catch (er) { return ''; } };
+function gain(h) { const G = g(), s = staff(h); G.board.conf = Math.min(100, G.board.conf + 0.5); if (s) s.perf = clamp((s.perf || 50) + 1, 0, 100); }
 function slip(h) { const a = auth(h), k = a === 2 ? 1.5 : 1; const G = g(); G.club.drift += Math.round(2 * k); if (a === 2) { G.board.conf = clamp(G.board.conf - 1, 0, 100); G.st.fans = clamp(G.st.fans - 1, 0, 100); } }
 
 /* ---------- messages ---------- */
@@ -75,15 +85,14 @@ H.desk = (e, m) => {
   if (why === 'core') { const w = coreWhy(e); if (w) m.why = w; return; }
   if (why) { m.why = why; m.esc = 1; return; }
   const h = headOf(e.from), s = staff(h);
-  let idx = F.autoIndex(m), err = 0;
-  if (e.opts.length > 1 && chance(errChance(h))) { const alt = e.opts.map((_, i) => i).filter(i => i !== idx); idx = pick(alt); err = 1; }
+  const idx = F.autoIndex(m), how = carry(h), err = how.k === 'err' ? 1 : 0;
   m.del = 1; m.err = err; m.authAt = auth(h);
   const n0 = g().paper.stories.length;
   F.resolve(m, idx, s.name);
-  const st = g().paper.stories[n0]; if (st) { st.auto = 1; st.h = `${DSHORT[h]} handled it${err ? ', badly' : ''}`; }
-  if (err) { slip(h); m.outcome = (m.outcome || '') + ' It goes against your mandate.'; }
-  else if (F.gripGain) F.gripGain(1, 'desk');
-  const ev = F.EV[m.ev] || {}; log(h, err, txt(ev.title, m.ctx), txt((ev.opts || [])[idx] && ev.opts[idx].l, m.ctx));
+  const st = g().paper.stories[n0]; if (st) { st.auto = 1; st.h = `${DSHORT[h]} handled it${err ? ', badly' : how.k === 'win' ? ', boldly' : ''}`; if (how.why) st.t = `${st.t} ${how.why}`; }
+  if (err) slip(h); else if (how.k === 'win') gain(h);
+  if (how.why) m.outcome = `${m.outcome || ''} ${how.why}`.trim();
+  const ev = F.EV[m.ev] || {}; log(h, err, txt(ev.title, m.ctx), txt((ev.opts || [])[idx] && ev.opts[idx].l, m.ctx) + (how.why ? ` (${how.why})` : ''));
 };
 
 /* ---------- briefs ---------- */
@@ -102,7 +111,7 @@ H.deskBriefs = list => {
     const h = headOf(d.role), s = staff(h); if (!s) continue; const a = auth(h);
     const amt = briefAmt(b), lim = limit(h, a);
     if (amt > lim) { b.why = `${money(amt)} a week is above what ${first(s)} may sign off alone (${money(lim)} at ${AUTH[a].t.toLowerCase()}).`; continue; }
-    if (a === 0 && chance(0.5)) { b.why = `${first(s)} is on a short leash, so he checks with you.`; continue; }
+    if (a === 0 && amt > 0) { b.why = `${first(s)} is on a short leash: anything with money in it comes to you.`; continue; }
     const x = BAUTO[b.t]; let idx = x == null ? d.opts.length - 1 : typeof x === 'function' ? (() => { try { return x(); } catch (er) { return d.opts.length - 1; } })() : x;
     idx = clamp(idx, 0, d.opts.length - 1);
     let r = ''; try { r = d.opts[idx].f(b.ctx) || 'Noted.'; } catch (er) { r = 'Noted.'; }
@@ -120,7 +129,7 @@ H.seasonAfterMatch = ours => {
 };
 const prevEff = H.effBonus;
 H.effBonus = (r, i) => { let b = prevEff ? prevEff(r, i) : 0; const h = headOf(r), s = staff(h); if (!s || !HEADS.includes(h)) return b; const a = auth(h);
-  if (a === 2 && s.rel >= 50) b += 0.4; if (a === 0 && s.p.ego >= 12) b -= 0.4; return b; };
+  if (a === 2 && s.rel >= 50) b += 0.8; if (a === 0 && s.p.ego >= 12) b -= 0.8; return b; }; // B54: the right freedom for the right head
 
 /* ---------- conflicts between departments ---------- */
 const E = F.defineEvent, rel = (r, n) => { const s = staff(r); if (s) s.rel = clamp(s.rel + n, 0, 100); };
@@ -200,5 +209,5 @@ function deskView() {
 }
 function authView(h) { const s = staff(h), a = auth(h); return { a, t: AUTH[a].t, s: AUTH[a].s, opts: AUTH.map(x => x.t), lim: limit(h, a), err: Math.round(errChance(h) * 100), rec: ((G => G.desk && G.desk.by[h])(g())) || { n: 0, err: 0 }, head: s }; }
 
-Object.assign(F, { AUTH, setAuth, authView, deskView, DESK_HEADS: HEADS, deskLimit: r => limit(headOf(r), auth(r)), deskNote: (r, t, c, err) => log(headOf(r), err ? 1 : 0, t, c) });
+Object.assign(F, { AUTH, setAuth, authView, deskView, deskCarry: carry, deskReason: reason, DESK_HEADS: HEADS, deskLimit: r => limit(headOf(r), auth(r)), deskNote: (r, t, c, err) => log(headOf(r), err ? 1 : 0, t, c) });
 })(FO);

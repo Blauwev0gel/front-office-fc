@@ -154,9 +154,6 @@ button.dept.dtile{display:flex;align-items:center;gap:10px;width:100%;text-align
 .hmini{display:flex;align-items:center;gap:8px;background:var(--paper);border:var(--l1);border-radius:14px;padding:8px;margin-bottom:var(--s3)}
 .hmini .dt{flex:1;display:grid;min-width:0}.hmini .dt b{font:900 15px var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hmini .dt small{color:var(--soft);font-size:11px}
 .hbtns.in{margin:0;flex:none;gap:4px}.hbtns.in .btn{padding:6px 8px;font-size:12px;flex:none}.hbtns.in .btn svg{display:none}
-.gripchip{position:relative;display:inline-flex;align-items:center;margin-left:8px;height:22px;min-width:70px;border:2px solid var(--ink);border-radius:11px;background:var(--paper);overflow:hidden;padding:0 8px;font:900 11px var(--head);color:var(--ink)}
-.gripchip i{position:absolute;left:0;top:0;bottom:0;background:light-dark(#cfe3d4,#2a4a33)}.gripchip.lo i{background:light-dark(#f3c9c9,#5a2323)}.gripchip.hi i{background:light-dark(#9fd3ae,#2f6b41)}
-.gripchip b{position:relative}.gripchip.drift{height:44px;min-width:0;padding:0 14px;border-radius:22px;font-size:13px;background:light-dark(#f3c9c9,#5a2323);border-color:var(--bad);color:var(--ink)}
 .dtabs button{color:var(--ink);min-height:44px}.dtabs button:not(.on){opacity:.78}
 .iconbtn{min-width:44px;min-height:44px}
 
@@ -164,7 +161,6 @@ button.dept.dtile{display:flex;align-items:center;gap:10px;width:100%;text-align
 .b2l{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
 .aplab{display:flex;align-items:center;gap:6px;background:none;border:0;padding:0;min-height:22px;color:var(--ink)}
 .aplab small{font:800 12px var(--head)}
-.gripchip{margin-left:0}
 .nic{position:relative;display:inline-flex}
 .nbadge{position:absolute;top:-6px;right:-10px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#c8102e;color:#fff;font:900 11px/18px var(--head);font-style:normal;text-align:center;border:2px solid var(--paper)}
 .nbadge.warn{background:#d98a00}.nbadge.dot{min-width:12px;width:12px;height:12px;padding:0;right:-4px;top:-3px}
@@ -184,7 +180,6 @@ button.dept.dtile{display:flex;align-items:center;gap:10px;width:100%;text-align
 .filters button,.seg button,.btn.small,.tourc .btn{min-height:44px}
 .linkbtn{min-height:44px;display:inline-flex;align-items:center;gap:4px}
 .aplab{min-height:24px;padding:10px 0 0;margin-top:-10px}
-.gripchip{position:relative}.gripchip::after{content:'';position:absolute;inset:-11px -4px}
 .aplab{position:relative}.aplab::after{content:'';position:absolute;inset:0 -4px -10px}
 .hd b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 .hd .wk{white-space:nowrap;flex:none}

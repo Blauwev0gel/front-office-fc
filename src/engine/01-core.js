@@ -3,7 +3,7 @@
 var FO = (function () {
 'use strict';
 let G = null;
-const VERSION = 3;
+const VERSION = 4;
 const HOOK = {};
 const SEASON_WEEKS = 34;
 const AP_FREE = 99; // B21: no action points; old checks see a full week

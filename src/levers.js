@@ -1,42 +1,17 @@
 /* The Front Office · levers
-   Grip: a club drifts without a CEO steering it. Decisions you take yourself build grip; weeks
-   without them let it slip. Grip lifts or drags every head of department.
-   Also: DoF signings that fit the system, a finance alarm before it is too late, and staff picks
+   DoF signings that fit the system, a finance alarm before it is too late, and staff picks
    that respect the money. */
 (function (F) {
 'use strict';
 const g = () => F.G, H = F.HOOK;
 const { clamp, money, M, staff, man, chance, gauss } = F;
-const MAXW = 16, DECAY = 5;
-
-function gripInit() { const G = g(); if (G.grip == null) { G.grip = 60; G.gripW = 0; G.gripLog = []; } return G.grip; }
-function gain(v, why) {
-  const G = g(); if (!G) return; gripInit();
-  const room = Math.max(0, MAXW - G.gripW), add = Math.min(room, v); if (add <= 0) return;
-  G.grip = clamp(G.grip + add, 0, 100); G.gripW += add;
-}
-// wrap the CEO's own actions
-const wrap = (name, v, test) => { const f = F[name]; if (!f) return; F[name] = function (...a) { const r = f.apply(this, a); if (!(r && r.err) && (!test || test(r, a))) gain(v, name); return r; }; };
-wrap('respond', 6); wrap('answerBrief', 3); wrap('ftTalkStart', 5, r => !r || r.fresh !== false); // only a fresh talk builds grip wrap('talk', 5); wrap('pressAnswer', 3);
-wrap('decideProposal', 3); wrap('sum2Answer', 2); wrap('tkAnswer', 3); wrap('ddDecide', 2); /* B21: mandates, budgets and staff are free now and no longer build grip */
-
-const GRIPK = 14; // grip 100 = +3.6 on every head's attributes, grip 0 = -3.6
-const prevEff = H.effBonus;
-const GW = { coach: 1, dof: 1, scout: 1, acad: 1, com: 0.4, mkt: 0.6, fin: 0.3 };
-H.effBonus = (r, i) => (prevEff ? prevEff(r, i) : 0) + ((g().grip == null ? 60 : g().grip) - 50) / GRIPK * (GW[r] != null ? GW[r] : 1);
-
 // a step up: the first season in a new division is harder, and fades as the squad adapts
 const prevExtra = H.ftExtra; H.ftExtra = () => (prevExtra ? prevExtra() : 0) - (g().club.stepUp === g().season ? 1.2 * Math.max(0, 1 - g().week / 50) : 0); // B37: the first season in a new division is an adjustment, not a victory lap
 /* ---------- weekly ---------- */
 const prevAfter = H.seasonAfterMatch;
 H.seasonAfterMatch = ours => {
   if (prevAfter) prevAfter(ours);
-  const G = g(); gripInit();
-  G.gripLog.push(Math.round(G.grip)); if (G.gripLog.length > 40) G.gripLog.shift();
-  G.grip = clamp(G.grip - DECAY, 0, 100); G.gripW = 0;
-  if (G.grip < 25) { G.board.conf = clamp(G.board.conf - 0.35, 0, 100); for (const r in G.staff) if (G.staff[r]) G.staff[r].rel = clamp(G.staff[r].rel - 0.3, 0, 100); }
-  if (G.grip < 25 && !G.flags.gripWarn) { G.flags.gripWarn = 1; if (G.paper) G.paper.stories.push({ h: 'Who runs this club?', t: 'Staff are making the calls without direction. The board has noticed.' }); }
-  if (G.grip >= 40) G.flags.gripWarn = 0;
+  const G = g();
   // over the wage cap: Finance and the DoF move a high earner on while the window is open
   const cap = +man('fin', 'wageCap');
   if (staff('fin') && F.window_() && F.wageRatio() * 100 > cap + 12 && F.absWeek() - (G.flags.trimAt || -99) >= 2 && G.squad.length > 18) {
@@ -84,6 +59,6 @@ F.sign = function (p, ...rest) {
   return r;
 };
 
-Object.assign(F, { gripGain: gain, finRunway: runway, finTight: tight });
+Object.assign(F, { finRunway: runway, finTight: tight });
 patchAutos();
 })(FO);

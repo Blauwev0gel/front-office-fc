@@ -30,7 +30,6 @@ grep -rn "function vInbox\|vInbox =" src
 | Staff actions: hire, fire, talk, push, mandate | `engine/09-meetings-actions-press.js` | `ui/06-sheets-ticker.js` (vSheet), `ui/15-actions.js` |
 | Departments in general: staff, budget share, KPIs | `depts.js` | `ui/08-departments.js` (vDepts, vDept) |
 | Authority and escalation (the desk) | `desk.js` | `ui/08-departments.js` (authHtml) |
-| Grip | `levers.js` | `ui/13-redbox-render.js` (vBar) |
 | First team / Head Coach | `firstteam.js`, `engine/05-world-selection.js` (pickXI, teamStrength) | `ui/09-firstteam-review.js` (vFirst) |
 | Recruitment / DoF and scouting | `recruit.js`, `recruitx.js`, `engine/07-finance-transfers.js` (sign, dofWork), `engine/11-staffwork-analysis-briefs.js` (scoutWork) | `ui/08-departments.js` (rx*), `ui/05-pitches-squad-money.js` (vRecruit2) |
 | Transfer summer (v2 is the flow; `summer.js` still supplies its steps, contracts and deadline day) | `summer.js`, `summer2.js` | `ui/03-summer-preseason-press.js` |
@@ -86,7 +85,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `faces.js` | 27 KB | visual layer, part 1 Procedural ink-style portraits for every person in the game, the CEO's office scene, repu |  |  |  |
 | `firstteam.js` | 22 KB | First team department The coach's own instincts vs your mandate, support staff you can fund, talks as short sc | coachAct, ftCost, ftInj, ftDev, ftExtra, selBonus, seasonAfterMatch |  | ft |
 | `depts.js` | 21 KB | departments Every department is a real unit: a head, staff underneath, a budget share, facilities, KPI history | effBonus, deptCost, merchMult, ftExtra, ftDev, ftInj, seasonAfterMatch |  | dept, deptB, deptSeason, staffAsk |
-| `levers.js` | 7 KB | levers Grip: a club drifts without a CEO steering it | effBonus, ftExtra, seasonAfterMatch | deptCost | grip, gripW, gripLog |
+| `levers.js` | 5 KB | levers DoF signings that fit the system, a finance alarm before it is too late, and staff picks that respect t | ftExtra, seasonAfterMatch | deptCost |  |
 | `commercial.js` | 10 KB | Commercial department The stadium as a system (three stands, demand, price, matchday experience), sponsor offe | attendance, gate, homeEdge, merchMult, deptCost, seasonAfterMatch |  | com |
 | `marketing.js` | 7 KB | Marketing department A supporter funnel (reach, fans, season-ticket holders), loyalty that cushions bad result | fanWeekly, deptCost |  | mk |
 | `business.js` | 7 KB | Business department A season budget per department (lean, normal, invest) against what the club can afford, a  | costDisc |  | biz, deptB |
@@ -95,8 +94,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `world.js` | 18 KB | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store | seasonWeekly |  | world |
 | `turnaround.js` | 7 KB | the turnaround (B37, B44) When it goes properly wrong, the board asks what the CEO intends to do | ftExtra, seasonWeekly |  | turn, turnLast, turnAsk |
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
-| `desk.js` | 18 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
-| `talks.js` | 19 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio, dofStrikes |
+| `desk.js` | 20 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
+| `talks.js` | 20 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio, dofStrikes |
 | `weekflow.js` | 25 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo, coachNews, mem |
 | `weekloop.js` | 2 KB | situation-driven week Chance serves the club's situation: an event is likelier when its department is under pr | evWeight |  |  |
 | `loop.js` | 16 KB | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice | lastChance, seasonReprieve, seasonAfterMatch |  | votes, vote, bgoal, bgLog, wkDelta, wkPrev, wkLog |
@@ -109,7 +108,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/03-summer-preseason-press.js` | 27 KB | the summer (M4); the summer, version 2 |  |  |  |
 | `ui/04-masthead-news.js` | 1 KB |  |  |  |  |
 | `ui/05-pitches-squad-money.js` | 15 KB | project pitches: one at a time, swipe or tap |  |  |  |
-| `ui/06-sheets-ticker.js` | 22 KB | sheets; ticker |  |  |  |
+| `ui/06-sheets-ticker.js` | 20 KB | sheets; ticker |  |  |  |
 | `ui/07-club-league.js` | 9 KB | review & sacked; club, league, staff, academy, review: game screens |  | deptCost |  |
 | `ui/08-departments.js` | 25 KB | departments |  |  |  |
 | `ui/08a-dept-parts.js` | 21 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
@@ -118,7 +117,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/10-inbox.js` | 18 KB | render; inbox home (1.6) |  |  |  |
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
 | `ui/12-scenes-cards.js` | 15 KB | game UI helpers |  |  |  |
-| `ui/13-redbox-render.js` | 14 KB | the red box: an email you answer on one screen |  |  |  |
+| `ui/13-redbox-render.js` | 13 KB | the red box: an email you answer on one screen |  |  |  |
 | `ui/14-matchday-gazette.js` | 28 KB | match day: preview, match, gazette (full screens); the Gazette: one design, opened after the match and from th |  |  |  |
 | `ui/15-actions.js` | 19 KB | actions |  |  |  |
 | `ui/16-boot.js` | 0 KB | boot |  |  |  |
@@ -215,8 +214,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: deptHas, deptHeadHire, deptStaffWant, deptVerdict, deptAttention, DEPTS, DEPT, DEPT_ROLES, deptEnsure, deptView, deptOverview, deptCands, deptHire, deptLetGo, deptBudView, deptBudSet
 
 ### `levers.js`
-- Functions: g, gripInit, gain, wrap, net, runway, tight, wrapAuto, patchAutos
-- Exports on `F`: sign, gripGain, finRunway, finTight
+- Functions: g, net, runway, tight, wrapAuto, patchAutos
+- Exports on `F`: sign, finRunway, finTight
 
 ### `commercial.js`
 - Functions: g, has, C, form, demand, newOffer, offerWeekly, offerAct, setPrice, expUp, expDown, promo, view
@@ -251,11 +250,11 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: mtPreview, MT_STY
 
 ### `desk.js`
-- Functions: g, headOf, auth, setAuth, limit, amtOf, top3, errChance, lvl, first, reason, coreWhy, log, txt, slip, briefAmt, both, pickHead, deskView, authView
-- Exports on `F`: AUTH, setAuth, authView, deskView, DESK_HEADS, deskLimit, auth(r)), deskNote, t, c, err) => log(headOf(r), err ? 1, c)
+- Functions: g, headOf, auth, setAuth, limit, amtOf, top3, carry, lvl, first, reason, coreWhy, log, txt, gain, slip, briefAmt, both, pickHead, deskView, authView
+- Exports on `F`: AUTH, setAuth, authView, deskView, deskCarry, deskReason, DESK_HEADS, deskLimit, auth(r)), deskNote, t, c, err) => log(headOf(r), err ? 1, c)
 
 ### `talks.js`
-- Functions: g, first, fixFor, C, rel, boost, ask, reqText, lapse, weekly, say, note, common, reqOpts, open, answer, close, view, reqOf, reqsFor
+- Functions: g, first, fixFor, C, rel, boost, ask, reqText, lapse, weekly, say, note, hasCause, common, reqOpts, open, answer, close, view, reqOf, reqsFor
 - Exports on `F`: convoAsk, convoOpen, convoAnswer, convoClose, convoView, convoReq, convoReqs, CONVO_DEPT
 
 ### `weekflow.js`

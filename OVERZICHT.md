@@ -138,11 +138,11 @@ evolueren (`str` trekt naar het divisiegemiddelde plus hun coach, B37); spelers 
 | `seasonWeekly` | eenmaal per week aan het einde van de weeklus, voor de nieuwe berichten | `season.js`, `recruitx.js`, `world.js`, `turnaround.js` | `engine/12-week.js` |
 | `summerStart` | start van de zomer (ketting: season, summer, summer2) | `summer.js`, `season.js`, `summer2.js`, `recruitx.js` | `engine/10-season.js`, `engine/13-newgame-preseason.js` |
 | `deptCost` | wekelijkse kosten per afdeling | `depts.js`, `commercial.js`, `marketing.js` | `engine/07-finance-transfers.js`, `levers.js`, `ui/07-club-league.js` |
-| `effBonus` | extra effectiviteit van een staflid (afdelingsperks, desk) | `depts.js`, `levers.js`, `desk.js` | `engine/04-staff-dna.js` |
 | `acadIntake` | jaarlijkse instroom van de academie (week 28) | `academy.js`, `academy3.js` | `engine/12-week.js` |
 | `acadSeason` | academie aan het seizoenseinde | `academy.js`, `academy2.js` | `engine/10-season.js` |
 | `acadWeekly` | wekelijkse academie (ontwikkeling, welzijn, competitie) | `academy.js`, `academy2.js` | `engine/12-week.js` |
 | `deskBriefs` | het bureau voegt korte briefings toe | `desk.js`, `weekflow.js` | `engine/11-staffwork-analysis-briefs.js` |
+| `effBonus` | extra effectiviteit van een staflid (afdelingsperks, desk) | `depts.js`, `desk.js` | `engine/04-staff-dna.js` |
 | `ftDev` | extra bij de ontwikkeling van spelers | `firstteam.js`, `depts.js` | `engine/08-weekly-inbox.js` |
 | `ftInj` | factor op de blessurekans | `firstteam.js`, `depts.js` | `engine/06-match.js` |
 | `merchMult` | factor op merchandise-inkomsten | `depts.js`, `commercial.js` | `engine/07-finance-transfers.js` |
@@ -193,7 +193,7 @@ evolueren (`str` trekt naar het divisiegemiddelde plus hun coach, B37); spelers 
 | Systeem | Logica | Scherm | Belangrijkste state |
 |---|---|---|---|
 | Start (DNA, staf, mandaten) | `engine/04`, `engine/13` | `ui/02-setup` | `club`, `staff`, `mand` |
-| Afdelingen (zes) | `depts.js`, `desk.js`, `levers.js` | `ui/08-departments` | `dept`, `auth`, `desk`, `grip` |
+| Afdelingen (zes) | `depts.js`, `desk.js`, `levers.js` | `ui/08-departments` | `dept`, `auth`, `desk` |
 | Eerste elftal | `firstteam.js`, `engine/05` | `ui/09-firstteam-review` | `ft` |
 | Recruitment, DoF, scouts | `recruit.js`, `recruitx.js`, `engine/07` | `ui/08-departments` (rx*) | `rec`, `recX`, `shortlist` |
 | Scouting-portaal (nieuw) | `world.js` | `ui/08b-portal` | `world` |
@@ -234,7 +234,6 @@ evolueren (`str` trekt naar het divisiegemiddelde plus hun coach, B37); spelers 
 | `summer2.js` | `dofStrikes` |
 | `firstteam.js` | `ft` |
 | `depts.js` | `dept`, `deptB`, `deptSeason`, `staffAsk` |
-| `levers.js` | `grip`, `gripW`, `gripLog` |
 | `commercial.js` | `com` |
 | `marketing.js` | `mk` |
 | `business.js` | `biz`, `deptB` |
@@ -344,7 +343,6 @@ Dit zijn dingen die ik tijdens het werk tegenkwam; ze staan hier zodat we ze ger
 
 - **CEO**: jij. **DoF**: Director of Football (aanneemt, scout, onderhandelt). **Head**: hoofd van een afdeling.
 - **Mandaat**: de schuifjes en regels die je een hoofd meegeeft. **Bevoegdheid (authority)**: hoeveel hij zelf mag beslissen (short leash, normal, free hand).
-- **Grip**: hoe sterk je het club stuurt; zakt als je niet zelf beslist.
 - **Achterbannen (backers)**: bestuur, supporters, pers, kleedkamer.
 - **CA, PA**: huidige ability en potentieel (1 tot 20). **Pool**: de spelers die de DoF kent.
 - **Hook**: een aanroeppunt in de engine dat modules kunnen overnemen.
@@ -475,7 +473,7 @@ Seizoenstelling in tier 6–8 (niveau 5–8 CA):
 | Meer doorstroom of een ander ritme | de drempel in `acadSeason` (`thr`, `pace`), `genYouth` (`pa`) en een meting op meer seizoenen |
 | Verhaal per jeugdspeler | `G.mem`/`F.recall` uit `weekflow.js`; een `wonderkid`-achtige keten in `dossiers.js` |
 | Academie en portaal | `world.js` kent geen eigen jeugd; koppel `G.world` aan de aanwas of aan de poaching |
-## 20. Hoe het speelt: first team, grip en de afdelingsstructuur
+## 20. Hoe het speelt: first team en de afdelingsstructuur
 
 Gelezen op 2026-11-17: `firstteam.js` (grotendeels; de gesprekken zelf, `talkAnswer`, alleen de structuur), `levers.js` (kern), `depts.js` (rollen, kosten, hooks), `desk.js` (kop, de vier lijsten, `H.desk`), `talks.js` (`weekly`). **Niet gemeten**: hier is niets gedraaid, dit is wat de code doet.
 
@@ -493,12 +491,8 @@ Gelezen op 2026-11-17: `firstteam.js` (grotendeels; de gesprekken zelf, `talkAns
 
 **Wat ik opmerk.** Dit is het meest uitgewerkte "leiden zonder zelf te doen": het mandaat is een voorstel, geen opdracht. Het is ook de plek waar de moeilijkheid van B37 woont (coach-kwaliteit in teamsterkte en de step-up straf). Hoe vaak de coach mandaten naast zich neerlegt in een echt spel is niet gemeten.
 
-### Grip (`levers.js`, `G.grip`)
-Een tweede, onzichtbaar systeem: **grip** (0–100, start 60) meet hoeveel je zelf stuurt. Eigen beslissingen (antwoord op een bericht +6, briefing +3, gesprek +5, voorstel +3) bouwen grip, **maximaal 16 per week**; elke week zakt hij **5**. Grip 100 geeft +3,6 en grip 0 geeft −3,6 op de eigenschappen van **alle hoofden** (met een gewicht: coach/DoF/academie 1, marketing 0,6, commercieel 0,4, financiën 0,3). Onder 25 daalt bestuur en relaties wekelijks en komt een Gazette-bericht ("Who runs this club?"). Mandaten, budgetten en personeel bouwen sinds B21 géén grip meer.
-
-De module bevat ook het **finance-alarm** (`fin_alarm` als het geld binnen ~6 weken op is, met vier keuzes), de **loonplafond-trim** (Finance verkoopt een hoogverdiener als het loonaandeel >12 punten boven het plafond komt) en de **step-up straf** (−1,2 teamsterkte in het eerste seizoen in een nieuwe divisie, vervaagt na ~50 weken).
-
-**Wat ik opmerk.** Grip is de drijfveer achter "je moet er elke week bij zijn". Het is niet zichtbaar behalve onder 25. Of 5 per week zakken en 16 per week winst goed staat voor de speeltempo (één of twee berichten per week, zie hoofdstuk 18) is niet gemeten. Ik vermoed dat een speler die weinig te beslissen krijgt, grip verliest zonder iets fout te doen; dat is te toetsen met één telling.
+### Geen Grip meer (B54)
+Grip is verwijderd. Wie veel klikt krijgt geen betere heads meer, en een rustige week kost niets. Een afdeling voert een besluit uit vanuit het profiel van het hoofd: een zwak hoofd schat vaker verkeerd in, een gewaagd hoofd met een vrije hand neemt gokken die goed of slecht uitpakken, en de krant en de Record noemen de reden. Escalaties hebben een vaste reden (geld, een speler, de clubnaam, een krap mandaat) in plaats van toeval. De juiste bevoegdheid bij het juiste hoofd geeft ±0,8. Details: `notes/ceo-autonomy.md`.
 
 ### Het bureau en de gesprekken (`desk.js`, `talks.js`)
 - **Autoriteit per hoofd** (kort touw / normaal / vrije hand): bepaalt welke routinezaken een hoofd zelf afhandelt (`H.desk`) en hoeveel hij fout doet (`errChance`, lager bij een goede, hogere bij vrije hand). Een fout geeft `slip`: club-drift +2 (+3 bij vrije hand) en bestuur −. Vaste lijsten bepalen wat **altijd** bij jou ligt (`CORE`, `CLASH` tussen afdelingen), wat bij een sterk hoofd mag (`SOFT`) en wat de reputatie raakt (`REP`).
@@ -508,7 +502,6 @@ De module bevat ook het **finance-alarm** (`fin_alarm` als het geld binnen ~6 we
 | Idee | Eerst bekijken |
 |---|---|
 | Coach-gedrag zichtbaarder maken | `mandateRows` en `view()` (al in het scherm); hoe vaak `gap.d ≥ 15` voorkomt (telling) |
-| Grip afstemmen op het tempo | `levers.js` (`MAXW`, `DECAY`, `GW`), een telling van grip over 10 seizoenen |
 | Nieuwe afdelingsrol of perk | `ROLES` in `depts.js` (rol, effect, lijst); `deptHas` aan de gebruikskant |
 | Fouten van een vrije hand voelbaarder | `errChance` en `slip` in `desk.js` |
 | Nieuw gesprek met een hoofd | `reqText`, `reqOpts` in `talks.js` |
@@ -586,7 +579,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 ## Bijlage: alle bronbestanden
 
 <!-- generated:files:start -->
-62 bronbestanden, samen ongeveer 1015 KB.
+63 bronbestanden, samen ongeveer 1032 KB.
 
 | Bestand | KB | Doel |
 |---|---|---|
@@ -595,7 +588,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `engine/03-players.js` | 4 | players |
 | `engine/04-staff-dna.js` | 14 | staff; DNA |
 | `engine/05-world-selection.js` | 4 | world; squad & selection |
-| `engine/06-match.js` | 15 | match simulation |
+| `engine/06-match.js` | 21 | match simulation |
 | `engine/07-finance-transfers.js` | 12 | finance; transfers |
 | `engine/08-weekly-inbox.js` | 9 | weekly systems; events & inbox |
 | `engine/09-meetings-actions-press.js` | 17 | management meeting & projects (1.2); player actions; press |
@@ -617,7 +610,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `faces.js` | 27 | visual layer, part 1 Procedural ink-style portraits for every person in the game, the CEO's office scene, repu |
 | `firstteam.js` | 22 | First team department The coach's own instincts vs your mandate, support staff you can fund, talks as short sc |
 | `depts.js` | 21 | departments Every department is a real unit: a head, staff underneath, a budget share, facilities, KPI history |
-| `levers.js` | 7 | levers Grip: a club drifts without a CEO steering it |
+| `levers.js` | 5 | levers DoF signings that fit the system, a finance alarm before it is too late, and staff picks that respect t |
 | `commercial.js` | 10 | Commercial department The stadium as a system (three stands, demand, price, matchday experience), sponsor offe |
 | `marketing.js` | 7 | Marketing department A supporter funnel (reach, fans, season-ticket holders), loyalty that cushions bad result |
 | `business.js` | 7 | Business department A season budget per department (lean, normal, invest) against what the club can afford, a |
@@ -626,20 +619,21 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `world.js` | 18 | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store |
 | `turnaround.js` | 7 | the turnaround (B37, B44) When it goes properly wrong, the board asks what the CEO intends to do |
 | `matchtalk.js` | 8 | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f |
-| `desk.js` | 18 | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head |
-| `talks.js` | 19 | talks with the heads One conversation engine for every head (B19) |
+| `desk.js` | 20 | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head |
+| `talks.js` | 20 | talks with the heads One conversation engine for every head (B19) |
 | `weekflow.js` | 25 | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week |
 | `weekloop.js` | 2 | situation-driven week Chance serves the club's situation: an event is likelier when its department is under pr |
 | `loop.js` | 16 | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice |
 | `dossiers.js` | 28 | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar |
 | `pathway.js` | 27 | the pathway question One governance storyline, built to show the core loop: you notice a problem, talk to the |
 | `matchday.js` | 10 | match day Before kick-off: three stories about our own players |
+| `commentary.js` | 11 | match commentary (B53) Every moment of the match becomes a short run of beats for the one-line ticker: build-u |
 | `ui/01-core.js` | 5 | atoms; base club: skip the founding |
 | `ui/02-setup.js` | 19 | views: title & setup; mandates as a tactics board |
 | `ui/03-summer-preseason-press.js` | 27 | the summer (M4); the summer, version 2 |
 | `ui/04-masthead-news.js` | 1 |  |
 | `ui/05-pitches-squad-money.js` | 15 | project pitches: one at a time, swipe or tap |
-| `ui/06-sheets-ticker.js` | 22 | sheets; ticker |
+| `ui/06-sheets-ticker.js` | 20 | sheets; ticker |
 | `ui/07-club-league.js` | 9 | review & sacked; club, league, staff, academy, review: game screens |
 | `ui/08-departments.js` | 25 | departments |
 | `ui/08a-dept-parts.js` | 21 | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |
@@ -648,8 +642,8 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `ui/10-inbox.js` | 18 | render; inbox home (1.6) |
 | `ui/11-players.js` | 9 | players: cards, profiles, stories |
 | `ui/12-scenes-cards.js` | 15 | game UI helpers |
-| `ui/13-redbox-render.js` | 14 | the red box: an email you answer on one screen |
-| `ui/14-matchday-gazette.js` | 26 | match day: preview, match, gazette (full screens); the Gazette: one design, opened after the match and from th |
+| `ui/13-redbox-render.js` | 13 | the red box: an email you answer on one screen |
+| `ui/14-matchday-gazette.js` | 28 | match day: preview, match, gazette (full screens); the Gazette: one design, opened after the match and from th |
 | `ui/15-actions.js` | 19 | actions |
 | `ui/16-boot.js` | 0 | boot |
 <!-- generated:files:end -->

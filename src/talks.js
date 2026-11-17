@@ -94,8 +94,9 @@ H.seasonAfterMatch = ours => { if (prevAfter) prevAfter(ours); weekly(); };
 /* ---------- the conversation ---------- */
 const say = (who, t) => C().cur.log.push({ who, t });
 const note = t => C().cur.fx.push(t);
+function hasCause(role) { const G = g(), s = staff(role), errW = ((G.desk && G.desk.by[role === 'scout' ? 'dof' : role]) || {}).errW || []; return !!s && (s.perf < 45 || errW.some(w => w >= F.absWeek() - 4)); }
 function common(role) {
-  const o = [{ id: 'back', t: 'You have my backing', fx: 'Trust up' }, { id: 'push', t: 'I need more from you', fx: 'Sharper, risk on trust' }];
+  const c = hasCause(role), o = [{ id: 'back', t: 'You have my backing', fx: c ? 'Trust up' : 'Little effect while things go well' }, { id: 'push', t: 'I need more from you', fx: c ? 'Sharper, risk on trust' : 'Irritates him while things go well' }];
   if (!F.record(role).early) o.push({ id: 'review', t: 'Let us go through the numbers', fx: 'Depends on the numbers' });
   if ((staff(role) || {}).perf < 40) o.push({ id: 'warn', t: 'Results have to improve', fx: 'A warning' });
   const dk = DEPT[role]; if (F.deptVerdict && dk && HEAD[dk] === role && F.deptVerdict(dk).st === 'bad') o.unshift({ id: 'why', t: 'What is going wrong?', fx: 'He explains' });
@@ -123,7 +124,6 @@ function open(role, fromReq) {
   X.cur = { role, log: [], opts: [], fx: [], done: false, k: recent ? 0.5 : 1, req: r ? Object.assign({}, r) : null };
   if (r) { delete X.req[role]; X.last[role] = F.absWeek(); say(role, r.t); X.cur.opts = reqOpts(r); if (!X.cur.opts.length) X.cur.opts = common(role); }
   else { say(role, s.p.ego > 14 ? 'Make it quick. I have a department to run.' : 'Come in. What is on your mind?'); X.cur.opts = common(role); }
-  if (!recent && F.gripGain) F.gripGain(5, 'talk'); // only a fresh talk builds grip
   return { fresh: !recent };
 }
 function answer(id) {
@@ -132,11 +132,13 @@ function answer(id) {
   const role = T.role, s = staff(role); if (!s) { T.done = true; return; }
   const opt = T.opts.find(o => o.id === id); if (!opt) return; say('you', opt.t);
   const P = s.p, k = T.k, G = g(), n = first(role), r = T.req;
+  // B54: backing or pushing only moves a head when there is a reason: a request, a poor run, or a recent mistake by his department
+  const cause = !!r || hasCause(role);
   const R = v => { rel(role, v * k); if (v) note(`Trust ${v > 0 ? '+' : '−'}${Math.abs(Math.round(v * k))}`); }, B = (v, w) => { boost(role, v * k, w); if (v) note(v > 0 ? `${n} fired up` : `${n} deflated`); };
   const end = (t, c) => { T.done = true; T.opts = []; if (F.deskNote) F.deskNote(role, r ? `${n} wanted a word` : `Talk with ${n}`, `You: ${opt.t}.`, 0); };
   switch (id) {
-    case 'back': if (s.perf < 45) { say(role, 'That means a lot right now.'); R(5); B(3); } else if (P.ego > 13) { say(role, 'Good. Then let me get on with it.'); R(3); B(-1); } else { say(role, 'Appreciated. We keep building.'); R(4); B(1); } break;
-    case 'push': if (P.amb >= 12) { say(role, 'Good. So do I. Watch this space.'); R(-1); B(7, 5); } else if (P.ego >= 13) { say(role, 'With respect, I know my job.'); R(-8); B(-2); } else { say(role, 'Understood. I will push harder.'); R(-3); B(3); } break;
+    case 'back': if (!cause) { say(role, P.ego > 13 ? 'I know. Was there something else?' : 'Thanks. Nothing has changed, then.'); break; } if (s.perf < 45) { say(role, 'That means a lot right now.'); R(5); B(3); } else if (P.ego > 13) { say(role, 'Good. Then let me get on with it.'); R(3); B(-1); } else { say(role, 'Appreciated. We keep building.'); R(4); B(1); } break;
+    case 'push': if (!cause) { say(role, P.ego >= 13 ? 'More? Things are going well. Look at the numbers.' : 'I will try, but I am not sure what you want changed.'); R(P.ego >= 13 ? -3 : -1); break; } if (P.amb >= 12) { say(role, 'Good. So do I. Watch this space.'); R(-1); B(7, 5); } else if (P.ego >= 13) { say(role, 'With respect, I know my job.'); R(-8); B(-2); } else { say(role, 'Understood. I will push harder.'); R(-3); B(3); } break;
     case 'review': { const rc = F.record(role); if (rc.score >= 62) { say(role, `The numbers back me up. ${rc.verdict}.`); R(6); B(5); } else if (rc.score <= 40) { say(role, P.ego > 15 ? 'I dispute half of those figures. But fine, I will react.' : 'Hard to argue with that. I will fix it.'); R(P.ego > 15 ? -6 : -2); B(6); } else { say(role, 'Mixed. I know.'); R(1); B(2); } break; }
     case 'warn': if (s.perf < 40) { say(role, 'Message received.'); R(-6); B(6); if (P.loy < 8 && s.rel < 40 && chance(0.4)) F.queueEvent('staff_quit', { role }); } else { say(role, 'That is not fair, and you know it.'); R(-10); B(-1); } break;
     case 'why': { const dk = DEPT[role], V = F.deptVerdict(dk), fx = fixFor(dk); say(role, `${V.t} ${fx.cause || 'Honestly, a bit of everything.'}`); T.req = { k: 'verdict', fix: fx.kind ? fx : null };

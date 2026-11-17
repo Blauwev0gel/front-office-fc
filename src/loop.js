@@ -1,5 +1,5 @@
 /* The Front Office · the weekly loop, phase 1
-   Four backers (board, supporters, press, dressing room), each with its own voice.
+   Three accountable constituencies (board, supporters, dressing room). Press remains a narrative and event influence, not a dismissal vote.
    Near zero: one last chance, a vote of confidence. Every decision shows how the backers moved.
    Each week opens with "Coming up" and closes with what changed. Each block of the season has a goal. */
 (function (F) {
@@ -13,7 +13,6 @@ const room = () => { const sq = g().squad.slice().sort((a, b) => b.ca - a.ca).sl
 const BK = [
   { k: 'board', t: 'Board', ic: 'board', get: () => g().board.conf, put: v => { g().board.conf = clamp(v, 0, 100); } },
   { k: 'fans', t: 'Supporters', ic: 'fans', get: () => (g().st.fans - 25) * 1.33, put: v => { g().st.fans = clamp(v / 1.33 + 25, 0, 100); } },
-  { k: 'press', t: 'Press', ic: 'press', get: () => (g().st.press - 30) * 1.43, put: v => { g().st.press = clamp(v / 1.43 + 30, 0, 100); } },
   { k: 'room', t: 'Dressing room', ic: 'squad', get: () => (room() - 35) * 1.54, put: v => { const want = v / 1.54 + 35, d = want - room(); g().squad.forEach(p => p.morale = clamp(p.morale + d, 0, 100)); } }];
 const sup = k => clamp(Math.round(BK.find(b => b.k === k).get()), 0, 100);
 const VOICE = {
@@ -59,7 +58,7 @@ const OPTS = {
     { l: 'A bonus for the whole squad', p: () => 0.76, after: () => { g().club.cash -= M(3000); }, h: () => `−${money(M(3000))}`, f: () => 'Money talks. The squad listens.' }] };
 function bump(k, d) { const b = BK.find(x => x.k === k); b.put(clamp(b.get() + d, 0, 100)); }
 function lift(k) { const b = BK.find(x => x.k === k); b.put(Math.max(b.get(), 35)); }
-for (const k in VT) {
+for (const k of BK.map(b => b.k)) {
   const v = VT[k];
   F.defineEvent('vote_' + k, { forced: 1, ceo: 1, from: v.from, dept: 'board', cd: 1, why: () => `${BK.find(b => b.k === k).t} support fell below ${VOTE_AT}. This is your last chance.`,
     setup: () => ({ k }),

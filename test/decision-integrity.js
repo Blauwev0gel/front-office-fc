@@ -15,6 +15,7 @@ vm.createContext(context);
 vm.runInContext(script+'\n;this.FO=FO;', context);
 const F = context.FO;
 F.newGame(7931);
+F.G.briefs = F.G.briefs || [];
 assert(F.G.club && F.G.inbox && F.G.briefs);
 const eventId = '__integrity_event__';
 const briefType = '__integrity_brief__';

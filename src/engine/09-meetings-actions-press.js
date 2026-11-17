@@ -24,7 +24,7 @@ function proposalView(it) {
   return { title: val(d.title), pitch: val(d.pitch), benefit: val(d.benefit), owner: staffName(it.owner), ownerRole: ROLE[it.owner].t, track: s && s.track ? s.track : { ok: 0, fail: 0 }, impact: d.impact ? (() => { try { return d.impact(c); } catch (e) { return []; } })() : [], cost: it.cost, wk: it.wk, dur: it.dur, pc: it.pc, status: it.status, second: it.second, revised: it.revised, secondRole: (d.second && d.second !== it.owner) ? d.second : (it.owner === 'fin' ? 'dof' : 'fin') };
 }
 function meetingPot() { const wk = playerWages() + staffWages(); return Math.max(0, Math.round((G.club.cash - (3 - man('fin', 'risk') / 100 * 3) * wk) / 100) * 100); }
-function decideProposal(i, choice) {
+function decideProposalInternal(i, choice) {
   const it = G.meeting && G.meeting.items[i]; if (!it || it.status !== 'open') return { err: 'Already decided.' };
   const d = PROP[it.id], s = staff(it.owner);
   if (choice === 'second') {
@@ -38,9 +38,18 @@ function decideProposal(i, choice) {
   if (choice === 'approve') {
     it.status = 'approved'; G.club.cash -= it.cost;
     (G.projects = G.projects || []).push({ id: it.id, ctx: it.ctx, owner: it.owner, ownerId: s ? s.id : null, start: absWeek(), due: absWeek() + it.dur, wk: it.wk, p: it.p, cost: it.cost });
-    if (s) s.rel = clamp(s.rel + 3, 0, 100); if (d.onStart) safe(() => d.onStart(it.ctx));
+    if (s) s.rel = clamp(s.rel + 3, 0, 100); if (d.onStart) d.onStart(it.ctx);
     return { out: `Approved. ${money(it.cost)} committed. ${staffName(it.owner)} expects to deliver in ${it.dur} weeks.` };
   }
+}
+// Consult, revise, reject and approve are distinct commands. They all use the
+// same atomic effect boundary so an exception cannot charge cash while leaving
+// the proposal in an ambiguous state.
+function decideProposal(i, choice) {
+  if (!['second', 'revise', 'reject', 'approve'].includes(choice))
+    return { err: 'This proposal response is not available.' };
+  const result = runChoiceEffect(() => decideProposalInternal(i, choice));
+  return result.err ? result : result.result;
 }
 function lapseMeeting() { if (!G.meeting || G.meeting.pre || G.meeting.week !== G.week || G.meeting.season !== G.season) return; for (const it of G.meeting.items) if (it.status === 'open') { it.status = 'lapsed'; (G.propCd = G.propCd || {})[it.id] = absWeek() + 8; const s = staff(it.owner); if (s) s.rel = clamp(s.rel - 2, 0, 100); } }
 function projectsWeekly() {
@@ -109,6 +118,9 @@ function respond(msgId, idx) {
 
 /* ---------- player actions ---------- */
 function talk(role, tone) {
+  // An unknown response must not consume the employee's conversation cooldown.
+  if (!['review', 'praise', 'challenge', 'reassure', 'warn'].includes(tone))
+    return { err: 'This conversation response is not available.' };
   const s = staff(role); if (!s) return { err: 'That position is vacant.' };
   if (tone === 'review' && record(role).early) return { err: 'Too early in the season: there are not enough numbers to review yet.' };
   const last = G.talks[role] ?? -99, gap = absWeek() - last, recent = gap < 3;

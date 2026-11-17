@@ -96,7 +96,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 21 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, briefsEnd, seasonAfterMatch, effBonus |  | auth, desk, lateBriefs |
 | `teamwork.js` | 14 KB | your team at work What the heads did this week, told as people: one concrete act, in their own voice, with the | seasonAfterMatch |  | twUsed, tw, twPrev |
-| `agreements.js` | 7 KB | agreements the CEO makes with a head (CEO-1) The CEO raises a real problem; the head gives his view and may re | seasonAfterMatch |  | agr, dofPrio |
+| `agreements.js` | 24 KB | agreements the CEO makes with a head (CEO-1) The CEO raises a real problem; the head gives his view and may re | seasonAfterMatch |  | agr, dofPrio, iniSeen |
 | `talks.js` | 20 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofStrikes |
 | `weekflow.js` | 26 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo, coachNews, mem |
 | `weekloop.js` | 2 KB | situation-driven week Chance serves the club's situation: an event is likelier when its department is under pr | evWeight |  |  |
@@ -112,11 +112,11 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/05-pitches-squad-money.js` | 15 KB | project pitches: one at a time, swipe or tap |  |  |  |
 | `ui/06-sheets-ticker.js` | 20 KB | sheets; ticker |  |  |  |
 | `ui/07-club-league.js` | 9 KB | review & sacked; club, league, staff, academy, review: game screens |  | deptCost |  |
-| `ui/08-departments.js` | 25 KB | departments |  |  |  |
-| `ui/08a-dept-parts.js` | 21 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
+| `ui/08-departments.js` | 27 KB | departments |  |  |  |
+| `ui/08a-dept-parts.js` | 22 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
 | `ui/08b-portal.js` | 30 KB | navigation; leagues: a table whose columns follow the position filter; the player; drill-downs |  |  |  |
 | `ui/09-firstteam-review.js` | 12 KB | first team department |  |  |  |
-| `ui/10-inbox.js` | 23 KB | render; inbox home (1.6); the CEO's weekly desk (UX-1): this week, your team at work, the red box, the next ma |  |  |  |
+| `ui/10-inbox.js` | 24 KB | render; inbox home (1.6); the CEO's weekly desk (UX-1): this week, your team at work, the red box, the next ma |  |  |  |
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
 | `ui/12-scenes-cards.js` | 15 KB | game UI helpers |  |  |  |
 | `ui/13-redbox-render.js` | 13 KB | the red box: an email you answer on one screen |  |  |  |
@@ -260,8 +260,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: teamWork, stillRunning
 
 ### `agreements.js`
-- Functions: g, sur, list, open, winOpen, nextWindowEnd, dofTopic, dofView, agree, judge
-- Exports on `F`: recPrioritise, agrTopics, agrAnswer, agrRunning, agrRecent, agrList
+- Functions: g, sur, list, open, winOpen, nextWindowEnd, dofTopic, dofView, agree, judge, games, stats, signal, iniOpen, weakSpot, evidence, record, views, iniAgree, startIni, execute, verdictOf, review
+- Exports on `F`: recPrioritise, agrTopics, agrAnswer, iniSignal, iniActive, agrRunning, agrRecent, agrList
 
 ### `talks.js`
 - Functions: g, first, fixFor, C, rel, boost, ask, reqText, lapse, weekly, say, note, hasCause, common, reqOpts, open, answer, close, view, reqOf, reqsFor
@@ -317,7 +317,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: mrow, secCommercial, secMarketing, secPromises, vClub2, vLeague2
 
 ### `ui/08-departments.js`
-- Functions: spark, kfmt, vDepts, headLine, headCard, authHtml, headBtns, instinctRow, fillCol, stadiumSvg, comOverview, comDecisions, mkOverview, mkDecisions, planCard, bizOverview, acPyramid, acDecisions, vDept
+- Functions: spark, kfmt, vDepts, headLine, headCard, authHtml, headBtns, instinctRow, fillCol, stadiumSvg, comOverview, comDecisions, mkOverview, mkDecisions, planCard, bizOverview, acPyramid, acDecisions, agrHtml, vDept
 
 ### `ui/08a-dept-parts.js`
 - Functions: relW, compW, netW, gapW, kpiTile, attAttr, attHtml, deskHist, recTiles, regionCard, recRecord, acKids, acRecord, acStaff, ftPlanExtra, squadPlanHtml, verdictCard, needsHtml, cvTalkHtml, ftActions, accHtml

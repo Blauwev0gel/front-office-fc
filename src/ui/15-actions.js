@@ -73,6 +73,7 @@ function act(a, d, el) {
     case 'lfull': U.lfull = !U.lfull; break;
     case 'sub': if (d.v === 'academy' || d.v === 'first') { U.tab = 'staff'; U.dept = d.v; U.dtab = 'over'; } else U.sub = d.v || null; U.tray = ''; window.scrollTo(0, 0); break;
     case 'ac-crit': r = F.acTrialPick(d.v); if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); } break;
+    case 'ini-open': r = F.convoOpen('dof'); if (r && r.err) { toast(r.err); return; } F.convoAnswer('t_form'); U.tab = 'staff'; U.sheet = null; U.open = null; U.dept = 'recruit'; U.dtab = 'now'; ART.SND.ring(); window.scrollTo(0, 0); break;
     case 'cv-open': r = F.convoOpen(d.r, !!d.q); if (r && r.err) { toast(r.err); return; } U.tab = 'staff'; U.sheet = null; U.open = null; U.dept = (F.CONVO_DEPT || {})[d.r] || U.dept; U.dtab = 'now'; ART.SND.ring(); window.scrollTo(0, 0); break;
     case 'cv-ans': F.convoAnswer(d.id); ART.SND.card(); ART.vib(15); break;
     case 'cv-close': F.convoClose(); U.tray = ''; window.scrollTo(0, 0); break;

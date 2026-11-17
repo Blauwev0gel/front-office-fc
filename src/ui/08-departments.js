@@ -103,6 +103,15 @@ function acDecisions(V) {
   return `<div class="sec">Trial day <span class="small">${X.list.length} on trial, room for ${X.picks}</span></div><div class="panel2"><p class="small" style="margin:0 0 8px">What should the recruiters look for? They choose the children.</p><div class="choice2">${Object.entries(F.AC_CRIT).map(([k, c]) => `<button class="btn ghost wide" data-a="ac-crit" data-v="${k}">${esc(c.l)}<small>${esc(c.d)}</small></button>`).join('')}</div><p class="small" style="margin:6px 0 0">Without your answer the recruiters go for the highest ceiling.</p></div>`;
 }
 const DTABS = [['now', 'Overview'], ['plan', 'Setup'], ['record', 'Record']], DTAB_OLD = { over: 'now', dec: 'plan', data: 'record', people: 'plan' };
+/* the CEO's agreements with this department: what was agreed, what has happened, and a way to raise the team's form (CEO-2) */
+function agrHtml(k) {
+  if (!F.agrList || (k !== 'recruit' && k !== 'first')) return ''; const g = G(), own = k === 'recruit' ? 'dof' : 'coach';
+  const L = F.agrList().filter(a => a.owner === own || a.with === own), live = L.filter(a => !a.res), done = L.filter(a => a.res && a.res !== 'merged').slice(-1);
+  const sig = F.iniSignal ? F.iniSignal() : null, ask = sig || (!F.iniActive() && (g.ft && g.ft.games || []).length >= 4) ? `<button class="dk-ask" data-a="ini-open">${ART.staffFace('dof')}<span>${sig ? esc(sig.t[0].toUpperCase() + sig.t.slice(1)) + ': call in the coach and the DoF' : 'Ask the coach and the DoF how the team is really doing'}</span>${ART.I.chev}</button>` : '';
+  if (!live.length && !done.length && !ask) return '';
+  const row = a => `<div class="agr2"><b>${esc(a.t)}</b><small>${a.ordered ? 'Your decision' : 'Agreed with you'} in week ${a.mw}${a.res ? '' : ` · ${a.joint ? 'back to you' : 'judged'} in week ${a.by - F.absWeek() + g.week}`}</small>${(a.log || []).slice(-3).map(l => `<p>Week ${l.w}: ${esc(l.t)}</p>`).join('')}${a.res ? `<p class="${a.res === 'worked' ? 'good' : a.res === 'failed' ? 'bad' : ''}"><b>${esc(a.res === 'overtaken' ? 'Overtaken by events' : a.res[0].toUpperCase() + a.res.slice(1))}.</b> ${esc(a.out || '')}</p>` : ''}</div>`;
+  return `<div class="sec">Agreements with you</div><div class="panel2">${live.map(row).join('')}${done.map(row).join('')}${ask}</div>`;
+}
 function vDept(k) {
   if (k === 'recruit' && U.portal && F.worldLeague) return vPortal();
   const g = G(), v = F.deptView(k), d = v.d, st = v.status, role = d.head, s = v.head;
@@ -115,7 +124,7 @@ function vDept(k) {
   if (tab === 'now') {
     const kpis = st.rows.length ? `<div class="sec">The numbers</div><div class="kgrid">${st.rows.slice(0, 4).map(kpiTile).join('')}</div>` : '';
     const vis = k === 'commercial' && F.comView ? comOverview(F.comView()) : k === 'marketing' && F.mkView ? mkOverview(F.mkView()) : k === 'business' && F.bizView ? bizOverview() : FP ? `<div class="sec">Form</div><div class="panel2">${FP.form}</div>` : '';
-    body = (s ? verdictCard(st, role, s) + needsHtml(k, role, d) + (FP ? ftActions() : '') + (k === 'academy' && F.acView ? acDecisions(F.acView()) : '') : headCard(k, v)) + kpis + vis + (k === 'academy' && g.acad ? acKids() : '') + (k === 'recruit' && F.worldLeague ? portalCard() : '') + (k === 'recruit' && F.squadPlanView ? accHtml(k, 'sqp', 'Squad plan', 'Winter and summer targets', squadPlanHtml(), false) : '');
+    body = (s ? verdictCard(st, role, s) + needsHtml(k, role, d) + (FP ? ftActions() : '') + agrHtml(k) + (k === 'academy' && F.acView ? acDecisions(F.acView()) : '') : headCard(k, v)) + kpis + vis + (k === 'academy' && g.acad ? acKids() : '') + (k === 'recruit' && F.worldLeague ? portalCard() : '') + (k === 'recruit' && F.squadPlanView ? accHtml(k, 'sqp', 'Squad plan', 'Winter and summer targets', squadPlanHtml(), false) : '');
   }
   let peopleHtml = '';
   {

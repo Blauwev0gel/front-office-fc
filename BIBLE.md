@@ -208,3 +208,12 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 - Stakeholder changes from inbox responses, brief answers, block-goal results and weekly simulation are recorded in a bounded `stakeLog` with season, week, source, reason and per-stakeholder deltas. The Backers sheet exposes recent changes. The weekly aggregate is explicitly labelled as such; it must not falsely attribute autonomous effects to the CEO.
 - Board, supporters and dressing room remain three mechanically distinct sources (board confidence, supporter sentiment, aggregate player morale). Press is narrative/contextual and not a new confidence-vote trigger.
 - Future improvement: source-level tracing for each autonomous weekly mutation, paired multi-season balance tests and finer differentiation of short-term reactions vs long-term confidence. Do not claim those are complete until tested.
+
+
+## B19 — CEO UX information hierarchy V1 (chatgpt)
+
+- The Inbox is the play surface: current decisions, next match, meaningful updates and Gazette precede optional archive browsing. Nine existing message folders are preserved under a collapsed Browse all messages control.
+- Five persistent destinations remain Inbox, Club, Squad, League and Departments. Do not merge Football views without demonstrating fewer navigation steps; matchday and conversations are contextual flows.
+- One owning page per concern: cash/board on Club, squad and players on Squad, standings on League, mandates and staff on Departments. The Inbox cash shortcut now opens Club.
+- Retired Grip must not appear in Club or trigger warning badges. Board, Fans and Room remain the primary accountable constituencies.
+- See `docs/CEO_UX_ARCHITECTURE_V1.md` for page contracts, wireframes, data tiers, scenario gates and deferred work. UI contract: `test/ux-architecture.cjs`. Browser visual QA is owner-run.

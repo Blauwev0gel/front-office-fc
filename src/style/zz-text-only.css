@@ -540,3 +540,9 @@ body{
 #app .ohead .pos{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;text-align:center!important}
 #app .ohead .archbtn{min-height:44px!important;white-space:nowrap!important}
 @media(max-width:390px){#app .ohead{gap:4px!important;grid-template-columns:minmax(86px,auto) minmax(0,1fr) minmax(86px,auto)!important}#app .ohead .mailnav{min-width:86px!important;padding:8px!important;font-size:13px!important}#app .ohead .pos{font-size:11px!important}}
+
+/* UX architecture: the inbox is the play surface; archives are opt-in. */
+#app .inbox-browse{margin:14px 10px 22px;border:1px solid var(--rule);background:var(--paper);color:var(--ink)}
+#app .inbox-browse>summary{display:list-item;cursor:pointer;min-height:44px;padding:12px 14px;font-weight:700;color:var(--ink);font-size:13px}
+#app .inbox-browse[open]>.folders{margin:0;padding:6px;display:flex;flex-wrap:wrap;gap:6px;overflow:visible}
+#app .inbox-browse .folders button{flex:1 1 110px;min-height:44px;white-space:normal;overflow-wrap:normal;word-break:normal}

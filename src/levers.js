@@ -1,30 +1,14 @@
-/* The Front Office · levers
-   Grip: a club drifts without a CEO steering it. Decisions you take yourself build grip; weeks
-   without them let it slip. Grip lifts or drags every head of department.
-   Also: DoF signings that fit the system, a finance alarm before it is too late, and staff picks
-   that respect the money. */
+/* The Front Office · staff, financial safeguards and transfer levers.
+   Legacy Grip is inert; CEO actions do not generate a parallel activity score. */
 (function (F) {
 'use strict';
 const g = () => F.G, H = F.HOOK;
 const { clamp, money, M, staff, man, chance, gauss } = F;
-const MAXW = 16, DECAY = 5;
+// Legacy Grip values remain in old saves, but no gameplay action may farm them.
+// CEO quality is evaluated through staff, mandates and real stakeholder outcomes.
+const gain = () => {};
 
-function gripInit() { const G = g(); if (G.grip == null) { G.grip = 60; G.gripW = 0; G.gripLog = []; } return G.grip; }
-function gain(v, why) {
-  const G = g(); if (!G) return; gripInit();
-  const room = Math.max(0, MAXW - G.gripW), add = Math.min(room, v); if (add <= 0) return;
-  G.grip = clamp(G.grip + add, 0, 100); G.gripW += add;
-}
-// wrap the CEO's own actions
-const wrap = (name, v, test) => { const f = F[name]; if (!f) return; F[name] = function (...a) { const r = f.apply(this, a); if (!(r && r.err) && (!test || test(r, a))) gain(v, name); return r; }; };
-wrap('respond', 6); wrap('answerBrief', 3); wrap('ftTalkStart', 5); wrap('talk', 5); wrap('pressAnswer', 3);
-wrap('decideProposal', 3); wrap('sum2Answer', 2); wrap('tkAnswer', 3); wrap('ddDecide', 2); wrap('deptHire', 3); wrap('deptBudSet', 1); wrap('setMandate', 2);
-
-const GRIPK = 14; // grip 100 = +3.6 on every head's attributes, grip 0 = -3.6
 const prevEff = H.effBonus;
-const GW = { coach: 1, dof: 1, scout: 1, acad: 1, com: 0.4, mkt: 0.6, fin: 0.3 };
-// Preserve the prior hook, but do not reward repetitive CEO clicks with a
-// universal staff skill boost. Real mandates and staff attributes drive outcomes.
 H.effBonus = (r, i) => (prevEff ? prevEff(r, i) : 0);
 
 // a step up: the first season in a new division is harder, and fades as the squad adapts
@@ -33,12 +17,8 @@ const prevExtra = H.ftExtra; H.ftExtra = () => (prevExtra ? prevExtra() : 0) - (
 const prevAfter = H.seasonAfterMatch;
 H.seasonAfterMatch = ours => {
   if (prevAfter) prevAfter(ours);
-  const G = g(); gripInit();
-  G.gripLog.push(Math.round(G.grip)); if (G.gripLog.length > 40) G.gripLog.shift();
-  // Delegating to capable heads is not neglect. Keep the legacy Grip save field,
-  // but never penalise a CEO merely for letting staff work within mandates.
-  G.gripW = 0;
-  G.flags.gripWarn = 0;
+  const G = g();
+  // No Grip maintenance: responsible delegation is an ordinary CEO playstyle.
   // over the wage cap: Finance and the DoF move a high earner on while the window is open
   const cap = +man('fin', 'wageCap');
   if (staff('fin') && F.window_() && F.wageRatio() * 100 > cap + 12 && F.absWeek() - (G.flags.trimAt || -99) >= 2 && G.squad.length > 18) {

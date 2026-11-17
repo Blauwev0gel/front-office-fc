@@ -106,6 +106,7 @@ An event can update cash, morale, relations, board confidence, offers, staff cap
 ## Testable invariants
 
 - Exactly one committed result for one case/revision even on rapid double-click.
+- Engine option handler exceptions must surface as failures and must NOT mark a briefing as completed with a fake “Noted.” outcome. This is necessary because current answerBrief catches thrown effects and still sets done=true.
 - Staff-owned case can be resolved without forcing a CEO approval.
 - A declined offer cannot remain negotiable through an old target sheet.
 - Two parties in conflict may react differently to one CEO direction.

@@ -30,23 +30,25 @@ function promise(F) {
 function press(F) { for (const id of F.G.press || []) F.pressAnswer(id, 1); if (F.G.phase === 'press') F.finishPress(); }
 const F = game(192);
 until(F, 12);
-const winterDeal = promise(F);
+let winterDeal = promise(F);
 until(F, 17);
 ok(F.winterDue() && F.winterOpen(), 'the dedicated winter transfer phase opens');
 ok(F.G.phase === 'summer' && F.G.sum.win && F.sum2Weeks().length === 3, 'the dedicated three-tick winter route is active');
 const saveW = F.save(); ok(F.load(saveW) && F.G.sum.win, 'save/load preserves a winter in progress');
+winterDeal = F.G.agr.find(x => x.id === winterDeal.id); // JSON save/load creates new state objects
 F.sum2Auto(F.rnd, true);
 ok(F.G.phase === 'season' && F.G.lastWinter, 'the winter meeting, ticker, deadline and debrief complete');
 ok(F.G.sum.mt.brief.prios.includes(winterDeal.pos), 'signed winter brief preserves the earlier CEO agreement on ' + winterDeal.pos);
 ok(F.G.rec.plan.prios.some(x => x.pos === winterDeal.pos) || winterDeal.done, 'the winter recruitment pipeline honours the agreement or delivered it');
 until(F, 21);
 ok(!!winterDeal.res, 'winter agreement receives a post-window verdict');
-const summerDeal = promise(F);
+let summerDeal = promise(F);
 ok(summerDeal.by > F.SEASON_WEEKS, 'agreement after winter is reviewed after the next summer, not outside a window');
 toReview(F); F.startSeason();
 ok(F.G.season === 2 && F.G.phase === 'summer', 'season rollover enters the separate summer phase');
 ok(!summerDeal.res, 'existing agreement survives season rollover before the summer brief');
 const saveS = F.save(); ok(F.load(saveS) && F.G.phase === 'summer', 'save/load preserves summer and open agreement');
+summerDeal = F.G.agr.find(x => x.id === summerDeal.id); // refresh reference after JSON load
 F.sum2Auto(F.rnd, true);
 ok(F.G.sum.mt.brief.prios.includes(summerDeal.pos), 'summer brief preserves the earlier recruitment agreement');
 ok(!!F.G.lastSummer, 'summer ticker, deadline and debrief complete');

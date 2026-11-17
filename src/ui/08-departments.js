@@ -152,6 +152,25 @@ function rxDecisions(V) {
 }
 function vDept(k) {
   const g = G(), v = F.deptView(k), d = v.d, tab = U.dtab || 'over';
+  const purpose = {
+    first:'The head coach is accountable for the first team. You lead through goals, support and evaluation — not team selection.',
+    recruit:'The Director of Football owns squad planning and negotiations; the Chief Scout owns player evidence.',
+    academy:'The Academy Director leads youth recruitment, player welfare and the route into senior football.',
+    commercial:'Commercial leadership owns sponsorship, ticketing and retail income within your club principles.',
+    marketing:'Marketing leadership develops the club identity, community relationships and supporter engagement.',
+    business:'Finance leadership controls cost, contracts and risk; you authorize exceptions and set financial direction.'
+  };
+  const nIssues = (v.status.issues || []).length;
+  const overview = `<section class="fo-dept-purpose" aria-label="${esc(d.t)} responsibilities">
+    <span>DEPARTMENT ACCOUNTABILITY</span>
+    <p>${esc(purpose[k] || '')}</p>
+    <div class="fo-dept-facts">
+      <span><b>${v.head ? esc(v.head.name) : 'Vacant'}</b><small>Responsible head</small></span>
+      <span><b>${v.used}/${v.slots}</b><small>Staff positions</small></span>
+      <span><b>${nIssues}</b><small>Concerns</small></span>
+      <span><b>${v.projects.length}</b><small>Active projects</small></span>
+    </div>
+  </section>`;
   const head = `<div class="ohead"><button class="iconbtn" data-a="dept" data-k="" aria-label="Back to departments">${ART.I.back}</button><span class="pos">${esc(d.t)}</span><span class="dstat ${v.status.st}">${v.status.l}</span></div>`;
   if (k === 'first' && v.head) { const T = F.ftView(); if (T.talk) return head + ftTalkHtml(T); }
   const FP = k === 'first' && v.head ? vFirst(true) : null;
@@ -208,5 +227,5 @@ function vDept(k) {
     body = inbox + (k === 'recruit' && F.rxView ? rxDecisions(F.rxView()) : '') + (k === 'academy' && F.acView ? acDecisions(F.acView()) : '') + (k === 'commercial' && F.comView ? comDecisions(F.comView()) : '') + (k === 'marketing' && F.mkView ? mkDecisions(F.mkView()) : '') + (FP ? `<div class="sec">Target</div>${FP.deal}` : '') + bud + fac + proj + log;
   }
   const mini = v.head ? `<div class="hmini"><span class="dface">${ART.staffFace(d.head)}</span><span class="dt"><b>${esc(v.head.name)}</b><small>${esc(F.ROLE[d.head].t)}</small></span>${headBtns(d.head, v.head).replace('class="hbtns"', 'class="hbtns in"')}</div>` : headCard(k, v);
-  return `${head}${tab === 'over' ? headCard(k, v) : mini}${tabs}${body}`;
+  return `${head}${overview}${tab === 'over' ? headCard(k, v) : mini}${tabs}${body}`;
 }

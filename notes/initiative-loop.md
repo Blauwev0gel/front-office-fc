@@ -59,3 +59,46 @@ Daarnaast `G.iniSeen` (de laatste keer dat de CEO "wait" koos). Een migratie is 
 - `src/ui/10-inbox.js`: de knop op het bureau.
 - `src/ui/15-actions.js`: de actie `ini-open`.
 - `test/initiative.js`.
+
+## Herziening na code review (vier P0-punten)
+
+### 1. Afgesproken prioriteiten overleefden het rollende plan niet
+- **Gereproduceerd:** ja.
+- **Oorzaak:** `recruitx.js` (`squadPlanPrepare`) zette vanaf week 3 elke week `rec.plan.prios` opnieuw op de rijen van het winterplan.
+- **Oplossing:** `F.agrPrios()` is de enige bron.
+  - Het rollende plan voegt een afgesproken positie toe als rij met de reden "Agreed with the CEO in week X". Daardoor staat hij in het geschreven plan van de DoF en bij de scoutopdrachten.
+  - De prioriteiten beginnen met de afgesproken posities.
+  - `assignScouts` zet de eerste vrije scout op een afgesproken positie zolang er niemand op zit, in de regio waar de spelers zitten.
+  - Als de afspraak klaar is (signing of beoordeling) valt hij weg, en daarna werkt de recruitment weer zelfstandig.
+- **Test:** `test/initiative-fixes.js` §1.
+
+### 2. Transfergeld werd dubbel geteld
+- **Gereproduceerd:** ja. `rec.extra` was de helft van het transferbudget zelf, waardoor de koopkracht 1,5× het budget werd.
+- **Oplossing:**
+  - Het plan blijft standaard binnen het budget.
+  - Het geld komt alleen uit de beschermde reserve als de CEO daar expliciet voor kiest ("…and allow up to £X from the reserve"). Dat bedrag is hooguit 40% van de kas boven het transferbudget, en er is niets beschikbaar als de kas nog maar ≤ 10 weken meegaat.
+  - `extraAuth()` in `recruit.js` begrenst live: budget plus autorisatie is nooit meer dan de kas.
+  - De autorisatie vervalt bij een signing of aan het einde van de afspraak.
+  - Twee afspraken tellen niet bij elkaar op (het maximum telt, niet de som).
+- **Test:** `test/initiative-fixes.js` §2.
+
+### 3. Een joint review veranderde al beleid
+- **Gereproduceerd:** ja. Het starten van een joint review riep `recPrioritise` aan.
+- **Oplossing:**
+  - Een onderzoek verandert geen prioriteit en kent geen geld toe.
+  - Het advies komt na twee weken terug, gebaseerd op de stand van dat moment.
+  - Laat de CEO het liggen, dan blijft alles zoals het was (`auto: 2`).
+- **Test:** `test/initiative-fixes.js` §3.
+
+### 4. Uitvoering en uitkomst liepen door elkaar
+- **Oplossing:** `assess()` geeft drie aparte regels:
+  - **Decision:** het bewijs bij de start (de zwakte, de rapporten, wie wat adviseerde), en of de CEO het opdroeg.
+  - **Execution:** voor de DoF de rapporten, approaches, weken scoutwerk, de signing en de reden als het niet lukte (geld of mandaat); voor de coach de kansen voor en tegen.
+  - **Outcome:** de resultaten en de cijfers eronder.
+- De head krijgt een effect op basis van zijn **uitvoering**, niet van de uitslag:
+  - delivered: +;
+  - improved: +;
+  - tried of blocked: 0;
+  - idle of worse: −.
+- Het oordeel van de CEO werkt door: wie een head de schuld geeft van goed werk of van een eigen opdracht, verliest meer vertrouwen.
+- **Test:** `test/initiative-fixes.js` §4, plus geen herhaalde reviews en oude saves.

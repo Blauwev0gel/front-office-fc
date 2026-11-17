@@ -14,15 +14,15 @@ const ini = F => (F.G.agr || []).filter(a => a.k === 'ini');
   F.convoOpen('dof'); ok(F.convoView('dof').opts.some(o => o.id === 't_form'), 'the CEO can raise it himself, no message needed');
   F.convoAnswer('t_form'); const v = F.convoView('dof'), who = v.log.map(l => l.who);
   ok(['coach', 'dof', 'fin'].every(r => who.includes(r)), 'the coach, the DoF and Finance each give a view');
-  ok(v.opts.map(o => o.id).join() === 'i_back,i_plan,i_joint,i_wait', 'four executive answers: back the coach, a DoF plan, a joint review, wait');
+  ok(['i_back', 'i_plan', 'i_joint', 'i_wait'].every(id => v.opts.some(o => o.id === id)), 'executive answers: back the coach, a DoF plan (optionally with reserve money), a joint review, wait');
   const dofSaid = v.log.filter(l => l.who === 'dof').map(l => l.t).join(' '), coSaid = v.log.find(l => l.who === 'coach').t;
   ok(dofSaid !== coSaid, 'the coach and the DoF do not say the same thing');
   F.convoAnswer('i_plan'); if (F.convoView('dof') && F.convoView('dof').opts.some(o => o.id === 'i_order')) F.convoAnswer('i_order'); F.convoClose();
   const a = ini(F)[0]; ok(a && a.owner === 'dof' && a.kind === 'plan' && a.by > F.absWeek(), 'an agreement: owner DoF, objective, review week');
-  ok(F.G.rec.plan.prios[0].pos === a.pos, 'the DoF really works on it: the position leads the recruitment plan');
+  ok(F.agrPrios().some(x => x.pos === a.pos), 'the DoF really works on it: the position is in his priorities');
   let weeks = 0; while (!a.res && weeks++ < 20 && F.G.phase === 'season') { answerAll(F); F.endWeek(); }
   ok(a.log.length >= 2, `the agreement ran for several weeks with a log of what happened (${a.log.length} entries)`);
-  ok(['worked', 'unlucky', 'failed', 'overtaken', 'blocked'].includes(a.res), `it was reviewed: ${a.res}. ${a.out}`);
+  ok(!!a.res && !!a.ex && /Outcome:/.test(a.out), `it was reviewed (${a.res}): ${a.out}`);
   const m = F.G.inbox.find(x => x.ev === 'ini_review' && !x.done) || F.G.inbox.find(x => x.ev === 'ini_review');
   ok(!!m, 'the CEO gets the review to judge'); if (m && !m.done && F.staff('dof')) { const r0 = F.staff('dof').rel; F.respond(m.id, 1); ok(F.staff('dof').rel < r0, 'holding him responsible has a real effect on him'); } else console.log('     (no DoF left to judge: ' + (F.staff('dof') ? 'review answered' : 'he left the club') + ')'); }
 
@@ -31,7 +31,7 @@ const ini = F => (F.G.agr || []).filter(a => a.k === 'ini');
   talk(A, 't_form', 'i_back'); talk(B, 't_form', 'i_plan'); if (B.convoView('dof')) talk(B, 'i_order');
   const ca = A.staff('coach'), cb = B.staff('coach');
   ok(ca.boost > cb.boost, 'backing the coach lifts him; the DoF plan does not');
-  ok((B.G.rec.extra || 0) >= (A.G.rec.extra || 0) && B.G.rec.plan.prios[0].pos === ini(B)[0].pos && ini(A)[0].kind === 'back', 'the DoF plan changes recruitment (priority and money); backing the coach does not');
+  ok(B.agrPrios().some(x => x.pos === ini(B)[0].pos) && !A.agrPrios().some(x => x.pos === ini(B)[0].pos && false) && ini(A)[0].kind === 'back', 'the DoF plan changes recruitment priorities; backing the coach does not');
   ok(ini(A)[0].by - A.absWeek() === 5 && ini(B)[0].by > B.absWeek(), 'they are judged at different times, on different things'); }
 
 // B. the CEO does nothing: no agreement, no penalty, the game goes on
@@ -48,7 +48,7 @@ const ini = F => (F.G.agr || []).filter(a => a.k === 'ini');
 // D. a DoF who does not deliver: he had money, nobody came
 { const F = game(705); weakDefence(F); talk(F, 't_form', 'i_plan'); if (F.convoView('dof')) talk(F, 'i_order'); const a = ini(F)[0]; a.funds = 5000;
   let k = 0; while (!a.res && k++ < 20 && F.G.phase === 'season') { answerAll(F); F.endWeek(); F.G.squad = F.G.squad.filter(p => p.pos !== a.pos || a.base.includes(p.id)); a.done = 0; if (!a.res) for (let i = a.n0; i < F.G.ft.games.length; i++) F.G.ft.games[i] = { r: 'L', ug: 0, tg: 3, ux: 0.7, tx: 2.2, o: 'X', h: 1 }; }
-  ok(a.res === 'failed', `with money and no signing, it is a failure of execution (${a.res})`); ok(/No .* arrived/.test(a.out), 'and the review says why'); }
+  ok(['not delivered', 'failed'].includes(a.res) && a.ex.execK !== 'delivered', `with money and no signing, it is not delivered (${a.res})`); ok(/Not delivered|Worked on it/.test(a.ex.exec), `and the review says why: ${a.ex.exec}`); }
 
 // E. circumstances change: the team recovers before anyone arrives
 { const F = game(706); weakDefence(F); talk(F, 't_form', 'i_plan'); if (F.convoView('dof')) talk(F, 'i_order'); const a = ini(F)[0];

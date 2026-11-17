@@ -85,7 +85,7 @@ function fitsProfile(p, k, pr) { if (!pr) return false; if (pr.kind === 'young')
 function grade(p, k) {
   const ref = Math.max(posWorst(p.pos), posBest(p.pos) - 1), pr = prioOf(p);
   let d = k.est - ref + (k.pest - k.est) * (man('dof', 'youth') / 100) * 0.3 + (fitsProfile(p, k, pr) ? 0.5 : 0) + (F.squadNeeds().includes(p.pos) ? 0.6 : 0);
-  const budget = F.transferBudget() + (RC().extra || 0); if (p.ask > budget * 1.3) d -= 1.5;
+  const budget = F.transferBudget() + extraAuth(); if (p.ask > budget * 1.3) d -= 1.5;
   return d >= 1 ? 'A' : d >= 0.3 ? 'B' : d >= -0.5 ? 'C' : 'D';
 }
 const rng = (a, b) => a === b ? `${a}★` : `${a}–${b}★`;
@@ -96,9 +96,13 @@ const potTxt = k => rng(F.stars(Math.max(k.est, k.pest - k.psd * 0.75)), F.stars
 const pipeOf = id => RC().pipe.find(x => x.pid === id);
 function addPipe(id, stage) { let x = pipeOf(id); if (!x) { x = { pid: id, stage, since: F.absWeek(), log: [] }; RC().pipe.push(x); } else if (STAGES.indexOf(stage) > STAGES.indexOf(x.stage) && x.stage !== 'lost') { x.stage = stage; x.since = F.absWeek(); } return x; }
 function setStage(x, st, why) { x.stage = st; x.since = F.absWeek(); if (why) x.log.push(why); }
+// spending authority above the transfer budget: an exceptional CEO authorisation from the protected reserve (agreements.js),
+// capped live by the cash above the budget, so the same money is never counted twice and no money is created
+function extraAuth() { const r = RC(), a = (r.extra || 0) + (F.agrAuth ? F.agrAuth() : 0); return Math.max(0, Math.min(a, g().club.cash - F.transferBudget())); }
+F.recExtraAuth = () => extraAuth();
 function threshold() { const a = man('dof', 'approve'); return a === '999' ? Infinity : a === '0' ? 0 : F.transferBudget() * (+a) / 100; }
 function wageLimit() { const mw = man('dof', 'maxWage'); if (mw === '999') return Infinity; const l = F.playerWages() / Math.max(1, sq().length) * (+mw) / 100; return sq().length < 17 ? Math.max(l, wageFor(tierAvg(g().club.tier)) * 1.3) : l; }
-function capFor(p) { const b = F.transferBudget() + (RC().extra || 0), mf = man('dof', 'maxFee'); const lim = mf === '0' ? 0 : b * (+mf) / 100; return Math.round(Math.min(lim, b) / 100) * 100; }
+function capFor(p) { const b = F.transferBudget() + extraAuth(), mf = man('dof', 'maxFee'); const lim = mf === '0' ? 0 : b * (+mf) / 100; return Math.round(Math.min(lim, b) / 100) * 100; }
 function ruleIssues(p) { const out = []; if (p.age > +man('dof', 'maxAge')) out.push('age limit'); if (p.club && p.ask * 0.75 > capFor(p)) out.push('fee limit'); if (p.wageAsk > wageLimit() * 1.25) out.push('wage limit'); const leaving = sq().filter(q => q.sellFlag || q.expiring).reduce((a, q) => a + q.wage, 0); if ((F.playerWages() - leaving + p.wageAsk) / Math.max(1, F.revenueAvg()) > +man('fin', 'wageCap') / 100 + 0.05) out.push('wage cap'); return out; }
 
 /* ---------- negotiation ---------- */
@@ -153,8 +157,11 @@ function assignScouts() {
   for (const s of scoutsAll()) {
     if (s.assign && s.assign.left > 0) continue;
     if (needMore.length && chance(0.5)) { const x = needMore.shift(); s.assign = { type: 'player', pid: x.pid, reg: r.pool[x.pid].region, left: 1 + (s === staff('scout') ? 0 : ri(0, 1)), label: `Watch ${r.pool[x.pid].name}` }; continue; }
-    const rolling = F.squadPlanScoutJob ? F.squadPlanScoutJob() : null;
-    const pr = rolling || (prios.length ? pick(prios) : null), reg = chance(0.7) ? pick(foc) : (s.home || pick(REGK));
+    const agreed = prios.find(x => x.agreed), onIt = agreed && scoutsAll().some(x => x !== s && x.assign && x.assign.pos === agreed.pos && x.assign.left > 0); // CEO-2: an agreed position always has a scout on it
+    const rolling = agreed && !onIt ? null : F.squadPlanScoutJob ? F.squadPlanScoutJob() : null;
+    const pr = (agreed && !onIt ? agreed : null) || rolling || (prios.length ? pick(prios) : null);
+    let reg = chance(0.7) ? pick(foc) : (s.home || pick(REGK));
+    if (pr && pr === agreed) { const t = g().club.tier, n = k => Object.values(r.pool).filter(p => p.region === k && p.pos === pr.pos && Math.abs(p.inTier - t) <= 1 && !pipeOf(p.id)).length; reg = REGK.slice().sort((a, b) => n(b) - n(a))[0] || reg; } // for an agreed position the DoF sends the scout where the players are
     s.assign = { type: pr ? 'profile' : 'region', pos: pr ? pr.pos : null, kind: pr ? pr.kind : null, horizon: rolling ? rolling.horizon : null, reg, left: ri(2, 4), label: pr ? `${F.POS_L[pr.pos]}, ${pr.kind}, in ${REG[reg].name}${rolling ? ' · ' + (rolling.horizon === 'winter' ? 'winter cover' : 'summer succession') : ''}` : `Sweep ${REG[reg].name}` };
   }
 }
@@ -275,7 +282,7 @@ F.recView = () => {
   ensure(); const r = RC();
   if (!r.plan.set) { r.plan.set = true; if (!r.plan.prios.length) r.plan.prios = F.recPlanSuggest().slice(0, 2).map(x => ({ pos: x.pos, kind: x.kind })); }
   const rows = r.pipe.map(x => { const p = r.pool[x.pid] || sq().find(s => s.id === x.pid), k = r.know[x.pid]; return { x, p, k }; }).filter(o => o.p);
-  return { r, rows, scouts: scoutsAll(), plan: r.plan, budget: F.transferBudget() + (r.extra || 0), threshold: threshold(), wageLimit: wageLimit(), STAGES, inWin: inWin() };
+  return { r, rows, scouts: scoutsAll(), plan: r.plan, budget: F.transferBudget() + extraAuth(), threshold: threshold(), wageLimit: wageLimit(), STAGES, inWin: inWin() };
 };
 
 F.recScoutAcc = s => { const errs = RC().log.filter(l => l.by === s.id && l.est != null).map(l => { const p = sq().find(q => q.name === l.name && q.pos === l.pos); return p ? Math.abs(F.stars(l.est) - F.stars(p.ca)) : null; }).filter(v => v != null); return errs.length ? { n: errs.length, err: errs.reduce((a, b) => a + b, 0) / errs.length } : null; };
@@ -283,7 +290,7 @@ F.recReport = report; F.recScouts = scoutsAll; F.recRules = ruleIssues; F.recSet
 F.recPlanBoard = () => { ensure(); const r = RC(); return (r.plan.prios || []).map(pr => { const pos = pr.pos, rows = r.pipe.filter(x => r.pool[x.pid] && r.pool[x.pid].pos === pos), busy = rows.find(x => ['negotiating', 'approach'].includes(x.stage)), next = rows.filter(x => x.stage === 'recommended' && !x.hold)[0], signed = r.log.find(l => l.s === g().season && l.pos === pos && winBuys(pos) > 0); const st = winBuys(pos) > 0 ? 'done' : busy ? 'busy' : 'open'; return { pos, st, who: st === 'done' ? (signed ? signed.name + ' signed' : 'Signed') : busy ? r.pool[busy.pid].name + (busy.stage === 'approach' ? ', your call' : ', talks') : next ? r.pool[next.pid].name + ' next' : `${rows.filter(x => x.stage === 'scouted').length} on the list`, pid: busy ? busy.pid : next ? next.pid : null }; }); };
 F.recSlotOpen = slotOpen;
 F.recDeal = () => { ensure(); dofPipeline(); };
-F.recLate = () => { ensure(); const r = RC(), b = F.transferBudget() + (r.extra || 0); return Object.values(r.pool).filter(p => { const k = r.know[p.id], x = pipeOf(p.id); return k && (k.grade === 'A' || k.grade === 'B') && k.conf !== 'low' && (!x || ['scouted', 'recommended'].includes(x.stage)) && slotOpen(p, k) && p.ask * 1.2 <= b && !ruleIssues(p).filter(i => i !== 'fee limit').length; }).sort((a, b2) => (r.know[b2.id].est - r.know[a.id].est))[0] || null; };
+F.recLate = () => { ensure(); const r = RC(), b = F.transferBudget() + extraAuth(); return Object.values(r.pool).filter(p => { const k = r.know[p.id], x = pipeOf(p.id); return k && (k.grade === 'A' || k.grade === 'B') && k.conf !== 'low' && (!x || ['scouted', 'recommended'].includes(x.stage)) && slotOpen(p, k) && p.ask * 1.2 <= b && !ruleIssues(p).filter(i => i !== 'fee limit').length; }).sort((a, b2) => (r.know[b2.id].est - r.know[a.id].est))[0] || null; };
 F.recForceSign = (pid, fee, wage, note) => { const r = RC(), p = r.pool[pid]; if (!p) return false; const x = addPipe(pid, 'approach'); x.deal = { club: p.club, ask: p.ask, floor: fee, cap: fee, offer: fee, fee, round: 1, wageAsk: p.wageAsk, wage, sellon: false, inst: false, rounds: [note || `Deadline-day deal: ${money(fee)}.`] }; setStage(x, 'agreed'); complete(x); return true; };
 F.recWageLimit = wageLimit;
 F.recPlayer = id => { const r = RC(); return { p: r.pool[id], k: r.know[id], x: pipeOf(id) }; };

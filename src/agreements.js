@@ -12,7 +12,7 @@ const winOpen = () => !!(F.window_ && F.window_());
 const nextWindowEnd = () => { const G = g(); return G.week <= 18 ? F.absWeek() + (18 - G.week) + 1 : F.absWeek() + 8; }; // judged after the winter window, or eight weeks on
 
 // make a position the DoF's priority for real: it feeds the recruitment plan the scouts and the pipeline use
-F.recPrioritise = pos => { const G = g(); if (!G.rec || !pos) return; const pl = G.rec.plan; pl.prios = (pl.prios || []).filter(x => x.pos !== pos); pl.prios.unshift({ pos, kind: (pl.prios[0] || {}).kind || 'proven' }); pl.prios = pl.prios.slice(0, 3); pl.set = true; G.dofPrio = pos; };
+F.recPrioritise = pos => { const G = g(); if (!G.rec || !pos) return; G.dofPrioAt = F.absWeek(); const pl = G.rec.plan; pl.prios = (pl.prios || []).filter(x => x.pos !== pos); pl.prios.unshift({ pos, kind: (pl.prios[0] || {}).kind || 'proven' }); pl.prios = pl.prios.slice(0, 3); pl.set = true; G.dofPrio = pos; };
 
 /* ---------- the topic: where is the squad short? (only when there is a real answer) ---------- */
 function dofTopic() {
@@ -107,6 +107,12 @@ function views(sig) {
     out.fin = { n: N, tb, ok: tb > 0 && !(run != null && run <= 8), t: run != null && run <= 8 ? `We have about ${run} weeks of cash. Nothing new.` : tb > 0 ? `There is ${money(tb)} in the transfer budget. ${fin.p.risk >= 14 ? 'Use it if it fixes something.' : 'I would rather we kept some of it.'}` : 'There is no transfer money without savings elsewhere.' }; }
   return out;
 }
+// what Finance can expose from the protected reserve: real cash above the transfer budget, half of it at most, none when cash is short
+function reserveOffer(V) { if (!V.fin || !V.dof) return 0; const run = F.finRunway ? F.finRunway() : null; if (run != null && run <= 10) return 0; const head = g().club.cash - (F.transferBudget ? F.transferBudget() : 0); return head > 0 ? Math.round(head * 0.4 / 100) * 100 : 0; }
+// why the scouts come back empty: the price (budget) or the rules (age, wage); read from the real market
+function marketWhy(pos) { const G = g(), R = G.rec; if (!R) return 'nobody available'; const t = G.club.tier, ma = +F.man('dof', 'maxAge'), wl = F.recView ? F.recView().wageLimit : Infinity, budget = (F.transferBudget ? F.transferBudget() : 0) + (F.recExtraAuth ? F.recExtraAuth() : 0);
+  const near = Object.values(R.pool).filter(p => p.pos === pos && Math.abs(p.inTier - t) <= 1), rules = near.filter(p => p.age <= ma && p.wageAsk <= wl * 1.15), cheap = rules.filter(p => !p.club || p.ask * 0.8 <= budget);
+  return !rules.length ? 'nobody within the age and wage limits' : !cheap.length ? `nobody we can afford with ${money(budget)}` : 'nobody good enough at a price we can pay'; }
 function iniAgree(kind, sig, V, extra) {
   const G = g(), now = F.absWeek(), base = { S0: sig.S, sk: sig.k, st: sig.t, mw: G.week, ms: G.season, made: now, k: 'ini', kind, log: [], n0: games().length };
   if (kind === 'back') return Object.assign(base, { id: F.uid(), owner: 'coach', t: `Turn it round with this squad`, by: now + 5, agreedBy: V.coach && V.coach.rec === 'back' });
@@ -116,8 +122,9 @@ function iniAgree(kind, sig, V, extra) {
 function startIni(a, V) {
   const G = g(), co = staff('coach'); list().push(a);
   if (a.kind === 'back' && co) { co.boost = clamp(co.boost + 2, -10, 12); co.boostW = Math.max(co.boostW || 0, 4); co.rel = clamp(co.rel + 2, 0, 100); }
-  if (a.kind === 'plan') { F.recPrioritise(a.pos); if (a.funds && G.rec) G.rec.extra = (G.rec.extra || 0) + a.funds; if (a.funds) { const f = staff('fin'); if (f && V.fin && f.p.risk < 14) f.rel = clamp(f.rel - 2, 0, 100); } if (co && V.coach && V.coach.rec === 'back') co.rel = clamp(co.rel - 1, 0, 100); }
-  if (a.kind === 'joint') { F.recPrioritise(V.dof ? V.dof.pos : null); }
+  if (a.kind === 'plan') { a.ev = { gap: V.dof ? +(weakSpot([a.pos]).gap).toFixed(2) : 0, rep: evidence(a.pos), dofRec: V.dof ? V.dof.rec : null, coRec: V.coach ? V.coach.rec : null, tb: V.fin ? V.fin.tb : 0 }; a.work = { reports: 0, tries: 0, window: 0 }; if (a.funds) { const f = staff('fin'); if (f && V.fin && f.p.risk < 14) f.rel = clamp(f.rel - 2, 0, 100); } if (co && V.coach && V.coach.rec === 'back') co.rel = clamp(co.rel - 1, 0, 100); }
+  if (a.kind === 'back') a.ev = { coRec: V.coach ? V.coach.rec : null, dofRec: V.dof ? V.dof.rec : null };
+  // a joint review is an investigation: no priority, no money, no change of policy until the CEO decides
   G.iniSeen = F.absWeek();
 }
 
@@ -133,15 +140,17 @@ F.agrAnswer = (id, T, say, note) => {
     const V = views(sig); T.ini = { sig, V };
     say('dof', `${sig.t[0].toUpperCase() + sig.t.slice(1)}. I asked ${V.coach ? V.coach.n : 'the coach'}${V.fin ? ' and ' + V.fin.n : ''} to join us.`);
     if (V.coach) say('coach', V.coach.t); if (V.dof) say('dof', V.dof.t); if (V.fin) say('fin', V.fin.t);
-    const funds = V.fin && V.fin.ok ? Math.round(V.fin.tb * 0.5 / 100) * 100 : 0;
+    const funds = reserveOffer(V);
     T.opts = [{ id: 'i_back', t: `Back ${V.coach ? V.coach.n : 'the coach'} with this squad`, fx: 'Judged after five games' },
-      V.dof ? { id: 'i_plan', t: `${V.dof.n} fixes the ${posL(V.dof.pos)} position${funds ? `, with ${money(funds)} extra` : ''}`, fx: funds ? `Finance ${V.fin.ok && staff('fin').p.risk < 14 ? '↓' : 'agrees'} · judged after the window` : 'No extra money · judged after the window' } : null,
-      V.dof && V.coach ? { id: 'i_joint', t: 'Both of you: one plan in two weeks', fx: 'Scouts start looking now' } : null,
+      V.dof ? { id: 'i_plan', t: `${V.dof.n} fixes the ${posL(V.dof.pos)} position`, fx: `Within his ${money(V.fin ? V.fin.tb : 0)} budget · judged after the window` } : null,
+      V.dof && funds ? { id: 'i_plan_r', t: `…and allow up to ${money(funds)} from the reserve`, fx: `Less cash cover · ${V.fin && staff('fin').p.risk < 14 ? 'Finance ↓' : 'Finance agrees'}` } : null,
+      V.dof && V.coach ? { id: 'i_joint', t: 'Both of you: one plan in two weeks', fx: 'An investigation: nothing changes until you decide' } : null,
       { id: 'i_wait', t: 'Wait for more evidence', fx: 'No change' }].filter(Boolean);
     T.funds = funds; return true; }
   const I = T.ini; if (!I) return false; const { sig, V } = I;
   if (id === 'i_plan' && V.dof && V.dof.rec === 'back' && !T.pushed && staff('dof').p.ego >= 14) { T.pushed = 1; say('dof', 'I will not sign a player I do not believe we need. If you want it, it is your call, not mine.'); T.opts = [{ id: 'i_order', t: 'It is my call. Do it.', fx: 'He carries it out; the decision is yours' }, { id: 'i_back', t: `Then we back ${V.coach ? V.coach.n : 'the coach'}`, fx: 'Judged after five games' }, { id: 'i_wait', t: 'Wait for more evidence', fx: 'No change' }]; return true; }
-  if (id === 'i_plan' || id === 'i_order') { const a = iniAgree('plan', sig, V, T.funds); if (id === 'i_order') a.ordered = 1; startIni(a, V); say('dof', id === 'i_order' ? 'Understood. It goes on the record as your decision.' : staff('dof').p.risk >= 14 ? 'Good. I will move quickly.' : 'I will do it properly. Expect a recommendation before the window.'); note(`Agreement: ${a.t} · ${a.funds ? money(a.funds) + ' extra · ' : ''}judged in week ${a.by - F.absWeek() + G.week}`); T.opts = []; return true; }
+  if (id === 'i_plan_r') { T.useFunds = 1; id = 'i_plan'; }
+  if (id === 'i_plan' || id === 'i_order') { const a = iniAgree('plan', sig, V, T.useFunds ? T.funds : 0); if (id === 'i_order') a.ordered = 1; startIni(a, V); say('dof', id === 'i_order' ? 'Understood. It goes on the record as your decision.' : staff('dof').p.risk >= 14 ? 'Good. I will move quickly.' : 'I will do it properly. Expect a recommendation before the window.'); note(`Agreement: ${a.t} · ${a.funds ? money(a.funds) + ' extra · ' : ''}judged in week ${a.by - F.absWeek() + G.week}`); T.opts = []; return true; }
   if (id === 'i_back') { const a = iniAgree('back', sig, V); startIni(a, V); say('coach', staff('coach').p.ego >= 14 ? 'Good. Now let me work.' : 'Thank you. I will not waste it.'); if (V.dof && V.dof.rec === 'plan') say('dof', 'For the record, I would have strengthened.'); note(`Agreement: ${a.t} · judged in week ${a.by - F.absWeek() + G.week}`); T.opts = []; return true; }
   if (id === 'i_joint') { const a = iniAgree('joint', sig, V); startIni(a, V); say('dof', 'We will sit down this week. You will have one recommendation from both of us.'); note(`Joint review · back to you in week ${G.week + 2}`); T.opts = []; return true; }
   if (id === 'i_wait') { G.iniSeen = F.absWeek(); say('coach', 'Fine by me.'); if (V.dof && V.dof.rec === 'plan') say('dof', 'Then we lose time. Your decision.'); note('No change. You keep watching.'); T.opts = []; return true; }
@@ -152,7 +161,7 @@ F.agrAnswer = (id, T, say, note) => {
 function execute(a) {
   const G = g(), S = stats(games().slice(a.n0)), wk = G.week;
   if (a.kind === 'back') a.log.push({ w: wk, t: `${S.n} game${S.n === 1 ? '' : 's'}: ${Math.round(S.ppg * S.n)} pts, ${S.ga} conceded, xG against ${S.xga} a game (was ${a.S0.xga}).` });
-  if (a.kind === 'plan') { const ev = evidence(a.pos), inn = G.squad.filter(p => p.pos === a.pos && !a.base.includes(p.id)); a.log.push({ w: wk, t: inn.length ? `${inn[0].name} signed as ${posL(a.pos)}.` : `${ev} reliable report${ev === 1 ? '' : 's'} on a ${posL(a.pos)}. ${winOpen() ? 'The window is open.' : 'Waiting for the window.'}` }); if (inn.length && !a.done) { a.done = 1; a.inn = inn[0].name; } }
+  if (a.kind === 'plan') { const R = G.rec || { pipe: [], pool: {} }, ev = evidence(a.pos), inn = G.squad.filter(p => p.pos === a.pos && !a.base.includes(p.id)); a.work = a.work || { reports: 0, tries: 0, window: 0 }; a.work.reports = Math.max(a.work.reports, ev); a.work.tries = Math.max(a.work.tries, R.pipe.filter(x => R.pool[x.pid] && R.pool[x.pid].pos === a.pos && ['approach', 'negotiating'].includes(x.stage) || (x.stage === 'lost' && x.since >= a.made && (R.pool[x.pid] || {}).pos === a.pos)).length); if (winOpen()) a.work.window = 1; if ([staff('scout')].concat(R.scouts || []).some(x => x && x.assign && x.assign.pos === a.pos)) a.work.scoutW = (a.work.scoutW || 0) + 1; a.log.push({ w: wk, t: inn.length ? `${inn[0].name} signed as ${posL(a.pos)}.` : `Scouts on it ${a.work.scoutW || 0} week${a.work.scoutW === 1 ? '' : 's'}; ${ev} reliable report${ev === 1 ? '' : 's'} on a ${posL(a.pos)}${!ev && (a.work.scoutW || 0) >= 3 ? ', ' + (a.work.why = marketWhy(a.pos)) : ''}. ${winOpen() ? 'The window is open.' : 'Waiting for the window.'}` }); if (inn.length && !a.done) { a.done = 1; a.inn = inn[0].name; } }
   if (a.kind === 'joint' && F.absWeek() >= a.by) { // the joint recommendation follows the strongest evidence now
     const sig = signal(), now = sig || { S: stats(games().slice(-4)), k: a.sk, area: a.sk === 'attack' ? ['ST', 'W', 'AM'] : ['CB', 'FB'] }, V = views(Object.assign({}, now, { t: a.st }));
     const recP = V.dof && V.dof.weak && V.coach && V.coach.rec === 'plan', recB = !sig || (V.coach && V.coach.rec === 'back' && !(V.dof && V.dof.weak));
@@ -160,25 +169,44 @@ function execute(a) {
     F.queueEvent('ini_joint', { rec: recP ? 'plan' : recB ? 'back' : 'split', pos: V.dof ? V.dof.pos : null, sk: a.sk, st: a.st, cv: V.coach ? V.coach.t : '', dv: V.dof ? V.dof.t : '', cn: V.coach ? V.coach.n : '', dn: V.dof ? V.dof.n : '', funds: V.fin && V.fin.ok ? Math.round(V.fin.tb * 0.5 / 100) * 100 : 0 });
   }
 }
-/* REVIEW: results and the numbers underneath, kept apart, so luck is not mistaken for judgement */
-function verdictOf(a) {
-  const S = stats(games().slice(a.n0)), b = a.S0, d = a.sk === 'attack';
-  const better = S.n && (S.ppg >= b.ppg + 0.4 || (d ? S.gf / S.n >= b.gf / b.n + 0.5 : S.ga / S.n <= b.ga / b.n - 0.5));
-  const under = S.n && (d ? S.xgf >= b.xgf + 0.25 : S.xga <= b.xga - 0.25);
-  if (a.kind === 'back') return { S, k: better && under ? 'worked' : under ? 'unlucky' : better ? 'lucky' : 'failed' };
-  if (a.done) return { S, k: better ? 'worked' : under ? 'unlucky' : 'failed' };
-  if (better) return { S, k: 'overtaken' };
-  if (!a.funds && !(F.transferBudget && F.transferBudget() > 0)) return { S, k: 'blocked' };
-  return { S, k: 'failed' };
+/* REVIEW: three questions kept apart, so a head is judged on his own part.
+   Decision: was the approach reasonable on what was known at the start (recorded then, not judged with hindsight)?
+   Execution: did the owner do the work in his control (DoF: reports, attempts, a signing; coach: the chances made and allowed)?
+   Outcome: did results improve, and did the numbers underneath agree (or was it luck)? Plus who decided, and what blocked it. */
+function assess(a) {
+  const G = g(), S = stats(games().slice(a.n0)), b = a.S0, att = a.sk === 'attack', ev = a.ev || {};
+  const better = !!S.n && (S.ppg >= b.ppg + 0.4 || (att ? S.gf / S.n >= b.gf / b.n + 0.5 : S.ga / S.n <= b.ga / b.n - 0.5));
+  const under = !!S.n && (att ? S.xgf >= b.xgf + 0.25 : S.xga <= b.xga - 0.25), worse = !!S.n && (att ? S.xgf <= b.xgf - 0.25 : S.xga >= b.xga + 0.25);
+  const outcome = better && under ? 'better' : better ? 'better, but the numbers underneath did not move: it may be luck' : under ? 'results no better, though the numbers underneath improved' : 'no improvement';
+  let decision, exec, execK, who;
+  if (a.kind === 'plan') {
+    decision = a.ordered ? `Your decision, against ${sur((staff('dof') || {}).name || 'his')}'s advice.` : ev.gap < -0.3 ? `Sound: the ${posL(a.pos)} was the weakest starter when it was agreed${ev.rep ? `, with ${ev.rep} reliable report${ev.rep === 1 ? '' : 's'}` : ''}.` : `Debatable: the ${posL(a.pos)} was not clearly the weak link when it was agreed.`;
+    const w = a.work || {}, auth = (F.transferBudget ? F.transferBudget() : 0) + (F.recExtraAuth ? F.recExtraAuth() : 0);
+    if (a.done) { execK = 'delivered'; exec = `Delivered: ${a.inn} signed.`; }
+    else if (!w.window) { execK = 'blocked'; exec = 'Blocked: the window never opened in time.'; }
+    else if (auth <= 0 && !(ev.tb > 0) && !a.funds) { execK = 'blocked'; exec = 'Blocked: there was no money to spend.'; }
+    else if (!w.reports && !w.tries && (w.scoutW || 0) >= 3) { execK = 'tried'; exec = `Searched, found nobody: scouts on it ${w.scoutW} weeks, ${w.why || 'nobody who fits'}. ${/afford/.test(w.why || '') ? 'The money' : 'The mandate'}, not the effort, held it back.`; }
+    else if (w.tries > 0 || w.reports > 0) { execK = 'tried'; exec = `Worked on it: ${w.reports} reliable report${w.reports === 1 ? '' : 's'}, ${w.tries} approach${w.tries === 1 ? '' : 'es'}, no signing.`; }
+    else { execK = 'idle'; exec = 'Not delivered: no reliable reports, no approaches.'; }
+    who = a.ordered ? 'you' : 'dof';
+  } else {
+    decision = ev.coRec === 'back' ? 'Sound: the coach asked for time and his reading of the numbers supported it.' : `Your call: ${ev.dofRec === 'plan' ? 'the DoF wanted to strengthen instead' : 'the coach himself wanted reinforcements'}.`;
+    execK = under ? 'improved' : worse ? 'worse' : 'flat'; exec = under ? `The coach improved what he controls: xG ${att ? 'for' : 'against'} ${att ? S.xgf : S.xga} a game, from ${att ? b.xgf : b.xga}.` : worse ? 'The chances made and allowed got worse under him.' : 'The chances made and allowed hardly changed.';
+    who = ev.coRec === 'back' ? 'coach' : 'you';
+  }
+  const k = a.kind === 'plan' ? (execK === 'delivered' ? (better ? 'worked' : 'delivered') : execK === 'blocked' ? 'blocked' : better ? 'overtaken' : execK === 'tried' ? 'not delivered' : 'failed')
+    : (execK === 'improved' ? (better ? 'worked' : 'unlucky') : better ? 'lucky' : 'failed');
+  return { S, k, execK, decision, exec, outcome: `Outcome: ${outcome} (${S.n} games, ${Math.round(S.ppg * S.n)} pts, ${S.gf}–${S.ga}; xG ${S.xgf} for and ${S.xga} against a game, before ${b.xgf} and ${b.xga}).`, who };
 }
-const VTXT = { worked: 'It worked: better results, and the numbers underneath improved too.', unlucky: 'The numbers underneath improved, the results did not. Sound judgement, poor luck.', lucky: 'The results improved, the numbers underneath did not. It may not last.', failed: 'It did not work.', overtaken: 'The team recovered before anyone arrived. The plan was overtaken by events.', blocked: 'There was never money to do it.' };
+const KT = { worked: 'Worked', delivered: 'Delivered, results did not follow', unlucky: 'Unlucky', lucky: 'Lucky', failed: 'Failed', 'not delivered': 'Not delivered', blocked: 'Blocked', overtaken: 'Overtaken by events' };
 function review(a) {
-  const G = g(), v = verdictOf(a), s = staff(a.owner), N = s ? sur(s.name) : 'He'; a.res = v.k; a.S1 = v.S;
-  a.out = `${VTXT[v.k]} ${v.S.n} games: ${Math.round(v.S.ppg * v.S.n)} pts, ${v.S.gf}–${v.S.ga}, xG ${v.S.xgf} for and ${v.S.xga} against a game (before: ${a.S0.xgf} and ${a.S0.xga}).${a.kind === 'plan' ? (a.done ? ` ${a.inn} came in.` : ` No ${posL(a.pos)} arrived.`) : ''}${a.ordered ? ' It was your decision, against his advice.' : ''}`;
-  if (s && !a.ordered) { const d = { worked: [3, 4], unlucky: [1, 1], lucky: [1, 2], failed: [-2, -4], overtaken: [0, 0], blocked: [0, 0] }[v.k]; s.rel = clamp(s.rel + d[0], 0, 100); s.perf = clamp((s.perf || 50) + d[1], 0, 100); }
-  if (G.paper) G.paper.stories.push({ h: `${N}'s plan: ${v.k === 'overtaken' ? 'overtaken by events' : v.k}`, t: `${a.t}, agreed in week ${a.mw}. ${VTXT[v.k]}` });
-  if (F.deskNote) F.deskNote(a.owner, `Agreement: ${a.t.toLowerCase()}`, `${v.k}. ${VTXT[v.k]}`, v.k === 'failed' && !a.ordered ? 1 : 0);
-  F.queueEvent('ini_review', { id: a.id, owner: a.owner, t: a.t, k: v.k, out: a.out, ordered: a.ordered ? 1 : 0, mw: a.mw });
+  const G = g(), v = assess(a), s = staff(a.owner), N = s ? sur(s.name) : 'He'; a.res = v.k; a.S1 = v.S; a.ex = { decision: v.decision, exec: v.exec, outcome: v.outcome, who: v.who, execK: v.execK };
+  a.out = `${v.decision} ${v.exec} ${v.outcome}`;
+  // the head answers for his own part: execution, not the scoreline; a decision the CEO ordered is the CEO's
+  if (s) { const d = { delivered: [3, 4], improved: [2, 3], tried: [0, 0], flat: [0, -1], blocked: [0, 0], idle: [-2, -4], worse: [-2, -3] }[v.execK] || [0, 0]; s.rel = clamp(s.rel + d[0], 0, 100); s.perf = clamp((s.perf || 50) + d[1], 0, 100); }
+  if (G.paper) G.paper.stories.push({ h: `${N}'s plan: ${KT[v.k].toLowerCase()}`, t: `${a.t}, agreed in week ${a.mw}. ${v.exec}` });
+  if (F.deskNote) F.deskNote(a.owner, `Agreement: ${a.t.toLowerCase()}`, `${KT[v.k]}. ${v.exec}`, ['idle', 'worse'].includes(v.execK) ? 1 : 0);
+  F.queueEvent('ini_review', { id: a.id, owner: a.owner, t: a.t, k: v.k, execK: v.execK, out: a.out, ordered: a.ordered ? 1 : 0, mw: a.mw });
 }
 const prevAfter2 = H.seasonAfterMatch;
 H.seasonAfterMatch = o => { if (prevAfter2) prevAfter2(o); for (const a of list().filter(a => a.k === 'ini' && !a.res)) { execute(a); if (!a.res && F.absWeek() >= a.by) review(a); } };
@@ -191,14 +219,19 @@ E('ini_joint', { forced: 1, from: 'dof', dept: 'sporting', ceo: 1, cd: 1, why: '
   opts: [{ l: c => `Back ${c.cn} with this squad`, h: 'Judged after five games', f: c => { const sig = signal() || { S: stats(games().slice(-4)), k: c.sk, t: c.st, area: ['CB', 'FB'] }, V = views(sig); startIni(iniAgree('back', sig, V), V); return `${c.cn} gets his five games.`; } },
     { l: c => `${c.dn} fixes the ${posL(c.pos || 'CB')} position`, h: c => c.funds ? `${money(c.funds)} extra · judged after the window` : 'No extra money', f: c => { const sig = signal() || { S: stats(games().slice(-4)), k: c.sk, t: c.st, area: ['CB', 'FB'] }, V = views(sig); if (V.dof) V.dof.pos = c.pos || V.dof.pos; if (!V.dof) return 'There is no DoF.'; startIni(iniAgree('plan', sig, V, c.funds), V); return `${c.dn} has the job.`; } },
     { l: 'Leave it as it is', h: 'No change', f: () => { g().iniSeen = F.absWeek(); return 'Nothing changes. You keep watching.'; } }],
-  auto: c => c.rec === 'plan' ? 1 : c.rec === 'back' ? 0 : 2 });
+  auto: () => 2 }); // unanswered, nothing changes: an investigation never authorises itself
 E('ini_review', { forced: 1, from: 'board', dept: 'board', ceo: 1, cd: 1, why: 'An agreement you made has reached its review week.',
   title: c => `Review: ${c.t.toLowerCase()}`, body: c => c.out,
-  opts: [{ l: 'Credit him', h: 'Trust ↑ · he remembers', f: c => { const s = staff(c.owner); if (s) { s.rel = clamp(s.rel + (c.k === 'lucky' ? 1 : 3), 0, 100); } const a = list().find(x => x.id === c.id); if (a) a.ceo = 'credit'; return c.k === 'failed' ? 'You credit the effort. Not everyone in the boardroom agrees.' : 'You make a point of it in the staff meeting.'; } },
-    { l: 'Hold him responsible', h: 'Trust ↓ · performance noted', f: c => { const s = staff(c.owner); if (s) { s.rel = clamp(s.rel - (c.ordered ? 6 : 3), 0, 100); s.perf = clamp((s.perf || 50) - (c.k === 'failed' ? 3 : 0), 0, 100); } const a = list().find(x => x.id === c.id); if (a) a.ceo = 'blame'; return c.ordered ? 'He reminds you it was your decision. He is not wrong.' : c.k === 'unlucky' ? 'He thinks that is unfair. The numbers were on his side.' : 'He takes it.'; } },
+  opts: [{ l: 'Credit him', h: 'Trust ↑ · he remembers', f: c => { const s = staff(c.owner); if (s) { s.rel = clamp(s.rel + (['idle', 'worse'].includes(c.execK) ? 0 : 3), 0, 100); } const a = list().find(x => x.id === c.id); if (a) a.ceo = 'credit'; return ['idle', 'worse'].includes(c.execK) ? 'You credit him anyway. He knows he did not deliver.' : 'You make a point of it in the staff meeting.'; } },
+    { l: 'Hold him responsible', h: 'Trust ↓ · performance noted', f: c => { const s = staff(c.owner); if (s) { const fair = ['idle', 'worse'].includes(c.execK); s.rel = clamp(s.rel - (c.ordered ? 6 : fair ? 2 : 5), 0, 100); s.perf = clamp((s.perf || 50) - (fair ? 3 : 0), 0, 100); } const a = list().find(x => x.id === c.id); if (a) a.ceo = 'blame'; return c.ordered ? 'He reminds you it was your decision. He is not wrong.' : ['delivered', 'improved', 'blocked'].includes(c.execK) ? 'He thinks that is unfair. He did his part.' : 'He takes it.'; } },
     { l: 'Circumstances. Move on', h: 'No judgement', f: c => { const a = list().find(x => x.id === c.id); if (a) a.ceo = 'none'; return 'Filed. The season moves on.'; } }],
   auto: () => 2 });
 
+// the positions the DoF is working on for the CEO: active agreements (and a recent priority note); read by the rolling squad plan
+F.agrPrios = () => { const G = g(), out = []; for (const a of open()) if ((a.k === 'pos' || a.kind === 'plan') && !a.done && a.pos && !out.some(x => x.pos === a.pos)) out.push({ pos: a.pos, why: `${a.ordered ? 'Ordered by' : 'Agreed with'} the CEO in week ${a.mw}` });
+  if (G.dofPrio && G.dofPrioAt != null && F.absWeek() - G.dofPrioAt < 8 && !out.some(x => x.pos === G.dofPrio)) out.push({ pos: G.dofPrio, why: `The CEO's priority since week ${G.week - (F.absWeek() - G.dofPrioAt)}` }); return out.slice(0, 2); };
+// exceptional spending authority from the reserve, while the agreement runs and nobody has been signed for it
+F.agrAuth = () => open().filter(a => a.kind === 'plan' && a.funds && !a.done).reduce((m, a) => Math.max(m, a.funds), 0);
 F.iniSignal = () => (iniOpen() || (g().iniSeen != null && F.absWeek() - g().iniSeen < 3)) ? null : signal();
 F.iniActive = iniOpen;
 

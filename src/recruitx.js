@@ -106,6 +106,8 @@ function refresh(log=true){
   p.season=G.season;p.week=G.week;p.rows=fresh;
   const winterOpen=(G.phase==='season'&&G.week<=18&&G.winDone!==G.season)||(G.phase==='summer'&&!!G.sum&&!!G.sum.win);
   p.winter={season:G.season,status:winterOpen?(G.week<17?'preparing':'open'):'closed',rows:winterOpen?fresh.filter(r=>r.winterScore>0).sort((a,b)=>b.winterScore-a.winterScore||a.pos.localeCompare(b.pos)).slice(0,3):[]};
+  // CEO-2: positions agreed with the CEO are part of the DoF's own plan while the agreement runs (one source of truth)
+  if(F.agrPrios&&winterOpen)for(const ap of F.agrPrios()){let r=p.winter.rows.find(x=>x.pos===ap.pos);const base=fresh.find(x=>x.pos===ap.pos);if(r){if(!r.reasons.includes(ap.why))r.reasons=r.reasons.concat([ap.why]);r.agreed=1;}else if(base){p.winter.rows=[{...base,winterScore:Math.max(base.winterScore,85),reasons:base.reasons.concat([ap.why]),agreed:1}].concat(p.winter.rows).slice(0,3);}}
   p.summer={season:G.phase==='summer'?G.season:G.season+1,rows:fresh.filter(r=>r.summerScore>0).sort((a,b)=>b.summerScore-a.summerScore||a.pos.localeCompare(b.pos)).slice(0,4)};
   const cap=+F.man('fin','wageCap');
   p.finance={cash:G.club.cash,fees:F.transferBudget(),weeklyRoom:Math.floor(F.revenueAvg()*cap/100-F.playerWages()),cap};
@@ -179,7 +181,7 @@ F.squadPlanPrepare=()=>{
     const free=scouts.find(s=>s.assign.horizon!=='winter');if(free){free.assign=null;note('scouting',`The TD redirects ${free.name} from longer-term work to the new ${POS[urgent.pos]} cover need.`);}
   }
   // Stale summer priorities no longer drive winter negotiation; the written summer brief is preserved.
-  if(g().week>=3){g().rec.plan.prios=p.winter.rows.map(r=>({pos:r.pos,kind:'proven'}));g().rec.plan.set=true;}
+  if(g().week>=3){const agreed=F.agrPrios?F.agrPrios().map(a=>({pos:a.pos,kind:'proven',agreed:1})):[];g().rec.plan.prios=agreed.concat(p.winter.rows.filter(r=>!agreed.some(a=>a.pos===r.pos)).map(r=>({pos:r.pos,kind:'proven'}))).slice(0,3);g().rec.plan.set=true;} // agreed positions are not overwritten
 };
 F.squadPlanView=()=>{
   const p=refresh(true),R=g().rec,scouts=[F.staff('scout'),...(R.scouts||[])].filter(Boolean);

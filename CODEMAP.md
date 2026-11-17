@@ -78,7 +78,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `briefs.js` | 20 KB | weekly briefings (1.5) Short, state-driven updates and conversations |  |  | dofPrio, dofPrioAt, wageFreezePrev |
 | `academy.js` | 14 KB | youth academy, module 2 part 1 Age groups, academy staff, development model, education and welfare, pathway | acadMigrate, acadInit, acadCost, acadWeekly, acadIntake, acadSeason |  | acad, academy |
 | `academy2.js` | 28 KB | youth academy, module 2 part 2 Category & audit, poaching and tribunals, youth competitions, ROI, academy desk | acadWeekly, acadSeason, acadIncome, acadSale, objMet |  | academy, squad |
-| `recruit.js` | 40 KB | recruitment, module 3 part 1 Player world, scouting department, reports with uncertainty, recruitment pipeline | recWeekly, recCost, recSeason, recMigrate |  | shortlist, rec |
+| `recruit.js` | 41 KB | recruitment, module 3 part 1 Player world, scouting department, reports with uncertainty, recruitment pipeline | recWeekly, recCost, recSeason, recMigrate |  | shortlist, rec |
 | `summer.js` | 18 KB | the transfer summer, shared parts What summer2.js builds on: expiring contracts and the squad planner, what th | summerStart |  | phase, sum, inbox, lastSummer, squad, preEdge, winDone, lastWinter |
 | `season.js` | 18 KB | season rhythm, module 4 part 2 Season blocks with a decision each, board reviews, high-stakes matches, a small | summerStart, seasonWeekly, seasonAfterMatch, recSeason |  | rival, stake, openTarget, matchEdge, blockDone, winterPrev, winBonus, recovery, loanedOut, squad |
 | `summer2.js` | 34 KB | the transfer summer, version 2 A summer meeting with the DoF and staff that ends in a signed summer brief, a t | summerStart | recWeekly | dofStrikes |
@@ -96,7 +96,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 21 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, briefsEnd, seasonAfterMatch, effBonus |  | auth, desk, lateBriefs |
 | `teamwork.js` | 14 KB | your team at work What the heads did this week, told as people: one concrete act, in their own voice, with the | seasonAfterMatch |  | twUsed, tw, twPrev |
-| `agreements.js` | 24 KB | agreements the CEO makes with a head (CEO-1) The CEO raises a real problem; the head gives his view and may re | seasonAfterMatch |  | agr, dofPrio, iniSeen |
+| `agreements.js` | 30 KB | agreements the CEO makes with a head (CEO-1) The CEO raises a real problem; the head gives his view and may re | seasonAfterMatch |  | agr, dofPrioAt, dofPrio, iniSeen |
 | `talks.js` | 20 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofStrikes |
 | `weekflow.js` | 26 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo, coachNews, mem |
 | `weekloop.js` | 2 KB | situation-driven week Chance serves the club's situation: an event is likelier when its department is under pr | evWeight |  |  |
@@ -189,8 +189,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: acadView, acadCatName, scorecard, ACAD_PLANS, finishPreseason
 
 ### `recruit.js`
-- Functions: g, sq, cn, inWin, winKey, winBuys, coachCoverageNeeds, slotOpen, aiClub, genPool, topUpPool, hireScout, nScouts, chiefAsScout, scoutsAll, report, posBest, posWorst, prioOf, fitsProfile, grade, rng, bandTxt, potTxt, pipeOf, addPipe, setStage, threshold, wageLimit, capFor, ruleIssues, openDeal, negRound, wagePhase, complete, assignScouts, scoutWeek, dofPipeline, scoreRec, worldWeek, G_shortlistMirror, targetFromWorld, ensure, dossier
-- Exports on `F`: recTarget, recMoreReport, recPlanSuggest, recTogglePrio, recSetKind, REC_KINDS, recView, recScoutAcc, recReport, recScouts, recRules, recSetStage, recAddPipe, recPlanBoard, recSlotOpen, recDeal, recLate, recForceSign, recWageLimit, recPlayer, recBand, recPot, scorecard
+- Functions: g, sq, cn, inWin, winKey, winBuys, coachCoverageNeeds, slotOpen, aiClub, genPool, topUpPool, hireScout, nScouts, chiefAsScout, scoutsAll, report, posBest, posWorst, prioOf, fitsProfile, grade, rng, bandTxt, potTxt, pipeOf, addPipe, setStage, extraAuth, threshold, wageLimit, capFor, ruleIssues, openDeal, negRound, wagePhase, complete, assignScouts, scoutWeek, dofPipeline, scoreRec, worldWeek, G_shortlistMirror, targetFromWorld, ensure, dossier
+- Exports on `F`: recExtraAuth, recTarget, recMoreReport, recPlanSuggest, recTogglePrio, recSetKind, REC_KINDS, recView, recScoutAcc, recReport, recScouts, recRules, recSetStage, recAddPipe, recPlanBoard, recSlotOpen, recDeal, recLate, recForceSign, recWageLimit, recPlayer, recBand, recPot, scorecard
 
 ### `summer.js`
 - Functions: g, sq, finishSummer, median, advise, demand, decide, sellSuggest, snap, diff, drainQueue, oppOf, ddLine, ddDesc, ddCase, ddClose
@@ -260,8 +260,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: teamWork, stillRunning
 
 ### `agreements.js`
-- Functions: g, sur, list, open, winOpen, nextWindowEnd, dofTopic, dofView, agree, judge, games, stats, signal, iniOpen, weakSpot, evidence, record, views, iniAgree, startIni, execute, verdictOf, review
-- Exports on `F`: recPrioritise, agrTopics, agrAnswer, iniSignal, iniActive, agrRunning, agrRecent, agrList
+- Functions: g, sur, list, open, winOpen, nextWindowEnd, dofTopic, dofView, agree, judge, games, stats, signal, iniOpen, weakSpot, evidence, record, views, reserveOffer, marketWhy, iniAgree, startIni, execute, assess, review
+- Exports on `F`: recPrioritise, agrTopics, agrAnswer, agrPrios, agrAuth, iniSignal, iniActive, agrRunning, agrRecent, agrList
 
 ### `talks.js`
 - Functions: g, first, fixFor, C, rel, boost, ask, reqText, lapse, weekly, say, note, hasCause, common, reqOpts, open, answer, close, view, reqOf, reqsFor

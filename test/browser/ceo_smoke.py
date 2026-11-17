@@ -28,7 +28,7 @@ async def main():
           for(const role of F.ROLES) F.hire(role.id,1);
           F.finishStaff(); F.finishMandates(); F.preSetTarget('accept'); F.finishPreseason();
           for(const id of F.G.press) F.pressAnswer(id,1);
-          F.finishPress(); render();
+          F.finishPress(); U.title=false; U.setup=null; U.tab='inbox'; U.sheet=null; render();
         }""")
         async def check(name):
             await page.wait_for_timeout(120)

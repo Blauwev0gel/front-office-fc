@@ -39,16 +39,16 @@ F.agrAnswer = (id, T, say, note) => {
   const G = g(), s = staff('dof'); if (!s) return false; const P = s.p, N = sur(s.name);
   if (id === 't_squad') { const t = dofTopic(); if (!t) { say('dof', 'Honestly? Nothing I would change this week.'); T.opts = []; return true; }
     T.topic = t; say('dof', dofView(t));
-    T.opts = [{ id: 'a_prio', t: `Make the ${posL(t.pos)} your priority`, fx: `Judged in week ${((nextWindowEnd() - F.absWeek()) + G.week)}` }, { id: 'a_you', t: 'Your call', fx: 'He decides, in his own way' }, { id: 'a_wait', t: 'It can wait', fx: 'No agreement' }];
+    T.opts = [{ id: 'a_prio', t: `Make the ${posL(t.pos)} your priority`, fx: `Judged in ${reviewDate(nextWindowEnd())}` }, { id: 'a_you', t: 'Your call', fx: 'He decides, in his own way' }, { id: 'a_wait', t: 'It can wait', fx: 'No agreement' }];
     return true; }
   const t = T.topic; if (!t) return false;
   const ids = () => G.squad.filter(p => p.pos === t.pos).map(p => p.id), tb = F.transferBudget ? F.transferBudget() : 0;
   if (id === 'a_prio') {
     if (tb <= 0 && !winOpen() && G.week >= 17) { say('dof', P.ego >= 14 ? 'With what? There is no money and no window. Ask me in the summer.' : 'I would love to, but there is no money and the window is shut. I will look at loans in the summer.'); note('He says no: no money, no window'); T.opts = []; return true; }
     F.recPrioritise(t.pos); const a = agree('dof', 'pos', { pos: t.pos, base: ids(), why: t.why, t: `Find a ${posL(t.pos)}`, by0: tb });
-    say('dof', P.risk >= 14 ? 'Good. I already have names.' : 'Fine. I will do it properly, not quickly.'); note(`Agreement: ${N} finds a ${posL(t.pos)} · judged in week ${reviewDate(a.by)}`); T.opts = []; return true; }
+    say('dof', P.risk >= 14 ? 'Good. I already have names.' : 'Fine. I will do it properly, not quickly.'); note(`Agreement: ${N} finds a ${posL(t.pos)} · judged in ${reviewDate(a.by)}`); T.opts = []; return true; }
   if (id === 'a_you') {
-    if (P.risk >= 12 || P.amb >= 14) { F.recPrioritise(t.pos); const a = agree('dof', 'pos', { pos: t.pos, base: ids(), why: t.why, t: `Find a ${posL(t.pos)}`, own: 1, by0: tb }); say('dof', 'Then I will go after it.'); note(`His own call: ${N} goes for a ${posL(t.pos)} · judged in week ${reviewDate(a.by)}`); }
+    if (P.risk >= 12 || P.amb >= 14) { F.recPrioritise(t.pos); const a = agree('dof', 'pos', { pos: t.pos, base: ids(), why: t.why, t: `Find a ${posL(t.pos)}`, own: 1, by0: tb }); say('dof', 'Then I will go after it.'); note(`His own call: ${N} goes for a ${posL(t.pos)} · judged in ${reviewDate(a.by)}`); }
     else { say('dof', 'Then I keep watching. If the right one comes up, I will tell you.'); note('His call: no move yet'); }
     T.opts = []; return true; }
   if (id === 'a_wait') { say('dof', P.ego >= 14 ? 'Your decision. Remember it was yours.' : 'Fine by me.'); T.opts = []; return true; }
@@ -168,8 +168,8 @@ F.agrAnswer = (id, T, say, note) => {
   const I = T.ini; if (!I) return false; const { sig, V } = I;
   if (id === 'i_plan' && V.dof && V.dof.rec === 'back' && !T.pushed && staff('dof').p.ego >= 14) { T.pushed = 1; say('dof', 'I will not sign a player I do not believe we need. If you want it, it is your call, not mine.'); T.opts = [{ id: 'i_order', t: 'It is my call. Do it.', fx: 'He carries it out; the decision is yours' }, { id: 'i_back', t: `Then we back ${V.coach ? V.coach.n : 'the coach'}`, fx: 'Judged after five games' }, { id: 'i_wait', t: 'Wait for more evidence', fx: 'No change' }]; return true; }
   if (id === 'i_plan_r') { T.useFunds = 1; id = 'i_plan'; }
-  if (id === 'i_plan' || id === 'i_order') { const a = iniAgree('plan', sig, V, T.useFunds ? T.funds : 0); if (id === 'i_order') a.ordered = 1; startIni(a, V); say('dof', id === 'i_order' ? 'Understood. It goes on the record as your decision.' : staff('dof').p.risk >= 14 ? 'Good. I will move quickly.' : 'I will do it properly. Expect a recommendation before the window.'); note(`Agreement: ${a.t} · ${a.funds ? money(a.funds) + ' extra · ' : ''}judged in week ${reviewDate(a.by)}`); T.opts = []; return true; }
-  if (id === 'i_back') { const a = iniAgree('back', sig, V); startIni(a, V); say('coach', staff('coach').p.ego >= 14 ? 'Good. Now let me work.' : 'Thank you. I will not waste it.'); if (V.dof && V.dof.rec === 'plan') say('dof', 'For the record, I would have strengthened.'); note(`Agreement: ${a.t} · judged in week ${reviewDate(a.by)}`); T.opts = []; return true; }
+  if (id === 'i_plan' || id === 'i_order') { const a = iniAgree('plan', sig, V, T.useFunds ? T.funds : 0); if (id === 'i_order') a.ordered = 1; startIni(a, V); say('dof', id === 'i_order' ? 'Understood. It goes on the record as your decision.' : staff('dof').p.risk >= 14 ? 'Good. I will move quickly.' : 'I will do it properly. Expect a recommendation before the window.'); note(`Agreement: ${a.t} · ${a.funds ? money(a.funds) + ' extra · ' : ''}judged in ${reviewDate(a.by)}`); T.opts = []; return true; }
+  if (id === 'i_back') { const a = iniAgree('back', sig, V); startIni(a, V); say('coach', staff('coach').p.ego >= 14 ? 'Good. Now let me work.' : 'Thank you. I will not waste it.'); if (V.dof && V.dof.rec === 'plan') say('dof', 'For the record, I would have strengthened.'); note(`Agreement: ${a.t} · judged in ${reviewDate(a.by)}`); T.opts = []; return true; }
   if (id === 'i_joint') { const a = iniAgree('joint', sig, V); startIni(a, V); say('dof', 'We will sit down this week. You will have one recommendation from both of us.'); note(`Joint review · back to you in week ${G.week + 2}`); T.opts = []; return true; }
   if (id === 'i_wait') { G.iniSeen = F.absWeek(); say('coach', 'Fine by me.'); if (V.dof && V.dof.rec === 'plan') say('dof', 'Then we lose time. Your decision.'); note('No change. You keep watching.'); T.opts = []; return true; }
   return false;
@@ -262,7 +262,7 @@ F.iniSignal = () => (iniOpen() || (g().iniSeen != null && F.absWeek() - g().iniS
 F.iniActive = iniOpen;
 
 // what is still running and what was decided lately (for the desk and the department Record)
-F.agrRunning = () => open().map(a => { const s = staff(a.owner), last = (a.log || []).slice(-1)[0]; return { ic: a.k === 'ini' ? (a.owner === 'coach' ? 'trust' : 'scout') : 'scout', t: `${s ? sur(s.name) : 'The DoF'}: ${a.t.toLowerCase()}`, s: `${last ? last.t + ' ' : ''}${a.own ? 'His own call' : a.ordered ? 'Your decision' : 'Agreed with you'} in week ${a.mw}. ${a.joint ? 'Back to you' : 'Judged'} in week ${reviewDate(a.by)}.`, role: a.owner }; });
+F.agrRunning = () => open().map(a => { const s = staff(a.owner), last = (a.log || []).slice(-1)[0]; return { ic: a.k === 'ini' ? (a.owner === 'coach' ? 'trust' : 'scout') : 'scout', t: `${s ? sur(s.name) : 'The DoF'}: ${a.t.toLowerCase()}`, s: `${last ? last.t + ' ' : ''}${a.own ? 'His own call' : a.ordered ? 'Your decision' : 'Agreed with you'} in week ${a.mw}. ${a.joint ? 'Back to you' : 'Judged'} in ${reviewDate(a.by)}.`, role: a.owner }; });
 F.agrRecent = () => list().filter(a => a.res && F.absWeek() - a.by <= 1);
 F.agrList = list;
 })(FO);

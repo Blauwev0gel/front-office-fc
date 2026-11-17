@@ -1,0 +1,182 @@
+/* The Front Office — integrated specialist execution and follow-through.
+   Specialist engines remain authoritative. This is a single transactional
+   command entry point and evidence ledger, not a second economy/game engine. */
+(function(F) {
+'use strict';
+const AREA = {
+  'recruit.focus':'recruit', 'recruit.invest':'recruit', 'recruit.approval':'recruit',
+  'academy.pathway':'academy', 'academy.issue':'academy',
+  'commercial.offer':'commercial', 'commercial.price':'commercial',
+  'commercial.experience':'commercial', 'commercial.promo':'commercial',
+  'marketing.campaign':'marketing', 'marketing.community':'marketing',
+  'business.level':'business', 'business.plan':'business',
+  'firstteam.response':'first', 'firstteam.support':'first',
+  'department.plan':'department', 'department.issue':'department'
+};
+const HEAD = { recruit:'dof', academy:'acad', commercial:'com',
+  marketing:'mkt', business:'fin', first:'coach' };
+const LABEL = {
+  'recruit.focus':'Scouting focus', 'recruit.invest':'Recruitment network investment',
+  'recruit.approval':'Transfer approval mandate', 'academy.pathway':'Youth pathway direction',
+  'commercial.offer':'Sponsorship negotiation','commercial.price':'Ticket pricing',
+  'commercial.experience':'Matchday facilities','commercial.promo':'Supporter promotion',
+  'marketing.campaign':'Marketing campaign','marketing.community':'Community programme',
+  'business.level':'Department budget','business.plan':'Finance budget proposal',
+  'firstteam.response':'Head coach conversation','firstteam.support':'First-team support',
+  'department.plan':'Department response plan','department.issue':'Department risk review'
+};
+const copy = x => JSON.parse(JSON.stringify(x));
+const now = () => F.absWeek();
+const store = () => {
+  if (!Array.isArray(F.G.specialistCases)) F.G.specialistCases = [];
+  return F.G.specialistCases;
+};
+function area(kind, p) {
+  if (kind.startsWith('department.')) return p.k;
+  return AREA[kind];
+}
+function owner(kind, p) {
+  const d = area(kind,p);
+  const role = HEAD[d] || F.DEPT?.[d]?.head;
+  return { role, name:F.staff(role)?.name || 'Vacant' };
+}
+function evidence(d) {
+  const g=F.G;
+  const base = {
+    cash:g.club?.cash, fans:g.st?.fans, board:g.board?.conf,
+    season:g.season, week:g.week
+  };
+  // Capture actual state; never invent projected returns or success rates.
+  try {
+    if(d==='commercial' && F.comView) {
+      const v=F.comView();
+      return {...base, offers:v.offer?.name || null,
+        signed:g.club.deals?.length || 0, exp:v.exp,
+        ticketPrices:copy(v.X?.pf || {}), revenue:F.sponsorIncome?.()};
+    }
+    if(d==='marketing' && F.mkView) {
+      const v=F.mkView();
+      return {...base, campaign:v.camp?.k || null, reach:v.reach,
+        loyalty:v.loyalty, community:v.comm, brand:g.club.brand};
+    }
+    if(d==='business' && F.bizView) {
+      const v=F.bizView();
+      return {...base, weeklySpend:v.spend, affordable:v.ok,
+        risk:F.man?.('fin','risk'), debt:v.debt};
+    }
+    if(d==='recruit') {
+      return {...base, transferBudget:F.transferBudget?.(),
+        squad:g.squad?.length, deals:g.signLog?.length||0,
+        policy:copy(g.mand?.dof||{}), plan:copy(g.rec?.squadPlan?.notice||null)};
+    }
+    if(d==='academy') {
+      return {...base, academy:g.academy?.length, graduates:g.squad?.filter(p=>p.academy).length,
+        pathway:F.pwView?.()?.ag?.route || null};
+    }
+    if(d==='first') {
+      return {...base, form:g.form?.slice(-5)||[], points:F.myPos?.(),
+        coach:F.staff('coach')?.name||null, support:copy(g.ft?.res||{})};
+    }
+  } catch(e) { /* Use basic real figures when a specialist view is not ready. */ }
+  return base;
+}
+function execute(kind,p) {
+  switch(kind) {
+    case 'commercial.offer': return F.comOffer(p.k);
+    case 'commercial.price': return F.comSetPrice(p.k,+p.v);
+    case 'commercial.experience': return p.v==='up'?F.comExpUp():F.comExpDown();
+    case 'commercial.promo': return F.comPromo();
+    case 'marketing.campaign': return F.mkCamp(p.k);
+    case 'marketing.community': return F.mkComm(+p.v);
+    case 'business.level': return F.bizSetLevel(p.k,p.v);
+    case 'business.plan': F.bizPropose();return F.bizApply();
+    case 'recruit.focus': return F.rxFocus(p.k);
+    case 'recruit.invest': return F.rxInvest(p.k);
+    case 'recruit.approval': {
+      const m=F.G.mand?.dof;
+      if(!m)return {err:'No Director of Football mandate exists.'};
+      const updated={...m,approve:p.v};
+      return F.setMandate('dof',updated);
+    }
+    case 'academy.pathway': return F.pwChange(p.k);
+    case 'firstteam.response': return F.ftTalkAnswer(p.id);
+    case 'firstteam.support': return p.v==='buy'?F.ftResBuy(p.k):F.ftResCancel(p.k);
+    case 'department.plan': return F.deptIssuePlan(p.k,p.v,p.c);
+    case 'department.issue': return F.deptIssueDecision(p.k,p.v,p.c);
+    default: return {err:'Unknown specialist decision.'};
+  }
+}
+function specialistAct(kind,p={}) {
+  if(!AREA[kind])return {err:'Unknown specialist decision.'};
+  const d=area(kind,p), o=owner(kind,p);
+  const before=F.save(), start=evidence(d);
+  let result;
+  try {
+    result=execute(kind,p);
+    if(result && result.err) { F.load(before); return result; }
+    if(F.save()===before) return {err:'Nothing changed; the request may already be resolved.'};
+    const g=F.G, items=store();
+    const conflict = d!=='business' && F.bizView && F.bizView().ok===false
+      ? 'Finance reports that planned spending exceeds its current envelope.'
+      : null;
+    const rec={
+      id:'sp-'+(g.nid++), kind, dept:d, role:o.role, head:o.name,
+      title:LABEL[kind], action:copy(p), season:g.season, week:g.week,
+      start:now(), due:now()+4, status:'executing', origin:'CEO',
+      before:start, after:evidence(d), result:result?.out || 'Direction recorded.',
+      financeConcern:conflict, review:null
+    };
+    items.push(rec);
+    if(items.length>120)items.splice(0,items.length-120);
+    return {out:rec.result,caseId:rec.id};
+  } catch(err) {
+    F.load(before);
+    return {err:'This decision failed. The game was restored; nothing was committed.'};
+  }
+}
+function specialistWeekly() {
+  const g=F.G;
+  if(!Array.isArray(g.specialistCases))return;
+  for(const c of g.specialistCases) {
+    if(c.status!=='executing')continue;
+    if(c.head!=='Vacant' && c.role && F.staff(c.role)?.name!==c.head) {
+      c.status='interrupted';
+      c.review={at:now(), evidence:evidence(c.dept),
+        text:'The responsible employee has left. The prior decision remains in the record.'};
+      continue;
+    }
+    if(now()<c.due)continue;
+    const latest=evidence(c.dept);
+    c.status='review';
+    c.review={at:now(), evidence:latest,
+      text:'Four weeks of departmental work have passed. Compare the current evidence with the original decision.'};
+    g.paper?.stories?.push({h:'Department decision review',
+      t:c.title+' — '+(F.staff(c.role)?.name||'the club')+
+        ' reports that the follow-up evidence is available in People.'});
+  }
+}
+function specialistCases(d) {
+  return store().filter(c=>!d||c.dept===d).slice(-20).reverse();
+}
+function specialistCaseView(id) {
+  const c=store().find(x=>x.id===id);
+  if(!c)return null;
+  return {id:'specialist:'+c.id,source:'specialist',sourceId:c.id,
+    type:'department-decision',role:c.role,owner:c.head,title:c.title,
+    context:c.result,status:c.status,options:[],recommended:-1,
+    noResponse:'The responsible head continues working under the current mandate.',
+    outcome:c.review?.text||c.result,before:c.before,after:c.after,
+    review:c.review,conflict:c.financeConcern};
+}
+const oldCase=F.caseView;
+F.caseView=function(kind,id) {
+  return kind==='s'?specialistCaseView(id):oldCase?.(kind,id);
+};
+const oldEnd=F.endWeek;
+F.endWeek=function() {
+  const result=oldEnd();
+  if(result)specialistWeekly();
+  return result;
+};
+Object.assign(F,{specialistAct,specialistCases,specialistWeekly});
+})(FO);

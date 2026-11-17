@@ -43,6 +43,12 @@ assert(!finance.err,'finance sets academy budget: '+finance.err);
 const community=F.specialistAct('marketing.community',{v:1});
 assert(!community.err,'marketing community strategy applies');
 assert.equal(F.mkView().comm,1);
+// Several price adjustments during the same week form ONE direction.
+const priceOne=F.specialistAct('commercial.price',{k:'home',v:-0.1});
+const priceTwo=F.specialistAct('commercial.price',{k:'home',v:-0.1});
+assert(!priceOne.err&&!priceTwo.err);
+assert.equal(priceOne.caseId,priceTwo.caseId,'price changes coalesce into one policy case');
+assert.equal(F.specialistCases('commercial').find(c=>c.id===priceOne.caseId).revisions.length,1);
 const initialPathway=F.save();
 const noPath=F.specialistAct('academy.pathway',{k:'youth'});
 assert(noPath.err,'no invented pathway without an existing player agreement');
@@ -61,6 +67,9 @@ F.G.week+=4;F.specialistWeekly();
 const review=F.specialistCases('recruit').find(c=>c.id===focus.caseId);
 assert.equal(review.status,'review','review after four game weeks');
 assert(review.review?.evidence,'review has current source evidence');
+assert(F.specialistAcknowledge(focus.caseId).out,'CEO can acknowledge a real review');
+assert.equal(F.caseView('s',focus.caseId).status,'closed');
+assert(F.specialistAcknowledge(focus.caseId).err,'review cannot be acknowledged twice');
 // Real commercial/marketing disagreement: the existing commercial engine may
 // not bypass a values conflict from its direct route or a legacy briefing.
 F.G.club.dna.identity='community';

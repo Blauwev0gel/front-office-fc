@@ -111,12 +111,8 @@ function tabBadge(k) {
   return '';
 }
 function vBar() {
-  const g = G(), open = inboxItems().filter(i => i.kind === 'need').length,
-    gr = Math.round(g.grip == null ? 60 : g.grip);
-  return '<div class="bar2"><div class="b2play"><span class="b2l">' +
-    '<button class="gripchip ' + (gr < 30 ? 'lo' : gr >= 70 ? 'hi' : '') +
-    '" data-a="sheet" data-s="grip" aria-label="Your grip on the club: ' + gr +
-    '"><b>Grip ' + gr + '</b></button></span>' +
+  const g = G(), open = inboxItems().filter(i => i.kind === 'need').length;
+  return '<div class="bar2"><div class="b2play">' +
     '<button class="btn" data-a="play">' +
     (F.mtPreview && F.mtPreview() ? 'Next match' : 'Play week ' + g.week) +
     (open ? ' <em class="cnt" aria-label="' + open + ' need you">' + open + '</em>' : '') +

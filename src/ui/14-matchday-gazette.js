@@ -10,22 +10,46 @@ function mdPitch() { return ''; }
 const MD_BALL = '';
 const mdForm = arr => `<span class="mdform">${(arr || []).slice(-5).map(r => `<i class="f${r}">${r}</i>`).join('') || '<small>no games yet</small>'}</span>`;
 function mdPreview() {
-  const g = G(), P = F.mtPreview(); if (!P) { U.md = null; return vInbox(); }
-  const oc = mdOppCols(P.id), us = [g.club.colors, g.club.short], them = [oc, oppShort(P.name)], L = P.home ? us : them, R = P.home ? them : us;
-  const S = F.mdStories(), coach = F.staff('coach'), box = inboxItems().filter(isBox).length, BG = F.goalView ? F.goalView() : null;
-  const gap = P.pos - P.mine;
-  const stake = P.rival ? 'Derby day. Bragging rights for a year.' : P.odds === 'Favourites' ? 'We are expected to win this. Anything less will be noticed.' : P.odds === 'Underdogs' ? 'Nobody expects anything from us. A point would be a good day.' : Math.abs(gap) <= 3 && P.pos < P.mine ? 'They are just above us. Win and we could go past them.' : 'An even game on paper. Small things will decide it.';
-  const cl = !coach ? '' : P.odds === 'Underdogs' ? (coach.p.ego > 14 ? '"Everyone writes us off. Good."' : '"We are not favourites. We will make it hard for them."') : P.odds === 'Favourites' ? '"We should win this. No complacency."' : '"Fine margins. Whoever wants it more."';
-  return `<div class="mds mdpv"><div class="mdscr">
-  <header class="mdpvh">${mdStadium(P.home, oc, false)}<div class="mdpvb"><div class="mdpvt">${crest(L[0], L[1], 50)}<b>${esc(L[1])}</b></div><div class="mdpvv"><span>${P.home ? 'HOME' : 'AWAY'}</span><b>vs</b><small>Week ${g.week}</small></div><div class="mdpvt">${crest(R[0], R[1], 50)}<b>${esc(R[1])}</b></div></div></header>
-  <div class="mdpad"><div class="mdkick"><span>Matchday, week ${g.week}</span><span>${esc(F.TIERS[g.club.tier])}</span></div>
-  <h1 class="mdpvn">${esc(P.home ? g.club.name : P.name)} <i>v</i> ${esc(P.home ? P.name : g.club.name)}</h1>
-  <div class="mdtbl"><div><small>Us</small><b>${F.ord(P.mine)}</b>${mdForm(g.form)}</div><div><small>${esc(P.name)}</small><b>${F.ord(P.pos)}</b>${mdForm(P.fm)}</div></div>
-  <p class="mdstake"><b>At stake.</b> ${esc(stake)}${BG && BG.done == null ? ` ${esc(BG.t)} goal: ${BG.got} of ${BG.need} points, ${BG.left} game${BG.left === 1 ? '' : 's'} left.` : ''}</p>
-  ${S.length ? `<h2 class="mdsh">Our story this week</h2><div class="mdstories">${S.map((x, i) => { const p = mdP(x.pid); if (!p) return ''; return `<button class="mdstory" style="--d:${i * 90}ms" data-a="player" data-id="${p.id}" aria-label="Open profile of ${esc(p.name)}"><span class="mdsf">${ART.playerFace(p)}</span><span class="mdst"><em>${esc(x.tag)}</em><b>${esc(p.name)}<small>${esc(F.POS_L[p.pos])}, ${p.age}</small></b><span>${esc(x.t)}</span></span></button>`; }).join('')}</div>` : ''}
-  ${P.star ? `<div class="mddanger"><span class="mddg">!</span><p><b>Watch out for ${esc(P.star.name)}.</b> ${esc(P.sty.t)} side: ${esc(P.sty.d.toLowerCase())}.</p></div>` : ''}
-  ${coach ? `<div class="mdcoach"><span class="mdcf">${ART.staffFace('coach')}</span><p>${esc(cl)}<small>${esc(coach.name)}, head coach</small></p></div>` : ''}
-  </div></div><div class="mdfoot">${box ? `<p class="mdboxw"><b>${box} still in your red box.</b> Kick off and your staff answer ${box === 1 ? 'it' : 'them'}.</p>` : ''}<div class="mdrow"><button class="mdback" data-a="md-close" aria-label="Back to the inbox">${ART.I.back}</button><button class="mdko" data-a="md-kick">Kick off</button></div></div></div>`;
+  const g = G(), P = F.mtPreview();
+  if (!P) { U.md = null; return vInbox(); }
+  const S = F.mdStories(), coach = F.staff('coach');
+  const box = inboxItems().filter(isBox).length, BG = F.goalView ? F.goalView() : null;
+  const ours = P.home ? g.club.name : P.name, opp = P.home ? P.name : g.club.name;
+  const stake = P.rival ? 'A derby. More than three points for the supporters.' :
+    P.odds === 'Favourites' ? 'The pressure is on us to win.' :
+    P.odds === 'Underdogs' ? 'A result here would surprise the division.' :
+    Math.abs(P.pos - P.mine) <= 3 ? 'A direct contest with a team close in the table.' :
+    'An ordinary fixture, but an important step in the season.';
+  const form = a => (a || []).slice(-5).join(' ') || 'No results yet';
+  const coachLine = !coach ? '' : P.odds === 'Underdogs' ?
+    'We know our job. Let the football do the talking.' :
+    'We have prepared. The players know what matters.';
+  return `<div class="mds mdpv fo-matchday">
+    <div class="fo-match-banner"><span>MATCH PREVIEW · WEEK ${g.week}</span>
+      <h1>${esc(ours)} <small>vs</small> ${esc(opp)}</h1>
+      <p>${esc(F.TIERS[g.club.tier])} · ${P.home ? 'At home' : 'Away'} · ${esc(P.odds)}</p>
+    </div>
+    <div class="fo-match-comparison">
+      <div><small>Our position</small><b>${F.ord(P.mine)}</b><span>${esc(form(g.form))}</span></div>
+      <div><small>Opposition</small><b>${F.ord(P.pos)}</b><span>${esc(form(P.fm))}</span></div>
+    </div>
+    <section class="fo-match-context"><h2>What is at stake?</h2><p>${esc(stake)}</p>
+      ${BG && BG.done == null ? `<p class="small">${esc(BG.t)} target: ${BG.got}/${BG.need} points. ${BG.left} matches remaining.</p>` : ''}
+    </section>
+    ${P.star ? `<section class="fo-match-context"><h2>Opposition watch</h2>
+      <p><b>${esc(P.star.name)}</b> · ${esc(P.sty.t)}. ${esc(P.sty.d)}</p></section>` : ''}
+    ${S.length ? `<section class="fo-match-context"><h2>Stories before kick-off</h2>
+      ${S.map(x => {const p = mdP(x.pid); return p ?
+        `<button class="fo-match-story" data-a="player" data-id="${p.id}">
+          <b>${esc(p.name)} · ${esc(x.tag)}</b><span>${esc(x.t)}</span></button>` : '';}).join('')}
+    </section>` : ''}
+    ${coach ? `<section class="fo-match-context"><h2>From the manager</h2>
+      <p>“${esc(coachLine)}”</p><small>${esc(coach.name)}, head coach</small></section>` : ''}
+    ${box ? `<p class="fo-match-note">${box} item${box === 1 ? '' : 's'} still in your Red Box. Staff will act within their authority if you continue.</p>` : ''}
+    <div class="fo-preview-actions">
+      <button class="fo-secondary-action" data-a="md-close">Back to desk</button>
+      <button class="fo-primary-action" data-a="md-kick">Kick off</button>
+    </div></div>`;
 }
 function mdTeams(m) { const g = G(), oc = mdOppCols(m.opp), us = { c: g.club.colors, s: g.club.short }, th = { c: oc, s: oppShort(m.oppName) }; return m.home ? [us, th] : [th, us]; }
 function mdMatch() {

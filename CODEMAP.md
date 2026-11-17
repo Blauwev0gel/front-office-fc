@@ -80,7 +80,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `academy.js` | 14 KB | youth academy, module 2 part 1 Age groups, academy staff, development model, education and welfare, pathway | acadMigrate, acadInit, acadCost, acadWeekly, acadIntake, acadSeason |  | acad, academy |
 | `academy2.js` | 28 KB | youth academy, module 2 part 2 Category & audit, poaching and tribunals, youth competitions, ROI, academy desk | acadWeekly, acadSeason, acadIncome, acadSale, objMet |  | academy, squad |
 | `recruit.js` | 38 KB | recruitment, module 3 part 1 Player world, scouting department, reports with uncertainty, recruitment pipeline | recWeekly, recCost, recSeason, recMigrate |  | shortlist, rec |
-| `summer.js` | 18 KB | the transfer summer, module 4 part 1 Five steps between seasons: clear-out, board and budget, market, pre-seas | summerStart, sumMigrate | recWeekly | phase, sum, inbox, lastSummer, squad, preEdge |
+| `summer.js` | 17 KB | the transfer summer, shared parts What summer2.js builds on: expiring contracts and the squad planner, what th | summerStart |  | phase, sum, inbox, lastSummer, squad, preEdge |
 | `season.js` | 18 KB | season rhythm, module 4 part 2 Season blocks with a decision each, board reviews, high-stakes matches, a small | summerStart, seasonWeekly, seasonAfterMatch, recSeason |  | rival, stake, openTarget, matchEdge, blockDone, winterPrev, winBonus, recovery, loanedOut, squad |
 | `summer2.js` | 32 KB | the transfer summer, version 2 A summer meeting with the DoF and staff that ends in a signed summer brief, a t | summerStart | recWeekly | dofStrikes |
 | `faces.js` | 27 KB | visual layer, part 1 Procedural ink-style portraits for every person in the game, the CEO's office scene, repu |  |  |  |
@@ -192,7 +192,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 
 ### `summer.js`
 - Functions: g, sq, finishSummer, median, advise, demand, decide, sellSuggest, snap, diff, drainQueue, oppOf, ddLine, ddDesc, ddCase, ddClose
-- Exports on `F`: sumContract, sumPlanner, sumDiff, sumPending, sumAnswer, sumRound, sumFriendlies, DD_HOURS, ddStart, ddTick, ddCase, ddDecision, ddDecide, ddSkip, sumView, sumStep, sumFinish, sumAuto
+- Exports on `F`: sumContract, sumPlanner, sumDiff, sumFriendlies, DD_HOURS, ddStart, ddTick, ddCase, ddDecision, ddDecide, ddSkip, sumView, sumFinish
 
 ### `season.js`
 - Functions: g, sq, fx, tgt, blockOf, ambitions, upcoming, markDone, blockBrief, verdict, loansBack

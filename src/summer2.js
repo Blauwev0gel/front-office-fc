@@ -1,6 +1,6 @@
 /* The Front Office · the transfer summer, version 2
    A summer meeting with the DoF and staff that ends in a signed summer brief, a ticker in which the DoF executes it,
-   a summer edition of the paper and a debrief in which the CEO holds the DoF to account. Builds on summer.js. */
+   a summer edition of the paper and a debrief in which the CEO holds the DoF to account. Builds on the shared parts in summer.js. */
 (function (F) {
 'use strict';
 const g = () => F.G, H = F.HOOK, S = () => g().sum;

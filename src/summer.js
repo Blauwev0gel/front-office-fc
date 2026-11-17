@@ -1,11 +1,12 @@
-/* The Front Office · the transfer summer, module 4 part 1
-   Five steps between seasons: clear-out, board and budget, market, pre-season, deadline day. Plugs into engine hooks. */
+/* The Front Office · the transfer summer, shared parts
+   What summer2.js builds on: expiring contracts and the squad planner, what the pipeline did (diff), friendlies,
+   deadline day, and finishing the summer. The meeting, the ticker, the edition and the debrief live in summer2.js,
+   which wraps summerStart and replaces sumAuto. Saves from the old five-step summer are upgraded by F.sum2Ensure. */
 (function (F) {
 'use strict';
 const g = () => F.G, H = F.HOOK, S = () => g().sum;
 const { ri, pick, chance, clamp, gauss, money, M, staff, man, tierAvg, wageFor } = F;
 const sq = () => g().squad, N = r => F.staffName(r);
-const ROUNDS = ['Early summer', 'Midsummer', 'Late summer'];
 
 /* ---------- start & finish ---------- */
 H.summerStart = () => {
@@ -61,7 +62,7 @@ F.sumPlanner = () => {
   return rows;
 };
 
-/* ---------- step 3: market rounds ---------- */
+/* ---------- what the pipeline did (used by the ticker and deadline day) ---------- */
 function snap() { const r = g().rec; return { pipe: Object.fromEntries((r ? r.pipe : []).map(x => [x.pid, x.stage])), ids: new Map(sq().map(p => [p.id, p.name])), stories: g().paper.stories.length }; }
 function diff(a) {
   const r = g().rec, out = [];
@@ -83,17 +84,6 @@ function drainQueue(dd) {
   return ids;
 }
 F.sumDiff = diff;
-F.sumPending = () => g().inbox.filter(m => m.sum && !m.done);
-F.sumAnswer = (mid, idx) => { const m = g().inbox.find(x => x.id === mid); if (!m || m.done) return; m.out = F.resolve(m, idx, 'you'); };
-F.sumRound = () => {
-  const s = S(); if (s.round >= ROUNDS.length) return;
-  for (const m of F.sumPending()) F.resolve(m, F.autoIndex(m), F.staffName(F.EV[m.ev].from) || 'The club office');
-  const a = snap();
-  for (let i = 0; i < 2; i++) { if (H.recWeekly) H.recWeekly(); F.dofWork(); }
-  const lines = diff(a); drainQueue();
-  s.feed.unshift({ round: s.round, lines: lines.length ? lines : [{ k: 'quiet', t: 'A quiet spell. The scouts keep watching.' }] });
-  s.round++;
-};
 
 /* ---------- step 4: pre-season friendlies ---------- */
 function oppOf(t) { const ids = g().divs[clamp(t, 1, 8)].clubs.filter(x => x !== 0); return pick(ids); }
@@ -182,21 +172,6 @@ F.ddSkip = () => { const d = S().dd; if (!d) F.ddStart(); let guard = 0; while (
 
 /* ---------- steps ---------- */
 F.sumView = () => { const s = S(); return { s, step: s.step, contracts: sq().filter(p => p.expiring || s.contracts[p.id]).map(p => ({ p, c: s.contracts[p.id] })).filter(o => o.c), sell: (s.sell || []).map(id => sq().find(p => p.id === id)).filter(Boolean) }; };
-F.sumStep = i => { const s = S(); if (i > s.step + 1) return; s.step = i; if (i === 3) F.sumFriendlies(); };
 F.sumFinish = finishSummer;
 
-/* test helper: plays a whole summer with random choices */
-F.sumAuto = (rand, lazy) => {
-  const r = rand || F.rnd, s = S(); const p = a => a[Math.floor(r() * a.length)];
-  for (const o of F.sumView().contracts) if (!lazy) F.sumContract(o.p.id, r() < 0.5 ? 'renew' : o.c.advice);
-  F.sumStep(1); if (!g().pre.deal) F.preSetTarget(p(['safe', 'accept', 'bold']));
-  F.sumStep(2); while (s.round < ROUNDS.length) { for (const m of F.sumPending()) if (!lazy && r() < 0.7) F.sumAnswer(m.id, Math.floor(r() * F.msgView(m).opts.length)); F.sumRound(); }
-  F.sumStep(3); const fo = F.FOCUS.filter(f => !g().board.obj.some(o => o.k === f.k)); while (g().pre.focus.length < 2 && fo.length) F.preToggleFocus(fo.splice(Math.floor(r() * fo.length), 1)[0].k);
-  if (g().meeting) g().meeting.items.forEach((it, i) => F.decideProposal(i, r() < 0.5 ? 'approve' : 'reject'));
-  F.sumStep(4); F.ddStart(); let guard = 0; while (!s.dd.done && guard++ < 80) { if (s.dd.dec) F.ddDecide(lazy ? -1 : Math.floor(r() * (F.ddDecision() || { opts: [1] }).opts.length)); else F.ddTick(); }
-  finishSummer();
-};
-
-/* migrate: a save sitting in the old pre-season keeps working */
-H.sumMigrate = () => {};
 })(FO);

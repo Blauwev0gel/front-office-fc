@@ -145,7 +145,7 @@ evolueren (`str` trekt naar het divisiegemiddelde plus hun coach, B37); spelers 
 | `ftInj` | factor op de blessurekans | `firstteam.js`, `depts.js` | `engine/06-match.js` |
 | `merchMult` | factor op merchandise-inkomsten | `depts.js`, `commercial.js` | `engine/07-finance-transfers.js` |
 | `recSeason` | recruitment aan het seizoenseinde | `recruit.js`, `season.js` | `engine/10-season.js` |
-| `recWeekly` | wekelijkse scouting en DoF-pipeline | `recruit.js`, `recruitx.js` | `engine/12-week.js`, `summer.js`, `summer2.js` |
+| `recWeekly` | wekelijkse scouting en DoF-pipeline | `recruit.js`, `recruitx.js` | `engine/12-week.js`, `summer2.js` |
 | `selBonus` | extra score in de elftalselectie (voorkeuren van de coach, pathway) | `firstteam.js`, `pathway.js` | `engine/05-world-selection.js` |
 | `acadCost` | kosten van de academie | `academy.js` | `engine/07-finance-transfers.js` |
 | `acadIncome` | inkomsten van de academie | `academy2.js` | `engine/07-finance-transfers.js` |
@@ -170,7 +170,6 @@ evolueren (`str` trekt naar het divisiegemiddelde plus hun coach, B37); spelers 
 | `say` | commentaartekst tijdens de wedstrijd | `matchtalk.js` | `engine/06-match.js` |
 | `seasonReprieve` | één laatste kans als het bestuursvertrouwen op nul staat | `loop.js` | `engine/10-season.js` |
 | `storyW` | gewicht van verhalen over eigen spelers in de wedstrijd | `matchday.js` | `engine/06-match.js` |
-| `sumMigrate` | migratie van de zomerstate | `summer.js` | – |
 <!-- generated:hooks:end -->
 
 ## 8. Hoe het samenwerkt: zes ketens die je moet kennen
@@ -332,8 +331,8 @@ Dit zijn dingen die ik tijdens het werk tegenkwam; ze staan hier zodat we ze ger
 1. ~~De modulelijst stond op elf plekken~~ — opgelost: één lijst in `src/modules.json`.
 2. **Seed-gevoelige tests.** `test/sack.js` ging driemaal stuk door een kleine wijziging in de loop. Scenario's moeten de toestand zelf zetten, niet op een bepaalde uitslag vertrouwen.
 3. **Twee spelerswerelden.** `G.rec.pool` (de pool van de DoF met scoutrapporten `G.rec.know`) en `world.js` (seeded, met `G.world.know`). Plak 3b moet ze verbinden: een target uit het portaal moet in de bestaande pipeline komen.
-4. **De wedstrijdafleiding staat op twee plekken.** `engine/06-match.js` (per wedstrijd) en `world.js` (per seizoen) hebben elk eigen tarieven voor dezelfde statistieken. `test/stats.js` meet de engine; `test/world.js` toetst de wereld daartegen. Ze delen geen code.
-5. **Zomer v1 en v2 bestaan naast elkaar** (`summer.js` levert nog stappen aan `summer2.js`). Dit hoort bij de opruimfase die in `CLAUDE.md` staat.
+4. **De wedstrijdafleiding staat op twee plekken** (`engine/06-match.js` per wedstrijd, `world.js` per seizoen). De verhoudingen tussen schoten, sleutelpassen en xG staan nu op één plek (`F.STATK`); de tarieven per positie blijven twee tabellen die `test/stats.js` op elkaar afstemt.
+5. **Zomer v1 en v2** zijn opgeruimd tot een basis (`summer.js`: contracten, planner, deadline day, afsluiting) en de huidige zomer (`summer2.js`: vergadering, ticker, editie, debrief). De dode oude marktrondes zijn weg. Ze samenvoegen tot één bestand zou ±50 KB geven; dat is niet gedaan.
 6. **Eén scope voor alle UI-delen.** Functies in `src/ui/` botsen op naam (daarom prefixen `pl*`, `rx*`, `ac*`). Een nieuw scherm moet een voorvoegsel kiezen.
 7. **Balans meten is duur.** `tools/longrun.js` kost veel; er is geen snelle ijkloop voor één systeem. Voor balansvragen is een kleinere harnas (één seizoen, één kenmerk) nuttig.
 8. **Grote bestanden:** `events.js` (70 KB), `recruit.js` (38 KB), `summer2.js` (32 KB), `events2.js` (31 KB). Splitsen op een functiegrens is de regel in `CLAUDE.md` (±40 KB), maar `events.js` zit er ver boven.
@@ -585,7 +584,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 ## Bijlage: alle bronbestanden
 
 <!-- generated:files:start -->
-62 bronbestanden, samen ongeveer 993 KB.
+62 bronbestanden, samen ongeveer 992 KB.
 
 | Bestand | KB | Doel |
 |---|---|---|
@@ -610,7 +609,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `academy.js` | 14 | youth academy, module 2 part 1 Age groups, academy staff, development model, education and welfare, pathway |
 | `academy2.js` | 28 | youth academy, module 2 part 2 Category & audit, poaching and tribunals, youth competitions, ROI, academy desk |
 | `recruit.js` | 38 | recruitment, module 3 part 1 Player world, scouting department, reports with uncertainty, recruitment pipeline |
-| `summer.js` | 18 | the transfer summer, module 4 part 1 Five steps between seasons: clear-out, board and budget, market, pre-seas |
+| `summer.js` | 17 | the transfer summer, shared parts What summer2.js builds on: expiring contracts and the squad planner, what th |
 | `season.js` | 18 | season rhythm, module 4 part 2 Season blocks with a decision each, board reviews, high-stakes matches, a small |
 | `summer2.js` | 32 | the transfer summer, version 2 A summer meeting with the DoF and staff that ends in a signed summer brief, a t |
 | `faces.js` | 27 | visual layer, part 1 Procedural ink-style portraits for every person in the game, the CEO's office scene, repu |

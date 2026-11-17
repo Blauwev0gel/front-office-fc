@@ -599,7 +599,7 @@ body{
 }
 html,body{background:var(--bg)!important}
 #app{max-width:800px!important;margin:0 auto!important;
-  padding:0 10px calc(158px + env(safe-area-inset-bottom))!important}
+  padding:0 10px calc(84px + env(safe-area-inset-bottom))!important}
 #app .fo-header{display:flex;align-items:stretch;gap:8px;
   margin:0 -10px 0;padding:9px 12px;background:var(--ink)!important;color:var(--paper)!important;
   border-bottom:3px solid #b5ca9e}
@@ -629,14 +629,6 @@ html,body{background:var(--bg)!important}
   font-weight:700!important;white-space:normal!important}
 #app :is(.fo-local,.fo-squadnav) button.on{
   background:var(--ink)!important;color:var(--paper)!important;border-color:var(--ink)!important}
-#app .fo-command{position:fixed;bottom:calc(63px + env(safe-area-inset-bottom));left:50%;
-  transform:translateX(-50%);z-index:28;width:min(800px,100%);padding:7px 10px 5px;
-  background:var(--paper)!important;border-top:1px solid var(--ink)}
-#app .fo-play{width:100%;min-height:49px!important;
-  background:var(--ink)!important;color:var(--paper)!important;
-  border:2px solid #0f271c!important;font-size:15px!important;
-  font-weight:900!important;text-transform:uppercase!important;letter-spacing:.03em}
-#app .fo-play small{font-size:10px!important;font-weight:600!important;color:#d9e7d4!important}
 #app .fo-mainnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);
   z-index:29;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
   width:min(800px,100%);height:calc(63px + env(safe-area-inset-bottom));padding:0 6px env(safe-area-inset-bottom);

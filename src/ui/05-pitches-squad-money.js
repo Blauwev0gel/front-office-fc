@@ -97,14 +97,35 @@ function vPitch() {
   <div class="sec">Bench and squad (${rest.length})</div><div class="pcards">${rest.map(p => pcard(p, { meta: `${p.age}, ${F.POS_L[p.pos]}${p.inj > 0 ? ', injured' : ''}${p.loan ? ', on loan' : ''}` })).join('')}</div>`;
 }
 function vSquad() {
-  if (!U.sqTable) return vPitch();
   const g = G(), sq = g.squad.slice().sort((a, b) => 'GK CB FB DM CM AM W ST'.indexOf(a.pos) - 'GK CB FB DM CM AM W ST'.indexOf(b.pos) || b.ca - a.ca);
+  const injured = sq.filter(p => p.inj > 0).length, suspended = sq.filter(p => p.susp > 0).length;
+  const unhappy = sq.filter(p => p.morale < 40).length, expiring = sq.filter(p => p.contract <= 1).length;
+  const pulse = `<section class="ceo-squad-pulse" aria-label="Squad at a glance"><h2>First-team squad</h2>
+    <p class="small">${sq.length} players · ${money(F.playerWages())}/wk wages · expected ${F.ord(F.expectedRank())} in the division</p>
+    <div class="ceo-metrics"><span><b>${injured}</b> injured</span><span><b>${suspended}</b> suspended</span><span><b>${unhappy}</b> low morale</span><span><b>${expiring}</b> contracts ≤1y</span></div>
+    <p class="small">The coach picks the team. The Director of Football handles transfers; you set their direction in Departments.</p></section>`;
+  if (!U.sqTable) return `${tourCard('squad')}${pulse}${vPitch()}`;
   const avgW = F.playerWages() / Math.max(1, sq.length);
-  const prof = `<table><thead><tr><th>Player</th><th>Age</th><th>Ability</th><th>Potential</th><th>Morale</th><th>Wage</th><th>Contract</th><th>Value</th></tr></thead><tbody>${sq.map(p => `<tr data-a="player" data-id="${p.id}"><td>${esc(p.name)}<span class="pos">${p.pos}</span>${p.inj > 0 ? ' <span class="bad small">inj ' + p.inj + 'w</span>' : ''}${p.susp > 0 ? ' <span class="warn small">susp</span>' : ''}${p.academy ? ' <span class="small">academy</span>' : ''}${p.loan ? ' <span class="small">loan</span>' : ''}</td><td>${p.age}</td><td>${stars(F.stars(p.ca))}</td><td>${stars(F.stars(p.pa))}</td><td>${r0(p.morale)}</td><td>${money(p.wage)}</td><td>${p.contract}y</td><td>${money(p.value)}</td></tr>`).join('')}</tbody></table>`;
-  const mb = `<table><thead><tr><th>Player</th><th>Mins</th><th>G</th><th>A</th><th>xG</th><th>xA</th><th>xG/90</th><th>xA/90</th><th>PrgP/90</th><th>Duels</th><th>Rating</th><th>Wage value</th></tr></thead><tbody>${sq.map(p => { const s = p.st, rat = s.apps ? s.rat / s.apps : 0, wv = s.apps ? (F.stars(p.ca) / 2.5) / (p.wage / avgW) * 100 : 0; return `<tr data-a="player" data-id="${p.id}"><td>${esc(p.name)}<span class="pos">${p.pos}</span></td><td>${s.mins}</td><td>${s.g}</td><td>${s.a}</td><td>${s.xg.toFixed(1)}</td><td>${s.xa.toFixed(1)}</td><td>${p90(s.xg, s.mins)}</td><td>${p90(s.xa, s.mins)}</td><td>${p90(s.prg, s.mins)}</td><td>${s.dt ? r0(s.dw / s.dt * 100) + '%' : '–'}</td><td class="${rat >= 7 ? 'good' : rat && rat < 6.4 ? 'bad' : ''}">${rat ? rat.toFixed(2) : '–'}</td><td class="${wv >= 120 ? 'good' : wv && wv < 80 ? 'bad' : ''}">${wv ? r0(wv) : '–'}</td></tr>`; }).join('')}</tbody></table>`;
-  return `${squadSeg()}<div class="spread" style="margin-bottom:10px"><div><h2 style="font-size:26px">First-team squad</h2><div class="small">${sq.length} players. Squad strength ranks ${F.ord(F.expectedRank())} in the division. Wage bill ${money(F.playerWages())}/wk.</div></div><div class="seg"><button class="${U.sq === 'profile' ? 'on' : ''}" data-a="sq" data-v="profile">Profile</button><button class="${U.sq === 'mb' ? 'on' : ''}" data-a="sq" data-v="mb">Moneyball</button></div></div>
-  <div class="scroll">${U.sq === 'mb' ? mb : prof}</div>
-  <p class="small">${U.sq === 'mb' ? 'Wage value: ability per pound of wages, 100 is squad average. PrgP: progressive passes. Duels: share won.' : 'Stars are relative to your current division. Tap a player for the full profile. You cannot buy, sell or pick players: that is the job of your Director of Football and Head Coach.'}</p>`;
+  const rows = sq.map(p => {
+    const stats = p.st || {}, rat = stats.apps ? stats.rat / stats.apps : null;
+    return `<button class="ceo-player-row" data-a="player" data-id="${p.id}" aria-label="Open ${esc(p.name)}">
+      <span class="ceo-player-main"><b>${esc(p.name)}</b><small>${esc(p.pos)} · ${p.age}y${p.inj > 0 ? ' · Injured ' + p.inj + 'w' : ''}${p.susp > 0 ? ' · Suspended' : ''}</small></span>
+      <span class="ceo-player-number"><b>${F.stars(p.ca)}★</b><small>ability</small></span>
+      <span class="ceo-player-number"><b>${stats.apps || 0}</b><small>apps</small></span>
+      <span class="ceo-player-number"><b>${rat == null ? '–' : rat.toFixed(1)}</b><small>rating</small></span>
+    </button>`;
+  }).join('');
+  const moneyball = `<div class="scroll"><table><thead><tr><th>Player</th><th>Mins</th><th>G</th><th>A</th><th>xG</th><th>xA</th><th>PrgP/90</th><th>Duels</th><th>Wage value</th></tr></thead><tbody>${sq.map(p => {
+    const st = p.st || {}, mins = st.mins || 0, wv = st.apps ? (F.stars(p.ca) / 2.5) / (p.wage / avgW) * 100 : 0;
+    return `<tr data-a="player" data-id="${p.id}"><td>${esc(p.name)} <span class="pos">${p.pos}</span></td><td>${mins}</td><td>${st.g || 0}</td><td>${st.a || 0}</td><td>${(st.xg || 0).toFixed(1)}</td><td>${(st.xa || 0).toFixed(1)}</td><td>${p90(st.prg || 0, mins)}</td><td>${st.dt ? r0(st.dw / st.dt * 100) + '%' : '–'}</td><td>${wv ? r0(wv) : '–'}</td></tr>`;
+  }).join('')}</tbody></table></div>`;
+  return `${tourCard('squad')}${pulse}${squadSeg()}
+    <div class="ceo-choice-tabs" role="tablist" aria-label="Squad list view">
+      <button role="tab" aria-selected="${U.sq !== 'mb'}" class="${U.sq !== 'mb' ? 'on' : ''}" data-a="sq" data-v="profile">Players</button>
+      <button role="tab" aria-selected="${U.sq === 'mb'}" class="${U.sq === 'mb' ? 'on' : ''}" data-a="sq" data-v="mb">Advanced stats</button>
+    </div>
+    ${U.sq === 'mb' ? moneyball : `<div class="ceo-player-list" aria-label="Players">${rows}</div>`}
+    <p class="small">Tap a player for ability, potential, contract, morale, attributes and career detail.${U.sq === 'mb' ? ' Advanced stats scroll horizontally only in this view.' : ''}</p>`;
 }
 function spark(h) {
   if (h.length < 2) return '';

@@ -82,6 +82,30 @@ assert.equal(F.specialistConflicts('commercial').length,0,'conflict closed after
 const beforeRepeat=F.save();
 assert(F.specialistResolveConflict('sponsor','reject').err,'cannot resolve stale offer again');
 assert.equal(F.save(),beforeRepeat);
+// Finance and Recruitment have different priorities: a real budget objection
+// cannot be bypassed through the old scouting investment button.
+const originalBizView=F.bizView;
+F.bizView=()=>({...originalBizView(),ok:false});
+const financeRole=F.staff('fin'),scoutRole=F.staff('scout');
+const financeBefore=financeRole.rel,scoutBefore=scoutRole.rel;
+const riskStart=F.G.club.cash;
+const veto=F.specialistAct('recruit.invest',{k:region});
+assert(veto.err,'budget concern raises a cross-department conflict');
+assert(F.specialistConflicts('recruit').some(c=>c.id==='finance'));
+const noSpend=F.specialistResolveConflict('finance','defer');
+assert(!noSpend.err);
+assert.equal(F.G.club.cash,riskStart,'deferral creates no scouting costs');
+assert(!F.G.specialistFinanceRequest);
+const retry=F.specialistAct('recruit.invest',{k:region});
+assert(retry.err);
+const authorized=F.specialistResolveConflict('finance','authorize');
+assert(!authorized.err,'CEO can explicitly authorize investment within the actual cash constraints: '+authorized.err);
+assert(F.G.club.cash<riskStart,'existing recruitment engine charges the scouting trip');
+assert.equal(F.staff('fin').rel,financeBefore-3);
+assert.equal(F.staff('scout').rel,scoutBefore+2);
+assert(F.G.specialistConflictLog.some(c=>c.kind==='finance'&&c.choice==='authorize'));
+assert(!F.G.specialistFinanceRequest);
+F.bizView=originalBizView;
 const final=F.save();F.specialistWeekly();assert.equal(F.save(),final,'same-week follow-up idempotent');
 assert.equal(F.G.club.deals.filter(d=>d.name==='Test Local Partner').length,1);
 assert(F.G.club.cash<originalCash,'actual costs from campaign have taken effect');

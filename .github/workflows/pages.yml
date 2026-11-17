@@ -64,6 +64,7 @@ jobs:
                 node test/text-mode.js
                 node test/no-actions.js
                 node test/ceocore.js
+                node test/decision-integrity.js
                 node test/stories.js
                 node test/stakeholders.js
                 node test/ux-architecture.cjs

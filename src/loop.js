@@ -26,11 +26,20 @@ const voice = k => { const v = sup(k); return VOICE[k][v < 8 ? 0 : v < 25 ? 1 : 
 const VOTE_AT = 5, DANGER = 20;
 function backers() { const G = g(), d = G.wkDelta || {}; return BK.map(b => ({ k: b.k, t: b.t, ic: b.ic, v: sup(b.k), d: d[b.k] || 0, voice: voice(b.k), danger: sup(b.k) <= DANGER })); }
 const snap = () => { const o = {}; for (const b of BK) o[b.k] = sup(b.k); return o; };
+// Compact, save-compatible cause ledger: only material changes are recorded.
+function recordStakeholder(source, reason, before, after) {
+  const G = g(); if (!G || !before || !after) return;
+  const changes = {};
+  for (const b of BK) { const d = after[b.k] - before[b.k]; if (Math.abs(d) >= 1) changes[b.k] = d; }
+  if (!Object.keys(changes).length) return;
+  G.stakeLog = (G.stakeLog || []).concat([{ season: G.season, week: G.week, source, reason, changes }]).slice(-80);
+}
+function stakeholderHistory(limit = 12) { return (g().stakeLog || []).slice(-Math.max(0, limit)); }
 
 /* ---------- debrief: how every decision moved the backers ---------- */
 const diff = (a, b) => { const o = {}; let any = 0; for (const k in a) { const d = b[k] - a[k]; if (Math.abs(d) >= 1) { o[k] = d; any = 1; } } return any ? o : null; };
-const wrapR = F.respond; F.respond = (id, i) => { const a = snap(), r = wrapR(id, i), m = g().inbox.find(x => x.id === id); if (m && m.done) m.fd = diff(a, snap()); return r; };
-const wrapB = F.answerBrief; F.answerBrief = (id, i) => { const a = snap(), r = wrapB(id, i), b = (g().briefs || []).find(x => x.id === id); if (b && b.done) b.fd = diff(a, snap()); return r; };
+const wrapR = F.respond; F.respond = (id, i) => { const a = snap(), r = wrapR(id, i), m = g().inbox.find(x => x.id === id); if (m && m.done) { m.fd = diff(a, snap()); recordStakeholder('inbox', m.title || m.ev || 'CEO decision', a, snap()); } return r; };
+const wrapB = F.answerBrief; F.answerBrief = (id, i) => { const a = snap(), r = wrapB(id, i), b = (g().briefs || []).find(x => x.id === id); if (b && b.done) { b.fd = diff(a, snap()); recordStakeholder('brief', b.title || 'CEO briefing', a, snap()); } return r; };
 
 /* ---------- vote of confidence: one last chance ---------- */
 const VT = {
@@ -58,7 +67,7 @@ const OPTS = {
     { l: 'Back the coach in public', p: () => 0.1 + (staff('coach') ? staff('coach').rel / 100 * 0.8 : 0.2), f: () => 'You stand next to the coach at the press conference.' },
     { l: 'Meet the senior players alone', p: () => 0.55, after: () => { const s = staff('coach'); if (s) s.rel = clamp(s.rel - 5, 0, 100); }, h: 'Coach ↓', f: () => 'A long evening in the players\' lounge.' },
     { l: 'A bonus for the whole squad', p: () => 0.76, after: () => { g().club.cash -= M(3000); }, h: () => `−${money(M(3000))}`, f: () => 'Money talks. The squad listens.' }] };
-function bump(k, d) { const b = bkFor(k); b.put(clamp(b.get() + d, 0, 100)); }
+function bump(k, d, reason = 'Stakeholder response') { const a = snap(), b = bkFor(k); b.put(clamp(b.get() + d, 0, 100)); recordStakeholder('engine', reason, a, snap()); }
 function lift(k) { const b = BK.find(x => x.k === k); b.put(Math.max(b.get(), 35)); }
 for (const k in VT) {
   const v = VT[k];
@@ -97,8 +106,8 @@ function blockTick(ours) {
   if (ours && B.done == null) { B.pl++; B.got += ours.result === 'W' ? 3 : ours.result === 'D' ? 1 : 0; }
   if (B.done == null && (B.got >= B.need || w >= B.b)) {
     B.done = B.got >= B.need;
-    if (B.done) { bump('board', 4); bump('fans', 3); G.paper.stories.unshift({ h: `${B.t} goal reached`, t: `${B.got} points from ${B.pl} games. The target was ${B.need}.` }); }
-    else { bump('board', -4); G.paper.stories.unshift({ h: `${B.t} goal missed`, t: `${B.got} points from ${B.n} games. The target was ${B.need}. The board takes note.` }); }
+    if (B.done) { bump('board', 4, 'Block target reached'); bump('fans', 3, 'Block target reached'); G.paper.stories.unshift({ h: `${B.t} goal reached`, t: `${B.got} points from ${B.pl} games. The target was ${B.need}.` }); }
+    else { bump('board', -4, 'Block target missed'); G.paper.stories.unshift({ h: `${B.t} goal missed`, t: `${B.got} points from ${B.n} games. The target was ${B.need}. The board takes note.` }); }
     (G.bgLog = G.bgLog || []).push({ s: G.season, k: B.k, t: B.t, got: B.got, need: B.need, ok: B.done });
   }
 }
@@ -119,7 +128,10 @@ H.seasonAfterMatch = ours => {
     G.vote = null;
   } else
   for (const b of BK) if (sup(b.k) <= VOTE_AT && !G.vote) { if (!lastChance(b.k) && b.k !== 'board') F.sack(VT[b.k].lose + ' There was no second chance this season.', 'vote:' + b.k); break; }
-  const now = snap(); G.wkDelta = G.wkPrev ? diff(G.wkPrev, now) || {} : {}; G.wkPrev = now;
+  const now = snap(); G.wkDelta = G.wkPrev ? diff(G.wkPrev, now) || {} : {};
+  // Weekly simulation includes matches, finance and autonomous staff actions.
+  // Attribute the aggregate honestly; do not pretend every change was a CEO choice.
+  if (G.wkPrev) recordStakeholder('weekly simulation', 'Match, staff and club outcomes', G.wkPrev, now); G.wkPrev = now;
   G.wkLog = (G.wkLog || []).concat([{ s: G.season, w: G.week, r: ours ? ours.result : null, ...now }]).slice(-40);
 };
 
@@ -140,5 +152,5 @@ function comingUp() {
   return out.slice(0, 6);
 }
 
-Object.assign(F, { backers, comingUp, goalView, BACKERS: BK, VOTE_AT });
+Object.assign(F, { backers, comingUp, goalView, stakeholderHistory, BACKERS: BK, VOTE_AT });
 })(FO);

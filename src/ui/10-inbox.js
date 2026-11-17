@@ -150,6 +150,16 @@ function deskDecisionCard(i, optional) {
     (intro ? '<span class="dw-decision-desc">'+esc(intro)+'</span>' : '')+
     '<strong>'+(optional?'Read and respond':'Review decision')+' →</strong></button>';
 }
+function deskDepartmentConflicts() {
+  const cases=F.specialistConflicts?.()||[];
+  if(!cases.length)return '';
+  return '<section class="dw-department-conflicts" aria-label="Conflicting department recommendations">'+
+    '<div class="dw-heading"><h2>Department conflict</h2><span>'+cases.length+' NEEDS YOU</span></div>'+
+    cases.map(c=>'<button class="dw-specialist-link" data-a="dept-go" data-k="'+
+      esc(c.department)+'" data-v="dec"><b>'+esc(c.title)+'</b>'+
+      '<small>'+esc(c.first)+' / '+esc(c.second)+'</small>'+
+      '<span>Review the proposals →</span></button>').join('')+'</section>';
+}
 function deskSpecialistReviews() {
   if (!F.specialistCases) return '';
   const routes={recruit:'recruit',academy:'academy',commercial:'commercial',
@@ -273,6 +283,7 @@ function vInbox() {
         optional.length+' staff update'+(optional.length===1?'':'s')+' with optional responses</summary>'+
         optional.map(x=>deskDecisionCard(x,true)).join('')+'</details>' : '')+
     '</section>'+
+    deskDepartmentConflicts()+
     deskLeadershipReviews()+
     deskSpecialistReviews()+
     deskNextMatch(g,nf,pv)+

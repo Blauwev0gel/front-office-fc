@@ -237,7 +237,8 @@ const POLICY_GROUP={
   'recruit.priority':'squad-plan', 'recruit.profile':'squad-plan',
   'commercial.price':'ticket-pricing','marketing.community':'community-policy',
   'business.level':'department-budgets','recruit.focus':'scouting-strategy',
-  'recruit.approval':'deal-approval-policy'
+  'recruit.approval':'deal-approval-policy','firstteam.response':'coach-conversation',
+  'recruit.deadline':'deadline-day'
 };
 function specialistAct(kind,p={}) {
   if(!AREA[kind])return {err:'Unknown specialist decision.'};

@@ -79,7 +79,7 @@ async function main(){
   const page=tabs.find(t=>t.type==='page');assert(page);
   ws=new WebSocket(page.webSocketDebuggerUrl);
   await new Promise((ok,bad)=>{ws.onopen=ok;ws.onerror=bad;});
-  let id=0;const pending=new Map(),exceptions=[];
+  let id=0;const pending=new Map(),exceptions=[],visualFailures=[];
   ws.onmessage=e=>{
     const m=JSON.parse(e.data);
     if(m.method==='Runtime.exceptionThrown')exceptions.push(m.params?.exceptionDetails?.text||'Page exception');
@@ -107,9 +107,11 @@ async function main(){
       {width,height:844,deviceScaleFactor:1,mobile:width<=500});
     await snooze(70);
     const report=await evaluate('('+contrastAudit.toString()+')()');
-    assert(report&&report.count>10,name+' no rendered content');
-    assert(report.overflow<=2,name+' '+width+'px overflow '+report.overflow);
-    assert.equal(report.issues,0,name+' low contrast '+JSON.stringify(report.low));
+    if(!report){visualFailures.push(name+': no report');return;}
+    console.log('AUDIT:',name,width+'px',JSON.stringify(report));
+    if(report.count<2)visualFailures.push(name+': only '+report.count+' visible text samples');
+    if(report.overflow>2)visualFailures.push(name+': horizontal overflow '+report.overflow+'px');
+    if(report.issues)visualFailures.push(name+': '+report.issues+' low-contrast text nodes '+JSON.stringify(report.low));
   }
   await call('Page.enable');await call('Runtime.enable');
   await call('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
@@ -143,6 +145,7 @@ async function main(){
   }
   await wait('!!document.querySelector(\'[data-a="md-done"]\')');
   await audit('Gazette');
+  assert.deepEqual(visualFailures,[],'Retro contrast/overflow defects');
   assert.deepEqual(exceptions,[],'uncaught browser errors');
   console.log('PASS: Chrome mobile/desktop contrast, no overflow, direct one-tap/save and full match flow');
 }

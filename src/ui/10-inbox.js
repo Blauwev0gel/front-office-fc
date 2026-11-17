@@ -98,50 +98,157 @@ function boxRow(i) {
   return `<button class="rbr" data-a="open" data-k="${i.key}"><span class="rbf">${i.role === 'player' ? '' : ART.staffFace(i.role || 'club')}</span><span class="rbm"><span class="rbt"><b>${esc(i.from)}</b>${rt ? `<small>${esc(rt)}</small>` : ''}<em class="${i.kind === 'upd' ? 'free' : ''}">${esc(tag)}</em></span><b class="rbs">${esc(i.subj)}</b><span class="rbp">${esc(i.prev || '')}</span></span></button>`;
 }
 function deskRow(i) { return `<button class="dkr" data-a="open" data-k="${i.key}"><span class="dkl">${esc(i.label)}</span><span class="dkm"><b>${esc(i.subj)}</b><small>${esc(i.from)}${i.prev ? ': ' + esc(clip2(i.prev)[0]) : ''}</small></span>${ART.I.chev}</button>`; }
+/* ---------- Desk V2: football week, decisions, people, ongoing club matters ---------- */
+function deskWeekHeader(g, A, nf, box, advisory) {
+  const recent = (g.form || []).slice(-5);
+  const form = recent.length ? recent.map(r =>
+    '<span class="dw-result '+esc(r)+'">'+esc(r)+'</span>').join('') :
+    '<span class="dw-empty">Season not yet underway</span>';
+  return '<section class="dw-week" aria-label="Your football week">'+
+    '<div class="dw-week-top"><div><span class="dw-kicker">SEASON '+g.season+' / WEEK '+g.week+'</span>'+
+    '<h2>The week at '+esc(g.club.name)+'</h2></div>'+
+    '<span class="dw-attention">'+(box.length ? box.length+' for decision' : 'Club operating')+'</span></div>'+
+    '<div class="dw-scoreboard">'+
+      '<button data-a="tab" data-t="league" class="dw-stat"><small>League</small><b>'+
+      (A.g ? F.ord(A.pos) : '—')+'</b><span>Goal '+F.ord(A.target)+'</span></button>'+
+      '<div class="dw-stat dw-form"><small>Recent form</small><div class="dw-results">'+form+'</div></div>'+
+      '<button data-a="tab" data-t="club" class="dw-stat"><small>Club cash</small><b>'+
+      money(g.club.cash)+'</b><span>Open finance →</span></button>'+
+    '</div></section>';
+}
+function deskNextMatch(g, nf, pv) {
+  if (g.phase !== 'season') return '';
+  const match = pv || (F.mtPreview ? F.mtPreview() : null);
+  if (!match && !nf) return '<section class="dw-fixture"><span class="dw-kicker">COMING UP</span><p>No fixture is scheduled this week.</p></section>';
+  const who = match ? match.name : nf.name, home = match ? match.home : nf.home;
+  const rank = match ? match.pos : nf.pos, isDerby = !!(match && match.rival);
+  const note = isDerby ? 'Derby' : match ? match.odds : '';
+  const objective = F.goalView ? F.goalView() : null;
+  return '<section class="dw-fixture" aria-label="Next match">'+
+    '<div class="dw-heading"><span>NEXT FIXTURE'+(isDerby?' · DERBY':'')+'</span>'+
+    '<button data-a="tab" data-t="league">Full table →</button></div>'+
+    '<div class="dw-opponent"><small>'+esc(home?'HOME':'AWAY')+'</small>'+
+    '<b>'+esc(home?'vs '+who:'at '+who)+'</b><span>'+esc(F.ord(rank))+
+    ' in the league'+(note?' · '+esc(note):'')+'</span></div>'+
+    (objective && objective.done == null ? '<p class="dw-match-goal">'+
+      esc(objective.t)+': '+objective.got+'/'+objective.need+
+      ' pts with '+objective.left+' match'+(objective.left===1?'':'es')+' left</p>' : '')+
+    '<button class="dw-match-cta" data-a="play">Match preview →</button></section>';
+}
+function deskDecisionCard(i, optional) {
+  const source = ROLE_T[i.role] || i.from;
+  const intro = i.prev ? clip2(i.prev)[0] : '';
+  return '<button class="dw-decision" data-a="open" data-k="'+esc(i.key)+'" aria-label="Review '+esc(i.subj)+'">'+
+    '<span class="dw-decision-source">'+esc(i.from)+(source && source !== i.from ? ' · '+esc(source) : '')+'</span>'+
+    '<b>'+esc(i.subj)+'</b>'+
+    (intro ? '<span class="dw-decision-desc">'+esc(intro)+'</span>' : '')+
+    '<strong>'+(optional?'Read and respond':'Review decision')+' →</strong></button>';
+}
+function deskMatters(items, core, storyState) {
+  const dos = F.dosView ? F.dosView() : null, PV = F.pwView ? F.pwView() : null;
+  const active = [];
+  const seen = new Set();
+  const add = (key, title, detail, destination) => {
+    const norm = String(title || '').trim().toLowerCase();
+    if (!norm || seen.has(norm)) return;
+    seen.add(norm); active.push({key,title,detail,destination});
+  };
+  if (dos && dos.open) for(const d of dos.open) add('dos_'+d.id,d.t,
+    d.pending ? 'Your response is requested' : 'Next chapter in '+d.inW+' week'+(d.inW===1?'':'s'),
+    'open');
+  if (PV && PV.stage !== 'closed') add('pathway','The '+PV.tname+' question',
+    PV.ag ? 'Evaluation week '+PV.ag.evalWeek : 'Club departments are discussing the pathway','open');
+  if (storyState && storyState.active) for(const x of storyState.active) add('story_'+x.kind,x.title,
+    x.latest || 'Active story'+(x.next!=null?' · next review in '+x.next+' weeks':''),'story');
+  if (core && core.decisions) for(const x of core.decisions.filter(y=>!y.review)) add(
+    'decision_'+x.id,x.label,'Decision review pending · season '+x.season+', week '+x.week,'decision');
+  const entries = active.map(x => x.destination==='open'
+    ? '<button class="dw-matter" data-a="open" data-k="'+esc(x.key)+'"><b>'+esc(x.title)+'</b><small>'+esc(x.detail)+'</small></button>'
+    : '<div class="dw-matter"><b>'+esc(x.title)+'</b><small>'+esc(x.detail)+'</small></div>');
+  const delegated = core && core.delegated || [];
+  const history = storyState && storyState.history || [];
+  const lastDecisions = core && core.decisions || [];
+  if (!entries.length && !delegated.length && !lastDecisions.length && !history.length) return '';
+  return '<section class="dw-matters" aria-label="Ongoing club matters">'+
+    '<div class="dw-heading"><h2>Club matters</h2><span>'+active.length+' ongoing</span></div>'+
+    (entries.length ? entries.slice(0,3).join('') : '<p class="dw-muted">No outstanding matters.</p>')+
+    (entries.length>3 ? '<details class="dw-fold"><summary>All ongoing matters ('+entries.length+')</summary>'+
+      entries.slice(3).join('')+'</details>' : '')+
+    (delegated.length || lastDecisions.length || history.length ? '<details class="dw-fold">'+
+      '<summary>Decisions, delegated work & history</summary>'+
+      (lastDecisions.length ? '<h3>Your instructions</h3>'+lastDecisions.map(x =>
+        '<div class="dw-record"><b>'+esc(x.label)+'</b><small>Season '+x.season+
+        ' · week '+x.week+'</small><p>'+esc(x.review||'Awaiting an evidence review')+'</p></div>').join('') : '')+
+      (delegated.length ? '<h3>Decisions taken by your staff</h3>'+delegated.map(x =>
+        '<div class="dw-record"><b>'+esc(x.who+': '+x.choice)+'</b>'+
+        '<p>'+esc(x.reason)+'</p><small>'+esc(x.outcome)+'</small></div>').join('') : '')+
+      (history.length ? '<h3>Completed club stories</h3>'+history.map(x =>
+        '<div class="dw-record"><b>'+esc(x.kind)+'</b><p>'+esc(x.verdict)+'</p></div>').join('') : '')+
+    '</details>' : '')+'</section>';
+}
+function deskArchive(items) {
+  const shown = [['all','All'],['need','Decisions'],['staff','Staff'],['match','Football'],
+    ['dos','Matters'],['done','Resolved'],['press','Press'],['reports','Reports'],['players','Players']];
+  const f = FOLD_T[U.filt] ? U.filt : 'all', subset = f==='all' ? items.filter(x=>x.kind!=='done') :
+    f==='need' ? items.filter(isBox) : items.filter(x=>x.fold===f);
+  const intro = '<button class="dw-back" data-a="filt" data-v="all">← Back to Desk</button>'+
+    '<header class="dw-archive-title"><span>CLUB RECORDS</span><h2>'+esc(FOLD_T[f]||'All messages')+'</h2>'+
+    '<p>Browse the club record. Reading an update is optional.</p></header>';
+  return intro+'<nav class="dw-archive-nav" aria-label="Browse club records">'+
+    shown.filter(x=>x[0]!=='all').map(([k,label])=>'<button data-a="filt" data-v="'+k+'" class="'+
+    (k===f?'on':'')+'">'+label+'</button>').join('')+'</nav>'+
+    '<ul class="inbox dw-archive-list">'+
+    (subset.map(rowHtml).join('') || '<li class="empty">No records in this category.</li>')+'</ul>'+
+    (f==='dos'?archiveHtml():'');
+}
 function vInbox() {
   if (U.open) return vOpen();
   const g = G(), items = inboxItems(), f = FOLD_T[U.filt] ? U.filt : 'all';
-  const pap = items.find(x => x.t === 'paper');
-  const folders = `<div class="folders" role="tablist" aria-label="Inbox folders">${FOLDERS.map(([k, l, ic]) => { const n = k === 'need' ? items.filter(isBox).length : 0; return `<button role="tab" aria-selected="${f === k}" class="${f === k ? 'on' : ''}" data-a="filt" data-v="${k}"><span>${ART.I[ic]}</span>${k === 'need' ? 'Red box' : l}${n ? `<b>${n}</b>` : ''}</button>`; }).join('')}</div>`;
-  if (f !== 'all') {
-    const shown = f === 'need' ? items.filter(isBox) : items.filter(i => i.fold === f);
-    return `${backersHtml()}${folders}<ul class="inbox">${shown.map(rowHtml).join('') || `<li class="empty">${f === 'need' ? '<b>The red box is empty.</b> Nothing needs your signature this week.' : f === 'dos' ? '<b>No open dossiers.</b> Storylines in three parts land here when they start.' : 'Nothing in this folder this week.'}</li>`}</ul>${f === 'dos' ? archiveHtml() : ''}`;
-  }
-  const A = F.analysis(), nf = nextFix(), box = items.filter(isBox), desk = items.filter(i => !isBox(i) && i.kind !== 'done' && i.t !== 'paper' && !isDis(i.key));
-  const done = items.filter(i => i.kind === 'done'), st = A.pos <= A.target ? 'good' : A.pos <= A.target + 2 ? 'warn' : 'bad';
-  const strip = `<div class="rstrip"><button class="rsp" data-a="sheet" data-s="analysis"><b class="${A.g ? st : ''}">${A.g ? F.ord(A.pos) : '–'}</b><small>target ${F.ord(A.target)}</small></button><button class="rsp" data-a="tab" data-t="club"><b>${money(g.club.cash)}</b><small>in the bank</small></button>${nf ? `<button class="rsp" data-a="tab" data-t="league"><b>${esc(nf.short)}</b><small>${nf.home ? 'home' : 'away'}, ${F.ord(nf.pos)}</small></button>` : ''}</div>`;
-  const core = F.ceoCoreView ? F.ceoCoreView() : null;
-  const trail = core && (core.decisions.length || core.delegated.length) ?
-    '<details class="dcard ceo-trail"><summary><b>Decisions and consequences</b> · ' +
-    core.decisions.filter(x => !x.review).length + ' awaiting review</summary>' +
-    '<h4>Your instructions</h4><ul>' +
-    core.decisions.map(x => '<li><b>' + esc(x.label) + '</b> · ' +
-      esc('Season ' + x.season + ', week ' + x.week) + '<p class="small">' +
-      esc(x.review || 'Evidence review due after three playing weeks.') + '</p></li>').join('') +
-    '</ul><h4>Decisions taken by your staff</h4>' +
-    (core.delegated.length ? '<ul>' +
-      core.delegated.map(x => '<li><b>' + esc(x.who + ': ' + x.choice) + '</b>' +
-        '<p class="small">Why: ' + esc(x.reason) + '</p>' +
-        '<p class="small">Result: ' + esc(x.outcome) + '</p></li>').join('') + '</ul>' :
-        '<p class="small">No recent delegated decisions.</p>') + '</details>' : '';
-  const storyState = F.storyView ? F.storyView() : null;
-  const storyPanel = storyState && (storyState.active.length || storyState.history.length) ?
-    '<details class="dcard club-story-record"><summary><b>Ongoing club stories</b> · ' +
-    storyState.active.length + ' active</summary>' +
-    (storyState.active.length ? '<h4>Currently unfolding</h4><ul>' +
-      storyState.active.map(x => '<li><b>' + esc(x.title) + '</b> · ' +
-      esc(x.age + ' playing weeks') + '<p class="small">' + esc(x.latest) + '</p>' +
-      (x.next==null ? '' : '<p class="small">Next review in ' + x.next + ' week(s).</p>') +
-      '</li>').join('') + '</ul>' : '') +
-    (storyState.history.length ? '<h4>Earlier chapters</h4><ul>' +
-      storyState.history.map(x => '<li><b>' + esc(x.kind) + '</b><p class="small">' +
-      esc(x.verdict) + '</p></li>').join('') + '</ul>' : '') +
-    '</details>' : '';
-  return `${tourCard('inbox')}${strip}${backersHtml()}
-  <section class="redbox" aria-label="The red box"><div class="rbh"><h2>The red box</h2><span>${box.length ? `${box.length} to answer this week` : 'All signed'}</span></div>
-  <div class="rbl">${box.map(boxRow).join('') || `<p class="rbe"><b>Nothing needs your signature.</b> ${F.deskView && F.deskView().n ? `Your staff took ${F.deskView().n} decision${F.deskView().n === 1 ? '' : 's'} themselves.` : 'Your staff work within their mandates.'}</p>`}</div></section>
-  ${desk.length ? `<div class="dkh"><h3>On your desk</h3><small>${desk.length} running</small></div><div class="dkl2">${desk.map(deskRow).join('')}</div>` : ''}
-  ${pap && !isDis(pap.key) ? `<button class="paperpin" data-a="open" data-k="${pap.key}"><span class="ppm">THE ${esc(g.club.city.toUpperCase())} GAZETTE</span><b>${esc((F.edView(0) || {}).head || g.paper.headline)}</b><small>${isRead(pap.key) ? 'Read' : 'Today\'s edition'} ${ART.I.chev}</small></button>` : ''}
-  ${done.length ? `<button class="dkdone" data-a="filt" data-v="done">${done.length} handled this week ${ART.I.chev}</button>` : ''}${comingHtml()}${storyPanel}${trail}<details class="inbox-browse"><summary>Browse all messages</summary>${folders}</details>`;
+  if (f !== 'all') return deskArchive(items);
+  const A = F.analysis(), nf = nextFix(), pv = F.mtPreview ? F.mtPreview() : null;
+  const critical = items.filter(x=>x.kind==='need' && !isDis(x.key));
+  const optional = items.filter(x=>x.kind==='upd' && x.bt!=='coach_debrief' && !isDis(x.key));
+  const status = items.filter(x=>x.kind==='info' || x.kind==='upd' && x.bt==='coach_debrief')
+    .filter(x=>!isDis(x.key) && x.t!=='preview' && x.t!=='paper' && x.t!=='dossier' && x.t!=='pathway');
+  const pap = items.find(x=>x.t==='paper' && !isDis(x.key));
+  const core = F.ceoCoreView ? F.ceoCoreView() : null, story = F.storyView ? F.storyView() : null;
+  const staff = status.filter(x=>x.t==='digest'||x.fold==='staff'||x.fold==='reports');
+  const football = status.filter(x=>x.fold==='match'||x.fold==='players');
+  const remaining = status.filter(x=>!staff.includes(x)&&!football.includes(x));
+  const updates = [...staff,...football,...remaining].slice(0,4);
+  const allUpdateCount = staff.length+football.length+remaining.length;
+  const deskView = F.deskView ? F.deskView() : null;
+  return tourCard('inbox')+
+    deskWeekHeader(g,A,nf,critical,optional)+
+    '<section class="dw-decisions" aria-label="CEO decisions">'+
+      '<div class="dw-heading"><h2>Needs your attention</h2><span>'+
+        (critical.length ? critical.length+' decision'+(critical.length===1?'':'s') : 'NO DECISIONS')+'</span></div>'+
+      (critical.length ? critical.map(x=>deskDecisionCard(x,false)).join('') :
+        '<p class="dw-no-decision"><b>Nothing requires your approval.</b> '+
+        'Your people can continue working within their mandates.</p>')+
+      (optional.length ? '<details class="dw-fold dw-advice"><summary>'+
+        optional.length+' staff update'+(optional.length===1?'':'s')+' with optional responses</summary>'+
+        optional.map(x=>deskDecisionCard(x,true)).join('')+'</details>' : '')+
+    '</section>'+
+    '<section class="dw-people" aria-label="Updates from the club">'+
+      '<div class="dw-heading"><h2>From the club</h2><span>'+
+        (allUpdateCount ? allUpdateCount+' updates' : 'OPERATING NORMALLY')+'</span></div>'+
+      (updates.length ? updates.map(x=>'<button class="dw-update" data-a="open" data-k="'+esc(x.key)+'">'+
+        '<small>'+esc(x.from)+'</small><b>'+esc(x.subj)+'</b>'+
+        (x.prev?'<span>'+esc(clip2(x.prev)[0])+'</span>':'')+'</button>').join('') :
+        '<p class="dw-muted">No new reports. Department heads are carrying out their work.</p>')+
+      (deskView && deskView.n ? '<p class="dw-staff-note">'+deskView.n+
+        ' decision'+(deskView.n===1?'':'s')+' handled by your staff.</p>' : '')+
+      (allUpdateCount>updates.length ? '<button class="dw-textlink" data-a="filt" data-v="staff">Browse staff reports →</button>' : '')+
+    '</section>'+
+    deskMatters(items,core,story)+
+    (pap ? '<button class="dw-gazette" data-a="open" data-k="'+esc(pap.key)+'">'+
+      '<span>THE '+esc(g.club.city.toUpperCase())+' GAZETTE</span><b>'+
+      esc((F.edView(0)||{}).head||g.paper.headline)+'</b><small>Read the latest edition →</small></button>' : '')+
+    deskNextMatch(g,nf,pv)+
+    '<section class="dw-records"><div class="dw-heading"><h2>Club records</h2></div>'+
+      '<p class="dw-muted">Messages, results, reports and earlier decisions remain available.</p>'+
+      '<button class="dw-textlink" data-a="filt" data-v="staff">Browse messages & reports →</button>'+
+      (items.some(x=>x.kind==='done') ? '<button class="dw-textlink" data-a="filt" data-v="done">Resolved this week →</button>' : '')+
+    '</section>';
 }
-

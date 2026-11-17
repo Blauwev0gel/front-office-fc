@@ -179,11 +179,15 @@ function beginAgreement(role, reason) {
 function agreementWeekly() {
   // Existing saves and newly founded clubs enter this system without migration
   // steps; active departmental mandates become the first six-week agreements.
-  if (!G.agreements) {
-    agreementStore();
-    for (const r of ROLES) if (staff(r.id)) beginAgreement(r.id, 'Season operating mandate');
+  const agreements = agreementStore();
+  // Covers partial old saves and new hires without overriding an acknowledged
+  // completed review for the same head.
+  for (const r of ROLES) {
+    const head = staff(r.id);
+    if (head && !agreements.some(a => a.role === r.id && a.head === head.name))
+      beginAgreement(r.id, 'Season operating mandate');
   }
-  for (const a of G.agreements) {
+  for (const a of agreements) {
     if (a.state !== 'running') continue;
     if (staff(a.role)?.name !== a.head) {
       a.state = 'closed'; a.closedWeek = absWeek();

@@ -3,114 +3,128 @@
 const STATK = { xgPerShot: 0.11, sotShare: 0.33, xaPerKeyPass: 0.13, gkXgPerShot: 0.2 };
 function wxFor(s, w, o) { let h = (s * 73856093) ^ (w * 19349663) ^ (o * 83492791); h = (h ^ (h >>> 13)) * 1274126177 >>> 0; return { rain: h % 100 < 25, night: (h >>> 8) % 100 < 30 }; }
 function expRand(m) { return -Math.log(1 - rnd()) * m; }
+// calibration knobs for the match (B25): attacks per five minutes, base chance an attack becomes a shot, finishing
+const MATCH_K = { attacks: 2.25, shot: 0.6, conv: 1 };
+// B53: the match as attacks with real players. Nineteen blocks of five minutes (the last is stoppage time); in each the balance of play
+// follows quality, the score, red cards, energy and the coach's settings. An attack is a chain: a builder, a maker, a defender who meets it,
+// and if it becomes a shot a shooter, a kind of shot and the keeper. Fatigue, changes, injuries and red cards happen during the match.
+// The result keeps the old shape (ev, ug, tg, uxg, txg, why, ...) for the paper, the stories and the stats; `feed` carries the richer events
+// for the match screen, `poss` the possession per block, `referee` a fictional referee.
+const OPP_FN = ['Owen', 'Callum', 'Rhys', 'Declan', 'Marcus', 'Ellis', 'Jonah', 'Kieran', 'Theo', 'Isaac', 'Ruben', 'Lewis', 'Nathan', 'Aaron', 'Harvey', 'Luca', 'Felix', 'Dylan', 'Ryan', 'Tobias', 'Oscar', 'Jamal', 'Sami', 'Piotr'];
+const OPP_LN = ['Ashworth', 'Brennan', 'Carver', 'Dunmore', 'Ellery', 'Fairbank', 'Garside', 'Holloway', 'Ingram', 'Jessop', 'Kendrick', 'Lowther', 'Marsden', 'Nolan', 'Oakes', 'Pritchard', 'Quill', 'Radcliffe', 'Sefton', 'Thorne', 'Varley', 'Whitlock', 'Yardley', 'Brannigan', 'Coyle', 'Devlin', 'Eastwood', 'Gorman', 'Hesketh', 'Mulvey'];
+const REF_FN = ['Martin', 'Graham', 'Paul', 'Stuart', 'Neil', 'Keith', 'Andrew', 'Darren', 'Simon', 'Gareth'], REF_LN = ['Oakley', 'Prescott', 'Hartigan', 'Wilmot', 'Coulter', 'Ransome', 'Thewlis', 'Bramall', 'Lacey', 'Fenwick'];
+// the opponent's squad: stable names per club (seeded on the club, never on the game's RNG), ability around the club's strength
+function oppSquad(oppId, level) {
+  const c = G.clubs[oppId]; let cs = 0; for (const ch of c.name + oppId) cs = (cs * 31 + ch.charCodeAt(0)) >>> 0; const cr = () => { cs = (cs * 1103515245 + 12345) >>> 0; return cs / 4294967296; };
+  const star = c.star || null, base = level != null ? level : c.str - (c.coach ? c.coach.q : 1.2), used = new Set(G.squad.map(p => p.name.split(' ').slice(-1)[0])); let starSet = false;
+  const mk = (slot, i) => { const ca = clamp(base + (cr() - 0.5) * 2.2, 2, 18), a = {}; for (const k of ATTR) a[k] = clamp(ca + (cr() - 0.5) * 4, 1, 20);
+    let name; do { name = OPP_FN[Math.floor(cr() * OPP_FN.length)] + ' ' + OPP_LN[Math.floor(cr() * OPP_LN.length)]; } while (used.has(name.split(' ')[1]) && used.size < OPP_LN.length + G.squad.length - 2); used.add(name.split(' ')[1]);
+    let isStar = false; if (star && !starSet && slot === star.pos) { name = star.name; isStar = true; starSet = true; a.fin = clamp(a.fin + 3, 1, 20); a.com = clamp(a.com + 2, 1, 20); }
+    return { id: 'o' + oppId + '_' + i, name, pos: slot, ca, a, pers: { temp: 6 + Math.floor(cr() * 12) }, side: 'them', en: 100, on: true, star: isStar }; };
+  return { xi: SLOTS.map(mk), bench: ['CB', 'CM', 'W', 'ST', 'FB'].map((s, i) => mk(s, 20 + i)) };
+}
 function simOurMatch(oppId, home, comp) {
   const opp = G.clubs[oppId], L = pickXI(true), me = teamStrength(L), os = opp.str + gauss() * 0.3;
-  const d = me - os + (HOOK.homeEdge ? HOOK.homeEdge(home) : (home ? 0.35 : -0.35));
-  const att = cact('attack') / 100, intn = cact('intensity') / 100, vol = 0.85 + 0.3 * att, share = 1 / (1 + Math.exp(-0.6 * d));
-  const wx = wxFor(G.season, G.week, oppId); /* weather: rain means fewer and poorer chances */
-  let redUs = 0, redThem = 0;
-  const OS = HOOK.oppStyle ? HOOK.oppStyle(oppId) : { vol: 1, oxg: 1 };
-  const n = poisson(27 * vol * OS.vol * (wx.rain ? 0.92 : 1)), ev = [], onPitch = L.xi.map(x => x.p), mins = new Map(onPitch.map(p => [p.id, 0])), start = new Map(onPitch.map(p => [p.id, 0]));
-  const ps = new Map(); const S2 = p => { if (!ps.has(p.id)) ps.set(p.id, { g: 0, a: 0, xg: 0, xa: 0, yc: 0, rc: 0 }); return ps.get(p.id); };
-  let ug = 0, tg = 0, uxg = 0, txg = 0;
-  const gk = L.xi.find(x => x.slot === 'GK');
-  const chances = []; for (let i = 0; i < n; i++) chances.push({ m: rnd() < 0.46 ? ri(1, 47) : ri(46, 90) });
-  for (let i = 0; i < 2; i++) if (rnd() < 0.55) chances.push({ m: ri(88, 95), late: 1 });
-  // subs
-  const subs = []; const bench = L.bench.slice(); const nsub = Math.min(3, bench.length);
-  for (let i = 0; i < nsub; i++) subs.push({ m: ri(55, 82) });
-  // cards & injuries
-  const cards = []; const ny = ri(0, 3); for (let i = 0; i < ny; i++) cards.push({ m: ri(10, 90), red: chance(0.065) });
-  const injP = 0.010 * (0.6 + cact('intensity') / 100 * 0.8) * (G.push.medical > 0 ? 0.6 : 1) * (perk('sci') ? 0.7 : 1) * (HOOK.ftInj ? HOOK.ftInj() : 1);
-  const timeline = [...chances.map(c => ({ ...c, k: 'ch' })), ...subs.map(s => ({ ...s, k: 'sub' })), ...cards.map(c => ({ ...c, k: 'card' }))].sort((a, b) => a.m - b.m);
-  const opName = opp.name, my = G.club.short;
-  const live = () => onPitch.filter(Boolean);
-  const pickW = (arr, f) => wpick(arr, f);
-  ev.push({ m: 0, k: 'info', t: HOOK.say ? HOOK.say('ko', { home, opName, opp: oppId, comp }) : home ? `Kick-off at home against ${opName}.` : `Kick-off away at ${opName}.` });
-  let ht = false;
-  for (const e of timeline) {
-    if (!ht && e.m > 45) { ht = true; ev.push({ m: 45, k: 'info', t: `Half-time: ${home ? ug + '–' + tg : tg + '–' + ug}.` }); }
-    const lp = live(); if (!lp.length) break;
-    if (e.k === 'ch') {
-      { // the game reacts: score, red cards, mandate and fatigue shift who gets the chance
-        const diff = ug - tg; let adj = -1.0 * redUs + 1.0 * redThem;
-        if (diff < 0) adj += (0.25 + att * 0.3) * (e.m > 60 ? 1.3 : 1); else if (diff > 0) adj -= (0.25 + (e.m > 65 ? (1 - att) * 0.25 : 0)) * (e.m > 60 ? 1.3 : 1);
-        if (e.m < 60) adj += (intn - 0.5) * 0.25; else if (e.m > 70) adj -= (intn - 0.5) * 0.3 * (HOOK.ftInj && HOOK.ftInj() < 1 ? 0.4 : 1);
-        if (e.late && diff === 0) adj += (att - 0.5) * 0.4;
-        e.us = rnd() < 1 / (1 + Math.exp(-0.6 * (d + adj))); e.push = diff;
-      }
-      if (e.us) {
-        const sh = pickW(lp, p => ({ FW: 3, MF: 1.4, DF: 0.35, GK: 0 }[LINE[p.pos]]) * (p.a.fin + 2) * (HOOK.storyW ? HOOK.storyW(p) : 1));
-        let xg = clamp(expRand(0.112) * (1 + 0.05 * (sh.a.fin - os)) * (e.push > 0 ? 1.15 : 1) * (1 + (att - 0.5) * 0.08) * (wx.rain ? 0.95 : 1), 0.02, 0.78);
-        const goal = rnd() < xg * (1 + (sh.a.com - 10) * 0.015);
-        const as = chance(0.72) ? pickW(lp.filter(p => p !== sh), p => (p.a.pas + p.a.vis + (p.pos === 'W' || p.pos === 'FB' ? p.a.cro : 0)) * (LINE[p.pos] === 'GK' ? 0.1 : 1)) : null;
-        S2(sh).xg += xg; uxg += xg; if (as) S2(as).xa += xg;
-        if (goal) { ug++; S2(sh).g++; if (as) S2(as).a++; ev.push({ m: e.m, k: 'goal', us: 1, pid: sh.id, aid: as ? as.id : null, t: (HOOK.say ? HOOK.say('goal_us', { sh, as, m: e.m, home, ug, tg, xg, my }) : `GOAL ${my}! ${sh.name} finishes${as ? ' from ' + as.name + "'s pass" : ' on his own'}.`) + ` (xG ${xg.toFixed(2)})`, sc: [ug, tg] }); }
-        else ev.push({ m: e.m, k: 'ch', us: 1, pid: sh.id, t: HOOK.say ? HOOK.say('ch_us', { sh, xg, m: e.m, big: xg > 0.3, ug, tg }) + ` (xG ${xg.toFixed(2)})` : xg > 0.3 ? `Huge chance! ${sh.name} should score but ${pick(['the keeper saves', 'drags it wide', 'hits the post', 'skies it'])}. (xG ${xg.toFixed(2)})` : `${sh.name} ${pick(['drives wide from distance', 'forces a save', 'heads over', 'curls one just past the post', 'sees his shot blocked'])}. (xG ${xg.toFixed(2)})` });
-      } else {
-        const ourDef = L.xi.filter(x => LINE[x.slot] === 'DF').reduce((a, x) => a + x.p.ca, 0) / 4 || 5;
-        let xg = clamp(expRand(0.112) * (1 + 0.05 * (os - ourDef)) * (e.push < 0 ? 1.15 : 1) * (1 + (att - 0.5) * 0.2) * OS.oxg * (wx.rain ? 0.95 : 1), 0.02, 0.78);
-        const kp = gk ? gk.p : null;
-        const goal = rnd() < xg * (1 - (kp ? (kp.a.ref - os) * 0.03 : -0.3));
-        txg += xg;
-        if (goal) { tg++; ev.push({ m: e.m, k: 'goal', us: 0, t: (HOOK.say ? HOOK.say('goal_them', { opp: oppId, opName, m: e.m, xg, ug, tg, home }) : `Goal ${opName}. ${pick(['A header from a corner', 'A low drive into the corner', 'A defensive mix-up punished', 'A tap-in at the back post', 'A long-range screamer'])}.`) + ` (xG ${xg.toFixed(2)})`, sc: [ug, tg] }); }
-        else if (xg > 0.25) ev.push({ m: e.m, k: 'ch', us: 0, pid: kp ? kp.id : null, t: (HOOK.say ? HOOK.say('ch_them', { kp, opp: oppId, opName, m: e.m, xg }) : kp ? `${kp.name} with a big save to deny ${opName}.` : `${opName} miss a sitter.`) + ` (xG ${xg.toFixed(2)})` });
-      }
-    } else if (e.k === 'sub' && bench.length) {
-      const outs = lp.filter(p => p.pos !== 'GK'); if (!outs.length) continue;
-      const out = outs.sort((a, b) => a.ca - b.ca + (rnd() - 0.5) * 3)[0]; const inn = bench.shift();
-      const i = onPitch.indexOf(out); onPitch[i] = inn; mins.set(out.id, e.m - start.get(out.id)); start.set(inn.id, e.m); mins.set(inn.id, 0);
-      ev.push({ m: e.m, k: 'sub', us: 1, pid: inn.id, t: HOOK.say ? HOOK.say('sub', { inn, out, m: e.m, ug, tg }) : `Substitution: ${inn.name} replaces ${out.name}.` });
-    } else if (e.k === 'card') {
-      const usCard = chance(0.5);
-      if (usCard) { const p = pick(lp.filter(x => x.pos !== 'GK').length ? lp.filter(x => x.pos !== 'GK') : lp); if (e.red || (p.pers.temp > 16 && chance(0.15))) { S2(p).rc++; p.susp = 2; const i = onPitch.indexOf(p); mins.set(p.id, e.m - start.get(p.id)); onPitch[i] = null; redUs++; ev.push({ m: e.m, k: 'card', us: 1, red: 1, t: `Red card! ${p.name} is sent off.` }); } else { S2(p).yc++; ev.push({ m: e.m, k: 'card', us: 1, t: pick([`Yellow card for ${p.name}.`, `${p.name} goes into the book.`, `A late tackle, ${p.name} is booked.`, `${p.name} booked for dissent.`]) }); } }
-      else if (e.red) { redThem++; ev.push({ m: e.m, k: 'card', us: 0, red: 1, t: `Red card for ${opName}! They are down to ten.` }); } else ev.push({ m: e.m, k: 'card', us: 0, t: pick([`${opName} player booked.`, `Yellow for ${opName} after a cynical foul.`, `${opName} pick up a booking.`, `The referee books one of ${opName}.`]) });
+  const d0 = me - os + (HOOK.homeEdge ? HOOK.homeEdge(home) : (home ? 0.35 : -0.35));
+  const att = cact('attack') / 100, intn = cact('intensity') / 100, wx = wxFor(G.season, G.week, oppId);
+  const OS = HOOK.oppStyle ? HOOK.oppStyle(oppId) : { vol: 1, oxg: 1 }, fitCoach = FO.deptHas ? FO.deptHas('first', 'fit') : perk('sci');
+  const fill = home && G.club.cap ? Math.min(1, attendance() / G.club.cap) : 0, opName = opp.name, my = G.club.short;
+  const mkUs = (p, slot) => ({ id: p.id, name: p.name, pos: slot, ca: p.ca, a: p.a, pers: p.pers || {}, side: 'us', en: 100, on: true, p, start: 0 });
+  const xiCa = L.xi.length ? L.xi.reduce((a, x) => a + x.p.ca, 0) / L.xi.length : me; /* their players sit as far from ours as the clubs do, so the duels never count the gap twice */
+  const us = L.xi.map(x => mkUs(x.p, x.slot)), bench = L.bench.map(p => mkUs(p, p.pos)), O = oppSquad(oppId, xiCa + (os - me)), them = O.xi.slice(), obench = O.bench.slice();
+  const st = new Map(), S = q => { if (!st.has(q.id)) st.set(q.id, { g: 0, a: 0, xg: 0, xa: 0, yc: 0, rc: 0, sh: 0, sot: 0, kp: 0, tk: 0, ic: 0, cl: 0, sv: 0 }); return st.get(q.id); };
+  const live = side => (side === 'us' ? us : them).filter(q => q.on), energy = side => { const l = live(side).filter(q => q.pos !== 'GK'); return l.length ? l.reduce((a, q) => a + q.en, 0) / l.length : 100; };
+  const sc = { us: 0, them: 0 }, xg = { us: 0, them: 0 }, red = { us: 0, them: 0 }, subs = { us: 0, them: 0 }, ev = [], feed = [], poss = [], injured = [];
+  const referee = REF_FN[ri(0, REF_FN.length - 1)] + ' ' + REF_LN[ri(0, REF_LN.length - 1)];
+  const scOld = () => [sc.us, sc.them], out = (m, k, o) => { const e = { m, k, ...o }; feed.push(e); return e; };
+  ev.push({ m: 0, k: 'info', t: HOOK.say ? HOOK.say('ko', { home, opName, opp: oppId, comp }) : home ? `Kick-off at home against ${opName}.` : `Kick-off away at ${opName}.` }); out(0, 'ko', {});
+  const swap = (side, tired, m, why) => { // a change: the bench player takes the same slot
+    let inn; if (side === 'us') { const i = bench.findIndex(x => x.pos === tired.pos || LINE[x.pos] === LINE[tired.pos]); inn = bench.splice(i >= 0 ? i : 0, 1)[0]; } else { const i = obench.findIndex(x => LINE[x.pos] === LINE[tired.pos]); inn = obench.splice(i >= 0 ? i : 0, 1)[0]; }
+    if (!inn) return null; inn.pos = tired.pos; inn.en = 100; inn.on = true; inn.start = m; tired.on = false; tired.off = m; subs[side]++; (side === 'us' ? us : them).push(inn);
+    if (side === 'us') ev.push({ m, k: 'sub', us: 1, pid: inn.id, t: HOOK.say ? HOOK.say('sub', { inn: inn.p || inn, out: tired.p || tired, m, ug: sc.us, tg: sc.them }) : `Substitution: ${inn.name} replaces ${tired.name}.` });
+    out(m, 'sub', { side, inn: inn.name, out: tired.name, tired: Math.round(tired.en), why }); return inn; };
+  let htDone = false;
+  for (let b = 0; b < 19; b++) {
+    const m0 = b * 5, phase = m0 < 15 ? 'start' : m0 >= 75 ? 'end' : 'mid';
+    if (b === 9 && !htDone) { htDone = true; ev.push({ m: 45, k: 'info', t: `Half-time: ${home ? sc.us + '–' + sc.them : sc.them + '–' + sc.us}.` }); out(45, 'ht', { score: { ...sc } }); }
+    for (const q of [...live('us'), ...live('them')]) { if (q.pos === 'GK') continue; const burn = (1.9 + (q.side === 'us' ? intn : 0.5) * 1.4) * (1.25 - q.a.sta / 40) * (q.side === 'us' && fitCoach ? 0.8 : 1); q.en = clamp(q.en - burn, 25, 100); }
+    if (m0 >= 60 && m0 <= 80) for (const side of ['us', 'them']) { if (subs[side] >= 3 || !chance(0.42)) continue; const tired = live(side).filter(q => q.pos !== 'GK').sort((x, y) => x.en - y.en)[0]; if (tired && tired.en <= 82) swap(side, tired, m0 + ri(1, 4), 'tired'); }
+    const diff = sc.us - sc.them; let adj = -0.9 * red.us + 0.9 * red.them + (energy('us') - energy('them')) / 100 * 0.9;
+    if (diff < 0) adj += (0.25 + att * 0.3) * (m0 >= 60 ? 1.3 : 1); else if (diff > 0) adj -= (0.25 + (m0 >= 65 ? (1 - att) * 0.25 : 0)) * (m0 >= 60 ? 1.3 : 1);
+    if (phase === 'start') adj += (intn - 0.5) * 0.3; if (fill > 0.85 && phase === 'end') adj += 0.12;
+    const share = 1 / (1 + Math.exp(-0.6 * (d0 + adj))); poss.push(Math.round(clamp(0.5 + (share - 0.5) * 0.7 + (rnd() - 0.5) * 0.08, 0.25, 0.75) * 100));
+    const n = poisson(MATCH_K.attacks * (0.85 + 0.3 * att) * OS.vol * (wx.rain ? 0.92 : 1) * (b === 18 ? 0.8 : 1)), acts = [];
+    for (let i = 0; i < n; i++) acts.push({ m: m0 + ri(1, 5), side: rnd() < share ? 'us' : 'them' }); acts.sort((x, y) => x.m - y.m);
+    let shotsIn = 0;
+    for (const A of acts) {
+      const atk = live(A.side), def = live(A.side === 'us' ? 'them' : 'us'); if (atk.length < 8 || def.length < 7) continue;
+      const gk = def.find(q => q.pos === 'GK') || def[0], fat = q => 0.75 + q.en / 400, field = atk.filter(q => q.pos !== 'GK');
+      const builder = wpick(field, q => ({ DF: 1.2, MF: 2, FW: 0.6 }[LINE[q.pos]]) * (q.a.pas + 2)), wide = chance(0.42);
+      const creator = wpick(field.filter(q => q !== builder), q => (wide ? (q.pos === 'W' || q.pos === 'FB' ? 3 : 0.6) * (q.a.cro + 2) : (q.pos === 'AM' || q.pos === 'CM' ? 2.5 : 1) * (q.a.pas + q.a.vis)) * fat(q)) || builder;
+      const stopper = wpick(def.filter(q => q.pos !== 'GK'), q => ({ DF: 2.2, MF: 1.6, FW: 0.4 }[LINE[q.pos]]) * (q.a.tac + q.a.mar) * fat(q));
+      const pShot = clamp(MATCH_K.shot + (creator.a.pas + creator.a.vis - stopper.a.tac - stopper.a.mar) * 0.003 + (att - 0.5) * 0.1 * (A.side === 'us' ? 1 : -0.5), 0.3, 0.8);
+      if (!chance(pShot)) { S(stopper)[chance(0.55) ? 'tk' : 'ic']++;
+        if (chance(0.085)) { const off = chance(0.6) ? stopper : creator, side = off.side, isRed = chance(0.055) || ((off.pers.temp || 10) > 16 && chance(0.12));
+          if (isRed) { off.on = false; off.off = A.m; red[side]++; S(off).rc++; if (off.p) off.p.susp = 2; ev.push({ m: A.m, k: 'card', us: side === 'us' ? 1 : 0, red: 1, t: side === 'us' ? `Red card! ${off.name} is sent off.` : `Red card for ${opName}! ${off.name} is sent off.` }); out(A.m, 'red', { side, who: off.name }); }
+          else { S(off).yc++; ev.push({ m: A.m, k: 'card', us: side === 'us' ? 1 : 0, t: side === 'us' ? `Yellow card for ${off.name}.` : `${off.name} (${opName}) is booked.` }); out(A.m, 'yellow', { side, who: off.name }); } }
+        continue; }
+      const header = wide && chance(0.35), close = !header && chance(0.16), far = !header && !close && chance(0.33);
+      const shooter = (header ? wpick(field.filter(q => q !== creator), q => ({ DF: 0.8, MF: 1, FW: 2.6 }[LINE[q.pos]]) * (q.a.hea + 2)) : wpick(field.filter(q => q !== creator), q => ({ DF: 0.3, MF: 1.3, FW: 3 }[LINE[q.pos]]) * (q.a.fin + 2) * (q.star ? 2.2 : 1) * (HOOK.storyW && q.p ? HOOK.storyW(q.p) : 1))) || creator;
+      let q = (header ? 0.09 : close ? 0.34 : far ? 0.045 : 0.115) * (0.6 + rnd() * 0.8) * (1 + 0.03 * ((header ? shooter.a.hea : shooter.a.fin) - stopper.a.tac) / 2) * (wx.rain ? 0.95 : 1) * (A.side === 'them' ? OS.oxg : 1) * fat(shooter) * (A.side === 'us' ? 1 + (att - 0.5) * 0.08 : 1 + (att - 0.5) * 0.2);
+      q = clamp(q, 0.02, 0.8); xg[A.side] += q; shotsIn++; const ss = S(shooter); ss.sh++; ss.xg += q; if (creator !== shooter) { S(creator).kp++; S(creator).xa += q; }
+      const onT = chance(clamp(0.3 + q * 0.9, 0.25, 0.85)), blocked = !onT && chance(0.28);
+      const goal = onT && chance(clamp(q / (0.3 + q * 0.9) * (1 + (shooter.a.com - gk.a.ref) * 0.012) * MATCH_K.conv, 0.02, 0.95));
+      if (blocked) S(stopper).cl++; if (onT) { ss.sot++; if (!goal) S(gk).sv++; }
+      const kind = header ? 'header' : close ? 'close' : far ? 'distance' : 'box', flank = wide ? (chance(0.5) ? 'left' : 'right') : 'centre', before = { ...sc };
+      const base = { side: A.side, who: shooter.name, whoId: shooter.id, star: !!shooter.star, by: creator !== shooter ? creator.name : null, from: builder !== creator && builder !== shooter ? builder.name : null, keeper: gk.name, stop: stopper.name, kind, wide, flank, xg: +q.toFixed(2), shotN: ss.sh };
+      if (goal) { sc[A.side]++; ss.g++; if (creator !== shooter) S(creator).a++;
+        const usG = A.side === 'us', t0 = usG ? (HOOK.say ? HOOK.say('goal_us', { sh: shooter.p, as: creator !== shooter ? creator.p : null, m: A.m, home, ug: sc.us, tg: sc.them, xg: q, my }) : `GOAL ${my}! ${shooter.name}.`) : (HOOK.say ? HOOK.say('goal_them', { opp: oppId, opName, m: A.m, xg: q, ug: sc.us, tg: sc.them, home }) : `Goal ${opName}.`);
+        ev.push({ m: A.m, k: 'goal', us: usG ? 1 : 0, pid: usG ? shooter.id : null, aid: usG && creator !== shooter ? creator.id : null, t: t0 + ` (xG ${q.toFixed(2)})`, sc: scOld() });
+        out(A.m, 'goal', { ...base, score: { ...sc }, before, goalsN: ss.g, w: 5 }); }
+      else { const k = onT ? 'save' : blocked ? 'block' : 'miss';
+        if (A.side === 'us') ev.push({ m: A.m, k: 'ch', us: 1, pid: shooter.id, t: (HOOK.say ? HOOK.say('ch_us', { sh: shooter.p, xg: q, m: A.m, big: q > 0.3, ug: sc.us, tg: sc.them }) : `${shooter.name} shoots.`) + ` (xG ${q.toFixed(2)})` });
+        else if (q > 0.25 || onT) ev.push({ m: A.m, k: 'ch', us: 0, pid: onT && gk.p ? gk.id : null, t: (HOOK.say ? HOOK.say('ch_them', { kp: gk.p || null, opp: oppId, opName, m: A.m, xg: q }) : `${opName} go close.`) + ` (xG ${q.toFixed(2)})` });
+        out(A.m, k, { ...base, big: q > 0.25, score: { ...sc }, w: q > 0.25 ? 2.2 : onT ? 0.9 : 0.4 }); }
     }
+    for (const side of ['us', 'them']) for (const q of live(side)) { if (q.pos === 'GK') continue;
+      const p0 = 0.0016 * (1.6 - q.en / 100) * (side === 'us' ? (0.6 + intn * 0.8) * (G.push.medical > 0 ? 0.6 : 1) * (HOOK.ftInj ? HOOK.ftInj() : 1) : 1);
+      if (chance(p0)) { const m = m0 + ri(1, 5); q.on = false; q.off = m; if (q.p) { q.p.inj = ri(1, 7); injured.push(q.p); if (q.p.inj >= 4) { (q.p.ms = q.p.ms || []).push({ s: G.season, w: G.week, t: `Injured against ${opName}, out for ${q.p.inj} weeks.` }); (G.msNew = G.msNew || []).push({ pid: q.p.id, t: `Injured, out for ${q.p.inj} weeks.` }); } ev.push({ m, k: 'inj', us: 1, t: `${q.name} pulls up injured.` }); }
+        const e = out(m, 'injury', { side, who: q.name }); if (subs[side] < 3) { const inn = swap(side, { ...q, on: true }, m, 'injury'); q.on = false; if (inn) e.inn = inn.name; } } }
+    if (b === 16 && fitCoach && energy('us') - energy('them') > 6) out(82, 'trace', { side: 'us', t: 'fitness' });
+    if (b === 3 && intn > 0.6 && share > 0.55) out(18, 'trace', { side: 'us', t: 'intensity' });
+    if (!shotsIn && acts.length) out(m0 + 3, 'spell', { side: acts.filter(a => a.side === 'us').length >= acts.length / 2 ? 'us' : 'them' });
   }
-  if (!ht) ev.push({ m: 45, k: 'info', t: `Half-time: ${home ? ug + '–' + tg : tg + '–' + ug}.` });
-  // minutes, injuries & stats
-  for (const p of onPitch) if (p) mins.set(p.id, 90 - start.get(p.id));
-  const result = ug > tg ? 'W' : ug < tg ? 'L' : 'D';
-  const out = [];
-  for (const [id, mn] of mins) {
-    const p = G.squad.find(x => x.id === id); if (!p) continue;
-    const s = ps.get(id) || { g: 0, a: 0, xg: 0, xa: 0, yc: 0, rc: 0 };
-    const f = mn / 90;
-    const prg = poisson(f * (p.a.pas + p.a.vis) / 6 * (LINE[p.pos] === 'GK' ? 0.2 : 1) * (0.7 + share * 0.6));
-    const dt = poisson(f * (LINE[p.pos] === 'FW' ? 7 : LINE[p.pos] === 'GK' ? 1 : 9));
-    let dw = 0; const pw = clamp(0.3 + (p.a.tac + p.a.str - 2 * os) / 60 + 0.18, 0.15, 0.85); for (let i = 0; i < dt; i++) if (rnd() < pw) dw++;
-    let rat = 6.2 + s.g * 0.9 + s.a * 0.55 + (s.xg + s.xa) * 0.6 + (result === 'W' ? 0.35 : result === 'L' ? -0.35 : 0) + (dt ? (dw / dt - 0.5) * 0.8 : 0) + prg * 0.03 - s.rc * 1.5 + gauss() * 0.35;
-    if ((LINE[p.pos] === 'DF' || p.pos === 'GK') && tg === 0 && mn > 60) rat += 0.5;
-    if ((LINE[p.pos] === 'DF' || p.pos === 'GK')) rat -= tg * 0.15;
-    rat = clamp(rat, 4, 10);
-    // B42: position counters, derived like progressive actions and duels: from the player's xG/xA, attributes and the match shape
-    const ln = LINE[p.pos], oppPress = 1.3 - share * 0.6;
-    const sh = s.g + poisson(s.xg / STATK.xgPerShot), sot = Math.min(sh, s.g + poisson(Math.max(0, sh - s.g) * STATK.sotShare)), kp = s.a + poisson(s.xa / STATK.xaPerKeyPass);
-    const tk = poisson(f * (ln === 'DF' ? 2.4 : ln === 'MF' ? 2.2 : ln === 'FW' ? 0.7 : 0) * (0.55 + p.a.tac / 22) * oppPress);
-    const ic = poisson(f * (ln === 'DF' ? 1.7 : ln === 'MF' ? 1.4 : ln === 'FW' ? 0.4 : 0.2) * (0.55 + (p.a.mar + p.a.vis) / 44) * oppPress);
-    const cl = poisson(f * (ln === 'DF' ? 4.2 : ln === 'MF' ? 1.1 : ln === 'FW' ? 0.3 : 0.6) * (0.5 + p.a.hea / 20) * (1.35 - share * 0.7));
-    let sv = 0; if (ln === 'GK') { const oppShots = tg + poisson(txg / STATK.gkXgPerShot), oppSot = tg + poisson(Math.max(0, oppShots - tg) * STATK.sotShare); sv = Math.max(0, oppSot - tg); }
-    const cs = (ln === 'GK' || ln === 'DF') && tg === 0 && mn >= 60 ? 1 : 0, ga = ln === 'GK' && mn >= 45 ? tg : 0;
-    const st = p.st; for (const [k, v] of [['sh', sh], ['sot', sot], ['kp', kp], ['tk', tk], ['ic', ic], ['cl', cl], ['sv', sv], ['cs', cs], ['ga', ga]]) st[k] = (st[k] || 0) + v;
-    st.apps++; st.mins += mn; st.g += s.g; st.a += s.a; st.xg += s.xg; st.xa += s.xa; st.prg += prg; st.dw += dw; st.dt += dt; st.rat += rat; st.yc += s.yc; st.rc += s.rc;
+  if (!htDone) ev.push({ m: 45, k: 'info', t: `Half-time: ${home ? sc.us + '–' + sc.them : sc.them + '–' + sc.us}.` });
+  const ug = sc.us, tg = sc.them, uxg = xg.us, txg = xg.them, result = ug > tg ? 'W' : ug < tg ? 'L' : 'D';
+  // minutes, ratings, stats: from what happened (the counters of B42 now come from the events)
+  for (const q of us) { const s = S(q), p = q.p, mn = Math.max(0, (q.off != null ? q.off : 90) - (q.start || 0)); if (!p || mn <= 0 && q.start == null) continue; if (mn <= 0) continue;
+    const f = mn / 90, ln = LINE[p.pos];
+    { // the feed only carries dangerous attacks; the rest of the defending (balls won in midfield, crosses headed away) is drawn here, as before B53
+      const shr = poss.reduce((a, v) => a + v, 0) / poss.length / 100, op = 1.3 - shr * 0.6;
+      s.tk += poisson(f * (ln === 'DF' ? 1.8 : ln === 'MF' ? 1.7 : ln === 'FW' ? 0.55 : 0) * (0.55 + p.a.tac / 22) * op);
+      s.ic += poisson(f * (ln === 'DF' ? 1.3 : ln === 'MF' ? 1.05 : ln === 'FW' ? 0.3 : 0.15) * (0.55 + (p.a.mar + p.a.vis) / 44) * op);
+      s.cl += poisson(f * (ln === 'DF' ? 3.8 : ln === 'MF' ? 0.9 : ln === 'FW' ? 0.25 : 0.5) * (0.5 + p.a.hea / 20) * (1.35 - shr * 0.7)); }
+    const prg = poisson(f * (p.a.pas + p.a.vis) / 6 * (ln === 'GK' ? 0.2 : 1) * (0.7 + (poss.reduce((a, v) => a + v, 0) / poss.length / 100) * 0.6));
+    const dt = poisson(f * (ln === 'FW' ? 7 : ln === 'GK' ? 1 : 9)); let dw = 0; const pw = clamp(0.3 + (p.a.tac + p.a.str - 2 * os) / 60 + 0.18, 0.15, 0.85); for (let i = 0; i < dt; i++) if (rnd() < pw) dw++;
+    let rat = 6.2 + s.g * 0.9 + s.a * 0.55 + (s.xg + s.xa) * 0.6 + (result === 'W' ? 0.35 : result === 'L' ? -0.35 : 0) + (dt ? (dw / dt - 0.5) * 0.8 : 0) + prg * 0.03 + (s.tk + s.ic) * 0.02 + s.sv * 0.12 - s.rc * 1.5 + gauss() * 0.35;
+    if ((ln === 'DF' || ln === 'GK') && tg === 0 && mn > 60) rat += 0.5; if (ln === 'DF' || ln === 'GK') rat -= tg * 0.15; rat = clamp(rat, 4, 10);
+    const cs = (ln === 'GK' || ln === 'DF') && tg === 0 && mn >= 60 ? 1 : 0, ga = ln === 'GK' && mn >= 45 ? tg : 0, ps = p.st;
+    for (const [k, v] of [['sh', s.sh], ['sot', s.sot], ['kp', s.kp], ['tk', s.tk], ['ic', s.ic], ['cl', s.cl], ['sv', s.sv], ['cs', cs], ['ga', ga]]) ps[k] = (ps[k] || 0) + v;
+    ps.apps++; ps.mins += mn; ps.g += s.g; ps.a += s.a; ps.xg += s.xg; ps.xa += s.xa; ps.prg += prg; ps.dw += dw; ps.dt += dt; ps.rat += rat; ps.yc += s.yc; ps.rc += s.rc;
     p.car.apps++; p.car.g += s.g; p.car.a += s.a; p.lastRat = rat; p.rats = (p.rats || []).concat(rat).slice(-4);
     { p.capps = (p.capps || 0) + 1; const ms = t => { (p.ms = p.ms || []).push({ s: G.season, w: G.week, t }); (G.msNew = G.msNew || []).push({ pid: p.id, t }); };
-      if (p.capps === 1 && !p.academy) ms(`Debut for the club against ${opName}${s.g ? ', and scores' : ''}.`);
-      else if (s.g && !p.fg) ms(`First goal for the club, against ${opName}.`);
-      if (s.g) p.fg = true;
-      if (s.g >= 3) ms(`Hat-trick against ${opName}.`);
-      else if (rat >= 8.6) ms(`Man of the match against ${opName}, rated ${rat.toFixed(1)}.`);
-      if (p.capps === 50 || p.capps === 100) ms(`${p.capps} games for the club.`); }
+      if (p.capps === 1 && !p.academy) ms(`Debut for the club against ${opName}${s.g ? ', and scores' : ''}.`); else if (s.g && !p.fg) ms(`First goal for the club, against ${opName}.`);
+      if (s.g) p.fg = true; if (s.g >= 3) ms(`Hat-trick against ${opName}.`); else if (rat >= 8.6) ms(`Man of the match against ${opName}, rated ${rat.toFixed(1)}.`); if (p.capps === 50 || p.capps === 100) ms(`${p.capps} games for the club.`); }
     if (p.academy && !p.debut) { p.debut = true; G.ss.grads++; G.paper.stories.push({ h: 'Academy debut', t: `${p.name} (${p.age}) becomes the latest academy graduate to play for the first team.` }); G.st.fans = clamp(G.st.fans + 2, 0, 100); }
-    if (mn > 0 && chance(injP * f)) { p.inj = ri(1, 7); out.push(p); const st0 = start.get(p.id) || 0; ev.push({ m: clamp(st0 + ri(1, Math.max(1, mn)), 1, 90), k: 'inj', us: 1, t: `${p.name} pulls up injured.` }); if (p.inj >= 4) { (p.ms = p.ms || []).push({ s: G.season, w: G.week, t: `Injured against ${opName}, out for ${p.inj} weeks.` }); (G.msNew = G.msNew || []).push({ pid: p.id, t: `Injured, out for ${p.inj} weeks.` }); } }
-    p.yc = (p.yc || 0) + s.yc; if (p.yc >= 5) { p.yc = 0; p.susp = Math.max(p.susp, 1); }
-  }
-  ev.sort((a, b) => a.m - b.m);
-  ev.push({ m: 90, k: 'ft', t: `Full time. ${home ? G.club.name + ' ' + ug + '–' + tg + ' ' + opName : opName + ' ' + tg + '–' + ug + ' ' + G.club.name}.` });
-  const motm = [...mins.keys()].map(id => G.squad.find(x => x.id === id)).filter(Boolean).sort((a, b) => b.lastRat - a.lastRat)[0];
-  const why = whyLines({ me, os, home, ug, tg, uxg, txg, reds: [redUs, redThem], L, att, result });
-  return { why, wx, fill: home && G.club.cap ? Math.min(1, attendance() / G.club.cap) : null, comp, home, opp: oppId, oppName: opName, ug, tg, uxg, txg, ev, result, dpre: +(me - os).toFixed(2), edge: +(d - (me - os)).toFixed(2), reds: [redUs, redThem], xi: L.xi.map(x => x.p.id), injured: out, motm: motm ? motm.name : '', att: home ? attendance() : 0 };
+    p.yc = (p.yc || 0) + s.yc; if (p.yc >= 5) { p.yc = 0; p.susp = Math.max(p.susp || 0, 1); } }
+  ev.sort((a, b) => a.m - b.m); feed.sort((a, b) => a.m - b.m || (a.k === 'ht' ? -1 : 0));
+  ev.push({ m: 90, k: 'ft', t: `Full time. ${home ? G.club.name + ' ' + ug + '–' + tg + ' ' + opName : opName + ' ' + tg + '–' + ug + ' ' + G.club.name}.` }); out(94, 'ft', { score: { ...sc } });
+  const played = us.filter(q => q.p && ((q.off != null ? q.off : 90) - (q.start || 0)) > 0).map(q => q.p), motm = played.sort((a, b) => (b.lastRat || 0) - (a.lastRat || 0))[0];
+  const why = whyLines({ me, os, home, ug, tg, uxg, txg, reds: [red.us, red.them], L, att, result });
+  const shots = { us: 0, them: 0 }, sot = { us: 0, them: 0 }; for (const e of feed) if (['goal', 'save', 'miss', 'block'].includes(e.k)) { shots[e.side]++; if (e.k !== 'miss' && e.k !== 'block') sot[e.side]++; }
+  return { why, wx, fill: home && G.club.cap ? Math.min(1, attendance() / G.club.cap) : null, comp, home, opp: oppId, oppName: opName, ug, tg, uxg, txg, ev, feed, poss, referee, shots, sot, result, dpre: +(me - os).toFixed(2), edge: +(d0 - (me - os)).toFixed(2), reds: [red.us, red.them], xi: L.xi.map(x => x.p.id), injured, motm: motm ? motm.name : '', att: home ? attendance() : 0, star: opp.star ? opp.star.name : null };
 }
+
 // why we won or lost, in two or three plain lines from the real factors (B26)
 function whyLines(o) {
   const out = [], P = strengthParts(o.L), q = P.squad - (o.os - (P.coach + P.style + P.morale + P.extra)), gap = o.me - o.os;

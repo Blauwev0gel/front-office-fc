@@ -7,12 +7,22 @@ const src = R.mods('matchday.js').map(f => R(f)).join('\n'); const c = { console
 F.newGame(91); const d = {}; for (const q of F.DNA) d[q.k] = q.o[0].v; F.setDNA(d, 'Lab', 'LAB', 'Lab', ['#123', '#fff']); for (const r of F.ROLES) F.hire(r.id, 1); F.finishStaff(); F.finishMandates(); F.preSetTarget('accept'); F.finishPreseason(); for (const id of F.G.press) F.pressAnswer(id, 1); F.finishPress();
 const proto = PROTO ? require(path.join(__dirname, '../notes/prototypes/match/match-proto.js')) : null;
 const snap = F.save(), P0 = F.mtPreview(); const t0 = Date.now();
+// --sweep: the same match at a range of strength gaps (opponent strength = ours + gap), our side at home and away. This is the curve B25 calibrates.
+if (process.argv.includes('--sweep')) {
+  const per = Math.max(100, Math.round(n / 14)), rows = [];
+  for (const home of [true, false]) for (const gap of [-2, -1, -0.5, 0, 0.5, 1, 2]) {
+    const a = { g: 0, nil: 0, w: 0, d: 0, l: 0, n: 0 };
+    for (let i = 0; i < per; i++) { if (i % 25 === 0) { F.load(snap); } F.G.rs = (F.G.rs + i * 7919 + gap * 1000) >>> 0; F.G.clubs[P0.id].str = F.teamStrength() + gap; const m = F.simOurMatch(P0.id, home, 'League'); a.g += m.ug + m.tg; a.nil += m.ug + m.tg === 0; a.w += m.ug > m.tg; a.d += m.ug === m.tg; a.l += m.ug < m.tg; a.n++; }
+    rows.push(`${home ? 'home' : 'away'} gap ${String(gap).padStart(4)}: goals ${(a.g / a.n).toFixed(2)} · 0-0 ${(a.nil / a.n * 100).toFixed(0)}% · W/D/L ${(a.w / a.n * 100).toFixed(0)}/${(a.d / a.n * 100).toFixed(0)}/${(a.l / a.n * 100).toFixed(0)} · pts/game ${((a.w * 3 + a.d) / a.n).toFixed(2)}`);
+  }
+  console.log(`sweep · ${per} matches per row · ${((Date.now() - t0) / 1000).toFixed(1)} s (opponent stronger by the gap)`); console.log(rows.join('\n')); process.exit(0);
+}
 const acc = { g: 0, g80: 0, nil: 0, hw: 0, dr: 0, aw: 0, sh: 0, sot: 0, xg: 0, red: 0, n: 0 }, dist = {};
 for (let i = 0; i < n; i++) {
   if (i % 25 === 0) F.load(snap); F.G.rs = (F.G.rs + i * 7919) >>> 0;
   let ug, tg, ev, home = P0.home, sh = 0, sot = 0, xg = 0, red = 0;
   if (PROTO) { const M = proto(F, { seed: i }); ug = M.sc.us; tg = M.sc.them; ev = M.ev; sh = M.shots.us + M.shots.them; sot = M.sot.us + M.sot.them; xg = M.xg.us + M.xg.them; red = M.red.us + M.red.them; }
-  else { const m = F.simOurMatch ? F.simOurMatch(P0.id, home, 'League') : null; if (!m) { console.log('simOurMatch is not exported; add it to the API first.'); process.exit(1); } ug = m.ug; tg = m.tg; ev = m.ev; xg = m.uxg + m.txg; red = m.reds[0] + m.reds[1]; sh = ev.filter(e => e.k === 'ch' || e.k === 'goal').length; }
+  else { const m = F.simOurMatch ? F.simOurMatch(P0.id, home, 'League') : null; if (!m) { console.log('simOurMatch is not exported; add it to the API first.'); process.exit(1); } ug = m.ug; tg = m.tg; ev = m.ev; xg = m.uxg + m.txg; red = m.reds[0] + m.reds[1]; sh = m.shots ? m.shots.us + m.shots.them : ev.filter(e => e.k === 'ch' || e.k === 'goal').length; sot = m.sot ? m.sot.us + m.sot.them : 0; }
   const hg = home ? ug : tg, ag = home ? tg : ug; acc.g += ug + tg; acc.g80 += ev.filter(e => e.k === 'goal' && e.m > 80).length; acc.nil += ug + tg === 0; acc.hw += hg > ag; acc.dr += hg === ag; acc.aw += hg < ag; acc.sh += sh; acc.sot += sot; acc.xg += xg; acc.red += red; acc.n++;
   const k = `${hg}-${ag}`; dist[k] = (dist[k] || 0) + 1;
 }

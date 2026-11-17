@@ -31,11 +31,14 @@ function act(a, d, el) {
     case 'filt': U.filt = d.v; break;
     case 'md-kick': mdKick(); break;
     case 'md-close': U.md = null; mdWinter(); break;
-    case 'md-speed': MDP.fast = !MDP.fast; el.closest('button').textContent = MDP.fast ? 'Normal speed' : '2x speed'; return;
+    case 'md-speed': MDP.fast = !MDP.fast; MDP.ctl(); return;
+    case 'mw-pause': MDP.paused = !MDP.paused; MDP.ctl(); return;
+    case 'mw-again': MDP.again = true; U.md.ft = false; U.md.htDone = true; render(); return;
+    case 'mw-tab': { U.md.tab = +d.i; [0, 1, 2].forEach(i => { const t = document.getElementById('mw-t' + i), p = document.getElementById('mw-p' + i); if (t) t.setAttribute('aria-selected', i === U.md.tab); if (p) p.hidden = i !== U.md.tab; }); return; }
     case 'md-skip': MDP.skip(); return;
     case 'md-resume': clearTimeout(MDP.t); MDP.resume(); return;
-    case 'md-ht': { if (U.md.htDone) return; U.md.htDone = true; const out = F.mdHtChoice(d.v), q = document.querySelector('.mdhtq'); if (q) q.innerHTML = `<p>${esc(out)}</p>`; MDP.ctlBack(); MDP.htWait = false; clearTimeout(MDP.t); MDP.t = setTimeout(() => MDP.resume(), MDP.fast ? 1200 : 2200); return; }
-    case 'md-after': if (U.md.replay) { U.md = null; window.scrollTo(0, 0); break; } if (U.md.cup) { U.md.m = U.md.cup; U.md.cup = null; U.md.ft = false; U.md.out = []; U.md.momTop = U.md.momBot = ''; } else U.md.phase = 'paper'; window.scrollTo(0, 0); break;
+    case 'md-ht': { if (U.md.htDone) return; U.md.htDone = true; const out = F.mdHtChoice(d.v); MDP.htq = false; MDP.ctl(); MDP.ticker({ m: 45, t: out, side: null }, true); clearTimeout(MDP.t); MDP.t = setTimeout(() => MDP.resume(), MDP.fast ? 1200 : 2400); return; }
+    case 'md-after': if (U.md.replay) { U.md = null; window.scrollTo(0, 0); break; } if (U.md.cup) { U.md.m = U.md.cup; U.md.cup = null; U.md.ft = false; U.md.out = []; U.md.tab = 0; U.md.htDone = false; } else U.md.phase = 'paper'; window.scrollTo(0, 0); break;
     case 'md-done': { const k = inboxItems().find(i => i.t === 'paper'); if (k) markRead(k.key); U.md = null; mdWinter(); window.scrollTo(0, 0); break; }
     case 'play': if (G().phase === 'season' && F.mtPreview && F.mtPreview() && !U.md) { ART.SND.whistle(); U.md = { phase: 'preview' }; U.sheet = null; window.scrollTo(0, 0); break; } ART.SND.whistle(); if (inboxItems().some(i => i.kind === 'need')) U.sheet = { t: 'confirm' }; else { act('end', {}); return; } break;
     case 'review': { U.sheet = null; U.tab = 'inbox'; const f = inboxItems().find(i => i.kind === 'need'); U.open = f ? f.key : null; U.flash = ''; break; }

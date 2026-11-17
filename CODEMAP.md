@@ -64,7 +64,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `engine/03-players.js` | 4 KB | players |  |  |  |
 | `engine/04-staff-dna.js` | 14 KB | staff; DNA |  | effBonus |  |
 | `engine/05-world-selection.js` | 4 KB | world; squad & selection |  | coachAct, selBonus, ftExtra | clubs, divs |
-| `engine/06-match.js` | 15 KB | match simulation |  | homeEdge, oppStyle, ftInj, say, storyW | msNew |
+| `engine/06-match.js` | 21 KB | match simulation |  | homeEdge, oppStyle, say, storyW, ftInj | msNew |
 | `engine/07-finance-transfers.js` | 12 KB | finance; transfers |  | attendance, gate, acadIncome, recCost, acadCost, ftCost, deptCost, merchMult, costDisc, acadSale | signLog, shortlist, dofSigned, squad, dofNote |
 | `engine/08-weekly-inbox.js` | 9 KB | weekly systems; events & inbox |  | ftDev, fanWeekly, desk, evWeight |  |
 | `engine/09-meetings-actions-press.js` | 17 KB | management meeting & projects (1.2); player actions; press |  |  | propCd, meeting, projects, projDone, projLog, resBy, resOf |
@@ -103,6 +103,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `dossiers.js` | 28 KB | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar | seasonAfterMatch |  | pressure, dos |
 | `pathway.js` | 27 KB | the pathway question One governance storyline, built to show the core loop: you notice a problem, talk to the  | selBonus, seasonAfterMatch |  | cred, pw, academy, pwLog |
 | `matchday.js` | 10 KB | match day Before kick-off: three stories about our own players | storyW, edition |  | mdS, eds |
+| `commentary.js` | 11 KB | match commentary (B53) Every moment of the match becomes a short run of beats for the one-line ticker: build-u |  |  |  |
 | `ui/01-core.js` | 5 KB | atoms; base club: skip the founding |  |  |  |
 | `ui/02-setup.js` | 19 KB | views: title & setup; mandates as a tactics board |  |  |  |
 | `ui/03-summer-preseason-press.js` | 27 KB | the summer (M4); the summer, version 2 |  |  |  |
@@ -118,7 +119,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
 | `ui/12-scenes-cards.js` | 15 KB | game UI helpers |  |  |  |
 | `ui/13-redbox-render.js` | 14 KB | the red box: an email you answer on one screen |  |  |  |
-| `ui/14-matchday-gazette.js` | 26 KB | match day: preview, match, gazette (full screens); the Gazette: one design, opened after the match and from th |  |  |  |
+| `ui/14-matchday-gazette.js` | 28 KB | match day: preview, match, gazette (full screens); the Gazette: one design, opened after the match and from th |  |  |  |
 | `ui/15-actions.js` | 19 KB | actions |  |  |  |
 | `ui/16-boot.js` | 0 KB | boot |  |  |  |
 
@@ -140,7 +141,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: townName, roundRobin, blankRow, buildFixtures, genWorld, sortTable, cname, myPos, expectedRank, squadAvail, fit, ordWord, cact, pickXI, strengthParts, teamStrength
 
 ### `engine/06-match.js`
-- Functions: wxFor, expRand, simOurMatch, whyLines, quickSim, applyResult
+- Functions: wxFor, expRand, oppSquad, simOurMatch, whyLines, quickSim, applyResult
 
 ### `engine/07-finance-transfers.js`
 - Functions: playerWages, staffWages, ticketPrice, attendance, revenueAvg, estRevenue, sponsorIncome, wageRatio, transferBudget, weeklyFinance, window_, squadNeeds, weakestPos, genTarget, sign, staffName, protectedIds, administration, agreeSale, releaseWinterKitty, settleSales, sellPlayer, dofWork
@@ -281,6 +282,10 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: g, avg, lastInjury, storyFor, mdStories, mdOutcomes, mdOutcomesShort, turningPoint, matchSum, edView
 - Exports on `F`: mdStories, mdOutcomes, mdOutcomesShort, mdTurning, edView, edCount
 
+### `commentary.js`
+- Functions: beatsFor
+- Exports on `F`: matchBeats
+
 ### `ui/01-core.js`
 - Functions: esc, money, G, saveGame, hasSave, loadGame, wipe, toast, setClub, lum, stars, bar, meter, crest, apPips, sign, quickStart
 
@@ -327,7 +332,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: mFirst, mailParas, mailTop, MSV, mailRows, second2, replyInline, mailSent, bkStrip, msgHtml, briefHtml, mailCommit, big, mailSend, mailAfter, propHtml, tourCard, tabBadge, vBar, advance, markFresh, render
 
 ### `ui/14-matchday-gazette.js`
-- Functions: mdOppCols, mdClean, mdP, mdStadium, mdPitch, mdForm, mdPreview, mdTeams, mdMatch, gzEdition, mdPaper, vMatchday, mdWinter, mdKick
+- Functions: mdOppCols, mdClean, mdP, mdStadium, mdForm, mdPreview, mdTeams, mwSide, mdMatch, gzEdition, mdPaper, vMatchday, mdWinter, mdKick
 - Exports on `F`: storyOf
 
 ### `ui/15-actions.js`

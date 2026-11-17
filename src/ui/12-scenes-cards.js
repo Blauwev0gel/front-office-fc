@@ -95,7 +95,7 @@ function matchCard(b) {
     <div class="mcscore"><div class="mct">${crest(L.c, L.n, 44)}<b>${esc(L.n)}</b></div><div class="mcs">${L.g}<i>–</i>${R.g}</div><div class="mct">${crest(R.c, R.n, 44)}<b>${esc(R.n)}</b></div></div>
     <div class="mcxg"><span>${L.x.toFixed(1)}</span><i><b class="l" style="width:${L.x / mx * 50}%"></b><b class="r" style="width:${R.x / mx * 50}%"></b></i><span>${R.x.toFixed(1)}</span></div><div class="small" style="text-align:center">Expected goals</div>
     ${mp || inj.length ? `<div class="mcfoot">${mp ? `<button class="motm" data-a="player" data-id="${mp.id}"><span>${ART.playerFace(mp, 'happy')}</span><small>Best player</small><b>${esc(mp.name.split(' ').slice(-1)[0])}</b></button>` : ''}${inj.length ? `<div class="minj"><small>Injured</small>${inj.map(p => `<button class="pchip" data-a="player" data-id="${p.id}"><span>${ART.playerFace(p, 'worried')}</span>${esc(p.name.split(' ').slice(-1)[0])}</button>`).join('')}</div>` : ''}</div>` : ''}
-    ${lm.ev ? '<button class="linkbtn" data-a="replay" style="margin:6px auto 0;display:flex">Replay the match</button>' : ''}</section>${whyPanel(lm)}
+    ${lm.feed ? '<button class="linkbtn" data-a="replay" style="margin:6px auto 0;display:flex">Replay the match</button>' : ''}</section>${whyPanel(lm)}
   ${v ? `<div class="stage" style="margin-top:14px"><div class="portrait" style="width:56px;height:56px">${ART.staffFace('coach', res === 'W' ? 'happy' : res === 'L' ? 'worried' : null)}</div><div class="who"><b>${esc(v.who.split(',')[0])}</b><span>Head coach</span></div></div><div class="bubble">${esc(sp.say)}</div>${sp.rest ? `<details class="more"><summary>Details ${ART.I.chev}</summary><p>${esc(sp.rest)}</p></details>` : ''}${cardOpts(b, v)}` : ''}`;
 }
 function weekReport() {

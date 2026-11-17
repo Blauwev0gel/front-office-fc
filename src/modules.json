@@ -30,5 +30,6 @@
 "dossiers.js",
 "pathway.js",
 "matchday.js",
+"commentary.js",
 "ui.js"
 ]

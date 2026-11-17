@@ -13,11 +13,6 @@ function mdStadium(home, oc, night, rain, fill) {
   <path d="M0 64h390v52H0z" fill="#2b3440" stroke="#16201b" stroke-width="3"/><path d="M0 64h390v6H0z" fill="${c1}"/>${crowd}
   <path d="M0 114h390v56H0z" fill="#3d7a4f"/>${[0, 1, 2, 3, 4, 5].map(i => `<path d="M${i * 70} 114h35v56h-35z" fill="#468a5a"/>`).join('')}<path d="M0 114h390" stroke="#16201b" stroke-width="3"/><path d="M195 114v56M155 170a40 22 0 0 1 80 0" stroke="#f4f4ec" stroke-width="2.5" fill="none" opacity=".85"/></svg>`;
 }
-function mdPitch() {
-  let st = ''; for (let i = 0; i < 10; i++) st += `<rect x="${i * 36}" y="0" width="18" height="220" fill="#468a5a"/>`;
-  return `<svg viewBox="0 0 360 220" class="mdpitch" aria-hidden="true"><rect width="360" height="220" fill="#3d7a4f"/>${st}<g fill="none" stroke="#f4f4ec" stroke-width="2.2" opacity=".9"><rect x="8" y="8" width="344" height="204"/><path d="M180 8v204"/><circle cx="180" cy="110" r="28"/><rect x="8" y="58" width="44" height="104"/><rect x="308" y="58" width="44" height="104"/><rect x="8" y="88" width="16" height="44"/><rect x="336" y="88" width="16" height="44"/><path d="M52 88a26 26 0 0 1 0 44M308 88a26 26 0 0 0 0 44"/></g><rect x="0" y="92" width="8" height="36" fill="#f4f4ec" opacity=".35"/><rect x="352" y="92" width="8" height="36" fill="#f4f4ec" opacity=".35"/><circle cx="180" cy="110" r="2.5" fill="#f4f4ec"/></svg>`;
-}
-const MD_BALL = '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="#fff" stroke="#16201b" stroke-width="2"/><path d="M10 5.5l3.5 2.6-1.3 4.1H7.8L6.5 8.1z" fill="#16201b"/></svg>';
 const mdForm = arr => `<span class="mdform">${(arr || []).slice(-5).map(r => `<i class="f${r}">${r}</i>`).join('') || '<small>no games yet</small>'}</span>`;
 function mdPreview() {
   const g = G(), P = F.mtPreview(); if (!P) { U.md = null; return vInbox(); }
@@ -39,97 +34,106 @@ function mdPreview() {
   </div></div><div class="mdfoot">${box ? `<p class="mdboxw"><b>${box} still in your red box.</b> Kick off and your staff answer ${box === 1 ? 'it' : 'them'}.</p>` : ''}<div class="mdrow"><button class="mdback" data-a="md-close" aria-label="Back to the inbox">${ART.I.back}</button><button class="mdko" data-a="md-kick">Kick off</button></div></div></div>`;
 }
 function mdTeams(m) { const g = G(), oc = mdOppCols(m.opp), us = { c: g.club.colors, s: g.club.short }, th = { c: oc, s: oppShort(m.oppName) }; return m.home ? [us, th] : [th, us]; }
+/* ---------- the match screen (B53): score bars with scorers, status, the one-line ticker, possession, panels, info band ----------
+   Every block has a fixed height; only the text inside changes. The beats come from F.matchBeats (commentary.js); key events are added
+   when the ticker tells their outcome, so the list never runs ahead of the commentary. */
+function mwSide(m, us) { return us ? 'us' : 'them'; }
 function mdMatch() {
-  const g = G(), s = U.md, m = s.m, [L, R] = mdTeams(m), ft = s.ft, hs = m.home ? m.ug : m.tg, as = m.home ? m.tg : m.ug;
-  const sc = ft ? `${hs}<i>–</i>${as}` : '0<i>–</i>0';
-  let foot;
-  if (ft) {
-    const us = m.ug, th = m.tg, res = m.cupWin != null ? (m.cupWin ? 'W' : 'L') : us > th ? 'W' : us < th ? 'L' : 'D', motm = g.squad.find(p => p.name === m.motm);
-    foot = `<section class="mdft r${res}"><div class="mdfth"><span>${m.comp === 'Cup' ? 'National Cup' + (m.rd ? ', ' + esc(m.rd) : '') : 'Full time'}${m.pens ? ', ' + esc(m.pens) : ''}</span><b>${res === 'W' ? 'A win' : res === 'L' ? 'A defeat' : 'A draw'}</b></div>
-    ${motm ? `<div class="mdmotm"><span class="mdmf">${ART.playerFace(motm, 'happy')}</span><div><em>${res === 'L' ? 'Our best player' : 'Player of the match'}</em><b>${esc(motm.name)}</b>${motm.lastRat ? `<span class="mdrt">${motm.lastRat.toFixed(1)}</span>` : ''}</div></div>` : ''}
-    ${m.why && m.why.length ? `<h3>Why</h3><ul class="mdwhy">${m.why.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
-    ${s.out && s.out.length ? `<h3>How the stories ended</h3><ul class="mdouts">${s.out.map(o => { const p = mdP(o.pid); return `<li>${p ? `<span class="mdsf sm">${ART.playerFace(p, o.mood)}</span>` : ''}<p>${esc(o.t)}</p></li>`; }).join('')}</ul>` : ''}
-    <button class="mdko" data-a="md-after">${s.replay ? 'Back to the Gazette' : s.cup ? 'To the cup tie' : 'Read the Gazette'}</button></section>`;
-  } else foot = `<div class="mdfeed"><div class="mdnow"></div><ul class="mdpast" aria-live="polite"></ul></div><div class="mdctl"><button data-a="md-speed">2x speed</button><button data-a="md-skip">Skip to full time</button></div>`;
-  return `<div class="mds mdm ${ft ? 'ft' : ''}"><div class="mdbug"><div class="mdbt">${crest(L.c, L.s, 30)}<b>${esc(L.s)}</b></div><div class="mdbs"><b class="mdsc">${sc}</b><span class="mdclk">${ft ? (m.pens || m.ev.some(e => e.m > 95) ? 'AET' : 'FT') : "0'"}</span></div><div class="mdbt r"><b>${esc(R.s)}</b>${crest(R.c, R.s, 30)}</div></div>
-  <div class="mdprog"><b style="width:${ft ? 100 : 0}%"></b></div>
-  <div class="mdpw ${m.wx && m.wx.rain ? 'rain' : ''} ${m.wx && m.wx.night ? 'night' : ''}">${mdPitch()}<span class="mdball">${MD_BALL}</span><div class="mdgf"></div><span class="mddir l">${esc(L.s)} attack</span><span class="mddir r">${esc(R.s)} attack</span></div>
-  <div class="mdmom"><svg viewBox="0 0 360 54" preserveAspectRatio="none"><path class="mu" d="${ft ? s.momTop || '' : ''}"/><path class="mt" d="${ft ? s.momBot || '' : ''}"/><path d="M0 27h360" stroke="currentColor" stroke-opacity=".25"/><path d="M180 0v54" stroke="currentColor" stroke-opacity=".15" stroke-dasharray="3 3"/></svg><div class="mdmoml"><span>${esc(L.s)}</span><small>Momentum</small><span>${esc(R.s)}</span></div></div>
-  ${foot}</div>`;
+  const g = G(), s = U.md, m = s.m, H = m.home, [L, R] = mdTeams(m), nm = n => (n || '').split(' ')[0];
+  const HN = H ? g.club.name : m.oppName, AN = H ? m.oppName : g.club.name, bar = (c, n, id) => `<div class="mw-sb" style="background:${c[0]};color:${c[1] || '#fff'}"><span class="n">${esc(nm(n))}</span><span class="g" id="${id}" style="border-color:${c[0]}">0</span></div>`;
+  const wx = m.wx || {}, info = `<span>Ref: ${esc(m.referee || 'The referee')}</span><span>${m.home && m.att ? 'Crowd: ' + Math.round(m.att).toLocaleString('en-GB') : 'Away day'}</span><span>${wx.rain ? 'Rain' : 'Dry'}, ${wx.night ? 'evening' : 'afternoon'}</span>`;
+  return `<div class="mds mdm mw" id="mw" style="--mw-h:${L.c[0]};--mw-a:${R.c[0]}">
+  <div class="mw-bars" aria-label="Score">${bar(L.c, HN, 'mw-hg')}${bar(R.c, AN, 'mw-ag')}</div>
+  <div class="mw-scr" aria-label="Scorers"><div id="mw-hs"></div><div id="mw-as"></div></div>
+  <div class="mw-stt"><b id="mw-clk">0'</b><span id="mw-half">First half</span><span class="r" id="mw-cmp">${esc(m.comp === 'Cup' ? 'National Cup' + (m.rd ? ', ' + m.rd : '') : F.TIERS[g.club.tier])}</span></div>
+  <div class="mw-tk" id="mw-tk" aria-live="polite"><i class="side" id="mw-side"></i><p id="mw-tl"></p></div>
+  <div class="mw-ps" aria-label="Possession, last five minutes"><small>Last 5 mins</small><div class="mw-pb" id="mw-pb"><span id="mw-ph" style="background:${L.c[0]};color:${L.c[1] || '#fff'}"></span><span id="mw-pa" style="background:${R.c[0]};color:${R.c[1] || '#fff'}"></span></div></div>
+  <div class="mw-tabs" role="tablist">${['Key events', 'Stats', 'Report'].map((t, i) => `<button role="tab" data-a="mw-tab" data-i="${i}" id="mw-t${i}" aria-selected="${i === (s.tab || 0)}">${t}</button>`).join('')}</div>
+  <div class="mw-pn"><div id="mw-p0"${(s.tab || 0) === 0 ? '' : ' hidden'}></div><div id="mw-p1"${s.tab === 1 ? '' : ' hidden'}></div><div id="mw-p2"${s.tab === 2 ? '' : ' hidden'}></div></div>
+  <div class="mw-inf">${info}</div>
+  <div class="mw-ctl" id="mw-ctl"></div>
+  <div class="mw-ven">${esc(m.home ? g.club.city + ', home' : nm(m.oppName) + ', away')}</div></div>`;
 }
-/* the live match: a small player that animates the existing DOM, no re-render */
 const MDP = {
   start() {
-    const s = U.md, m = s.m, root = document.querySelector('.mdm'); if (!root || s.ft || this.cur === s.m) return; this.cur = s.m;
-    Object.assign(this, { root, m, i: 0, min: 0, mom: [], fast: false, paused: false, home: m.home, end: Math.max(...m.ev.map(e => e.m), 90), seed: (m.opp * 7919 + m.ug * 131 + m.tg * 17 + G().week) >>> 0 });
-    this.players(); this.ball(50, 50, 0); ART.SND.whistle(); this.loop();
+    const s = U.md, m = s.m, root = document.getElementById('mw'); if (!root) return;
+    const fresh = this.cur !== m || this.again; this.again = false;
+    if (fresh) { clearTimeout(this.t); this.lastStep = { m: 0, t: 'The teams are out. Kick-off is moments away.', side: null }; this.htq = false; this.htNow = false; this.cur = m; this.build(m); this.i = 0; this.min = 0; this.paused = false; this.done = false; this.shownKeys = []; this.sh = { us: 0, them: 0 }; this.sot = { us: 0, them: 0 }; this.xg = { us: 0, them: 0 }; this.goalsShown = []; }
+    this.root = root; this.paint();
+    if (s.ft) { this.finish(true); return; }
+    if (fresh) this.t = setTimeout(() => this.step(), 300); else if (!this.done && !this.paused) { clearTimeout(this.t); this.t = setTimeout(() => this.step(), 120); }
   },
-  side(us) { return this.home ? !!us : !us; },
-  r() { let t = this.seed += 0x6D2B79F5; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }, /* seeded: same match, same pictures */
-  players() {
-    const s = U.md, [L, R] = mdTeams(s.m), w = this.root.querySelector('.mdpw'), F4 = [[5, 50], [20, 18], [18, 39], [18, 61], [20, 82], [38, 16], [36, 40], [36, 60], [38, 84], [48, 38], [48, 62]]; this.pl = [];
-    F4.forEach(([x, y], i) => [0, 1].forEach(side => { const el = document.createElement('i'), c = side ? R.c : L.c; el.className = 'mdpl'; el.style.background = i === 0 ? '#f3d36b' : c[0]; const bx = side ? 100 - x : x; el.style.left = bx + '%'; el.style.top = y + '%'; w.appendChild(el); this.pl.push({ el, bx, by: y, gk: !i }); }));
+  build(m) {
+    const g = G(), H = m.home, stories = ((g.mdS && g.mdS.list) || []).map(x => { const p = mdP(x.pid); return p ? { name: p.name, tag: x.tag, t: x.t } : null; }).filter(Boolean);
+    const B = F.matchBeats ? F.matchBeats(m, { stories }) : []; this.m = m; this.H = H; this.hS = H ? 'us' : 'them'; this.aS = H ? 'them' : 'us';
+    const KEY = (m.feed || []).filter(e => ['goal', 'red', 'yellow', 'sub', 'injury', 'ht'].includes(e.k)), used = new Set(), steps = [];
+    const keyFor = mo => { const e = KEY.find(e => !used.has(e) && e.m === mo.m && e.k === mo.k && (e.k === 'ht' || e.side === mo.side)); if (e) used.add(e); return e || null; };
+    for (const mo of B) { if (mo.k === 'ft') continue; const ke = keyFor(mo); let given = false;
+      for (const b of mo.beats) { if (b.k === 'pause') { steps.push({ m: mo.m, pause: true, hold: b.hold }); continue; } const parts = b.t.length > 48 ? b.t.split(/(?<=[.!?])\s+(?=[A-Z"'])/).flatMap(t => t.length > 50 && /: /.test(t) ? [t.replace(/: .*/, '.'), t.replace(/^[^:]*: /, '').replace(/^./, c => c.toUpperCase())] : [t]) : [b.t]; // one line in the ticker: a long two-sentence beat becomes two lines
+        parts.forEach((t, j) => { const last = j === parts.length - 1, st = { m: mo.m, t, side: mo.side, goal: !!b.goal && last, red: mo.k === 'red' && b.k === 'out', after: b.k === 'after', hold: Math.round((b.hold || 600) * (parts.length > 1 ? 0.75 : 1)), ht: mo.k === 'ht' && last }; if (last && ke && !given && b.k === 'out') { st.key = ke; given = true; } steps.push(st); }); } }
+    const has = new Set(B.map(x => x.m)), poss = m.poss || [], nm = n => n.split(' ')[0];
+    for (let mm = 2; mm <= 93; mm += 4) { if ([0, 1, 2, 3].some(k => has.has(mm + k))) continue; const p = poss[Math.min(poss.length - 1, Math.floor((mm - 1) / 5))] || 50, us = p >= 50, T = us ? nm(g.club.name) : nm(m.oppName);
+      steps.push({ m: mm, t: [`${T} keep the ball in midfield.`, `${T} pass it across the back.`, `A spell of possession for ${T}.`, `${T} probe, looking for an opening.`][mm % 4], side: us ? 'us' : 'them', hold: 450 }); }
+    steps.sort((a, b) => a.m - b.m); this.steps = steps; const est = steps.reduce((a, x) => a + (x.hold || 0), 0) * 0.8 + 94 * 75; this.k = Math.max(0.65, Math.min(1.2, 40000 / est)); // every match lasts about 40 seconds this.orphan = KEY.filter(e => !used.has(e)); this.KEY = KEY;
   },
-  ball(x, y, ms) {
-    const b = this.root.querySelector('.mdball'); if (!b) return; const tr = MAIL_RM ? 'none' : `left ${ms}ms cubic-bezier(.3,.7,.3,1),top ${ms}ms cubic-bezier(.3,.7,.3,1)`;
-    b.style.transition = tr; b.style.left = x + '%'; b.style.top = y + '%';
-    (this.pl || []).forEach(p => { const k = p.gk ? .08 : .38; p.el.style.transition = tr; p.el.style.left = Math.max(3, Math.min(97, p.bx + (x - 50) * k + (this.r() - .5) * 3)) + '%'; p.el.style.top = Math.max(6, Math.min(94, p.by + (y - p.by) * (p.gk ? .1 : .18))) + '%'; });
+  sp(ms) { return MAIL_RM ? Math.min(ms, 120) : ms * (this.fast ? 0.4 : 0.8) * (this.k || 1); },
+  sc2(s) { return this.H ? [s.us, s.them] : [s.them, s.us]; },
+  $(id) { return document.getElementById(id); },
+  paint() { // put the current state into a freshly rendered screen
+    this.ctl(); this.clock(Math.max(0, this.min)); this.poss(Math.max(1, this.min)); this.stats(); this.report(); this.scorers();
+    const [h, a] = this.sc2(this.score()); if (this.$('mw-hg')) { this.$('mw-hg').textContent = h; this.$('mw-ag').textContent = a; }
+    const p0 = this.$('mw-p0'); if (p0) { p0.innerHTML = this.shownKeys.length ? '' : '<div class="mw-empty">Goals, cards and changes appear here as they happen.</div>'; for (const e of this.shownKeys) p0.appendChild(this.keyRow(e)); p0.scrollTop = p0.scrollHeight; }
+    if (this.lastStep) this.ticker(this.lastStep, true);
   },
+  score() { const gs = this.goalsShown; return { us: gs.filter(e => e.side === 'us').length, them: gs.filter(e => e.side === 'them').length }; },
+  ctl() { const c = this.$('mw-ctl'); if (!c) return; const s = U.md;
+    if (this.htq) { c.innerHTML = `<button data-a="md-ht" data-v="in">Go in</button><button data-a="md-ht" data-v="out">Leave it to ${esc(F.staff('coach') ? F.staffName('coach').split(' ')[0] : 'the coach')}</button><span></span>`; return; }
+    if (this.done) { c.innerHTML = `<button class="k" data-a="md-after">${s.replay ? 'Back' : s.cup ? 'To the cup tie' : 'Read the Gazette'}</button><button data-a="mw-again">Watch again</button><span></span>`; return; }
+    c.innerHTML = `<button data-a="mw-pause">${this.paused ? 'Resume' : 'Pause'}</button><button data-a="md-speed">${this.fast ? 'Normal' : '2× speed'}</button><button class="k" data-a="md-skip">Full time</button>`; },
+  clock(mm) { const c = this.$('mw-clk'); if (!c) return; c.textContent = (mm > 90 ? '90+' + (mm - 90) : mm) + "'"; const h = this.$('mw-half'); if (h && !this.done) h.textContent = this.htNow ? 'Half-time' : mm <= 45 ? 'First half' : mm <= 90 ? 'Second half' : 'Stoppage time';
+    const ht = this.KEY.find(e => e.k === 'ht'), cmp = this.$('mw-cmp'); if (cmp && ht && mm > 45 && !/HT /.test(cmp.textContent)) cmp.textContent += ' · HT ' + this.sc2(ht.score).join('–'); },
+  poss(mm) { const p = (this.m.poss || [50])[Math.min((this.m.poss || [50]).length - 1, Math.floor((Math.max(1, mm) - 1) / 5))], h = this.H ? p : 100 - p, pb = this.$('mw-pb'); if (!pb) return; pb.style.gridTemplateColumns = `${h}fr ${100 - h}fr`; this.$('mw-ph').textContent = h + '%'; this.$('mw-pa').textContent = (100 - h) + '%'; },
+  stats() { const el = this.$('mw-p1'); if (!el) return; const r = (l, k) => { const [a, b] = this.sc2(k); return `<b>${a}</b><span>${l}</span><b class="r">${b}</b>`; }, poss = (this.m.poss || []).slice(0, Math.max(1, Math.ceil(this.min / 5))), pu = Math.round(poss.reduce((a, b) => a + b, 0) / Math.max(1, poss.length));
+    el.innerHTML = `<div class="mw-sx">${r('Shots', this.sh)}${r('On target', this.sot)}${r('Expected goals', { us: this.xg.us.toFixed(1), them: this.xg.them.toFixed(1) })}${r('Possession', { us: pu + '%', them: (100 - pu) + '%' })}</div>`; },
+  report() { const el = this.$('mw-p2'); if (!el) return; const m = this.m, g = G();
+    if (!this.done) { el.innerHTML = '<div class="mw-rp"><h4>Match report</h4><p>Why we won or lost follows at full time.</p></div>'; return; }
+    const res = m.cupWin != null ? (m.cupWin ? 'A win' : 'A defeat') : m.ug > m.tg ? 'A win' : m.ug < m.tg ? 'A defeat' : 'A draw', motm = g.squad.find(p => p.name === m.motm), out = (U.md && U.md.out) || [];
+    el.innerHTML = `<div class="mw-rp"><h4>${res}, ${this.sc2({ us: m.ug, them: m.tg }).join('–')}${m.pens ? ', ' + esc(m.pens) : ''}</h4>${motm ? `<p><b>${m.ug < m.tg ? 'Our best player' : 'Player of the match'}:</b> ${esc(motm.name)}${motm.lastRat ? ', ' + motm.lastRat.toFixed(1) : ''}</p>` : ''}${m.why && m.why.length ? `<ul>${m.why.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}${out.length ? `<h4>How the stories ended</h4><ul>${out.map(o => `<li>${esc(o.t)}</li>`).join('')}</ul>` : ''}</div>`; },
+  scorers() { const m = this.m, sur = n => n ? n.split(' ').slice(-1)[0] : '', by = side => this.goalsShown.filter(e => e.side === side).reduce((o, e) => { (o[sur(e.who)] = o[sur(e.who)] || []).push(e.m > 90 ? '90+' + (e.m - 90) : e.m); return o; }, {});
+    const f = o => Object.entries(o).map(([n, ms]) => `<b>${esc(n)}</b> <span>${ms.join(', ')}</span>`).join(' · '), hs = this.$('mw-hs'); if (!hs) return; hs.innerHTML = f(by(this.hS)); this.$('mw-as').innerHTML = f(by(this.aS)); },
+  keyRow(e) { const sur = n => n ? n.split(' ').slice(-1)[0] : '', row = document.createElement('div');
+    if (e.k === 'ht') { row.className = 'mw-row ht'; row.innerHTML = `<span>HALF-TIME, ${this.sc2(e.score).join('–')}</span>`; return row; }
+    if (e.k === 'et') { row.className = 'mw-row ht'; row.innerHTML = `<span>${esc(e.t)}</span>`; return row; }
+    const home = e.side === this.hS, ic = e.k === 'yellow' ? '<i class="ic yc"></i>' : e.k === 'red' ? '<i class="ic rc"></i>' : e.k === 'goal' ? '⚽' : e.k === 'sub' ? '⇄' : '✚';
+    const txt = e.k === 'goal' ? `<span class="gl">${esc(sur(e.who))}</span> ${this.sc2(e.score).join('–')}` : e.k === 'sub' ? `<span class="sub">${esc(sur(e.inn))} for ${esc(sur(e.out))}</span>` : e.k === 'injury' ? `<span class="sub">${esc(sur(e.who))} injured</span>` : esc(sur(e.who));
+    row.className = 'mw-row'; row.innerHTML = home ? `<span class="h">${txt} ${ic}</span><span class="mn">${e.m > 90 ? '90+' + (e.m - 90) : e.m}'</span><span class="a"></span>` : `<span class="h"></span><span class="mn">${e.m > 90 ? '90+' + (e.m - 90) : e.m}'</span><span class="a">${ic} ${txt}</span>`; return row; },
+  addKey(e) { if (this.shownKeys.includes(e)) return; this.shownKeys.push(e); if (e.k === 'goal') { this.goalsShown.push(e); this.scorers(); } const p0 = this.$('mw-p0'); if (!p0) return; const em = p0.querySelector('.mw-empty'); if (em) em.remove(); p0.appendChild(this.keyRow(e)); p0.scrollTop = p0.scrollHeight; },
+  count(mm) { for (const e of (this.m.feed || []).filter(e => e.m === mm)) if (['goal', 'save', 'miss', 'block'].includes(e.k)) { this.sh[e.side]++; this.xg[e.side] += e.xg || 0; if (e.k === 'goal' || e.k === 'save') this.sot[e.side]++; } this.stats(); },
+  ticker(s, quiet) { const tk = this.$('mw-tk'); if (!tk) return; tk.className = 'mw-tk' + (s.goal ? ' goal' : s.red ? ' red' : s.after ? ' after' : ''); this.$('mw-side').className = 'side ' + (s.side ? (s.side === 'us') === this.H ? 'h' : 'a' : '');
+    const p = this.$('mw-tl'); p.innerHTML = `<span class="m">${s.m > 90 ? '90+' + (s.m - 90) : s.m}'</span>${esc(s.t)}`; p.style.fontSize = ''; let f = parseFloat(getComputedStyle(p).fontSize); while (p.scrollWidth > p.clientWidth && f > 12) { f -= 1; p.style.fontSize = f + 'px'; }
+    if (!quiet && s.goal) { const sc = this.score(), [h, a] = this.sc2(sc); this.$('mw-hg').textContent = h; this.$('mw-ag').textContent = a; const el = s.side === this.hS ? this.$('mw-hg') : this.$('mw-ag'); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); ART.SND[s.side === 'us' ? 'cheer' : 'bad'](); if (s.side === 'us') ART.vib([80, 40, 80]); } },
   alive() { return this.root && this.root.isConnected && U.md && U.md.m === this.m && !U.md.ft; },
-  loop() {
-    const step = MAIL_RM ? 30 : this.fast ? 110 : 230;
-    clearTimeout(this.t); this.t = setTimeout(() => {
-      if (!this.alive()) return this.lost(); if (this.paused) return;
-      this.min++; const e = this.m.ev[this.i]; if (!e) return this.finish();
-      if (e.m > this.min) { if (this.min % 2 === 0) { const lean = e.us != null && e.k !== 'info' ? (this.side(e.us) ? 1 : -1) : 0; this.ball(50 + lean * 12 + (this.r() - .5) * 36, 22 + this.r() * 56, step * 2); } this.clock(); this.push(e.us != null && e.k !== 'info' ? (this.side(e.us) ? .25 : -.25) : 0); return this.loop(); }
-      this.i++; this.clock(e.m); this.fire(e);
-    }, step);
+  step() {
+    if (this.done) return; if (!this.alive()) return; if (this.paused || this.htq) { this.t = setTimeout(() => this.step(), 200); return; }
+    const s = this.steps[this.i]; if (!s) return this.finish();
+    if (s.m > this.min) { this.min++; this.htNow = false; this.clock(this.min); this.count(this.min); this.poss(this.min); for (const e of this.orphan.filter(e => e.m === this.min)) this.addKey(e); this.t = setTimeout(() => this.step(), this.sp(this.steps[this.i] && this.steps[this.i].m > this.min + 1 ? 45 : 95)); return; }
+    this.i++; if (s.pause) { const p = this.$('mw-tl'); if (p && !/…$/.test(p.textContent)) { p.innerHTML += ' …'; if (p.scrollWidth > p.clientWidth) p.innerHTML = p.innerHTML.slice(0, -2); } this.t = setTimeout(() => this.step(), this.sp(s.hold)); return; }
+    if (s.key) this.addKey(s.key); this.lastStep = s; this.ticker(s);
+    if (s.ht) { this.htNow = true; this.clock(45); ART.SND.whistle(); if (s.key && !U.md.htDone && F.mdHtOffer && F.mdHtOffer(this.m)) { this.htq = true; this.ctl(); return; } }
+    this.t = setTimeout(() => this.step(), this.sp(s.hold));
   },
-  clock(mm) { mm = mm || this.min; const c = this.root.querySelector('.mdclk'); if (c) c.textContent = (mm > 90 && mm <= 95 && this.end <= 96 ? '90+' + (mm - 90) : mm) + "'"; const p = this.root.querySelector('.mdprog b'); if (p) p.style.width = Math.min(100, mm / this.end * 100) + '%'; },
-  push(v) { const last = this.mom.length ? this.mom[this.mom.length - 1] : 0; this.mom.push(last * .82 + v); this.draw(); },
-  paths() { const n = this.end, pts = this.mom.map((v, i) => [i / n * 360, 27 - Math.max(-25, Math.min(25, v * 14))]); if (!pts.length) return ['', '']; const e = pts[pts.length - 1][0].toFixed(1); return ['M0 27 ' + pts.map(p => `L${p[0].toFixed(1)} ${Math.min(27, p[1]).toFixed(1)}`).join(' ') + ` L${e} 27Z`, 'M0 27 ' + pts.map(p => `L${p[0].toFixed(1)} ${Math.max(27, p[1]).toFixed(1)}`).join(' ') + ` L${e} 27Z`]; },
-  draw() { const [a, b] = this.paths(), u = this.root.querySelector('.mu'), t = this.root.querySelector('.mt'); if (u) { u.setAttribute('d', a); t.setAttribute('d', b); } },
-  fire(e) {
-    const right = e.us != null ? this.side(e.us) : true, gx = right ? 94 : 6; let wait = this.fast ? 400 : e.k === 'sub' || (e.k === 'card' && !e.red) ? 500 : 850;
-    if (e.k === 'info' && /^Half-time/.test(e.t)) { this.ball(50, 50, 600); ART.SND.whistle(); return this.half(e); }
-    if (e.k === 'ft') return this.finish();
-    if (e.k === 'ch') { this.ball(right ? 80 : 20, 35 + this.r() * 30, 420); setTimeout(() => this.alive() && this.ball(gx + (right ? -4 : 4), 44 + this.r() * 12, 260), 420); this.push(right ? 1.2 : -1.2); }
-    if (e.k === 'goal') {
-      this.ball(right ? 82 : 18, 50, 380); setTimeout(() => this.alive() && this.ball(gx + (right ? 3 : -3), 50, 220), 380);
-      setTimeout(() => { if (!this.alive()) return; const sc = this.root.querySelector('.mdsc'), hs = this.home ? e.sc[0] : e.sc[1], as = this.home ? e.sc[1] : e.sc[0]; if (sc) { sc.innerHTML = `${hs}<i>–</i>${as}`; sc.classList.remove('pop'); void sc.offsetWidth; sc.classList.add('pop'); }
-        const gf = this.root.querySelector('.mdgf'), p = e.us && e.pid ? mdP(e.pid) : null; if (gf) { gf.className = 'mdgf on ' + (e.us ? 'us' : 'them'); gf.innerHTML = e.us ? `${p ? `<span class="mdgface">${ART.playerFace(p, 'happy')}</span>` : ''}<b>GOAL!</b>${p ? `<small>${esc(p.name)}</small>` : ''}` : `<b>${esc(oppShort(this.m.oppName))} score</b>`; setTimeout(() => { gf.className = 'mdgf'; }, this.fast ? 900 : 1800); }
-        if (e.us) { ART.SND.cheer(); ART.vib([80, 40, 80]); } else ART.SND.bad(); }, 600);
-      this.push(right ? 2 : -2); wait = this.fast ? 1200 : 2200;
-    }
-    this.card(e); clearTimeout(this.t); this.t = setTimeout(() => this.loop(), MAIL_RM ? 150 : wait);
-  },
-  card(e) {
-    const now = this.root.querySelector('.mdnow'), past = this.root.querySelector('.mdpast'); if (!now) return;
-    const prev = now.firstElementChild; if (prev && prev.dataset.t) { const li = document.createElement('li'); li.className = 'mdpli k-' + prev.dataset.k; li.innerHTML = `<span>${prev.dataset.m}'</span>${esc(prev.dataset.t)}`; past.prepend(li); }
-    const p = e.pid ? mdP(e.pid) : null, t = mdClean(e.t), ic = { goal: '●', ch: '○', card: '', sub: '⇄', inj: '+', info: '·' }[e.k] || '·';
-    const fc = p ? `<span class="mdmf">${ART.playerFace(p, e.k === 'goal' ? 'happy' : e.k === 'card' || e.k === 'inj' ? 'worried' : 'neutral')}</span>` : e.k === 'goal' && !e.us ? `<span class="mdmi">${crest(mdOppCols(this.m.opp), oppShort(this.m.oppName), 30)}</span>` : `<span class="mdmi k-${e.k} ${e.red ? 'red' : ''}">${ic}</span>`;
-    now.innerHTML = `<div class="mdcard k-${e.k} ${e.us ? 'us' : e.us === 0 ? 'them' : ''}" data-t="${esc(t)}" data-m="${e.m}" data-k="${e.k}">${fc}<div><span class="mdmm">${e.m}'</span><p>${esc(t)}</p></div></div>`;
-  },
-  half(e) {
-    this.htq = !U.md.htDone && F.mdHtOffer ? !!F.mdHtOffer(this.m) : false; this.htWait = this.htq && !MAIL_RM; const m = this.m, sc = e.t.replace(/^Half-time:\s*/, '').replace(/\.$/, ''), coach = F.staff('coach'), [a, b] = sc.split('–').map(Number), us = this.home ? a : b, th = this.home ? b : a;
-    const line = us > th ? '"Good half. Keep doing the simple things."' : us < th ? '"Not good enough. We can still turn this."' : '"Tight. We need a bit more in the final third."';
-    this.card({ k: 'info', m: 45, t: 'Half-time.' });
-    const now = this.root.querySelector('.mdnow'); now.innerHTML = `<div class="mdht"><div class="mdhth"><b>Half-time</b><span>${esc(sc)}</span></div>${coach ? `<div class="mdhtc"><span class="mdcf">${ART.staffFace('coach')}</span><p>${esc(line)}<small>${esc(coach.name)}</small></p></div>` : ''}${this.htq ? `<div class="mdhtq"><p><b>Go into the dressing room?</b> It is about the players, not the tactics.</p></div>` : '<button data-a="md-resume">Second half</button>'}</div>`;
-    if (this.htq) { const ctl = this.root.querySelector('.mdctl'); if (ctl) { this.ctlPrev = ctl.innerHTML; ctl.classList.add('ht'); ctl.innerHTML = `<button data-a="md-ht" data-v="in">Go in</button><button data-a="md-ht" data-v="out">Leave it to ${esc(coach ? coach.name.split(' ')[0] : 'the coach')}</button>`; } }
-    this.paused = true; clearTimeout(this.t); if (!this.htWait) this.t = setTimeout(() => this.resume(), MAIL_RM ? 200 : this.fast ? 2000 : 3500);
-  },
-  ctlBack() { const ctl = this.root && this.root.querySelector('.mdctl'); if (ctl && this.ctlPrev != null) { ctl.innerHTML = this.ctlPrev; ctl.classList.remove('ht'); this.ctlPrev = null; } },
-  resume() { if (!this.paused) return; this.paused = false; this.ctlBack(); ART.SND.whistle(); const now = this.root.querySelector('.mdnow'); if (now) now.innerHTML = ''; this.loop(); },
-  finish() { clearTimeout(this.t); if (!U.md || U.md.m !== this.m) return; ART.SND.whistle(); this.momAll(); const [a, b] = this.paths(); U.md.momTop = a; U.md.momBot = b; U.md.ft = true; this.cur = null; render(); },
-  momAll() { // the whole match, so a skipped match still shows its shape
-    const ev = this.m.ev, v = []; let cur = 0, j = 0;
-    for (let mm = 1; mm <= this.end; mm++) { while (j < ev.length && ev[j].m < mm) j++; const here = ev.filter(e => e.m === mm), nx = ev[j]; let push = nx && nx.us != null && nx.k !== 'info' ? (this.side(nx.us) ? .25 : -.25) : 0;
-      for (const e of here) if (e.k === 'ch') push += this.side(e.us) ? 1.2 : -1.2; else if (e.k === 'goal') push += this.side(e.us) ? 2 : -2;
-      cur = cur * .82 + push; v.push(cur); }
-    this.mom = v;
-  },
-  lost() { clearTimeout(this.t); if (U.md && U.md.m === this.m && !U.md.ft && document.querySelector('.mdm')) { this.cur = null; this.start(); } },
-  skip() { this.finish(); }
+  resume() { this.htq = false; this.paused = false; this.ctl(); if (!this.done) { clearTimeout(this.t); this.t = setTimeout(() => this.step(), 200); } },
+  finish(still) { clearTimeout(this.t); if (!U.md || U.md.m !== this.m) return; const m = this.m;
+    for (let k = this.i; k < this.steps.length; k++) if (this.steps[k].key) { const e = this.steps[k].key; if (!this.shownKeys.includes(e)) { this.shownKeys.push(e); if (e.k === 'goal') this.goalsShown.push(e); } }
+    for (let mm = this.min + 1; mm <= 94; mm++) { this.count(mm); for (const e of this.orphan.filter(e => e.m === mm)) if (!this.shownKeys.includes(e)) this.shownKeys.push(e); }
+    if (m.pens && !this.shownKeys.some(e => e.k === 'et')) this.shownKeys.push({ k: 'et', t: (m.pens || '').toUpperCase() });
+    this.i = this.steps.length; this.min = 94; this.done = true; this.htq = false; this.htNow = false;
+    if (!still) { ART.SND.whistle(); U.md.ft = true; render(); return; }
+    this.lastStep = { m: 94, t: `Full time. ${this.sc2({ us: m.ug, them: m.tg }).join('–')}${m.pens ? ', ' + m.pens : ''}.`, side: null };
+    this.goalsShown = this.shownKeys.filter(e => e.k === 'goal'); const h = this.$('mw-half'); if (h) h.textContent = 'Full time';
+    this.paint(); const [hh, aa] = this.sc2({ us: m.ug, them: m.tg }); this.$('mw-hg').textContent = hh; this.$('mw-ag').textContent = aa; this.clock(94); const hf = this.$('mw-half'); if (hf) hf.textContent = 'Full time'; },
+  skip() { this.finish(); },
+  ctlBack() { this.htq = false; this.ctl(); }
 };
 /* ---------- the Gazette: one design, opened after the match and from the inbox ---------- */
 function gzEdition(ed, mode, idx) {

@@ -126,7 +126,7 @@ function render() {
   else if (g.phase === 'sacked') h = vSacked();
   else { U.tray = ''; h = masthead() + ({ inbox: vInbox, desk: vInbox, news: vNews, club: vClub2, staff: () => U.dept ? vDept(U.dept) : vDepts(), squad: vSquad, league: vLeague2, money: vMoney })[U.tab](); h += ((U.tab === 'inbox' && U.open) || (U.tab === 'staff' && U.dept)) && U.tray ? U.tray : vBar(); }
   app.innerHTML = h + vSheet() + (U.toast ? `<div class="toast" role="status">${esc(U.toast)}</div>` : '') + (U.flash && U.flashN !== U.flashShown ? (U.flashShown = U.flashN, `<div class="fxtoast" role="status">${esc(U.flash)}</div>`) : '');
-  markFresh(); mailAfter(); if (U.md && U.md.phase === 'match' && !U.md.ft) MDP.start();
+  markFresh(); mailAfter(); if (U.md && U.md.phase === 'match') MDP.start();
   window.scrollTo(0, y); ddSchedule();
 }
 

@@ -31,8 +31,8 @@ async def main():
       await pg.screenshot(path=f'/tmp/u{w}a.png'); print('preview', await pg.locator('.mdpv').count(), 'stories', await pg.locator('.mdstory').count(), 'ovf', await pg.evaluate(OVF))
       await pg.click('[data-a=md-kick]'); await pg.wait_for_timeout(9000 if w==0 else 1500); await pg.screenshot(path=f'/tmp/u{w}b.png')
       if await pg.locator('[data-a=md-skip]').count(): await pg.click('[data-a=md-skip]')
-      await pg.wait_for_timeout(700); await pg.screenshot(path=f'/tmp/u{w}c.png'); print('ft', await pg.locator('.mdft').count())
-      while await pg.locator('.mdft [data-a=md-after]').count():
+      await pg.wait_for_timeout(700); await pg.screenshot(path=f'/tmp/u{w}c.png'); print('ft', await pg.locator('#mw [data-a=md-after]').count())
+      while await pg.locator('#mw [data-a=md-after]').count():
         txt=await pg.locator('[data-a=md-after]').inner_text(); await pg.click('[data-a=md-after]'); await pg.wait_for_timeout(600)
         if 'cup' in txt.lower(): await pg.click('[data-a=md-skip]'); await pg.wait_for_timeout(500)
         else: break

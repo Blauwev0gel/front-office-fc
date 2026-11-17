@@ -36,6 +36,7 @@ function decideProposalInternal(i, choice) {
   if (choice === 'revise') { if (it.revised) return { err: 'Already revised once.' }; it.revised = true; it.cost = Math.round(it.cost * 0.6 / 100) * 100; it.wk = Math.round(it.wk * 0.6); it.ctx.scale = 0.6; it.p = clamp(it.p + 0.08, 0, 0.97); it.pc = clamp(it.pc + 0.05, 0, 0.97); if (s) s.rel = clamp(s.rel - 1, 0, 100); return { out: 'Sent back for a slimmed-down version: cheaper and safer, with a smaller payoff.' }; }
   if (choice === 'reject') { it.status = 'rejected'; (G.propCd = G.propCd || {})[it.id] = absWeek() + 10; if (s) s.rel = clamp(s.rel - (s.p.ego > 13 ? 5 : 2), 0, 100); return { out: `${staffName(it.owner)} takes the rejection ${s && s.p.ego > 13 ? 'badly' : 'in his stride'}.` }; }
   if (choice === 'approve') {
+    if (it.cost > meetingPot()) return { err: 'Finance cannot release this amount under the current reserve policy.' };
     it.status = 'approved'; G.club.cash -= it.cost;
     (G.projects = G.projects || []).push({ id: it.id, ctx: it.ctx, owner: it.owner, ownerId: s ? s.id : null, start: absWeek(), due: absWeek() + it.dur, wk: it.wk, p: it.p, cost: it.cost });
     if (s) s.rel = clamp(s.rel + 3, 0, 100); if (d.onStart) d.onStart(it.ctx);

@@ -111,19 +111,16 @@ function tabBadge(k) {
   return '';
 }
 function vBar() {
-  const g = G(), open = inboxItems().filter(isBox).length;
-  const fx = !!(F.mtPreview && F.mtPreview());
-  const play = fx ? 'Next match' : 'Continue week ' + g.week;
+  const open = inboxItems().filter(isBox).length;
   const items = FO_SECTIONS.map(x => {
     const active = foRoot(U.tab) === x.key, n = x.key === 'inbox' && open ? open : 0;
     return `<button data-a="tab" data-t="${x.key}" class="fo-tab ${active ? 'on' : ''}"
         aria-current="${active ? 'page' : 'false'}" aria-label="${x.label}">
       <span>${x.label}</span>${n ? `<b class="fo-navcount">${n}</b>` : ''}</button>`;
   }).join('');
-  // Progress is a decision belonging to the CEO's desk, not a global menu shortcut.
-  const command = foRoot(U.tab) === 'inbox' && !U.open ?
-    `<div class="fo-command"><button class="fo-play" data-a="play" aria-label="${play}">${play}${open ? ` <small>· ${open} awaiting your decision</small>` : ''}</button></div>` : '';
-  return command + `<nav class="fo-mainnav" aria-label="Main game menu">${items}</nav>`;
+  // Week advancement belongs inside the Desk's next fixture, not a duplicated
+  // sticky action floating above every navigation route.
+  return `<nav class="fo-mainnav" aria-label="Main game menu">${items}</nav>`;
 }
 function advance() { const nx = inboxItems().find(x => (x.kind === 'need' || x.kind === 'upd') && x.key !== U.open); if (nx) U.open = nx.key; else U.flash = ''; }
 function markFresh() { U.seenB = U.seenB || new Set(); for (const b of document.querySelectorAll('#app .bubble')) { const k = b.textContent.slice(0, 80); if (!U.seenB.has(k)) { b.classList.add('anim'); U.seenB.add(k); } } if (U.seenB.size > 400) U.seenB = new Set(); }

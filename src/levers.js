@@ -5,6 +5,10 @@
 'use strict';
 const g = () => F.G, H = F.HOOK;
 const { clamp, money, M, staff, man, chance, gauss } = F;
+// B54 balance: Grip gave an active CEO about +1.5 to +3 on every head; without it the game got harder for everyone who plays.
+// A flat lift for the football heads, the same for every CEO, so the difficulty comes back without rewarding clicks.
+const LIFT = { coach: 1, dof: 1, scout: 1, acad: 1 }, prevEffL = H.effBonus;
+H.effBonus = (r, i) => (prevEffL ? prevEffL(r, i) : 0) + (LIFT[r] || 0);
 // a step up: the first season in a new division is harder, and fades as the squad adapts
 const prevExtra = H.ftExtra; H.ftExtra = () => (prevExtra ? prevExtra() : 0) - (g().club.stepUp === g().season ? 1.2 * Math.max(0, 1 - g().week / 50) : 0); // B37: the first season in a new division is an adjustment, not a victory lap
 /* ---------- weekly ---------- */

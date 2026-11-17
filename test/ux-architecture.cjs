@@ -14,6 +14,10 @@ assert(css.includes('.dw-archive-nav button') && css.includes('min-height:44px')
 const nav=read('ui/04-masthead-news.js');
 for(const id of ['inbox','club','squad','staff'])assert(nav.includes('data-t="league"'),'league remains reachable within Football');
 assert(bar.includes('fo-mainnav')&&bar.includes('foRoot(U.tab)'),'only one four-way menu is rendered');
-assert(css.includes('.fo-mainnav')&&css.includes('.fo-command'),'new responsive game navigation must be styled');
+assert(css.includes('.fo-mainnav')&&css.includes('.dw-match-cta'),'new responsive game navigation and inline match progression must be styled');
 assert(read('ui/05-pitches-squad-money.js').includes('fo-squad'),'squad uses one consolidated three-view menu');
 console.log('PASS: Desk V2 decisions, staff context, archive, Club navigation, stakeholders and mobile UI contract');
+
+assert(inbox.includes('deskNextMatch') && inbox.includes('data-a="play"'), 'week progression remains on the Desk');
+assert(inbox.includes('deskMatters') && inbox.includes('core.delegated'), 'staff delegation and ongoing matters remain reachable');
+assert(inbox.includes('deskDecisionCard') && inbox.includes('kind===\'need\''), 'only actual required decisions are prioritized');

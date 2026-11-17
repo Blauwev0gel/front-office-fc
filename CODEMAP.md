@@ -90,7 +90,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `commercial.js` | 10 KB | Commercial department The stadium as a system (three stands, demand, price, matchday experience), sponsor offe | attendance, gate, homeEdge, merchMult, deptCost, seasonAfterMatch |  | com |
 | `marketing.js` | 7 KB | Marketing department A supporter funnel (reach, fans, season-ticket holders), loyalty that cushions bad result | fanWeekly, deptCost |  | mk |
 | `business.js` | 7 KB | Business department A season budget per department (lean, normal, invest) against what the club can afford, a  | costDisc |  | biz, deptB |
-| `academy3.js` | 7 KB | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid  | acadIntake, seasonAfterMatch |  | acadX, academy |
+| `academy3.js` | 5 KB | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid  | acadIntake, seasonAfterMatch |  | acadX, academy |
 | `recruitx.js` | 25 KB | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re | seasonAfterMatch, recWeekly, seasonWeekly, summerStart | recMigrate | recX |
 | `world.js` | 18 KB | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store | seasonWeekly |  | world |
 | `turnaround.js` | 7 KB | the turnaround (B37, B44) When it goes properly wrong, the board asks what the CEO intends to do | ftExtra, seasonWeekly |  | turn, turnLast, turnAsk |

@@ -584,7 +584,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 ## Bijlage: alle bronbestanden
 
 <!-- generated:files:start -->
-62 bronbestanden, samen ongeveer 1009 KB.
+62 bronbestanden, samen ongeveer 1007 KB.
 
 | Bestand | KB | Doel |
 |---|---|---|
@@ -619,7 +619,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `commercial.js` | 10 | Commercial department The stadium as a system (three stands, demand, price, matchday experience), sponsor offe |
 | `marketing.js` | 7 | Marketing department A supporter funnel (reach, fans, season-ticket holders), loyalty that cushions bad result |
 | `business.js` | 7 | Business department A season budget per department (lean, normal, invest) against what the club can afford, a |
-| `academy3.js` | 7 | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid |
+| `academy3.js` | 5 | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid |
 | `recruitx.js` | 25 | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re |
 | `world.js` | 18 | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store |
 | `turnaround.js` | 7 | the turnaround (B37, B44) When it goes properly wrong, the board asks what the CEO intends to do |

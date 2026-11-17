@@ -182,7 +182,7 @@ function beginAgreement(role, reason) {
   const snapshot = record(role);
   const a = {
     id: 'mand-' + (G.nid++), role, head: identity, reason: reason || 'CEO direction',
-    start: week, due: week + 6, state: 'running',
+    season: G.season, startWeek: G.week, start: week, due: week + 6, state: 'running',
     mandate: Object.assign({}, G.mand[role]),
     baseline: { score: snapshot.early ? null : snapshot.score, verdict: snapshot.verdict,
       lines: snapshot.lines.slice(0, 3).map(line => line.slice()) },
@@ -195,11 +195,19 @@ function agreementWeekly() {
   // Existing saves and newly founded clubs enter this system without migration
   // steps; active departmental mandates become the first six-week agreements.
   const agreements = agreementStore();
-  // Covers partial old saves and new hires without overriding an acknowledged
-  // completed review for the same head.
+  // A new season resets the scorecard baseline. Do not compare performance
+  // across incompatible season statistics or discard the old agreement history.
+  for (const a of agreements) if ((a.state === 'running' || a.state === 'review') &&
+      a.season != null && a.season !== G.season) {
+    a.state = 'closed'; a.closedWeek = absWeek();
+    a.outcome = 'The season ended. The club will evaluate a new direction against fresh-season evidence.';
+  }
+  // Covers partial old saves and new hires without reopening acknowledged
+  // reviews in the same season.
   for (const r of ROLES) {
     const head = staff(r.id);
-    if (head && !agreements.some(a => a.role === r.id && a.head === head.name))
+    if (head && !agreements.some(a => a.role === r.id && a.head === head.name &&
+        a.season === G.season))
       beginAgreement(r.id, 'Season operating mandate');
   }
   for (const a of agreements) {

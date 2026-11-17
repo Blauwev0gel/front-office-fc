@@ -122,11 +122,27 @@ async function main(){
   await evaluate('(()=>{act("restart",{});return true})()');
   await wait('!!document.querySelector(\'[data-a="sheet"][data-s="quick"]\')');
   await click('[data-a="sheet"][data-s="quick"]');
+  await click('[data-a="quick"][data-v="summer"]');
+  await wait('FO.G && FO.G.phase==="summer"');
+  await audit('transfer summer');
+  assert(await evaluate('!!document.querySelector(\'[data-a="mt-ans"]\')'),
+    'summer meeting must offer an actionable choice');
+  await click('[data-a="mt-ans"]');
+  await audit('summer after decision');
+  // A separate quick-start career isolates the normal season screens.
+  await evaluate('(()=>{act("restart",{});return true})()');
+  await click('[data-a="sheet"][data-s="quick"]');
   await click('[data-a="quick"][data-v="season"]');
   await wait('typeof FO!=="undefined"&&FO.G&&FO.G.phase==="season"');
   await audit('inbox');
   for(const tab of ['club','squad','league','staff','inbox']){
     await click('[data-a="tab"][data-t="'+tab+'"]');await audit(tab);
+    if(tab==='staff'){
+      await click('.dtile2');await audit('department details');
+      await evaluate('(()=>{act("sheet",{s:"mand",r:"coach"});return true})()');
+      await audit('coach mandate modal');
+      await evaluate('(()=>{act("close",{});return true})()');
+    }
   }
   for(const width of [320,390,768])await audit('inbox',width);
   await call('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});

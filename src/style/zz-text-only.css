@@ -502,6 +502,33 @@ body{
   background:var(--paper)!important;color:var(--ink)!important;
   border:1px solid var(--rule)!important}
 #app :is(.srow,.rbr,.dkr,.dtile2,.choice button){overflow-wrap:anywhere!important}
+/* Verified Chrome contrast defects (320–768px): explicitly remove dark graphic
+   skin behind selection labels, league rows, segmented budgets and mail banners.
+   The club's dynamically selected team colors must never determine text contrast. */
+#app .pspot b,#app .pspot small{
+  display:block!important;background:#fcfcf9!important;color:#18271f!important;
+  border:1px solid #53685b!important;padding:3px 5px!important;
+  text-shadow:none!important}
+#app .lr .cn,#app .lr.me .cn{
+  background:#fcfcf9!important;color:#18271f!important;
+  padding:2px 5px!important;min-height:24px!important;
+  border:1px solid #b6c5b9!important}
+#app .seg3{background:#fcfcf9!important;border:1px solid #53685b!important;
+  padding:2px!important}
+#app .seg3 button{background:#fcfcf9!important;color:#18271f!important;
+  border:1px solid #b6c5b9!important;padding:5px!important}
+#app .seg3 button small{color:#18271f!important}
+#app .seg3 button.on,#app .seg3 button[aria-pressed="true"]{
+  background:#284737!important;color:#fff!important;
+  border:2px solid #18271f!important}
+#app .seg3 button.on small,#app .seg3 button[aria-pressed="true"] small{
+  color:#fff!important}
+#app .mcrest{background:#fcfcf9!important;color:#18271f!important;
+  border:1px solid #53685b!important;padding:1px 4px!important}
+#app .mbn{background:#fcfcf9!important;color:#18271f!important;
+  border:2px solid #284737!important;backdrop-filter:none!important}
+#app .mbn :is(div,span,b,p){color:#18271f!important}
+#app .mbn small{color:#4b6053!important}
 @media(prefers-reduced-motion:reduce){
   #app *,#app *::before,#app *::after{animation:none!important;transition:none!important}
 }

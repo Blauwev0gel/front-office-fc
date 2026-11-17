@@ -88,6 +88,9 @@ function act(a, d, el) {
     case 'ft-sackq': U.sheet = { t: 'sack' }; break;
     case 'ft-sack': r = F.specialistAct('firstteam.sack'); U.sheet = null; if (r && r.err) toast(r.err); else { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); U.dtab = 'over'; window.scrollTo(0, 0); } break;
     case 'sqtable': U.sqTable = d.v != null ? d.v === '1' : !U.sqTable; break;
+    case 'sp-ack': r=F.specialistAcknowledge(d.id);
+      if(r&&r.err)toast(r.err);else if(r&&r.out)toast(r.out);
+      break;
     case 'sp-conflict': r = F.specialistResolveConflict(d.id,d.v);
       if(r&&r.err) toast(r.err);
       else if(r&&r.out){U.flash=r.out;U.flashN=(U.flashN||0)+1;ART.SND.stamp();}

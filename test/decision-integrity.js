@@ -70,4 +70,25 @@ assert.equal(F.G.club.cash,cash0+34);
 assert.equal(F.answerBrief(briefId,0),null,'briefing cannot be committed twice');
 assert.equal(F.G.club.cash,cash0+34);
 assert(F.respond(msgId,17)===null,'resolved event cannot be reopened');
-console.log('PASS: failed decisions rollback; successful choices commit once; events and briefings remain compatible');
+const proposalId = '__integrity_project__';
+F.PROP[proposalId] = { onStart: () => { F.G.club.cash -= 99; throw Error('project startup failure'); } };
+F.G.meeting = { items: [{ id:proposalId, status:'open', owner:'dof', cost:100,
+  dur:3, wk:12, p:0.5, pc:0.5, ctx:{} }] };
+const beforeProposal = F.save();
+const failedProposal = F.decideProposal(0,'approve');
+assert(failedProposal && failedProposal.err,'a failed project must report failure');
+assert.equal(F.save(), beforeProposal,'failed approval must roll back cost and project');
+assert.equal(F.G.meeting.items[0].status,'open');
+F.PROP[proposalId].onStart = () => { F.G.club.cash += 2; };
+const proposalCash = F.G.club.cash;
+const completedProposal = F.decideProposal(0,'approve');
+assert(completedProposal && completedProposal.out);
+assert.equal(F.G.meeting.items[0].status,'approved');
+assert.equal(F.G.club.cash,proposalCash-98);
+assert.equal(F.G.projects.filter(p=>p.id===proposalId).length,1);
+assert(F.decideProposal(0,'approve').err,'completed proposal cannot be approved twice');
+const beforeInvalidTalk = F.save();
+assert(F.talk('dof','not-a-real-tone').err);
+assert.equal(F.save(),beforeInvalidTalk,'invalid conversation option cannot consume cooldown or change state');
+
+console.log('PASS: failed decisions rollback; successful choices commit once; events, briefings, proposals and conversations remain compatible');

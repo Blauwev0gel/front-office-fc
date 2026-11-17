@@ -23,15 +23,24 @@ function mailBanner() {
   return `<div class="mbn" role="status"><span class="mbav">${ART.staffFace(b.role, 'happy')}</span><div><div class="mbt"><b>${esc(b.name)}</b><span>now</span></div><small>Re: ${esc(b.subj)}</small><p>${esc(clip2(b.txt)[0])}</p></div></div>`;
 }
 function mailReply(k, id, name, opts, auto, isBig, leave, dis) {
-  return '<section class="mreply" aria-label="Your reply">' +
-    '<header class="mrhead"><h3>Your decision</h3><p class="mrto">To <b>' +
+  // Differentiate an optional staff briefing from a binding CEO decision.
+  // Both share one-tap commitment; neither should pretend to be an email chore.
+  const briefing = k === 'b';
+  const heading = briefing ? 'Your response (optional)' : isBig ? 'Board decision' : 'Your decision';
+  const guide = briefing
+    ? 'You can reply, ask about the issue, or continue without answering.'
+    : 'Choose a direction. Your response takes effect immediately.';
+  return '<section class="mreply fo-case-response" aria-label="' + esc(heading) + '">' +
+    '<header class="mrhead"><span class="fo-case-kind">' +
+    (briefing ? 'STAFF CONSULTATION' : isBig ? 'GOVERNANCE' : 'CEO AUTHORITY') +
+    '</span><h3>' + esc(heading) + '</h3><p class="mrto">Responsible: <b>' +
     esc(name) + '</b></p></header>' +
-    '<p class="one-tap-hint">Tap a reply to send it immediately. The decision is final.</p>' +
+    '<p class="one-tap-hint">' + esc(guide) + '</p>' +
     mailRows(k, id, opts, auto) +
-    '<p class="mlv">' + esc(leave) + '</p></section>';
+    '<p class="mlv"><b>If you do nothing:</b> ' + esc(leave) + '</p></section>';
 }
 function mailSent(name, line, out) {
-  return `<section class="mreply"><div class="msent" role="status" tabindex="-1"><div class="msh"><span class="mok">${ART.I.trust}</span><b>Sent to ${esc(mFirst(name))}</b></div><p class="msaid">${esc(line)}</p><p class="mout">${esc(clip2(out)[0])}</p></div><button class="mnext" data-a="mnext">Next email ${ART.I.chev}</button></section>` + mailBanner();
+  return `<section class="mreply"><div class="msent" role="status" tabindex="-1"><div class="msh"><span class="mok">${ART.I.trust}</span><b>Sent to ${esc(mFirst(name))}</b></div><p class="msaid">${esc(line)}</p><p class="mout">${esc(clip2(out)[0])}</p></div><button class="mnext" data-a="mnext">Next matter ${ART.I.chev}</button></section>` + mailBanner();
 }
 function bkStrip() {
   if (!F.backers) return ''; const B = F.backers(), from = U.bkFrom;

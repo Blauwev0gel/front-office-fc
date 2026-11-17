@@ -63,7 +63,7 @@ function msgHtml(m, it) {
   if (m.ev === 'pw_eval' && F.pwView) h += pwEvalHtml(F.pwView());
   if (v.second) h += v.second.text ? `<details class="more" open><summary>Second opinion ${ART.I.chev}</summary><p>${esc(v.second.text)}</p></details>` : v.second.avail ? `<details class="more"><summary>Second opinion: ${esc(v.second.name)}</summary><p><button class="btn ghost small" data-a="second" data-m="${m.id}">Ask ${esc(v.second.name.split(' ')[0])}</button></p></details>` : '';
   const leave = `If you leave it, ${v.autoWho} decides under the current mandate.`;
-  return h + mailReply('m', m.id, name, v.opts, v.auto, big, leave, false, F.caseView('m', m.id));
+  return h + mailReply('m', m.id, name, v.opts, v.auto, big, leave, false, (typeof F.caseView === 'function' ? F.caseView('m', m.id) : null));
 }
 function briefHtml(b, it) {
   const v = F.briefView(b), role = v.role || (it && it.role) || 'club', name = v.who.split(',')[0], roleT = v.who.split(', ')[1] || '', key = 'b' + b.id;
@@ -76,7 +76,7 @@ function briefHtml(b, it) {
   }
   if (v.why) h += `<p class="mwhy"><b>Why it is yours.</b> ${esc(v.why)}</p>`;
   const leave = 'Leave this update without replying and nothing changes.';
-  return h + mailReply('b', b.id, name, v.opts, -1, false, leave, false, F.caseView('b', b.id));
+  return h + mailReply('b', b.id, name, v.opts, -1, false, leave, false, (typeof F.caseView === 'function' ? F.caseView('b', b.id) : null));
 }
 function mailCommit(p) {
   const bk0 = F.backers ? F.backers().map(b => b.v) : null;

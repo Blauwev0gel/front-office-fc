@@ -21,15 +21,10 @@ async def main():
         await page.goto((ROOT / "dist" / "index.html").as_uri())
         await page.evaluate("localStorage.clear()")
         await page.reload()
-        await page.evaluate("""() => {
-          const F=window.FO; F.newGame(221);
-          const dna={}; for(const q of F.DNA) dna[q.k]=q.o[0].v;
-          F.setDNA(dna,'Browser FC','BFC','Browserford',['#123456','#ffffff']);
-          for(const role of F.ROLES) F.hire(role.id,1);
-          F.finishStaff(); F.finishMandates(); F.preSetTarget('accept'); F.finishPreseason();
-          for(const id of F.G.press) F.pressAnswer(id,1);
-          F.finishPress(); U.title=false; U.setup=null; U.tab='inbox'; U.sheet=null; render();
-        }""")
+        # Enter through the real title-screen controls. UI state is scoped inside the bundle and is not a global API.
+        await page.locator('[data-a="sheet"][data-s="quick"]').click()
+        await page.locator('[data-a="quick"][data-v="season"]').click()
+        assert await page.evaluate("FO.G.phase") == "season", "Quick-start did not reach the normal season desk"
         async def check(name):
             await page.wait_for_timeout(120)
             data = await page.evaluate("""() => ({
@@ -45,7 +40,7 @@ async def main():
             await page.screenshot(path=str(OUT / (name + ".png")), full_page=True)
             print("PASS", name, data)
         for theme in ["light", "dark"]:
-            await page.evaluate("(theme) => {document.documentElement.dataset.theme=theme;render();}", theme)
+            await page.evaluate("(theme) => {document.documentElement.dataset.theme=theme;}", theme)
             await check("desk-" + theme)
             tabs = page.locator('[data-a=tab][data-t=staff]')
             assert await tabs.count() > 0, "staff tab absent"
@@ -56,21 +51,27 @@ async def main():
         await page.evaluate("""() => {
           FO.G.week=17;
           if(!FO.winterOpen()) throw Error('Winter route did not open');
-          render();
+          localStorage.setItem('frontoffice_save_v1', FO.save());
         }""")
+        await page.reload()
+        await page.locator('[data-a=continue]').click()
+        assert await page.evaluate("FO.G.phase") == "summer"
         for theme in ["light", "dark"]:
-            await page.evaluate("(theme) => {document.documentElement.dataset.theme=theme;render();}", theme)
+            await page.evaluate("(theme) => {document.documentElement.dataset.theme=theme;}", theme)
             await check("winter-" + theme)
         await page.evaluate("""() => {
           FO.sum2Auto(FO.rnd,true);
           if(FO.G.phase!=='season') throw Error('Winter failed to return to the season');
-          FO.G.phase='review'; // direct navigation for visual inspection only; engine career test advances all real weeks
+          FO.G.phase='review'; // direct navigation for visual inspection only; engine career tests advance real weeks
           FO.startSeason();
           if(FO.G.phase!=='summer'||FO.G.sum.win) throw Error('Summer failed to open');
-          render();
+          localStorage.setItem('frontoffice_save_v1', FO.save());
         }""")
+        await page.reload()
+        await page.locator('[data-a=continue]').click()
+        assert await page.evaluate("FO.G.phase") == "summer"
         for theme in ["light", "dark"]:
-            await page.evaluate("(theme) => {document.documentElement.dataset.theme=theme;render();}", theme)
+            await page.evaluate("(theme) => {document.documentElement.dataset.theme=theme;}", theme)
             await check("summer-" + theme)
         assert not errors, "JavaScript page errors: " + "; ".join(errors)
         print("ALL MOBILE UI SMOKE CHECKS PASSED")

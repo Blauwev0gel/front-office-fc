@@ -1157,3 +1157,17 @@ html,body{background:var(--bg)!important}
 #app .dw-specialist-link>b{font-size:12px!important}
 #app .dw-specialist-link small{font-size:11px!important;color:var(--soft)!important}
 #app .dw-specialist-link>span{font-size:11px!important;text-decoration:underline!important}
+
+/* Genuine departmental disagreement: explicit consequences and three distinct choices. */
+#app .fo-specialist-conflict{background:var(--paper)!important;color:var(--ink)!important;
+ border:2px solid var(--rule)!important;padding:12px!important;margin:10px 0!important}
+#app .fo-specialist-conflict>span{font-size:10px!important;font-weight:900!important;
+ letter-spacing:.06em;color:var(--soft)!important}
+#app .fo-specialist-conflict h3{font-size:16px!important;margin:7px 0!important}
+#app .fo-specialist-conflict p{font-size:12px!important;line-height:1.5!important;margin:10px 0!important}
+#app .fo-specialist-conflict small{font-size:11px!important;color:var(--soft)!important}
+#app .fo-specialist-conflict button{display:block;width:100%;min-height:48px!important;
+ text-align:left!important;padding:11px!important;margin:7px 0!important;
+ background:var(--paper)!important;color:var(--ink)!important;
+ border:1px solid var(--rule)!important;font-size:12px!important;font-weight:800!important}
+#app .fo-specialist-conflict button:first-of-type{background:var(--ink)!important;color:var(--paper)!important}

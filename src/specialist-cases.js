@@ -106,6 +106,68 @@ function execute(kind,p) {
     default: return {err:'Unknown specialist decision.'};
   }
 }
+/* Real cross-department disagreement: commercial revenue vs club identity.
+   The sponsor remains the original commercial engine's offer; no duplicate
+   bargaining simulation or invented offer outcome is created here. */
+function sponsorConflict(offer) {
+  const g=F.G,dna=g.club?.dna||{};
+  const identity=dna.identity==='community'||dna.origin==='fans'||
+    dna.style==='community';
+  return offer?.sect==='Betting' && identity && F.staff('mkt')&&F.staff('com');
+}
+function specialistSponsorRequiresReview(offer) {
+  if(!sponsorConflict(offer))return false;
+  const allowed=F.G.specialistSponsorPermission;
+  return !allowed || allowed.name!==offer.name || allowed.wk!==offer.wk;
+}
+function specialistConflicts(d) {
+  const out=[];
+  if(!d||d==='commercial'||d==='marketing') {
+    const offer=F.comView?.()?.offer;
+    if(specialistSponsorRequiresReview(offer))out.push({
+      id:'sponsor',department:'commercial',
+      title:'Sponsorship versus club identity',
+      first:F.staff('com').name,second:F.staff('mkt').name,
+      explanation:'Commercial recommends considering the sponsor revenue. Marketing warns that a betting partner conflicts with the club\'s community identity.',
+      evidence:'Offer: '+offer.name+' · '+F.money(offer.wk)+'/week for '+offer.weeks+' weeks.',
+      options:[{k:'approve',label:'Authorize this exception'},
+        {k:'counter',label:'Ask Commercial to negotiate harder'},
+        {k:'reject',label:'Protect the identity; decline'}]
+    });
+  }
+  return out;
+}
+function specialistResolveConflict(id,stance) {
+  if(id!=='sponsor'||!['approve','counter','reject'].includes(stance))
+    return {err:'Unknown cross-department decision.'};
+  const offer=F.comView?.()?.offer;
+  if(!sponsorConflict(offer))return {err:'The sponsor conflict is no longer active.'};
+  const before=F.save();
+  try {
+    // Scoped permission only, no lasting bypass of the sponsor policy.
+    F.G.specialistSponsorPermission={name:offer.name,wk:offer.wk};
+    const kind=stance==='approve'?'accept':stance==='counter'?'push':'reject';
+    const result=specialistAct('commercial.offer',{k:kind});
+    if(!result||result.err) {
+      F.load(before);
+      return result||{err:'The sponsor decision could not be completed.'};
+    }
+    const g=F.G,com=F.staff('com'),mkt=F.staff('mkt');
+    // Distinct employee reactions to the CEO's real choice; sponsor financial
+    // and fan consequences remain owned by the commercial engine.
+    if(com)com.rel=F.clamp(com.rel+(stance==='reject'?-2:2),0,100);
+    if(mkt)mkt.rel=F.clamp(mkt.rel+(stance==='reject'?3:-3),0,100);
+    delete g.specialistSponsorPermission;
+    if(!g.specialistConflictLog)g.specialistConflictLog=[];
+    g.specialistConflictLog.push({kind:'sponsor',season:g.season,week:g.week,
+      sponsor:offer.name,choice:stance,commercial:com?.name,
+      marketing:mkt?.name,outcome:result.out,caseId:result.caseId});
+    return result;
+  } catch(err) {
+    F.load(before);
+    return {err:'The decision failed and was rolled back.'};
+  }
+}
 function specialistAct(kind,p={}) {
   if(!AREA[kind])return {err:'Unknown specialist decision.'};
   const d=area(kind,p), o=owner(kind,p);
@@ -225,5 +287,5 @@ F.endWeek=function() {
   if(result)specialistWeekly();
   return result;
 };
-Object.assign(F,{specialistAct,specialistCases,specialistWeekly});
+Object.assign(F,{specialistAct,specialistCases,specialistWeekly, specialistSponsorRequiresReview, specialistConflicts, specialistResolveConflict});
 })(FO);

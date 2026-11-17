@@ -33,10 +33,10 @@ H.seasonAfterMatch = ours => {
   if (prevAfter) prevAfter(ours);
   const G = g(); gripInit();
   G.gripLog.push(Math.round(G.grip)); if (G.gripLog.length > 40) G.gripLog.shift();
-  G.grip = clamp(G.grip - DECAY, 0, 100); G.gripW = 0;
-  if (G.grip < 25) { G.board.conf = clamp(G.board.conf - 0.35, 0, 100); for (const r in G.staff) if (G.staff[r]) G.staff[r].rel = clamp(G.staff[r].rel - 0.3, 0, 100); }
-  if (G.grip < 25 && !G.flags.gripWarn) { G.flags.gripWarn = 1; if (G.paper) G.paper.stories.push({ h: 'Who runs this club?', t: 'Staff are making the calls without direction. The board has noticed.' }); }
-  if (G.grip >= 40) G.flags.gripWarn = 0;
+  // Delegating to capable heads is not neglect. Keep the legacy Grip save field,
+  // but never penalise a CEO merely for letting staff work within mandates.
+  G.gripW = 0;
+  G.flags.gripWarn = 0;
   // over the wage cap: Finance and the DoF move a high earner on while the window is open
   const cap = +man('fin', 'wageCap');
   if (staff('fin') && F.window_() && F.wageRatio() * 100 > cap + 12 && F.absWeek() - (G.flags.trimAt || -99) >= 2 && G.squad.length > 18) {

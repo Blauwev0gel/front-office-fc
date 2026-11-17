@@ -231,6 +231,12 @@ function specialistResolveConflict(id,stance) {
     return {err:'The decision failed and was rolled back.'};
   }
 }
+const POLICY_GROUP={
+  'recruit.priority':'squad-plan', 'recruit.profile':'squad-plan',
+  'commercial.price':'ticket-pricing','marketing.community':'community-policy',
+  'business.level':'department-budgets','recruit.focus':'scouting-strategy',
+  'recruit.approval':'deal-approval-policy'
+};
 function specialistAct(kind,p={}) {
   if(!AREA[kind])return {err:'Unknown specialist decision.'};
   if(financeObjection(kind,p) && !financeAllowed(kind,p)) {
@@ -248,8 +254,19 @@ function specialistAct(kind,p={}) {
     const conflict = d!=='business' && F.bizView && F.bizView().ok===false
       ? 'Finance reports that planned spending exceeds its current envelope.'
       : null;
+    // Multiple adjustments to one working direction in the same game week
+    // belong to one agreement, not a new four-week review per slider tap.
+    const group=POLICY_GROUP[kind];
+    const prior=group&&items.findLast(c=>c.group===group&&c.dept===d &&
+      c.season===g.season&&c.week===g.week&&c.status==='executing');
+    if(prior) {
+      prior.revisions=(prior.revisions||[]).concat([{action:copy(p),out:result?.out||'Updated'}]);
+      prior.after=evidence(d); prior.result=result?.out||'Direction updated';
+      prior.financeConcern=conflict;
+      return {out:prior.result,caseId:prior.id};
+    }
     const rec={
-      id:'sp-'+(g.nid++), kind, dept:d, role:o.role, head:o.name,
+      id:'sp-'+(g.nid++), kind, group:group||null, dept:d, role:o.role, head:o.name,
       title:LABEL[kind], action:copy(p), season:g.season, week:g.week,
       start:now(), due:now()+4, status:'executing', origin:'CEO',
       before:start, after:evidence(d), result:result?.out || 'Direction recorded.',
@@ -305,6 +322,14 @@ function specialistWeekly() {
       t:c.title+' — '+(F.staff(c.role)?.name||'the club')+
         ' reports that the follow-up evidence is available in People.'});
   }
+}
+function specialistAcknowledge(id) {
+  const c=store().find(x=>x.id===id);
+  if(!c||!['review','interrupted'].includes(c.status))
+    return {err:'This case has no outstanding review.'};
+  c.status='closed';
+  c.closedWeek=now();
+  return {out:'The review is recorded. The department continues under its current mandate.'};
 }
 function specialistCases(d) {
   return store().filter(c=>!d||c.dept===d).slice(-20).reverse();
@@ -376,5 +401,5 @@ F.endWeek=function() {
   if(result)specialistWeekly();
   return result;
 };
-Object.assign(F,{specialistAct,specialistCases,specialistWeekly, specialistSponsorRequiresReview, specialistConflicts, specialistResolveConflict});
+Object.assign(F,{specialistAct,specialistCases,specialistWeekly,specialistAcknowledge, specialistSponsorRequiresReview, specialistConflicts, specialistResolveConflict});
 })(FO);

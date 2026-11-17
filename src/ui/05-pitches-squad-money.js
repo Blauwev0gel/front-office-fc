@@ -50,7 +50,13 @@ function vAcademy() {
 }
 function p90(v, m) { return m ? (v / m * 90).toFixed(2) : '–'; }
 const STG_L = { identified: 'Identified', scouted: 'Scouted', recommended: 'Recommended', approach: 'Awaiting approval', negotiating: 'In talks', agreed: 'Agreed', signed: 'Signed', lost: 'Dropped' };
-function squadSeg() { return `${tourCard('squad')}<div class="seg" style="margin-bottom:14px"><button class="${!U.sqTable ? 'on' : ''}" data-a="sqtable" data-v="0">Pitch</button><button class="${U.sqTable ? 'on' : ''}" data-a="sqtable" data-v="1">Stats table</button></div>`; }
+function squadSeg() {
+  const mode = !U.sqTable ? 'xi' : U.sq === 'mb' ? 'stats' : 'players';
+  return `<nav class="fo-squadnav" aria-label="Squad views">
+    ${[['xi','Likely XI'],['players','All players'],['stats','Advanced stats']].map(([k,l]) =>
+      `<button data-a="fo-squad" data-v="${k}" class="${mode === k ? 'on' : ''}" aria-current="${mode === k ? 'page' : 'false'}">${l}</button>`).join('')}
+  </nav>`;
+}
 function recRow(o) {
   const { x, p, k } = o, d = x.deal, note = x.blocked ? `Blocked by ${x.blocked.join(', ')}` : x.stage === 'negotiating' && d && d.rounds.length ? d.rounds[d.rounds.length - 1] : (x.log || []).slice(-1)[0] || '';
   return `<button class="rrow" data-a="target" data-id="${x.pid}"><span class="gr g${k ? k.grade : 'D'}">${k ? k.grade : '?'}</span><span class="rmain"><b>${esc(p.name)}</b> <span class="pos">${p.pos}</span><span class="small rsub">${p.age}, ${F.REGIONS[p.region].name}${p.pool ? (p.club ? ', ' + money(p.ask) : ', free agent') : ''}${k ? `, ${F.recBand(k)}, ${k.conf} confidence` : ''}</span>${note ? `<span class="small rnote ${x.blocked ? 'warn' : ''}">${esc(note)}</span>` : ''}</span></button>`;
@@ -120,10 +126,7 @@ function vSquad() {
     return `<tr data-a="player" data-id="${p.id}"><td>${esc(p.name)} <span class="pos">${p.pos}</span></td><td>${mins}</td><td>${st.g || 0}</td><td>${st.a || 0}</td><td>${(st.xg || 0).toFixed(1)}</td><td>${(st.xa || 0).toFixed(1)}</td><td>${p90(st.prg || 0, mins)}</td><td>${st.dt ? r0(st.dw / st.dt * 100) + '%' : '–'}</td><td>${wv ? r0(wv) : '–'}</td></tr>`;
   }).join('')}</tbody></table></div>`;
   return `${tourCard('squad')}${pulse}${squadSeg()}
-    <div class="ceo-choice-tabs" role="tablist" aria-label="Squad list view">
-      <button role="tab" aria-selected="${U.sq !== 'mb'}" class="${U.sq !== 'mb' ? 'on' : ''}" data-a="sq" data-v="profile">Players</button>
-      <button role="tab" aria-selected="${U.sq === 'mb'}" class="${U.sq === 'mb' ? 'on' : ''}" data-a="sq" data-v="mb">Advanced stats</button>
-    </div>
+    
     ${U.sq === 'mb' ? moneyball : `<div class="ceo-player-list" aria-label="Players">${rows}</div>`}
     <p class="small">Tap a player for ability, potential, contract, morale, attributes and career detail.${U.sq === 'mb' ? ' Advanced stats scroll horizontally only in this view.' : ''}</p>`;
 }

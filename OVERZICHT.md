@@ -126,6 +126,8 @@ evolueren (`str` trekt naar het divisiegemiddelde plus hun coach, B37); spelers 
 
 **De wereld**: `G.clubs` (alle clubs met `str` en een coach), `G.divs` (acht divisies met competitie en stand), `G.rec.pool` (de scoutingpool van ongeveer 300 tot 500 spelers die de DoF kent) en, nieuw, `world.js`: een **seeded wereld van 14 competities en ruim 5000 spelers** die op aanvraag wordt berekend en alleen jouw wijzigingen opslaat (`G.world`).
 
+**Het winterwindow (B49, B50).** Na de wedstrijd van week 16 opent de UI (`mdWinter` in `ui/14`) het winterwindow als fase `summer` met `G.sum.win`: dezelfde machinerie als de zomer (`summer2.js`: meeting, brief, ticker van drie weken, deadline day, editie, debrief), zonder contracten, vriendschappelijke wedstrijden en seizoensdoelen. `F.winterOpen`/`F.winterFinish` staan in `summer.js`. Een kwart van de kitty (`G.club.winKitty`) wordt in de zomer achtergehouden en komt vrij als het window opent. Verkopen gebeuren alleen in een window; daarbuiten maakt `F.agreeSale` een afspraak (`p.sale`) die `settleSales` in het volgende window afhandelt. Headless runs openen de fase niet en houden de oude weken 17–18.
+
 ## 7. Hooks: wie zet wat, wie roept wat aan
 
 <!-- generated:hooks:start -->

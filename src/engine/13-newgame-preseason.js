@@ -27,7 +27,7 @@ function setDNA(d, name, short, city, colors) {
   for (const r of ROLES) G.cands[r.id] = genCands(r.id);
   genWorld();
   G.cup = { alive: true, weeks: [5, 11, 17, 23, 29, 33], names: ['first round', 'second round', 'third round', 'quarter-final', 'semi-final', 'final'], log: [], won: 0 };
-  c.kitty = kittyFor(0); snapStart();
+  { const k = kittyFor(0); c.kitty = Math.round(k * 0.75); c.winKitty = k - c.kitty; } snapStart();
   G.phase = 'staff';
 }
 function staffBudget() { return Math.round(M(2400) * (G.club.dna.money === 'owner' ? 1.25 : G.club.dna.origin === 'investor' ? 1.35 : 1)); }
@@ -56,8 +56,8 @@ function preTargets() { const b = G.pre.base; return [
   { k: 'bold', target: Math.max(1, b - 2), t: 'Aim higher', d: 'Promise more and the board will fund it.', fx: 'Board confidence +5. Transfer kitty +30%. Missing it hurts more.' }]; }
 function preSetTarget(k) {
   const o = G.board.obj.find(o => o.k === 'league'), opt = preTargets().find(x => x.k === k), prev = G.pre.deal;
-  if (prev === 'safe') { G.board.conf += 5; G.club.kitty = Math.round(G.club.kitty / 0.8); } if (prev === 'bold') { G.board.conf -= 5; G.club.kitty = Math.round(G.club.kitty / 1.3); }
-  if (k === 'safe') { G.board.conf -= 5; G.club.kitty = Math.round(G.club.kitty * 0.8); } if (k === 'bold') { G.board.conf += 5; G.club.kitty = Math.round(G.club.kitty * 1.3); }
+  if (prev === 'safe') { G.board.conf += 5; G.club.kitty = Math.round(G.club.kitty / 0.8); G.club.winKitty = Math.round((G.club.winKitty || 0) / 0.8); } if (prev === 'bold') { G.board.conf -= 5; G.club.kitty = Math.round(G.club.kitty / 1.3); G.club.winKitty = Math.round((G.club.winKitty || 0) / 1.3); }
+  if (k === 'safe') { G.board.conf -= 5; G.club.kitty = Math.round(G.club.kitty * 0.8); G.club.winKitty = Math.round((G.club.winKitty || 0) * 0.8); } if (k === 'bold') { G.board.conf += 5; G.club.kitty = Math.round(G.club.kitty * 1.3); G.club.winKitty = Math.round((G.club.winKitty || 0) * 1.3); }
   G.board.conf = clamp(G.board.conf, 0, 100); o.target = opt.target; o.t = `Finish ${ord(o.target)} or higher`; o.bold = k === 'bold'; G.pre.deal = k;
 }
 function preToggleFocus(k) { const f = G.pre.focus; const i = f.indexOf(k); if (i >= 0) f.splice(i, 1); else if (f.length < 2) f.push(k); }

@@ -178,7 +178,7 @@ F.sumFinish = finishSummer;
 F.winterDue = () => { const G = g(); return !!G && G.phase === 'season' && G.week === 17 && G.winDone !== G.season && !!F.sum2Ensure; };
 F.winterOpen = () => {
   const G = g(); if (!F.winterDue()) return false; G.winDone = G.season; G.phase = 'summer';
-  G.sum = { step: 0, round: 0, feed: [], log: [], fr: null, dd: null, contracts: {}, win: true };
+  G.sum = { step: 0, round: 0, feed: [], log: [], fr: null, dd: null, contracts: {}, win: true }; F.releaseWinterKitty();
   sellSuggest(); F.sum2Ensure(); return true;
 };
 F.winterFinish = () => {

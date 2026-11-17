@@ -99,6 +99,7 @@ function agreeSale(p, fee, how, doneMsg) {
   p.sale = { fee, how, s: G.season }; const next = G.phase === 'season' && G.week < 17 ? 'the winter window opens' : 'the summer window opens';
   return `Agreed. ${p.name} leaves when ${next}. Until then he is still ours.`;
 }
+function releaseWinterKitty() { if (G.club.winKitty > 0) { G.club.kitty = (G.club.kitty || 0) + G.club.winKitty; G.club.winKitty = 0; } }
 function settleSales() { if (!window_()) return; for (const p of G.squad.slice()) { if (!p.sale) continue; const s = p.sale; delete p.sale; sellPlayer(p, s.fee, s.how); } }
 function sellPlayer(p, fee, how) {
   if (p.academy && HOOK.acadSale) HOOK.acadSale(p, fee);
@@ -107,7 +108,7 @@ function sellPlayer(p, fee, how) {
   G.paper.stories.push({ h: fee ? 'Sale' : 'Release', t: how || `${p.name} leaves ${fee ? 'for ' + money(fee) : 'on a free'}.` });
 }
 function dofWork() {
-  G.dofNote = null; settleSales(); const d = staff('dof'); if (!d || !window_()) return;
+  G.dofNote = null; if (G.phase === 'season' && G.week >= 17) releaseWinterKitty(); settleSales(); const d = staff('dof'); if (!d || !window_()) return;
   const depth = 20 + Math.round(man('dof', 'depth') / 100 * 6), prot = protectedIds();
   // flagged for sale by the CEO
   const flag = G.squad.find(p => p.sellFlag && !prot.has(p.id)); if (flag && chance(0.6)) { const fee = Math.round(flag.value * (0.55 + rnd() * 0.3) / 100) * 100; flag.sellFlag = false; sellPlayer(flag, fee, `${d.name} sells ${flag.name} for ${money(fee)}, as you asked.`); }

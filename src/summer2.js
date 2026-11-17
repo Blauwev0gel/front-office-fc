@@ -70,7 +70,7 @@ function openItem(i) {
   if (it === 'club') { const d = diagnosis(); mt.probs = d.probs; say('dof', `"${d.lines.join(' ')}"`); }
   if (it === 'money') {
     const wr = Math.round(F.wageRatio() * 100), cap = +man('fin', 'wageCap'), room = Math.max(0, Math.round((cap / 100 * F.revenueAvg() - F.playerWages()) / 5) * 5);
-    say('fin', `"Finance can release ${money(F.transferBudget())} for transfers. Wages are ${wr}% of revenue against a cap of ${cap}%, which leaves about ${money(room)} a week for new salaries. Cash: ${money(g().club.cash)}."`);
+    say('fin', `"Finance can release ${money(F.transferBudget())} for transfers${!win() && g().club.winKitty > 0 ? `, with ${money(g().club.winKitty)} of the kitty held back for the winter window` : win() ? ', including what we held back in the summer' : ''}. Wages are ${wr}% of revenue against a cap of ${cap}%, which leaves about ${money(room)} a week for new salaries. Cash: ${money(g().club.cash)}."`);
     say('board', `"The board expects us to finish ${ord(g().pre.base)}. Promise more and we will put more in the kitty. Promise less and we will hold some back."`);
   }
   if (it === 'needs') buildPlan();

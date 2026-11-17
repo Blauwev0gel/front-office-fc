@@ -68,7 +68,7 @@ function endSeason() {
 function startSeason() {
   if (over()) return;
   G.season++; G.week = 1; G.ap = AP_FREE; G.form = []; G.inbox = G.inbox.filter(m => !m.done).slice(0, 5); G.queue = [];
-  G.fin.lastRev = G.ss.rev; G.ss = newSeasonStats(); G.fin.revSum = 0; G.fin.revW = 0; G.club.kitty = kittyFor(G.fin.lastRev);
+  G.fin.lastRev = G.ss.rev; G.ss = newSeasonStats(); G.fin.revSum = 0; G.fin.revW = 0; { const k = kittyFor(G.fin.lastRev); G.club.kitty = Math.round(k * 0.75); G.club.winKitty = k - G.club.kitty; } /* B50: Finance holds a quarter back for the winter window */
   if (G.club.dna.money === 'owner' && G.club.ownerOn) G.club.cash += M(15000);
   G.paper = { stories: [] }; let filled = 0;
   while (!HOOK.summerStart && G.squad.length < 18) { const need = squadNeeds(), pos = need.length ? need[0] : weakestPos(); const p = genTarget(pos, true); p.fee = 0; sign(p); filled++; }

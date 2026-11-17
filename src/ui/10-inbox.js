@@ -105,6 +105,11 @@ function deskWeekHeader(g, A, nf, box, advisory) {
   const form = recent.length ? recent.map(r =>
     '<span class="dw-result '+esc(r)+'">'+esc(r)+'</span>').join('') :
     '<span class="dw-empty">Season not yet underway</span>';
+  const risks = [];
+  if (g.club.cash < 0) risks.push('<button data-a="tab" data-t="club"><b>Financial pressure</b><span>Club cash is below zero. Review the club outlook →</span></button>');
+  if (F.backers) for (const b of F.backers().filter(x=>x.v<=20)) risks.push(
+    '<button data-a="sheet" data-s="backers"><b>'+esc(b.t)+' confidence is low</b>'+
+    '<span>'+b.v+'/100 · Review the club response →</span></button>');
   return '<section class="dw-week" aria-label="Your football week">'+
     '<div class="dw-week-top"><div><span class="dw-kicker">SEASON '+g.season+' / WEEK '+g.week+'</span>'+
     '<h2>The week at '+esc(g.club.name)+'</h2></div>'+
@@ -115,7 +120,7 @@ function deskWeekHeader(g, A, nf, box, advisory) {
       '<div class="dw-stat dw-form"><small>Recent form</small><div class="dw-results">'+form+'</div></div>'+
       '<button data-a="tab" data-t="club" class="dw-stat"><small>Club cash</small><b>'+
       money(g.club.cash)+'</b><span>Open finance →</span></button>'+
-    '</div></section>';
+    '</div>'+(risks.length ? '<div class="dw-risk-list">'+risks.join('')+'</div>':'')+'</section>';
 }
 function deskNextMatch(g, nf, pv) {
   if (g.phase !== 'season') return '';

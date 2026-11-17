@@ -94,13 +94,35 @@ function vMoney2() {
 }
 const PITCH = { GK: [[50, 90]], FB: [[14, 70], [86, 70]], CB: [[36, 74], [64, 74]], DM: [[50, 56]], CM: [[30, 44]], AM: [[70, 44]], W: [[16, 22], [84, 22]], ST: [[50, 14]] };
 function vPitch() {
-  const g = G(), L = F.pickXI(false), used = {}, nm = n => esc(n.split(' ').slice(-1)[0]);
-  const spots = L.xi.map(x => { const arr = PITCH[x.slot] || [[50, 50]], i = used[x.slot] = (used[x.slot] || 0) + 1, pt = arr[Math.min(i - 1, arr.length - 1)]; return `<button class="pspot" style="left:${pt[0]}%;top:${pt[1]}%" data-a="player" data-id="${x.p.id}" aria-label="${esc(x.p.name)}, ${F.POS_L[x.slot]}"><span class="pf">${ART.playerFace(x.p)}</span><b>${nm(x.p.name)}</b><small>${F.stars(x.p.ca)}★${x.p.inj > 0 ? ' · inj' : ''}</small></button>`; }).join('');
-  const rest = g.squad.filter(p => !L.xi.some(x => x.p === p)).sort((a, b) => b.ca - a.ca);
-  return `${squadSeg()}<div class="spread" style="margin:0 0 8px"><h2 style="font-size:22px;margin:0">First team</h2><button class="linkbtn" data-a="dept-go" data-k="recruit" data-v="data" style="margin:0">Recruitment</button></div>
-  <div class="pitch"><div class="lines"></div>${spots}</div>
-  <p class="small" style="margin:8px 0">The coach's likely eleven. Squad strength ranks ${F.ord(F.expectedRank())} in the division. Tap a player.</p>
-  <div class="sec">Bench and squad (${rest.length})</div><div class="pcards">${rest.map(p => pcard(p, { meta: `${p.age}, ${F.POS_L[p.pos]}${p.inj > 0 ? ', injured' : ''}${p.loan ? ', on loan' : ''}` })).join('')}</div>`;
+  const g = G(), L = F.pickXI(false);
+  const xi = L.xi || [], players = new Set(xi.map(x=>x.p.id));
+  const groups = [
+    ['Goalkeeper', ['GK']],
+    ['Defence', ['CB','FB']],
+    ['Midfield', ['DM','CM','AM','W']],
+    ['Attack', ['ST']]
+  ];
+  const line = (p,slot) => `<button class="fo-xi-row" data-a="player" data-id="${p.id}" aria-label="Open ${esc(p.name)}">
+    <span class="fo-xi-pos">${esc(slot || p.pos)}</span><strong>${esc(p.name)}</strong>
+    <span class="fo-xi-ability">${F.stars(p.ca)}★</span></button>`;
+  const starters = groups.map(([label,roles]) => {
+    const arr = xi.filter(x=>roles.includes(x.slot));
+    return arr.length ? `<div class="fo-xi-group"><h3>${label}</h3>${arr.map(x=>line(x.p,x.slot)).join('')}</div>` : '';
+  }).join('');
+  const bench = (L.bench || []).filter(p=>!players.has(p.id));
+  const benchIds = new Set(bench.map(p=>p.id));
+  const others = g.squad.filter(p=>!players.has(p.id)&&!benchIds.has(p.id))
+    .sort((a,b)=>b.ca-a.ca);
+  return `${squadSeg()}
+    <section class="fo-team-sheet"><div class="fo-sectionline"><h2>Manager's likely XI</h2><span>RECOMMENDED, NOT CONTROLLED</span></div>
+      <p class="small">This is the coach's current selection. The CEO cannot change the line-up directly.</p>
+      ${starters}
+    </section>
+    <details class="fo-squad-reserves"><summary>Bench · ${bench.length} players</summary>
+      ${bench.map(p=>line(p,p.pos)).join('') || '<p>No bench available.</p>'}</details>
+    <details class="fo-squad-reserves"><summary>Other squad members · ${others.length}</summary>
+      ${others.map(p=>line(p,p.pos)).join('') || '<p>No other players.</p>'}</details>
+    <button class="fo-textlink" data-a="dept-go" data-k="first" data-v="over">Discuss the squad with the manager</button>`;
 }
 function vSquad() {
   const g = G(), sq = g.squad.slice().sort((a, b) => 'GK CB FB DM CM AM W ST'.indexOf(a.pos) - 'GK CB FB DM CM AM W ST'.indexOf(b.pos) || b.ca - a.ca);

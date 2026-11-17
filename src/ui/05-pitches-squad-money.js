@@ -19,9 +19,14 @@ function pitchDeck(mt, kick, inTray) {
   const meter = `<div class="pmeter"><div class="row"><span>Available to invest</span><b>${money(pot)}</b></div><div class="bar"><u style="width:${pot ? Math.min(100, cost / pot * 100) : 0}%" class="${cost > pot ? 'over' : ''}"></u></div><small>${cur ? (cost > pot ? 'This pitch costs more than Finance can release.' : `This pitch uses ${money(cost)}. ${money(pot - cost)} left.`) : 'All pitches decided.'}</small></div>`;
   const deck = cur ? `<div class="deck">${open.length > 2 ? '<div class="pcard back2"></div>' : ''}${open.length > 1 ? '<div class="pcard back"></div>' : ''}${pitchCard(cur.it, cur.i, mt)}</div><p class="small">Review the proposal, request independent advice or decide. The department will carry out any approved work.</p>` : '';
   const v = cur ? F.proposalView(cur.it) : null;
+  const dossier = cur && typeof F.caseView === 'function' ? F.caseView('p', cur.i) : null;
+  const decisionContext = dossier ? `<div class="fo-proposal-context" aria-label="Project decision context">
+    <b>Strategic proposal · ${esc(dossier.owner)}</b>
+    <p>${esc(dossier.reason)}</p>
+    <small>${esc(dossier.noResponse)}</small></div>` : '';
   const btns = cur ? `<div class="row3"><button class="btn ghost no" data-a="prop" data-i="${cur.i}" data-c="reject">Reject</button>${!v.revised ? `<button class="btn ghost" data-a="prop" data-i="${cur.i}" data-c="revise">Cheaper</button>` : ''}<button class="btn" data-a="prop" data-i="${cur.i}" data-c="approve" ${cur.it.cost > pot ? 'disabled' : ''}>Approve</button></div>${!v.second ? `<button class="linkbtn" data-a="prop" data-i="${cur.i}" data-c="second">Ask for a second opinion</button>` : ''}` : '';
   const doneList = done.length ? `<div class="decided">${done.map(o => { const v2 = F.proposalView(o.it); return `<span class="${o.it.status === 'approved' ? 'good' : 'bad'}">${o.it.status === 'approved' ? '✓' : '✕'} ${esc(v2.title)}</span>`; }).join('')}</div>` : '';
-  return `<section class="pitches"><div class="spread"><h2 class="itemh" style="margin:0">${esc(kick)}</h2><span class="chip">${cur ? `${done.length + 1} of ${items.length}` : 'Done'}</span></div>${meter}${deck}${doneList}${inTray ? '' : btns}</section>${inTray && cur ? (U.tray = trayHtml('', btns, ''), U.trayH = 130, '') : ''}`;
+  return `<section class="pitches"><div class="spread"><h2 class="itemh" style="margin:0">${esc(kick)}</h2><span class="chip">${cur ? `${done.length + 1} of ${items.length}` : 'Done'}</span></div>${decisionContext}${meter}${deck}${doneList}${inTray ? '' : btns}</section>${inTray && cur ? (U.tray = trayHtml('', btns, ''), U.trayH = 130, '') : ''}`;
 }
 function meetingBlock(mt, kick) { return pitchDeck(mt, kick, false); }
 

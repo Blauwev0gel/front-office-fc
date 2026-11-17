@@ -773,3 +773,16 @@ html,body{background:var(--bg)!important}
   #app .sheet .sheethead{position:sticky;top:-12px;z-index:3;
     background:var(--paper)!important;padding:12px 0!important;margin-top:-12px!important}
 }
+
+/* Linked staff escalation: link to the single owning decision, never duplicate it. */
+#app .fo-staff-pending{margin:0 0 12px!important;padding:12px!important;border:2px solid var(--ink)!important;
+  background:var(--paper)!important}
+#app .fo-staff-pending h3{font-size:14px!important;margin:0 0 8px!important}
+#app .fo-task-link{display:flex;width:100%;align-items:center;justify-content:space-between;
+  gap:10px;padding:10px 5px!important;min-height:58px!important;
+  border:0!important;border-top:1px solid var(--hair)!important;text-align:left!important;
+  background:var(--paper)!important;color:var(--ink)!important}
+#app .fo-task-link span{display:flex;flex-direction:column;gap:3px;min-width:0}
+#app .fo-task-link b{font-size:12px;overflow-wrap:anywhere}
+#app .fo-task-link small{font-size:10px!important}
+#app .fo-task-link strong{font-size:11px!important;font-weight:800!important;text-decoration:underline}

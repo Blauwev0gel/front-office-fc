@@ -786,3 +786,12 @@ html,body{background:var(--bg)!important}
 #app .fo-task-link b{font-size:12px;overflow-wrap:anywhere}
 #app .fo-task-link small{font-size:10px!important}
 #app .fo-task-link strong{font-size:11px!important;font-weight:800!important;text-decoration:underline}
+
+/* Department dossier navigation: predictable, descriptive, no nested horizontal scroller. */
+#app .fo-dept-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;margin:12px 0 16px!important}
+#app .fo-dept-sections button{min-width:0!important;min-height:48px!important;
+  padding:8px 6px!important;font-size:12px!important;font-weight:800!important;
+  background:var(--paper)!important;color:var(--ink)!important;border:1px solid var(--rule)!important}
+#app .fo-dept-sections button.on{background:var(--ink)!important;color:var(--paper)!important;
+  border:2px solid var(--ink)!important}

@@ -119,7 +119,7 @@ function deskWeekHeader(g, A, nf, box, advisory) {
 function deskNextMatch(g, nf, pv) {
   if (g.phase !== 'season') return '';
   const match = pv || (F.mtPreview ? F.mtPreview() : null);
-  if (!match && !nf) return '<section class="dw-fixture"><span class="dw-kicker">COMING UP</span><p>No fixture is scheduled this week.</p></section>';
+  if (!match && !nf) return '<section class="dw-fixture"><span class="dw-kicker">THIS WEEK</span><p>No fixture is scheduled this week.</p><button class="dw-match-cta" data-a="play">Continue week →</button></section>';
   const who = match ? match.name : nf.name, home = match ? match.home : nf.home;
   const rank = match ? match.pos : nf.pos, isDerby = !!(match && match.rival);
   const note = isDerby ? 'Derby' : match ? match.odds : '';

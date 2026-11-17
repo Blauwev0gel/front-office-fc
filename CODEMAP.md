@@ -355,3 +355,10 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 
 ## Tools
 - `tools/contrast.js`: meets WCAG contrast on the department screens (390 px, light and dark) and forces the wants-a-word and vacant states. Needs `dist/index.html`.
+
+## CEO-loop: winter/zomer en seizoensgrens (integratie)
+
+- `src/agreements.js`: `captureAgreementMatch`, `agreementGames` en `agreementStats` slaan per afspraak echte competitie-evidence op; `nextWindowEnd`/`reviewDate` houden rekening met de seizoensgrens. `agrUse` verdeelt positiegebonden autorisatie over historische overlappende afspraken bij signing.
+- `src/summer2.js`: `applyBrief` neemt actieve CEO-afspraken mee in de winter- en zomerbrief en vermeldt hun doorloop in het gesprek.
+- `src/recruit.js` en `src/engine/14-save-api.js`: `recExceptionMigrate` reconcilieert algemene uitzonderingen bij het laden; `liveCap` verifieert zowel actuele bevoegdheden als cash en andere biedingen.
+- `test/ceo-season-lifecycle.js`: twee seizoenen inclusief aparte winter, zomer, reviews en save/load; `test/browser/ceo_smoke.py`: 390px licht/donker. Automatisch via `.github/workflows/ceo-season.yml`.

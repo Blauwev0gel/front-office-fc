@@ -20,8 +20,8 @@
    - Elk van hen noemt zijn trackrecord uit eerdere initiatieven.
 4. **AGREE:** de CEO kiest één van vier antwoorden.
    - **Back the coach.** Eigenaar: de coach. Hij krijgt vertrouwen en een tijdelijke boost en wordt beoordeeld na vijf wedstrijden.
-   - **DoF fixes the position.** Eigenaar: de DoF. De positie gaat bovenaan het recruitmentplan, en als Finance het toelaat komt de helft van het transferbudget erbij (`rec.extra`). Beoordeling na het window. Vond de DoF dat er geen speler nodig was en heeft hij veel ego, dan weigert hij. De CEO kan het dan opdragen; dat wordt vastgelegd als *jouw* besluit.
-   - **Joint review.** De scouts beginnen meteen. Na twee weken komen coach en DoF met één advies (`ini_joint`), gebaseerd op de stand van dat moment.
+   - **DoF fixes the position.** Eigenaar: de DoF. De positie gaat bovenaan het recruitmentplan, en alleen na een expliciete beslissing kan bestaande beschermde cash als positiegebonden uitzondering beschikbaar komen. Beoordeling na het window. Vond de DoF dat er geen speler nodig was en heeft hij veel ego, dan weigert hij. De CEO kan het dan opdragen; dat wordt vastgelegd als *jouw* besluit.
+   - **Joint review.** Een onderzoek verandert geen budget of recruitmentprioriteit. Na twee weken komen coach en DoF met één advies (`ini_joint`), gebaseerd op de stand van dat moment.
    - **Wait.** Er komt geen afspraak, en er volgt geen straf.
 5. **EXECUTE:** elke week (`execute()`) logt de afspraak wat er echt gebeurde:
    - de punten, tegengoals en xG tegen sinds de afspraak;
@@ -142,3 +142,13 @@ Een afgesproken positie telde in `dofPipeline` niet als "gewenst". Daardoor kon 
 - twee concurrerende deals;
 - opslaan tijdens een onderhandeling;
 - een gewone signing zonder initiatief.
+
+## Seizoensintegratie (ChatGPT-sprint na `fea15ae`)
+
+- Een na het winterwindow overeengekomen plan wordt pas na de volgende zomer beoordeeld. De datum in *Still running* bevat het juiste seizoensnummer als de afspraak over de jaargrens loopt.
+- De Dedicated Winter Meeting, winterticker, deadline en zomerbrief nemen actieve CEO–DoF-afspraken mee in de getekende prioriteiten; andere voorstellen vullen de resterende plaatsen. De TD vermeldt de doorlopende afspraak expliciet.
+- Een `ini`-afspraak bewaart zijn daadwerkelijke wedstrijddata in `matches` (seizoen en week), onafhankelijk van `G.ft.games`, dat bij de eerste match van een nieuw seizoen wordt gereset. Voor oudere lopende saves worden de nog aanwezige gegevens overgenomen; onherstelbare gegevens uit een vorig seizoen worden met `evidenceIncomplete` gemarkeerd.
+- Het afboeken van meerdere historische autorisaties voor dezelfde positie verdeelt het daadwerkelijk gebruikte bedrag; na de signing worden resterende bevoegdheden voor de vervulde positie ingetrokken. Een algemene `rec.extra` zonder speler-ID uit oude saves vervalt, tenzij exact één aantoonbare lopende uitzondering bestaat. Herhaald laden verandert dit niet.
+- `test/ceo-season-lifecycle.js` doorloopt echte competitieweken, aparte winter en zomer, twee complete seizoenen, reviews over seizoensgrenzen en save/load. Gerichte beoordelingsfixtures worden apart getest van echte competitie- en transfersimulaties.
+- De workflow `.github/workflows/ceo-season.yml` bouwt en draait de relevante Node-regressies en een 390px Playwright-browsercontrole in licht en donker. Een successtatus moet uit de daadwerkelijke workflow-uitvoering komen; screenshots zijn artifacts van de browser-job.
+- Nog geen nieuw bindend BIBLE-besluit. Dit is een reparatie van reeds bestaande uitvoeringsregels.

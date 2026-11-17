@@ -35,3 +35,25 @@ jobs:
           node test/mig.js
           node test/sim.js
           node test/preview-save.js
+
+  browser:
+    needs: engine
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser automation
+        run: python -m pip install playwright
+      - name: Build playable browser version
+        run: python3 build.py
+      - name: Verify 390px desktop-mobile layout in light/dark across gameplay phases
+        run: python test/browser/ceo_smoke.py
+      - name: Upload mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ceo-mobile-screenshots
+          path: test-results/ceo-mobile/
+          if-no-files-found: ignore

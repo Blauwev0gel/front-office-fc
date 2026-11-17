@@ -1088,3 +1088,33 @@ html,body{background:var(--bg)!important}
 #app .fo-dept-facts b{font-size:12px!important;overflow-wrap:anywhere}
 #app .fo-dept-facts small{font-size:10px!important;color:var(--soft)!important}
 @media(min-width:410px){#app .fo-dept-facts{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Persistent leadership agreements: evidence before approval, never fake points. */
+#app .fo-working-agreement,#app .dw-agreement-reviews{margin:12px 0!important;padding:12px!important;
+  border:1px solid var(--hair)!important;border-top:3px solid var(--ink)!important;
+  background:var(--paper)!important;color:var(--ink)!important}
+#app .fo-agreement-title{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  border-bottom:1px solid var(--hair)!important;padding-bottom:8px!important}
+#app .fo-agreement-title span,#app .fo-agreement-title b{font-size:10px!important;font-weight:900!important}
+#app .fo-working-agreement h3{font-size:15px!important;margin:10px 0 6px!important}
+#app .fo-working-agreement p{font-size:11px!important;line-height:1.5!important;margin:7px 0!important}
+#app .fo-agreement-evidence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:10px 0}
+#app .fo-agreement-evidence div{display:flex;flex-direction:column;gap:5px;padding:9px;
+  border:1px solid var(--hair)!important;min-width:0}
+#app .fo-agreement-evidence small{font-size:10px!important;color:var(--soft)!important}
+#app .fo-agreement-evidence b{font-size:13px!important}
+#app .fo-agreement-actions{display:flex;flex-direction:column;gap:7px}
+#app .fo-agreement-actions button{width:100%;min-height:48px!important;text-align:left!important;
+  padding:10px!important;border:1px solid var(--rule)!important;
+  background:var(--paper)!important;color:var(--ink)!important;font-weight:800!important}
+#app .fo-agreement-actions button:first-child{background:var(--ink)!important;color:var(--paper)!important}
+#app .fo-agreement-lines summary{padding:10px 3px!important;font-size:12px!important;font-weight:800!important}
+#app .fo-agreement-lines>div{display:flex;gap:9px;justify-content:space-between;
+  border-bottom:1px solid var(--hair);font-size:11px;padding:6px 0}
+#app .dw-agreement-link{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:5px;
+  text-align:left!important;min-height:68px!important;padding:10px 4px!important;
+  background:var(--paper)!important;color:var(--ink)!important;
+  border:0!important;border-bottom:1px solid var(--hair)!important}
+#app .dw-agreement-link b{font-size:12px!important}
+#app .dw-agreement-link span{font-size:11px!important;color:var(--soft)!important}
+#app .dw-agreement-link strong{font-size:11px!important;text-decoration:underline}

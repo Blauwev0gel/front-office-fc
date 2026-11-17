@@ -1118,3 +1118,15 @@ html,body{background:var(--bg)!important}
 #app .dw-agreement-link b{font-size:12px!important}
 #app .dw-agreement-link span{font-size:11px!important;color:var(--soft)!important}
 #app .dw-agreement-link strong{font-size:11px!important;text-decoration:underline}
+
+/* Conversations retain visible evidence, not just one-off confidence effects. */
+#app .fo-meeting-agreement{margin:10px 0!important;padding:10px!important;
+ background:var(--fill)!important;border-left:3px solid var(--ink)!important;
+ color:var(--ink)!important;font-size:11px!important;line-height:1.45!important}
+#app .fo-meeting-history{border-top:1px solid var(--hair)!important;margin:14px 0 5px!important}
+#app .fo-meeting-history summary{min-height:44px!important;padding:12px 2px!important;
+ font-size:12px!important;font-weight:900!important}
+#app .fo-meeting-history>div{padding:9px 0!important;border-bottom:1px solid var(--hair)!important}
+#app .fo-meeting-history b{display:block;font-size:11px!important}
+#app .fo-meeting-history p{font-size:11px!important;line-height:1.45!important;margin:5px 0!important}
+#app .fo-meeting-history small{font-size:10px!important;color:var(--soft)!important}

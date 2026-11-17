@@ -6,7 +6,7 @@ return {
   get G() { return G; }, set G(v) { G = v; }, HOOK, absStars, newStats,
   VERSION, SEASON_WEEKS, TIERS, REGIONS, ATTR, ATTR_L, POSW, POS_L, LINE, ROLES, ROLE, MAND, LEAN, STYLES, DNA, PRESS, PUSH, CAPREQ, preAdvice, preAcceptAdvice,
   rnd, ri, pick, chance, clamp, gauss, wpick, uid, ord, money, M, sc, S, tierAvg, stars, upd, wageFor, genPlayer, genStaff, ovr, staff, eff, man, staffName,
-  sack, newGame, setDNA, staffBudget, finishStaff, finishMandates, finishPress, hire, genCands, fire, setMandate, talk, push, respond, msgView, endWeek, startSeason,
+  sack, newGame, setDNA, staffBudget, finishStaff, finishMandates, finishPress, hire, genCands, fire, setMandate, agreementView, agreementRespond, agreementWeekly, talk, push, respond, msgView, endWeek, startSeason,
   pressView, pressAnswer, PRESS_IDS: () => G.press,
   sortTable, cname, myPos, expectedRank, teamStrength, pickXI, alignment, transferBudget, wageRatio, revenueAvg, playerWages, staffWages, ticketPrice, attendance, sponsorIncome,
   EV, BR, cact, defineEvent, defineProposal, resolve, autoIndex, addMsg, setupPreseason, dofWork, REQ, POSW_KEYS: () => Object.keys(POSW), protectedIds, window_: () => window_(), defineBrief, BR, genBriefs, briefView, answerBrief, caseView, scoreTarget, squadNeeds, weakestPos, FOCUS, preTargets, preSetTarget, preToggleFocus, budgetCosts, weekForecast, finishPreseason, analysis, scorecard, strengthParts, xPts, forecast, PROP, queueEvent, later, secondOpinion, decideProposal, proposalView, meetingPot, nextMeeting, isMeeting, projWeekly, perk, record, avgRat, squadAvgRat, EV, sellPlayer, sign, genTarget, allowed, staffWeeklyFn: staffWeekly, objMet, promiseMet, bestPlayer, absWeek, save, load,

@@ -1075,3 +1075,16 @@ html,body{background:var(--bg)!important}
 #app .setup .mtabs button small{font-size:10px!important;white-space:normal!important;
  text-align:center!important;overflow-wrap:anywhere!important}
 #app .setup .mtabs .mface{max-height:28px;overflow:hidden}
+
+/* Every department begins with its real responsibility and evidence of work. */
+#app .fo-dept-purpose{padding:12px!important;margin:0 0 12px!important;
+ background:var(--paper)!important;color:var(--ink)!important;
+ border:1px solid var(--hair)!important;border-top:3px solid var(--ink)!important}
+#app .fo-dept-purpose>span{font-size:10px!important;letter-spacing:.07em;font-weight:900}
+#app .fo-dept-purpose>p{font-size:12px!important;line-height:1.5!important;margin:8px 0 11px!important}
+#app .fo-dept-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+#app .fo-dept-facts>span{display:flex;flex-direction:column;gap:3px;min-width:0;
+ padding:9px 6px;border:1px solid var(--hair)}
+#app .fo-dept-facts b{font-size:12px!important;overflow-wrap:anywhere}
+#app .fo-dept-facts small{font-size:10px!important;color:var(--soft)!important}
+@media(min-width:410px){#app .fo-dept-facts{grid-template-columns:repeat(4,minmax(0,1fr))}}

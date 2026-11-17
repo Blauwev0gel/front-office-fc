@@ -5,25 +5,31 @@
 'use strict';
 const AREA = {
   'recruit.focus':'recruit', 'recruit.invest':'recruit', 'recruit.approval':'recruit',
+  'recruit.priority':'recruit','recruit.profile':'recruit','recruit.deadline':'recruit',
   'academy.pathway':'academy', 'academy.issue':'academy',
   'commercial.offer':'commercial', 'commercial.price':'commercial',
   'commercial.experience':'commercial', 'commercial.promo':'commercial',
   'marketing.campaign':'marketing', 'marketing.community':'marketing',
   'business.level':'business', 'business.plan':'business',
-  'firstteam.response':'first', 'firstteam.support':'first',
-  'department.plan':'department', 'department.issue':'department'
+  'firstteam.response':'first', 'firstteam.support':'first', 'firstteam.sack':'first',
+  'department.plan':'department', 'department.issue':'department',
+  'department.hire':'department','department.dismiss':'department'
 };
 const HEAD = { recruit:'dof', academy:'acad', commercial:'com',
   marketing:'mkt', business:'fin', first:'coach' };
 const LABEL = {
   'recruit.focus':'Scouting focus', 'recruit.invest':'Recruitment network investment',
-  'recruit.approval':'Transfer approval mandate', 'academy.pathway':'Youth pathway direction',
+  'recruit.approval':'Transfer approval mandate', 'recruit.priority':'Squad priorities',
+  'recruit.profile':'Recruitment player profile','recruit.deadline':'Deadline-day decision',
+  'academy.pathway':'Youth pathway direction',
   'commercial.offer':'Sponsorship negotiation','commercial.price':'Ticket pricing',
   'commercial.experience':'Matchday facilities','commercial.promo':'Supporter promotion',
   'marketing.campaign':'Marketing campaign','marketing.community':'Community programme',
   'business.level':'Department budget','business.plan':'Finance budget proposal',
   'firstteam.response':'Head coach conversation','firstteam.support':'First-team support',
-  'department.plan':'Department response plan','department.issue':'Department risk review'
+  'firstteam.sack':'Head coach dismissal',
+  'department.plan':'Department response plan','department.issue':'Department risk review',
+  'department.hire':'Department specialist appointment','department.dismiss':'Specialist departure'
 };
 const copy = x => JSON.parse(JSON.stringify(x));
 const now = () => F.absWeek();
@@ -92,6 +98,9 @@ function execute(kind,p) {
     case 'business.plan': F.bizPropose();return F.bizApply();
     case 'recruit.focus': return F.rxFocus(p.k);
     case 'recruit.invest': return F.rxInvest(p.k);
+    case 'recruit.priority': return F.recTogglePrio(p.pos,p.k);
+    case 'recruit.profile': return F.recSetKind(p.pos,p.k);
+    case 'recruit.deadline': return F.ddDecide(+p.i);
     case 'recruit.approval': {
       const m=F.G.mand?.dof;
       if(!m)return {err:'No Director of Football mandate exists.'};
@@ -100,7 +109,10 @@ function execute(kind,p) {
     }
     case 'academy.pathway': return F.pwChange(p.k);
     case 'firstteam.response': return F.ftTalkAnswer(p.id);
+    case 'firstteam.sack': return F.ftSack();
     case 'firstteam.support': return p.v==='buy'?F.ftResBuy(p.k):F.ftResCancel(p.k);
+    case 'department.hire': return F.deptHire(p.k,p.r,+p.i);
+    case 'department.dismiss': return F.deptLetGo(p.k,+p.id);
     case 'department.plan': return F.deptIssuePlan(p.k,p.v,p.c);
     case 'department.issue': return F.deptIssueDecision(p.k,p.v,p.c);
     default: return {err:'Unknown specialist decision.'};

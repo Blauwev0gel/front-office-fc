@@ -240,3 +240,11 @@ Besloten: voor (2) is de nieuwste versie leidend (B8); over (4) beslissen we na 
 - Club matters combines ongoing dossiers, pathways, staff delegation and decision-history references without duplicating game state. Original detail routes are preserved.
 - Club records replaces nine prominent folders with five broad filters and optional specialist archives. The Desk tab resets to the live home view, while archived record navigation remains usable.
 - Main implementation: `src/ui/10-inbox.js`, `src/ui/12-scenes-cards.js`, `src/ui/13-redbox-render.js`, `src/ui/15-actions.js` and `src/style/zz-text-only.css`. No changes to game engine or save format.
+
+
+## B22 — Whole-game screen & decision audit (chatgpt, 17 November 2026)
+
+- Architecture audit and planning master index: `docs/ux-rebuild/README.md`.
+- This covers all six departments, every numbered UI module, the dispatcher and static registered event/brief definitions, plus 197 screen/state design targets and a dependency-aware 47-task implementation backlog.
+- The proposed unified case lifecycle, authority model, communication types and save-compatible integration are documented in `docs/ux-rebuild/07-DECISION-ENGINE-REDESIGN.md`.
+- **Status boundary:** documentation and static source survey only. No gameplay code was modified or tested for the audit. Instrumented runtime state coverage, per-event counterfactual outcomes and visual acceptance are outstanding. Do not mark the total rebuild DONE.

@@ -474,6 +474,114 @@ Seizoenstelling in tier 6–8 (niveau 5–8 CA):
 | Meer doorstroom of een ander ritme | de drempel in `acadSeason` (`thr`, `pace`), `genYouth` (`pa`) en een meting op meer seizoenen |
 | Verhaal per jeugdspeler | `G.mem`/`F.recall` uit `weekflow.js`; een `wonderkid`-achtige keten in `dossiers.js` |
 | Academie en portaal | `world.js` kent geen eigen jeugd; koppel `G.world` aan de aanwas of aan de poaching |
+## 20. Hoe het speelt: first team, grip en de afdelingsstructuur
+
+Gelezen op 2026-11-17: `firstteam.js` (grotendeels; de gesprekken zelf, `talkAnswer`, alleen de structuur), `levers.js` (kern), `depts.js` (rollen, kosten, hooks), `desk.js` (kop, de vier lijsten, `H.desk`), `talks.js` (`weekly`). **Niet gemeten**: hier is niets gedraaid, dit is wat de code doet.
+
+### De afdelingsstructuur (`depts.js`)
+- Zes afdelingen: **first team, recruitment, academie, commercieel, marketing, business**. Elke afdeling heeft een **hoofd** (coach, DoF, academiedirecteur, commercieel, marketing, financieel), 2–4 plekken voor **ondersteunend personeel** (afhankelijk van de divisie: 2 op niveau 7–8, 4 op 4 en hoger) en een **budgetniveau** (lean/normaal/invest).
+- Personeel heeft een **rol** (bijv. Assistant coach, Match analyst, Scout, Sponsorship manager, Accountant) en een **karaktertrek** (Experienced 1,25×, Steady, Hard-working, Well-connected, Young talent 0,8× maar groeit, Ambitious 1,2× maar kan vertrekken). Een rol geeft het hoofd een **bonus op een eigenschap** (`effBonus`, bijv. `['coach', 0, 1.2]`), plus afdelingsperks die elders opgezocht worden met `F.deptHas('first', 'ana')`.
+- Het budget werkt via `deptB` en `deptCost`: first en commercieel hebben een eigen budget, de andere gebruiken een mandaatschuif (`scout`, `acad`, `mkt`). First-budget geeft ±0,17 sterkte, ontwikkeling en blessurekans.
+
+### First team (`firstteam.js`, state `G.ft`)
+**Het kernidee**: de coach heeft **eigen voorkeuren** (`pref`: aanvallend, jeugdminuten, rotatie, intensiteit, afgeleid van zijn karakter) en jij zet een **mandaat**. Wat hij werkelijk doet is `act(k) = mandaat × naleving + voorkeur × (1 − naleving)`. De **naleving** (0,35–1) hangt af van zijn relatie met jou (`rel`), zijn ego en loyaliteit, een lopende afspraak en een tijdelijke bonus na een gesprek. Als het verschil ≥15 punten is, daalt zijn relatie wekelijks en vraagt hij om een gesprek.
+
+**Wat het doet in de wedstrijd.** Rotatie en intensiteit tellen mee in blessurekans en teamsterkte (±0,06 en ±0,025 per honderd punten, `ftInj` en `ftExtra`). Een fitnesscoach geeft −35% blessures, de analist +0,12 sterkte, de assistent +0,05 en +0,1 ontwikkeling, de psycholoog trekt moraal 6% per week richting 70.
+
+**Gesprekken en afspraken.** `talkStart` opent een korte scène (gratis, B19). Een **afspraak** (`deal`: top 6, bovenste helft, top 2, onverslagen in 5, jeugd ≥1,5 U21 per wedstrijd) wordt aan een deadline getoetst: gehaald geeft relatie +8, een tijdelijke boost en bestuur +3; gemist relatie −4, bestuur −4 en prestatie −6. **Ontslag** (`sack`) kost 8–20 weken salaris plus effecten op fans, pers en kleedkamer; "onder verwachting" is minder erg dan "boven".
+
+**Wat ik opmerk.** Dit is het meest uitgewerkte "leiden zonder zelf te doen": het mandaat is een voorstel, geen opdracht. Het is ook de plek waar de moeilijkheid van B37 woont (coach-kwaliteit in teamsterkte en de step-up straf). Hoe vaak de coach mandaten naast zich neerlegt in een echt spel is niet gemeten.
+
+### Grip (`levers.js`, `G.grip`)
+Een tweede, onzichtbaar systeem: **grip** (0–100, start 60) meet hoeveel je zelf stuurt. Eigen beslissingen (antwoord op een bericht +6, briefing +3, gesprek +5, voorstel +3) bouwen grip, **maximaal 16 per week**; elke week zakt hij **5**. Grip 100 geeft +3,6 en grip 0 geeft −3,6 op de eigenschappen van **alle hoofden** (met een gewicht: coach/DoF/academie 1, marketing 0,6, commercieel 0,4, financiën 0,3). Onder 25 daalt bestuur en relaties wekelijks en komt een Gazette-bericht ("Who runs this club?"). Mandaten, budgetten en personeel bouwen sinds B21 géén grip meer.
+
+De module bevat ook het **finance-alarm** (`fin_alarm` als het geld binnen ~6 weken op is, met vier keuzes), de **loonplafond-trim** (Finance verkoopt een hoogverdiener als het loonaandeel >12 punten boven het plafond komt) en de **step-up straf** (−1,2 teamsterkte in het eerste seizoen in een nieuwe divisie, vervaagt na ~50 weken).
+
+**Wat ik opmerk.** Grip is de drijfveer achter "je moet er elke week bij zijn". Het is niet zichtbaar behalve onder 25. Of 5 per week zakken en 16 per week winst goed staat voor de speeltempo (één of twee berichten per week, zie hoofdstuk 18) is niet gemeten. Ik vermoed dat een speler die weinig te beslissen krijgt, grip verliest zonder iets fout te doen; dat is te toetsen met één telling.
+
+### Het bureau en de gesprekken (`desk.js`, `talks.js`)
+- **Autoriteit per hoofd** (kort touw / normaal / vrije hand): bepaalt welke routinezaken een hoofd zelf afhandelt (`H.desk`) en hoeveel hij fout doet (`errChance`, lager bij een goede, hogere bij vrije hand). Een fout geeft `slip`: club-drift +2 (+3 bij vrije hand) en bestuur −. Vaste lijsten bepalen wat **altijd** bij jou ligt (`CORE`, `CLASH` tussen afdelingen), wat bij een sterk hoofd mag (`SOFT`) en wat de reputatie raakt (`REP`).
+- **`talks.js`** is één gesprekssysteem voor alle hoofden: een hoofd vraagt om een woord als er iets is (mandaatverschil, koude relatie, regelbreuk, slecht verdict). Laat je het twee weken liggen, dan beslist hij zelf binnen zijn mandaat.
+
+### Wat dit betekent voor verbeteringen
+| Idee | Eerst bekijken |
+|---|---|
+| Coach-gedrag zichtbaarder maken | `mandateRows` en `view()` (al in het scherm); hoe vaak `gap.d ≥ 15` voorkomt (telling) |
+| Grip afstemmen op het tempo | `levers.js` (`MAXW`, `DECAY`, `GW`), een telling van grip over 10 seizoenen |
+| Nieuwe afdelingsrol of perk | `ROLES` in `depts.js` (rol, effect, lijst); `deptHas` aan de gebruikskant |
+| Fouten van een vrije hand voelbaarder | `errChance` en `slip` in `desk.js` |
+| Nieuw gesprek met een hoofd | `reqText`, `reqOpts` in `talks.js` |
+
+## 21. Hoe het speelt: commercieel, marketing en business
+
+Gelezen op 2026-11-17: `commercial.js` (vrijwel geheel), `marketing.js` (geheel op de drie briefs na), `business.js` (kern: kosten, envelop, voorstel). **Niet gelezen**: de resterende briefs van business, de UI. **Niet gemeten**: geen run voor dit hoofdstuk.
+
+### Commercieel (`G.com`)
+- **Stadion als systeem**: drie tribunes (thuisvak 35%, hoofdtribune 40%, familietribune 25%) met elk een eigen **prijselasticiteit** (0,5 / 0,8 / 1,2), een kern- en toevalsaandeel en een standaardprijs. De vraag (`demand`) is `kern × opkomst + toevallig publiek`, gecorrigeerd voor prijs (`1 − elasticiteit × (prijs − 1)`), vorm van de laatste vijf wedstrijden, matchday-beleving (niveau 1–5, kost meer per week), en promo's. De opkomst bepaalt de recette (`H.gate`), het thuisvoordeel (`H.homeEdge`: `0,15 + vulling × 0,4 + (fans − 50)/250`) en `merchMult`.
+- **Sponsors**: om de 6–9 weken komt een aanbod (kort 34 weken of lang 102 weken, sector bepaalt het bedrag; wedden betaalt 35% meer maar kost fans bij een gemeenschapsclub). Je kunt **accepteren**, **harder onderhandelen** (kans `0,35 + commercieel/40`, +20%, anders loopt hij weg) of **weigeren**. Maximaal 5 deals tegelijk.
+- **Beslissingen die je neemt**: prijs per tribune, matchday-niveau, een promo (familiedag, halve prijs op de familietribune), sponsorreacties; afdelingsrollen (ticketing, retail, sponsoring) verschuiven de vraag.
+
+### Marketing (`G.mk`)
+Een **trechter**: bereik (`reach`) → fans (`fanbase`) → seizoenskaarthouders, plus **loyaliteit**.
+- Bereik schuift 3% per week richting `fan-doel × 3,2 × (head-vaardigheid)`. Een **campagne** (gezinnen, studenten, regionaal, online; 900–2600 kosten, 5–8 weken) duwt het bereik extra en kan het merk laten groeien.
+- Loyaliteit trekt naar `38 + 12 × gemeenschapsprogramma + vaardigheid` en dempt **dalende fans na een slechte reeks** (0,6% per week bij ≤ −3, gedempt door loyaliteit).
+- De **fanbase** schuift 4% per week naar `bereik × aandeel` (aandeel uit vorm, loyaliteit en matchday-niveau). Seizoenskaarten worden elk seizoen in week 1–2 verkocht (`fanbase × 6–45%`, afhankelijk van loyaliteit en de hoofdtribuneprijs).
+- Een **toon** (stoer/saai) geeft een kleine kans op een pers-incident bij online campagnes (25% bij toon > 60).
+
+**Hoe commercieel en marketing in elkaar grijpen**: marketing maakt fans en bereik; commercieel zet die om in recette en sponsorwaarde. De familietribune en de campagne "Local families" werken samen (+20% vraag), `G.com.exp` verhoogt zowel merch als de fan-conversie, en seizoenskaarten hangen aan de prijs van de hoofdtribune. Er is een eigen **conflict-event** (`com_mkt_clash`) als de twee elkaar tegenwerken (valt onder `CLASH` in `desk.js`).
+
+### Business (`G.biz`)
+- **Budgetniveau per afdeling** (cut/lean/normaal/invest = < 25 / 25 / 50 / 80) tegen een **envelop** (`rev × 0,97 − overige kosten`). `plan()` rekent per afdeling wat elk niveau kost (`deptCostAt`) en toont de totale uitgave tegen de envelop. De **voorspelling** van de omzet is onnauwkeurig afhankelijk van de financieel directeur: fout `(1 − (fin − 4)/14) × 25%`, kleiner met een accountant.
+- **Voorstel** (`propose`): de financieel directeur begint op normaal en zet afdelingen op lean (eerst de niet-beschermde) tot het past; het DNA beschermt first team, en academie als de club daar om bekend staat. Heeft hij ruimte, dan zet hij first, commercieel en marketing op invest. Het voorstel zit in een briefing (`biz_budget`) die jij goedkeurt of aanpast.
+- **Kleinere hefbomen**: contractvoorwaarden (`fin`-vaardigheid en een advocaat drukken het loon bij een aanname met tot 15%), een kostenbeheerser (−8%) en een **herfinanciering** (`biz_refi`).
+
+### Wat ik opmerk
+- **De drie afdelingen zijn klein en afgerond** (24 KB samen), maar ze delen veel state (`G.com.exp`, `G.com.pf`, `G.mk.camp`, `seasonTix`). Wijzigingen hebben snel een tweede-orde-effect op de fanbase of de recette.
+- **De financiële keten is serieus doorgetrokken** (budget → envelop → alarm → trim → noodmaatregelen), maar de eigenlijke inkomsten zijn voor een niet-spelende speler afleesbaar. Dat is eerder gerepareerd (de "£0-regel").
+- **Open balans**: het seizoensbudget heeft vaak geen ruimte (B36a, gemeten in de budgettest: 25–29 van 48 weken). Ik heb niet nagegaan of dat komt door te lage inkomsten of te hoge afdelingskosten.
+- **Marketing is traag**: 3–4% per week betekent dat een campagne van 6 weken ±20% van haar effect laat zien, en loyaliteit is de enige echte buffer. Of dat voelbaar genoeg is voor een speler is niet gemeten.
+
+### Wat dit betekent voor verbeteringen
+| Idee | Eerst bekijken |
+|---|---|
+| Budget heeft geen ruimte (B36a) | `plan()`/`deptCostAt` in `business.js` tegenover `weeklyFinance` (engine/07); eerst meten welke post domineert |
+| Sponsors levendiger maken | `newOffer` (bedragen, sectoren), `offerWeekly`; een sponsorverhaal via `dossiers.js` bestaat al (`sponsor`, `kits`) |
+| Marketing voelbaarder maken | `H.fanWeekly` (0,03 en 0,04), de campagnekosten en de weergave in `mkView` |
+| Seizoenskaarten zichtbaar maken | `seasonTix` (marketing) en `demand` (commercieel); ik heb niet nagekeken of er een eigen weergave is |
+| Een fout van de financieel directeur laten tellen | `err` in `plan()`; nu alleen een voorspellingsmarge |
+
+## 22. Hoe het speelt: achterbannen, verhaallijnen en wedstrijddag
+
+Gelezen op 2026-11-17: `loop.js` (backers, stemmingen, weeklus), `dossiers.js` (mechanisme en de lijst; de teksten van de acht dossiers niet), `pathway.js` (kop en structuur), `matchday.js` en `matchtalk.js` (structuur). **Niet gemeten.**
+
+### De vier achterbannen (`loop.js`)
+Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerekend uit `board.conf`, `st.fans`, `st.press` en de gemiddelde moraal) met een eigen **stem** in vijf toestanden (zoals "The chairman has stopped returning calls"). Na elk antwoord toont het spel hoe ze bewogen (`fd`), en de week opent met "Coming up" (`comingUp`) en sluit met een **verschil** (`wkDelta`).
+- **Stemming bij ≤5**: eenmalig per seizoen een laatste kans per achterban (bestuur, supporters, pers, kleedkamer elk met drie opties, de kans op slagen staat in woorden: "Likely to work" tot "A long shot"). Mislukt dat of is er al een gebruikt, dan ontslag (`F.sack`).
+- Laatste week van het seizoen: geen tijd voor een stemming; de zomer beslist, en er is **één** reprieve per seizoen.
+- Daarnaast sturen **blokken** (`block_opening` tot `block_finale`) een doel per seizoensdeel.
+
+**Wat ik opmerk.** Dit is het ontslagsysteem van het spel en dus de plek waar B37 ("20% ontslag") landt: het bestuursvertrouwen (`board.conf`, hoofdstuk 5) is de enige route naar `F.sack` behalve de vote. De andere drie achterbannen kunnen je alleen via een stemming wegsturen. Hoe vaak welke stemming echt valt, is niet gemeten.
+
+### Verhaallijnen (`dossiers.js`, `pathway.js`)
+- Een **dossier** is een verhaallijn in drie delen die weken uit elkaar op je bureau valt. Elk antwoord koelt de **hitte** (−2…4) af of warmt hem op; het einde is `good` (≤ −1), `mixed` (≤1) of `bad`. Een **druk**-getal (`pressure`, nooit als getal getoond) maakt starten waarschijnlijker en een slecht einde zwaarder (tot +50%). Maximaal 2 open dossiers, 60 weken tussen herhaling, en sommige beginnen vanuit een eerder bericht (`SEEDS`). Er zijn **8** dossiers: parkeeroorlog, sponsor onder vuur, de agent van het wonderkind, een avondje uit, de kit die nooit kwam, het veiligheidscertificaat, de column van de coach en supporters aan tafel.
+- De **pathway-vraag** is één bestuurlijke verhaallijn om de kernlus te tonen: een signaal (academie: "de jongen is dichtbij", DoF: "ik heb een routinier"), een vergadering met drie standpunten uit echte persoonlijkheden en toestand, een route kiezen (jeugd, ervaring, fasering), de staf voert het uit, en na ~6 weken een evaluatie langs vier lenzen (was het beleid goed, was het uitgevoerd, veranderde de situatie, hoeveel was geluk). Alle effecten op je **geloofwaardigheid** (`G.cred`) staan in een logboek met reden.
+
+**Wat ik opmerk.** Dit is waar het spel het meest op een verhaal lijkt, maar er zijn maar 8 + 1 lijnen. Over 15 seizoenen herhaalt zich dat (60 weken tussen herhaling is korter dan een seizoen en een half). Dit is het geschikte spoor voor nieuwe content (portaal, academie, turnaround).
+
+### Wedstrijddag (`matchday.js`, `matchtalk.js`, engine/06)
+- Voor de aftrap drie **verhalen** over eigen spelers (`mdStories`, bv. mijlpalen, blessure-terugkeer, vorm), na afloop hoe elk afliep en het **kantelpunt**; deze feiten voeden het voorbeeld, het wedstrijdscherm en de Gazette (`edition`).
+- Tegenstanders hebben een **stijl** (volume en kwaliteit van kansen), een vormregel en een gevaarlijke speler; het commentaar komt uit banken per minuut, stand, grootte van de kans en publiek (`matchtalk.js`).
+
+**Wat ik opmerk.** De wedstrijd zelf is de engine (hoofdstuk 11); deze twee modules geven er een **verhaal** aan. Dat is dun, juist daar zou de "wedstrijden bekijken"-wens van de eigenaar landen.
+
+### Wat dit betekent voor verbeteringen
+| Idee | Eerst bekijken |
+|---|---|
+| Ontslagkansen meten | `H.lastChance` en `F.sack` in `loop.js`; één telling van `vote:*`-redenen over meer seeds |
+| Meer verhaallijnen | `defineDossier` in `dossiers.js`; een korter herhalingsvenster of meer lijnen (nu 8) |
+| De wedstrijd levend maken | `mdStories`/`matchtalk` + engine/06 (kansen); de academie-U18 en het portaal als bron |
+| Druk zichtbaar maken | `pv()` en `PSIG` in `dossiers.js` (nu alleen tekstsignalen) |
+
 ## Bijlage: alle bronbestanden
 
 <!-- generated:files:start -->

@@ -1033,3 +1033,32 @@ html,body{background:var(--bg)!important}
  border-left:4px solid var(--good)!important;background:var(--fill)!important}
 #app .fo-meeting-outcome button{width:100%;min-height:46px!important;
  background:var(--ink)!important;color:var(--paper)!important;margin-top:9px!important}
+
+/* Staff mandates: headline strategy first, detailed parameters on demand. */
+#app .fo-mandate-agreement{border:1px solid var(--hair)!important;
+ border-top:3px solid var(--ink)!important;background:var(--paper)!important;
+ padding:12px!important;margin:12px 0!important}
+#app .fo-mandate-heading>span{font-size:10px!important;font-weight:900!important;letter-spacing:.08em}
+#app .fo-mandate-heading h3{font-size:17px!important;margin:7px 0!important}
+#app .fo-mandate-agreement>p{font-size:12px!important;line-height:1.45!important}
+#app .fo-mandate-profiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:6px;margin:12px 0!important}
+#app .fo-mandate-profiles button{min-width:0!important;min-height:54px!important;
+ border:1px solid var(--rule)!important;background:var(--paper)!important;
+ color:var(--ink)!important;padding:9px 5px!important;white-space:normal!important;
+ font-size:12px!important;font-weight:800!important}
+#app .fo-mandate-profiles button.on{background:var(--ink)!important;color:var(--paper)!important}
+#app .fo-mandate-signals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:6px;margin:9px 0 13px}
+#app .fo-mandate-signal{display:flex;flex-direction:column;gap:5px;
+ border:1px solid var(--hair);padding:8px 5px;min-width:0}
+#app .fo-mandate-signal b{font-size:11px;overflow-wrap:anywhere}
+#app .fo-mandate-signal small{font-size:9px!important;overflow-wrap:anywhere}
+#app .fo-mandate-details{border-top:1px solid var(--rule)!important;margin:12px 0 0!important}
+#app .fo-mandate-details summary{min-height:48px!important;padding:12px 3px!important;
+ font-size:12px!important;font-weight:900!important}
+#app .fo-mandate-details .dial{margin:10px 0!important}
+@media(max-width:350px){
+ #app .fo-mandate-profiles button{font-size:11px!important}
+ #app .fo-mandate-signal small{font-size:9px!important}
+}

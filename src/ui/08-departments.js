@@ -30,7 +30,7 @@ function headCard(k, v) {
 }
 function authHtml(role) {
   if (!F.authView || !F.DESK_HEADS.includes(role)) return ''; const A = F.authView(role), s = A.head; if (!s) return '';
-  return `<div class="authb"><div class="authh"><span>${ART.I.trust}</span><b>Authority</b><small>${A.rec.n ? `${A.rec.err} of ${A.rec.n} calls went against your mandate` : 'No calls yet'}</small></div>
+  return `<div class="authb"><div class="authh"><span>${ART.I.trust}</span><b>Authority</b><small>${A.rec.n ? `${A.rec.err} of ${A.rec.n} calls went wrong` : 'No calls yet'}</small></div>
     <div class="seg wide" role="radiogroup" aria-label="Authority for ${esc(s.name)}">${A.opts.map((t, i) => `<button role="radio" aria-checked="${A.a === i}" class="${A.a === i ? 'on' : ''}" data-a="auth" data-r="${role}" data-v="${i}">${esc(t)}</button>`).join('')}</div>
     <p class="small">${esc(A.s)} Signs off alone up to ${money(A.lim)} a week.</p></div>`;
 }

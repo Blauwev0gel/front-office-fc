@@ -39,6 +39,7 @@ function top3(pid) { const sq = g().squad.slice().sort((a, b) => b.ca - a.ca).sl
 /* B54: how a head carries out a call. He always takes the option his mandate points to; what varies is how well it turns out.
    A risk-taker with a free hand goes for more and it can pay off or backfire; a weak head misjudges more often; a careful one rarely.
    Competence is measured against the division. All of it is seeded and every outcome names its cause. */
+function missRate(h) { const s = staff(h); if (!s) return 0; const a = auth(h), c = lvl(h), P = s.p || {}; if (a === 2 && P.risk >= 13) return 1 - clamp(0.45 + c * 0.06, 0.2, 0.85); return clamp((4 - c) * 0.035, 0, 0.18) * [0.6, 1, 1.3][a] * (P.risk <= 7 ? 0.6 : 1); } // the share of his calls that go wrong, for the Setup view
 function carry(h) {
   const s = staff(h), a = auth(h), c = lvl(h), P = s.p || {}, n = first(s);
   if (a === 2 && P.risk >= 13) return chance(clamp(0.45 + c * 0.06, 0.2, 0.85)) ? { k: 'win', why: `${n} went for more than the safe option: he likes a gamble, and it paid off.` } : { k: 'err', why: `${n} gambled with the free hand you gave him, and it backfired.` };
@@ -207,7 +208,7 @@ function deskView() {
   const msgs = G.inbox.filter(m => m.del && m.season === se && m.week === wk), br = (G.briefs || []).filter(b => b.del);
   return { n: msgs.length + br.length, err: msgs.filter(m => m.err).length, total: (G.desk || {}).n || 0 };
 }
-function authView(h) { const s = staff(h), a = auth(h); return { a, t: AUTH[a].t, s: AUTH[a].s, opts: AUTH.map(x => x.t), lim: limit(h, a), err: Math.round(errChance(h) * 100), rec: ((G => G.desk && G.desk.by[h])(g())) || { n: 0, err: 0 }, head: s }; }
+function authView(h) { const s = staff(h), a = auth(h); return { a, t: AUTH[a].t, s: AUTH[a].s, opts: AUTH.map(x => x.t), lim: limit(h, a), err: Math.round(missRate(h) * 100), rec: ((G => G.desk && G.desk.by[h])(g())) || { n: 0, err: 0 }, head: s }; }
 
 Object.assign(F, { AUTH, setAuth, authView, deskView, deskCarry: carry, deskReason: reason, DESK_HEADS: HEADS, deskLimit: r => limit(headOf(r), auth(r)), deskNote: (r, t, c, err) => log(headOf(r), err ? 1 : 0, t, c) });
 })(FO);

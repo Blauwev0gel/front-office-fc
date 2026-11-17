@@ -102,14 +102,14 @@ function vInbox() {
   if (U.open) return vOpen();
   const g = G(), items = inboxItems(), f = FOLD_T[U.filt] ? U.filt : 'all';
   const pap = items.find(x => x.t === 'paper');
-  const folders = `<div class="folders" role="tablist">${FOLDERS.map(([k, l, ic]) => { const n = k === 'need' ? items.filter(isBox).length : 0; return `<button role="tab" class="${f === k ? 'on' : ''}" data-a="filt" data-v="${k}"><span>${ART.I[ic]}</span>${k === 'need' ? 'Red box' : l}${n ? `<b>${n}</b>` : ''}</button>`; }).join('')}</div>`;
+  const folders = `<div class="folders" role="tablist" aria-label="Inbox folders">${FOLDERS.map(([k, l, ic]) => { const n = k === 'need' ? items.filter(isBox).length : 0; return `<button role="tab" aria-selected="${f === k}" class="${f === k ? 'on' : ''}" data-a="filt" data-v="${k}"><span>${ART.I[ic]}</span>${k === 'need' ? 'Red box' : l}${n ? `<b>${n}</b>` : ''}</button>`; }).join('')}</div>`;
   if (f !== 'all') {
     const shown = f === 'need' ? items.filter(isBox) : items.filter(i => i.fold === f);
     return `${backersHtml()}${folders}<ul class="inbox">${shown.map(rowHtml).join('') || `<li class="empty">${f === 'need' ? '<b>The red box is empty.</b> Nothing needs your signature this week.' : f === 'dos' ? '<b>No open dossiers.</b> Storylines in three parts land here when they start.' : 'Nothing in this folder this week.'}</li>`}</ul>${f === 'dos' ? archiveHtml() : ''}`;
   }
   const A = F.analysis(), nf = nextFix(), box = items.filter(isBox), desk = items.filter(i => !isBox(i) && i.kind !== 'done' && i.t !== 'paper' && !isDis(i.key));
   const done = items.filter(i => i.kind === 'done'), st = A.pos <= A.target ? 'good' : A.pos <= A.target + 2 ? 'warn' : 'bad';
-  const strip = `<div class="rstrip"><button class="rsp" data-a="sheet" data-s="analysis"><b class="${A.g ? st : ''}">${A.g ? F.ord(A.pos) : '–'}</b><small>target ${F.ord(A.target)}</small></button><button class="rsp" data-a="tab" data-t="staff"><b>${money(g.club.cash)}</b><small>in the bank</small></button>${nf ? `<button class="rsp" data-a="tab" data-t="league"><b>${esc(nf.short)}</b><small>${nf.home ? 'home' : 'away'}, ${F.ord(nf.pos)}</small></button>` : ''}</div>`;
+  const strip = `<div class="rstrip"><button class="rsp" data-a="sheet" data-s="analysis"><b class="${A.g ? st : ''}">${A.g ? F.ord(A.pos) : '–'}</b><small>target ${F.ord(A.target)}</small></button><button class="rsp" data-a="tab" data-t="club"><b>${money(g.club.cash)}</b><small>in the bank</small></button>${nf ? `<button class="rsp" data-a="tab" data-t="league"><b>${esc(nf.short)}</b><small>${nf.home ? 'home' : 'away'}, ${F.ord(nf.pos)}</small></button>` : ''}</div>`;
   const core = F.ceoCoreView ? F.ceoCoreView() : null;
   const trail = core && (core.decisions.length || core.delegated.length) ?
     '<details class="dcard ceo-trail"><summary><b>Decisions and consequences</b> · ' +
@@ -142,6 +142,6 @@ function vInbox() {
   <div class="rbl">${box.map(boxRow).join('') || `<p class="rbe"><b>Nothing needs your signature.</b> ${F.deskView && F.deskView().n ? `Your staff took ${F.deskView().n} decision${F.deskView().n === 1 ? '' : 's'} themselves.` : 'Your staff work within their mandates.'}</p>`}</div></section>
   ${desk.length ? `<div class="dkh"><h3>On your desk</h3><small>${desk.length} running</small></div><div class="dkl2">${desk.map(deskRow).join('')}</div>` : ''}
   ${pap && !isDis(pap.key) ? `<button class="paperpin" data-a="open" data-k="${pap.key}"><span class="ppm">THE ${esc(g.club.city.toUpperCase())} GAZETTE</span><b>${esc((F.edView(0) || {}).head || g.paper.headline)}</b><small>${isRead(pap.key) ? 'Read' : 'Today\'s edition'} ${ART.I.chev}</small></button>` : ''}
-  ${done.length ? `<button class="dkdone" data-a="filt" data-v="done">${done.length} handled this week ${ART.I.chev}</button>` : ''}${comingHtml()}${storyPanel}${trail}${folders}`;
+  ${done.length ? `<button class="dkdone" data-a="filt" data-v="done">${done.length} handled this week ${ART.I.chev}</button>` : ''}${comingHtml()}${storyPanel}${trail}<details class="inbox-browse"><summary>Browse all messages</summary>${folders}</details>`;
 }
 

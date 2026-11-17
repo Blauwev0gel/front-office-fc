@@ -35,8 +35,8 @@ function backersHtml() {
   return `<button class="bkrs" data-a="sheet" data-s="backers" aria-label="Your backers: ${B.map(b => `${bkT(b.t)} ${b.mood.toLowerCase()}${bkDir(b.d)}`).join('; ')}">${B.map(b => `<span class="bk ${b.danger ? 'lo' : ''}"><small>${ART.I[b.ic] || ''}${esc(bkT(b.t))}</small><b class="mood">${esc(b.mood)}${b.d > 0 ? '<i class="up" aria-hidden="true">↑</i>' : b.d < 0 ? '<i class="dn" aria-hidden="true">↓</i>' : ''}</b></span>`).join('')}</button>`;
 }
 function comingHtml() {
-  if (!F.comingUp) return ''; const C = F.comingUp().filter(c => c.ic !== 'league'); if (!C.length) return ''; // the next match has its own card on the desk
-  return `<section class="cup2"><h3>Coming up</h3>${C.map(c => `<div class="cu ${c.hot ? 'hot' : ''} ${c.bad ? 'bad' : ''}"><span>${ART.I[c.ic] || ART.I.info}</span><p><b>${esc(c.t)}</b>${esc(c.s)}</p></div>`).join('')}</section>`;
+  if (!F.comingUp) return ''; const C = (F.stillRunning ? F.stillRunning() : []).concat(F.comingUp().filter(c => c.ic !== 'league')); if (!C.length) return ''; // promises first; the next match has its own card on the desk
+  return `<section class="cup2"><h3>Still running</h3>${C.map(c => `<div class="cu ${c.hot ? 'hot' : ''} ${c.bad ? 'bad' : ''}"><span>${ART.I[c.ic] || ART.I.info}</span><p><b>${esc(c.t)}</b>${esc(c.s)}</p></div>`).join('')}</section>`;
 }
 const BKT = { board: 'Board', fans: 'Fans', press: 'Press', room: 'Squad' };
 function dossierCard(d) {
@@ -110,7 +110,7 @@ const sent = t => { t = String(t || ''); const i = t.search(/[.!?](\s|$)/); retu
 function ifLeft(i) {
   const g = G();
   if (i.key[0] === 'm') { const m = g.inbox.find(x => 'm' + x.id === i.key); if (!m) return ''; const v = F.msgView(m), e = F.EV[m.ev] || {}, idx = F.autoIndex(m), who = e.from === 'board' ? 'the board' : F.ROLE[e.from] ? (F.staff(e.from) ? F.staff(e.from).name.split(' ')[0] : 'nobody') : 'the club office'; return `Sunday: ${who} picks "${(v.opts[idx] || {}).l || 'the default'}".`; }
-  if (i.key[0] === 'b') return 'No deadline. It lapses if you leave it.';
+  if (i.key[0] === 'b') { const b = (g.briefs || []).find(x => 'b' + x.id === i.key), f = b && F.briefFate ? F.briefFate(b) : null; return !f || f.lapse ? 'Sunday: it lapses if you leave it.' : `Sunday: ${f.who} decides: "${f.opt}".`; }
   if (i.key[0] === 'p') return 'Sunday: it lapses. He may bring it back later.';
   return '';
 }
@@ -159,7 +159,7 @@ function vInbox() {
     ${team.map(l => `<button class="dk-tl${l.bad ? ' bad' : ''}${l.quiet ? ' quiet' : ''}" data-a="${/^[mb]\d/.test(l.k) ? 'open' : 'tab'}" data-k="${l.k}" data-t="${l.r === 'player' ? 'squad' : 'staff'}"><span class="rbf">${l.pl ? ART.playerFace(l.pl, 'happy') : ART.staffFace(l.r)}</span><span class="dk-tx"><small>${esc(l.role)} · ${esc(l.n)}</small><b>${esc(l.t)}</b></span>${l.lab ? `<em class="dk-lab${l.bad ? ' bad' : ''}">${esc(l.lab)}</em>` : ''}</button>`).join('')}</section>
   <section class="redbox" aria-label="The red box"><div class="rbh"><h2>The red box</h2><span>${now.length ? `${now.length} to decide this week` : 'Nothing to sign'}</span></div>
     <div class="rbl">${now.length ? now.map((x, i) => row(x, i === 0 && now.length > 1 && (x.pri || 0) >= 2)).join('') : '<p class="rbe"><b>Nothing needs your signature.</b> The club runs on what you set up.</p>'}
-    ${later.length ? `<div class="dk-later"><small>When you are ready</small>${later.map(x => row(x)).join('')}</div>` : ''}</div></section>
+    ${later.length ? `<div class="dk-later"><small>Your say, if you want it</small>${later.map(x => row(x)).join('')}</div>` : ''}</div></section>
   ${nextCard()}
   ${pap && !isDis(pap.key) ? `<button class="paperpin" data-a="open" data-k="${pap.key}"><span class="ppm">THE ${esc(g.club.city.toUpperCase())} GAZETTE</span><b>${esc((F.edView(0) || {}).head || g.paper.headline)}</b><small>${isRead(pap.key) ? 'Read' : 'Today\'s edition'} ${ART.I.chev}</small></button>` : ''}
   ${comingHtml()}

@@ -51,6 +51,10 @@ function brief(b) {
   if (!t) return null; return { r, n: s.name, w, lab, t, k: 'b' + b.id };
 }
 
+/* ---------- a brief the CEO left last week, taken by the head (desk.js, briefsEnd) ---------- */
+function late(x) { const s = staff(x.role === 'scout' ? 'dof' : x.role) || staff(x.role); if (!s) return null; const N = sur(x.by), o = sent(x.out);
+  return { r: x.role === 'scout' ? 'dof' : x.role, n: x.by, w: 3.2, lab: 'You left it', k: 'rep', t: pick(x.role + ':late', [`You left "${x.title}" with him, so ${N} decided: "${x.opt}."`, `${N} took "${x.title}" off your desk: "${x.opt}."`]) + (o && !trivial(o) ? ' ' + o : '') }; }
+
 /* ---------- what changed in the weekly reports ---------- */
 function reports() {
   const G = g(), prev = G.twPrev || {}, out = [], L4 = (G.form || []).slice(-4), crisis = L4.length === 4 && L4.filter(x => x === 'L').length >= 3, res = (G.form || []).slice(-1)[0];
@@ -90,6 +94,7 @@ function teamWork() {
   const all = []
     .concat(G.inbox.filter(m => m.done && m.del && m.season === se && m.week === wk).map(decision))
     .concat((G.briefs || []).filter(b => b.del).map(brief))
+    .concat((G.lateBriefs || []).filter(x => x.by).map(late))
     .concat(reports(), milestones()).filter(Boolean).sort((a, b) => b.w - a.w);
   const seen = new Set(), lines = [];
   for (const l of all) { if (lines.length >= 3) break; if (l.r !== 'player' && seen.has(l.r)) continue; seen.add(l.r); lines.push(Object.assign(l, { role: ROLE_N[l.r] || 'Milestone' })); }
@@ -97,8 +102,16 @@ function teamWork() {
     lines.push({ r: h[0], n: h[1].name, role: ROLE_N[h[0]], w: 0, quiet: 1, lab: '', k: 'rep', t: T.keen || T.bold ? `"Nothing to report. I'd rather have something to report," says ${N}.` : `"Quiet week," says ${N}. "That's how I like it."` }); } }
   G.tw = { w: now, n: G.inbox.length, lines }; return lines;
 }
+/* ---------- what is still running: promises and plans the CEO made, with the week they are judged (continuity) ---------- */
+function stillRunning() {
+  const G = g(), out = []; if (!G || G.phase !== 'season') return out; const now = F.absWeek();
+  const T = G.turn; if (T && T.plan && now <= T.until) out.push({ ic: 'board', t: `Your plan: ${(F.TURN_LABEL || {})[T.plan] || T.plan}`, s: `The board judges it in ${Math.max(1, T.until - now - 2)} week${T.until - now - 2 === 1 ? '' : 's'}. Started at ${F.ord(T.pos0)}, now ${F.ord(F.myPos())}.` });
+  const D = G.ft && G.ft.deal, co = staff('coach'); if (D && co && D.s === G.season && G.week <= D.by) out.push({ ic: 'trust', t: `${sur(co.name)}'s promise: ${low(D.t)}`, s: `Agreed with you. Judged in week ${D.by}.` });
+  const PV = F.pwView ? F.pwView() : null; if (PV && PV.stage === 'run' && PV.ag) out.push({ ic: 'acad', t: `The ${PV.tname} agreement`, s: `${PV.ag.routeT || 'Agreed route'}. Evaluation in week ${PV.ag.evalWeek}.` });
+  return out;
+}
 // last week's reports, kept to see what changed
 const prevAfter = H.seasonAfterMatch;
 H.seasonAfterMatch = o => { if (prevAfter) prevAfter(o); const G = g(); G.twPrev = Object.fromEntries((G.reports || []).map(r => [r.role, r.t])); G.tw = null; };
-Object.assign(F, { teamWork });
+Object.assign(F, { teamWork, stillRunning });
 })(FO);

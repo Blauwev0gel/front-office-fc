@@ -128,6 +128,7 @@ function scorecard() {
 const BR = {};
 function defineBrief(id, d) { d.id = id; BR[id] = d; }
 function genBriefs() {
+  if (HOOK.briefsEnd && G.briefs) HOOK.briefsEnd(G.briefs); // what happens to the briefs the CEO left (desk.js)
   G.bcd = G.bcd || {}; const cand = [];
   for (const d of Object.values(BR)) {
     if ((G.bcd[d.id] || 0) > absWeek()) continue; if (d.role && ROLE[d.role] && !staff(d.role)) continue;
@@ -137,7 +138,7 @@ function genBriefs() {
   cand.sort((a, b) => b.sc - a.sc); const used = new Set(), out = [];
   for (const x of cand) { if (out.length >= 3) break; const key = x.d.role || x.d.id; if (used.has(key)) continue; used.add(key); out.push(x); }
   G.briefs = out.map(x => { G.bcd[x.d.id] = absWeek() + (x.d.cd || 4); return { id: uid(), t: x.d.id, ctx: x.c, done: false, out: null }; });
-  if (HOOK.deskBriefs) { try { HOOK.deskBriefs(G.briefs); } catch (err) { } }
+  if (HOOK.deskBriefs) HOOK.deskBriefs(G.briefs);
 }
 function briefView(b) {
   const d = BR[b.t], c = b.ctx, val = v => { try { return typeof v === 'function' ? v(c) : v; } catch (e) { return ''; } };

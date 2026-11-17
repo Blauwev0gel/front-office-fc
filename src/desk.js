@@ -113,12 +113,27 @@ H.deskBriefs = list => {
     const amt = briefAmt(b), lim = limit(h, a);
     if (amt > lim) { b.why = `${money(amt)} a week is above what ${first(s)} may sign off alone (${money(lim)} at ${AUTH[a].t.toLowerCase()}).`; continue; }
     if (a === 0 && amt > 0) { b.why = `${first(s)} is on a short leash: anything with money in it comes to you.`; continue; }
-    const x = BAUTO[b.t]; let idx = x == null ? d.opts.length - 1 : typeof x === 'function' ? (() => { try { return x(); } catch (er) { return d.opts.length - 1; } })() : x;
-    idx = clamp(idx, 0, d.opts.length - 1);
-    let r = ''; try { r = d.opts[idx].f(b.ctx) || 'Noted.'; } catch (er) { r = 'Noted.'; }
-    b.done = true; b.choice = idx; b.out = r; b.del = 1; b.by = s.name; log(h, 0, txt(d.title, b.ctx), txt(d.opts[idx].l, b.ctx));
+    decideBrief(b, d, h, s);
   }
 };
+// the head takes a brief himself, with the choice his mandate points to
+function decideBrief(b, d, h, s) {
+  const x = BAUTO[b.t]; let idx = x == null ? d.opts.length - 1 : typeof x === 'function' ? x() : x;
+  idx = clamp(idx, 0, d.opts.length - 1);
+  const r = d.opts[idx].f(b.ctx) || 'Noted.';
+  b.done = true; b.choice = idx; b.out = r; b.del = 1; b.by = s.name; log(h, 0, txt(d.title, b.ctx), txt(d.opts[idx].l, b.ctx));
+}
+/* step 3 (B54): a brief left open at the end of the week. A staff matter is decided by the head who owns it; a CEO matter lapses.
+   Kept for one week so the desk can say what happened ("Your team at work"). */
+H.briefsEnd = list => {
+  const G = g(), late = [];
+  for (const b of list) { if (b.done) continue; const d = F.BR[b.t]; if (!d) continue;
+    const h = d.role && ROLE[d.role] ? headOf(d.role) : null, s = h ? staff(h) : null;
+    if (CEO_B.has(b.t) || !s || b.why) { late.push({ t: b.t, title: txt(d.title, b.ctx), lapsed: 1 }); continue; } // a matter sent up to the CEO is beyond the head's authority: unanswered, it lapses
+    decideBrief(b, d, h, s); late.push({ t: b.t, title: txt(d.title, b.ctx), role: d.role, by: s.name, opt: txt(d.opts[b.choice].l, b.ctx), out: b.out }); }
+  G.lateBriefs = late;
+};
+F.briefFate = b => { const d = F.BR[b.t]; if (!d) return null; const h = d.role && ROLE[d.role] ? headOf(d.role) : null, s = h ? staff(h) : null; if (CEO_B.has(b.t) || !s || b.why) return { lapse: 1 }; const x = BAUTO[b.t], idx = clamp(x == null ? d.opts.length - 1 : typeof x === 'function' ? x() : x, 0, d.opts.length - 1); return { who: first(s), opt: txt(d.opts[idx].l, b.ctx) }; };
 
 /* ---------- authority over time ---------- */
 const prevAfter = H.seasonAfterMatch;

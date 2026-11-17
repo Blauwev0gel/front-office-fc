@@ -68,7 +68,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `engine/08-weekly-inbox.js` | 9 KB | weekly systems; events & inbox |  | ftDev, fanWeekly, desk, evWeight |  |
 | `engine/09-meetings-actions-press.js` | 17 KB | management meeting & projects (1.2); player actions; press |  |  | propCd, meeting, projects, projDone, projLog, resBy, resOf |
 | `engine/10-season.js` | 9 KB | season |  | objMet, acadSeason, recSeason, seasonReprieve, summerStart | coachNews, squad, academy, lastReport, phase, week, ap, form, inbox, queue, ss, paper, pressDone |
-| `engine/11-staffwork-analysis-briefs.js` | 20 KB | staff work, records & chains (1.1); analysis & scorecards (1.3); weekly briefings (1.5) |  | deskBriefs | later, reports, bcd, briefs |
+| `engine/11-staffwork-analysis-briefs.js` | 20 KB | staff work, records & chains (1.1); analysis & scorecards (1.3); weekly briefings (1.5) |  | briefsEnd, deskBriefs | later, reports, bcd, briefs |
 | `engine/12-week.js` | 8 KB | the week |  | recWeekly, acadWeekly, acadIntake, seasonAfterMatch, edition, seasonWeekly | phase, sackReason, queue, briefs, over, paper, msNew, prev, prevFan, lastMatch, lastCup, ap, later, inbox |
 | `engine/13-newgame-preseason.js` | 7 KB | new game; pre-season planning (1.4) |  | acadInit, summerStart | club, mand, cup, phase, pre, meeting, press, pressDone, paper |
 | `engine/14-save-api.js` | 2 KB | save |  | acadMigrate, recMigrate | ap, later, v |
@@ -92,12 +92,12 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `academy3.js` | 5 KB | Academy as a department you run A trial day where you pick the intake, the "is he ready?" call, and a pyramid  | acadIntake, seasonAfterMatch |  | acadX, academy |
 | `recruitx.js` | 25 KB | Recruitment as a department you run The scouting network per region (focus and investment), the DoF's track re | seasonAfterMatch, recWeekly, seasonWeekly, summerStart | recMigrate | recX |
 | `world.js` | 18 KB | the seeded world (B38, B39, B42) Every league of the world is computed on demand from a seed: nothing is store | seasonWeekly |  | world |
-| `turnaround.js` | 7 KB | the turnaround (B37, B44) When it goes properly wrong, the board asks what the CEO intends to do | ftExtra, seasonWeekly |  | turn, turnLast, turnAsk |
+| `turnaround.js` | 9 KB | the turnaround (B37, B44) When it goes properly wrong, the board asks what the CEO intends to do | ftExtra, seasonWeekly |  | turn, turnLast, turnAsk |
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
-| `desk.js` | 20 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
-| `teamwork.js` | 13 KB | your team at work What the heads did this week, told as people: one concrete act, in their own voice, with the | seasonAfterMatch |  | twUsed, tw, twPrev |
+| `desk.js` | 21 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, briefsEnd, seasonAfterMatch, effBonus |  | auth, desk, lateBriefs |
+| `teamwork.js` | 14 KB | your team at work What the heads did this week, told as people: one concrete act, in their own voice, with the | seasonAfterMatch |  | twUsed, tw, twPrev |
 | `talks.js` | 20 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio, dofStrikes |
-| `weekflow.js` | 25 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo, coachNews, mem |
+| `weekflow.js` | 26 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo, coachNews, mem |
 | `weekloop.js` | 2 KB | situation-driven week Chance serves the club's situation: an event is likelier when its department is under pr | evWeight |  |  |
 | `loop.js` | 16 KB | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice | lastChance, seasonReprieve, seasonAfterMatch |  | votes, vote, bgoal, bgLog, wkDelta, wkPrev, wkLog |
 | `dossiers.js` | 28 KB | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar | seasonAfterMatch |  | pressure, dos |
@@ -115,7 +115,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/08a-dept-parts.js` | 21 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
 | `ui/08b-portal.js` | 30 KB | navigation; leagues: a table whose columns follow the position filter; the player; drill-downs |  |  |  |
 | `ui/09-firstteam-review.js` | 12 KB | first team department |  |  |  |
-| `ui/10-inbox.js` | 22 KB | render; inbox home (1.6); the CEO's weekly desk (UX-1): this week, your team at work, the red box, the next ma |  |  |  |
+| `ui/10-inbox.js` | 23 KB | render; inbox home (1.6); the CEO's weekly desk (UX-1): this week, your team at work, the red box, the next ma |  |  |  |
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
 | `ui/12-scenes-cards.js` | 15 KB | game UI helpers |  |  |  |
 | `ui/13-redbox-render.js` | 13 KB | the red box: an email you answer on one screen |  |  |  |
@@ -243,7 +243,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN, worldSlots, worldMeta, worldFlag, worldUnflag, worldConfirm, worldFlagged, worldTarget, worldTargetState, worldSigned, worldBets, worldBetCheck
 
 ### `turnaround.js`
-- Functions: g, abs, fx, ord, lossesLast5, ppg, snap, trouble, start, edge, STATE
+- Functions: g, abs, fx, ord, lossesLast5, ppg, snap, stances, mood, trouble, start, edge, STATE
 - Exports on `F`: turnTrouble, turnEdge, TURN_LABEL
 
 ### `matchtalk.js`
@@ -251,12 +251,12 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: mtPreview, MT_STY
 
 ### `desk.js`
-- Functions: g, headOf, auth, setAuth, limit, amtOf, top3, missRate, carry, lvl, first, reason, coreWhy, log, txt, gain, slip, briefAmt, both, pickHead, deskView, authView
-- Exports on `F`: AUTH, setAuth, authView, deskView, deskCarry, deskReason, DESK_HEADS, deskLimit, auth(r)), deskNote, t, c, err) => log(headOf(r), err ? 1, c)
+- Functions: g, headOf, auth, setAuth, limit, amtOf, top3, missRate, carry, lvl, first, reason, coreWhy, log, txt, gain, slip, briefAmt, decideBrief, both, pickHead, deskView, authView
+- Exports on `F`: briefFate, AUTH, setAuth, authView, deskView, deskCarry, deskReason, DESK_HEADS, deskLimit, auth(r)), deskNote, t, c, err) => log(headOf(r), err ? 1, c)
 
 ### `teamwork.js`
-- Functions: g, sur, sent, low, trivial, temper, hash, pick, decision, brief, reports, milestones, teamWork
-- Exports on `F`: teamWork
+- Functions: g, sur, sent, low, trivial, temper, hash, pick, decision, brief, late, reports, milestones, teamWork, stillRunning
+- Exports on `F`: teamWork, stillRunning
 
 ### `talks.js`
 - Functions: g, first, fixFor, C, rel, boost, ask, reqText, lapse, weekly, say, note, hasCause, common, reqOpts, open, answer, close, view, reqOf, reqsFor

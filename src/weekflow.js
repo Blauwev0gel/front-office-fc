@@ -19,6 +19,7 @@ function topic() {
   const nx = F.mtPreview ? F.mtPreview() : null, opp = nx ? `${nx.home ? 'at home to' : 'away at'} ${nx.name}` : '';
   const open = G.inbox.filter(m => !m.done);
   if (open.some(m => /^vote_/.test(m.ev))) return { k: 'crisis', t: 'A vote of confidence', s: 'Your future at the club is on the line this week.' };
+  if (open.some(m => m.ev === 'turn_call')) return { k: 'crisis', t: 'The board wants a plan', s: 'One decision this week: how we get out of this. The coach, the DoF and Finance each want something different.' };
   if (open.some(m => m.ev === 'cash_crisis' || m.ev === 'fin_alarm')) return { k: 'crisis', t: 'Money trouble', s: 'Finance needs an answer from you this week.' };
   if (s && s.week === w) { const K = { derby: 'Derby week', top: 'Top-of-the-table week', bottom: 'A survival week', late: 'A big week' }; return { k: 'stake', t: K[s.kind] || 'A big week', s: `${opp ? opp[0].toUpperCase() + opp.slice(1) : 'A big game'}. You have a say before kick-off.` }; }
   if (w === 18) return { k: 'window', t: 'The window shuts this week', s: 'Deals not done by Sunday die. The DoF is on the phone all week.' };
@@ -37,6 +38,9 @@ const OPP = new Set();
 // a week is quiet when little needs the CEO; opportunities only come then
 function quiet() { const G = g(); if (G.phase !== 'season' || G.week < 3) return false; const open = G.inbox.filter(m => !m.done); if (open.some(m => /^vote_|crisis|alarm/.test(m.ev))) return false; const n = open.length + (G.convo ? Object.keys(G.convo.req).length : 0); return n <= 1; }
 // one opportunity a week at most: more would turn a quiet week into a busy one
+// one crisis is one matter: while the board asks for a plan, the loose briefs about the same results stay off the desk
+const CRISIS_DUP = new Set(['coach_slump', 'form_player', 'coach_debrief']);
+const prevDesk2 = H.deskBriefs; H.deskBriefs = list => { if (g().inbox.some(m => !m.done && m.ev === 'turn_call')) for (let i = list.length - 1; i >= 0; i--) if (CRISIS_DUP.has(list[i].t)) list.splice(i, 1); if (prevDesk2) prevDesk2(list); };
 const prevDesk = H.deskBriefs; H.deskBriefs = list => { let seen = false; for (let i = 0; i < list.length; i++) if (OPP.has(list[i].t) && list[i].t !== 'after_big') { if (seen) { list.splice(i, 1); i--; } else seen = true; } /* keep the best-scored one */ if (prevDesk) prevDesk(list); };
 const B = (id, d) => { OPP.add(id); F.defineBrief(id, Object.assign({ role: null, cd: 14 }, d, { check: () => (quiet() ? d.check() : null) })); };
 

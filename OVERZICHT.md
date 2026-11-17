@@ -227,7 +227,7 @@ evolueren (`str` trekt naar het divisiegemiddelde plus hun coach, B37); spelers 
 | `academy.js` | `acad`, `academy` |
 | `academy2.js` | `academy`, `squad` |
 | `recruit.js` | `shortlist`, `rec` |
-| `summer.js` | `phase`, `sum`, `inbox`, `lastSummer`, `squad`, `preEdge` |
+| `summer.js` | `phase`, `sum`, `inbox`, `lastSummer`, `squad`, `preEdge`, `winDone`, `lastWinter` |
 | `season.js` | `rival`, `stake`, `openTarget`, `matchEdge`, `blockDone`, `winterPrev`, `winBonus`, `recovery`, `loanedOut`, `squad` |
 | `summer2.js` | `dofStrikes` |
 | `firstteam.js` | `ft` |
@@ -584,7 +584,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 ## Bijlage: alle bronbestanden
 
 <!-- generated:files:start -->
-62 bronbestanden, samen ongeveer 1007 KB.
+62 bronbestanden, samen ongeveer 1013 KB.
 
 | Bestand | KB | Doel |
 |---|---|---|
@@ -594,7 +594,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `engine/04-staff-dna.js` | 14 | staff; DNA |
 | `engine/05-world-selection.js` | 4 | world; squad & selection |
 | `engine/06-match.js` | 15 | match simulation |
-| `engine/07-finance-transfers.js` | 11 | finance; transfers |
+| `engine/07-finance-transfers.js` | 12 | finance; transfers |
 | `engine/08-weekly-inbox.js` | 9 | weekly systems; events & inbox |
 | `engine/09-meetings-actions-press.js` | 17 | management meeting & projects (1.2); player actions; press |
 | `engine/10-season.js` | 9 | season |
@@ -609,9 +609,9 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `academy.js` | 14 | youth academy, module 2 part 1 Age groups, academy staff, development model, education and welfare, pathway |
 | `academy2.js` | 28 | youth academy, module 2 part 2 Category & audit, poaching and tribunals, youth competitions, ROI, academy desk |
 | `recruit.js` | 40 | recruitment, module 3 part 1 Player world, scouting department, reports with uncertainty, recruitment pipeline |
-| `summer.js` | 17 | the transfer summer, shared parts What summer2.js builds on: expiring contracts and the squad planner, what th |
+| `summer.js` | 18 | the transfer summer, shared parts What summer2.js builds on: expiring contracts and the squad planner, what th |
 | `season.js` | 18 | season rhythm, module 4 part 2 Season blocks with a decision each, board reviews, high-stakes matches, a small |
-| `summer2.js` | 32 | the transfer summer, version 2 A summer meeting with the DoF and staff that ends in a signed summer brief, a t |
+| `summer2.js` | 34 | the transfer summer, version 2 A summer meeting with the DoF and staff that ends in a signed summer brief, a t |
 | `faces.js` | 27 | visual layer, part 1 Procedural ink-style portraits for every person in the game, the CEO's office scene, repu |
 | `firstteam.js` | 22 | First team department The coach's own instincts vs your mandate, support staff you can fund, talks as short sc |
 | `depts.js` | 21 | departments Every department is a real unit: a head, staff underneath, a budget share, facilities, KPI history |
@@ -634,7 +634,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `matchday.js` | 10 | match day Before kick-off: three stories about our own players |
 | `ui/01-core.js` | 5 | atoms; base club: skip the founding |
 | `ui/02-setup.js` | 19 | views: title & setup; mandates as a tactics board |
-| `ui/03-summer-preseason-press.js` | 26 | the summer (M4); the summer, version 2 |
+| `ui/03-summer-preseason-press.js` | 27 | the summer (M4); the summer, version 2 |
 | `ui/04-masthead-news.js` | 1 |  |
 | `ui/05-pitches-squad-money.js` | 15 | project pitches: one at a time, swipe or tap |
 | `ui/06-sheets-ticker.js` | 21 | sheets; ticker |
@@ -647,7 +647,7 @@ Bestuur, supporters, pers en kleedkamer zijn elk een **waarde 0–100** (omgerek
 | `ui/11-players.js` | 9 | players: cards, profiles, stories |
 | `ui/12-scenes-cards.js` | 15 | game UI helpers |
 | `ui/13-redbox-render.js` | 14 | the red box: an email you answer on one screen |
-| `ui/14-matchday-gazette.js` | 25 | match day: preview, match, gazette (full screens); the Gazette: one design, opened after the match and from th |
+| `ui/14-matchday-gazette.js` | 26 | match day: preview, match, gazette (full screens); the Gazette: one design, opened after the match and from th |
 | `ui/15-actions.js` | 19 | actions |
 | `ui/16-boot.js` | 0 | boot |
 <!-- generated:files:end -->

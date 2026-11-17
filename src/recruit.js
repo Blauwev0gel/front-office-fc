@@ -10,7 +10,7 @@ const SCOUT_BIO = ['Former lower-league striker with a notebook habit', 'Ex-vide
 const sq = () => g().squad, N = r => F.staffName(r);
 const cn = p => p.fclub || F.cname(p.club); // the seller's name; players from abroad carry theirs
 const inWin = () => F.window_();
-const winKey = () => g().season + (g().phase === 'summer' || g().week <= 4 ? 'S' : 'W');
+const winKey = () => g().season + ((g().phase === 'summer' && !(g().sum && g().sum.win)) || g().week <= 4 ? 'S' : 'W');
 const winBuys = pos => ((RC().win || {})[winKey()] || {})[pos] || 0;
 // The coach's available squad feeds the DoF's priorities: only a sustained shortage counts, not one injury.
 function coachCoverageNeeds() {

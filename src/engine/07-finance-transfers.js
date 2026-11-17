@@ -50,7 +50,8 @@ function weeklyFinance(home) {
 }
 
 /* ---------- transfers ---------- */
-const window_ = () => G.phase === 'summer' || (HOOK.summerStart ? G.week <= 2 : G.week <= 4) || (G.week >= 17 && G.week <= (HOOK.seasonWeekly ? 18 : 19));
+// The winter window is its own phase once the UI has opened it (B50); the old weeks 17-18 only apply to headless runs that never open it.
+const window_ = () => G.phase === 'summer' || (HOOK.summerStart ? G.week <= 2 : G.week <= 4) || (G.week >= 17 && G.week <= (HOOK.seasonWeekly ? 18 : 19) && G.winDone !== G.season);
 function squadNeeds() { const need = []; for (const pos in REQ) { const n = G.squad.filter(p => p.pos === pos).length; if (n < REQ[pos]) need.push(pos); } return need; }
 function weakestPos() { let wp = null, wv = 99; for (const pos in REQ) { const ps = G.squad.filter(p => p.pos === pos).sort((a, b) => b.ca - a.ca); const v = ps.length ? ps[0].ca : 0; if (v < wv) { wv = v; wp = pos; } } return wp; }
 function genTarget(pos, free) {

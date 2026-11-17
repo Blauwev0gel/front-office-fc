@@ -104,7 +104,7 @@ function refresh(log=true){
   const signature=JSON.stringify(fresh.map(r=>[r.pos,r.n,r.available,r.winterScore,r.summerScore,r.exp.map(x=>x.id),r.successor?.id,r.ageing,r.loans]));
   if(signature!==p.signature||newSeason){p.revision++;p.signature=signature;}
   p.season=G.season;p.week=G.week;p.rows=fresh;
-  const winterOpen=G.phase==='season'&&G.week<=18;
+  const winterOpen=(G.phase==='season'&&G.week<=18&&G.winDone!==G.season)||(G.phase==='summer'&&!!G.sum&&!!G.sum.win);
   p.winter={season:G.season,status:winterOpen?(G.week<17?'preparing':'open'):'closed',rows:winterOpen?fresh.filter(r=>r.winterScore>0).sort((a,b)=>b.winterScore-a.winterScore||a.pos.localeCompare(b.pos)).slice(0,3):[]};
   p.summer={season:G.phase==='summer'?G.season:G.season+1,rows:fresh.filter(r=>r.summerScore>0).sort((a,b)=>b.summerScore-a.summerScore||a.pos.localeCompare(b.pos)).slice(0,4)};
   const cap=+F.man('fin','wageCap');

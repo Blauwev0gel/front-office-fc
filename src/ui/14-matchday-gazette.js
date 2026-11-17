@@ -162,13 +162,15 @@ function mdPaper() {
   return `<div class="mds mdnp"><div class="mdscr">${gzEdition(F.edView(0), 'flow', 0)}</div><div class="mdfoot"><button class="mdko" data-a="md-done">${g.phase === 'season' ? `Start week ${g.week}` : g.phase === 'sacked' ? 'Continue' : 'To the season review'}</button></div></div>`;
 }
 function vMatchday() { const s = U.md; return s.phase === 'preview' ? mdPreview() : s.phase === 'match' ? mdMatch() : mdPaper(); }
+// the winter window opens once the last match screen before week 17 is closed (B50)
+function mdWinter() { if (F.winterDue && F.winterDue() && F.winterOpen()) { clearTimeout(U.ddT); U.tab = 'inbox'; saveGame(); window.scrollTo(0, 0); } }
 function mdKick() {
   const g = G(), wk = g.week, se = g.season, prevPos = F.myPos();
   const dec = g.inbox.filter(m => m.done && m.by === 'you' && m.season === se && m.week === wk).map(m => { const v = F.msgView(m); return { t: v.title, c: v.opts[v.choice].l }; });
   U.sheet = null; ART.SND.whistle();
   const res = F.endWeek(); if (!res) { U.md = null; return; } saveGame();
   U.tab = 'inbox'; U.open = null; U.flash = ''; U.filt = 'all';
-  const first = res.ours || res.cup; if (!first) { U.md = null; return; }
+  const first = res.ours || res.cup; if (!first) { U.md = null; mdWinter(); return; }
   if (res.cup && !res.ours) res.cup.cupWin = g.cup.log.length ? g.cup.log[g.cup.log.length - 1].win : null;
   if (res.cup && res.ours) res.cup.cupWin = g.cup.log.length ? g.cup.log[g.cup.log.length - 1].win : null;
   U.md = { phase: 'match', m: first, lg: res.ours || res.cup, cup: res.ours ? res.cup : null, out: res.ours ? (F.mdOutcomesShort || F.mdOutcomes)(res.ours) : [], tp: res.ours ? F.mdTurning(res.ours) : null, prevPos, dec, week: wk, ft: false };

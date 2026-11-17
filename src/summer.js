@@ -174,4 +174,22 @@ F.ddSkip = () => { const d = S().dd; if (!d) F.ddStart(); let guard = 0; while (
 F.sumView = () => { const s = S(); return { s, step: s.step, contracts: sq().filter(p => p.expiring || s.contracts[p.id]).map(p => ({ p, c: s.contracts[p.id] })).filter(o => o.c), sell: (s.sell || []).map(id => sq().find(p => p.id === id)).filter(Boolean) }; };
 F.sumFinish = finishSummer;
 
+/* ---------- the winter window (B50): the same machinery, in the middle of the season ---------- */
+F.winterDue = () => { const G = g(); return !!G && G.phase === 'season' && G.week === 17 && G.winDone !== G.season && !!F.sum2Ensure; };
+F.winterOpen = () => {
+  const G = g(); if (!F.winterDue()) return false; G.winDone = G.season; G.phase = 'summer';
+  G.sum = { step: 0, round: 0, feed: [], log: [], fr: null, dd: null, contracts: {}, win: true };
+  sellSuggest(); F.sum2Ensure(); return true;
+};
+F.winterFinish = () => {
+  const G = g(), s = S(); let filled = 0;
+  while (G.squad.length < 18) { const need = F.squadNeeds(), pos = need.length ? need[0] : F.weakestPos(); const p = F.genTarget(pos, true); p.fee = 0; F.sign(p); filled++; }
+  if (filled) G.paper.stories.push({ h: 'Emergency signings', t: `${filled} free agent${filled === 1 ? '' : 's'} signed on the last day of the window to make up the numbers.` });
+  const msgs = G.inbox.filter(m => m.sum && !m.done); for (const m of msgs) F.resolve(m, F.autoIndex(m), F.staffName(F.EV[m.ev].from) || 'The club office');
+  G.inbox = G.inbox.filter(m => !m.sum);
+  G.lastWinter = { season: G.season, in: s.log.filter(l => l.k === 'in'), out: s.log.filter(l => l.k === 'out') };
+  G.paper.headline = `Winter window: ${G.lastWinter.in.length} in, ${G.lastWinter.out.length} out`;
+  s.done = true; G.phase = 'season';
+};
+
 })(FO);

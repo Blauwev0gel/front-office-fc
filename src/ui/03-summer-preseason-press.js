@@ -13,8 +13,8 @@ function ddBlock(doneBtn) {
 function mtCard(it) {
   const g = G(), S = g.sum, mt = S.mt, R = g.rec;
   if (it === 'club') {
-    const pl = F.sumPlanner(), cs = F.sumView().contracts, L = g.lastReport;
-    return `<section class="dcard">${L && L.table ? `<dl class="figs"><div><dt>Finished</dt><dd>${F.ord(L.pos)}</dd></div><div><dt>Goals</dt><dd>${L.table.find(x => x.id === 0).gf}–${L.table.find(x => x.id === 0).ga}</dd></div><div><dt>Squad</dt><dd>${g.squad.length}</dd></div></dl>` : ''}
+    const pl = F.sumPlanner(), cs = F.sumView().contracts, L = S.win ? (F.sum2Half() ? { pos: F.sum2Half().pos, table: [{ id: 0, gf: F.sum2Half().gf, ga: F.sum2Half().ga }] } : null) : g.lastReport;
+    return `<section class="dcard">${L && L.table ? `<dl class="figs"><div><dt>${S.win ? 'Now' : 'Finished'}</dt><dd>${F.ord(L.pos)}</dd></div><div><dt>Goals</dt><dd>${L.table.find(x => x.id === 0).gf}–${L.table.find(x => x.id === 0).ga}</dd></div><div><dt>Squad</dt><dd>${g.squad.length}</dd></div></dl>` : ''}
     <div class="scroll"><table class="plan"><thead><tr><th>Position</th><th>Players</th><th>Best</th><th>Age</th><th></th></tr></thead><tbody>${pl.map(r => `<tr><td>${F.POS_L[r.pos]}</td><td class="num">${r.n}/${r.req}</td><td>${r.best ? stars(r.best) : '–'}</td><td class="num">${r.age || '–'}</td><td class="${STATUS_L[r.status][1]}">${STATUS_L[r.status][0]}</td></tr>`).join('')}</tbody></table></div>
     ${cs.length ? `<h3 style="margin-top:10px">Contract package</h3><ul class="list">${cs.map(({ p, c }) => `<li><span>${esc(p.name)} <span class="pos">${p.pos}</span><br><span class="small">${p.age}, ${F.stars(p.ca)}★, asks ${money(c.demand.wage)}/wk for ${c.demand.years}y${c.demand.refuse ? ', may refuse' : ''}</span></span><b class="${(c.choice || c.advice) === 'renew' ? 'good' : 'bad'}">${c.out ? (c.choice === 'release' || (!c.choice && c.advice === 'release') ? 'Released' : 'Done') : (c.choice || c.advice) === 'renew' ? 'Keep' : 'Let go'}</b></li>`).join('')}</ul>` : ''}</section>`;
   }
@@ -32,14 +32,14 @@ function mtCard(it) {
   }
   if (it === 'brief') {
     const B = mt.brief; if (!B) return '';
-    return `<section class="dcard brief"><div class="kick">Summer brief, season ${g.season}</div><h3>Priorities</h3><p>${B.prios.map(x => F.POS_L[x]).join(', ')}. ${B.approach === 'star' ? 'One big signing.' : 'Spread across positions.'}</p>
+    return `<section class="dcard brief"><div class="kick">${S.win ? 'Winter' : 'Summer'} brief, season ${g.season}</div><h3>Priorities</h3><p>${B.prios.map(x => F.POS_L[x]).join(', ')}. ${B.approach === 'star' ? 'One big signing.' : 'Spread across positions.'}</p>
     <h3>Money and limits</h3><p>Budget ${money(B.budget)}. You approve ${B.approve === '999' ? 'no deals' : B.approve === '0' ? 'every deal' : 'deals above ' + money(Math.round(B.budget * (+B.approve) / 100))}.${B.keep.length ? ' Not for sale: ' + B.keep.map(id => (g.squad.find(x => x.id === id) || {}).name).filter(Boolean).join(', ') + '.' : ''}${B.sell.length ? ' Can go: ' + B.sell.map(id => (g.squad.find(x => x.id === id) || {}).name).filter(Boolean).join(', ') + '.' : ''}</p>
     <h3>The DoF will be judged on</h3><ol>${B.kpis.map(k => `<li>${esc(k.t)}</li>`).join('')}</ol><div class="sigs"><span>${esc(F.staffName('dof'))}</span><span>${U.signing ? '<i class="sig">CEO</i>' : '<em>Your signature</em>'}</span></div>${U.signing ? '<div class="stampx">SIGNED</div>' : ''}</section>`;
   }
   return '';
 }
 function vSummer2() {
-  const g = G(), S = g.sum, st = S.step, STEPS = F.SUM2_STEPS;
+  const g = G(), S = g.sum, st = S.step, STEPS = F.sum2Steps();
   const nav = `<div class="steps">${STEPS.map((l, i) => `<span class="stp ${i === st ? 'on' : i < st ? 'done' : ''}">${i + 1}. ${l}</span>`).join('')}</div>`;
   let body = '';
   if (st === 0) {
@@ -56,12 +56,12 @@ function vSummer2() {
     ${d ? `<div class="trustm">${ART.I.trust}<span>${esc(d.name.split(' ').slice(-1)[0])}'s trust</span><i><b style="width:${r0(d.rel)}%"></b></i><span class="num">${r0(d.rel)}</span></div>` : ''}
     ${mtCard(it)}
     ${log.length > 2 ? `<details class="fold minutes"><summary>Meeting notes (${log.length})</summary>${log.map(l => `<p><b>${esc(WHO(l.who))}:</b> ${esc(l.t)}</p>`).join('')}</details>` : ''}
-    ${trayHtml(`<span>${it === 'brief' ? 'Sign it' : 'Your response'}</span><span>${mt.item + 1} of ${items.length}</span>`, resp.map((o, j) => o.k === 'sign' ? `<button class="btn" data-a="mt-ans" data-i="${j}" data-k="sign" ${U.signing ? 'disabled' : ''}>Sign the summer brief</button>` : choiceHtml(o, j, `data-a="mt-ans" data-i="${j}" data-k="${o.k}"`, false, U.signing)).join(''), '')}<div class="trayspace" style="--tray:${80 + resp.length * 66}px"></div>`;
+    ${trayHtml(`<span>${it === 'brief' ? 'Sign it' : 'Your response'}</span><span>${mt.item + 1} of ${items.length}</span>`, resp.map((o, j) => o.k === 'sign' ? `<button class="btn" data-a="mt-ans" data-i="${j}" data-k="sign" ${U.signing ? 'disabled' : ''}>Sign the ${S.win ? 'winter' : 'summer'} brief</button>` : choiceHtml(o, j, `data-a="mt-ans" data-i="${j}" data-k="${o.k}"`, false, U.signing)).join(''), '')}<div class="trayspace" style="--tray:${80 + resp.length * 66}px"></div>`;
   } else if (st === 1) {
     const tk = S.tk;
-    if (tk.phase === 'dd') body = ddBlock(`<button class="btn" data-a="s2-step" data-i="2">Read the summer edition</button>`);
+    if (tk.phase === 'dd') body = ddBlock(`<button class="btn" data-a="s2-step" data-i="2">Read the ${S.win ? 'winter' : 'summer'} edition</button>`);
     else {
-      const call = F.tkCall(), lines = tk.lines.slice(0, tk.shown).reverse(), W = F.SUM2_WEEKS, board = F.recPlanBoard();
+      const call = F.tkCall(), lines = tk.lines.slice(0, tk.shown).reverse(), W = F.sum2Weeks(), board = F.recPlanBoard();
       const plan = `<div class="planboard">${board.map(r => `<${r.pid ? `button data-a="target" data-id="${r.pid}"` : 'div'} class="pl ${r.st}"><i class="dot"></i>${F.POS_L[r.pos]}<span>${esc(r.who)}</span></${r.pid ? 'button' : 'div'}>`).join('')}</div>`;
       let callH = '';
       if (call) {
@@ -73,7 +73,7 @@ function vSummer2() {
         U.tkTray = trayHtml('<span>Your call</span><span>His advice is marked</span>', call.v.opts.map((o, j) => `<button class="cho ${j === call.ai ? 'pick' : ''}" data-a="tk-ans" data-i="${j}">${j === call.ai ? '<span class="pk">His advice</span>' : ''}<b>${esc(o.l)}</b><span class="fx">${ART.fx(o.h)}</span></button>`).join(''), '');
       } else U.tkTray = '';
       const line = l => `<li class="fk-${l.k || 'quiet'}"><span class="fk">${esc(l.h)}</span>${l.pid && (g.squad.find(q => q.id === l.pid) || (g.rec.pool[l.pid])) ? `<button class="lnk" data-a="${g.squad.some(q => q.id === l.pid) ? 'player' : 'target'}" data-id="${l.pid}"><span class="mf">${(() => { const q = g.squad.find(q => q.id === l.pid) || g.rec.pool[l.pid]; return q.pool ? ART.poolFace(q) : ART.playerFace(q); })()}</span>${esc(l.t)}</button>` : esc(l.t)}</li>`;
-      body = `<div class="clock"><div><div class="kick">The summer</div><b>${tk.wk < 0 ? 'Before the window' : W[Math.min(tk.wk, W.length - 1)] + ' of ' + W.length}</b></div><div class="pips">${W.map((l, i) => `<i class="${i <= tk.wk ? 'on' : ''}"></i>`).join('')}</div></div>
+      body = `<div class="clock"><div><div class="kick">${S.win ? 'The window' : 'The summer'}</div><b>${tk.wk < 0 ? 'Before the window' : W[Math.min(tk.wk, W.length - 1)] + ' of ' + W.length}</b></div><div class="pips">${W.map((l, i) => `<i class="${i <= tk.wk ? 'on' : ''}"></i>`).join('')}</div></div>
       ${callH || `<div class="sec" style="margin-top:8px">The plan, live</div>${plan}<div class="minifigs"><span>${ART.I.money}${money(F.transferBudget())} left</span><span>${ART.I.squad}${g.squad.length} players</span><span>${ART.I.chev}${S.log.filter(l => l.k === 'in').length} in, ${S.log.filter(l => l.k === 'out').length} out</span></div>`}
       <ul class="feedl dd">${lines.map(line).join('') || `<li class="fk-quiet"><span class="fk"></span>${esc(F.staffName('dof'))} picks up the phone.</li>`}</ul>
       ${call ? U.tkTray + `<div class="trayspace" style="--tray:${90 + call.v.opts.length * 60}px"></div>` : `<div class="row" style="margin-top:14px"><button class="btn ghost" data-a="tk-pause">${tk.run ? 'Pause' : 'Resume'}</button><button class="btn ghost" data-a="tk-skip">Skip to deadline day</button></div>`}`;
@@ -84,19 +84,19 @@ function vSummer2() {
     const grp = { Keeper: ['GK'], Defence: ['CB', 'FB'], Midfield: ['DM', 'CM', 'AM'], Attack: ['W', 'ST'] };
     const bars = Object.entries(grp).map(([l, ps]) => { const rs = E.rows.filter(r => ps.includes(r.pos)), b = Math.max(0, ...rs.map(r => r.b)), a = Math.max(0, ...rs.map(r => r.a)); return `<div class="pb">${l}<i><u style="width:${b * 20}%"></u><b style="width:${a * 20}%"></b></i><em class="${a > b ? 'up' : a < b ? 'dn' : ''}">${a > b ? '+' + (a - b) : a < b ? '−' + (b - a) : '='}</em></div>`; }).join('');
     const outs = E.outs.map(o => (o.t || o.name || '').replace(/^.*?(sells|offloads)\s/, '').replace(/,? as you asked\.?|\.$/g, '')).slice(0, 5);
-    body = `<article class="paper"><div class="mast">THE ${esc(g.club.city.toUpperCase())} GAZETTE <small>Summer edition</small></div><div class="gstamp g${E.grade}">${E.grade}<small>SUMMER</small></div>
+    body = `<article class="paper"><div class="mast">THE ${esc(g.club.city.toUpperCase())} GAZETTE <small>${E.label} edition</small></div><div class="gstamp g${E.grade}">${E.grade}<small>${E.label.toUpperCase()}</small></div>
     <h2 class="ehead2">${esc(E.head)}</h2><p class="esub2">${E.ins.length} in, ${E.outs.length} out, net spend ${money(E.net)}</p>
     <div class="ins">${E.ins.map(card).join('') || '<p class="small">Nobody came in.</p>'}</div>
     ${outs.length ? `<p class="outs">Out: ${esc(outs.join('; '))}</p>` : ''}
     <div class="sec2">The brief</div><div class="planboard">${E.ev.map(e => `<div class="pl ${e.met ? 'done' : 'open'}"><i class="dot"></i>${esc(e.t)}<span>${e.met ? 'Met' : 'Missed'}</span></div>`).join('')}</div>
-    <div class="sec2">Best player per line, May → now</div><div class="posbars">${bars}</div>
+    <div class="sec2">Best player per line, ${S.win ? 'before the window' : 'May'} → now</div><div class="posbars">${bars}</div>
     <div class="quote"><span class="pf">${ART.staffFace('coach', E.xi > 0.15 ? 'happy' : E.xi < -0.1 ? 'worried' : null)}</span>${esc(E.coach)}</div>
     <div class="quote"><span class="pf">${ART.staffFace('board', E.met >= 2 ? 'happy' : 'worried')}</span>${esc(E.board)}</div></article>
     ${trayHtml('', `<button class="btn" data-a="s2-step" data-i="3">Debrief with ${esc(F.staffName('dof'))}</button>`, '')}<div class="trayspace" style="--tray:100px"></div>`;
   } else if (st === 3) {
     const D = F.sum2Debrief();
-    body = `<h2>Debrief</h2><div class="meet"><div class="say"><div class="who">${esc(WHO('dof'))}</div><p>${esc(D.intro)} ${D.lines.map(esc).join(' ')}</p></div>${D.five && D.five.length ? `<ul class="five">${D.five.map(x => `<li class="${x.ok === true ? 'good' : x.ok === false ? 'bad' : ''}">${esc(x.t)}</li>`).join('')}</ul>` : ''}${D.done ? `<div class="say me"><div class="who">You</div><p>${esc({ praise: '"Good work this summer."', probe: '"Walk me through what went wrong."', warn: '"This is not good enough."', tighten: '"From now on, every deal comes through me."', loosen: '"You have earned more freedom."' }[D.done.k])}</p></div><div class="say"><div class="who">${esc(WHO('dof'))}</div><p>${esc(D.done.t)}</p></div>` : ''}</div>
-    ${D.done ? `<div class="row" style="margin-top:14px"><button class="btn" data-a="s2-step" data-i="4">Next: season goals</button></div>` : `<div class="ch">${[['praise', 'Praise his work', 'Trust up, more so if he delivered'], ['probe', 'Ask what went wrong', 'He explains, slightly defensive'], ['warn', 'Warn him', D.met < D.ev.length ? 'Sharpens him, counts as a strike' : 'Unfair after a good summer'], [D.met >= 2 ? 'loosen' : 'tighten', D.met >= 2 ? 'Give him more freedom' : 'Every deal through you from now on', D.met >= 2 ? 'You approve only big deals' : 'More control, less trust']].map(([k, l, h]) => `<button class="cbtn" data-a="db-talk" data-k="${k}"><b>${l}</b><span>${h}</span></button>`).join('')}</div><p class="small"><button class="link" data-a="s2-step" data-i="4">Skip the debrief</button></p>`}`;
+    body = `<h2>Debrief</h2><div class="meet"><div class="say"><div class="who">${esc(WHO('dof'))}</div><p>${esc(D.intro)} ${D.lines.map(esc).join(' ')}</p></div>${D.five && D.five.length ? `<ul class="five">${D.five.map(x => `<li class="${x.ok === true ? 'good' : x.ok === false ? 'bad' : ''}">${esc(x.t)}</li>`).join('')}</ul>` : ''}${D.done ? `<div class="say me"><div class="who">You</div><p>${esc({ praise: S.win ? '"Good work this window."' : '"Good work this summer."', probe: '"Walk me through what went wrong."', warn: '"This is not good enough."', tighten: '"From now on, every deal comes through me."', loosen: '"You have earned more freedom."' }[D.done.k])}</p></div><div class="say"><div class="who">${esc(WHO('dof'))}</div><p>${esc(D.done.t)}</p></div>` : ''}</div>
+    ${D.done ? `<div class="row" style="margin-top:14px">${S.win ? '<button class="btn" data-a="s2-finish">Back to the season</button>' : '<button class="btn" data-a="s2-step" data-i="4">Next: season goals</button>'}</div>` : `<div class="ch">${[['praise', 'Praise his work', 'Trust up, more so if he delivered'], ['probe', 'Ask what went wrong', 'He explains, slightly defensive'], ['warn', 'Warn him', D.met < D.ev.length ? 'Sharpens him, counts as a strike' : 'Unfair after a good window'], [D.met >= 2 ? 'loosen' : 'tighten', D.met >= 2 ? 'Give him more freedom' : 'Every deal through you from now on', D.met >= 2 ? 'You approve only big deals' : 'More control, less trust']].map(([k, l, h]) => `<button class="cbtn" data-a="db-talk" data-k="${k}"><b>${l}</b><span>${h}</span></button>`).join('')}</div><p class="small">${S.win ? '<button class="link" data-a="s2-finish">Skip the debrief</button>' : '<button class="link" data-a="s2-step" data-i="4">Skip the debrief</button>'}</p>`}`;
   } else {
     const P = g.pre, fo = F.FOCUS.filter(f => !g.board.obj.some(o => o.k === f.k && !o.soft) || P.focus.includes(f.k));
     body = `<h2>Two focus goals</h2><p class="small">Extra goals for the season. Met: board confidence up. Missed: a small dent.</p>
@@ -105,7 +105,7 @@ function vSummer2() {
     ${g.meeting && g.meeting.items.length ? `<div style="margin-top:22px">${meetingBlock(g.meeting, 'Projects for the season')}</div>` : ''}
     <div class="row" style="margin-top:18px"><button class="btn" data-a="s2-finish" ${P.focus.length === 2 ? '' : 'disabled'}>Meet the press</button>${P.focus.length === 2 ? '' : '<span class="small">Choose two focus goals.</span>'}</div>`;
   }
-  return `<div class="setup" style="max-width:760px"><div class="sumhead">${crest(g.club.colors, g.club.short, 26)}<h1>The summer</h1><span class="chip" style="margin-left:auto">Step ${st + 1} of ${STEPS.length}</span></div>${body}</div>`;
+  return `<div class="setup" style="max-width:760px"><div class="sumhead">${crest(g.club.colors, g.club.short, 26)}<h1>${S.win ? 'Winter window' : 'The summer'}</h1><span class="chip" style="margin-left:auto">Step ${st + 1} of ${STEPS.length}</span></div>${body}</div>`;
 }
 function ddSchedule() {
   clearTimeout(U.ddT); const g = G(); if (!g || g.phase !== 'summer' || !g.sum) return;

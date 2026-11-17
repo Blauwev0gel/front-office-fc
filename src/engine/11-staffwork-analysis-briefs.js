@@ -169,3 +169,44 @@ function answerBrief(id, i) {
   return { out: current.out };
 }
 
+
+/* Unified read-only decision docket. Existing inbox and briefing engines remain
+   the single sources of truth; this adapter does not create parallel saved state. */
+function caseView(kind, id) {
+  if (kind === 'm') {
+    const item = (G.inbox || []).find(m => m.id === id);
+    if (!item || !EV[item.ev]) return null;
+    const v = msgView(item);
+    const e = EV[item.ev];
+    const type = e.from === 'board' ? 'governance' :
+      e.from === 'fans' || e.from === 'press' ? 'stakeholder' :
+      item.esc ? 'exception' : 'ceo-decision';
+    return {
+      id: 'event:' + item.id, source: 'event', sourceId: item.id,
+      eventType: item.ev, type, role: v.role, owner: v.from,
+      title: v.title, context: v.body, reason: v.why,
+      status: item.done ? (item.del ? 'delegated' : 'resolved') : 'open',
+      options: v.opts, recommended: v.auto,
+      noResponse: 'If you leave it, ' + v.autoWho + ' decides under the current rules.',
+      outcome: v.outcome || null, decisionBy: v.by || null,
+      responsible: v.from, hasSecondOpinion: !!v.second
+    };
+  }
+  if (kind === 'b') {
+    const item = (G.briefs || []).find(b => b.id === id);
+    if (!item || !BR[item.t]) return null;
+    const v = briefView(item);
+    return {
+      id: 'brief:' + item.id, source: 'brief', sourceId: item.id,
+      eventType: item.t, type: 'consultation', role: v.role,
+      owner: v.who, title: v.title, context: v.text,
+      reason: v.why || null,
+      status: item.done ? (v.del ? 'delegated' : 'resolved') : 'open',
+      options: v.opts, recommended: -1,
+      noResponse: 'This update is optional. Leaving it unanswered does not require an immediate CEO decision.',
+      outcome: v.out || null, decisionBy: v.by || null,
+      responsible: v.who, hasSecondOpinion: false
+    };
+  }
+  return null;
+}

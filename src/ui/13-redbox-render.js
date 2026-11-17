@@ -105,7 +105,7 @@ function tourCard(k) { const g = G(), t = TOUR[k]; if (!t || (g.flags.tour || {}
 function tabBadge(k) {
   const g = G();
   if (k === 'inbox') { const n = inboxItems().filter(isBox).length; return n ? `<em class="nbadge">${n}</em>` : ''; }
-  if (k === 'club') { const run = F.finRunway ? F.finRunway() : null; return (g.grip != null && g.grip < 30) || (run != null && run <= 8) || g.board.conf < 30 ? '<em class="nbadge warn">!</em>' : ''; }
+  if (k === 'club') { const run = F.finRunway ? F.finRunway() : null; return (run != null && run <= 8) || g.board.conf < 30 ? '<em class="nbadge warn">!</em>' : ''; }
   if (k === 'squad') return (g.msNew || []).length ? `<em class="nbadge dot"></em>` : '';
   if (k === 'staff') { const n = F.deptOverview().filter(o => !o.s).length; return n ? '<em class="nbadge warn">!</em>' : ''; }
   return '';

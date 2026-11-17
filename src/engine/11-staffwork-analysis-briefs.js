@@ -233,5 +233,39 @@ function caseView(kind, id) {
       availableToInvest:meetingPot(), hasSecondOpinion:!!v.second
     };
   }
+  if (kind === 'a') {
+    const a = (G.agreements || []).find(x => x.id === id);
+    if (!a) return null;
+    const leader = staff(a.role), open = a.state === 'review';
+    return {
+      id:'agreement:' + a.id, source:'agreement', sourceId:a.id,
+      eventType:'mandate-review', type:'leadership-agreement',
+      role:a.role, owner:a.head, title:ROLE[a.role].t + ' leadership review',
+      context: a.outcome || 'The department is executing the agreed strategy.',
+      reason:a.reason, status:a.state,
+      options:open ? [{id:'continue',label:'Renew this direction for six weeks'},
+        {id:'close',label:'Acknowledge and retain the current policy'}] : [],
+      recommended:-1,
+      noResponse:'The employee continues to act within the existing mandate unless you change it.',
+      outcome:a.outcome, decisionBy:a.response || null, responsible:a.head,
+      baseline:a.baseline, review:a.check, due:a.due, start:a.start,
+      currentHead:leader ? leader.name : null
+    };
+  }
+  if (kind === 'c') {
+    const c = (G.conversations || []).find(x => x.id === id);
+    if (!c) return null;
+    return {
+      id:'conversation:' + c.id, source:'conversation', sourceId:c.id,
+      eventType:'staff-one-to-one', type:'conversation',
+      role:c.role, owner:c.head, title:'One-to-one with ' + c.head,
+      context:c.text, reason:c.approach, status:'resolved',
+      options:[], recommended:-1,
+      noResponse:'A conversation does not by itself change the employee mandate.',
+      outcome:c.text, decisionBy:'CEO', responsible:c.head,
+      agreementId:c.agreementId, before:c.before, after:c.after,
+      week:c.week, season:c.season
+    };
+  }
   return null;
 }

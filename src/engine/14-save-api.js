@@ -1,6 +1,6 @@
 /* ---------- save ---------- */
 function save() { return JSON.stringify(G); }
-function load(s) { const g = JSON.parse(s); if (!g || g.v > VERSION) return false; G = g; G.ap = AP_FREE; if (!G.later) G.later = []; if (G.v < 2) { G.v = 2; if (HOOK.acadMigrate) HOOK.acadMigrate(); } if (G.v < 3) { G.v = 3; if (HOOK.recMigrate) HOOK.recMigrate(); } if (G.v < 4) { G.v = 4; delete G.grip; delete G.gripW; delete G.gripLog; if (G.flags) delete G.flags.gripWarn; } return true; } // v4: Grip is gone (B54)
+function load(s) { const g = JSON.parse(s); if (!g || g.v > VERSION) return false; G = g; G.ap = AP_FREE; if (!G.later) G.later = []; if (G.v < 2) { G.v = 2; if (HOOK.acadMigrate) HOOK.acadMigrate(); } if (G.v < 3) { G.v = 3; if (HOOK.recMigrate) HOOK.recMigrate(); } if (G.v < 4) { G.v = 4; delete G.grip; delete G.gripW; delete G.gripLog; if (G.flags) delete G.flags.gripWarn; } if (HOOK.recExceptionMigrate) HOOK.recExceptionMigrate(); return true; } // v4: legacy finance exceptions reconciled on load
 
 return {
   get G() { return G; }, set G(v) { G = v; }, HOOK, absStars, newStats,

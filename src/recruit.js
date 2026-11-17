@@ -140,7 +140,10 @@ function negRound(x) {
 }
 // the most this deal may cost now: the DoF's mandate (with exceptions bound to this player or position), minus other bids;
 // a CEO-approved price may go past the mandate, never past the cash the club has left after other bids
-function liveCap(p, x) { const cash = Math.max(0, g().club.cash - committed(x)); return Math.round(Math.min(x.deal.ceo ? Math.max(x.deal.cap, capFor(p, x)) : capFor(p, x), cash) / 100) * 100; }
+function liveCap(p, x) { const bids = committed(x), cash = Math.max(0, g().club.cash - bids), authority = Math.max(0, F.transferBudget() + extraAuth(p) - bids);
+  // A CEO can override the DoF's per-deal limit, not cash or the purpose of an exceptional allocation.
+  const delegatedOrApproved = x.deal.ceo ? x.deal.cap : capFor(p, x);
+  return Math.round(Math.max(0, Math.min(delegatedOrApproved, authority, cash)) / 100) * 100; }
 function wagePhase(x) {
   const p = RC().pool[x.pid], d = x.deal, lim = wageLimit();
   if (p.club && d.fee > 0) { const live = liveCap(p, x), cashNow = Math.round((d.inst ? d.fee * 0.6 : d.fee) + d.fee * 0.08); // settlement check at the moment of signing
@@ -272,6 +275,12 @@ function ensure() {
     G.shortlist = []; }
 }
 H.recMigrate = ensure;
+// Old saves with a general financial exception: retain it only for one provably associated open deal.
+H.recExceptionMigrate = () => { const r = g() && g().rec; if (!r || !(r.extra > 0) || r.extraPid != null) return;
+  const active = (r.pipe || []).filter(x => x.exAsked && ['approach', 'negotiating', 'agreed'].includes(x.stage) && r.pool && r.pool[x.pid]);
+  if (active.length === 1) r.extraPid = active[0].pid;
+  else { r.extra = 0; r.extraPid = null; }
+};
 if (F.BR.scout_find) F.BR.scout_find.check = () => null;
 if (F.BR.scout_dry) F.BR.scout_dry.check = () => null;
 
@@ -335,14 +344,14 @@ E('rec_exception', { forced: 1, from: 'dof', dept: 'sporting', cd: 1, why: c => 
 E('rec_raise', { forced: 1, from: 'dof', dept: 'sporting', cd: 1, why: 'The seller wants more than the DoF may pay.',
   title: c => `Talks stuck on ${P(c.pid) ? P(c.pid).name : 'a target'}`, body: c => { const x = pipeOf(c.pid), p = P(c.pid); if (!x || !p) return 'Gone.'; return `${x.deal.rounds.slice(-2).join(' ')} Our ceiling is ${money(x.deal.cap)}. ${cn(p)} want ${money(c.counter)}.`; },
   opts: [
-    { l: c => `Go to ${money(c.counter)}`, h: 'Deal likely', f: c => { const x = pipeOf(c.pid); if (!x || !P(c.pid)) return 'Gone.'; x.deal.cap = c.counter; x.deal.offer = c.counter; x.deal.fee = c.counter; x.deal.rounds.push(`We meet the price: ${money(c.counter)}.`); wagePhase(x); return x.stage === 'signed' ? 'Deal done.' : 'Fee agreed; personal terms next.'; } },
+    { l: c => `Go to ${money(c.counter)}`, h: 'Deal likely', f: c => { const x = pipeOf(c.pid); if (!x || !P(c.pid)) return 'Gone.'; x.deal.cap = c.counter; x.deal.ceo = 1; x.deal.offer = c.counter; x.deal.fee = c.counter; x.deal.rounds.push(`We meet the price: ${money(c.counter)}.`); wagePhase(x); return x.stage === 'signed' ? 'Deal done.' : 'Fee agreed; personal terms next.'; } },
     { l: 'Split the difference', h: 'Maybe', f: c => { const x = pipeOf(c.pid); if (!x || !P(c.pid)) return 'Gone.'; const mid = Math.round((x.deal.cap + c.counter) / 2 / 100) * 100; if (chance(0.55)) { x.deal.fee = mid; x.deal.rounds.push(`Met halfway at ${money(mid)}.`); wagePhase(x); return 'They accept the compromise.'; } setStage(x, 'lost', 'They refuse to budge.'); return 'They walk away.'; } },
     { l: 'Walk away', h: '', f: c => { const x = pipeOf(c.pid); if (x) setStage(x, 'lost', 'We walked away.'); return 'The DoF moves on.'; } }],
   auto: c => man('dof', 'hard') > 60 ? 2 : 1 });
 E('rec_rival', { forced: 1, from: 'dof', dept: 'sporting', cd: 1, why: 'A rival has entered the race for our target.',
   title: c => `${F.cname(c.rival)} bid for ${P(c.pid) ? P(c.pid).name : 'our target'}`, body: c => { const p = P(c.pid), x = pipeOf(c.pid); return p && x ? `They have offered about ${money(c.bid)}. Our last offer was ${money(x.deal.offer)}. ${p.name} likes the idea of a bigger club.` : 'Gone.'; },
   opts: [
-    { l: 'Beat their offer', h: c => `Offer ${money(Math.round(c.bid * 1.05 / 100) * 100)}`, f: c => { const x = pipeOf(c.pid); if (!x || !P(c.pid)) return 'Gone.'; const o = Math.round(c.bid * 1.05 / 100) * 100; x.deal.cap = Math.max(x.deal.cap, o); x.deal.offer = o; if (o >= x.deal.floor) { x.deal.fee = o; x.deal.rounds.push(`We beat ${F.cname(c.rival)}: ${money(o)}.`); wagePhase(x); return 'We win the race.'; } return 'Still short of their price.'; } },
+    { l: 'Beat their offer', h: c => `Offer ${money(Math.round(c.bid * 1.05 / 100) * 100)}`, f: c => { const x = pipeOf(c.pid); if (!x || !P(c.pid)) return 'Gone.'; const o = Math.round(c.bid * 1.05 / 100) * 100; x.deal.cap = Math.max(x.deal.cap, o); x.deal.ceo = 1; x.deal.offer = o; if (o >= x.deal.floor) { x.deal.fee = o; x.deal.rounds.push(`We beat ${F.cname(c.rival)}: ${money(o)}.`); wagePhase(x); return 'We win the race.'; } return 'Still short of their price.'; } },
     { l: 'Sell him the project instead', h: 'Depends on the DoF and the player', f: c => { const x = pipeOf(c.pid), p = P(c.pid); if (!x || !p) return 'Gone.'; if (chance(0.35 + (F.eff('dof', 2) - 10) * 0.03 + (p.pers.loy - 10) * 0.02)) return 'He wants to come to us. Talks continue.'; setStage(x, 'lost', `He chose ${F.cname(c.rival)}.`); delete RC().pool[c.pid]; return `He joins ${F.cname(c.rival)}.`; } },
     { l: 'Let him go', h: '', f: c => { const x = pipeOf(c.pid); if (x) setStage(x, 'lost', `Lost to ${F.cname(c.rival)}.`); delete RC().pool[c.pid]; return 'We move on.'; } }],
   auto: c => { const x = pipeOf(c.pid); return x && x.deal && Math.round(c.bid * 1.05) <= x.deal.cap ? 0 : 2; } });

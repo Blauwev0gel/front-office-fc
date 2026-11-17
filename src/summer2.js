@@ -216,7 +216,12 @@ function makeBrief() {
 }
 function applyBrief() {
   const s = S(), B = s.mt.brief, R = g().rec, G = g();
-  R.plan.prios = B.prios.map(pos => ({ pos, kind: s.mt.plan.kind })); R.plan.set = true;
+  // A newly signed winter/summer brief must not silently overwrite an earlier CEO agreement.
+  const pending = F.agrList ? F.agrList().filter(a => !a.res && !a.done && a.pos && (a.k === 'pos' || a.kind === 'plan')) : [];
+  const carried = [...new Set(pending.map(a => a.pos))], merged = carried.concat(B.prios.filter(pos => !carried.includes(pos))).slice(0, 3);
+  if (carried.length) { say('dof', `Our existing agreement on ${carried.map(POSL).join(' and ')} remains part of this ${SW()} brief. If circumstances change, I will report it before dropping the priority.`);
+    B.prios = merged; const goal = B.kpis.find(k => k.k === 'prios'); if (goal) { goal.pos = merged.slice(0, 2); goal.t = `Sign a player for ${goal.pos.map(POSL).join(' and ')}`; } }
+  R.plan.prios = B.prios.map(pos => ({ pos, kind: s.mt.plan.kind, agreed: carried.includes(pos) })); R.plan.set = true;
   G.mand.dof.approve = B.approve;
   s.feeBefore = G.mand.dof.maxFee; G.mand.dof.maxFee = B.approach === 'star' ? '100' : '50';
   for (const id of B.sell) { const p = sq().find(x => x.id === id); if (p) p.sellFlag = true; }

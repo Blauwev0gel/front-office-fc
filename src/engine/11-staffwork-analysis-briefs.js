@@ -208,5 +208,30 @@ function caseView(kind, id) {
       responsible: v.who, hasSecondOpinion: false
     };
   }
+  if (kind === 'p') {
+    const item = G.meeting && G.meeting.items && G.meeting.items[id];
+    if (!item || !PROP[item.id]) return null;
+    const v = proposalView(item), open = item.status === 'open';
+    const actions = open ? [
+      ...(!item.second ? [{ id:'second', label:'Ask for independent advice' }] : []),
+      ...(!item.revised ? [{ id:'revise', label:'Request a smaller proposal' }] : []),
+      { id:'reject', label:'Decline the project' },
+      ...(item.cost <= meetingPot() ? [{ id:'approve', label:'Approve and fund the project' }] : [])
+    ] : [];
+    return {
+      id:'proposal:' + G.season + ':' + G.week + ':' + id,
+      source:'proposal', sourceId:id, eventType:item.id, type:'project-proposal',
+      role:item.owner, owner:v.owner, title:v.title,
+      context:v.pitch, reason:'A strategic investment needs an explicit CEO decision.',
+      status:item.status, options:actions, recommended:-1,
+      noResponse: G.meeting.pre
+        ? 'The proposal remains pending until preseason decisions are finished.'
+        : 'The proposal lapses if the meeting ends without a decision.',
+      outcome: open ? null : item.status,
+      decisionBy:open ? null : 'CEO', responsible:v.owner,
+      cost:item.cost, weeklyCost:item.wk, duration:item.dur,
+      availableToInvest:meetingPot(), hasSecondOpinion:!!v.second
+    };
+  }
   return null;
 }

@@ -154,8 +154,18 @@ function briefView(b) {
 }
 function answerBrief(id, i) {
   if (over()) return { err: 'You no longer run the club.' };
-  const b = (G.briefs || []).find(x => x.id === id); if (!b || b.done) return null; const o = BR[b.t].opts[i];
-  
-  let r = ''; try { r = o.f(b.ctx) || 'Noted.'; } catch (e) { r = 'Noted.'; } b.done = true; b.choice = i; b.out = r; return { out: r };
+  const b = (G.briefs || []).find(x => x.id === id);
+  if (!b || b.done) return null;
+  const source = BR[b.t];
+  if (!source || !Array.isArray(source.opts) || !Number.isInteger(i) || i < 0 || i >= source.opts.length)
+    return { err: 'This response is not available.' };
+  const result = runChoiceEffect(() => source.opts[i].f(b.ctx));
+  if (result.err) return result;
+  const current = (G.briefs || []).find(x => x.id === id);
+  if (!current) return { err: 'The briefing could not be found after processing.' };
+  current.done = true;
+  current.choice = i;
+  current.out = result.result || 'Noted.';
+  return { out: current.out };
 }
 

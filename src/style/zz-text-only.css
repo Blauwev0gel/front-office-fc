@@ -1130,3 +1130,30 @@ html,body{background:var(--bg)!important}
 #app .fo-meeting-history b{display:block;font-size:11px!important}
 #app .fo-meeting-history p{font-size:11px!important;line-height:1.45!important;margin:5px 0!important}
 #app .fo-meeting-history small{font-size:10px!important;color:var(--soft)!important}
+
+/* Specialist decision lifecycle, source-backed evidence (not an approval inbox). */
+#app .fo-specialist-records,#app .dw-specialist-reviews{margin:13px 0!important}
+#app .fo-specialist-case{border:1px solid var(--hair)!important;border-left:3px solid var(--ink)!important;
+ background:var(--paper)!important;color:var(--ink)!important;padding:11px!important;margin:8px 0!important}
+#app .fo-specialist-state{display:block;font-size:10px!important;font-weight:900!important;
+ letter-spacing:.05em;margin-bottom:6px;color:var(--soft)!important}
+#app .fo-specialist-case>b{display:block;font-size:13px!important;overflow-wrap:anywhere}
+#app .fo-specialist-case>small{display:block;font-size:10px!important;margin:6px 0!important;
+ color:var(--soft)!important}
+#app .fo-specialist-case p{font-size:11px!important;margin:7px 0!important;line-height:1.45!important}
+#app .fo-specialist-case .fo-specialist-conflict{border-left:3px solid var(--rule)!important;
+ padding:7px!important;background:var(--fill)!important}
+#app .fo-specialist-case summary{font-size:11px!important;min-height:42px!important;
+ padding:10px 0!important;text-decoration:underline}
+#app .fo-specialist-case pre{display:block;padding:9px!important;font-size:10px!important;
+ line-height:1.5!important;overflow-x:auto!important;white-space:pre-wrap!important;
+ overflow-wrap:anywhere!important;background:var(--fill)!important;color:var(--ink)!important}
+#app .fo-specialist-archive>summary{min-height:44px!important;font-size:12px!important;
+ padding:11px!important;border:1px solid var(--hair)!important}
+#app .dw-specialist-link{display:flex;flex-direction:column;gap:5px;width:100%;
+ text-align:left!important;min-height:62px!important;padding:11px 5px!important;
+ border:0!important;border-bottom:1px solid var(--hair)!important;
+ background:var(--paper)!important;color:var(--ink)!important}
+#app .dw-specialist-link>b{font-size:12px!important}
+#app .dw-specialist-link small{font-size:11px!important;color:var(--soft)!important}
+#app .dw-specialist-link>span{font-size:11px!important;text-decoration:underline!important}

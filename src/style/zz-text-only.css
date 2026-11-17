@@ -992,3 +992,11 @@ html,body{background:var(--bg)!important}
  background:var(--paper)!important;border:1px solid var(--hair)!important;
  color:var(--soft)!important;font-size:11px!important;line-height:1.5!important}
 #app .fo-case-response .mlv b{color:var(--ink)!important}
+
+/* Project decisions are accountable commitments, not swipe cards or action points. */
+#app .fo-proposal-context{background:var(--paper)!important;color:var(--ink)!important;
+ border:1px solid var(--hair)!important;border-left:4px solid var(--ink)!important;
+ padding:12px!important;margin:10px 0!important}
+#app .fo-proposal-context b{font-size:12px!important;display:block}
+#app .fo-proposal-context p{font-size:11px!important;margin:8px 0!important}
+#app .fo-proposal-context small{display:block;font-size:11px!important;color:var(--soft)!important}

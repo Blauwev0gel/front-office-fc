@@ -1,0 +1,37 @@
+name: CEO season release checks
+on:
+  push:
+    branches: [claude-game]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  engine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build playable game
+        run: python3 build.py
+      - name: CEO game and seasonal regression suites
+        run: |
+          set -euo pipefail
+          node test/initiative.js
+          node test/initiative-fixes.js
+          node test/transfer-integrity.js
+          node test/winter.js
+          node test/summer3.js
+          node test/squad-plan.js
+          node test/ceo-season-lifecycle.js
+      - name: Other core checks
+        run: |
+          set -euo pipefail
+          node test/rec.js
+          node test/mig.js
+          node test/sim.js
+          node test/preview-save.js

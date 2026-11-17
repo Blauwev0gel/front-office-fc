@@ -65,14 +65,47 @@ function msgView(m) {
   return { from, role: e.from, dept: e.dept, title: val(e.title) || 'A matter for your desk', body: val(e.body) || 'The people involved have moved on. Any choice will close the file.', opts: e.opts.map(o => ({ l: val(o.l) || 'Close the file', h: val(o.h) })), auto: ai, autoWho: e.from === 'board' ? 'the board' : ROLE[e.from] ? (staff(e.from) ? staff(e.from).name : 'nobody, the role is vacant, so it falls to chance and') : 'the club office', done: m.done, choice: m.choice, outcome: m.outcome, by: m.by, del: !!m.del, err: !!m.err, esc: !!m.esc, why: m.why || val(e.why) || (e.forced ? 'A consequence of an earlier decision, or something your staff cannot settle alone.' : 'It falls outside what your mandates let staff decide alone.'), second: e.second ? { role: ROLE[e.second.r].t, avail: !!staff(e.second.r), name: staffName(e.second.r), text: m.second || null } : null };
 }
 function autoIndex(m) { const e = EV[m.ev]; if (!ROLE[e.from] || staff(e.from)) return e.auto ? clamp(e.auto(m.ctx), 0, e.opts.length - 1) : 0; return e.vacant != null ? e.vacant : e.opts.length - 1; }
+// One authoritative, recoverable effect boundary for inbox and briefing choices.
+// G is JSON-saveable; restore its complete snapshot if a handler throws midway.
+// Do not mark a decision handled until its actual effect succeeds.
+function runChoiceEffect(effect) {
+  const before = JSON.stringify(G);
+  try { return { ok: true, result: effect() }; }
+  catch (err) {
+    G = JSON.parse(before);
+    return { err: 'That decision could not be completed. Nothing was committed; please try again.' };
+  }
+}
 function resolve(m, idx, by) {
-  const e = EV[m.ev]; m.done = true; m.choice = idx; m.by = by;
-  let r; try { r = e.opts[idx].f(m.ctx); } catch (err) { r = 'The situation resolved itself.'; } m.outcome = r || 'Done.';
-  if (by !== 'you') { let lab = ''; try { lab = typeof e.opts[idx].l === 'function' ? e.opts[idx].l(m.ctx) : e.opts[idx].l; } catch (err) { } G.paper.stories.push({ h: by === 'The board' ? 'Board decision' : by === 'The club office' ? 'Club decision' : 'Staff decision', t: `${by}: ${lab}. ${m.outcome}` }); }
-  return m.outcome;
+  const e = EV[m.ev];
+  if (!e || !Array.isArray(e.opts) || !Number.isInteger(idx) || idx < 0 || idx >= e.opts.length)
+    return { err: 'This decision is no longer available.' };
+  if (m.done) return { err: 'This decision was already handled.' };
+  const result = runChoiceEffect(() => e.opts[idx].f(m.ctx));
+  if (result.err) return result;
+  // A handler might use direct access to the same object. Re-read the current case.
+  const current = G.inbox.find(x => x.id === m.id);
+  if (!current) return { err: 'The decision could not be found after processing.' };
+  current.done = true; current.choice = idx; current.by = by;
+  current.outcome = result.result || 'Done.';
+  if (by !== 'you') {
+    let label = '';
+    try { label = typeof e.opts[idx].l === 'function' ? e.opts[idx].l(current.ctx) : e.opts[idx].l; } catch (ignore) {}
+    G.paper.stories.push({
+      h: by === 'The board' ? 'Board decision' : by === 'The club office' ? 'Club decision' : 'Staff decision',
+      t: `${by}: ${label}. ${current.outcome}`
+    });
+  }
+  return current.outcome;
 }
 // CEO authority is controlled by mandates, consequences and staff trust, not a weekly action-point currency.
-function respond(msgId, idx) { if (over()) return { err: 'You no longer run the club.' }; const m = G.inbox.find(x => x.id === msgId); if (!m || m.done) return null; return { out: resolve(m, idx, 'you') }; }
+function respond(msgId, idx) {
+  if (over()) return { err: 'You no longer run the club.' };
+  const m = G.inbox.find(x => x.id === msgId);
+  if (!m || m.done) return null;
+  const result = resolve(m, idx, 'you');
+  return result && result.err ? result : { out: result };
+}
 
 /* ---------- player actions ---------- */
 function talk(role, tone) {

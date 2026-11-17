@@ -100,7 +100,8 @@ function common(role) {
   if (!F.record(role).early) o.push({ id: 'review', t: 'Let us go through the numbers', fx: 'Depends on the numbers' });
   if ((staff(role) || {}).perf < 40) o.push({ id: 'warn', t: 'Results have to improve', fx: 'A warning' });
   const dk = DEPT[role]; if (F.deptVerdict && dk && HEAD[dk] === role && F.deptVerdict(dk).st === 'bad') o.unshift({ id: 'why', t: 'What is going wrong?', fx: 'He explains' });
-  return o.slice(0, 4);
+  const tp = F.agrTopics ? F.agrTopics(role) : []; // CEO-1: a real topic first, when there is one
+  return tp.concat(o).slice(0, 4);
 }
 function reqOpts(r) {
   if (r.k === 'staff') return [{ id: 'r_yes', t: `Hire ${r.name.split(' ')[0]}`, fx: `${money(r.fee)} now, ${money(r.wage)}/wk` }, { id: 'r_no', t: 'Not now', fx: 'He may be disappointed' }];
@@ -136,6 +137,7 @@ function answer(id) {
   const cause = !!r || hasCause(role);
   const R = v => { rel(role, v * k); if (v) note(`Trust ${v > 0 ? '+' : '−'}${Math.abs(Math.round(v * k))}`); }, B = (v, w) => { boost(role, v * k, w); if (v) note(v > 0 ? `${n} fired up` : `${n} deflated`); };
   const end = (t, c) => { T.done = true; T.opts = []; if (F.deskNote) F.deskNote(role, r ? `${n} wanted a word` : `Talk with ${n}`, `You: ${opt.t}.`, 0); };
+  if (F.agrAnswer && /^(t_|a_)/.test(id) && F.agrAnswer(id, T, say, note)) { if (!T.opts.length) end(); return; } // CEO-1 topics (agreements.js)
   switch (id) {
     case 'back': if (!cause) { say(role, P.ego > 13 ? 'I know. Was there something else?' : 'Thanks. Nothing has changed, then.'); break; } if (s.perf < 45) { say(role, 'That means a lot right now.'); R(5); B(3); } else if (P.ego > 13) { say(role, 'Good. Then let me get on with it.'); R(3); B(-1); } else { say(role, 'Appreciated. We keep building.'); R(4); B(1); } break;
     case 'push': if (!cause) { say(role, P.ego >= 13 ? 'More? Things are going well. Look at the numbers.' : 'I will try, but I am not sure what you want changed.'); R(P.ego >= 13 ? -3 : -1); break; } if (P.amb >= 12) { say(role, 'Good. So do I. Watch this space.'); R(-1); B(7, 5); } else if (P.ego >= 13) { say(role, 'With respect, I know my job.'); R(-8); B(-2); } else { say(role, 'Understood. I will push harder.'); R(-3); B(3); } break;
@@ -144,7 +146,7 @@ function answer(id) {
     case 'why': { const dk = DEPT[role], V = F.deptVerdict(dk), fx = fixFor(dk); say(role, `${V.t} ${fx.cause || 'Honestly, a bit of everything.'}`); T.req = { k: 'verdict', fix: fx.kind ? fx : null };
       T.opts = (fx.kind ? [{ id: 'r_fix', t: fx.l, fx: 'What he asks for' }] : []).concat([{ id: 'back', t: 'You have my backing', fx: 'Trust up' }, { id: 'push', t: 'It has to improve, fast', fx: 'Sharper, risk on trust' }]); return; }
     case 'r_fix': { const fx = r.fix; if (!fx) break;
-      if (fx.kind === 'squad') { say(role, 'Good. Tell him what I need.'); R(3); rel('dof', -2); if (F.recPlanSuggest) { const pos = (F.recPlanSuggest()[0] || {}).pos; if (pos) G.dofPrio = pos; } note('DoF told to find a player'); }
+      if (fx.kind === 'squad') { say(role, 'Good. Tell him what I need.'); R(3); rel('dof', -2); if (F.recPlanSuggest) { const pos = (F.recPlanSuggest()[0] || {}).pos; if (pos) F.recPrioritise(pos); } note('DoF told to find a player'); }
       if (fx.kind === 'trip') { const out = F.rxInvest ? F.rxInvest(fx.rk) : null; if (out && out.err) say(role, out.err); else { say(role, 'We leave on Monday.'); R(2); note(`Trip to ${fx.reg}`); } }
       if (fx.kind === 'budget') { if (F.bizSetLevel) F.bizSetLevel(fx.dk, 'normal'); say(role, 'Thank you. You will see the difference.'); R(3); note('Budget: normal'); }
       if (fx.kind === 'cap') { const f = G.mand.fin, o = ['50', '60', '70', '85']; f.wageCap = o[Math.min(3, Math.max(0, o.indexOf(String(f.wageCap))) + 1)]; say(role, `${f.wageCap}% it is.`); R(2); note(`Wage cap ${f.wageCap}%`); }
@@ -160,7 +162,7 @@ function answer(id) {
       if (r.k === 'budget') { if (F.bizSetLevel) F.bizSetLevel('academy', 'normal'); say(role, 'Thank you. The coaches will feel it straight away.'); R(4); note('Academy budget: normal'); }
       if (r.k === 'welfare') { G.mand.acad = Object.assign({}, G.mand.acad, { welfare: clamp((+man('acad', 'welfare')) + 15, 0, 100) }); say(role, 'Thank you. The parents will notice.'); R(3); note('Protect the kids +15'); }
       if (r.k === 'minutes') { G.mand.coach = Object.assign({}, G.mand.coach, { youthMins: clamp((+man('coach', 'youthMins')) + 10, 0, 100) }); say(role, 'That is all I ask.'); R(4); rel('coach', -2); note('Coach youth minutes +10 · coach −2'); }
-      if (r.k === 'squad') { say(role, 'Good. Tell him what I need.'); R(3); rel('dof', -2); if (F.recPlanSuggest) { const pos = (F.recPlanSuggest()[0] || {}).pos; if (pos) G.dofPrio = pos; } note('Coach +3 · DoF −2'); }
+      if (r.k === 'squad') { say(role, 'Good. Tell him what I need.'); R(3); rel('dof', -2); if (F.recPlanSuggest) { const pos = (F.recPlanSuggest()[0] || {}).pos; if (pos) F.recPrioritise(pos); } note('Coach +3 · DoF −2'); }
       break;
     case 'r_no':
       if (r.k === 'ultimatum') { say(role, 'Understood. I know what is at stake.'); R(-5); B(5); G.dofStrikes = 1; note('One warning left'); break; }

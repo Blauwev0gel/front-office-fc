@@ -30,7 +30,7 @@ B('scout_dry', { role: 'scout', cd: 8,
 B('dof_priority', { role: 'dof', cd: 10,
   check: () => inWindowSoon() && !((g().dofPrioAt || -99) > F.absWeek() - 10) ? { opts: [F.weakestPos(), ...F.squadNeeds()].filter((v, i, a) => v && a.indexOf(v) === i).concat(['ST', 'CB', 'CM']).filter((v, i, a) => a.indexOf(v) === i).slice(0, 3), score: 3 } : null,
   title: () => 'Transfer window: where do we strengthen?', text: c => `${N('dof')} wants your steer before the window. He suggests ${c.opts.map(p => F.POS_L[p].toLowerCase()).join(', ')}. Weakest area right now: ${F.POS_L[c.opts[0]].toLowerCase()}.`,
-  opts: [0, 1, 2].map(i => ({ l: c => c.opts[i] ? `Priority: ${F.POS_L[c.opts[i]].toLowerCase()}` : 'Your call', h: '', f: c => { g().dofPrio = c.opts[i] || null; g().dofPrioAt = F.absWeek(); return `The DoF will focus on ${c.opts[i] ? F.POS_L[c.opts[i]].toLowerCase() : 'whatever he sees fit'} this window.`; } })) });
+  opts: [0, 1, 2].map(i => ({ l: c => c.opts[i] ? `Priority: ${F.POS_L[c.opts[i]].toLowerCase()}` : 'Your call', h: '', f: c => { if (c.opts[i]) F.recPrioritise(c.opts[i]); else g().dofPrio = null; g().dofPrioAt = F.absWeek(); return `The DoF will focus on ${c.opts[i] ? F.POS_L[c.opts[i]].toLowerCase() : 'whatever he sees fit'} this window.`; } })) });
 B('unhappy_player', { role: 'dof', cd: 5,
   check: () => { const p = sq().filter(p => p.morale < 45 && p.pers.amb > 11 && p.st.apps < g().week / 2).sort((a, b) => a.morale - b.morale)[0]; return p && g().week > 5 ? { pid: p.id, name: p.name, apps: p.st.apps, score: 1.5 } : null; },
   title: c => `${c.name} is unhappy`, text: c => `${c.name} has started ${c.apps} games and wants to know where he stands. ${N('dof')} asks how you want to handle it.`,

@@ -85,7 +85,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `faces.js` | 27 KB | visual layer, part 1 Procedural ink-style portraits for every person in the game, the CEO's office scene, repu |  |  |  |
 | `firstteam.js` | 22 KB | First team department The coach's own instincts vs your mandate, support staff you can fund, talks as short sc | coachAct, ftCost, ftInj, ftDev, ftExtra, selBonus, seasonAfterMatch |  | ft |
 | `depts.js` | 21 KB | departments Every department is a real unit: a head, staff underneath, a budget share, facilities, KPI history | effBonus, deptCost, merchMult, ftExtra, ftDev, ftInj, seasonAfterMatch |  | dept, deptB, deptSeason, staffAsk |
-| `levers.js` | 5 KB | levers DoF signings that fit the system, a finance alarm before it is too late, and staff picks that respect t | ftExtra, seasonAfterMatch | deptCost |  |
+| `levers.js` | 5 KB | levers DoF signings that fit the system, a finance alarm before it is too late, and staff picks that respect t | effBonus, ftExtra, seasonAfterMatch | deptCost |  |
 | `commercial.js` | 10 KB | Commercial department The stadium as a system (three stands, demand, price, matchday experience), sponsor offe | attendance, gate, homeEdge, merchMult, deptCost, seasonAfterMatch |  | com |
 | `marketing.js` | 7 KB | Marketing department A supporter funnel (reach, fans, season-ticket holders), loyalty that cushions bad result | fanWeekly, deptCost |  | mk |
 | `business.js` | 7 KB | Business department A season budget per department (lean, normal, invest) against what the club can afford, a  | costDisc |  | biz, deptB |
@@ -96,7 +96,8 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 21 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, briefsEnd, seasonAfterMatch, effBonus |  | auth, desk, lateBriefs |
 | `teamwork.js` | 14 KB | your team at work What the heads did this week, told as people: one concrete act, in their own voice, with the | seasonAfterMatch |  | twUsed, tw, twPrev |
-| `talks.js` | 20 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio, dofStrikes |
+| `agreements.js` | 7 KB | agreements the CEO makes with a head (CEO-1) The CEO raises a real problem; the head gives his view and may re | seasonAfterMatch |  | agr, dofPrio |
+| `talks.js` | 20 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofStrikes |
 | `weekflow.js` | 26 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo, coachNews, mem |
 | `weekloop.js` | 2 KB | situation-driven week Chance serves the club's situation: an event is likelier when its department is under pr | evWeight |  |  |
 | `loop.js` | 16 KB | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice | lastChance, seasonReprieve, seasonAfterMatch |  | votes, vote, bgoal, bgLog, wkDelta, wkPrev, wkLog |
@@ -257,6 +258,10 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 ### `teamwork.js`
 - Functions: g, sur, sent, low, trivial, temper, hash, pick, decision, brief, late, reports, milestones, teamWork, stillRunning
 - Exports on `F`: teamWork, stillRunning
+
+### `agreements.js`
+- Functions: g, sur, list, open, winOpen, nextWindowEnd, dofTopic, dofView, agree, judge
+- Exports on `F`: recPrioritise, agrTopics, agrAnswer, agrRunning, agrRecent, agrList
 
 ### `talks.js`
 - Functions: g, first, fixFor, C, rel, boost, ask, reqText, lapse, weekly, say, note, hasCause, common, reqOpts, open, answer, close, view, reqOf, reqsFor

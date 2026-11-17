@@ -108,7 +108,7 @@ function stillRunning() {
   const T = G.turn; if (T && T.plan && now <= T.until) out.push({ ic: 'board', t: `Your plan: ${(F.TURN_LABEL || {})[T.plan] || T.plan}`, s: `The board judges it in ${Math.max(1, T.until - now - 2)} week${T.until - now - 2 === 1 ? '' : 's'}. Started at ${F.ord(T.pos0)}, now ${F.ord(F.myPos())}.` });
   const D = G.ft && G.ft.deal, co = staff('coach'); if (D && co && D.s === G.season && G.week <= D.by) out.push({ ic: 'trust', t: `${sur(co.name)}'s promise: ${low(D.t)}`, s: `Agreed with you. Judged in week ${D.by}.` });
   const PV = F.pwView ? F.pwView() : null; if (PV && PV.stage === 'run' && PV.ag) out.push({ ic: 'acad', t: `The ${PV.tname} agreement`, s: `${PV.ag.routeT || 'Agreed route'}. Evaluation in week ${PV.ag.evalWeek}.` });
-  return out;
+  return out.concat(F.agrRunning ? F.agrRunning() : []);
 }
 // last week's reports, kept to see what changed
 const prevAfter = H.seasonAfterMatch;

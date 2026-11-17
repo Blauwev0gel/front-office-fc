@@ -117,3 +117,7 @@
 .dk-go{justify-self:end;display:inline-flex;align-items:center;gap:2px;font:700 13px var(--body);min-height:24px}
 .dk-more{display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center;margin:12px 0 4px}.dk-more .linkbtn{min-height:44px}
 .dk-back{min-height:44px}.dk-back svg{transform:rotate(180deg)}.dk-fh h2{margin:4px 0 8px;font:italic 900 24px var(--head)}
+
+.dk-asks{display:flex;flex-direction:column;gap:6px;margin-top:4px}.dk-asks>small{font:700 11px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+.dk-ask{display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 12px;border:1.5px dashed var(--ink);border-radius:12px;background:transparent;color:var(--ink);text-align:left;font:700 14px var(--body)}
+.dk-ask svg:first-child{flex:none;width:30px;height:30px;border-radius:50%}.dk-ask span{flex:1}

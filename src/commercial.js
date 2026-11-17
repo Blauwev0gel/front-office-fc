@@ -65,6 +65,8 @@ function offerWeekly() {
 function offerAct(k) {
   const G = g(), X = C(), o = X.offer; if (!o) return { err: 'No offer on the table.' };
   const dna = G.club.dna || {};
+  if (k !== 'reject' && F.specialistSponsorRequiresReview?.(o))
+    return {err:'Marketing objects to this sponsor under the club identity. Resolve the Commercial–Marketing disagreement before authorizing it.'};
   if (k === 'accept') {
     G.club.deals.push({ name: o.name, type: 'partner', wk: o.wk, weeks: o.weeks }); X.offer = null;
     if (o.sect === 'Betting' && (dna.style === 'community' || dna.identity === 'community' || dna.origin === 'fans')) { G.st.fans = clamp(G.st.fans - 4, 0, 100); }
@@ -105,8 +107,8 @@ F.defineBrief('com_offer', { role: 'com', cd: 1,
   title: c => `Sponsor: ${c.name} want in`,
   text: () => { const o = C().offer; return o ? `${o.name} (${o.sect.toLowerCase()}) offer ${money(o.wk)} a week for ${o.weeks} weeks. ${staff('com') ? staff('com').name.split(' ')[0] : 'Commercial'} can try to push for more.` : 'The offer has gone.'; },
   opts: [
-    { l: 'Accept', h: () => C().offer ? `+${money(C().offer.wk)}/wk` : '', f: () => (offerAct('accept') || {}).out || 'Gone.' },
-    { l: 'Push for 20% more', h: 'More money, or they walk', f: () => (offerAct('push') || {}).out || 'Gone.' },
+    { l: 'Accept', h: () => C().offer ? `+${money(C().offer.wk)}/wk` : '', f: () => { const r=offerAct('accept'); if(r?.err)throw Error(r.err); return r?.out||'The offer has expired.'; } },
+    { l: 'Push for 20% more', h: 'More money, or they walk', f: () => { const r=offerAct('push'); if(r?.err)throw Error(r.err); return r?.out||'The offer has expired.'; } },
     { l: 'Turn it down', h: () => C().offer && C().offer.sect === 'Betting' ? 'Fans approve' : '', f: () => (offerAct('reject') || {}).out || 'Gone.' }] });
 F.defineBrief('com_prices', { role: 'com', cd: 6,
   check: () => { const L = C().last; if (!L || L.s !== g().season || g().week - L.w > 2) return null; const arr = Object.entries(L.D); const lo = arr.sort((a, b) => a[1].fill - b[1].fill)[0], hi = arr.sort((a, b) => b[1].fill - a[1].fill)[0]; if (lo[1].fill < 0.35) return { score: 1.4, k: lo[0], t: lo[1].t, fill: Math.round(lo[1].fill * 100), dir: -1 }; if (hi[1].fill > 0.97) return { score: 1.4, k: hi[0], t: hi[1].t, fill: 100, dir: 1 }; return null; },

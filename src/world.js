@@ -111,7 +111,9 @@ const aw = () => F.absWeek();
 // scout slots per week: a chief scout gives three, without one the DoF's own people manage one
 function worldSlots() { const w = WX(); if (w.usedAt !== aw()) { w.usedAt = aw(); w.used = 0; } const total = F.staff('scout') ? 3 : 1; return { total, left: Math.max(0, total - w.used) }; }
 function worldMeta(key) { const w = WX(), f = w.flags[key], k = w.know[key]; return { fl: !!f, hyp: f ? f.hyp || null : null, confirmed: k ? (aw() > k.at ? 2 : 1) : 0 }; }
-function worldFlag(key, hyp) { const w = WX(); w.flags[key] = w.flags[key] || { at: aw() }; if (hyp !== undefined) w.flags[key].hyp = hyp; }
+// the flag keeps what he looked like when you flagged him, so the bet can be settled later (B46)
+const snapOf = r => ({ s: g().season, w: g().week, name: r.name, club: r.club, lg: r.lg, pos: r.pos, age: r.age, ca: +r.ca.toFixed(2), pa: +r.pa.toFixed(2), ask: Math.round(r.ask), end: !!r.end, st: r.st, truth: r.truth || null });
+function worldFlag(key, hyp) { const w = WX(); if (!w.flags[key]) { const r = worldPlayer(key); w.flags[key] = { at: aw(), snap: r && !r.ours ? snapOf(r) : null }; } if (hyp !== undefined) w.flags[key].hyp = hyp; }
 function worldUnflag(key) { delete WX().flags[key]; }
 // B45: a flagged player can become a target: he moves into the DoF's pipeline (recruit.js) with his own price and attributes
 function worldTargetState(key) { const f = WX().flags[key]; if (!f || !f.target) return null; const r = g().rec, x = r && r.pipe.find(y => y.pid === f.target); return { pid: f.target, stage: x ? x.stage : 'gone', blocked: x && x.blocked ? x.blocked : null, note: x && x.note || null }; }
@@ -123,8 +125,10 @@ function worldTarget(key) {
   if (r.err) return r; f.target = r.pid; return { ok: true };
 }
 // signed through the pipeline: he leaves the world, and the bet is kept
-function worldSigned(key, p) { const f = WX().flags[key]; if (f) f.signed = { s: g().season, w: g().week, ca: +p.ca.toFixed(1), name: p.name }; worldRemove(key); }
+function worldSigned(key, p) { const f = WX().flags[key]; if (f) f.signed = { s: g().season, w: g().week, ca: +p.ca.toFixed(1), name: p.name, pid: p.id }; worldRemove(key); }
 function worldConfirm(key) { const w = WX(), s = worldSlots(); if (w.know[key]) return { err: 'The scouts have already been asked.' }; if (s.left < 1) return { err: 'No scout is free this week.' }; w.know[key] = { at: aw() }; w.used = (w.used || 0) + 1; const t = w.flags[key] && w.flags[key].target; if (t && F.recMoreReport) F.recMoreReport(t); return { ok: true }; }
+// the bets: every flag with its snapshot, and how he looks now (as our player if we signed him). A bet settles once a season has passed.
+function worldBets() { const w = WX(); return Object.keys(w.flags).map(key => { const f = w.flags[key]; if (!f.snap) return null; const now = f.signed ? worldPlayer('me|' + f.signed.pid) : worldPlayer(key); return { key, hyp: f.hyp || null, snap: f.snap, signed: f.signed || null, target: f.target || null, now, ready: g().season > f.snap.s }; }).filter(Boolean); }
 function worldFlagged() { return Object.keys(WX().flags).map(key => ({ key, ...WX().flags[key] })); }
-Object.assign(F, { worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN: PLAN, worldSlots, worldMeta, worldFlag, worldUnflag, worldConfirm, worldFlagged, worldTarget, worldTargetState, worldSigned });
+Object.assign(F, { worldLeagues, worldLeague, worldPlayer, worldRemove, WORLD_PLAN: PLAN, worldSlots, worldMeta, worldFlag, worldUnflag, worldConfirm, worldFlagged, worldTarget, worldTargetState, worldSigned, worldBets });
 })(FO);

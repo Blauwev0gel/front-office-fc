@@ -54,7 +54,13 @@ const Lf = F.worldLeague('ibe'); ok(Lf.clubs.length === 18 && Lf.players.length 
   x.stage = 'lost'; ok(F.worldTarget(dom.key).ok && Object.values(F.G.rec.pool).filter(p => p.wkey === dom.key).length === 1, 'after a failed attempt he can be a target again, with one pool entry');
   const live = F.save(); ok(F.load(live) && F.worldTargetState(dom.key).pid && F.G.rec.pool[F.worldTargetState(dom.key).pid], 'the link survives save and load');
   const t2 = F.worldTargetState(fo.key).pid, was = F.G.rec.pool[t2]; was.club = 1; const sq0 = F.G.squad.length;
-  F.worldSigned(fo.key, { ca: 7.2, name: fo.name }); ok(F.worldLeague('ibe').players.every(p => p.key !== fo.key || p.name !== fo.name) && WXs(fo.key).signed.name === fo.name, 'once signed he leaves the world and the bet is kept');
+  F.worldSigned(fo.key, { id: F.G.squad[0].id, ca: 7.2, name: fo.name }); ok(F.worldLeague('ibe').players.every(p => p.key !== fo.key || p.name !== fo.name) && WXs(fo.key).signed.name === fo.name, 'once signed he leaves the world and the bet is kept');
   function WXs(k) { return F.G.world.flags[k]; }
+  // B46: the bets
+  const bets = F.worldBets(), bd = bets.find(b => b.key === dom.key), bf = bets.find(b => b.key === fo.key);
+  ok(bd && bd.snap.name === dom.name && bd.snap.hyp === undefined && bd.hyp === 'Hidden quality' && Math.abs(bd.snap.ca - dom.ca) < .01 && bd.snap.ask === Math.round(dom.ask), 'a flag keeps a snapshot of the player as he was when flagged');
+  ok(bd && !bd.ready, 'a bet is not settled in the season it was made'); ok(bf && bf.signed && bf.now && bf.now.ours, 'a signed bet shows him as our player');
+  F.G.season += 1; const later = F.worldBets().find(b => b.key === dom.key); ok(later.ready, 'a season later the bet is ready to settle'); F.G.season -= 1;
+
 }
 console.log(fails ? `\n${fails} FAILED` : '\nall ok'); process.exit(fails ? 1 : 0);

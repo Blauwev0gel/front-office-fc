@@ -95,6 +95,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `turnaround.js` | 7 KB | the turnaround (B37, B44) When it goes properly wrong, the board asks what the CEO intends to do | ftExtra, seasonWeekly |  | turn, turnLast, turnAsk |
 | `matchtalk.js` | 8 KB | match identity and commentary Opponents get a style, a form line and a dangerous player; commentary is drawn f | oppStyle, say |  |  |
 | `desk.js` | 20 KB | the CEO's desk Departments decide routine matters themselves, inside the authority the CEO gives each head | desk, deskBriefs, seasonAfterMatch, effBonus |  | auth, desk |
+| `teamwork.js` | 13 KB | your team at work What the heads did this week, told as people: one concrete act, in their own voice, with the | seasonAfterMatch |  | twUsed, tw, twPrev |
 | `talks.js` | 20 KB | talks with the heads One conversation engine for every head (B19) | seasonAfterMatch |  | convo, talks, dofPrio, dofStrikes |
 | `weekflow.js` | 25 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo, coachNews, mem |
 | `weekloop.js` | 2 KB | situation-driven week Chance serves the club's situation: an event is likelier when its department is under pr | evWeight |  |  |
@@ -114,7 +115,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/08a-dept-parts.js` | 21 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
 | `ui/08b-portal.js` | 30 KB | navigation; leagues: a table whose columns follow the position filter; the player; drill-downs |  |  |  |
 | `ui/09-firstteam-review.js` | 12 KB | first team department |  |  |  |
-| `ui/10-inbox.js` | 18 KB | render; inbox home (1.6) |  |  |  |
+| `ui/10-inbox.js` | 22 KB | render; inbox home (1.6); the CEO's weekly desk (UX-1): this week, your team at work, the red box, the next ma |  |  |  |
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
 | `ui/12-scenes-cards.js` | 15 KB | game UI helpers |  |  |  |
 | `ui/13-redbox-render.js` | 13 KB | the red box: an email you answer on one screen |  |  |  |
@@ -250,8 +251,12 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Exports on `F`: mtPreview, MT_STY
 
 ### `desk.js`
-- Functions: g, headOf, auth, setAuth, limit, amtOf, top3, carry, lvl, first, reason, coreWhy, log, txt, gain, slip, briefAmt, both, pickHead, deskView, authView
+- Functions: g, headOf, auth, setAuth, limit, amtOf, top3, missRate, carry, lvl, first, reason, coreWhy, log, txt, gain, slip, briefAmt, both, pickHead, deskView, authView
 - Exports on `F`: AUTH, setAuth, authView, deskView, deskCarry, deskReason, DESK_HEADS, deskLimit, auth(r)), deskNote, t, c, err) => log(headOf(r), err ? 1, c)
+
+### `teamwork.js`
+- Functions: g, sur, sent, low, trivial, temper, hash, pick, decision, brief, reports, milestones, teamWork
+- Exports on `F`: teamWork
 
 ### `talks.js`
 - Functions: g, first, fixFor, C, rel, boost, ask, reqText, lapse, weekly, say, note, hasCause, common, reqOpts, open, answer, close, view, reqOf, reqsFor
@@ -319,7 +324,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: vFirst, ftTalkHtml, vReview2, vSacked
 
 ### `ui/10-inbox.js`
-- Functions: isRead, markRead, first, inboxItems, nextFix, bkT, bkSt, bkArrow, bkDir, backersHtml, comingHtml, dossierCard, archiveHtml, pwMeetHtml, pwEvalHtml, agreementHtml, pathwayCard, credHtml, caseHtml, fdHtml, isDis, rowThumb, rowHtml, isBox, boxRow, deskRow, vInbox
+- Functions: isRead, markRead, first, inboxItems, nextFix, bkT, bkSt, bkArrow, bkDir, backersHtml, comingHtml, dossierCard, archiveHtml, pwMeetHtml, pwEvalHtml, agreementHtml, pathwayCard, credHtml, caseHtml, fdHtml, isDis, rowThumb, rowHtml, isBox, boxRow, deskRow, sent, ifLeft, weekLine, topic2, nextCard, vInbox
 
 ### `ui/11-players.js`
 - Functions: strengths, roleOf, starsTxt, pcard, hashN, storyOf, attrGroups, formBars, profileHtml, scoutLine

@@ -129,17 +129,6 @@ function topic2() { // the existing week topic, plus a bad or good run from the 
   if (T && T.k === 'quiet') return { k: 'quiet', t: g.week <= 3 ? 'The club is settling' : 'A quiet week', s: T.s };
   return T;
 }
-function teamLines() { // what the staff did, from what the game recorded this week
-  const g = G(), se = g.season, wk = g.week, L = [];
-  for (const m of g.inbox.filter(m => m.done && m.del && m.season === se && m.week === wk)) { const v = F.msgView(m), e = F.EV[m.ev] || {}, r = e.from === 'scout' ? 'scout' : e.from, s = F.staff(r); if (!s) continue;
-    L.push({ r, n: s.name, w: m.err ? 3 : /gamble|went for/.test(m.outcome || '') ? 2 : 1, bad: !!m.err, t: `${v.opts[m.choice].l}. ${sent(m.outcome)}`, k: 'm' + m.id }); }
-  for (const b of (g.briefs || []).filter(b => b.del)) { const v = F.briefView(b), r = (F.BR[b.t] || {}).role, o = sent(b.out); if (!r || !F.staff(r)) continue; L.push({ r, n: F.staff(r).name, w: /^(filed|noted|window closed|ok)\b/i.test(o) || o.length < 18 ? 0.3 : 1, t: `${v.title}: ${o}`, k: 'b' + b.id }); }
-  { const M = (g.msNew || []).map(ms => ({ ms, p: g.squad.find(x => x.id === ms.pid) })).filter(x => x.p); // milestones: one line, however many
-    if (M.length === 1) L.push({ r: 'player', pl: M[0].p, n: M[0].p.name, w: 1.5, t: M[0].ms.t, k: 'ms' });
-    else if (M.length > 1) L.push({ r: 'player', pl: M[0].p, n: `${M.length} players`, w: 1.5, t: M.map(x => `${x.p.name.split(' ').slice(-1)[0]}: ${x.ms.t.replace(/ against .*$/, '').replace(/\.$/, '')}`).join('; ') + '.', k: 'ms' }); }
-  for (const x of g.reports || []) if (x.role === 'dof' || x.role === 'scout' || x.role === 'acad') if (!L.some(l => l.r === x.role)) L.push({ r: x.role, n: F.staff(x.role) ? F.staff(x.role).name : '', w: 0.5, t: sent(x.t), k: 'rep' });
-  return L.sort((a, b) => b.w - a.w);
-}
 function nextCard() {
   const g = G(), pv = F.mtPreview ? F.mtPreview() : null; if (!pv || g.phase !== 'season') return '';
   const A = F.analysis(), fm = a => (a || []).slice(-5).map(r => `<i class="f${r}">${r}</i>`).join(''), T = F.weekTopic ? F.weekTopic() : null;
@@ -160,14 +149,14 @@ function vInbox() {
   const T = topic2(), wl = weekLine(), A = F.analysis(), st = A.pos <= A.target ? 'good' : A.pos <= A.target + 2 ? 'warn' : 'bad';
   const box = items.filter(isBox).map((x, i) => [x, i]).sort((a, b) => (b[0].pri || 0) - (a[0].pri || 0) || a[1] - b[1]).map(x => x[0]);
   const now = box.filter(i => i.kind === 'need'), later = box.filter(i => i.kind !== 'need');
-  const team = teamLines(), pap = items.find(x => x.t === 'paper'), done = items.filter(i => i.kind === 'done');
+  const team = F.teamWork ? F.teamWork() : [], pap = items.find(x => x.t === 'paper'), done = items.filter(i => i.kind === 'done');
   const row = (i, lead) => `<button class="dk-rb${lead ? ' lead' : ''}" data-a="open" data-k="${i.key}"><span class="rbf">${i.pl ? ART.playerFace(i.pl) : ART.staffFace(i.role || 'club')}</span><span class="dk-rm"><small>${esc(i.from)}${ROLE_N[i.role] && ROLE_N[i.role] !== i.from ? ' · ' + esc(ROLE_N[i.role]) : ''}</small><b>${esc(i.subj)}</b><em>${esc(ifLeft(i))}</em></span>${ART.I.chev}</button>`;
   return `${tourCard('inbox')}
   <section class="dk-week ${T ? T.k : ''}"><small>Week ${g.week}${A.g ? ` · <b class="${st}">${F.ord(A.pos)}</b>, target ${F.ord(A.target)} · ${money(g.club.cash)}` : ` · ${money(g.club.cash)} in the bank`}</small>
     <h2>${esc(T ? T.t : 'This week')}</h2>${T && T.s ? `<p>${esc(T.s)}</p>` : ''}${wl ? `<p class="dk-wl">${esc(wl)}</p>` : ''}</section>
   ${backersHtml()}
   <section class="dk-team"><div class="dk-h"><h3>Your team at work</h3>${done.length ? `<button class="linkbtn" data-a="filt" data-v="done">All ${done.length} calls ${ART.I.chev}</button>` : ''}</div>
-    ${team.length ? team.slice(0, 3).map(l => `<button class="dk-tl${l.bad ? ' bad' : ''}" data-a="${l.k[0] === 'm' || l.k[0] === 'b' ? 'open' : 'tab'}" data-k="${l.k}" data-t="${l.r === 'player' ? 'squad' : 'staff'}"><span class="rbf">${l.pl ? ART.playerFace(l.pl, 'happy') : ART.staffFace(l.r)}</span><span><small>${esc(l.r === 'player' ? 'Milestone' : ROLE_N[l.r] || '')} · ${esc(l.n)}</small><b>${esc(l.t)}</b></span></button>`).join('') : '<p class="dk-q">Nothing out of the ordinary. Your staff work within their mandates.</p>'}</section>
+    ${team.map(l => `<button class="dk-tl${l.bad ? ' bad' : ''}${l.quiet ? ' quiet' : ''}" data-a="${/^[mb]\d/.test(l.k) ? 'open' : 'tab'}" data-k="${l.k}" data-t="${l.r === 'player' ? 'squad' : 'staff'}"><span class="rbf">${l.pl ? ART.playerFace(l.pl, 'happy') : ART.staffFace(l.r)}</span><span class="dk-tx"><small>${esc(l.role)} · ${esc(l.n)}</small><b>${esc(l.t)}</b></span>${l.lab ? `<em class="dk-lab${l.bad ? ' bad' : ''}">${esc(l.lab)}</em>` : ''}</button>`).join('')}</section>
   <section class="redbox" aria-label="The red box"><div class="rbh"><h2>The red box</h2><span>${now.length ? `${now.length} to decide this week` : 'Nothing to sign'}</span></div>
     <div class="rbl">${now.length ? now.map((x, i) => row(x, i === 0 && now.length > 1 && (x.pri || 0) >= 2)).join('') : '<p class="rbe"><b>Nothing needs your signature.</b> The club runs on what you set up.</p>'}
     ${later.length ? `<div class="dk-later"><small>When you are ready</small>${later.map(x => row(x)).join('')}</div>` : ''}</div></section>

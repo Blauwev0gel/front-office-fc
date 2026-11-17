@@ -18,7 +18,7 @@
 | UX-005 | FOUNDATION | P0 | Full action-to-view reachability crosswalk — detect stale buttons and orphan handlers | 01, 05, 10 | ui/15-actions.js; ui/* | No active button missing handler; orphan actions named |
 | UX-006 | DECISION | P0 | Normalized CaseView adapter for all sources — one readable contract, no parallel writes | 02, 07 | desk.js; ui/13-redbox-render.js; ceocore.js | A case renders from canonical DTO with unchanged outcomes |
 | UX-007 | DECISION | P0 | Authority and no-response semantics map — actual mandate/CEO exception routing | 02, 07 | desk.js; engine/08-weekly-inbox.js | Staff-managed cases do not demand CEO approval |
-| UX-008 | DECISION | P0 | One-tap idempotent command gateway — commit once and persist | 07, 10 | ui/15-actions.js; engine/09-meetings-actions-press.js | Double tap/reload cannot duplicate effect |
+| UX-008 | DECISION | P0 | Failure-safe one-tap command gateway — reject thrown effect errors, commit once and persist | 07, 10 | ui/15-actions.js; engine/09-meetings-actions-press.js | Double tap/reload cannot duplicate effect |
 | UX-009 | DECISION | P0 | Distinct dialogue/ballot/agreement templates — appropriate interaction per case type | 05, 06, 07 | ui/12-scenes-cards.js; ui/13-redbox-render.js | Conversation doesn't behave like contract approval |
 | UX-010 | DECISION | P1 | Counterfactual option audit of registered event keys — document actual trade-offs; eliminate false choices | 02, 07 | events.js; events2.js; briefs.js | All registered IDs tagged live/auto/off and meaningful/repair |
 | UX-011 | DECISION | P1 | Case outcome/provenance view model — unify displays without duplicating stored state | 03, 07 | ceocore.js; dossiers.js; stories.js; pathway.js | One case history shows what actually happened |

@@ -9,11 +9,25 @@ function spark(arr) {
 }
 const kfmt = (k, v) => k === 'commercial' || k === 'business' ? money(v) : k === 'first' ? F.ord(v) : String(v);
 function vDepts() {
-  const g = G(), O = F.deptOverview(), B = F.deptBudView();
-  const tiles = O.map(o => `<button class="dtile2" data-a="dept" data-k="${o.k}"><span class="dface ${o.s ? '' : 'empty'}">${o.s ? ART.staffFace(o.head) : ART.I.staff}</span><span class="dt"><small>${esc(o.t)}</small><b>${o.s ? esc(o.s.name) : 'Vacant'}</b><span class="sdots">${Array.from({ length: o.slots }, (_, i) => `<i class="${i < o.staffOn ? 'on' : i < o.used ? 'half' : ''}"></i>`).join('')}<em>${o.used} of ${o.slots} staff</em></span></span><span class="dstat ${o.s ? o.status.st : 'bad'}">${o.s ? esc(o.status.l) + (o.status.extra ? ' +' + o.status.extra : '') : 'Head needed'}</span>${ART.I.chev}</button>`).join('');
-  const bud = `<div class="budcard">${planCard()}</div>`;
-  const bad = O.filter(o => !o.s || o.status.st === 'bad').length;
-  return `${tourCard('staff')}<div class="dhead"><b>${O.length} departments</b><span class="${bad ? 'bad' : 'good'}">${bad ? bad + ' departments need attention' : 'No urgent concerns'}</span></div><div class="dtiles">${tiles}</div><div class="sec">Money per department</div>${bud}`;
+  const O = F.deptOverview();
+  const priority = O.filter(o => !o.s || o.status.st === 'bad');
+  const card = o => {
+    const title = o.s ? o.s.name : 'Vacant — appointment needed';
+    const staffed = o.s ? `${o.staffOn} of ${o.slots} supporting staff active` : 'No responsible head';
+    const status = o.s ? o.status.l + (o.status.extra ? ' +' + o.status.extra : '') : 'Head needed';
+    const issues = o.status.issues || [];
+    return `<button class="ceo-dept-row ${priority.includes(o) ? 'needs-attention' : ''}" data-a="dept" data-k="${o.k}" aria-label="Open ${esc(o.t)} department">
+      <span class="ceo-dept-main"><small>${esc(o.t)}</small><b>${esc(title)}</b><span>${esc(staffed)}</span>${issues.length ? `<em>${issues.length} matter${issues.length===1?'':'s'} to review</em>` : ''}</span>
+      <span class="ceo-dept-status ${o.s ? o.status.st : 'bad'}">${esc(status)}</span>
+    </button>`;
+  };
+  return `${tourCard('staff')}<section class="ceo-dept-intro"><h2>Your departments</h2>
+    <p>The heads run their departments. You set mandates, hold conversations and decide exceptions.</p>
+    <p class="small">${O.length} departments · ${priority.length ? priority.length + ' need attention' : 'No urgent concerns'}</p></section>
+    ${priority.length ? `<section class="ceo-dept-group"><h3>Needs attention</h3><div class="ceo-dept-list">${priority.map(card).join('')}</div></section>` : ''}
+    <section class="ceo-dept-group"><h3>${priority.length ? 'Other departments' : 'Department overview'}</h3>
+      <div class="ceo-dept-list">${O.filter(o=>!priority.includes(o)).map(card).join('')}</div></section>
+    <details class="ceo-dept-secondary"><summary>Department budgets and resource plan</summary>${planCard()}</details>`;
 }
 function headLine(role, s) {
   const rc = F.record(role), P = s.p, v = rc.verdict;

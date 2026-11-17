@@ -114,6 +114,8 @@ function specialistRecordsHtml(dk) {
     (c.financeConcern?'<p class="fo-specialist-conflict">'+esc(c.financeConcern)+'</p>':'')+
     (c.review?'<p><b>Follow-up:</b> '+esc(c.review.text)+'</p>':
       '<small>Evaluation after four game weeks. Staff continue their own work.</small>')+
+    (c.status==='review'||c.status==='interrupted'?
+      '<button class="fo-specialist-ack" data-a="sp-ack" data-id="'+esc(c.id)+'">Acknowledge the review</button>':'')+
     '<details><summary>Evidence and actual changes</summary>'+
     '<pre>'+esc(JSON.stringify({before:c.before,after:c.review?.evidence||c.after},null,2))+'</pre>'+
     '</details></div>';

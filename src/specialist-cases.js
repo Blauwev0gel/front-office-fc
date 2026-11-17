@@ -168,6 +168,53 @@ function specialistCaseView(id) {
     outcome:c.review?.text||c.result,before:c.before,after:c.after,
     review:c.review,conflict:c.financeConcern};
 }
+/* Legacy event and briefing replies still own their specialist effects.
+   Record their outcomes in the SAME case history without invoking the
+   underlying action twice. This covers Academy trial and promotion choices,
+   Finance reviews, recruitment exceptions, sponsorship and campaign briefs. */
+const ROLE_DEPT={dof:'recruit',scout:'recruit',acad:'academy',coach:'first',
+  com:'commercial',mkt:'marketing',fin:'business'};
+function recordLegacy(source,key,role,choice,before,result) {
+  const d=ROLE_DEPT[role];
+  if(!d||!result||result.err)return;
+  const items=store(),o=owner(d==='recruit'?'recruit.focus':d==='academy'?'academy.pathway':
+    d==='first'?'firstteam.response':d+'.plan',{});
+  const g=F.G;
+  items.push({id:'sp-'+(g.nid++),kind:source+':'+key,dept:d,
+    role,head:F.staff(role)?.name||o.name,title:key.replaceAll('_',' '),
+    action:{choice},season:g.season,week:g.week,start:now(),due:now()+4,
+    status:'executing',origin:'CEO',before,after:evidence(d),
+    result:typeof result.out==='string'?result.out:'Response recorded',
+    financeConcern:d!=='business'&&F.bizView&&!F.bizView().ok?
+      'Finance is concerned that department costs exceed the available budget.':null,
+    review:null});
+  if(items.length>120)items.splice(0,items.length-120);
+}
+const oldBrief=F.answerBrief;
+F.answerBrief=function(id,i) {
+  const msg=(F.G.briefs||[]).find(b=>b.id===id);
+  const def=msg&&F.BR[msg.t],role=def?.role;
+  const d=ROLE_DEPT[role],before=d?evidence(d):null;
+  const had=F.G.specialistCases?.length||0;
+  const out=oldBrief(id,i);
+  // Existing read-only reports should not become new CEO commands.
+  if(msg&&out&&!out.err&&F.G.briefs?.find(b=>b.id===id)?.done &&
+      (F.G.specialistCases?.length||0)===had)
+    recordLegacy('brief',msg.t,role,i,before,out);
+  return out;
+};
+const oldRespond=F.respond;
+F.respond=function(id,i) {
+  const msg=(F.G.inbox||[]).find(m=>m.id===id);
+  const def=msg&&F.EV[msg.ev],role=def?.from;
+  const d=ROLE_DEPT[role],before=d?evidence(d):null;
+  const had=F.G.specialistCases?.length||0;
+  const out=oldRespond(id,i);
+  if(msg&&out&&!out.err&&F.G.inbox?.find(m=>m.id===id)?.done &&
+      (F.G.specialistCases?.length||0)===had)
+    recordLegacy('event',msg.ev,role,i,before,out);
+  return out;
+};
 const oldCase=F.caseView;
 F.caseView=function(kind,id) {
   return kind==='s'?specialistCaseView(id):oldCase?.(kind,id);

@@ -93,8 +93,10 @@ Per seizoen zijn er hooguit 4 momenten plus de ALV. Als er meer triggers zijn, w
 - **Een gesprek eindigt altijd in een concrete verandering:** een afspraak met een toetsmoment, een nieuwe belofte, of een verschuiving van loyaliteit met een oorzaak. Of hij weigert, en dat heeft ook een gevolg.
 
 ## 8. Open punten
-1. Is één eigen gesprek per moment genoeg invloed? In proef 2 voelde het schaars en betekenisvol, maar de eigenaar beoordeelt dat.
-2. Laten we exacte getallen zien, of alleen richtingen en stemmingen? Exacte getallen maken de ALV een rekensom.
+1. ~~Is één eigen gesprek per moment genoeg?~~ **Besloten: ja, houden.**
+2. ~~Exacte getallen of woorden?~~ **Besloten: richtingen en woorden.**
+   De regels draaien onder water. De speler ziet stemmingen ("Ondernemers: boos ↓↓", "Hart twijfelt") en personages in hun eigen stem.
+   Proef 2 voelde volgens de eigenaar minder dan proef 1: te veel rekensom en te weinig verhaal.
 3. Op wedstrijden heeft de voorzitter weinig invloed: hooguit ±1 sterkte. Dat klopt met de rol, maar sportieve beloftes worden zo bijna een loterij. Het spel moet de kans dan vooraf tonen (§3).
 
 ## 9. Bevindingen van papieren proef 2 (Pell United, seizoen 1)

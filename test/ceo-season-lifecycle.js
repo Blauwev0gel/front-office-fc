@@ -7,7 +7,7 @@ let checks = 0;
 const ok = (truth, label) => { assert.ok(truth, label); console.log('PASS', label); checks++; };
 function game(seed) {
   const c = { console }; vm.createContext(c); vm.runInContext(code + ';this.FO=FO;', c);
-  const F = c.FO; F.newGame(seed); const dna = {}; for (const q of F.DNA) dna[q.k] = q.o[0].v;
+  const F = c.FO; for (const k in F.PARK) F.PARK[k] = false; /* covers parked systems too (B66) */ F.newGame(seed); const dna = {}; for (const q of F.DNA) dna[q.k] = q.o[0].v;
   F.setDNA(dna, 'Season FC', 'SFC', 'Seasonton', ['#123456', '#ffffff']);
   for (const r of F.ROLES) F.hire(r.id, 1);
   F.finishStaff(); F.finishMandates(); F.preSetTarget('accept'); F.finishPreseason();

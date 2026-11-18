@@ -109,7 +109,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `commentary.js` | 11 KB | match commentary (B53) Every moment of the match becomes a short run of beats for the one-line ticker: build-u |  |  |  |
 | `ui/01-core.js` | 5 KB | atoms; base club: skip the founding |  |  |  |
 | `ui/02-setup.js` | 20 KB | views: title & setup; mandates as a tactics board |  |  |  |
-| `ui/03-summer-preseason-press.js` | 27 KB | the summer (M4); the summer, version 2 |  |  |  |
+| `ui/03-summer-preseason-press.js` | 30 KB | the summer (M4); the summer, version 2 |  | deptCost |  |
 | `ui/04-masthead-news.js` | 1 KB |  |  |  |  |
 | `ui/05-pitches-squad-money.js` | 15 KB | project pitches: one at a time, swipe or tap |  |  |  |
 | `ui/06-sheets-ticker.js` | 20 KB | sheets; ticker |  |  |  |
@@ -312,7 +312,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: vTitle, vSetupDNA, staffCard, numbers, autoHire, vSetupStaff, says, sliderRows, staffHead, leanNote, vSetupMandates, recPlanBlock
 
 ### `ui/03-summer-preseason-press.js`
-- Functions: WHO, ddBlock, mtCard, vSummer2, ddSchedule, vPreseason, vPress
+- Functions: WHO, ddBlock, mtCard, vSummer2, ddSchedule, vRound, vPreseason, vPress
 
 ### `ui/04-masthead-news.js`
 - Functions: masthead, tabs, cap, vNews

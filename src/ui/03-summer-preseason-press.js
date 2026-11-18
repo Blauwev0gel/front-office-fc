@@ -97,6 +97,7 @@ function vSummer2() {
     const D = F.sum2Debrief();
     body = `<h2>Debrief</h2><div class="meet"><div class="say"><div class="who">${esc(WHO('dof'))}</div><p>${esc(D.intro)} ${D.lines.map(esc).join(' ')}</p></div>${D.five && D.five.length ? `<ul class="five">${D.five.map(x => `<li class="${x.ok === true ? 'good' : x.ok === false ? 'bad' : ''}">${esc(x.t)}</li>`).join('')}</ul>` : ''}${D.done ? `<div class="say me"><div class="who">You</div><p>${esc({ praise: S.win ? '"Good work this window."' : '"Good work this summer."', probe: '"Walk me through what went wrong."', warn: '"This is not good enough."', tighten: '"From now on, every deal comes through me."', loosen: '"You have earned more freedom."' }[D.done.k])}</p></div><div class="say"><div class="who">${esc(WHO('dof'))}</div><p>${esc(D.done.t)}</p></div>` : ''}</div>
     ${D.done ? `<div class="row" style="margin-top:14px">${S.win ? '<button class="btn" data-a="s2-finish">Back to the season</button>' : '<button class="btn" data-a="s2-step" data-i="4">Next: season goals</button>'}</div>` : `<div class="ch">${[['praise', 'Praise his work', 'Trust up, more so if he delivered'], ['probe', 'Ask what went wrong', 'He explains, slightly defensive'], ['warn', 'Warn him', D.met < D.ev.length ? 'Sharpens him, counts as a strike' : 'Unfair after a good window'], [D.met >= 2 ? 'loosen' : 'tighten', D.met >= 2 ? 'Give him more freedom' : 'Every deal through you from now on', D.met >= 2 ? 'You approve only big deals' : 'More control, less trust']].map(([k, l, h]) => `<button class="cbtn" data-a="db-talk" data-k="${k}"><b>${l}</b><span>${h}</span></button>`).join('')}</div><p class="small">${S.win ? '<button class="link" data-a="s2-finish">Skip the debrief</button>' : '<button class="link" data-a="s2-step" data-i="4">Skip the debrief</button>'}</p>`}`;
+  } else if (!g.pre.old) { return vRound();
   } else {
     const P = g.pre, fo = F.FOCUS.filter(f => !g.board.obj.some(o => o.k === f.k && !o.soft) || P.focus.includes(f.k));
     body = `<h2>Two focus goals</h2><p class="small">Extra goals for the season. Met: board confidence up. Missed: a small dent.</p>
@@ -114,7 +115,21 @@ function ddSchedule() {
   if (d.dec) { if (!U.ddDecEnd || U.ddDecId !== d.dec.id) { U.ddDecEnd = Date.now() + 12000; U.ddDecId = d.dec.id; render(); return; } U.ddT = setTimeout(() => { F.ddDecide(-1); saveGame(); render(); }, Math.max(0, U.ddDecEnd - Date.now())); }
   else U.ddT = setTimeout(() => { F.ddTick(); saveGame(); render(); }, 1700);
 }
+// B66.3: the season starts with one round past the departments. Each head says what he wants to achieve and what he needs; you back him or keep it as planned. His goal is what you hold him to.
+const ROUND = [['first', 'coach', null, 'More training staff and better kit.'], ['recruit', 'dof', 'profit', 'More scouts and a wider network.'], ['academy', 'acad', 'grads', 'Better coaches for the kids.'], ['commercial', 'com', 'fill', 'Money for the matchday and the shop.'], ['marketing', 'mkt', 'fanbase', 'A bigger campaign budget.'], ['business', 'fin', 'wagecap', null]];
+function vRound() {
+  const g = G(), P = g.pre, lg = g.board.obj.find(o => o.k === 'league'), fixed = g.phase === 'summer' && P.deal; if (!P.deal) F.preSetTarget('accept'); P.back = P.back || {};
+  const BV = F.bizView ? F.bizView() : null, lvOf = k => { const r = BV && BV.rows.find(x => x.k === k); return r ? r.lv : 'normal'; };
+  const card = ([k, r, fk, need]) => { const s = F.staff(r); if (!s) return ''; const f = fk && F.FOCUS.find(x => x.k === fk), goal = k === 'first' ? `Finish ${F.ord(lg.target)} or higher.` : f ? f.t() + '.' : '', on = lvOf(k) === 'invest';
+    return `<div class="rd-c"><div class="rd-h">${ART.staffFace(r)}<span><b>${esc(s.name)}</b><small>${esc(F.ROLE[r].t)}</small></span></div><p class="rd-g"><small>His goal</small>${esc(goal)}</p>${need ? `<p class="rd-n"><small>He asks for</small>${esc(need)}</p><div class="rd-b"><button class="${on ? 'on' : ''}" data-a="rd-back" data-k="${k}" data-v="invest" aria-pressed="${on}">Back him<small>Budget up</small></button><button class="${on ? '' : 'on'}" data-a="rd-back" data-k="${k}" data-v="normal" aria-pressed="${!on}">As planned<small>Normal budget</small></button></div>` : ''}</div>`; };
+  const wf = F.weekForecast(), net = wf.rev - wf.cost - (F.HOOK.deptCost ? Object.values(F.HOOK.deptCost()).reduce((a, b) => a + b, 0) : 0);
+  return `<div class="ix-kit" aria-hidden="true"></div><div class="rd"><small class="rd-k">Season ${g.season} · before the first match</small><h1 class="sh1">Your departments</h1><p class="small">Each head tells you what he wants to achieve this season. You will hold him to it.</p>
+  <div class="rd-c rd-board"><div class="rd-h">${ART.staffFace('board')}<span><b>The board</b><small>The target you are judged on</small></span></div>${fixed ? `<p class="rd-g"><small>Agreed in the summer</small>Finish ${F.ord(lg.target)} or higher.</p>` : `<div class="rd-t">${F.preTargets().map(o => `<button class="${P.deal === o.k ? 'on' : ''}" data-a="pre-target" data-k="${o.k}" aria-pressed="${P.deal === o.k}"><b>${F.ord(o.target)}</b><small>${esc(o.t)}</small></button>`).join('')}</div><p class="small" style="margin:6px 0 0">${esc((F.preTargets().find(o => o.k === P.deal) || {}).fx || '')}</p>`}</div>
+  ${ROUND.map(card).join('')}
+  <div class="trayspace" style="--tray:120px"></div></div>${trayHtml(`<span>Each week</span><span class="${net < 0 ? 'bad' : ''}">${net >= 0 ? '+' : ''}${money(net)}</span>`, `<button class="btn" data-a="rd-go">Start the season</button>`, '')}`;
+}
 function vPreseason() {
+  if (!G().pre.old) return vRound();
   const g = G(), P = g.pre, st = P.step, lg = g.board.obj.find(o => o.k === 'league');
   const steps = ['Goals', 'Budget', 'Recruitment', 'Projects'];
   const nav = `<div class="steps">${steps.map((l, i) => `<button class="${i === st ? 'on' : ''}" data-a="pre-step" data-i="${i}">${i + 1}. ${l}</button>`).join('')}</div>`;

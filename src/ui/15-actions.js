@@ -135,6 +135,8 @@ function act(a, d, el) {
     case 'pre-target': F.preSetTarget(d.k); break;
     case 'pre-focus': F.preToggleFocus(d.k); break;
     case 'pre-acad': g.pre.acad = g.pre.acad === d.k ? null : d.k; break;
+    case 'rd-back': F.bizSetLevel && F.bizSetLevel(d.k, d.v); break;
+    case 'rd-go': { const P = g.pre, have = k => g.board.obj.some(o => o.k === k); P.focus = ROUND.filter(x => x[2] && F.staff(x[1]) && !have(x[2])).map(x => x[2]); if (G().phase === 'summer') F.sum2Finish(); else F.finishPreseason(); if (G().phase === 'press' && F.finishPress) F.finishPress(); U.pressI = 0; U.quote = null; window.scrollTo(0, 0); break; }
     case 'pre-done': F.finishPreseason(); U.pressI = 0; U.quote = null; window.scrollTo(0, 0); break;
     case 'lt': U.lt = +d.t; break;
     case 'next-season': F.startSeason(); U.pressI = 0; U.quote = null; U.lt = null; window.scrollTo(0, 0); break;

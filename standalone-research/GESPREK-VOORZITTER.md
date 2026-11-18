@@ -67,3 +67,20 @@ Elke regel die je kiest, is één van vijf zetten:
 - Voelt lezen en aanbieden als een spel?
 - Mis je de getallen?
 - Is twee beurten genoeg?
+
+## 8. Mini-proef (Brook, Kessington Rovers): resultaat
+**Oordeel van de eigenaar: het voelde niet als een spel.** De getallen miste hij tijdens het gesprek niet, achteraf wel.
+
+**Diagnose**
+1. **Het gesprek veranderde alleen een verborgen score.** De uitkomst was "ze houdt afstand", een loyaliteitsverschuiving en verder niets.
+   Dat breekt onze eigen ontwerpregel: niets in de wereld veranderde concreet. Er was geen afspraak, geen geld, geen rol en geen belofte.
+2. **Het werd een quiz.** Er was één "juist" antwoord (de diepe wens raken), en de prijs van de goede opties zag je pas achteraf. Een raadsel met één oplossing is geen afweging.
+3. **Er stond niets op tafel.** Je gaf niets op en won niets tastbaars. In proef 1 voelden juist de momenten met concrete inzet als een spel:
+   - de aanvoerder een rol geven, waardoor hij de verkoop weigerde;
+   - de foto met de wethouder, waardoor de academie aan zijn verkiezing hing;
+   - "Hale krijgt het jaar", waardoor hij vrij werd.
+
+**Les:** het gesprek is de verpakking, niet het spel. **Het spel is de afspraak.**
+- Elk gesprek eindigt in een deal die je vóór je keuze ziet: wat je geeft, wat je krijgt, en wanneer het getoetst wordt.
+- Mensen lezen levert informatie op (welke deal hij accepteert, wat hij echt wil), maar is niet zelf de keuze.
+- Na elk moment volgt een korte terugblik: wat er veranderde, en waarom. Dat is de "achteraf"-behoefte van de eigenaar, in woorden en met de oorzaak erbij.

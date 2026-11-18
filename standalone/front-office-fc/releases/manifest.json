@@ -1,0 +1,21 @@
+{
+  "track": "front-office-fc-standalone",
+  "current_github_release": null,
+  "latest_local_candidate": {
+    "version": "2.2",
+    "name": "Native Mobile Game UI",
+    "source_filename": "front-office-fc-module2-2-native-game.html",
+    "github_artifact": null,
+    "status": "pending_upload",
+    "test_status": "historically_reported_not_independently_reproduced"
+  },
+  "historical_versions": [
+    "1.0",
+    "1.1",
+    "1.2",
+    "1.3",
+    "2.0",
+    "2.1"
+  ],
+  "note": "No HTML artifact has been committed to this branch; do not advertise a playable GitHub release."
+}

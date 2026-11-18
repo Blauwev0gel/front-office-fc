@@ -114,7 +114,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/05-pitches-squad-money.js` | 15 KB | project pitches: one at a time, swipe or tap |  |  |  |
 | `ui/06-sheets-ticker.js` | 20 KB | sheets; ticker |  |  |  |
 | `ui/07-club-league.js` | 9 KB | review & sacked; club, league, staff, academy, review: game screens |  | deptCost |  |
-| `ui/08-departments.js` | 27 KB | departments |  |  |  |
+| `ui/08-departments.js` | 31 KB | departments |  |  |  |
 | `ui/08a-dept-parts.js` | 22 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
 | `ui/08b-portal.js` | 30 KB | navigation; leagues: a table whose columns follow the position filter; the player; drill-downs |  |  |  |
 | `ui/09-firstteam-review.js` | 12 KB | first team department |  |  |  |

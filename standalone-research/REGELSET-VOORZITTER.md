@@ -3,6 +3,8 @@
 *18-11-2026. Hoort bij `CONCEPT-VOORZITTER-2026-11-18.md`.*
 *Doel: situaties ontstaan uit deze regels, niet uit een spelleider.*
 *v0.2 verwerkt de gaten uit de tweede papieren proef (zie §9). Getallen blijven startwaarden.*
+*Deze getallen ziet de speler niet tijdens het spelen: hij ziet woorden, en achteraf een terugblik.*
+*Afspraken (`AFSPRAAK-VOORZITTER.md`) en de ALV (`ALV-VOORZITTER.md`) bouwen op deze regels.*
 
 ## 1. Personages
 Elk personage heeft vier eigenschappen:
@@ -90,7 +92,7 @@ Per seizoen zijn er hooguit 4 momenten plus de ALV. Als er meer triggers zijn, w
 - **Wie het moment veroorzaakte, komt zelf naar je toe.** Bijvoorbeeld de coach die een drempel passeert, of de wethouder met een voorstel. Dat telt niet als jouw gesprek.
 - **Wie je laat liggen terwijl hij op je wacht,** verliest 1 loyaliteit per moment (trots ×1,5).
 - **Wat je kunt aanbieden,** volgt uit zijn wil: een rol, bescherming, een belofte, macht of steun bij de leden.
-- **Een gesprek eindigt altijd in een concrete verandering:** een afspraak met een toetsmoment, een nieuwe belofte, of een verschuiving van loyaliteit met een oorzaak. Of hij weigert, en dat heeft ook een gevolg.
+- **Een gesprek eindigt altijd in een afspraakkaart, of in een zichtbare "geen afspraak" met het gevolg erbij.** Een loyaliteitsverschuiving alleen is nooit de uitkomst.
 
 ## 8. Open punten
 1. ~~Is één eigen gesprek per moment genoeg?~~ **Besloten: ja, houden.**

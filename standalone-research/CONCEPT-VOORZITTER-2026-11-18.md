@@ -1,179 +1,169 @@
-# Concept: De Voorzitter
+# Concept: De Voorzitter (v0.2)
 
-*Ontwerpnotitie, 18-11-2026. Status: **nieuw concept, in ontwerp**.*
-*Dit is een op zichzelf staand concept. Het hoeft niet te passen bij de bijbel van het bestaande GitHub-spel of bij eerdere standalone-besluiten, en mag ermee botsen.*
-*Deze notitie is de bron van waarheid voor dit concept.*
-*Het concept komt uit een creatieve reset (interactieve ontwerpvragen) en is met een papieren proef van één seizoen getest.*
-*Er is nog geen code gebouwd.*
+*Ontwerpnotitie, 18-11-2026. Status: **nieuw concept, in ontwerp**. Er is nog geen code gebouwd.*
+*Dit concept staat op zichzelf. Het hoeft niet te passen bij de bijbel van het bestaande GitHub-spel of bij eerdere standalone-besluiten, en mag ermee botsen.*
+*Deze notitie is de bron van waarheid. De uitwerkingen staan in:*
+- *`REGELSET-VOORZITTER.md`: de regels onder water;*
+- *`AFSPRAAK-VOORZITTER.md`: de kern-eenheid;*
+- *`GESPREK-VOORZITTER.md`: het gesprek;*
+- *`ALV-VOORZITTER.md`: de ALV.*
 
 ---
 
 ## 1. In één zin
-
-Je bent de **gekozen voorzitter van een ledenclub**. Je wint de leden met beloftes en kiest de mensen die ze waarmaken.
-Elk jaar rekent de ALV je af op je eigen woord.
+Je bent de **gekozen voorzitter van een ledenclub**. Je sluit afspraken met de mensen die de club maken: leden, staf, spelers en buitenstaanders.
+Elk jaar rekent de ALV je af op je woord.
 
 ## 2. Waarom een reset
+De standalone-prototypes (module 1 t/m 4, loop-proof) en het oudere GitHub-spel voelden niet als een spel:
 
-De standalone-prototypes (module 1 t/m 4, loop-proof) en het oudere GitHub-spel werken technisch, maar voelen niet als een spel. De diagnose:
+1. **De eigenaar had geen werkwoorden, alleen antwoorden.** Inbox en rode map zijn reactief.
+2. **Niets schaars was van jou.**
+3. **Invloed was een modifier,** geen mens die anders ging handelen.
+4. **Weekritme met events** gaf schijnkeuzes of operationeel werk.
+5. **Je bezat abstracties,** geen mensen en plekken.
+6. **Elk loopprobleem werd met nieuwe schermen opgelost.**
 
-1. **De eigenaar heeft geen werkwoorden, alleen antwoorden.** Inbox, rode map en "wants a word" zijn allemaal reactief: het spel bepaalt wanneer je iets mag.
-2. **Er is niets schaars dat van jou is.** Actiepunten (B21) en Grip (B54) zijn terecht geschrapt, maar er kwam niets voor in de plaats.
-3. **Invloed is een modifier, geen veranderd mens.** Een mandaatschuifje verschuift een kans met een paar procent. Je ziet niemand anders handelen door jou.
-   Een eerste audit wees in dezelfde richting: een actieve CEO werd even vaak ontslagen als een passieve.
-4. **De tijdschaal klopt niet.** Echte bestuursbesluiten zijn seizoensbesluiten. Een weekritme vullen met events geeft schijnkeuzes of operationeel werk.
-5. **Je bezit abstracties** (mandaten, budgetniveaus, stemmingen), geen mensen en geen plekken.
-6. **Proces:** steeds nieuwe schermen om een loopprobleem op te lossen.
+## 3. De kernles uit de proeven
+**Het spel is de afspraak.** Wat als spel voelde, had altijd concrete inzet op tafel:
+- de aanvoerder een rol geven;
+- de coach het jaar beloven;
+- een zetel weggeven voor stemmen.
 
-## 3. Rol en inzet
+Wat niet werkte, veranderde alleen een verborgen score: het eerste gesprek met Brook, en de rekensom van proef 2.
 
-- Je bent **gekozen voorzitter** van een ledenclub. Je macht is geleend van de leden.
-- **Jaarlijkse ALV:** de leden stemmen over je jaar. Een oppositiekandidaat kan het van je overnemen.
-- **Verlies je de ALV, dan word je kandidaat bij een andere ledenclub.** Je carrière overleeft de club.
-  **Reputatie** (houd je je woord?) is het middel dat meegaat naar elke club.
-  Idee, nog niet besloten: je eerste club komt later terug als rivaal, met een opvolger die jouw beleid afbreekt.
-- De voorzitter **kiest nooit het elftal, scout niet en onderhandelt niet over transfers** (zoals in de handover).
+Elke betekenisvolle handeling volgt: **actie → consequentie → uitkomst → nieuwe situatie.**
 
-## 4. De kernloop (één seizoen)
+## 4. Rol en inzet
+- **Gekozen voorzitter** van een ledenclub. Je macht is geleend van de leden.
+- **Jaarlijkse ALV** met bindende moties. Een tegenkandidaat komt alleen bij onvrede.
+- **Verlies je de ALV, dan word je kandidaat bij een andere club.** Je **reputatie** (houd je je woord?) gaat mee.
+- **Nooit** opstellen, scouten of over transfers onderhandelen.
 
-1. **Zomer: manifest.** Drie publieke beloftes: sportief, over de club en over een mens. Elke belofte spreekt bepaalde ledengroepen aan.
-2. **Benoemen en opdracht geven.** Coach en TD hebben een eigen overtuiging en karakter. Een opdracht die daartegenin gaat, voeren ze half uit en kost loyaliteit.
-3. **Het seizoen** verloopt in ±4 momenten. Stille stukken spoel je door met uitslagen.
-   Wedstrijden laten je beloftes vorderen of terugvallen. Mensen handelen zelf vanuit wat ze willen.
-4. **Eigen initiatief: mensen benaderen.** Je kiest op elk moment zelf een persoon en spreekt hem aan, zie §5.
-5. **De ALV.** Elke ledengroep kijkt naar wat jíj hen beloofde. Je verdedigt je jaar, de oppositie zet een eigen manifest tegenover het jouwe, en de leden stemmen.
-6. Herkozen: een nieuw manifest. Verloren: een nieuwe club.
+## 5. De kernloop (één seizoen)
+1. **Zomer: manifest.** Drie publieke beloftes. Vóór je belooft, zie je in woorden hoe kansrijk elke belofte is.
+2. **Afspraken met je mensen.** Coach en TD krijgen een opdracht. Wat tegen hun wil ingaat, voeren ze half uit, tenzij er een afspraak tegenover staat.
+3. **Het seizoen** verloopt in ±4 momenten, die voortkomen uit de wereld:
+   - iemand passeert een loyaliteitsdrempel;
+   - een belofte raakt achter op schema;
+   - een vaste datum (een window, een verkiezing, de laatste thuiswedstrijd);
+   - de oppositie zet een zet;
+   - een contract loopt af;
+   - een aanbod van buiten.
 
-## 5. Werkwoorden van de voorzitter
+   Tussen de momenten spoel je de wedstrijden door.
+4. **Per moment:**
+   - **wie het moment veroorzaakte, komt naar je toe;**
+   - **daarna benader je zelf precies één persoon.**
 
-De vier werkwoorden horen bij elkaar. Ze vormen één keten:
+   Elk gesprek eindigt in een **afspraakkaart** of in een zichtbare "geen afspraak".
+5. **Na elk moment** volgt een korte terugblik in woorden: wat er veranderde, en waarom.
+6. **De ALV:** jaarverslag, moties, wandelgangen, sprekers, je toespraak en een telling per groep.
+7. Herkozen: je begint aan een nieuw manifest, met de afspraken van vorig jaar nog op tafel. Weggestemd: een nieuwe club.
 
-> **Coalities** (wie stemt op je) → **Manifest** (wat je belooft) → **Benoemen** (wie het waarmaakt) → **ALV** (afrekening) → nieuwe coalitie
+## 6. De afspraak (kern-eenheid)
+Elke afspraak is een kaart die je vóór je instemt ziet:
 
-| Werkwoord | Wat je doet | Ritme |
-|---|---|---|
-| Beloven | Publieke beloftes met een harde, meetbare uitkomst | Zomer, soms tussentijds |
-| Benoemen en afrekenen | Wie de club runt en met welke opdracht; beschermen of vervangen | Zomer en bij crises |
-| Coalities smeden | Ledengroepen en buitenstaanders (gemeente, oppositie, ultras) aan je binden | Doorlopend |
-| Statuut en kapitaal | Regels voor wie de club is, of een investeerder; vraagt instemming van de leden | Zelden, groot |
+> **You give · They give · Tested · If it fails**
 
-**Eigen initiatief = mensen benaderen.** Je kiest zelf een persoon, bijvoorbeeld de coach, de aanvoerder, de wethouder, je tegenkandidaat of de leider van de ultras.
-Wat je kunt zeggen of aanbieden, hangt af van **wat die persoon wil**. Het gesprek verandert meteen iets in de wereld: een afspraak, een belofte, een relatie.
-Het mag nooit alleen een verborgen score verschuiven.
+**Wat jij inzet:** je naam, macht, geld, zekerheid of een rol.
+**Wat je terugkrijgt:** steun, een prestatie, gedrag ("hij blijft") of dat de ander ergens van afziet.
 
-## 6. Mensen
+- Lopende afspraken liggen **op tafel** en raken elkaar. Botsingen zie je.
+- Breken mag, voor beide kanten, met gevolgen.
+- Een afspraak kan **openbaar** of **privé** zijn. Een privé-afspraak kan uitlekken.
 
-Coach, TD, aanvoerder, ultraleider, wethouder en tegenkandidaat zijn allemaal hetzelfde soort personage:
+Uitwerking: `AFSPRAAK-VOORZITTER.md`.
 
-- **Wil:** wat hij wil bereiken. Bijvoorbeeld Hale wil met ervaring winnen, en Brennan wil transfers als eigen terrein.
-- **Karakter:** hoe hij handelt, bijvoorbeeld koppig, trots of eerlijk.
-- **Loyaliteit aan jou** (0–10), met een oorzaak voor elke verandering.
-- **Stem bij de leden:** sommige personages beïnvloeden ledengroepen, zoals een aanvoerder bij de ultras.
-- **Wederkerigheid:** wie je beschermt of iets geeft, doet iets terug. Wie je passeert, zoekt een andere bondgenoot.
+## 7. Mensen
+Elk personage heeft vier eigenschappen:
+- een **oppervlakte-wens** (bekend) en een **diepe wens** (te ontdekken);
+- twee **karaktertrekken**;
+- **loyaliteit**;
+- **invloed** bij een ledengroep, en een **afkeer** (wie hem niet mag).
+
+**Wat loyaliteit doet:**
+- Wie bij je in het krijt staat (hoge loyaliteit), doet één keer iets terug.
+- Wie wegzakt, zoekt een andere bondgenoot.
+- Wie breekt, stapt over of lekt.
+
+Mensen lezen (luisteren, geschiedenis, anderen) levert betere afspraakkaarten op. Het is informatie, geen quiz.
 
 **Spelers** zijn betekenisvol zonder dat je opstelt:
-- als **stem** bij de leden;
-- als iemand die je **belooft of beschermt** ("hij wordt niet verkocht");
-- als **jeugd die jij mogelijk maakte** via je beleid;
-- als **personage** met een eigen verhaal.
+- als stem bij de leden;
+- als iemand die je iets belooft of beschermt;
+- als jeugd die jouw beleid mogelijk maakte;
+- als personage met een eigen verhaal.
 
-## 7. De leden
+## 8. De leden en de ALV
+- **Drie ledengroepen** met tegenstrijdige wensen.
+- **Een oppositie** die zich op je zwakste groep richt en per moment één actieve zet doet.
+- **Op de ALV:**
+  - moties zijn **bindend**;
+  - in de wandelgangen deal je **onbeperkt maar zichtbaar**;
+  - je verdediging heeft vaste gevolgen;
+  - de telling gaat **per groep**, met de spanning tot het laatst.
+- Met deals koop je je herverkiezing **met beperkingen voor de toekomst**. Die prijs voelde in de proef "precies goed".
 
-- Een paar **ledengroepen** met tegenstrijdige wensen. In de proef waren het er drie: Old Guard (resultaat, traditie), Families (prijzen, jeugd), Ultras (staanplaats, iconen).
-- Een **oppositiekandidaat** met een eigen gezicht en een eigen manifest, die de hele tijd meedoet. Niet pas bij de ALV.
-- De peiling laat per groep zien waaróm ze bewegen.
+Uitwerking: `ALV-VOORZITTER.md`.
 
-## 8. Beloftes: hard, met jouw verhaal
+## 9. Toeval en wedstrijden
+- Wedstrijden tellen omdat ze je beloftes en afspraken laten tikken. Het ritme: blokken, met grote duels apart.
+- Pech wordt **over het seizoen** gemeten en is munitie voor je verdediging.
+- Kansen die jou raken, zie je **in woorden** vóór je kiest, inclusief wat jij eraan veranderde.
+- De grote uitkomsten komen uit mensen en afspraken, niet uit de dobbelsteen.
 
-- Het spel meet elke belofte hard (bijvoorbeeld "hoger dan 9e" of "plan ter stemming").
-- Bij de ALV kies je **hoe je je jaar verdedigt**. Elke verdediging verandert de wereld, en niet alleen een score:
-  - Geef je de coach de schuld, dan vertrekt hij of draait hij zich tegen je.
-  - Geef je toe dat je het mis had, dan worden je volgende beloftes geloofwaardiger.
-  - Wijs je naar pech, dan werkt dat één keer.
-- Beloftes raken elkaar. Dat is een gewenste eigenschap: in de proef hingen de academie, de aanvoerder, de wethouder en de Families aan elkaar.
-- **Weinig beloven mag niet de beste strategie zijn.** De oppositie concurreert vanaf de zomer op ambitie.
+## 10. Presentatie
+- **Woorden, geen getallen**, tijdens het spelen: stemmingen per groep, personages in hun eigen stem.
+- **Achteraf** wel inzicht: de terugblik na elk moment laat zien wat er gebeurde en waarom.
+- Momenten zijn scènes met een plek en één zin, in korte fragmenten van maximaal twee zinnen. Er is geen gegenereerde tekst.
 
-## 9. Toeval (de belangrijkste les uit de proef)
+## 11. Bewijs uit de proeven
 
-In de proef bepaalde het toeval te veel: de dip in december en de verkiezing van de wethouder. Regels:
-
-1. **Elke kans die de speler raakt, is zichtbaar en door hem beïnvloed.** Bijvoorbeeld "Mills wint: 55%, +10% door jouw academiefoto".
-2. **Pech is te onderscheiden van eigen schuld.** Na een reeks laat het spel zien hoe het zat ("we creëerden genoeg, de afwerking faalde" tegenover "we waren zwakker"). Die kennis is ook munitie voor je verdediging bij de ALV.
-3. **Gebeurtenissen komen uit de wereld,** niet uit een losse tabel. Een verkiezing, een aflopend contract of een rivaal die belt, heeft een aanleiding die je had kunnen zien aankomen.
-4. **De grote uitkomsten volgen uit personages,** niet uit de dobbelsteen. De dobbelsteen kleurt; de mensen beslissen.
-
-## 10. Wedstrijden
-
-- Wedstrijden tellen omdat ze je beloftes laten tikken. Een 0-4 is spannend omdat jouw woord aan de coach op het spel staat.
-- Er is één groot moment per seizoen waarop de voorzitter een wedstrijdavond vormgeeft (in de proef: het afscheid van de aanvoerder). Het gaat om tribune, mensen en politiek, nooit om tactiek.
-- Wedstrijden worden per blok samengevat; grote duels apart. De wedstrijdpresentatie uit de standalone-modules (live ticker, afspeelsnelheden) kan blijven.
-
-## 11. Wat de papieren proef liet zien
-
-*Seizoen 1, Ashmere Town, fictief.* De uitslagen zijn gedobbeld met een vast script en drempels die vooraf waren vastgelegd.
-
-**Verloop**
-
-| Moment | Keuze | Wat eruit volgde |
-|---|---|---|
-| Manifest | Hoger dan 9e, plan voor een jeugdcomplex, "Hale krijgt het jaar" | Hale werd vrij en koppig; de Ultras voelden zich vergeten; de oppositie zei "geschreven door een boekhouder" |
-| Juli | Hale gevraagd jeugd te spelen; gemeente als partner | Hale deed het half (loyaal 8 → 6); de jeugdspeler debuteerde in een gewonnen duel |
-| Oktober | Aanvoerder een toekomst als jeugdtrainer gegeven; akkoord met de wethouder, foto inbegrepen | De aanvoerder weigerde de verkoop; de TD voelde zich gepasseerd (loyaal 4); de academie hing nu aan een verkiezing |
-| December (13e) | Woord aan Hale publiek gehouden; TD laten lopen | Hale: "I owe you one", de jeugd speelde weer; de Old Guard respecteerde het |
-| Mei | Afscheidsavond voor de aanvoerder | Een volle tribune; de 8e plaats werd gehaald met één punt marge |
-| ALV | "De jeugd speelt", groter manifest | Herkozen met 59,6%, het academieplan aangenomen. De TD bleek in het kamp van de oppositie te zitten |
-
-**Wat werkte**
-- Elke keuze veranderde meteen iets concreets.
-- Uitkomsten kwamen vertraagd, maar waren terug te voeren op je keuzes.
-- Wedstrijden deden ertoe zonder opstelling.
-- Beloftes knoopten de club aan elkaar.
-- Er waren vier momenten per seizoen, zonder verplichte weken. De eigenaar: "Ik vond alles leuk."
-
-**Wat niet werkte**
-- Het toeval woog te zwaar (zie §9).
-- Een voorzichtig manifest was te makkelijk.
-- De speler nam zelf geen initiatief (zie §5: mensen benaderen).
-- De situaties kwamen uit de spelleider, niet uit regels.
-- Spelers bleven dun als personage.
+| Proef | Wat | Oordeel van de eigenaar | Les |
+|---|---|---|---|
+| 1 — Ashmere Town | Een seizoen, met mij als spelleider | "Alles leuk"; het toeval woog te zwaar | Concrete inzet werkt; beloftes die elkaar raken, maken één club |
+| 2 — Pell United | Een seizoen met alleen regels, getallen zichtbaar | Minder dan proef 1 | De regels werken, maar moeten onder water. Getallen maken er een rekensom van |
+| Gesprek — Brook | Twee beurten, de diepe wens raken | Geen spel | Alleen een verborgen score; een quiz |
+| ALV — Pell opnieuw | Moties, wandelgangen, telling per groep | **Spel**; prijs precies goed | Deals met beperkingen voor later geven echte keuzes |
+| Gesprek — Brook met kaarten | Dezelfde scène, nu met afspraakkaarten | **Spel** | Het gesprek is de verpakking; het spel is de afspraak |
 
 ## 12. Wat we bewust anders doen dan eerder
 
-Dit concept is geen aanpassing van eerdere versies. De vergelijking hieronder laat alleen zien welke lessen we meenemen en wat we loslaten.
-
 | Eerder | In dit concept |
 |---|---|
-| CEO of eigenaar, beoordeeld door een bestuur | Gekozen voorzitter, afgerekend door de leden bij een jaarlijkse ALV |
-| Inbox of rode map als centrum | Geen inbox: momenten, lopende beloftes en zelf mensen benaderen |
-| Afdelingen, mandaten en schuifjes | Mensen met een eigen wil, loyaliteit en wederkerigheid |
-| Meters in het groen houden | Ledengroepen met een zichtbare reden waarom ze bewegen |
-| Weekritme met events | Vier momenten per seizoen; stille stukken spoel je door |
-| Ontslag is het einde | Verlies je de ALV, dan word je kandidaat bij een andere club |
+| CEO of eigenaar onder een bestuur | Gekozen voorzitter, met een jaarlijkse ALV en bindende moties |
+| Inbox of rode map als centrum | **De tafel**: lopende afspraken en beloftes |
+| Mandaten en schuifjes | Afspraken met mensen met een eigen wil |
+| Meters in het groen houden | Ledengroepen in woorden, met een reden |
+| Weekritme met events | ±4 momenten uit triggers |
+| Ontslag is het einde | Een andere club; je reputatie gaat mee |
 
 **Wat we meenemen:**
-- Actie → consequentie → uitkomst → nieuwe actie als toetssteen.
-- Nooit opstellen, scouten of onderhandelen.
-- Fictieve wereld, mobiel eerst, wedstrijdsimulatie los van de presentatie.
+- Actie → consequentie → uitkomst.
+- Nooit opstellen of onderhandelen over spelers.
+- Een fictieve wereld, mobiel eerst, de wedstrijdsimulatie los van de presentatie.
 
 ## 13. Keuzes van de eigenaar
+1. Je bent gekozen voorzitter van een ledenclub.
+2. De spanning komt uit lopende inzetten.
+3. Binding ontstaat uit mensen, plek, identiteit en spelers.
+4. Er zijn vier werkwoorden: beloven, benoemen en afrekenen, coalities, statuut en kapitaal.
+5. Spelers hebben vier rollen.
+6. Er is een jaarlijkse ALV.
+7. Verlies je de ALV, dan ga je naar een andere club.
+8. Beloftes zijn hard, met jouw verhaal bij de verdediging.
+9. Eerst papieren proeven.
+10. Eigen initiatief loopt via mensen benaderen.
+11. Je benadert één persoon per moment.
+12. Tijdens het spel zie je woorden; getallen achteraf.
+13. Moties op de ALV zijn bindend.
+14. In de wandelgangen deal je onbeperkt en zichtbaar.
+15. De telling gaat per groep.
+16. Een tegenkandidaat komt alleen bij onvrede.
+17. De afspraak is de kern; het gesprek is de verpakking.
 
-*Genomen door de eigenaar in de interactieve ontwerpsessie van 18-11-2026. Ze gelden voor dit concept en kunnen bij verdere uitwerking nog veranderen.*
-
-1. De speler is **gekozen voorzitter** van een ledenclub.
-2. De spanning in stille weken komt uit **lopende inzetten**: eerdere beloftes die de wedstrijden laten tikken.
-3. **Binding** ontstaat uit een combinatie van mensen, plek, identiteit en spelers.
-4. Er zijn **vier werkwoorden**: beloven, benoemen en afrekenen, coalities smeden, statuut en kapitaal.
-5. **Spelers** hebben vier rollen: stem, belofte of bescherming, jeugd die jij mogelijk maakte, personage.
-6. Er is een **jaarlijkse ALV**.
-7. **Verlies je de ALV, dan ga je naar een andere club.**
-8. **Beloftes zijn hard, met jouw verhaal** bij de verdediging.
-9. **Eerst een papieren proef** gespeeld, nog geen code.
-10. **Eigen initiatief: mensen benaderen.**
-11. **Concept vastleggen** in deze notitie.
-
-## 14. Volgende stappen
-
-1. **Een regelset op één pagina:** loyaliteit, wederkerigheid, wil per personage, ledengroepen, beloftes, ALV en zichtbare kansen. Situaties moeten uit regels komen, niet uit een spelleider.
-2. **Opnieuw papier spelen met de regelset**, met een ander manifest. Levert dat een wezenlijk ander seizoen op, en kan de speler zijn uitkomsten terugvoeren op zijn keuzes?
-3. **Seizoen 2 spelen,** om te testen of het tweede jaar ook werkt: de TD na zijn overstap, het grotere manifest, een oppositie die de score bijhoudt.
-4. Pas daarna: een HTML vertical slice van één seizoen bouwen.
+## 14. Open en volgende stappen
+1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).
+2. Nog uit te werken: de oppositie als personage, en het moment als scène.
+3. Daarna: een HTML vertical slice van één seizoen.

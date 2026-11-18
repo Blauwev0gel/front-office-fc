@@ -5,8 +5,10 @@ function vTitle() {
   <div class="tbody"><h1>The Front Office</h1><p class="tag">You run the club. Not the team.</p><p>Found a club at the bottom of the pyramid. Hire the people, set their mandates and live with the results.</p></div></div>
   ${trayHtml('', `<button class="btn" data-a="new">Found a club</button><button class="btn ghost" data-a="sheet" data-s="quick">Start with a base club</button>${hasSave() ? '<button class="btn ghost" data-a="continue">Continue your club</button>' : ''}`, 'Saves automatically in this browser')}`;
 }
+// B66.1: set up a club fast. Three questions; the rest of the DNA takes a sensible default and can be read on the Club screen
+const SETUP_Q = ['origin', 'style', 'ambition'], setupQ = () => F.DNA.filter(q => SETUP_Q.includes(q.k));
 function vSetupDNA() {
-  const s = U.setup, steps = F.DNA.length + 2, pal = PALETTES[s.col];
+  const Q = setupQ(), s = U.setup, steps = Q.length + 2, pal = PALETTES[s.col];
   const prog = `<div class="progress">${Array.from({ length: steps }, (_, i) => `<i class="${i === s.step ? 'on' : i < s.step ? 'done' : ''}"></i>`).join('')}</div>`;
   if (s.step === 0) {
     return `<div class="setup">${prog}<div class="crestbig">${crest(pal, s.short || (s.city || 'FC').slice(0, 3).toUpperCase(), 96)}</div><h1 class="sh1">Name your club</h1>
@@ -16,12 +18,13 @@ function vSetupDNA() {
     <div class="sec">Colours: ${esc(pal[2])}</div><div class="cols2">${PALETTES.map((p, i) => `<button data-a="col" data-i="${i}" class="${s.col === i ? 'on' : ''}" aria-label="${p[2]}"><i style="background:${p[0]}"></i><i style="background:${p[1]}"></i></button>`).join('')}</div>
     <div class="trayspace" style="--tray:100px"></div></div>${trayHtml('', `<button class="btn" data-a="s-next">Next: the club's DNA</button>`, '')}`;
   }
-  if (s.step <= F.DNA.length) {
-    const q = F.DNA[s.step - 1], cur = s.dna[q.k];
-    return `<div class="setup">${prog}<div class="kick">Club DNA, ${s.step} of ${F.DNA.length}</div><h1 class="sh1">${esc(q.q)}</h1>
+  if (s.step <= Q.length) {
+    const q = Q[s.step - 1], cur = s.dna[q.k];
+    return `<div class="setup">${prog}<div class="kick">Club DNA, ${s.step} of ${Q.length}</div><h1 class="sh1">${esc(q.q)}</h1>
     <div class="dnacards">${q.o.map(o => `<button class="dnacard ${cur === o.v ? 'on' : ''}" data-a="dna" data-k="${q.k}" data-v="${o.v}"><b>${esc(o.l)}</b><span>${esc(clip2(o.d)[0])}</span><small>${esc(o.e)}</small></button>`).join('')}</div>
     <div class="trayspace" style="--tray:100px"></div></div>${trayHtml('', `<div class="row2"><button class="btn ghost" data-a="s-back">Back</button><button class="btn" data-a="s-next" ${cur ? '' : 'disabled'}>Next</button></div>`, '')}`;
   }
+  for (const q of F.DNA) if (!s.dna[q.k]) s.dna[q.k] = q.o[0].v;
   const lab = (k, v) => F.DNA.find(q => q.k === k).o.find(o => o.v === v).l;
   return `<div class="setup">${prog}<div class="crestbig">${crest(pal, s.short, 110)}</div><h1 class="sh1" style="text-align:center">${esc(s.name)}</h1><p class="small" style="text-align:center">Founded in ${esc(s.city)}. The board, the fans and your staff will hold you to this DNA.</p>
   <div class="traits" style="justify-content:center;margin:12px 0">${F.DNA.map(q => `<span>${esc(lab(q.k, s.dna[q.k]))}</span>`).join('')}</div>
@@ -40,14 +43,21 @@ function staffCard(s, role, opts = {}) {
     ${opts.actions || ''}</div>`;
 }
 function numbers(role) { const rc = F.record(role); return `<div style="border-top:1px solid var(--rule);margin-top:4px;padding-top:6px"><div class="spread"><b style="font-family:var(--head);font-weight:500">The numbers</b><b class="${rc.verdict === 'Strong' ? 'good' : rc.verdict === 'Poor' ? 'bad' : ''}" style="font-family:var(--head)">${rc.verdict}</b></div><dl class="kv">${rc.lines.map(([l, v, ok]) => `<dt>${esc(l)}</dt><dd class="${ok === true ? 'good' : ok === false ? 'bad' : ''}">${esc(v)}</dd>`).join('')}</dl></div>`; }
+// B66.1: the staff are proposed for you within budget; you may change any of them, then one tap hires them all
+function autoHire() { const g = G(), budget = F.staffBudget(), H2 = {}; let left = budget;
+  const cheap = r => g.cands[r].map((c, i) => [c.wage, i]).sort((a, b) => a[0] - b[0])[0];
+  for (const r of F.ROLES) { const c = cheap(r.id); H2[r.id] = c[1]; left -= c[0]; }
+  for (const r of ['coach', 'dof', 'acad', 'scout', 'fin', 'com', 'mkt']) { if (!g.cands[r]) continue; const cur = g.cands[r][H2[r]].wage, best = g.cands[r].map((c, i) => [c.wage, i]).filter(x => x[0] - cur <= left).sort((a, b) => b[0] - a[0])[0]; if (best) { left -= best[0] - cur; H2[r] = best[1]; } }
+  return H2; }
 function vSetupStaff() {
+  if (!U.hireAuto) { U.hire = autoHire(); U.hireAuto = 1; }
   const g = G(), budget = F.staffBudget(); let total = 0; for (const r in U.hire) total += g.cands[r][U.hire[r]].wage;
   const ok = U.hire.dof != null && U.hire.coach != null, role = U.hireRole || 'dof', R = F.ROLE[role];
   const tabs = `<div class="mtabs">${F.ROLES.map(r => `<button class="${role === r.id ? 'on' : ''}" data-a="hire-tab" data-r="${r.id}"><span class="mface ${U.hire[r.id] != null ? 'done' : ''}">${U.hire[r.id] != null ? ART.face(g.cands[r.id][U.hire[r.id]].id * 31 + 3, { role: r.id, age: g.cands[r.id][U.hire[r.id]].age, bg: '#fff' }) : ART.I.staff}</span><small>${esc(r.s)}</small></button>`).join('')}</div>`;
   const cand = (s, i) => { const P = s.p, tr = [P.ego > 14 ? 'Big ego' : P.ego < 7 ? 'Humble' : '', P.loy > 14 ? 'Loyal' : P.loy < 7 ? 'Mercenary' : '', P.risk > 14 ? 'Risk-taker' : P.risk < 7 ? 'Careful' : '', P.amb > 14 ? 'Ambitious' : ''].filter(Boolean).slice(0, 3);
     return `<button class="cand ${U.hire[role] === i ? 'on' : ''}" data-a="pick" data-r="${role}" data-i="${i}"><span class="cf">${ART.face(s.id * 31 + 3, { role, age: s.age, bg: '#fff', emo: U.hire[role] === i ? 'happy' : null })}</span><span class="cm"><b>${esc(s.name)}</b><small>${s.age}, ${esc(s.bio)}</small><span class="traits">${tr.map(x => `<span>${x}</span>`).join('')}</span>${R.at.map((a, k) => `<span class="mrow small2"><span>${esc(a)}</span><i><b style="width:${s.at[k] * 5}%"></b></i><em>${s.at[k]}</em></span>`).join('')}</span><span class="cr">${starsTxt(F.stars(F.ovr(s)))}<small>${money(s.wage)}/wk</small></span></button>`; };
-  return `<div class="setup"><div class="sumhead"><h1>Hire your staff</h1><span class="chip" style="margin-left:auto">${Object.keys(U.hire).length} of ${F.ROLES.length}</span></div>${tabs}
-  <h2 class="itemh">${esc(R.t)}</h2><p class="small" style="margin:0 0 8px">${role === 'dof' || role === 'coach' ? 'Required.' : 'Optional, but a vacant role runs on chance.'}</p>
+  return `<div class="setup"><div class="sumhead"><h1>Your staff</h1><span class="chip" style="margin-left:auto">${Object.keys(U.hire).length} of ${F.ROLES.length}</span></div>${tabs}
+  <p class="small" style="margin:0 0 8px">We lined up a team within your budget. Tap a role to change anyone.</p><h2 class="itemh">${esc(R.t)}</h2><p class="small" style="margin:0 0 8px">${role === 'dof' || role === 'coach' ? 'Required.' : 'Optional, but a vacant role runs on chance.'}</p>
   <div class="cands">${g.cands[role].map(cand).join('')}</div>${U.hire[role] != null && role !== 'dof' && role !== 'coach' ? `<button class="linkbtn" data-a="unpick" data-r="${role}">Leave vacant</button>` : ''}
   <div class="trayspace" style="--tray:150px"></div></div>${trayHtml(`<span>Staff wages ${money(total)} of ${money(budget)}/wk</span><span class="${total > budget ? 'bad' : ''}">${total > budget ? 'Over budget' : 'Within budget'}</span>`, `<div class="budgetbar"><b class="${total > budget ? 'over' : ''}" style="width:${Math.min(100, total / budget * 100)}%"></b></div><button class="btn" data-a="hire-all" ${ok ? '' : 'disabled'}>${ok ? 'Confirm appointments' : 'Pick a DoF and a coach'}</button>`, '')}`;
 }

@@ -17,7 +17,7 @@ function act(a, d, el) {
     case 'pick': U.hire[d.r] = +d.i; ART.SND.card(); { const ix = F.ROLES.findIndex(r => r.id === d.r), nx = F.ROLES.slice(ix + 1).find(r => U.hire[r.id] == null); if (nx) setTimeout(() => { U.hireRole = nx.id; render(); window.scrollTo(0, 0); }, 450); } break;
     case 'hire-tab': U.hireRole = d.r; window.scrollTo(0, 0); break;
     case 'unpick': delete U.hire[d.r]; break;
-    case 'hire-all': for (const k in U.hire) F.hire(k, U.hire[k]); F.finishStaff(); window.scrollTo(0, 0); break;
+    case 'hire-all': for (const k in U.hire) F.hire(k, U.hire[k]); F.finishStaff(); if (G().phase === 'mandates') F.finishMandates(); U.pressI = 0; U.quote = null; U.hireAuto = 0; window.scrollTo(0, 0); break;
     case 'mand-done': F.finishMandates(); U.pressI = 0; U.quote = null; window.scrollTo(0, 0); break;
     case 'press': { const q = F.PRESS.find(p => p.id === d.q); let ans = q.a[+d.i]; if (typeof ans === 'function') ans = ans(); U.quote = F.pressAnswer(d.q, +d.i); U.quoteP = !!ans[1]; U.pressI++; break; }
     case 'press-next': U.quote = null; if (U.pressI >= g.press.length) { F.finishPress(); U.tab = 'inbox'; window.scrollTo(0, 0); } break;

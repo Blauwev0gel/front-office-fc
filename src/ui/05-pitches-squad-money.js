@@ -27,7 +27,7 @@ function meetingBlock(mt, kick) { return pitchDeck(mt, kick, false); }
 
 function p90(v, m) { return m ? (v / m * 90).toFixed(2) : '–'; }
 const STG_L = { identified: 'Identified', scouted: 'Scouted', recommended: 'Recommended', approach: 'Awaiting approval', negotiating: 'In talks', agreed: 'Agreed', signed: 'Signed', lost: 'Dropped' };
-function squadSeg() { return `${tourCard('squad')}<div class="seg" style="margin-bottom:14px"><button class="${!U.sqTable ? 'on' : ''}" data-a="sqtable" data-v="0">Pitch</button><button class="${U.sqTable ? 'on' : ''}" data-a="sqtable" data-v="1">Stats table</button></div>`; }
+function squadSeg() { return `<div class="ix-kit" aria-hidden="true"></div><div class="seg" style="margin-bottom:14px"><button class="${!U.sqTable ? 'on' : ''}" data-a="sqtable" data-v="0">Pitch</button><button class="${U.sqTable ? 'on' : ''}" data-a="sqtable" data-v="1">Stats table</button></div>`; }
 const RULE_OWN = { 'wage cap': 'the wage cap (Finance)', 'fee limit': 'the fee limit (DoF mandate)', 'wage limit': 'the wage limit (DoF mandate)', 'age limit': 'the age limit (DoF mandate)' };
 function recRow(o) {
   const { x, p, k } = o, d = x.deal, note = x.blocked ? `Blocked by ${x.blocked.map(r => RULE_OWN[r] || r).join(', ')}` : x.stage === 'negotiating' && d && d.rounds.length ? d.rounds[d.rounds.length - 1] : (x.log || []).slice(-1)[0] || '';

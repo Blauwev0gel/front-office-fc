@@ -34,3 +34,23 @@ Zonder tegenkandidaat stemmen de leden over vertrouwen in jou. De drempel ligt d
 - **Coalities** worden tastbaar: je ruilt beperkingen voor volgend jaar tegen stemmen nu.
 - **Statuut en kapitaal** krijgen een plek: via moties verandert wie de club is.
 - **De volgende ALV** begint met de deals van vorig jaar, zodat elke ALV verder bouwt op de vorige.
+
+## Mini-proef (Pell United, de ALV opnieuw gespeeld): resultaat
+**Oordeel van de eigenaar: het voelde als een spel. De prijs (drie beperkingen voor seizoen 2) was precies goed.**
+
+**Verloop**
+- Twee deals: de kaartprijs voor drie jaar aan de Studenten, en een zetel in de financiële commissie voor de Ondernemers.
+- Je steunde de 25%-motie van de Dockers.
+- Je verdediging: "ik had het mis".
+- Herkozen met 55,5%. In proef 2 verloor je met dezelfde stand (49,75%).
+
+**Wat de club eraan overhield**
+- Een statuut met maximaal 25% externe eigendom.
+- Een kaartprijs die drie seizoenen vastligt.
+- Een financiële commissie met een veto: een nieuw personage met een eigen wil.
+
+**Regels die de proef nodig had (startwaarden)**
+- Een deal in de wandelgangen: +10 bij die groep.
+- Macht afstaan (een zetel of veto): +15.
+- Een zichtbare deal: −3 bij een groep die ervoor betaalt of die ertegen is.
+- Een motie steunen: +5 bij de indiener, −5 bij de groep die ertegen is.

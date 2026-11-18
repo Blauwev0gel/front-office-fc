@@ -262,7 +262,7 @@ F.iniSignal = () => (iniOpen() || (g().iniSeen != null && F.absWeek() - g().iniS
 F.iniActive = iniOpen;
 
 // what is still running and what was decided lately (for the desk and the department Record)
-F.agrRunning = () => open().map(a => { const s = staff(a.owner), last = (a.log || []).slice(-1)[0]; return { ic: a.k === 'ini' ? (a.owner === 'coach' ? 'trust' : 'scout') : 'scout', t: `${s ? sur(s.name) : 'The DoF'}: ${a.t.toLowerCase()}`, s: `${last ? last.t + ' ' : ''}${a.own ? 'His own call' : a.ordered ? 'Your decision' : 'Agreed with you'} in week ${a.mw}. ${a.joint ? 'Back to you' : 'Judged'} in ${reviewDate(a.by)}.`, role: a.owner }; });
+F.agrRunning = () => open().filter(a => a.k !== 'traj').map(a => { const s = staff(a.owner), last = (a.log || []).slice(-1)[0]; return { ic: a.k === 'ini' ? (a.owner === 'coach' ? 'trust' : 'scout') : 'scout', t: `${s ? sur(s.name) : 'The DoF'}: ${a.t.toLowerCase()}`, s: `${last ? last.t + ' ' : ''}${a.own ? 'His own call' : a.ordered ? 'Your decision' : 'Agreed with you'} in week ${a.mw}. ${a.joint ? 'Back to you' : 'Judged'} in ${reviewDate(a.by)}.`, role: a.owner }; });
 F.agrRecent = () => list().filter(a => a.res && F.absWeek() - a.by <= 1);
 F.agrList = list;
 })(FO);

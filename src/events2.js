@@ -127,7 +127,7 @@ D('new_stand', { owner: 'fin', dur: 14, repeat: 1, cost: c => c.seats * 12, p: (
 D('youth_fac', { owner: 'acad', dur: 8, repeat: 1, cost: () => M(6000 + g().club.fac.youth * 2500), p: () => 0.8, cond: () => g().club.fac.youth < 10,
   title: 'Upgrade the academy facilities', pitch: () => `"New pitches and a classroom block. We are at level ${g().club.fac.youth}. Better facilities attract better kids."`, benefit: 'Academy level +1: better intakes, faster development.',
   done: (c, ok) => { if (ok) { g().club.fac.youth++; return `Academy facilities now level ${g().club.fac.youth}.`; } return 'Drainage problems ruin the new pitches. Back to square one.'; } });
-D('train_ground', { owner: 'coach', dur: 12, repeat: 1, cost: () => M(10000 + g().club.fac.train * 2000), p: () => 0.75, second: 'fin', cond: () => g().club.fac.train < 9,
+D('train_ground', { owner: 'coach', dur: 12, repeat: 1, cost: () => M(10000 + g().club.fac.train * 2000), p: () => 0.75, second: 'fin', cond: () => false, /* B58: replaced by the training-base trajectory (projects.js) */
   title: 'Build a proper training ground', pitch: () => `"We train on a council pitch at level ${g().club.fac.train}. Give me a real base and I will give you better players."`, benefit: 'Training facilities +2: every player develops faster.',
   done: (c, ok) => { const add = Math.max(1, Math.round(2 * c.scale)); if (ok) { g().club.fac.train = Math.min(10, g().club.fac.train + add); return `Training ground now level ${g().club.fac.train}.`; } g().club.fac.train = Math.min(10, g().club.fac.train + 1); return 'Planning trouble: only half the complex is built.'; } });
 D('sports_sci', { owner: 'coach', dur: 6, cost: () => M(4000), wk: () => M(200), p: () => 0.8, cond: () => !perks().sci,

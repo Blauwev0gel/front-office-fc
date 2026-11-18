@@ -35,7 +35,7 @@ function backersHtml() {
   return `<button class="bkrs" data-a="sheet" data-s="backers" aria-label="Your backers: ${B.map(b => `${bkT(b.t)} ${b.mood.toLowerCase()}${bkDir(b.d)}`).join('; ')}">${B.map(b => `<span class="bk ${b.danger ? 'lo' : ''}"><small>${ART.I[b.ic] || ''}${esc(bkT(b.t))}</small><b class="mood">${esc(b.mood)}${b.d > 0 ? '<i class="up" aria-hidden="true">↑</i>' : b.d < 0 ? '<i class="dn" aria-hidden="true">↓</i>' : ''}</b></span>`).join('')}</button>`;
 }
 function comingHtml() {
-  if (!F.comingUp) return ''; const C = (F.stillRunning ? F.stillRunning() : []).concat(F.comingUp().filter(c => c.ic !== 'league')); if (!C.length) return ''; // promises first; the next match has its own card on the desk
+  if (!F.comingUp) return ''; const C = (F.stillRunning ? F.stillRunning() : []).concat(F.trajRunning ? F.trajRunning() : []).concat(F.comingUp().filter(c => c.ic !== 'league')); if (!C.length) return ''; // promises first; the next match has its own card on the desk
   return `<section class="cup2"><h3>Still running</h3>${C.map(c => `<div class="cu ${c.hot ? 'hot' : ''} ${c.bad ? 'bad' : ''}"><span>${ART.I[c.ic] || ART.I.info}</span><p><b>${esc(c.t)}</b>${esc(c.s)}</p></div>`).join('')}</section>`;
 }
 const BKT = { board: 'Board', fans: 'Fans', press: 'Press', room: 'Squad' };
@@ -157,6 +157,9 @@ function vInbox() {
   ${backersHtml()}
   <section class="dk-team"><div class="dk-h"><h3>Your team at work</h3>${done.length ? `<button class="linkbtn" data-a="filt" data-v="done">All ${done.length} calls ${ART.I.chev}</button>` : ''}</div>
     ${team.map(l => `<button class="dk-tl${l.bad ? ' bad' : ''}${l.quiet ? ' quiet' : ''}" data-a="${/^[mb]\d/.test(l.k) ? 'open' : 'tab'}" data-k="${l.k}" data-t="${l.r === 'player' ? 'squad' : 'staff'}"><span class="rbf">${l.pl ? ART.playerFace(l.pl, 'happy') : ART.staffFace(l.r)}</span><span class="dk-tx"><small>${esc(l.role)} · ${esc(l.n)}</small><b>${esc(l.t)}</b></span>${l.lab ? `<em class="dk-lab${l.bad ? ' bad' : ''}">${esc(l.lab)}</em>` : ''}</button>`).join('')}${(() => { const b = [], sn = r => F.staff(r) ? F.staff(r).name.split(' ').slice(-1)[0] : '', L3 = g.form.slice(-3);
+      const BV = F.baseView ? F.baseView() : null, BA = BV && BV.A && !BV.A.res ? BV.A : null;
+      if (BV && !BA && BV.site && !BV.site.taken && F.staff('fin')) b.push(`<button class="dk-ask" data-a="base-open">${ART.staffFace('fin')}<span>The council is selling ${esc(BV.site.name)}: look into it with ${esc(sn('fin'))}</span>${ART.I.chev}</button>`);
+      if (BA && ['route', 'talks'].includes(BA.stage)) b.push(`<button class="dk-ask" data-a="base-open">${ART.staffFace('fin')}<span>${BA.stage === 'route' ? `The training base: ${esc(sn('fin'))} has the options` : 'Back to the council talks'}</span>${ART.I.chev}</button>`);
       const sig = F.iniSignal ? F.iniSignal() : null; if (sig) b.push(`<button class="dk-ask" data-a="ini-open">${ART.staffFace('dof')}<span>${esc(sig.t[0].toUpperCase() + sig.t.slice(1))}: call in the coach and the DoF</span>${ART.I.chev}</button>`);
       if (!sig && F.agrTopics && F.agrTopics('dof').some(t => t.id === 't_squad')) b.push(`<button class="dk-ask" data-a="cv-open" data-r="dof">${ART.staffFace('dof')}<span>Ask ${esc(sn('dof'))} where we are short</span>${ART.I.chev}</button>`);
       if (!sig && F.staff('coach') && L3.length === 3 && L3.filter(r => r === 'L').length >= 2) b.push(`<button class="dk-ask" data-a="ft-talk">${ART.staffFace('coach')}<span>Talk to ${esc(sn('coach'))} about the results</span>${ART.I.chev}</button>`);

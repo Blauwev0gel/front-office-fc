@@ -219,3 +219,19 @@ Daarnaast `initiative`, `agreements`, `weekloop`, `budget` en `mig`, en een brow
 1. **Is "A base of our own" de juiste eerste doorsnede?** Advies: **ja**. Hij raakt de gemeente, financiering, het bestuur, de academie en spelersontwikkeling, en vervangt het duidelijkste tycoon-element.
 2. **Mag de investeerder een bestuurszetel krijgen met een echte stem bij latere grote besluiten?** Advies: **ja, één stem**. Zo voel je de zeggenschap die je weggeeft, zonder dat hij de club overneemt.
 3. **Mogen de oude projecten `train_ground` en de `facProg`-weg voor het trainingscomplex verdwijnen**, met een migratie voor bestaande saves? Advies: **ja**. Anders bestaan er twee systemen naast elkaar.
+
+---
+## Gebouwd: "A base of our own" (B59)
+- **`src/parties.js`:** de gemeente (een kenmerk: community, money of growth; vertrouwen; geheugen; elke twee seizoenen een verkiezing) en een lokale investeerder (interesse volgt de resultaten en het merk). Elke week verkoopt de gemeente zelf grond als de club geen eigen complex heeft. Een ontwikkelaar of een rivaliserende club loopt ondertussen door; een rivaal die de grond pakt, wordt er sterker van. De CEO kan zelf bij de gemeente aankloppen (`F.councilAsk`).
+- **`src/projects.js`:** het traject in `G.agr` met `k: 'traj'`, in deze stappen:
+  - research (één week);
+  - de route (kopen, huren met gemeenschapsuren, of samen met de investeerder);
+  - gesprekken van hooguit drie rondes, met de kaarten prijs, pitch time of tijd, en daarnaast akkoord gaan of weglopen;
+  - het bestuur (`base_board`) bij een lening of een zetel;
+  - de bouw door Finance, met tegenslag naar zijn karakter en kwaliteit, en een investeerder die zijn betalingen vertraagt als het slecht gaat;
+  - het bezit `club.assets.base`.
+
+  De huur loopt via `club.rent`, dus via de echte weekfinanciën. `fac.train` volgt de kwaliteit van het complex. Gemeenschapsuren kosten trainingstijd en leveren goodwill op.
+- **Vervangen:** het project `train_ground` en de groei van het trainingsniveau via `facProg`. Investeren in faciliteiten verbetert nu alleen nog een complex dat de club zelf bezit. Saveversie 5 zet een bestaand trainingsniveau om in een eigen complex.
+- **UI:** de gesprekken lopen via de bestaande gespreksmotor bij Finance, met de gemeente als spreker. Het bureau toont *Raise it yourself* en *Still running*.
+- **Tests:** `test/projects.js` (21 controles).

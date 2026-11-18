@@ -137,7 +137,7 @@ function answer(id) {
   const cause = !!r || hasCause(role);
   const R = v => { rel(role, v * k); if (v) note(`Trust ${v > 0 ? '+' : '−'}${Math.abs(Math.round(v * k))}`); }, B = (v, w) => { boost(role, v * k, w); if (v) note(v > 0 ? `${n} fired up` : `${n} deflated`); };
   const end = (t, c) => { T.done = true; T.opts = []; if (F.deskNote) F.deskNote(role, r ? `${n} wanted a word` : `Talk with ${n}`, `You: ${opt.t}.`, 0); };
-  if (F.agrAnswer && /^(t_|a_|i_)/.test(id) && F.agrAnswer(id, T, say, note)) { if (!T.opts.length) end(); return; } // CEO-1 topics (agreements.js)
+  if (F.agrAnswer && /^(t_|a_|i_|b_)/.test(id) && F.agrAnswer(id, T, say, note)) { if (!T.opts.length) end(); return; } // CEO-1 topics (agreements.js)
   switch (id) {
     case 'back': if (!cause) { say(role, P.ego > 13 ? 'I know. Was there something else?' : 'Thanks. Nothing has changed, then.'); break; } if (s.perf < 45) { say(role, 'That means a lot right now.'); R(5); B(3); } else if (P.ego > 13) { say(role, 'Good. Then let me get on with it.'); R(3); B(-1); } else { say(role, 'Appreciated. We keep building.'); R(4); B(1); } break;
     case 'push': if (!cause) { say(role, P.ego >= 13 ? 'More? Things are going well. Look at the numbers.' : 'I will try, but I am not sure what you want changed.'); R(P.ego >= 13 ? -3 : -1); break; } if (P.amb >= 12) { say(role, 'Good. So do I. Watch this space.'); R(-1); B(7, 5); } else if (P.ego >= 13) { say(role, 'With respect, I know my job.'); R(-8); B(-2); } else { say(role, 'Understood. I will push harder.'); R(-3); B(3); } break;

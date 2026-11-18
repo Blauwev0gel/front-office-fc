@@ -25,6 +25,8 @@
  "desk.js",
  "teamwork.js",
  "agreements.js",
+ "parties.js",
+ "projects.js",
  "talks.js",
  "weekflow.js",
  "weekloop.js",

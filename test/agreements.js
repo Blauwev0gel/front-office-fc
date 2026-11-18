@@ -16,7 +16,7 @@ const talk = (F, ...ids) => { F.convoOpen('dof'); for (const id of ids) F.convoA
   // judged on what happened: a player comes in at that position
   const p = Object.assign({}, F.G.squad.find(x => x.pos === a.pos) || F.G.squad[0], { id: 999999, name: 'New Arrival', pos: a.pos }); F.G.squad.push(p);
   const r0 = F.staff('dof').rel; for (let k = 0; k < 20 && !a.res && F.G.phase === "season"; k++) F.endWeek();
-  ok(a.res === 'met' && F.staff('dof').rel > r0 - 3, `judged as met when a ${a.pos} arrived (${a.res})`);
+  ok(a.res === 'met' && /came in/.test(a.out || ''), `judged as met when a ${a.pos} arrived (${a.res}: ${a.out})`); // his trust also moves with other events over these weeks, so the judgement itself is checked
   ok(F.save().includes('"agr"'), 'agreements are saved'); }
 // 2. he may refuse: no money and no window
 { const F = game(602); while (F.G.week < 20 && F.G.phase === 'season') F.endWeek(); F.G.talks = {}; F.transferBudget = () => 0;

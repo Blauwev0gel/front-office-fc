@@ -45,7 +45,7 @@ function weeklyFinance(home) {
   G.fin.last = { i, o, tin, tout }; G.fin.revSum += tin - (i.owner || 0); G.fin.revW++;
   G.ss.rev += tin; G.ss.exp += tout;
   c.facProg += o.facilities / M(320) * 0.06;
-  if (c.facProg >= 1) { c.facProg -= 1; if (c.fac.train < 10) { c.fac.train++; G.paper.stories.push({ h: 'Training ground', t: `Facility investment pays off: the training ground is upgraded to level ${c.fac.train}.` }); } }
+  if (c.facProg >= 1) { c.facProg -= 1; const B = c.assets && c.assets.base; if (B && B.held === 'own' && B.quality < 9) { B.quality++; if (HOOK.baseApply) HOOK.baseApply(); G.paper.stories.push({ h: 'Training base', t: `Facility investment pays off: the training base improves to ${B.quality}.` }); } } // B58: money improves a base you own; a council pitch cannot be upgraded
   G.fin.hist.push(Math.round(c.cash)); if (G.fin.hist.length > 120) G.fin.hist.shift();
 }
 

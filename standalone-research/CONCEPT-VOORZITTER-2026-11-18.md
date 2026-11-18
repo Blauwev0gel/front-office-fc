@@ -1,8 +1,8 @@
 # Concept: De Voorzitter
 
-*Ontwerpnotitie voor het **standalone-spoor**, 18-11-2026. Status: **voorstel**.*
-*Dit hoort niet bij het bestaande GitHub-spel (`main`, `claude-game`, `chatgpt`) en raakt die branches niet.*
-*Het bouwt voort op `HANDOVER-2026-11-18.md`.*
+*Ontwerpnotitie, 18-11-2026. Status: **nieuw concept, in ontwerp**.*
+*Dit is een op zichzelf staand concept. Het hoeft niet te passen bij de bijbel van het bestaande GitHub-spel of bij eerdere standalone-besluiten, en mag ermee botsen.*
+*Deze notitie is de bron van waarheid voor dit concept.*
 *Het concept komt uit een creatieve reset (interactieve ontwerpvragen) en is met een papieren proef van één seizoen getest.*
 *Er is nog geen code gebouwd.*
 
@@ -137,25 +137,27 @@ In de proef bepaalde het toeval te veel: de dip in december en de verkiezing van
 - De situaties kwamen uit de spelleider, niet uit regels.
 - Spelers bleven dun als personage.
 
-## 12. Verhouding tot eerdere standalone-besluiten
+## 12. Wat we bewust anders doen dan eerder
 
-Deze punten herzien of verfijnen we als het concept wordt gekozen. Het bestaande GitHub-spel blijft hier volledig buiten.
+Dit concept is geen aanpassing van eerdere versies. De vergelijking hieronder laat alleen zien welke lessen we meenemen en wat we loslaten.
 
-| Eerder (`standalone/front-office-fc/docs/DECISIONS.md`, handover) | Voorstel |
+| Eerder | In dit concept |
 |---|---|
-| Player is owner/CEO, not trainer | **Verfijnen:** gekozen voorzitter van een ledenclub |
-| Staff operate autonomously | **Blijft**, en wordt sterker: personages met eigen wil, loyaliteit en wederkerigheid |
-| TD as first CEO module | **Vervalt** als startpunt: de eerste proef draait om manifest, benoemen en de ALV |
-| Provisional hypothesis: inbox as entry point, boardroom as source of decisions | **Herzien:** geen inbox als centrum; initiatief via mensen benaderen en momenten |
-| ACTION → CONSEQUENCE → OUTCOME → NEW ACTION | **Blijft**, als toetssteen voor elke keuze |
-| Separate match simulation from playback; mobile-first | **Blijft** |
-| Build one playable vertical slice at a time | **Blijft**, maar pas na de regelset en een tweede papieren proef |
+| CEO of eigenaar, beoordeeld door een bestuur | Gekozen voorzitter, afgerekend door de leden bij een jaarlijkse ALV |
+| Inbox of rode map als centrum | Geen inbox: momenten, lopende beloftes en zelf mensen benaderen |
+| Afdelingen, mandaten en schuifjes | Mensen met een eigen wil, loyaliteit en wederkerigheid |
+| Meters in het groen houden | Ledengroepen met een zichtbare reden waarom ze bewegen |
+| Weekritme met events | Vier momenten per seizoen; stille stukken spoel je door |
+| Ontslag is het einde | Verlies je de ALV, dan word je kandidaat bij een andere club |
 
-De lokale HTML-prototypes heb ik niet kunnen inspecteren, want ze staan niet op GitHub. Hun beoordeling in deze notitie komt uit de handover.
+**Wat we meenemen:**
+- Actie → consequentie → uitkomst → nieuwe actie als toetssteen.
+- Nooit opstellen, scouten of onderhandelen.
+- Fictieve wereld, mobiel eerst, wedstrijdsimulatie los van de presentatie.
 
-## 13. Voorlopige keuzes van de eigenaar in dit traject
+## 13. Keuzes van de eigenaar
 
-*Genomen in de interactieve ontwerpsessie van 18-11-2026. Ze gaan pas naar `DECISIONS.md` van het standalone-spoor als de eigenaar dat bevestigt.*
+*Genomen door de eigenaar in de interactieve ontwerpsessie van 18-11-2026. Ze gelden voor dit concept en kunnen bij verdere uitwerking nog veranderen.*
 
 1. De speler is **gekozen voorzitter** van een ledenclub.
 2. De spanning in stille weken komt uit **lopende inzetten**: eerdere beloftes die de wedstrijden laten tikken.
@@ -174,4 +176,4 @@ De lokale HTML-prototypes heb ik niet kunnen inspecteren, want ze staan niet op 
 1. **Een regelset op één pagina:** loyaliteit, wederkerigheid, wil per personage, ledengroepen, beloftes, ALV en zichtbare kansen. Situaties moeten uit regels komen, niet uit een spelleider.
 2. **Opnieuw papier spelen met de regelset**, met een ander manifest. Levert dat een wezenlijk ander seizoen op, en kan de speler zijn uitkomsten terugvoeren op zijn keuzes?
 3. **Seizoen 2 spelen,** om te testen of het tweede jaar ook werkt: de TD na zijn overstap, het grotere manifest, een oppositie die de score bijhoudt.
-4. Pas daarna: de herzieningen uit §12 beslissen en een standalone HTML vertical slice van één seizoen bouwen.
+4. Pas daarna: een HTML vertical slice van één seizoen bouwen.

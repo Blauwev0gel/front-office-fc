@@ -21,7 +21,7 @@ function act(a, d, el) {
     case 'mand-done': F.finishMandates(); U.pressI = 0; U.quote = null; window.scrollTo(0, 0); break;
     case 'press': { const q = F.PRESS.find(p => p.id === d.q); let ans = q.a[+d.i]; if (typeof ans === 'function') ans = ans(); U.quote = F.pressAnswer(d.q, +d.i); U.quoteP = !!ans[1]; U.pressI++; break; }
     case 'press-next': U.quote = null; if (U.pressI >= g.press.length) { F.finishPress(); U.tab = 'inbox'; window.scrollTo(0, 0); } break;
-    case 'tab': U.tab = d.t; U.sub = null; U.dept = null; if (d.t === 'inbox') { U.open = null; U.flash = ''; } window.scrollTo(0, 0); break;
+    case 'tab': U.tab = d.t; U.sub = null; U.dept = null; U.croom = null; if (d.t === 'inbox') { U.open = null; U.flash = ''; } window.scrollTo(0, 0); break;
     case 'msend': mailSend(d); break;
     case 'mnext': U.sentK = null; advance(); window.scrollTo(0, 0); break;
     case 'opt': r = F.respond(+d.m, +d.i); if (r && r.err) toast(r.err); else if (r && U.open) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.card(); ART.vib(15); advance(); } break;
@@ -81,6 +81,7 @@ function act(a, d, el) {
     case 'godept': U.tab = 'staff'; U.open = null; U.sheet = null; U.dept = d.k; U.dtab = 'now'; U.tray = ''; window.scrollTo(0, 0); break;
     case 'dept': U.portal = false; U.dept = d.k || null; U.dtab = d.v || 'now'; U.tray = ''; window.scrollTo(0, 0); break;
     case 'dtab': U.dtab = d.v; window.scrollTo(0, 0); break;
+    case 'croom': U.croom = d.v || null; window.scrollTo(0, 0); break;
     case 'dsec': U.dsec = U.dsec || {}; U.dsec[d.k] = !(U.dsec[d.k] != null ? U.dsec[d.k] : d.d === '1'); break;
     case 'dcand': U.sheet = { t: 'dcand', k: d.k, r: d.r }; break;
     case 'dhire': r = F.deptHire(d.k, d.r, +d.i); U.sheet = null; if (r && r.err) toast(r.err); else if (r) { U.flash = r.out; U.flashN = (U.flashN || 0) + 1; ART.SND.stamp(); ART.vib(30); } break;

@@ -152,12 +152,42 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .tl2{border-left:2px solid var(--rule);margin-left:6px;padding-left:12px;display:grid;gap:10px}.tl2 div{position:relative}.tl2 div::before{content:"";position:absolute;left:-18px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--club)}.tl2 b{display:block;font:700 14px var(--head)}.tl2 span{font:400 13px var(--body);color:var(--soft)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}.chip{font:600 12px var(--head);padding:4px 8px;border-radius:8px;border:1.5px solid var(--ink);background:var(--paper)}
 .spark{width:100%;height:56px}
+
+/* E: the inbox, dressed as football */
+.ex>*{flex:none}.mpitch .stk{display:block}.from .new{margin-right:auto}
+.ex{position:absolute;inset:0;overflow-y:auto;padding:0 0 14px;display:flex;flex-direction:column;gap:12px}
+.kitband{height:8px;background:repeating-linear-gradient(90deg,var(--club) 0 18px,var(--club2) 18px 26px);border-bottom:2px solid var(--ink)}
+.exh{display:flex;gap:12px;align-items:center;padding:0 14px}
+.exh .bigcrest{width:52px;height:58px;flex:none}
+.exh .tt{flex:1}.exh .tt small{font:600 11px var(--head);letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}.exh .tt b{display:block;font:italic 700 24px/1.05 var(--head)}
+.board{margin:0 14px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:stretch}
+.score{background:#15110f;color:#f8e9b0;border:2px solid var(--ink);border-radius:10px;padding:6px 10px;text-align:center;min-width:132px;box-shadow:inset 0 0 0 2px #2b231f}
+.score small{display:block;font:600 9px var(--head);letter-spacing:.14em;color:#b9a77a}.score b{display:block;font:700 26px/1.1 var(--head);letter-spacing:.06em;font-variant-numeric:tabular-nums}.score b i{font-style:normal;color:#f2c14e}
+.fm{display:flex;gap:3px;justify-content:center;margin-top:3px}.fm i{width:16px;height:16px;border-radius:3px;font:700 10px/16px var(--head);font-style:normal;color:#fff}.fm .W{background:#2e8b57}.fm .D{background:#8a7f72}.fm .L{background:#c0392b}
+.mtab{border:2px solid var(--ink);border-radius:10px;background:var(--paper);overflow:hidden;font:500 12px var(--head)}
+.mtab div{display:grid;grid-template-columns:22px 1fr auto;gap:6px;padding:3px 8px;border-top:1px solid var(--rule)}.mtab div:first-child{border-top:0}
+.mtab .us{background:var(--club);color:#fff;font-weight:700}.mtab .tgt{border-top:2px dashed var(--gold)}.mtab span:last-child{font-variant-numeric:tabular-nums}
+.mpitch{margin:0 14px;position:relative;border:2px solid var(--ink);border-radius:14px;overflow:hidden;color:#fff;text-align:left;cursor:pointer;padding:0;display:block;width:calc(100% - 28px);
+  background:repeating-linear-gradient(90deg,#2f7a3e 0 34px,#2a6f38 34px 68px)}
+.mpitch svg.stad{display:block;width:100%;height:64px}
+.mpitch .lines{position:absolute;inset:64px 0 0;pointer-events:none}
+.mpitch .face2{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:6px 12px 4px}
+.mpitch .side2{display:flex;flex-direction:column;align-items:center;gap:2px;font:700 14px var(--head);text-shadow:0 1px 2px rgba(0,0,0,.5)}.mpitch .side2 small{font:500 11px var(--body);opacity:.9}
+.mpitch .side2 svg{width:44px;height:50px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.mpitch .mid{text-align:center;font:700 13px var(--head);letter-spacing:.08em;text-shadow:0 1px 2px rgba(0,0,0,.5)}.mpitch .mid b{display:block;font:700 24px var(--head)}
+.mpitch .stk{position:relative;margin:0 10px 10px;padding:8px 10px;background:rgba(10,20,12,.62);border-radius:8px;font:400 13px/1.3 var(--body)}.mpitch .stk b{font:700 14px var(--head);display:block}
+.mpitch .flags{position:absolute;top:0;left:0;right:0;height:16px}
+.exg{padding:0 14px}.exg h3{margin:0 0 6px;display:flex;justify-content:space-between;align-items:center;font:600 12px var(--head);letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}.exg h3 i{font-style:normal;color:var(--club)}.exg h3 button{min-height:32px;border:0;background:none;color:var(--ink);font:600 13px var(--head);letter-spacing:0;text-transform:none;text-decoration:underline;cursor:pointer}
+.new{font:700 9px var(--head);letter-spacing:.1em;color:#1f1715;background:var(--gold);border:1.5px solid var(--ink);border-radius:4px;padding:0 4px;transform:rotate(-4deg);display:inline-block;margin-left:6px}
+.runrow{display:flex;gap:10px;align-items:center;width:100%;padding:10px 12px;min-height:56px;border:0;border-top:1.5px solid var(--rule);background:none;color:var(--ink);text-align:left;cursor:pointer}
+.runrow .ic{width:44px;height:44px;flex:none;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;font:700 16px var(--head)}
+.runrow b{display:block;font:700 14px var(--head)}.runrow span span{font:400 13px var(--body);color:var(--soft)}
 @media (prefers-reduced-motion:reduce){.sheet{transition:none}}
 </style>
 
 <div class="wrap">
   <div class="ctl"><small>Screen</small><div class="seg" id="sSeg"><button id="sH" data-s="home">Home</button><button id="sD" data-s="depts">Depts</button></div></div>
-  <div class="ctl" id="conceptCtl"><small>Concept (home)</small><div class="seg" id="cSeg"><button id="cD" data-c="D">D · Inbox</button><button id="cA" data-c="A">A · Office</button><button id="cB" data-c="B">B · Saturday</button><button id="cC" data-c="C">C · Paper</button></div></div>
+  <div class="ctl" id="conceptCtl"><small>Concept (home)</small><div class="seg" id="cSeg"><button id="cE" data-c="E">E · Matchday</button><button id="cD" data-c="D">D · Inbox</button><button id="cA" data-c="A">A · Office</button><button id="cB" data-c="B">B · Saturday</button><button id="cC" data-c="C">C · Paper</button></div></div>
   <div class="ctl"><small>Week</small><div class="seg" id="wSeg"><button id="wQ" data-w="quiet">Quiet</button><button id="wC" data-w="crisis">Crisis</button><button id="wD" data-w="derby">Derby</button></div></div>
   <p class="idea" id="idea"></p>
   <div class="phone" id="phone">
@@ -171,21 +201,24 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 </div>
 
 <script>
-const IDEA = { D: 'A simple inbox, done well: what needs you first, then the rest. Faces, a clear sender and subject, one tap to open and answer.',  A: 'You are in your office. The club is outside the window; people who need you stand at the door.', B: 'Every week builds to Saturday. The match is the hero; people at your door come second.', C: 'Your club is in the paper every week, and you make the news. The front page is your desk.' };
+const IDEA = { E: 'The same inbox, dressed as football: your colours, the last score on the board, the table around you, and Saturday on a pitch under the floodlights.', D: 'A simple inbox, done well: what needs you first, then the rest. Faces, a clear sender and subject, one tap to open and answer.',  A: 'You are in your office. The club is outside the window; people who need you stand at the door.', B: 'Every week builds to Saturday. The match is the hero; people at your door come second.', C: 'Your club is in the paper every week, and you make the news. The front page is your desk.' };
 const FACES = { mkt: ['#e6b896', '#5a3a1a', 1], coach: ['#d9a882', '#2b2b2b', 1], dof: ['#8d5a3b', '#1d1d1d', 0], fin: ['#f0c7a8', '#9a9a9a', 2], chair: ['#e6b896', '#d9d9d9', 2], acad: ['#c98c64', '#5a3a1a', 0] };
 const W = {
   quiet: { wk: 'Wk 8', pos: '9th', tgt: 'target 10th', title: 'A quiet week', sub: 'Nothing burning. Your staff are at work.', door: [],
     match: { opp: 'Fromemoor', full: 'Fromemoor Sporting', home: false, oppPos: '11th', stake: 'Win and you go into the top eight', watch: 'Tyler Lindqvist, 9 goals', derby: false },
+    last: ['MIL', 1, 2, false], form: 'WDWDW', table: [[7, 'Kelmoor', 14], [8, 'Dunhaven', 13], [9, 'Harwick', 12, 1], [10, 'Fromemoor', 12, 0, 1], [11, 'Millgate', 10]], days: 3, run: ['3 things running', 'next: his promise, judged in week 19'],
     paper: { head: 'Harwick edge past Millgate', kicker: 'A QUIET WEEK IN TOWN', lead: '"We are where we said we would be," says the chairman.', leadWho: 'chair' }, sky: 'day' },
   crisis: { wk: 'Wk 12', pos: '17th', tgt: 'target 10th', title: 'A difficult run', sub: 'Four defeats in five. The board wants a plan.', door: [
       { r: 'chair', n: 'The chairman', role: 'Board', t: '"Four defeats in five. I need to know what you are going to do, this week."', a: 'Hear him out', b: 'Later' },
       { r: 'coach', n: 'Pranav Everett', role: 'Head coach', t: '"The chances we give away are on me. Give me time to organise us properly."', a: 'Hear him out', b: 'Later' },
       { r: 'dof', n: 'Ross Jarvis', role: 'Director of Football', t: '"Our centre-back is the weak link. I have two options ready for the window."', a: 'Hear him out', b: 'Later' }],
     match: { opp: 'Kelbridge', full: 'Kelbridge Albion', home: true, oppPos: '3rd', stake: 'Lose and the board meets on Monday', watch: 'Callum Doherty, quick on the left', derby: false },
+    last: ['DUN', 0, 2, true], form: 'LLWLL', table: [[15, 'Kelmoor', 11], [16, 'Stanby', 10], [17, 'Harwick', 9, 1], [18, 'Ashcombe', 8, 0], [19, 'Brenford', 6]], tgt10: 1, days: 2, run: ['4 things running', 'next: the board meets on Monday'],
     paper: { head: 'Crisis at the County Ground', kicker: 'FOUR DEFEATS IN FIVE', lead: '"Something has to change," one board member told the Gazette.', leadWho: 'chair' }, sky: 'storm' },
   derby: { wk: 'Wk 20', pos: '3rd', tgt: 'target 4th', title: 'Derby week', sub: 'Presworth come to town on Saturday.', door: [
       { r: 'chair', n: 'The chairman', role: 'Board', t: '"Presworth\'s owner wants a seat in our boardroom on Saturday. Do we host him?"', a: 'Host him', b: 'Not this time' }],
     match: { opp: 'Presworth', full: 'Presworth Rovers', home: true, oppPos: '5th', stake: 'Bragging rights for a year', watch: 'Mateo Hendry, their captain', derby: true },
+    last: ['ASH', 3, 0, true], form: 'WWDWW', table: [[1, 'Kelbridge', 44], [2, 'Dunhaven', 41], [3, 'Harwick', 40, 1], [4, 'Millgate', 37, 0, 1], [5, 'Presworth', 36]], days: 3, run: ['2 things running', 'next: the training base vote in week 22'],
     paper: { head: 'Derby fever', kicker: 'SOLD OUT ON SATURDAY', lead: '"The town talks about nothing else," says your commercial director.', leadWho: 'fin' }, sky: 'flags' } };
 
 const MAIL = {
@@ -297,6 +330,24 @@ const ROOMS = {
     { id: 'proj', t: 'Projects', v: '1', vs: 'running', line: 'Data department, due in 1 week.', body: () => `<div class="tl2"><div><b>Data department · due week 9</b><span>£6k spent. Owner: the DoF.</span></div><div><b>Scouting office, Low Countries · delivered</b><span>Network there grows faster.</span></div></div>` }] };
 let ROOM = null;
 function roomView(D) { const R = ROOMS[D.k].find(x => x.id === ROOM); return `<div class="rp"><button class="back" data-rback>‹ ${D.dept}</button><h2>${R.t}</h2>${R.body()}</div>`; }
+
+const shield = (c1, c2, t, w = 44) => `<svg viewBox="0 0 30 34" width="${w}" aria-hidden="true"><path d="M2 2h26v14c0 9-6 14-13 16C8 30 2 25 2 16z" fill="${c1}" stroke="#1f1715" stroke-width="2"/><path d="M15 2v30" stroke="${c2}" stroke-width="5" opacity=".9"/><text x="15" y="22" text-anchor="middle" font-family="Oswald,sans-serif" font-size="8" font-weight="700" fill="#fff" stroke="#1f1715" stroke-width=".6" paint-order="stroke">${t}</text></svg>`;
+const stadium = (derby) => `<svg class="stad" viewBox="0 0 360 64" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3d5a"/><stop offset="1" stop-color="#5b6f8f"/></linearGradient></defs><rect width="360" height="64" fill="url(#sky)"/>
+  ${[30, 330].map(x => `<line x1="${x}" y1="8" x2="${x}" y2="44" stroke="#c9ced6" stroke-width="2"/><rect x="${x - 9}" y="4" width="18" height="7" rx="1" fill="#fdf6c8"/><path d="M${x - 9} 11 L${x - 40} 64 L${x + 40} 64 L${x + 9} 11z" fill="#fff8c8" opacity=".14"/>`).join('')}
+  <path d="M0 64V40l40-8h280l40 8v24z" fill="#3a2f2b"/><path d="M50 34h260v8H50z" fill="#4b3d37"/>${Array.from({ length: 40 }, (_, i) => `<circle cx="${56 + i * 6.4}" cy="${46 + (i % 3)}" r="2" fill="${['#e9d8c4', '#7a1e2b', '#f4e9d8', '#c9a27a'][i % 4]}"/>`).join('')}
+  ${derby ? Array.from({ length: 14 }, (_, i) => `<path d="M${i * 26 + 6} 0 l12 0 l-6 10z" fill="${i % 2 ? '#7a1e2b' : '#e9c46a'}"/>`).join('') : ''}</svg>`;
+const SEEN = {};
+function exView(d) { const M = MAIL[WK], need = M.need.filter(m => !STATE.answered[m.id]), m = d.match, [lo, lu, lt, lh] = d.last;
+  if (OPEN) return inboxView(d);
+  const row = (x, isNew) => mailRow(x).replace('</b>', '</b>').replace(/(<span class="from">)([^<]+)/, `$1$2${isNew && !STATE.read[x.id] ? '<span class="new">NEW</span>' : ''}`);
+  return `<div class="ex"><div class="kitband"></div>
+    <div class="exh">${shield('var(--club)', 'var(--club2)', 'HAR', 52).replace('<svg', '<svg class="bigcrest"')}<div class="tt"><small>Season 1 · ${d.wk.replace('Wk', 'week')}</small><b>${d.title}</b></div></div>
+    <div class="board"><div class="score"><small>LAST RESULT</small><b>${lh ? 'HAR' : lo} <i>${lh ? lu : lt}–${lh ? lt : lu}</i> ${lh ? lo : 'HAR'}</b><div class="fm">${d.form.split('').map(r => `<i class="${r}">${r}</i>`).join('')}</div></div>
+      <div class="mtab" role="table" aria-label="League table around us">${d.table.map(([p, n, pts, us, tg]) => `<div class="${us ? 'us' : ''}${tg ? ' tgt' : ''}"><span>${p}</span><span>${n}</span><span>${pts}</span></div>`).join('')}</div></div>
+    <button class="mpitch" data-go="match">${stadium(m.derby)}<span class="face2"><span class="side2">${m.home ? shield('#7a1e2b', '#f4e9d8', 'HAR') : shield('#1d4ed8', '#fff', m.opp.slice(0, 3).toUpperCase())}<span>${m.home ? 'Harwick' : m.opp}</span><small>${m.home ? d.pos : m.oppPos}</small></span><span class="mid">${m.derby ? 'DERBY' : 'SATURDAY'}<b>${m.home ? 'HOME' : 'AWAY'}</b>in ${d.days} days</span><span class="side2">${m.home ? shield('#1d4ed8', '#fff', m.opp.slice(0, 3).toUpperCase()) : shield('#7a1e2b', '#f4e9d8', 'HAR')}<span>${m.home ? m.opp : 'Harwick'}</span><small>${m.home ? m.oppPos : d.pos}</small></span></span>
+      <span class="stk"><b>${m.stake}</b>Watch ${m.watch}.</span></button>
+    <div class="exg grp need"><h3>Needs you <i>${need.length || ''}</i></h3>${need.length ? `<div class="list">${need.map(x => row(x, 1)).join('')}</div>` : '<div class="list"><p class="calm">Nothing needs you this week. Your staff are at work.</p></div>'}</div>
+    <div class="exg grp"><h3>At the club <button data-go="all">All ›</button></h3><div class="list">${M.fyi.concat(M.need.filter(x => STATE.answered[x.id])).map(x => row(x, 0)).join('')}<button class="runrow" data-go="club"><span class="ic">${d.run[0][0]}</span><span><b>${d.run[0]}</b><span>${d.run[1]}</span></span></button></div></div></div>`; }
 let SCREEN = 'home', DEP = null;
 function deptsView() {
   if (DEP) { const D = DEPTS.find(x => x.k === DEP), done = STATE.answered['w-' + D.k];
@@ -313,8 +364,8 @@ function deptsView() {
 function wordView(D) { const w = D.wordMsg, done = STATE.answered['w-' + D.k];
   return `<div class="open"><button class="back" data-wback>‹ ${D.dept}</button><div class="hd">${face(D.r, 56)}<div><b>${D.n}</b><small>${D.dept}</small></div></div><h2>${w.subj}</h2><p>${w.body}</p>${done ? `<div class="reply">You: <b>${done}</b>. It is done.</div>` : `<div class="ans">${w.ans.map(([a, h]) => `<button data-wa="${a}">${a}<small>${h}</small></button>`).join('')}<p class="left">Leave it two weeks and he decides himself.</p></div>`}</div>`; }
 let WORD = null;
-let C = 'D', WK = 'quiet';
-try { C = localStorage.getItem('fo-c2') || 'D'; WK = localStorage.getItem('fo-w') || 'quiet'; } catch (e) {}
+let C = 'E', WK = 'quiet';
+try { C = localStorage.getItem('fo-c3') || 'E'; WK = localStorage.getItem('fo-w') || 'quiet'; } catch (e) {}
 const $ = id => document.getElementById(id);
 function face(r, s = 56) { const [skin, hair, style] = FACES[r] || FACES.coach;
   const hairPath = style === 1 ? '<path d="M14 26c0-12 9-18 18-18s18 6 18 18c-3-6-9-9-18-9s-15 3-18 9z" fill="' + hair + '"/>' : style === 2 ? '<path d="M15 24c2-9 9-13 17-13s15 4 17 13c-4-3-6-6-6-6-4 4-18 4-22 0 0 0-2 3-6 6z" fill="' + hair + '"/>' : '<path d="M14 28c0-14 8-20 18-20s18 6 18 20c-2-4-6-8-9-8h-18c-3 0-7 4-9 8z" fill="' + hair + '"/>';
@@ -349,6 +400,7 @@ function render() {
   let h = '';
   if (SCREEN === 'depts') { $('idea').textContent = 'Each department: how it is going, who wants a word, then its rooms. Every room is one line with its key number; tap for the full detail.'; h = WORD ? wordView(DEPTS.find(x => x.k === WORD)) : ROOM && DEP ? roomView(DEPTS.find(x => x.k === DEP)) : deptsView(); $('screen').innerHTML = h; return; }
   if (C === 'D') h = inboxView(d);
+  if (C === 'E') h = exView(d);
   if (C === 'A') {
     h = `<div class="office">${room(d)}
       <div class="caption"><div class="tag"><b>${d.title}</b><span>${d.sub}</span></div><div class="pos">${d.pos}<small>${d.tgt}</small></div></div>
@@ -375,7 +427,7 @@ function render() {
       </div></div>`;
   }
   $('screen').innerHTML = h;
-  try { localStorage.setItem('fo-c2', C); localStorage.setItem('fo-w', WK); } catch (e) {}
+  try { localStorage.setItem('fo-c3', C); localStorage.setItem('fo-w', WK); } catch (e) {}
 }
 function sheet(html) { const s = $('sheet'); s.innerHTML = html; s.hidden = false; }
 document.addEventListener('click', e => {

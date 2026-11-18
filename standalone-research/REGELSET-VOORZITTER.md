@@ -71,9 +71,11 @@ Er is geen vaste kalender van events. Een moment ontstaat als een van deze dinge
 Per seizoen zijn er hooguit 4 momenten plus de ALV. Als er meer triggers zijn, wint de trigger met de meeste urgentie.
 
 ## 7. Mensen benaderen
-- Bij elk moment kun je zelf personages aanspreken. Het aantal is nog open (de ontwerpvraag hieronder).
+- **Bij elk moment benader je zelf precies één personage** (keuze van de eigenaar). Dat zijn ±4 eigen gesprekken per seizoen, dus elk gesprek is een grote keuze.
+- **Wie het moment veroorzaakte, komt zelf naar je toe.** Bijvoorbeeld de coach die een drempel passeert, of de wethouder met een voorstel. Dat telt niet als jouw gesprek.
+- **Wie je laat liggen terwijl hij op je wacht,** verliest 1 loyaliteit per moment (trots ×1,5).
 - **Wat je kunt aanbieden,** volgt uit zijn wil: een rol, bescherming, een belofte, macht of steun bij de leden.
 - **Een gesprek eindigt altijd in een concrete verandering:** een afspraak met een toetsmoment, een nieuwe belofte, of een verschuiving van loyaliteit met een oorzaak. Of hij weigert, en dat heeft ook een gevolg.
 
-## 8. Ontwerpvraag
-**Hoeveel personages kun je per moment benaderen?** Dit bepaalt of je tijd als voorzitter schaars is.
+## 8. Open punt voor de tweede proef
+Is één eigen gesprek per moment genoeg invloed? Het risico is dat de speler weer toeschouwer wordt. Dat meten we in de tweede papieren proef.

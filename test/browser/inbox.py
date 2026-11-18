@@ -33,11 +33,11 @@ async def main():
                 if await pg.locator('[data-a=tick-skip]').count(): await pg.click('[data-a=tick-skip]')
         for w in range(5): await playweek()
         await pg.screenshot(path='/tmp/i1.png')
-        m = await pg.evaluate("()=>{const i=document.querySelector('.redbox').getBoundingClientRect(), bar=document.querySelector('.bar2').getBoundingClientRect(); return {inboxTop:i.top, barTop:bar.top, pct: Math.round((bar.top-i.top)/844*100), barH: Math.round(bar.height)}}")
+        m = await pg.evaluate("()=>{const i=document.querySelector('.ix-need').getBoundingClientRect(), bar=document.querySelector('.bar2').getBoundingClientRect(); return {inboxTop:i.top, barTop:bar.top, pct: Math.round((bar.top-i.top)/844*100), barH: Math.round(bar.height)}}")
         print('layout', m)
         # tap count: handle everything ourselves
         taps=0
-        await pg.click('.rbr, .dkr, .paperpin'); taps+=1
+        await pg.click('.ix-m'); taps+=1
         await pg.screenshot(path='/tmp/i2.png', full_page=True)
         for k in range(8):
             if await pg.locator('.om .cbtn:not([disabled])').count()==0: break

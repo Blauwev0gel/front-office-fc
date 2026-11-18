@@ -37,6 +37,6 @@ async def main():
         if 'cup' in txt.lower(): await pg.click('[data-a=md-skip]'); await pg.wait_for_timeout(500)
         else: break
       await pg.screenshot(path=f'/tmp/u{w}d.png'); print('paper', await pg.locator('.mdnp').count(), 'ovf', await pg.evaluate(OVF))
-      await pg.click('[data-a=md-done]'); await pg.wait_for_timeout(500); print('back', await pg.evaluate("FO.G.week"), await pg.locator('.redbox').count())
+      await pg.click('[data-a=md-done]'); await pg.wait_for_timeout(500); print('back', await pg.evaluate("FO.G.week"), await pg.locator('.ix-need').count())
     print(errs); await b.close()
 asyncio.run(main())

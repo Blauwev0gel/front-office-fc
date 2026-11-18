@@ -118,7 +118,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/08a-dept-parts.js` | 22 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
 | `ui/08b-portal.js` | 30 KB | navigation; leagues: a table whose columns follow the position filter; the player; drill-downs |  |  |  |
 | `ui/09-firstteam-review.js` | 12 KB | first team department |  |  |  |
-| `ui/10-inbox.js` | 24 KB | render; inbox home (1.6); the CEO's weekly desk (UX-1): this week, your team at work, the red box, the next ma |  |  |  |
+| `ui/10-inbox.js` | 26 KB | render; inbox home (1.6); the CEO's weekly desk (UX-1): this week, your team at work, the red box, the next ma |  |  |  |
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
 | `ui/12-scenes-cards.js` | 15 KB | game UI helpers |  |  |  |
 | `ui/13-redbox-render.js` | 13 KB | the red box: an email you answer on one screen |  |  |  |
@@ -339,7 +339,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: vFirst, ftTalkHtml, vReview2, vSacked
 
 ### `ui/10-inbox.js`
-- Functions: isRead, markRead, first, inboxItems, nextFix, bkT, bkSt, bkArrow, bkDir, backersHtml, comingHtml, dossierCard, archiveHtml, pwMeetHtml, pwEvalHtml, agreementHtml, pathwayCard, credHtml, caseHtml, fdHtml, isDis, rowThumb, rowHtml, isBox, boxRow, deskRow, sent, ifLeft, weekLine, topic2, nextCard, vInbox
+- Functions: isRead, markRead, first, inboxItems, nextFix, bkT, bkSt, bkArrow, bkDir, backersHtml, comingHtml, dossierCard, archiveHtml, pwMeetHtml, pwEvalHtml, agreementHtml, pathwayCard, credHtml, caseHtml, fdHtml, isDis, rowThumb, rowHtml, isBox, boxRow, deskRow, sent, ifLeft, weekLine, topic2, nextCard, vInbox, sname, wantsWord, ixRow, ixFace, deskHome
 
 ### `ui/11-players.js`
 - Functions: strengths, roleOf, starsTxt, pcard, hashN, storyOf, attrGroups, formBars, profileHtml, scoutLine

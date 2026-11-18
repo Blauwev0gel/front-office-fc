@@ -19,7 +19,7 @@ function inboxItems() {
   const hasDeb = (g.briefs || []).some(b => b.t === 'coach_debrief');
   if (g.lastMatch && !hasDeb && g.week > 1) { const lm = g.lastMatch; out.push({ key: `mt${se}_${wk}`, kind: 'info', fold: 'match', label: 'Result', role: 'coach', from: lm.comp === 'Cup' ? 'National Cup' : 'Last match', subj: `${lm.home ? g.club.short : (lm.oppName || '').slice(0, 14)} ${lm.home ? lm.ug : lm.tg}–${lm.home ? lm.tg : lm.ug} ${lm.home ? (lm.oppName || '').slice(0, 14) : g.club.short}`, prev: `xG ${lm.uxg.toFixed(1)} vs ${lm.txg.toFixed(1)}${lm.motm ? ', best: ' + lm.motm : ''}`, t: 'match' }); }
   if (g.paper && g.paper.headline) out.push({ key: `n${se}_${wk}`, kind: 'info', fold: 'press', label: 'Paper', role: 'press', from: 'The Gazette', subj: g.paper.headline, prev: first(g.paper.sub), t: 'paper' });
-  if ((g.reports || []).length) { const au = g.paper.stories.filter(s => s.auto).length; out.push({ key: `d${se}_${wk}`, kind: 'info', fold: 'reports', label: 'Report', role: 'club', from: 'Weekly report', subj: A.g && A.behind ? `The week: ${F.ord(A.pos)}, target ${F.ord(A.target)}` : 'The week in six departments', prev: `${g.reports.length} departments report in${au ? ', and ' + au + ' things your staff handled' : ''}.`, t: 'digest' }); }
+  if ((g.reports || []).length) { const au = g.paper.stories.filter(s => s.auto).length; out.push({ key: `d${se}_${wk}`, kind: 'info', fold: 'reports', label: 'Report', role: 'club', from: 'Weekly report', subj: A.g && A.behind ? `The week: ${F.ord(A.pos)}, target ${F.ord(A.target)}` : 'The week in six departments', prev: `${g.reports.length} departments report in${au ? ', and ' + au + (au === 1 ? ' thing' : ' things') + ' your staff handled' : ''}.`, t: 'digest' }); }
   for (const m of g.inbox.filter(m => m.done && m.season === se && m.week === wk)) { const v = F.msgView(m); out.push({ key: 'm' + m.id, kind: 'done', fold: 'done', label: m.del ? (m.err ? 'Wrong call' : 'Staff call') : 'Handled', role: v.role, from: v.from.split(',')[0], subj: v.title, prev: `${v.by === 'you' ? 'You' : v.by}: ${v.opts[v.choice].l}.`, ref: m, t: 'msg' }); }
   const order = { need: 0, upd: 1, info: 2, done: 3 }; return out.sort((a, b) => order[a.kind] - order[b.kind]);
 }
@@ -88,7 +88,7 @@ function fdHtml(fd) {
   return `<div class="fdrow" aria-label="How your backers reacted">${Object.entries(fd).map(([k, d]) => `<span class="${d > 0 ? 'up' : 'dn'}" aria-label="${T[k]} ${d > 0 ? 'up' : 'down'}">${T[k]} ${d > 0 ? '↑' : '↓'}${Math.abs(d) >= 6 ? (d > 0 ? '↑' : '↓') : ''}</span>`).join('')}</div>`;
 }
 const FOLDERS = [['all', 'Inbox', 'inbox'], ['need', 'Needs you', 'bulb'], ['match', 'Matches', 'play'], ['staff', 'Staff', 'staff'], ['reports', 'Reports', 'info'], ['press', 'Press', 'press'], ['players', 'Players', 'squad'], ['dos', 'Dossiers', 'info'], ['done', 'Decided', 'trust']];
-const FOLD_T = Object.assign(Object.fromEntries(FOLDERS.map(f => [f[0], f[1]])), { every: 'All messages', done: 'Decided this week' });
+const FOLD_T = Object.assign(Object.fromEntries(FOLDERS.map(f => [f[0], f[1]])), { every: 'All messages', done: 'Decided this week', running: 'Still running' });
 function isDis(k) { const g = G(); return !!(g.dis && g.dis[k]); }
 function rowThumb(i) {
   if (i.t === 'paper') return `<span class="av paper">${ART.I.press}</span>`;
@@ -143,32 +143,51 @@ function vInbox() {
   if (U.open) return vOpen();
   const g = G(), items = inboxItems(), f = FOLD_T[U.filt] ? U.filt : 'all';
   if (f !== 'all') {
+    if (f === 'running') return `<button class="linkbtn dk-back" data-a="filt" data-v="all">${ART.I.chev} Inbox</button>${comingHtml() || '<p class="ix-calm">Nothing running.</p>'}`;
     const shown = f === 'need' ? items.filter(isBox) : f === 'every' ? items : items.filter(i => i.fold === f);
-    return `<button class="linkbtn dk-back" data-a="filt" data-v="all">${ART.I.chev} The desk</button><div class="dk-fh"><h2>${esc(FOLD_T[f])}</h2></div><ul class="inbox">${shown.map(rowHtml).join('') || `<li class="empty">${f === 'dos' ? '<b>No open dossiers.</b> Storylines in three parts land here when they start.' : 'Nothing here this week.'}</li>`}</ul>`;
+    return `<button class="linkbtn dk-back" data-a="filt" data-v="all">${ART.I.chev} Inbox</button><div class="dk-fh"><h2>${esc(FOLD_T[f])}</h2></div><ul class="inbox">${shown.map(rowHtml).join('') || `<li class="empty">${f === 'dos' ? '<b>No open dossiers.</b> Storylines in three parts land here when they start.' : 'Nothing here this week.'}</li>`}</ul>`;
   }
-  const T = topic2(), wl = weekLine(), A = F.analysis(), st = A.pos <= A.target ? 'good' : A.pos <= A.target + 2 ? 'warn' : 'bad';
+  return deskHome(items);
+}
+
+/* ---------- the home inbox (B61): the week, Saturday, what needs you, what happened at the club ---------- */
+const sname = r => F.staff(r) ? F.staff(r).name : '', slast = r => sname(r).split(' ').slice(-1)[0];
+// heads who come to the CEO with a real problem (replaces 'Raise it yourself', B60.8): same actions, now as a message from that person
+function wantsWord() {
+  const g = G(), W = [], L3 = g.form.slice(-3);
+  const BV = F.baseView ? F.baseView() : null, BA = BV && BV.A && !BV.A.res ? BV.A : null;
+  if (BV && !BA && BV.site && !BV.site.taken && F.staff('fin')) W.push({ r: 'fin', a: 'base-open', subj: `The council is selling ${BV.site.name}`, prev: '"A training base of our own. Shall I look into it?"' });
+  if (BA && ['route', 'talks'].includes(BA.stage)) W.push({ r: 'fin', a: 'base-open', subj: BA.stage === 'route' ? 'The training base: I have the options' : 'Back to the council', prev: BA.stage === 'route' ? '"Buy, lease or bring in a partner. Your choice."' : '"The council is waiting for our answer."' });
+  const sig = F.iniSignal ? F.iniSignal() : null;
+  if (sig) W.push({ r: 'dof', a: 'ini-open', subj: `We should talk: ${sig.t}`, prev: '"The coach and I see it differently. Can we sit down with you?"' });
+  if (!sig && F.agrTopics && F.staff('dof') && F.agrTopics('dof').some(t => t.id === 't_squad')) W.push({ r: 'dof', a: 'cv-open', subj: 'Where the squad is short', prev: '"I have a view on where we need help. Five minutes?"' });
+  if (!sig && F.staff('coach') && L3.length === 3 && L3.filter(r => r === 'L').length >= 2) W.push({ r: 'coach', a: 'ft-talk', subj: 'About the results', prev: `"${L3.filter(r => r === 'L').length} defeats in three. I want to explain."` });
+  return W.filter(w => F.staff(w.r));
+}
+function ixRow(o) { // one inbox line: face, sender and role, subject, one line preview
+  return `<button class="ix-m${o.read ? ' read' : ''}${o.done ? ' done' : ''}${o.bad ? ' bad' : ''}" data-a="${o.a}"${o.k ? ` data-k="${o.k}"` : ''}${o.r ? ` data-r="${o.r}"` : ''}${o.v ? ` data-v="${o.v}"` : ''}${o.tab ? ` data-t="${o.tab}"` : ''}><i class="ix-dot${o.read || o.done ? ' off' : ''}" aria-hidden="true"></i>${o.face}<span class="ix-tx"><span class="ix-from"><b>${esc(o.from)}</b><small>${esc(o.role || '')}</small></span><span class="ix-subj">${esc(o.subj)}</span>${o.prev ? `<span class="ix-prev">${esc(o.prev)}</span>` : ''}</span></button>`;
+}
+const ixFace = (r, pl) => `<span class="ix-f">${pl ? ART.playerFace(pl, 'happy') : ART.staffFace(r || 'club')}</span>`;
+function deskHome(items) {
+  const g = G(), T = topic2(), wl = weekLine(), A = F.analysis(), st = A.pos <= A.target ? 'good' : A.pos <= A.target + 2 ? 'warn' : 'bad';
   const box = items.filter(isBox).map((x, i) => [x, i]).sort((a, b) => (b[0].pri || 0) - (a[0].pri || 0) || a[1] - b[1]).map(x => x[0]);
   const now = box.filter(i => i.kind === 'need'), later = box.filter(i => i.kind !== 'need');
-  const team = F.teamWork ? F.teamWork() : [], pap = items.find(x => x.t === 'paper'), done = items.filter(i => i.kind === 'done');
-  const row = (i, lead) => `<button class="dk-rb${lead ? ' lead' : ''}" data-a="open" data-k="${i.key}"><span class="rbf">${i.pl ? ART.playerFace(i.pl) : ART.staffFace(i.role || 'club')}</span><span class="dk-rm"><small>${esc(i.from)}${ROLE_N[i.role] && ROLE_N[i.role] !== i.from ? ' · ' + esc(ROLE_N[i.role]) : ''}</small><b>${esc(i.subj)}</b><em>${esc(ifLeft(i))}</em></span>${ART.I.chev}</button>`;
-  return `${tourCard('inbox')}
-  <section class="dk-week ${T ? T.k : ''}"><small>Week ${g.week}${A.g ? ` · <b class="${st}">${F.ord(A.pos)}</b>, target ${F.ord(A.target)} · ${money(g.club.cash)}` : ` · ${money(g.club.cash)} in the bank`}</small>
-    <h2>${esc(T ? T.t : 'This week')}</h2>${T && T.s ? `<p>${esc(T.s)}</p>` : ''}${wl ? `<p class="dk-wl">${esc(wl)}</p>` : ''}</section>
-  ${backersHtml()}
-  <section class="dk-team"><div class="dk-h"><h3>Your team at work</h3>${done.length ? `<button class="linkbtn" data-a="filt" data-v="done">All ${done.length} calls ${ART.I.chev}</button>` : ''}</div>
-    ${team.map(l => `<button class="dk-tl${l.bad ? ' bad' : ''}${l.quiet ? ' quiet' : ''}" data-a="${/^[mb]\d/.test(l.k) ? 'open' : 'tab'}" data-k="${l.k}" data-t="${l.r === 'player' ? 'squad' : 'staff'}"><span class="rbf">${l.pl ? ART.playerFace(l.pl, 'happy') : ART.staffFace(l.r)}</span><span class="dk-tx"><small>${esc(l.role)} · ${esc(l.n)}</small><b>${esc(l.t)}</b></span>${l.lab ? `<em class="dk-lab${l.bad ? ' bad' : ''}">${esc(l.lab)}</em>` : ''}</button>`).join('')}${(() => { const b = [], sn = r => F.staff(r) ? F.staff(r).name.split(' ').slice(-1)[0] : '', L3 = g.form.slice(-3);
-      const BV = F.baseView ? F.baseView() : null, BA = BV && BV.A && !BV.A.res ? BV.A : null;
-      if (BV && !BA && BV.site && !BV.site.taken && F.staff('fin')) b.push(`<button class="dk-ask" data-a="base-open">${ART.staffFace('fin')}<span>The council is selling ${esc(BV.site.name)}: look into it with ${esc(sn('fin'))}</span>${ART.I.chev}</button>`);
-      if (BA && ['route', 'talks'].includes(BA.stage)) b.push(`<button class="dk-ask" data-a="base-open">${ART.staffFace('fin')}<span>${BA.stage === 'route' ? `The training base: ${esc(sn('fin'))} has the options` : 'Back to the council talks'}</span>${ART.I.chev}</button>`);
-      const sig = F.iniSignal ? F.iniSignal() : null; if (sig) b.push(`<button class="dk-ask" data-a="ini-open">${ART.staffFace('dof')}<span>${esc(sig.t[0].toUpperCase() + sig.t.slice(1))}: call in the coach and the DoF</span>${ART.I.chev}</button>`);
-      if (!sig && F.agrTopics && F.agrTopics('dof').some(t => t.id === 't_squad')) b.push(`<button class="dk-ask" data-a="cv-open" data-r="dof">${ART.staffFace('dof')}<span>Ask ${esc(sn('dof'))} where we are short</span>${ART.I.chev}</button>`);
-      if (!sig && F.staff('coach') && L3.length === 3 && L3.filter(r => r === 'L').length >= 2) b.push(`<button class="dk-ask" data-a="ft-talk">${ART.staffFace('coach')}<span>Talk to ${esc(sn('coach'))} about the results</span>${ART.I.chev}</button>`);
-      return b.length ? `<div class="dk-asks"><small>Raise it yourself</small>${b.join('')}</div>` : ''; })()}</section>
-  <section class="redbox" aria-label="The red box"><div class="rbh"><h2>The red box</h2><span>${now.length ? `${now.length} to decide this week` : 'Nothing to sign'}</span></div>
-    <div class="rbl">${now.length ? now.map((x, i) => row(x, i === 0 && now.length > 1 && (x.pri || 0) >= 2)).join('') : '<p class="rbe"><b>Nothing needs your signature.</b> The club runs on what you set up.</p>'}
-    ${later.length ? `<div class="dk-later"><small>Your say, if you want it</small>${later.map(x => row(x)).join('')}</div>` : ''}</div></section>
-  ${nextCard()}
-  ${pap && !isDis(pap.key) ? `<button class="paperpin" data-a="open" data-k="${pap.key}"><span class="ppm">THE ${esc(g.club.city.toUpperCase())} GAZETTE</span><b>${esc((F.edView(0) || {}).head || g.paper.headline)}</b><small>${isRead(pap.key) ? 'Read' : 'Today\'s edition'} ${ART.I.chev}</small></button>` : ''}
-  ${comingHtml()}
-  <div class="dk-more"><button class="linkbtn" data-a="filt" data-v="reports">Weekly report</button><button class="linkbtn" data-a="filt" data-v="match">Matches</button><button class="linkbtn" data-a="filt" data-v="dos">Dossiers</button><button class="linkbtn" data-a="filt" data-v="every">All messages</button></div>`;
+  const pap = items.find(x => x.t === 'paper'), dig = items.find(x => x.t === 'digest'), done = items.filter(i => i.kind === 'done');
+  const team = F.teamWork ? F.teamWork() : [], WW = wantsWord();
+  const roleOf = i => ROLE_N[i.role] && ROLE_N[i.role] !== i.from ? ROLE_N[i.role] : i.label;
+  const need = now.map(i => ixRow({ a: 'open', k: i.key, face: ixFace(i.role, i.pl), from: i.from, role: roleOf(i), subj: i.subj, prev: i.prev, read: isRead(i.key) }))
+    .concat(WW.map(w => ixRow({ a: w.a, r: w.r, face: ixFace(w.r), from: sname(w.r), role: 'Wants a word', subj: w.subj, prev: w.prev })));
+  const club = team.filter(l => !l.quiet).map(l => ixRow({ a: /^[mb]\d/.test(l.k) ? 'open' : 'tab', k: l.k, tab: l.r === 'player' ? 'squad' : 'staff', face: ixFace(l.r, l.pl), from: l.n, role: l.lab || l.role, subj: String(l.t).replace(new RegExp('^' + String(l.n).split(' ').slice(-1)[0] + ': '), ''), read: true, bad: l.bad }))
+    .concat(later.map(i => ixRow({ a: 'open', k: i.key, face: ixFace(i.role, i.pl), from: i.from, role: roleOf(i), subj: i.subj, prev: i.prev, read: isRead(i.key) })))
+    .concat(pap && !isDis(pap.key) ? [ixRow({ a: 'open', k: pap.key, face: `<span class="ix-f ix-pap">${esc(g.club.short)}</span>`, from: `The ${g.club.city} Gazette`, role: 'This week', subj: (F.edView && (F.edView(0) || {}).head) || g.paper.headline, prev: first(g.paper.sub), read: isRead(pap.key) })] : [])
+    .concat(dig ? [ixRow({ a: 'open', k: dig.key, face: `<span class="ix-f ix-pap">${ART.I.info}</span>`, from: 'Weekly report', role: 'Six departments', subj: dig.subj, prev: dig.prev, read: isRead(dig.key) })] : []);
+  const pv = F.mtPreview && g.phase === 'season' ? F.mtPreview() : null, TP = F.weekTopic ? F.weekTopic() : null;
+  const stake = pv ? (TP && TP.k === 'stake' ? TP.t : pv.rival ? '' : g.cup.alive && g.cup.weeks.includes(g.week) ? 'Cup week' : '') : '';
+  const sat = pv ? `<button class="ix-sat" data-a="play"><span class="ix-kit" aria-hidden="true"><i style="background:${g.club.colors[0]}"></i><i style="background:${['#1d4ed8', '#b91c1c', '#15803d', '#111', '#f59e0b', '#7c3aed', '#0e7490', '#be185d'][(pv.id * 7 + 3) % 8]}"></i></span><span class="ix-tx"><b>Saturday · ${pv.home ? 'vs' : 'at'} ${esc(pv.name)}</b><span>${esc([stake, `${F.ord(pv.pos)} in the table`, pv.odds].filter(Boolean).join(' · '))}</span></span>${pv.rival ? '<em>DERBY</em>' : ''}</button>` : '';
+  const run = (F.stillRunning ? F.stillRunning() : []).concat(F.trajRunning ? F.trajRunning() : []).concat(F.comingUp ? F.comingUp().filter(c => c.ic !== 'league') : []).length;
+  return `<section class="ix-h ${T ? T.k : ''}"><div><small>Week ${g.week} · ${money(g.club.cash)}</small><h2>${esc(T ? T.t : 'This week')}</h2>${T && T.s ? `<p>${esc(T.s)}</p>` : wl ? `<p>${esc(wl)}</p>` : ''}</div>${A.g ? `<div class="ix-pos ${st}">${F.ord(A.pos)}<small>target ${F.ord(A.target)}</small></div>` : ''}</section>
+  ${sat}
+  <section class="ix-g ix-need"><h3>Needs you${need.length ? ` <i>${need.length}</i>` : ''}</h3><div class="ix-l">${need.join('') || '<p class="ix-calm">Nothing needs you this week. Your staff are at work.</p>'}</div></section>
+  ${club.length ? `<section class="ix-g"><h3>At the club</h3><div class="ix-l">${club.join('')}</div></section>` : ''}
+  <div class="dk-more">${done.length ? `<button class="linkbtn" data-a="filt" data-v="done">Decided (${done.length})</button>` : ''}${run ? `<button class="linkbtn" data-a="filt" data-v="running">Still running (${run})</button>` : ''}<button class="linkbtn" data-a="filt" data-v="every">All messages</button></div>`;
 }

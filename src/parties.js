@@ -38,7 +38,7 @@ function investorWeek() { const G = g(), I = P().investor, f = (G.form || []).sl
 function election() { const G = g(), C = P().council; if (G.season - C.elected < 2) return; C.elected = G.season; const old = C.trait; C.trait = pick(Object.keys(TRAITS).filter(k => k !== old));
   if (G.paper) G.paper.stories.push({ h: 'A new council leader', t: `The new leader ${TRAITS[C.trait]}. Agreements with the club are being looked at again.` }); if (F.trajElection) F.trajElection(C.trait); }
 const prev = H.seasonAfterMatch;
-H.seasonAfterMatch = o => { if (prev) prev(o); if (!P()) return; councilWeek(); investorWeek(); if (g().week === 1) election(); };
+H.seasonAfterMatch = o => { if (prev) prev(o); if (!P() || F.PARK.base) return; councilWeek(); investorWeek(); if (g().week === 1) election(); };
 // the CEO can call on the council himself: if it has land and a reason, it puts a site forward now
 F.councilAsk = () => { const G = g(), C = P().council; if (C.site) return { t: 'We already have a site on the table for you.' }; if (G.club.assets && G.club.assets.base) return { t: 'You have your base. Come back when you need more.' };
   if (C.trait === 'growth' || C.trust >= 55 || chance(0.4)) { C.nextAt = 0; const before = G.paper.stories.length; councilWeek(); if (!C.site) { const sameTier = G.divs[G.club.tier].clubs.filter(x => x !== 0); C.site = { name: pick(SITES), price: Math.round(M(9000 + rnd() * 6000) / 100) * 100, build: Math.round(M(7000 + rnd() * 4000) / 100) * 100, dev: 0.05, rival: chance(0.5) ? pick(sameTier) : null, at: F.absWeek() }; } C.site.asked = 1; return { t: `There is ${C.site.name}. Others are looking at it too.`, ok: 1 }; }

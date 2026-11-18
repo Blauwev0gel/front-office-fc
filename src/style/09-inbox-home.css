@@ -62,3 +62,10 @@
 .lg-cup{display:grid;gap:8px;border-left:3px solid var(--rule);margin-left:12px;padding-left:16px}.lg-cup div{position:relative}.lg-cup i{position:absolute;left:-29px;top:0;width:24px;height:24px;border-radius:50%;border:2px solid var(--ink);background:var(--paper);display:grid;place-items:center;font:700 12px var(--head);font-style:normal}
 .lg-cup .w i{background:var(--good);color:#fff}.lg-cup .l i{background:var(--bad);color:#fff}.lg-cup b{display:block;font:700 14px var(--head)}.lg-cup span{font:400 13px var(--body);color:var(--soft)}
 .lg-m .h,.lg-m .a{min-width:0}.lg-m b{font-weight:inherit;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lg-m small{font:600 10px var(--head);opacity:.7}.lg-m em{min-width:14px}
+/* meters (B66) */
+.ix-met{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.ix-mt{padding:6px 7px;border:2px solid var(--ink);border-radius:10px;background:var(--paper)}.ix-mt small{display:block;font:700 10px var(--head);letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+.ix-mt i{display:block;height:7px;margin:4px 0 3px;border-radius:4px;background:var(--hair);overflow:hidden}.ix-mt i b{display:block;height:100%;border-radius:4px}
+.ix-mt.ok i b{background:#2e8b57}.ix-mt.mid i b{background:#d9a21b}.ix-mt.bad i b{background:#c0392b}.ix-mt.bad{border-color:var(--bad)}
+.ix-mt span{display:block;font:600 11px/1.2 var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ix-warn{margin:6px 0 0;font:600 13px var(--body);color:var(--bad)}

@@ -3,7 +3,7 @@
 const vm = require('vm'), R = require('./src.js');
 const src = R.mods('matchday.js').map(f => R(f)).join('\n');
 let fails = 0; const ok = (c, msg) => { console.log((c ? 'ok   ' : 'FAIL ') + msg); if (!c) fails++; };
-function game(seed) { const c = { console }; vm.createContext(c); vm.runInContext(src + ';this.FO=FO;', c); const F = c.FO; F.newGame(seed); const d = {}; for (const q of F.DNA) d[q.k] = q.o[0].v; F.setDNA(d, 'T', 'T', 'T', ['#123', '#fff']); for (const r of F.ROLES) F.hire(r.id, 1); F.finishStaff(); F.finishMandates(); F.preSetTarget('accept'); F.finishPreseason(); for (const id of F.G.press) F.pressAnswer(id, 1); F.finishPress(); return F; }
+function game(seed) { const c = { console }; vm.createContext(c); vm.runInContext(src + ';this.FO=FO;', c); const F = c.FO; for (const k in F.PARK) F.PARK[k] = false; /* these tests cover parked systems (B66) */ F.newGame(seed); const d = {}; for (const q of F.DNA) d[q.k] = q.o[0].v; F.setDNA(d, 'T', 'T', 'T', ['#123', '#fff']); for (const r of F.ROLES) F.hire(r.id, 1); F.finishStaff(); F.finishMandates(); F.preSetTarget('accept'); F.finishPreseason(); for (const id of F.G.press) F.pressAnswer(id, 1); F.finishPress(); return F; }
 const answerAll = F => { for (const m of F.G.inbox.filter(m => !m.done && m.ev !== 'base_board')) F.respond(m.id, 0); };
 const talk = (F, ...ids) => { F.convoOpen('fin'); for (const id of ids) { const v = F.convoView('fin'); if (v && v.opts.some(o => o.id === id)) F.convoAnswer(id); } const v = F.convoView('fin'); const log = v ? v.log.slice() : []; F.convoClose(); return { v, log }; };
 const traj = F => (F.G.agr || []).filter(a => a.k === 'traj').slice(-1)[0];

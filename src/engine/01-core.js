@@ -5,6 +5,8 @@ var FO = (function () {
 let G = null;
 const VERSION = 5;
 const HOOK = {};
+// B66: systems outside the core, switched off (code stays, can come back): training base and council, initiatives, agreements, new dossiers, authority levels per head
+const PARK = { base: true, ini: true, agr: true, dos: true, auth: true };
 const SEASON_WEEKS = 34;
 const AP_FREE = 99; // B21: no action points; old checks see a full week
 

@@ -16,7 +16,7 @@ function say2(say, who, t) { say(who, t); }
 
 /* ---------- the conversation, on Finance's desk ---------- */
 const prevT = F.agrTopics;
-F.agrTopics = role => { const t = prevT ? prevT(role) : []; if (role !== 'fin' || g().phase !== 'season') return t; const A = live(), S = F.councilSite(), base = g().club.assets && g().club.assets.base;
+F.agrTopics = role => { const t = prevT ? prevT(role) : []; if (F.PARK.base || role !== 'fin' || g().phase !== 'season') return t; const A = live(), S = F.councilSite(), base = g().club.assets && g().club.assets.base;
   if (A && ['route', 'talks'].includes(A.stage)) return [{ id: 't_base', t: A.stage === 'talks' ? 'Back to the council talks' : 'The training base: what are our options?', fx: 'Finance has looked into it' }].concat(t);
   if (!A && S && !S.taken) return [{ id: 't_base', t: `Look into ${S.name}`, fx: 'Finance researches it for a week' }].concat(t);
   if (!A && !S && !base) return [{ id: 't_meet', t: 'Ask the council for land for a training base', fx: 'They may have something, or not' }].concat(t);

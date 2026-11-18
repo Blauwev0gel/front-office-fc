@@ -103,7 +103,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `weekflow.js` | 26 KB | the CEO's week Every week has a subject (B22): a derby, a window, a board review, or a quiet week | deskBriefs, seasonAfterMatch |  | bigDone, echo, coachNews, mem |
 | `weekloop.js` | 2 KB | situation-driven week Chance serves the club's situation: an event is likelier when its department is under pr | evWeight |  |  |
 | `loop.js` | 16 KB | the weekly loop, phase 1 Four backers (board, supporters, press, dressing room), each with its own voice | lastChance, seasonReprieve, seasonAfterMatch |  | votes, vote, bgoal, bgLog, wkDelta, wkPrev, wkLog |
-| `dossiers.js` | 28 KB | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar | seasonAfterMatch |  | pressure, dos |
+| `dossiers.js` | 29 KB | phase 2: dossiers and pressure A dossier is a storyline in three parts that lands on the CEO's desk weeks apar | seasonAfterMatch |  | pressure, dos |
 | `pathway.js` | 27 KB | the pathway question One governance storyline, built to show the core loop: you notice a problem, talk to the  | selBonus, seasonAfterMatch |  | cred, pw, academy, pwLog |
 | `matchday.js` | 10 KB | match day Before kick-off: three stories about our own players | storyW, edition |  | mdS, eds |
 | `commentary.js` | 11 KB | match commentary (B53) Every moment of the match becomes a short run of beats for the one-line ticker: build-u |  |  |  |
@@ -118,7 +118,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 | `ui/08a-dept-parts.js` | 22 KB | department parts: words for numbers, attention, plan, record; recruitment; academy: the record as four questio |  |  |  |
 | `ui/08b-portal.js` | 30 KB | navigation; leagues: a table whose columns follow the position filter; the player; drill-downs |  |  |  |
 | `ui/09-firstteam-review.js` | 12 KB | first team department |  |  |  |
-| `ui/10-inbox.js` | 28 KB | render; inbox home (1.6); the CEO's weekly desk (UX-1): this week, your team at work, the red box, the next ma |  |  |  |
+| `ui/10-inbox.js` | 30 KB | render; inbox home (1.6); the CEO's weekly desk (UX-1): this week, your team at work, the red box, the next ma |  |  |  |
 | `ui/11-players.js` | 9 KB | players: cards, profiles, stories |  |  |  |
 | `ui/12-scenes-cards.js` | 15 KB | game UI helpers |  |  |  |
 | `ui/13-redbox-render.js` | 13 KB | the red box: an email you answer on one screen |  |  |  |
@@ -339,7 +339,7 @@ Regenerate with `node tools/codemap.js` after moving or adding code.
 - Functions: vFirst, ftTalkHtml, vReview2, vSacked
 
 ### `ui/10-inbox.js`
-- Functions: isRead, markRead, first, inboxItems, nextFix, bkT, bkSt, bkArrow, bkDir, backersHtml, comingHtml, dossierCard, archiveHtml, pwMeetHtml, pwEvalHtml, agreementHtml, pathwayCard, credHtml, caseHtml, fdHtml, isDis, rowThumb, rowHtml, isBox, boxRow, deskRow, sent, ifLeft, weekLine, topic2, nextCard, vInbox, sname, wantsWord, ixRow, ixFace, deskHome
+- Functions: isRead, markRead, first, inboxItems, nextFix, bkT, bkSt, bkArrow, bkDir, backersHtml, comingHtml, dossierCard, archiveHtml, pwMeetHtml, pwEvalHtml, agreementHtml, pathwayCard, credHtml, caseHtml, fdHtml, isDis, rowThumb, rowHtml, isBox, boxRow, deskRow, sent, ifLeft, weekLine, topic2, nextCard, vInbox, sname, wantsWord, ixRow, ixFace, deskHome, metersHtml
 
 ### `ui/11-players.js`
 - Functions: strengths, roleOf, starsTxt, pcard, hashN, storyOf, attrGroups, formBars, profileHtml, scoutLine

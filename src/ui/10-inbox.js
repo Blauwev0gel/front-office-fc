@@ -155,7 +155,7 @@ const sname = r => F.staff(r) ? F.staff(r).name : '', slast = r => sname(r).spli
 // heads who come to the CEO with a real problem (replaces 'Raise it yourself', B60.8): same actions, now as a message from that person
 function wantsWord() {
   const g = G(), W = [], L3 = g.form.slice(-3);
-  const BV = F.baseView ? F.baseView() : null, BA = BV && BV.A && !BV.A.res ? BV.A : null;
+  const BV = F.baseView && !F.PARK.base ? F.baseView() : null, BA = BV && BV.A && !BV.A.res ? BV.A : null;
   if (BV && !BA && BV.site && !BV.site.taken && F.staff('fin')) W.push({ r: 'fin', a: 'base-open', subj: `The council is selling ${BV.site.name}`, prev: '"A training base of our own. Shall I look into it?"' });
   if (BA && ['route', 'talks'].includes(BA.stage)) W.push({ r: 'fin', a: 'base-open', subj: BA.stage === 'route' ? 'The training base: I have the options' : 'Back to the council', prev: BA.stage === 'route' ? '"Buy, lease or bring in a partner. Your choice."' : '"The council is waiting for our answer."' });
   const sig = F.iniSignal ? F.iniSignal() : null;
@@ -193,8 +193,19 @@ function deskHome(items) {
   if (run.length) club.push(`<button class="ix-m" data-a="filt" data-v="running"><i class="ix-dot off" aria-hidden="true"></i><span class="ix-f ix-run">${run.length}</span><span class="ix-tx"><span class="ix-from"><b>Still running</b><small>${run.length} thing${run.length === 1 ? '' : 's'}</small></span><span class="ix-subj">${esc(run[0].t)}</span>${run[0].s ? `<span class="ix-prev">${esc(run[0].s)}</span>` : ''}</span></button>`);
   for (const i of done.slice(0, 3)) club.push(ixRow({ a: 'open', k: i.key, face: ixFace(i.role, i.pl), from: i.from, role: 'Decided', subj: i.subj, prev: i.prev, done: true }));
   return `<div class="ix-kit" aria-hidden="true"></div><section class="ix-h ${T ? T.k : ''}">${crest(C, g.club.short, 48)}<div><small>Season ${g.season} · week ${g.week} · ${money(g.club.cash)}</small><h2>${esc(T ? T.t : 'This week')}</h2></div></section>
+  ${metersHtml()}
   ${sb || tb ? `<div class="ix-board${sb && tb ? '' : ' one'}">${sb}${tb}</div>` : ''}
   ${sat}
   <section class="ix-g ix-need"><h3>Needs you${need.length ? ` <i>${need.length}</i>` : ''}</h3><div class="ix-l">${need.join('') || '<p class="ix-calm">Nothing needs you this week. Your staff are at work.</p>'}</div></section>
   ${club.length ? `<section class="ix-g"><h3>At the club <button class="ix-all" data-a="filt" data-v="every">All ›</button></h3><div class="ix-l">${club.join('')}</div></section>` : `<div class="dk-more"><button class="linkbtn" data-a="filt" data-v="every">All messages</button></div>`}`;
+}
+
+/* B66.7: the four meters you keep in the green, always on top of the home screen */
+function metersHtml() {
+  const g = G(), B = F.backers ? F.backers() : [], by = k => B.find(b => b.k === k), run = F.finRunway ? F.finRunway() : null;
+  const M = [['board', 'Board'], ['fans', 'Fans'], ['room', 'Squad']].map(([k, t]) => { const b = by(k); return b ? { t, v: b.v, w: b.mood, d: b.d, danger: b.danger } : null; }).filter(Boolean);
+  const cv = run == null ? (g.club.cash >= 0 ? 80 : 10) : Math.min(100, run / 26 * 100);
+  M.splice(2, 0, { t: 'Cash', v: cv, w: run == null ? money(g.club.cash) : `${run} wk left`, d: 0, danger: run != null && run <= 8 });
+  const col = v => v <= 20 ? 'bad' : v < 55 ? 'mid' : 'ok', worst = M.filter(m => m.danger)[0];
+  return `<section class="ix-met" aria-label="Your meters">${M.map(m => `<div class="ix-mt ${col(m.v)}"><small>${m.t}</small><i><b style="width:${Math.max(4, Math.round(m.v))}%"></b></i><span>${esc(m.w)}${m.d > 0 ? ' ↑' : m.d < 0 ? ' ↓' : ''}</span></div>`).join('')}</section>${worst ? `<p class="ix-warn">${worst.t === 'Cash' ? 'The money runs out soon. Finance will cut if you do not.' : worst.t === 'Board' ? 'The board is losing patience. If it hits zero, you are out.' : `${worst.t} in the red. The board notices.`}</p>` : ''}`;
 }

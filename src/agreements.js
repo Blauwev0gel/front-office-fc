@@ -148,7 +148,7 @@ function startIni(a, V) {
 
 /* the conversation: called from talks.js on the DoF's desk; the coach and Finance are in the room */
 const prevTopics = F.agrTopics;
-F.agrTopics = role => { const t = prevTopics ? prevTopics(role) : []; if (role !== 'dof' || iniOpen() || !staff('coach') || games().length < 4) return t; return [{ id: 't_form', t: signal() ? 'The team: what is going wrong?' : 'How is the team really doing?', fx: 'Coach, DoF and Finance' }].concat(t); };
+F.agrTopics = role => { if (F.PARK.agr) return []; const t = prevTopics ? prevTopics(role) : []; if (role !== 'dof' || iniOpen() || !staff('coach') || games().length < 4) return t; return [{ id: 't_form', t: signal() ? 'The team: what is going wrong?' : 'How is the team really doing?', fx: 'Coach, DoF and Finance' }].concat(t); };
 const prevAnswer = F.agrAnswer;
 F.agrAnswer = (id, T, say, note) => {
   if (!/^(t_form|i_)/.test(id)) return prevAnswer ? prevAnswer(id, T, say, note) : false;
@@ -258,7 +258,7 @@ F.agrAuthFor = pos => open().filter(a => a.kind === 'plan' && a.funds && !a.done
 F.agrAuthList = () => open().filter(a => a.kind === 'plan' && a.funds && !a.done).map(a => ({ pos: a.pos, amt: Math.max(0, a.funds - (a.used || 0)), t: a.t, mw: a.mw }));
 // a signing at that position draws on its exception only for the part above the ordinary budget; the rest is released when the agreement ends
 F.agrUse = (pos, over, name) => { let remaining = Math.max(0, over); for (const a of open().filter(a => a.kind === 'plan' && !a.done && a.pos === pos)) { const u = Math.min(remaining, Math.max(0, (a.funds || 0) - (a.used || 0))); a.used = (a.used || 0) + u; remaining -= u; a.done = 1; a.inn = name; (a.log = a.log || []).push({ w: g().week, t: `${name} signed${u ? `, using ${money(u)} of the ${money(a.funds)} from the reserve` : ' within the ordinary budget; the reserve was not touched'}.` }); } };
-F.iniSignal = () => (iniOpen() || (g().iniSeen != null && F.absWeek() - g().iniSeen < 3)) ? null : signal();
+F.iniSignal = () => F.PARK.ini ? null : (iniOpen() || (g().iniSeen != null && F.absWeek() - g().iniSeen < 3)) ? null : signal();
 F.iniActive = iniOpen;
 
 // what is still running and what was decided lately (for the desk and the department Record)

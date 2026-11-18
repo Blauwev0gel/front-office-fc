@@ -104,7 +104,7 @@ function acDecisions(V) {
 }
 /* the CEO's agreements with this department: what was agreed, what has happened, and a way to raise the team's form (CEO-2) */
 function agrHtml(k) {
-  if (!F.agrList || (k !== 'recruit' && k !== 'first')) return ''; const g = G(), own = k === 'recruit' ? 'dof' : 'coach';
+  if (F.PARK.agr || !F.agrList || (k !== 'recruit' && k !== 'first')) return ''; const g = G(), own = k === 'recruit' ? 'dof' : 'coach';
   const L = F.agrList().filter(a => a.owner === own || a.with === own), live = L.filter(a => !a.res), done = L.filter(a => a.res && a.res !== 'merged').slice(-1);
   const sig = F.iniSignal ? F.iniSignal() : null, ask = sig || (!F.iniActive() && (g.ft && g.ft.games || []).length >= 4) ? `<button class="dk-ask" data-a="ini-open">${ART.staffFace('dof')}<span>${sig ? esc(sig.t[0].toUpperCase() + sig.t.slice(1)) + ': call in the coach and the DoF' : 'Ask the coach and the DoF how the team is really doing'}</span>${ART.I.chev}</button>` : '';
   if (!live.length && !done.length && !ask) return '';
@@ -128,7 +128,7 @@ function vDept(k) {
   }
   const mandBtn = s ? `<button class="btn ghost wide" data-a="sheet" data-s="mand" data-r="${role}" style="margin-top:8px">Change mandate</button>` : '';
   const FV = FP ? F.ftView() : null, comp = FP ? mrow('board', 'Follows your mandate', FV.comp * 100, 100, `${compW(FV.comp)} (${Math.round(FV.comp * 100)}%)`, FV.comp < 0.65 ? 'lo' : '') : '';
-  const A = s && F.DESK_HEADS.includes(role) && F.authView ? F.authView(role) : null, auth = A ? authHtml(role) : '';
+  const A = s && !F.PARK.auth && F.DESK_HEADS.includes(role) && F.authView ? F.authView(role) : null, auth = A ? authHtml(role) : '';
   const how = s ? `<div class="panel2">${comp}${FP ? FP.rows : instinctRow(role)}${mandBtn}${auth ? `<div class="hdiv"></div>${auth}` : ''}</div>` : '';
   const BV = F.bizView ? F.bizView() : null, br = BV && v.bud ? BV.rows.find(r => r.k === k) : null, lvL = br ? (BV.levels.find(l => l[0] === br.lv) || [0, 'Cut'])[1] : '';
   const money_ = `<div class="sec">Budget</div><div class="budcard">${planCard(v.bud ? k : undefined)}</div>`

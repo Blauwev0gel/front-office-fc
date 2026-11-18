@@ -235,11 +235,11 @@ H.seasonAfterMatch = ours => {
   if (G.desk && G.desk.err > (G._errSeen || 0)) { press((G.desk.err - (G._errSeen || 0)) * 2); G._errSeen = G.desk.err; }
   const lb = (G.bgLog || []).slice(-1)[0]; if (lb && lb !== G._bgSeen) { press(lb.ok ? -5 : 5); G._bgSeen = lb; }
   // seeds from this week's decisions
-  for (const m of G.inbox) if (m.done && !m.seedSeen && m.choice != null) { m.seedSeen = 1; const s = SEEDS[m.ev]; if (s && s[m.choice] && chance(0.7)) start(s[m.choice], 'It started with how the club handled an earlier message.'); }
+  for (const m of G.inbox) if (!F.PARK.dos && m.done && !m.seedSeen && m.choice != null) { m.seedSeen = 1; const s = SEEDS[m.ev]; if (s && s[m.choice] && chance(0.7)) start(s[m.choice], 'It started with how the club handled an earlier message.'); }
   // next parts
   for (const id in X.open) { const st = X.open[id]; if (st.part > 0 && now >= st.next && !G.inbox.some(m => !m.done && m.ev === 'dos_' + id) && !G.queue.some(q => q.id === 'dos_' + id)) F.queueEvent('dos_' + id, { dos: id, part: st.part }); }
   // new dossiers: more often under pressure
-  if (Object.keys(X.open).length < 2 && now - X.last >= 4 && G.week <= 33 && chance(0.07 + pv() / 500)) {
+  if (!F.PARK.dos && Object.keys(X.open).length < 2 && now - X.last >= 4 && G.week <= 33 && chance(0.07 + pv() / 500)) {
     const ids = Object.keys(DOS).filter(id => !X.open[id] && !(X.done[id] && now - X.done[id] < 60) && (() => { try { return DOS[id].cond(); } catch (e) { return false; } })());
     if (ids.length) start(pick(ids));
   }

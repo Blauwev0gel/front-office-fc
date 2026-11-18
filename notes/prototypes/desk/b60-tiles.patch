@@ -1,0 +1,116 @@
+diff --git a/src/style/06-redbox.css b/src/style/06-redbox.css
+index 9db1968..7ece5f1 100644
+--- a/src/style/06-redbox.css
++++ b/src/style/06-redbox.css
+@@ -123,3 +123,21 @@
+ .dk-ask svg:first-child{flex:none;width:30px;height:30px;border-radius:50%}.dk-ask span{flex:1}
+ .agr2{padding:6px 0 8px;border-bottom:1px solid var(--hair)}.agr2 b{font:700 15px var(--body)}.agr2 small{display:block;color:var(--soft);font:600 12px var(--body)}.agr2 p{margin:4px 0 0;font:400 13px/1.4 var(--body)}.agr2 p.good b{color:var(--good)}.agr2 p.bad b{color:var(--bad)}
+ .bubble .bwho{display:flex;align-items:center;gap:6px;margin-bottom:4px}.bubble .bwho svg{width:26px;height:26px;border-radius:50%;flex:none}.bubble .bwho small{font:700 11px var(--body);color:var(--soft)}.bubble.other{border-style:dashed}
++/* B60: the tiles-first desk */
++.tl-week{display:block;padding:4px 0 10px}.tl-week small{font:600 12px var(--body);color:var(--soft)}.tl-week small b.good{color:var(--good)}.tl-week small b.bad{color:var(--bad)}
++.tl-week h2{margin:2px 0 2px;font:italic 900 26px/1.08 var(--head);color:var(--acc)}.tl-week.crisis h2{color:var(--bad)}.tl-week p{margin:0;font:400 14px/1.35 var(--body);color:var(--soft)}
++.tl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
++.tl{position:relative;display:flex;flex-direction:column;gap:3px;min-height:104px;padding:12px;text-align:left;border:var(--l1);border-radius:14px;background:var(--paper);color:var(--ink);overflow:hidden}
++.tl.wide{grid-column:1 / -1;min-height:92px}
++.tl small{font:700 11px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
++.tl b{font:italic 900 19px/1.15 var(--head)}.tl span{font:400 14px/1.3 var(--body);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.tl span i{font-style:normal;font-weight:700}
++.tl em{font:italic 400 12px/1.3 var(--body);color:var(--soft)}
++.tl-more{position:absolute;right:10px;top:10px;font:700 12px var(--body);font-style:normal;color:var(--soft)}
++.tl-red{background:#7a1e2b;color:#fff;border-color:#4d0f19}.tl-red small,.tl-red em,.tl-red .tl-more{color:#f4e9d8}
++.tl-match{border-left:6px solid var(--acc)}
++.tl-ask{font:700 14px var(--body)!important;font-style:normal!important;color:var(--bad)}
++.tl-moods{display:flex!important;gap:10px;-webkit-line-clamp:unset!important;margin-top:4px}.tl-moods span{display:inline-flex;align-items:center;gap:1px}.tl-moods svg{width:20px;height:20px}.tl-moods .lo{color:var(--bad)}
++.tl-sub{font-size:13px!important;color:var(--soft)}
++.tl-list{display:flex;flex-direction:column;gap:6px}.tl-li{display:flex;gap:10px;align-items:flex-start;padding:10px;border:var(--l1);border-radius:12px;background:var(--paper)}
++.tl-li .rbf{flex:none;width:36px;height:36px;border-radius:50%;overflow:hidden;display:grid;place-items:center}.tl-li .rbf svg{width:100%;height:100%}.tl-li .rbf.ic svg{width:22px;height:22px}
++.tl-li p{margin:0;font:400 14px/1.35 var(--body)}.tl-li small{display:block;font:600 11px var(--body);color:var(--soft)}.tl-li b{display:block}
+diff --git a/src/teamwork.js b/src/teamwork.js
+index 94580f3..08972af 100644
+--- a/src/teamwork.js
++++ b/src/teamwork.js
+@@ -60,9 +60,9 @@ function reports() {
+   const G = g(), prev = G.twPrev || {}, out = [], L4 = (G.form || []).slice(-4), crisis = L4.length === 4 && L4.filter(x => x === 'L').length >= 3, res = (G.form || []).slice(-1)[0];
+   for (const x of G.reports || []) {
+     const s = staff(x.role); if (!s) continue; const N = sur(s.name), T = temper(s), was = prev[x.role] || '';
+-    if (x.role === 'coach') { const m = x.t.match(/^(Pleased|Frustrated|Mixed feelings): we created ([\d.]+) xG and allowed ([\d.]+)\. (.+?) stood out\./); if (!m) continue; const [, mood, a, b, star] = m, S = sur(star);
+-      const t = mood === 'Pleased' ? pick('coach:ok', T.proud ? [`"${a} against ${b}. That's how we play," says ${N}. ${S} was his man.`, `${N} liked what he saw: ${a} xG for, ${b} against. ${S} stood out.`, `"Told you," says ${N}. ${S} was the best on the pitch.`] : [`"We'll take it," says ${N}. ${S} stood out.`, `${N} was pleased with the shape. ${S} was the best of them.`, `"Good lads," says ${N}. He singles out ${S}.`])
+-        : mood === 'Frustrated' ? pick('coach:bad', T.proud ? [`"${a} against ${b}. Not good enough," says ${N}.`, `${N} is blunt about it: ${a} xG for, ${b} against.`, `"I want a reaction," says ${N}. Only ${S} gets a pass.`] : [`${N} isn't hiding from it: ${a} xG for, ${b} against.`, `"We have to be better," says ${N}. ${S} was the one bright spot.`, `"We go again," says ${N}.`, `"My responsibility," says ${N}. ${S} was the exception.`])
++    if (x.role === 'coach') { const m = x.t.match(/^(Pleased|Frustrated|Mixed feelings): we created ([\d.]+) xG and allowed ([\d.]+)\. (.+?) stood out\./); if (!m) continue; const [, mood, a, b, star] = m, S = sur(star); // B60: no xG on the desk, plain words
++      const t = mood === 'Pleased' ? pick('coach:ok', T.proud ? [`"That's how we play," says ${N}. ${S} was his man.`, `${N} liked what he saw. ${S} stood out.`, `"Told you," says ${N}. ${S} was the best on the pitch.`] : [`"We'll take it," says ${N}. ${S} stood out.`, `${N} was pleased with the shape. ${S} was the best of them.`, `"Good lads," says ${N}. He singles out ${S}.`])
++        : mood === 'Frustrated' ? pick('coach:bad', T.proud ? [`"Not good enough," says ${N}.`, `${N} is blunt: "We were second best."`, `"I want a reaction," says ${N}. Only ${S} gets a pass.`] : [`${N} isn't hiding from it: "We were not good enough."`, `"We have to be better," says ${N}. ${S} was the one bright spot.`, `"We go again," says ${N}.`, `"My responsibility," says ${N}. ${S} was the exception.`])
+         : pick('coach:mix', [`"Some good, some bad," says ${N}. ${S} stood out.`, `${N} calls it a mixed afternoon. ${S} did his part.`, `"A point is a point," says ${N}.`.replace('A point is a point', res === 'D' ? 'A point is a point' : 'We take the lessons')]);
+       out.push({ r: 'coach', n: s.name, w: crisis ? 4.5 : res === 'L' ? 2.5 : 0.8, t, lab: '', k: 'rep' }); continue; }
+     if (x.t === was) continue; // nothing new from him this week
+@@ -97,7 +97,7 @@ function teamWork() {
+     .concat((G.lateBriefs || []).filter(x => x.by).map(late))
+     .concat(reports(), milestones()).filter(Boolean).sort((a, b) => b.w - a.w);
+   const seen = new Set(), lines = [];
+-  for (const l of all) { if (lines.length >= 3) break; if (l.r !== 'player' && seen.has(l.r)) continue; seen.add(l.r); lines.push(Object.assign(l, { role: ROLE_N[l.r] || 'Milestone' })); }
++  for (const l of all) { if (lines.length >= 3) break; if (l.r !== 'player' && seen.has(l.r)) continue; seen.add(l.r); lines.push(Object.assign(l, { role: ROLE_N[l.r] || (/^Injured/.test(l.t) ? 'Injury' : 'Milestone') })); }
+   if (!lines.length) { const h = ['fin', 'dof', 'coach'].map(r => [r, staff(r)]).find(x => x[1]); if (h) { const N = sur(h[1].name), T = temper(h[1]);
+     lines.push({ r: h[0], n: h[1].name, role: ROLE_N[h[0]], w: 0, quiet: 1, lab: '', k: 'rep', t: T.keen || T.bold ? `"Nothing to report. I'd rather have something to report," says ${N}.` : `"Quiet week," says ${N}. "That's how I like it."` }); } }
+   G.tw = { w: now, n: G.inbox.length, lines }; return lines;
+diff --git a/src/ui/10-inbox.js b/src/ui/10-inbox.js
+index d13e29b..75bf041 100644
+--- a/src/ui/10-inbox.js
++++ b/src/ui/10-inbox.js
+@@ -139,36 +139,34 @@ function nextCard() {
+     <span class="dk-s">${esc(pv.odds)}${pv.star ? ` · watch ${esc(pv.star.name || pv.star)}` : ''}${A.g ? ` · target ${F.ord(A.target)}` : ''}</span>
+     <span class="dk-go">Preview ${ART.I.chev}</span></button>`;
+ }
++function runningItems() { return (F.stillRunning ? F.stillRunning() : []).concat(F.trajRunning ? F.trajRunning() : []).concat(F.comingUp ? F.comingUp().filter(c => c.ic !== 'league') : []); }
++function worstMood(B) { const w = B.slice().sort((a, b) => a.v - b.v)[0]; return w ? `${bkT(w.t)}: ${w.mood.toLowerCase()}` : ''; }
++function listView(title, rows) { return `<button class="linkbtn dk-back" data-a="filt" data-v="all">${ART.I.chev} The desk</button><div class="dk-fh"><h2>${esc(title)}</h2></div><div class="tl-list">${rows || '<p class="small">Nothing here this week.</p>'}</div>`; }
+ function vInbox() {
+   if (U.open) return vOpen();
+   const g = G(), items = inboxItems(), f = FOLD_T[U.filt] ? U.filt : 'all';
++  if (U.filt === 'team') return listView('Your people this week', (F.teamWork ? F.teamWork() : []).map(l => `<div class="tl-li"><span class="rbf">${l.pl ? ART.playerFace(l.pl, 'happy') : ART.staffFace(l.r)}</span><p><small>${esc(l.role)} · ${esc(l.n)}</small>${esc(l.t)}${l.lab ? ` <em class="dk-lab${l.bad ? ' bad' : ''}">${esc(l.lab)}</em>` : ''}</p></div>`).join(''));
++  if (U.filt === 'running') return listView('Running', runningItems().map(c => `<div class="tl-li"><span class="rbf ic">${ART.I[c.ic] || ART.I.info}</span><p><b>${esc(c.t)}</b>${esc(c.s || '')}</p></div>`).join(''));
+   if (f !== 'all') {
+     const shown = f === 'need' ? items.filter(isBox) : f === 'every' ? items : items.filter(i => i.fold === f);
+     return `<button class="linkbtn dk-back" data-a="filt" data-v="all">${ART.I.chev} The desk</button><div class="dk-fh"><h2>${esc(FOLD_T[f])}</h2></div><ul class="inbox">${shown.map(rowHtml).join('') || `<li class="empty">${f === 'dos' ? '<b>No open dossiers.</b> Storylines in three parts land here when they start.' : 'Nothing here this week.'}</li>`}</ul>`;
+   }
+-  const T = topic2(), wl = weekLine(), A = F.analysis(), st = A.pos <= A.target ? 'good' : A.pos <= A.target + 2 ? 'warn' : 'bad';
+-  const box = items.filter(isBox).map((x, i) => [x, i]).sort((a, b) => (b[0].pri || 0) - (a[0].pri || 0) || a[1] - b[1]).map(x => x[0]);
+-  const now = box.filter(i => i.kind === 'need'), later = box.filter(i => i.kind !== 'need');
+-  const team = F.teamWork ? F.teamWork() : [], pap = items.find(x => x.t === 'paper'), done = items.filter(i => i.kind === 'done');
+-  const row = (i, lead) => `<button class="dk-rb${lead ? ' lead' : ''}" data-a="open" data-k="${i.key}"><span class="rbf">${i.pl ? ART.playerFace(i.pl) : ART.staffFace(i.role || 'club')}</span><span class="dk-rm"><small>${esc(i.from)}${ROLE_N[i.role] && ROLE_N[i.role] !== i.from ? ' · ' + esc(ROLE_N[i.role]) : ''}</small><b>${esc(i.subj)}</b><em>${esc(ifLeft(i))}</em></span>${ART.I.chev}</button>`;
+-  return `${tourCard('inbox')}
+-  <section class="dk-week ${T ? T.k : ''}"><small>Week ${g.week}${A.g ? ` · <b class="${st}">${F.ord(A.pos)}</b>, target ${F.ord(A.target)} · ${money(g.club.cash)}` : ` · ${money(g.club.cash)} in the bank`}</small>
+-    <h2>${esc(T ? T.t : 'This week')}</h2>${T && T.s ? `<p>${esc(T.s)}</p>` : ''}${wl ? `<p class="dk-wl">${esc(wl)}</p>` : ''}</section>
+-  ${backersHtml()}
+-  <section class="dk-team"><div class="dk-h"><h3>Your team at work</h3>${done.length ? `<button class="linkbtn" data-a="filt" data-v="done">All ${done.length} calls ${ART.I.chev}</button>` : ''}</div>
+-    ${team.map(l => `<button class="dk-tl${l.bad ? ' bad' : ''}${l.quiet ? ' quiet' : ''}" data-a="${/^[mb]\d/.test(l.k) ? 'open' : 'tab'}" data-k="${l.k}" data-t="${l.r === 'player' ? 'squad' : 'staff'}"><span class="rbf">${l.pl ? ART.playerFace(l.pl, 'happy') : ART.staffFace(l.r)}</span><span class="dk-tx"><small>${esc(l.role)} · ${esc(l.n)}</small><b>${esc(l.t)}</b></span>${l.lab ? `<em class="dk-lab${l.bad ? ' bad' : ''}">${esc(l.lab)}</em>` : ''}</button>`).join('')}${(() => { const b = [], sn = r => F.staff(r) ? F.staff(r).name.split(' ').slice(-1)[0] : '', L3 = g.form.slice(-3);
+-      const BV = F.baseView ? F.baseView() : null, BA = BV && BV.A && !BV.A.res ? BV.A : null;
+-      if (BV && !BA && BV.site && !BV.site.taken && F.staff('fin')) b.push(`<button class="dk-ask" data-a="base-open">${ART.staffFace('fin')}<span>The council is selling ${esc(BV.site.name)}: look into it with ${esc(sn('fin'))}</span>${ART.I.chev}</button>`);
+-      if (BA && ['route', 'talks'].includes(BA.stage)) b.push(`<button class="dk-ask" data-a="base-open">${ART.staffFace('fin')}<span>${BA.stage === 'route' ? `The training base: ${esc(sn('fin'))} has the options` : 'Back to the council talks'}</span>${ART.I.chev}</button>`);
+-      const sig = F.iniSignal ? F.iniSignal() : null; if (sig) b.push(`<button class="dk-ask" data-a="ini-open">${ART.staffFace('dof')}<span>${esc(sig.t[0].toUpperCase() + sig.t.slice(1))}: call in the coach and the DoF</span>${ART.I.chev}</button>`);
+-      if (!sig && F.agrTopics && F.agrTopics('dof').some(t => t.id === 't_squad')) b.push(`<button class="dk-ask" data-a="cv-open" data-r="dof">${ART.staffFace('dof')}<span>Ask ${esc(sn('dof'))} where we are short</span>${ART.I.chev}</button>`);
+-      if (!sig && F.staff('coach') && L3.length === 3 && L3.filter(r => r === 'L').length >= 2) b.push(`<button class="dk-ask" data-a="ft-talk">${ART.staffFace('coach')}<span>Talk to ${esc(sn('coach'))} about the results</span>${ART.I.chev}</button>`);
+-      return b.length ? `<div class="dk-asks"><small>Raise it yourself</small>${b.join('')}</div>` : ''; })()}</section>
+-  <section class="redbox" aria-label="The red box"><div class="rbh"><h2>The red box</h2><span>${now.length ? `${now.length} to decide this week` : 'Nothing to sign'}</span></div>
+-    <div class="rbl">${now.length ? now.map((x, i) => row(x, i === 0 && now.length > 1 && (x.pri || 0) >= 2)).join('') : '<p class="rbe"><b>Nothing needs your signature.</b> The club runs on what you set up.</p>'}
+-    ${later.length ? `<div class="dk-later"><small>Your say, if you want it</small>${later.map(x => row(x)).join('')}</div>` : ''}</div></section>
+-  ${nextCard()}
+-  ${pap && !isDis(pap.key) ? `<button class="paperpin" data-a="open" data-k="${pap.key}"><span class="ppm">THE ${esc(g.club.city.toUpperCase())} GAZETTE</span><b>${esc((F.edView(0) || {}).head || g.paper.headline)}</b><small>${isRead(pap.key) ? 'Read' : 'Today\'s edition'} ${ART.I.chev}</small></button>` : ''}
+-  ${comingHtml()}
+-  <div class="dk-more"><button class="linkbtn" data-a="filt" data-v="reports">Weekly report</button><button class="linkbtn" data-a="filt" data-v="match">Matches</button><button class="linkbtn" data-a="filt" data-v="dos">Dossiers</button><button class="linkbtn" data-a="filt" data-v="every">All messages</button></div>`;
++  /* B60: the desk, tiles-first. The week on top; then the red box, the next match, your people, the mood and what is running.
++     Each tile answers one question in a line; a tap opens the detail. Nothing on the desk asks the CEO to recite a line. */
++  const T = topic2(), A = F.analysis(), st = A.pos <= A.target ? 'good' : A.pos <= A.target + 2 ? 'warn' : 'bad';
++  const box = items.filter(isBox).map((x, i) => [x, i]).sort((a, b) => (b[0].pri || 0) - (a[0].pri || 0) || a[1] - b[1]).map(x => x[0]), now = box.filter(i => i.kind === 'need'), later = box.filter(i => i.kind !== 'need');
++  const team = F.teamWork ? F.teamWork() : [], reqs = F.convoReqs && F.deptOverview ? F.deptOverview().reduce((n, o) => n + F.convoReqs(o.k).length, 0) : 0;
++  const running = runningItems(), pv = F.mtPreview ? F.mtPreview() : null, B = F.backers ? F.backers() : [];
++  const tile = (cls, a, inner, extra = '') => `<button class="tl ${cls}" ${a}>${inner}${extra}</button>`;
++  const week = `<section class="tl tl-week ${T ? T.k : ''}"><small>Week ${g.week}${A.g ? ` · <b class="${st}">${F.ord(A.pos)}</b>, target ${F.ord(A.target)}` : ''} · ${money(g.club.cash)}</small><h2>${esc(T ? T.t : 'This week')}</h2>${T && T.s ? `<p>${esc(T.s)}</p>` : ''}</section>`;
++  const top = now[0] || later[0];
++  const red = tile('tl-red wide', top ? (now.length + later.length === 1 ? `data-a="open" data-k="${top.key}"` : 'data-a="filt" data-v="need"') : 'data-a="filt" data-v="need"',
++    `<small>Red box</small><b>${now.length ? `${now.length} to decide` : later.length ? 'Your say, if you want it' : 'Nothing to sign'}</b><span>${top ? esc(top.subj) : 'The club runs on what you set up.'}</span>${top && ifLeft(top) ? `<em>${esc(ifLeft(top))}</em>` : ''}`, now.length + later.length > 1 ? `<i class="tl-more">+${now.length + later.length - 1} ›</i>` : '');
++  const match = pv && g.phase === 'season' ? tile('tl-match', 'data-a="play"', `<small>Next match${pv.rival ? ' · Derby' : ''}</small><b>${pv.home ? 'vs' : 'at'} ${esc(pv.name.split(' ')[0])}</b><span>${F.ord(pv.pos)} · ${esc(pv.odds)}</span>`) : '';
++  const t0 = team[0], people = tile('tl-people', reqs ? 'data-a="tab" data-t="staff"' : 'data-a="filt" data-v="team"',
++    `<small>Your people</small>${reqs ? `<b class="tl-ask">${reqs} want${reqs === 1 ? 's' : ''} a word</b>` : ''}<span>${t0 ? `<i>${esc(t0.n.split(' ').slice(-1)[0])}:</i> ${esc(t0.t)}` : 'Working within their mandates.'}</span>`, team.length > 1 ? `<i class="tl-more">+${team.length - 1} ›</i>` : '');
++  const mood = tile('tl-mood', 'data-a="sheet" data-s="backers"', `<small>Mood</small><span class="tl-moods">${B.map(b => `<span class="${b.danger ? 'lo' : ''}" aria-label="${esc(bkT(b.t))} ${esc(b.mood)}">${ART.I[b.ic] || ''}${bkArrow(b.d)}</span>`).join('')}</span><span class="tl-sub">${esc(worstMood(B))}</span>`);
++  const run = tile('tl-run', 'data-a="filt" data-v="running"', `<small>Running</small><b>${running.length || 'Nothing'}</b><span>${running.length ? esc(running[0].t) : 'No promises or projects open.'}</span>`);
++  return `${tourCard('inbox')}${week}<div class="tl-grid">${red}${match}${people}${mood}${run}</div>
++  <div class="dk-more"><button class="linkbtn" data-a="filt" data-v="every">All messages ${ART.I.chev}</button></div>`;
+ }

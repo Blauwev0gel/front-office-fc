@@ -1,0 +1,397 @@
+<title>Front Office Home</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+/* Layout: a phone-width game home screen (390px) in three concepts; controls above, the phone below. */
+:root{--bg:#f4d8cc;--paper:#f8e4da;--ink:#1f1715;--soft:#5b4842;--rule:rgba(31,23,21,.18);--club:#7a1e2b;--club2:#f4e9d8;--opp:#1d4ed8;--gold:#e9c46a;--good:#1d6b3c;--bad:#b3261e;
+  --sky1:#bfd9ea;--sky2:#f6e7d6;--wall:#e9cdbf;--wood:#8a5a3c;--grass:#3f7a4a;
+  --head:'Oswald',Impact,'Arial Narrow',sans-serif;--body:'Source Serif 4',Georgia,serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1412;--paper:#241b18;--ink:#f1ddd3;--soft:#bba49a;--rule:rgba(241,221,211,.18);--club:#a33447;--club2:#f4e9d8;--opp:#3b6fe0;--gold:#e9c46a;--good:#6fcf97;--bad:#ff8a80;--sky1:#1d2b3d;--sky2:#3a2a2a;--wall:#2e221e;--wood:#5a3a26;--grass:#2c5a36;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1b1412;--paper:#241b18;--ink:#f1ddd3;--soft:#bba49a;--rule:rgba(241,221,211,.18);--club:#a33447;--club2:#f4e9d8;--opp:#3b6fe0;--gold:#e9c46a;--good:#6fcf97;--bad:#ff8a80;--sky1:#1d2b3d;--sky2:#3a2a2a;--wall:#2e221e;--wood:#5a3a26;--grass:#2c5a36;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.4 var(--body);margin:0}
+.wrap{max-width:440px;margin:0 auto;padding-block:14px 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:10px}
+.ctl{display:grid;gap:6px}.ctl small{font:600 11px var(--head);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px}
+.seg button{min-height:44px;border:1.5px solid var(--ink);border-radius:10px;background:var(--paper);color:var(--ink);font:600 14px var(--head);letter-spacing:.03em;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.idea{margin:0;font:italic 400 14px var(--body);color:var(--soft)}
+/* the phone */
+.phone{position:relative;width:100%;max-width:390px;margin:0 auto;height:760px;border:2px solid var(--ink);border-radius:28px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:8px;padding:12px 14px 8px}.crest{width:30px;height:34px;flex:none}
+.top b{font:italic 700 20px var(--head);letter-spacing:.01em}.top .wk{margin-left:auto;font:600 12px var(--head);background:var(--ink);color:var(--bg);border-radius:8px;padding:3px 8px}
+.screen{flex:1;min-height:0;position:relative;overflow:hidden}
+.go{margin:0 14px 10px;min-height:58px;border:2.5px solid var(--ink);border-radius:14px;background:var(--club);color:#fff;font:italic 700 20px var(--head);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;box-shadow:0 4px 0 var(--ink)}
+.go small{font:600 13px var(--body);font-style:normal;opacity:.85}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);border-top:1.5px solid var(--rule);padding-bottom:6px}
+.tabs span{display:grid;place-items:center;min-height:48px;font:600 11px var(--head);color:var(--soft);letter-spacing:.03em}.tabs span.on{color:var(--ink)}
+/* faces */
+.face{width:var(--s,56px);height:var(--s,56px);border-radius:50%;border:2.5px solid var(--ink);background:#fff;overflow:hidden;flex:none}
+.who{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;color:var(--ink);cursor:pointer;min-width:64px;min-height:44px;padding:0}
+.who small{font:600 11px var(--head);letter-spacing:.03em;background:var(--paper);border:1.5px solid var(--ink);border-radius:8px;padding:1px 6px}
+.bang{position:absolute;top:-4px;right:6px;width:22px;height:22px;border-radius:50%;background:var(--gold);border:2px solid var(--ink);color:#1f1715;font:700 13px/18px var(--head);text-align:center}
+/* A: the office */
+.office{position:absolute;inset:0}
+.office svg.room{position:absolute;inset:0;width:100%;height:100%}
+.hotspot{position:absolute;background:none;border:0;cursor:pointer;border-radius:12px}
+.paperOn{position:absolute;left:28px;bottom:84px;width:150px;padding:8px 10px;background:#f7efe3;color:#1f1715;border:2px solid #1f1715;border-radius:4px;transform:rotate(-4deg);box-shadow:3px 3px 0 rgba(0,0,0,.25);text-align:left;cursor:pointer}
+.paperOn small{display:block;font:700 9px var(--head);letter-spacing:.12em;border-bottom:1.5px double #1f1715;padding-bottom:2px;margin-bottom:3px}
+.paperOn b{font:700 15px/1.1 var(--head)}
+.door{position:absolute;right:14px;bottom:96px;display:flex;flex-direction:column;gap:8px;align-items:center}
+.caption{position:absolute;left:14px;right:14px;top:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.caption .tag{background:var(--paper);border:2px solid var(--ink);border-radius:12px;padding:6px 10px;max-width:70%}
+.caption .tag b{display:block;font:italic 700 18px/1.1 var(--head)}.caption .tag span{font:400 12px var(--body);color:var(--soft)}
+.caption .pos{background:var(--ink);color:var(--bg);border-radius:12px;padding:6px 10px;text-align:center;font:700 18px/1 var(--head)}.caption .pos small{display:block;font:500 10px var(--head);letter-spacing:.06em;opacity:.8;margin-top:2px}
+/* B: countdown */
+.hero{margin:6px 14px 0;border:2.5px solid var(--ink);border-radius:18px;overflow:hidden;display:grid;grid-template-rows:auto auto}
+.hero .sides{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;min-height:150px}
+.hero .side{height:100%;display:grid;place-items:center;padding:14px 6px;color:#fff;text-align:center}
+.hero .side b{font:700 22px/1 var(--head);letter-spacing:.02em}.hero .side small{display:block;font:500 12px var(--head);opacity:.9;margin-top:4px}
+.hero .vs{font:italic 700 18px var(--head);padding:0 4px;color:var(--ink)}
+.hero .meta{padding:10px 12px;background:var(--paper);display:grid;gap:2px}.hero .meta b{font:italic 700 20px var(--head)}.hero .meta span{font:400 14px var(--body);color:var(--soft)}
+.derby{display:inline-block;background:var(--gold);color:#1f1715;font:700 12px var(--head);letter-spacing:.1em;padding:2px 8px;border-radius:6px;margin-bottom:2px}
+.atdoor{margin:12px 14px 0}.atdoor h3,.cols h3{margin:0 0 8px;font:600 12px var(--head);letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+.row{display:flex;gap:10px}.empty{font:italic 400 14px var(--body);color:var(--soft);margin:0}
+.strip{margin:12px 14px 0;display:flex;gap:10px;align-items:center;border-top:1.5px solid var(--rule);padding-top:10px;background:none;border-left:0;border-right:0;border-bottom:0;color:var(--ink);text-align:left;cursor:pointer;width:calc(100% - 28px)}
+.strip b{font:700 15px var(--head)}.strip small{font:600 10px var(--head);letter-spacing:.12em;color:var(--soft);display:block}
+/* C: front page */
+.fp{margin:4px 14px 0;background:#f7efe3;color:#1f1715;border:2px solid var(--ink);border-radius:6px;padding:10px 12px 12px;box-shadow:4px 4px 0 var(--ink)}
+.fp .mast{text-align:center;border-bottom:3px double #1f1715;padding-bottom:4px}.fp .mast b{font:700 20px/1 Georgia,serif;letter-spacing:.02em}.fp .mast small{display:block;font:600 9px var(--head);letter-spacing:.12em;color:#5b4842;margin-top:2px}
+.fp h2{margin:8px 0 6px;font:700 30px/1 var(--head);letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
+.fp .lead{display:flex;gap:10px;align-items:center;border-bottom:1px solid rgba(31,23,21,.3);padding-bottom:8px}
+.fp .lead p{margin:0;font:italic 400 14px/1.35 Georgia,serif}
+.cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
+.col{background:none;border:0;border-left:1px solid rgba(31,23,21,.3);padding:0 0 0 6px;text-align:left;color:#1f1715;cursor:pointer;min-height:44px}
+.col:first-child{border-left:0;padding-left:0}
+.col small{display:block;font:700 9px var(--head);letter-spacing:.1em;text-transform:uppercase;color:#7a1e2b}.col b{display:block;font:700 15px/1.1 var(--head)}.col span{font:400 12px/1.3 Georgia,serif;color:#5b4842}
+/* sheet */
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--paper);border-top:2.5px solid var(--ink);border-radius:18px 18px 0 0;padding:14px 14px 16px;display:grid;gap:10px;box-shadow:0 -8px 24px rgba(0,0,0,.25);transform:translateY(0);transition:transform .25s ease}
+.sheet[hidden]{display:none!important}
+.sheet .hd{display:flex;gap:10px;align-items:center}.sheet .hd b{font:italic 700 18px var(--head)}.sheet .hd small{display:block;font:600 12px var(--body);color:var(--soft)}
+.sheet p{margin:0;font:400 16px/1.4 var(--body)}
+.sheet .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sheet .btns button{min-height:48px;border:2px solid var(--ink);border-radius:12px;background:var(--bg);color:var(--ink);font:600 15px var(--head);cursor:pointer}.sheet .btns button.k{background:var(--ink);color:var(--bg)}
+.note{font:400 13px/1.4 var(--body);color:var(--soft);margin:0}
+
+/* D: the inbox */
+.ib{position:absolute;inset:0;overflow-y:auto;padding:4px 14px 14px;display:flex;flex-direction:column;gap:12px}
+.ibh{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}.ibh b{display:block;font:italic 700 24px/1.05 var(--head)}.ibh span{font:400 13px var(--body);color:var(--soft)}
+.ibh .pos{flex:none;text-align:right;font:700 20px/1 var(--head)}.ibh .pos small{display:block;font:500 11px var(--head);letter-spacing:.05em;color:var(--soft);margin-top:2px}
+.sat{display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid var(--ink);border-radius:14px;background:var(--paper);color:var(--ink);text-align:left;cursor:pointer;min-height:56px}
+.sat .kit{display:flex}.sat .kit i{width:16px;height:30px;border:2px solid var(--ink);border-radius:4px}.sat .kit i+i{margin-left:-4px}
+.sat b{display:block;font:700 16px var(--head)}.sat span{font:400 13px var(--body);color:var(--soft)}.sat em{margin-left:auto;font:700 11px var(--head);letter-spacing:.08em;font-style:normal;background:var(--gold);color:#1f1715;border-radius:6px;padding:2px 6px}
+.grp h3{margin:0 0 6px;display:flex;justify-content:space-between;font:600 12px var(--head);letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}.grp h3 i{font-style:normal}
+.list{border:2px solid var(--ink);border-radius:14px;overflow:hidden;background:var(--paper)}
+.msg{display:flex;gap:10px;align-items:center;width:100%;padding:10px 12px;min-height:68px;border:0;border-top:1.5px solid var(--rule);background:none;color:var(--ink);text-align:left;cursor:pointer}
+.msg:first-child{border-top:0}.msg .txt{flex:1;min-width:0}
+.msg .from{display:flex;justify-content:space-between;gap:6px;font:700 14px var(--head);letter-spacing:.01em}.msg .from small{font:500 11px var(--head);color:var(--soft);white-space:nowrap}
+.msg .subj{display:block;font:600 15px/1.25 var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg .prev{display:block;font:400 13px/1.3 var(--body);color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg.read .subj{font-weight:400}.msg.done{opacity:.6}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--club);flex:none}.dot.off{background:transparent}
+.need .list{border-color:var(--club);box-shadow:0 3px 0 var(--club)}
+.calm{margin:0;padding:12px;font:italic 400 14px var(--body);color:var(--soft);text-align:center}
+.paperav{width:44px;height:44px;flex:none;border:2.5px solid var(--ink);border-radius:8px;background:#f7efe3;color:#1f1715;display:grid;place-items:center;font:700 13px Georgia,serif}
+/* open message */
+.open{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;padding:6px 14px 14px;gap:12px;overflow-y:auto}
+.open .back{align-self:flex-start;min-height:44px;border:0;background:none;color:var(--ink);font:600 14px var(--head);cursor:pointer;padding:0}
+.open .hd{display:flex;gap:12px;align-items:center}.open .hd b{display:block;font:italic 700 20px var(--head)}.open .hd small{font:600 12px var(--body);color:var(--soft)}
+.open h2{margin:0;font:700 24px/1.15 var(--head);text-wrap:balance}
+.open p{margin:0;font:400 17px/1.45 var(--body)}
+.open .why{font:italic 400 14px var(--body);color:var(--soft);border-left:3px solid var(--club);padding-left:10px}
+.ans{display:grid;gap:8px;margin-top:auto}
+.ans button{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:56px;padding:8px 14px;border:2px solid var(--ink);border-radius:14px;background:var(--paper);color:var(--ink);font:600 16px var(--head);text-align:left;cursor:pointer}
+.ans button small{font:500 12px var(--body);color:var(--soft);text-align:right}
+.ans .left{font:italic 400 13px var(--body);color:var(--soft);text-align:center}
+.reply{padding:12px;border:2px solid var(--good);border-radius:14px;font:400 15px var(--body)}
+
+/* Depts: your people, then one page per department */
+.dp{position:absolute;inset:0;overflow-y:auto;padding:4px 14px 14px;display:flex;flex-direction:column;gap:12px}
+.dp .ibh b{font-size:22px}
+.person{display:flex;gap:12px;align-items:center;width:100%;padding:10px 12px;min-height:72px;border:0;border-top:1.5px solid var(--rule);background:none;color:var(--ink);text-align:left;cursor:pointer}
+.person:first-child{border-top:0}.person .txt{flex:1;min-width:0}
+.person .dept{font:600 11px var(--head);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.person b{display:block;font:700 16px var(--head)}
+.person .line{display:block;font:400 13px/1.3 var(--body);color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.state{flex:none;font:700 12px var(--head);letter-spacing:.04em;padding:3px 8px;border-radius:8px;border:1.5px solid currentColor}
+.state.good{color:var(--good)}.state.mid{color:var(--soft)}.state.bad{color:var(--bad)}
+.word{position:absolute;top:8px;left:44px;width:16px;height:16px;border-radius:50%;background:var(--gold);border:2px solid var(--ink)}
+.pg{position:absolute;inset:0;overflow-y:auto;padding:6px 14px 14px;display:flex;flex-direction:column;gap:12px}
+.pg .hd{display:flex;gap:12px;align-items:center}.pg .hd b{display:block;font:italic 700 22px/1.1 var(--head)}.pg .hd small{display:block;font:600 12px var(--body);color:var(--soft)}
+.verdict{border:2px solid var(--ink);border-radius:14px;background:var(--paper);padding:12px 14px;display:grid;gap:4px}
+.verdict small{font:600 11px var(--head);letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}.verdict b{font:italic 700 24px var(--head)}.verdict b.good{color:var(--good)}.verdict b.bad{color:var(--bad)}
+.back{align-self:flex-start;min-height:44px;border:0;background:none;color:var(--ink);font:600 14px var(--head);cursor:pointer;padding:0}
+.verdict p{margin:0;font:400 15px/1.4 var(--body)}.verdict q{quotes:none;font:italic 400 14px var(--body);color:var(--soft)}
+.sec2 h3{margin:0 0 6px;font:600 12px var(--head);letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+.work{border:2px solid var(--ink);border-radius:14px;background:var(--paper);overflow:hidden}
+.work > div{padding:10px 12px;border-top:1.5px solid var(--rule)}.work > div:first-child{border-top:0}
+.work b{display:block;font:700 15px var(--head)}.work span{font:400 13px var(--body);color:var(--soft)}
+.bar{height:6px;border-radius:3px;background:var(--rule);margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--club)}
+.rowl{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:52px;padding:10px 12px;border:0;border-top:1.5px solid var(--rule);background:none;color:var(--ink);text-align:left;cursor:pointer}
+.rowl:first-child{border-top:0}.rowl b{font:700 15px var(--head)}.rowl span{font:400 13px var(--body);color:var(--soft)}
+
+/* department-specific content */
+.kid{display:flex;gap:10px;align-items:center;padding:10px 12px;border-top:1.5px solid var(--rule)}.kid:first-child{border-top:0}
+.kid .txt{flex:1;min-width:0}.kid b{display:block;font:700 15px var(--head)}.kid span{font:400 13px var(--body);color:var(--soft)}
+.stars{font:600 13px var(--head);letter-spacing:.02em;color:var(--ink);white-space:nowrap;text-align:right}.stars small{display:block;font:500 11px var(--body);color:var(--soft)}
+.pill{font:700 11px var(--head);letter-spacing:.05em;padding:2px 7px;border-radius:7px;border:1.5px solid currentColor;white-space:nowrap}
+.pill.good{color:var(--good)}.pill.bad{color:var(--bad)}.pill.mid{color:var(--soft)}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kpi{border:2px solid var(--ink);border-radius:12px;background:var(--paper);padding:10px 12px}
+.kpi small{display:block;font:600 11px var(--head);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}.kpi b{font:700 22px var(--head);font-variant-numeric:tabular-nums}.kpi span{display:block;font:400 12px var(--body);color:var(--soft)}
+.form{display:flex;gap:4px}.form i{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;font:700 12px var(--head);font-style:normal;color:#fff}.form .W{background:var(--good)}.form .D{background:#8a8a8a}.form .L{background:var(--bad)}
+.stand{display:flex;gap:6px;align-items:flex-end;height:64px;padding:8px 12px 10px}.stand i{flex:1;border:2px solid var(--ink);border-radius:4px 4px 0 0;background:var(--club);position:relative}.stand i em{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font:600 10px var(--head);font-style:normal;color:var(--soft)}
+
+/* rooms: depth by drill-down */
+.room{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;width:100%;padding:12px;min-height:64px;border:0;border-top:1.5px solid var(--rule);background:none;color:var(--ink);text-align:left;cursor:pointer}
+.room:first-child{border-top:0}.room b{font:700 16px var(--head)}.room .val{grid-row:1 / span 2;grid-column:2;text-align:right;font:700 20px var(--head);font-variant-numeric:tabular-nums}.room .val small{display:block;font:500 11px var(--body);color:var(--soft)}
+.room span{font:400 13px/1.3 var(--body);color:var(--soft)}.room .flag{color:var(--bad)}.room .ok{color:var(--good)}
+.rp{position:absolute;inset:0;overflow-y:auto;padding:6px 14px 14px;display:flex;flex-direction:column;gap:12px}
+.rp h2{margin:0;font:italic 700 24px/1.1 var(--head)}.rp .lede{margin:0;font:400 15px/1.4 var(--body);color:var(--soft)}
+.tbl{width:100%;border-collapse:collapse;font:400 13px var(--body)}.tbl th{text-align:left;font:600 11px var(--head);letter-spacing:.06em;text-transform:uppercase;color:var(--soft);padding:6px 4px;border-bottom:1.5px solid var(--rule)}.tbl td{padding:8px 4px;border-bottom:1px solid var(--rule)}.tbl td.r,.tbl th.r{text-align:right}
+.tl2{border-left:2px solid var(--rule);margin-left:6px;padding-left:12px;display:grid;gap:10px}.tl2 div{position:relative}.tl2 div::before{content:"";position:absolute;left:-18px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--club)}.tl2 b{display:block;font:700 14px var(--head)}.tl2 span{font:400 13px var(--body);color:var(--soft)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{font:600 12px var(--head);padding:4px 8px;border-radius:8px;border:1.5px solid var(--ink);background:var(--paper)}
+.spark{width:100%;height:56px}
+@media (prefers-reduced-motion:reduce){.sheet{transition:none}}
+</style>
+
+<div class="wrap">
+  <div class="ctl"><small>Screen</small><div class="seg" id="sSeg"><button id="sH" data-s="home">Home</button><button id="sD" data-s="depts">Depts</button></div></div>
+  <div class="ctl" id="conceptCtl"><small>Concept (home)</small><div class="seg" id="cSeg"><button id="cD" data-c="D">D · Inbox</button><button id="cA" data-c="A">A · Office</button><button id="cB" data-c="B">B · Saturday</button><button id="cC" data-c="C">C · Paper</button></div></div>
+  <div class="ctl"><small>Week</small><div class="seg" id="wSeg"><button id="wQ" data-w="quiet">Quiet</button><button id="wC" data-w="crisis">Crisis</button><button id="wD" data-w="derby">Derby</button></div></div>
+  <p class="idea" id="idea"></p>
+  <div class="phone" id="phone">
+    <div class="top"><svg class="crest" viewBox="0 0 30 34" aria-hidden="true"><path d="M2 2h26v14c0 9-6 14-13 16C8 30 2 25 2 16z" fill="var(--club)" stroke="var(--ink)" stroke-width="2"/><rect x="7" y="7" width="16" height="6" fill="none" stroke="var(--club2)" stroke-width="2"/><text x="15" y="25" text-anchor="middle" font-family="Oswald,sans-serif" font-size="7" font-weight="700" fill="var(--club2)">HAR</text></svg><b>Harwick Athletic</b><span class="wk" id="wk"></span></div>
+    <div class="screen" id="screen"></div>
+    <button class="go" id="go"></button>
+    <div class="tabs" aria-hidden="true" id="tabs"></div>
+    <div class="sheet" id="sheet" hidden></div>
+  </div>
+  <p class="note">Prototype with example data from three weeks of one save. Tap a person, the paper or the match. Nothing here is the real game yet.</p>
+</div>
+
+<script>
+const IDEA = { D: 'A simple inbox, done well: what needs you first, then the rest. Faces, a clear sender and subject, one tap to open and answer.',  A: 'You are in your office. The club is outside the window; people who need you stand at the door.', B: 'Every week builds to Saturday. The match is the hero; people at your door come second.', C: 'Your club is in the paper every week, and you make the news. The front page is your desk.' };
+const FACES = { mkt: ['#e6b896', '#5a3a1a', 1], coach: ['#d9a882', '#2b2b2b', 1], dof: ['#8d5a3b', '#1d1d1d', 0], fin: ['#f0c7a8', '#9a9a9a', 2], chair: ['#e6b896', '#d9d9d9', 2], acad: ['#c98c64', '#5a3a1a', 0] };
+const W = {
+  quiet: { wk: 'Wk 8', pos: '9th', tgt: 'target 10th', title: 'A quiet week', sub: 'Nothing burning. Your staff are at work.', door: [],
+    match: { opp: 'Fromemoor', full: 'Fromemoor Sporting', home: false, oppPos: '11th', stake: 'Win and you go into the top eight', watch: 'Tyler Lindqvist, 9 goals', derby: false },
+    paper: { head: 'Harwick edge past Millgate', kicker: 'A QUIET WEEK IN TOWN', lead: '"We are where we said we would be," says the chairman.', leadWho: 'chair' }, sky: 'day' },
+  crisis: { wk: 'Wk 12', pos: '17th', tgt: 'target 10th', title: 'A difficult run', sub: 'Four defeats in five. The board wants a plan.', door: [
+      { r: 'chair', n: 'The chairman', role: 'Board', t: '"Four defeats in five. I need to know what you are going to do, this week."', a: 'Hear him out', b: 'Later' },
+      { r: 'coach', n: 'Pranav Everett', role: 'Head coach', t: '"The chances we give away are on me. Give me time to organise us properly."', a: 'Hear him out', b: 'Later' },
+      { r: 'dof', n: 'Ross Jarvis', role: 'Director of Football', t: '"Our centre-back is the weak link. I have two options ready for the window."', a: 'Hear him out', b: 'Later' }],
+    match: { opp: 'Kelbridge', full: 'Kelbridge Albion', home: true, oppPos: '3rd', stake: 'Lose and the board meets on Monday', watch: 'Callum Doherty, quick on the left', derby: false },
+    paper: { head: 'Crisis at the County Ground', kicker: 'FOUR DEFEATS IN FIVE', lead: '"Something has to change," one board member told the Gazette.', leadWho: 'chair' }, sky: 'storm' },
+  derby: { wk: 'Wk 20', pos: '3rd', tgt: 'target 4th', title: 'Derby week', sub: 'Presworth come to town on Saturday.', door: [
+      { r: 'chair', n: 'The chairman', role: 'Board', t: '"Presworth\'s owner wants a seat in our boardroom on Saturday. Do we host him?"', a: 'Host him', b: 'Not this time' }],
+    match: { opp: 'Presworth', full: 'Presworth Rovers', home: true, oppPos: '5th', stake: 'Bragging rights for a year', watch: 'Mateo Hendry, their captain', derby: true },
+    paper: { head: 'Derby fever', kicker: 'SOLD OUT ON SATURDAY', lead: '"The town talks about nothing else," says your commercial director.', leadWho: 'fin' }, sky: 'flags' } };
+
+const MAIL = {
+  quiet: { need: [], fyi: [
+      { id: 'q1', r: 'coach', from: 'Pranav Everett', role: 'Head coach', subj: '"We\'ll take that."', prev: 'A narrow win at Millgate. Kenworthy was the best of them.', body: '"Not pretty, but three points. Kenworthy ran the midfield. I am happy with where we are."' },
+      { id: 'q2', r: 'dof', from: 'Ross Jarvis', role: 'Director of Football', subj: 'Two names for the winter', prev: 'Scouts are watching a centre-back in the north.', body: '"Nothing to sign yet. Two names on the list for January, both within budget. I will come to you if one of them is worth it."' },
+      { id: 'q3', paper: 1, from: 'The Harwick Gazette', role: 'This week', subj: 'Harwick edge past Millgate', prev: '"We are where we said we would be," says the chairman.', body: 'Harwick Athletic moved up to ninth with a narrow win at Millgate. The chairman: "We are where we said we would be."' }] },
+  crisis: { need: [
+      { id: 'c1', r: 'chair', from: 'The chairman', role: 'Board', subj: 'I need a plan this week', prev: 'Four defeats in five. The board meets on Monday.', body: '"Four defeats in five and we are seventeenth. The board meets on Monday. I want to hear what you are going to do."', why: 'The board decides your future. Only you can answer this.', ans: [['Back the coach', 'Judged in five games'], ['Let the DoF strengthen', 'Uses the transfer budget'], ['Ask them both for one plan', 'Back to you in two weeks']], left: 'Leave it and the board decides for you on Sunday.' },
+      { id: 'c2', r: 'coach', from: 'Pranav Everett', role: 'Head coach', subj: '"The chances we give away are on me"', prev: 'He wants time to organise the defence.', body: '"We gave away twelve chances against Kelbridge. That is on me. Give me time and I will organise us properly."', why: 'He asks for your backing before the board meets.', ans: [['You have my backing', 'He is fired up'], ['It has to improve now', 'Risk: he takes it badly']], left: 'Leave it and he carries on as he is.' }],
+    fyi: [
+      { id: 'c3', r: 'dof', from: 'Ross Jarvis', role: 'Director of Football', subj: 'Centre-back is our weak link', prev: 'Two options ready for the window.', body: '"Our centre-back is the weak link. I have two options ready for the window, both within the budget Finance set."' },
+      { id: 'c4', paper: 1, from: 'The Harwick Gazette', role: 'This week', subj: 'Crisis at the County Ground', prev: '"Something has to change," one board member told the Gazette.', body: 'Four defeats in five. "Something has to change," one board member told the Gazette.' }] },
+  derby: { need: [
+      { id: 'd1', r: 'chair', from: 'The chairman', role: 'Board', subj: 'A guest for the derby?', prev: 'Presworth\'s owner wants a seat in our boardroom.', body: '"Presworth\'s owner has asked for a seat in our boardroom on Saturday. It would be good for relations. The fans may not like it."', why: 'A question about the club\'s name. It is yours to answer.', ans: [['Host him', 'Board ↑ · fans may grumble'], ['Not this time', 'Fans ↑ · board ↓ a little']], left: 'Leave it and the chairman hosts him anyway.' }],
+    fyi: [
+      { id: 'd2', r: 'fin', from: 'Femi Achterberg', role: 'Commercial', subj: 'Sold out', prev: 'Every seat gone for Saturday. Ticket money is up.', body: '"Every seat is gone for Saturday. That is our best gate of the season."' },
+      { id: 'd3', r: 'coach', from: 'Pranav Everett', role: 'Head coach', subj: '"Told you."', prev: 'Unbeaten in four. Ellison stood out.', body: '"Unbeaten in four. Ellison was outstanding. The lads are ready for Saturday."' },
+      { id: 'd4', paper: 1, from: 'The Harwick Gazette', role: 'This week', subj: 'Derby fever', prev: '"The town talks about nothing else."', body: 'Sold out on Saturday. "The town talks about nothing else," says the commercial director.' }] } };
+const STATE = { read: {}, answered: {} };
+let OPEN = null;
+function mailRow(m) { const read = STATE.read[m.id], done = STATE.answered[m.id];
+  return `<button class="msg ${read ? 'read' : ''} ${done ? 'done' : ''}" data-m="${m.id}"><span class="dot ${read || done ? 'off' : ''}"></span>${m.paper ? '<span class="paperav">HG</span>' : face(m.r, 44)}<span class="txt"><span class="from">${m.from}<small>${done ? 'Answered' : m.role}</small></span><span class="subj">${m.subj}</span><span class="prev">${done ? 'You: ' + done : m.prev}</span></span></button>`; }
+function inboxView(d) { const M = MAIL[WK], need = M.need.filter(m => !STATE.answered[m.id]), m = d.match;
+  if (OPEN) { const x = M.need.concat(M.fyi).find(y => y.id === OPEN); STATE.read[x.id] = 1; const done = STATE.answered[x.id];
+    return `<div class="open"><button class="back" data-back>‹ Inbox</button><div class="hd">${x.paper ? '<span class="paperav">HG</span>' : face(x.r, 56)}<div><b>${x.from}</b><small>${x.role}</small></div></div><h2>${x.subj.replace(/^"|"$/g, '')}</h2><p>${x.body}</p>${x.why ? `<p class="why">${x.why}</p>` : ''}
+      ${x.ans ? (done ? `<div class="reply">You: <b>${done}</b>. It is done.</div>` : `<div class="ans">${x.ans.map(([a, h]) => `<button data-a="${a}">${a}<small>${h}</small></button>`).join('')}<p class="left">${x.left}</p></div>`) : ''}</div>`; }
+  return `<div class="ib"><div class="ibh"><div><b>${d.title}</b><span>${d.sub}</span></div><div class="pos">${d.pos}<small>${d.tgt}</small></div></div>
+    <button class="sat" data-go="match"><span class="kit"><i style="background:var(--club)"></i><i style="background:var(--opp)"></i></span><span><b>Saturday · ${m.home ? 'vs' : 'at'} ${m.opp}</b><span>${m.stake}</span></span>${m.derby ? '<em>DERBY</em>' : ''}</button>
+    <div class="grp need"><h3>Needs you <i>${need.length || ''}</i></h3>${need.length ? `<div class="list">${need.map(mailRow).join('')}</div>` : '<div class="list"><p class="calm">Nothing needs you this week. Your staff are at work.</p></div>'}</div>
+    <div class="grp"><h3>At the club</h3><div class="list">${M.fyi.concat(M.need.filter(m => STATE.answered[m.id])).map(mailRow).join('')}</div></div></div>`; }
+
+const DEPTS = [
+  { k: 'first', r: 'coach', dept: 'First team', n: 'Pranav Everett', state: 'good', stateT: 'On track', line: '12th, expected 14th. The lads are fit.', word: false,
+    verdict: 'On track', why: 'Twelfth against a target of fourteenth. The defence is still the worry.', quote: '"Give me the winter and we push for the top ten."',
+    work: [['Organise the defence', 'His own plan. Goals against: 9 in the last 4 → 4 in the last 4.', 60]], how: [['Authority', 'Normal'], ['Youth minutes', 'Some'], ['Budget', '£220 a week']], rec: '3 of 4 calls went well this season.' },
+  { k: 'recruit', r: 'dof', dept: 'Recruitment', n: 'Ross Jarvis', state: 'mid', stateT: 'Too early', line: 'Two names on the list for January.', word: true,
+    verdict: 'Too early', why: 'His signings have not played enough to judge.', quote: '"Early days. We are setting things up the right way."',
+    wordMsg: { subj: 'Our scouting in the north is thin', body: '"My reports are guesswork up there. A two-week trip would change that. It costs £1.5k."', ans: [['Send them', '£1.5k · better reports'], ['Not now', 'He keeps guessing']] },
+    work: [['Find a centre-back', 'Agreed with you in week 6. Scouts on it 3 weeks, two reliable reports.', 40]], how: [['Authority', 'Normal'], ['Max fee', 'His budget'], ['Budget', '£300 a week']], rec: '1 hit, 1 miss this season.' },
+  { k: 'academy', r: 'acad', dept: 'Academy', n: 'Mark Moreau', state: 'bad', stateT: 'Struggling', line: 'Category 4. Wants better pitches.', word: true,
+    verdict: 'Struggling', why: 'Category 4, and the next step needs a score of 55. He is at 35.', quote: '"Without better pitches we will not move up."',
+    wordMsg: { subj: 'We need better pitches', body: '"Our lads train on a council field. Give me a proper budget and I will move us up a category."', ans: [['Back to a normal budget', '+£150 a week'], ['We cannot afford it', 'He is disappointed']] },
+    work: [], how: [['Authority', 'Short leash'], ['Pace', 'Patient'], ['Budget', 'Lean · £143 a week']], rec: 'No graduates yet this season.' },
+  { k: 'commercial', r: 'fin', dept: 'Commercial', n: 'Femi Achterberg', state: 'good', stateT: 'Doing well', line: 'Sponsorship up to £2.9k a week.', word: false,
+    verdict: 'Doing well', why: 'Two new sponsors since the summer. Crowds are up.', quote: '"The first of many."',
+    work: [['A second shirt sponsor', 'Talking to two local firms.', 30]], how: [['Authority', 'Free hand'], ['Ticket prices', 'Normal'], ['Budget', '£160 a week']], rec: '4 of 4 deals signed.' },
+  { k: 'marketing', r: 'mkt', dept: 'Marketing', n: 'Nadia Corrigan', state: 'mid', stateT: 'Steady', line: 'Fans warm, but the town barely knows us.', word: false,
+    verdict: 'Steady', why: 'Supporters are loyal; new fans come slowly. The community programme is starting to work.', quote: '"People here support the big club down the road. We have to earn them."',
+    work: [['Schools tour', 'Six of ten schools visited. Kids come to home games for free.', 60]], how: [['Authority', 'Normal'], ['Voice', 'Local and warm'], ['Budget', '£250 a week']], rec: '2 of 3 campaigns paid off.' },
+  { k: 'business', r: 'chair', dept: 'Finance', n: 'Rufus Wilde', state: 'mid', stateT: 'Watchful', line: 'Wages at 47% of income, close to the cap.', word: false,
+    verdict: 'Watchful', why: 'Wages are close to the cap you set. The bank balance is falling slowly.', quote: '"Better now than in March."',
+    work: [], how: [['Authority', 'Normal'], ['Wage cap', '50% of income'], ['Risk', 'Careful']], rec: 'Budgets kept this season.' } ];
+
+const PLAYERS = { coach: '#d9a882' };
+function pface(seed, s = 40) { const skins = ['#f0c7a8', '#d9a882', '#8d5a3b', '#c98c64', '#e6b896'], hairs = ['#2b2b2b', '#5a3a1a', '#1d1d1d', '#9a6b3a'], sk = skins[seed % 5], hr = hairs[seed % 4];
+  return `<svg class="face" style="--s:${s}px" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#fbf4ec"/><path d="M10 64c2-12 11-18 22-18s20 6 22 18z" fill="var(--club)"/><circle cx="32" cy="30" r="15" fill="${sk}"/><path d="M15 26c0-11 8-17 17-17s17 6 17 17c-3-5-8-8-17-8s-14 3-17 8z" fill="${hr}"/><circle cx="26.5" cy="31" r="1.8" fill="#1f1715"/><circle cx="37.5" cy="31" r="1.8" fill="#1f1715"/><path d="M27 38q5 3 10 0" stroke="#1f1715" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>`; }
+const st = (n) => '★'.repeat(Math.floor(n)) + (n % 1 ? '½' : '');
+const UNIQUE = {
+  first: () => `<div class="sec2"><h3>The team</h3><div class="kpis"><div class="kpi"><small>Form</small><div class="form">${'WDWDL'.split('').map(r => `<i class="${r}">${r}</i>`).join('')}</div></div><div class="kpi"><small>Style</small><b>High press</b><span>His way, fits the DNA</span></div><div class="kpi"><small>Fit</small><b>21 of 23</b><span>Bramley out 4 weeks</span></div><div class="kpi"><small>Scored · against</small><b>11 · 9</b><span>In 8 games</span></div></div></div>
+    <div class="sec2"><h3>His likely eleven</h3><div class="work">${[['Koné', 'GK', 3], ['Owusu', 'CB', 3.5], ['Kenworthy', 'CM', 3], ['Ramsden', 'AM', 2.5], ['Tanner', 'ST', 3.5]].map(([n, p, r], i) => `<div class="kid">${pface(i + 2, 36)}<span class="txt"><b>${n}</b><span>${p}</span></span><span class="stars">${st(r)}</span></div>`).join('')}<button class="rowl"><b>Full squad</b><span>Squad ›</span></button></div></div>`,
+  recruit: () => `<div class="sec2"><h3>On the list</h3><div class="work">${[['Dan Webb', '24 · Centre-back · Iberia', 3.5, 'Grade A', 'good', 'Talks open'], ['Kieran Holt', '27 · Centre-back · Domestic', 3, 'Grade B', 'mid', 'Scouted'], ['Luca Ferri', '19 · Winger · Low Countries', 2.5, 'Grade B', 'mid', 'Watching']].map(([n, d, r, g, c, stg], i) => `<div class="kid">${pface(i + 7, 36)}<span class="txt"><b>${n}</b><span>${d}</span></span><span class="stars">${st(r)}<small>${stg}</small></span></div>`).join('')}</div></div>
+    <div class="sec2"><h3>Scouts</h3><div class="work">${[['Stefan Tait', 'Chief scout · watching centre-backs in Iberia'], ['Neil Monroe', 'Scout · Domestic, 3 reports this month']].map(([n, d], i) => `<div class="kid">${pface(i + 11, 36)}<span class="txt"><b>${n}</b><span>${d}</span></span></div>`).join('')}<button class="rowl"><b>Scouting portal</b><span>Find players yourself ›</span></button></div></div>
+    <div class="kpis"><div class="kpi"><small>Transfer budget</small><b>£3.6k</b><span>Set by Finance</span></div><div class="kpi"><small>Window</small><b>Week 17</b><span>Opens in 9 weeks</span></div></div>`,
+  academy: () => `<div class="sec2"><h3>The players</h3><div class="work">${[['Jake Price', 14, 'AM', 1.5, 4.5, 'Standout', 'good'], ['Dan Rowntree', 17, 'CB', 2, 3.5, 'Ready soon', 'good'], ['Owen Fenton', 16, 'ST', 1.5, 3.5, '', 'mid'], ['Kyle Ramsden', 18, 'W', 2, 3, 'In the first team', 'mid'], ['Sam Healy', 15, 'GK', 1, 3, 'Homesick', 'bad']].map(([n, a, p, now, pot, tag, c], i) => `<div class="kid">${pface(i + 3, 36)}<span class="txt"><b>${n}</b><span>${a} · ${p}${tag ? ` · <span class="pill ${c}">${tag}</span>` : ''}</span></span><span class="stars">${st(now)}<small>potential ${st(pot)}</small></span></div>`).join('')}<button class="rowl"><b>All 14 players</b><span>›</span></button></div></div>
+    <div class="kpis"><div class="kpi"><small>Category</small><b>4</b><span>Score 35 · next at 55</span></div><div class="kpi"><small>Pitches</small><b>Council field</b><span>Level 2 of 10</span></div></div>`,
+  commercial: () => `<div class="sec2"><h3>The ground</h3><div class="work"><div><b>2,500 seats · 1,142 last home game</b><span>46% full at £13 a ticket</span></div>${[['Main stand', 60, '£15'], ['North terrace', 35, '£10'], ['East stand', 45, '£13']].map(([n, h, pr]) => `<div><b>${n}</b><span>${h}% full · ${pr} a ticket</span><div class="bar"><i style="width:${h}%"></i></div></div>`).join('')}</div></div>
+    <div class="sec2"><h3>Sponsors</h3><div class="work">${[['Bridgeway Cars', 'Shirt · £1.4k a week · 2 seasons left'], ['Northgate Motors', 'Stand · £670 a week · ends this summer'], ['Riverside Garage', 'Kit · £640 a week']].map(([n, d]) => `<div><b>${n}</b><span>${d}</span></div>`).join('')}</div></div>`,
+  business: () => `<div class="kpis"><div class="kpi"><small>In the bank</small><b>£36.8k</b><span>Down £1.2k a week</span></div><div class="kpi"><small>Wages</small><b>47%</b><span>of income · cap 50%</span></div><div class="kpi"><small>Transfer budget</small><b>£3.6k</b><span>What the DoF may spend</span></div><div class="kpi"><small>Debt</small><b>£0</b><span>No loans</span></div></div>
+    <div class="sec2"><h3>Department budgets</h3><div class="work">${[['First team', 'Normal · £220 a week'], ['Recruitment', 'Normal · £300 a week'], ['Academy', 'Lean · £143 a week']].map(([n, d]) => `<div><b>${n}</b><span>${d}</span></div>`).join('')}<button class="rowl"><b>Change budgets</b><span>›</span></button></div></div>` };
+
+const kidRow = ([n, a, p, now, pot, tag, c, mins], i) => `<div class="kid">${pface(i + 3, 36)}<span class="txt"><b>${n}</b><span>${a} · ${p}${mins ? ` · ${mins}` : ''}${tag ? ` · <span class="pill ${c}">${tag}</span>` : ''}</span></span><span class="stars">${st(now)}<small>potential ${st(pot)}</small></span></div>`;
+const KIDS = [['Jake Price', 14, 'AM', 1.5, 4.5, 'Standout', 'good', '+0.5★ this season'], ['Dan Rowntree', 17, 'CB', 2, 3.5, 'Ready soon', 'good', '+0.5★'], ['Owen Fenton', 16, 'ST', 1.5, 3.5, '', 'mid', 'steady'], ['Kyle Ramsden', 18, 'W', 2, 3, 'First team', 'mid', '3 apps'], ['Sam Healy', 15, 'GK', 1, 3, 'Homesick', 'bad', 'stalled']];
+const spark = (vals, lab) => { const mx = Math.max(...vals), mn = Math.min(...vals), pts = vals.map((v, i) => `${(i / (vals.length - 1) * 300).toFixed(1)},${(50 - (v - mn) / Math.max(1, mx - mn) * 44).toFixed(1)}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 300 56" preserveAspectRatio="none" role="img" aria-label="${lab}"><polyline points="${pts}" fill="none" stroke="var(--club)" stroke-width="2.5"/><circle cx="300" cy="${pts.split(' ').pop().split(',')[1]}" r="4" fill="var(--club)"/></svg>`; };
+const ROOMS = {
+  first: [
+    { id: 'form', t: 'Results and form', v: '12th', vs: 'target 14th', line: 'W D W D L · 11 scored, 9 against', body: () => `<div class="kpis"><div class="kpi"><small>Position</small><b>12th</b><span>Target 14th</span></div><div class="kpi"><small>Points per game</small><b>1.25</b><span>Needed: 1.10</span></div></div><div class="sec2"><h3>Last five</h3><div class="work">${[['W', 'Millgate 2–1', 'Kenworthy ran the midfield'], ['D', 'Kelmoor 1–1', 'Late equaliser'], ['W', 'Harham 3–0', 'Cropper man of the match'], ['D', 'Dunhaven 0–0', ''], ['L', 'Marworth 1–2', 'Two set pieces']].map(([r, sc, n]) => `<div class="kid"><span class="form"><i class="${r}">${r}</i></span><span class="txt"><b>${sc}</b><span>${n}</span></span></div>`).join('')}</div></div><div class="sec2"><h3>Position over the season</h3>${spark([16, 15, 13, 12, 14, 12, 11, 12], 'League position')}</div>` },
+    { id: 'squad', t: 'The squad, through his eyes', v: '21/23', vs: 'fit', line: 'Strongest: wingers. Worry: centre-back.', body: () => `<p class="lede">How the coach rates each line, and who he trusts.</p><table class="tbl"><tr><th>Line</th><th>Best</th><th class="r">His view</th></tr>${[['Goalkeeper', 'Koné 3★', 'Fine'], ['Defence', 'Owusu 3.5★', 'Too slow'], ['Midfield', 'Kenworthy 3★', 'Solid'], ['Attack', 'Tanner 3.5★', 'Our strength']].map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td class="r">${r[2]}</td></tr>`).join('')}</table><div class="sec2"><h3>Injured</h3><div class="work"><div class="kid">${pface(4, 36)}<span class="txt"><b>Rhys Bramley</b><span>Hamstring · back in 4 weeks</span></span></div></div></div>` },
+    { id: 'mandate', t: 'Your mandate vs what he does', v: '82%', vs: 'in line', line: 'Plays high press as asked. Youth minutes below your 15%.', flag: 1, body: () => `<table class="tbl"><tr><th>You asked</th><th class="r">He does</th></tr>${[['High press', 'High press ✓'], ['Youth minutes 15%', '6% ✗'], ['Rotate in cup games', 'Yes ✓'], ['Play two up front', 'Mostly ✓']].map(r => `<tr><td>${r[0]}</td><td class="r">${r[1]}</td></tr>`).join('')}</table><p class="lede">"The kids are not ready for league football yet," says Everett. Two weeks below 15% and the academy will complain.</p>` },
+    { id: 'staff', t: 'Support staff', v: '2', vs: 'of 3 places', line: 'Assistant and physio. Wants a sports scientist.', body: () => `<div class="work">${[['Glen Hart', 'Assistant coach · tactics +1', 'Steady'], ['Ana Ruiz', 'Physio · injuries heal faster', 'Young talent']].map(([n, d, t], i) => `<div class="kid">${pface(i + 9, 36)}<span class="txt"><b>${n}</b><span>${d}</span></span><span class="pill mid">${t}</span></div>`).join('')}</div><p class="lede">He hires and lets go his own staff. With the current budget there is room for one more.</p>` },
+    { id: 'target', t: 'His promise', v: 'Wk 19', vs: 'judged', line: '"Top ten by the winter break." 12th now.', body: () => `<div class="tl2"><div><b>Week 3 · agreed</b><span>"Top ten by the winter break."</span></div><div><b>Week 8 · now</b><span>12th, two points off tenth.</span></div><div><b>Week 19 · judged</b><span>Met: trust and a boost. Missed: trust and the board both drop.</span></div></div>` }],
+  recruit: [
+    { id: 'plan', t: 'The squad plan', v: '3', vs: 'needs', line: 'Winter: centre-back (agreed with you). Summer: goalkeeper, ageing midfield.', body: () => `<div class="sec2"><h3>Winter</h3><div class="work"><div><b>Centre-back · agreed with you</b><span>Owusu is the only fit option above 3★.</span></div></div></div><div class="sec2"><h3>Next summer</h3><div class="work"><div><b>Goalkeeper</b><span>Koné's contract ends; no successor.</span></div><div><b>Central midfield</b><span>Two starters over 31.</span></div></div></div><div class="sec2"><h3>Why the plan changed</h3><div class="tl2"><div><b>Week 6</b><span>Centre-back added after the meeting with you.</span></div><div><b>Week 4</b><span>Full-back dropped: Whitlock back from injury.</span></div></div></div>` },
+    { id: 'list', t: 'On the list', v: '3', vs: 'players', line: 'Dan Webb, grade A, talks open.', body: () => `<table class="tbl"><tr><th>Player</th><th>Stage</th><th class="r">Fee</th></tr>${[['Dan Webb · CB · 24', 'Talks open', '£2.9k'], ['Kieran Holt · CB · 27', 'Scouted', '£3.4k'], ['Luca Ferri · W · 19', 'Watching', '£1.2k']].map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td class="r">${r[2]}</td></tr>`).join('')}</table><div class="sec2"><h3>Dan Webb, the talks</h3><div class="tl2"><div><b>Round 1</b><span>£2.4k rejected. They want £3.1k.</span></div><div><b>Round 2</b><span>£2.9k on the table. Waiting.</span></div></div></div>` },
+    { id: 'scouts', t: 'The scouts', v: '2', vs: 'scouts', line: 'Watching centre-backs in Iberia. Network: thin.', body: () => `<div class="work">${[['Stefan Tait', 'Chief scout · Iberia · centre-backs, 2 weeks left', '9 reports'], ['Neil Monroe', 'Scout · Domestic · general', '4 reports']].map(([n, d, r], i) => `<div class="kid">${pface(i + 11, 36)}<span class="txt"><b>${n}</b><span>${d}</span></span><span class="stars">${r}</span></div>`).join('')}</div><div class="sec2"><h3>Where we know the market</h3><div class="chips">${[['Domestic', 'Thin'], ['Low Countries', 'Barely'], ['Iberia', 'Growing'], ['Scandinavia', 'None']].map(([r, n]) => `<span class="chip">${r}: ${n}</span>`).join('')}</div></div>` },
+    { id: 'signed', t: 'Signed this season', v: '1–1', vs: 'hit · miss', line: 'Carver a hit, Stroud not yet.', body: () => `<div class="work">${[['Sam Carver · W', 'Rated 3★ when signed · now 3★ · 6.9 average', 'Hit', 'good'], ['Dele Stroud · CM', 'Rated 3★ · now 2.5★ · 6.2 average', 'Miss', 'bad']].map(([n, d, t, c], i) => `<div class="kid">${pface(i + 5, 36)}<span class="txt"><b>${n}</b><span>${d}</span></span><span class="pill ${c}">${t}</span></div>`).join('')}</div>` },
+    { id: 'money', t: 'Money and rules', v: '£3.6k', vs: 'budget', line: 'Max age 32 · wage limit £455 a week · window in 9 weeks.', body: () => `<div class="kpis"><div class="kpi"><small>Transfer budget</small><b>£3.6k</b><span>Set by Finance</span></div><div class="kpi"><small>Wage limit</small><b>£455</b><span>A week, his mandate</span></div><div class="kpi"><small>Max age</small><b>32</b><span>Your rule</span></div><div class="kpi"><small>Needs your OK</small><b>Over £2k</b><span>Your rule</span></div></div>` }],
+  academy: [
+    { id: 'kids', t: 'The players', v: '14', vs: 'players', line: 'Price (14) is the standout. Healy is homesick.', body: () => `<div class="work">${KIDS.map(kidRow).join('')}</div><p class="lede">Nine more players, none above 1★ yet.</p>` },
+    { id: 'growth', t: 'Are the kids growing?', v: '+0.3★', vs: 'average', line: 'Faster than last season. Pitches hold them back.', body: () => `<div class="sec2"><h3>Average rating of the academy</h3>${spark([1.1, 1.2, 1.2, 1.3, 1.4, 1.4, 1.5], 'Academy average')}</div><p class="lede">"Coaching is good. The council field is not," says Moreau.</p>` },
+    { id: 'path', t: 'Do they reach the first team?', v: '1', vs: 'this season', line: 'Ramsden: 3 apps. The Rowntree question is open.', body: () => `<div class="tl2"><div><b>Kyle Ramsden · promoted week 7</b><span>3 appearances, rated 6.4.</span></div><div><b>Dan Rowntree · the open question</b><span>Moreau wants him in the squad; the coach says he is not ready. An agreement with you is due.</span></div></div><div class="kpis"><div class="kpi"><small>Credibility</small><b>Fair</b><span>Do we play our kids?</span></div><div class="kpi"><small>Youth minutes</small><b>6%</b><span>You asked 15%</span></div></div>` },
+    { id: 'intake', t: 'Trial day and intake', v: 'Wk 28', vs: 'trial day', line: 'Last intake: 4 players, one 3★ potential.', body: () => `<p class="lede">Every spring the recruiters pick this year's intake. You tell them what to look for.</p><div class="work"><div><b>Last intake (season 0)</b><span>4 players · best potential 3★ · from the town and Iberia</span></div><div><b>This year</b><span>Trial day in week 28.</span></div></div>` },
+    { id: 'staff', t: 'Academy staff', v: '1', vs: 'of 2 places', line: 'One youth coach. Wants a welfare officer.', body: () => `<div class="work"><div class="kid">${pface(13, 36)}<span class="txt"><b>Lee Grant</b><span>Youth coach · development +1</span></span><span class="pill mid">Steady</span></div></div>` },
+    { id: 'cat', t: 'Category and facilities', v: 'Cat 4', vs: 'score 35/55', line: 'Pitches level 2. Needs 55 for category 3.', flag: 1, body: () => `<table class="tbl"><tr><th>Part of the score</th><th class="r">Points</th></tr>${[['Coaching', '12 / 20'], ['Facilities', '6 / 20'], ['Graduates', '8 / 20'], ['Welfare', '9 / 15']].map(r => `<tr><td>${r[0]}</td><td class="r">${r[1]}</td></tr>`).join('')}</table><p class="lede">Facilities are the weak part. A training base of our own would lift it.</p>` }],
+  commercial: [
+    { id: 'match', t: 'Matchday', v: '46%', vs: 'full', line: '1,142 of 2,500 at £13. Family day next home game.', body: () => `<div class="work">${[['Main stand', 60, '£15'], ['North terrace', 35, '£10'], ['East stand', 45, '£13']].map(([n, h, pr]) => `<div><b>${n}</b><span>${h}% full · ${pr} a ticket</span><div class="bar"><i style="width:${h}%"></i></div></div>`).join('')}</div><div class="sec2"><h3>Crowd over the season</h3>${spark([980, 1053, 1100, 1090, 1142], 'Crowd')}</div>` },
+    { id: 'spons', t: 'Sponsors', v: '£2.9k', vs: 'a week', line: '3 sponsors. One ends this summer. An offer is on the table.', body: () => `<div class="work">${[['Bridgeway Cars', 'Shirt · £1.4k a week · 2 seasons left'], ['Northgate Motors', 'Stand · £670 a week · ends this summer'], ['Riverside Garage', 'Kit · £640 a week']].map(([n, d]) => `<div><b>${n}</b><span>${d}</span></div>`).join('')}</div><div class="sec2"><h3>On the table</h3><div class="work"><div><b>Halden Logistics</b><span>Training kit · £520 a week · 3 seasons · he recommends yes</span></div></div></div>` },
+    { id: 'merch', t: 'Shop', v: '£410', vs: 'a week', line: 'Up 12% since the winning run.', body: () => `${spark([300, 320, 350, 380, 410], 'Shop income')}<p class="lede">Shop income follows results and the brand.</p>` }],
+  marketing: [
+    { id: 'fans', t: 'Supporters', v: '2,840', vs: 'fans', line: 'Up 6% this season. Mood: warm.', body: () => `<div class="kpis"><div class="kpi"><small>Fans</small><b>2,840</b><span>+170 this season</span></div><div class="kpi"><small>Mood</small><b>Warm</b><span>Results help</span></div><div class="kpi"><small>Season tickets</small><b>610</b><span>Target 700</span></div><div class="kpi"><small>Away following</small><b>~90</b><span>A game</span></div></div><div class="sec2"><h3>Fans over time</h3>${spark([2600, 2640, 2700, 2690, 2760, 2840], 'Fans')}</div>` },
+    { id: 'camp', t: 'Campaign', v: 'Wk 3/6', vs: 'running', line: '"Our town, our club": posters and local radio.', body: () => `<div class="tl2"><div><b>Week 6 · started</b><span>£1.2k for six weeks of posters and local radio.</span></div><div><b>Week 8 · now</b><span>+60 fans so far. Crowd up by about 50.</span></div><div><b>Week 12 · ends</b><span>She will tell you whether it paid off.</span></div></div>` },
+    { id: 'comm', t: 'Community programme', v: '6/10', vs: 'schools', line: 'Schools tour. Free tickets bring families.', body: () => `<div class="work"><div><b>Schools tour</b><span>6 of 10 schools visited · 140 free tickets used</span></div><div><b>Walking football</b><span>Thursday mornings · 25 regulars</span></div></div><p class="lede">Slow money, but these are the fans of the next ten years.</p>` },
+    { id: 'name', t: 'How the town sees us', v: 'Small', vs: 'reputation', line: 'Known in the old town. Unknown on the new estates.', flag: 1, body: () => `<div class="chips">${[['Old town', 'Known'], ['New estates', 'Unknown'], ['Local paper', 'Friendly'], ['Radio', 'Now and then']].map(([r, n]) => `<span class="chip">${r}: ${n}</span>`).join('')}</div><p class="lede">"The estates are where the young families live. That is our next campaign," says Corrigan.</p>` }],
+  business: [
+    { id: 'run', t: 'Runway', v: '30 wk', vs: 'of cash', line: '£36.8k in the bank, down £1.2k a week.', flag: 1, body: () => `${spark([52, 49, 46, 44, 42, 40, 38, 36.8], 'Cash')}<p class="lede">At this rate the money lasts about 30 weeks. Rufus wants costs down before March.</p>` },
+    { id: 'flow', t: 'Money flow last week', v: '−£1.2k', vs: 'net', line: 'In £6.6k · out £7.8k. Wages are the biggest cost.', body: () => `<table class="tbl"><tr><th>In</th><th class="r">£</th></tr>${[['Tickets', '1.6k'], ['Sponsors', '2.9k'], ['Shop', '0.4k'], ['Prize money', '1.7k']].map(r => `<tr><td>${r[0]}</td><td class="r">${r[1]}</td></tr>`).join('')}<tr><th>Out</th><th class="r"></th></tr>${[['Player wages', '3.1k'], ['Staff wages', '2.2k'], ['Departments', '1.6k'], ['Ground', '0.9k']].map(r => `<tr><td>${r[0]}</td><td class="r">${r[1]}</td></tr>`).join('')}</table>` },
+    { id: 'budgets', t: 'Money per department', v: '£618', vs: 'a week', line: 'Academy and commercial on lean.', body: () => `<div class="work">${[['First team', 'Normal · £220 a week'], ['Recruitment', 'Normal · £300 a week'], ['Academy', 'Lean · £143 a week'], ['Commercial', 'Lean · £104 a week'], ['Marketing', 'Normal · £250 a week']].map(([n, d]) => `<div><b>${n}</b><span>${d}</span></div>`).join('')}</div>` },
+    { id: 'proj', t: 'Projects', v: '1', vs: 'running', line: 'Data department, due in 1 week.', body: () => `<div class="tl2"><div><b>Data department · due week 9</b><span>£6k spent. Owner: the DoF.</span></div><div><b>Scouting office, Low Countries · delivered</b><span>Network there grows faster.</span></div></div>` }] };
+let ROOM = null;
+function roomView(D) { const R = ROOMS[D.k].find(x => x.id === ROOM); return `<div class="rp"><button class="back" data-rback>‹ ${D.dept}</button><h2>${R.t}</h2>${R.body()}</div>`; }
+let SCREEN = 'home', DEP = null;
+function deptsView() {
+  if (DEP) { const D = DEPTS.find(x => x.k === DEP), done = STATE.answered['w-' + D.k];
+    return `<div class="pg"><button class="back" data-dback>‹ Depts</button><div class="hd">${face(D.r, 60)}<div><b>${D.n}</b><small>${D.dept} · relationship good</small></div></div>
+      <div class="verdict"><small>How it is going</small><b class="${D.state}">${D.verdict}</b><p>${D.why}</p><q>${D.quote}</q></div>
+      ${D.word ? `<div class="sec2"><h3>Wants a word</h3><div class="list"><button class="msg ${done ? 'done' : ''}" data-word="${D.k}"><span class="dot ${done ? 'off' : ''}"></span>${face(D.r, 44)}<span class="txt"><span class="from">${D.n.split(' ')[0]}<small>${done ? 'Answered' : 'Needs you'}</small></span><span class="subj">${D.wordMsg.subj}</span><span class="prev">${done ? 'You: ' + done : D.wordMsg.body}</span></span></button></div></div>` : ''}
+      ${ROOMS[D.k] ? `<div class="sec2"><h3>The department</h3><div class="list">${ROOMS[D.k].map(R => `<button class="room" data-room="${R.id}"><b>${R.t}</b><span class="val">${R.v}<small>${R.vs}</small></span><span class="${R.flag ? 'flag' : ''}">${R.line}</span></button>`).join('')}</div></div>` : ''}
+      ${D.work.length ? `<div class="sec2"><h3>Working on</h3><div class="work">${D.work.map(([t, s, p]) => `<div><b>${t}</b><span>${s}</span><div class="bar"><i style="width:${p}%"></i></div></div>`).join('')}</div></div>` : ''}
+      <div class="sec2"><h3>How he works</h3><div class="list">${D.how.map(([a, b]) => `<button class="rowl"><b>${a}</b><span>${b} ›</span></button>`).join('')}</div></div>
+      <div class="sec2"><h3>His record</h3><div class="list"><button class="rowl"><b>${D.rec}</b><span>›</span></button></div></div></div>`; }
+  const want = DEPTS.filter(D => D.word && !STATE.answered['w-' + D.k]).length;
+  return `<div class="dp"><div class="ibh"><div><b>Your people</b><span>${want ? `${want} want a word` : 'Nobody is waiting for you.'}</span></div></div>
+    <div class="list">${DEPTS.map(D => `<button class="person" data-dep="${D.k}" style="position:relative">${face(D.r, 52)}${D.word && !STATE.answered['w-' + D.k] ? '<span class="word" aria-label="wants a word"></span>' : ''}<span class="txt"><span class="dept">${D.dept}</span><b>${D.n}</b><span class="line">${D.line}</span></span><span class="state ${D.state}">${D.stateT}</span></button>`).join('')}</div></div>`; }
+function wordView(D) { const w = D.wordMsg, done = STATE.answered['w-' + D.k];
+  return `<div class="open"><button class="back" data-wback>‹ ${D.dept}</button><div class="hd">${face(D.r, 56)}<div><b>${D.n}</b><small>${D.dept}</small></div></div><h2>${w.subj}</h2><p>${w.body}</p>${done ? `<div class="reply">You: <b>${done}</b>. It is done.</div>` : `<div class="ans">${w.ans.map(([a, h]) => `<button data-wa="${a}">${a}<small>${h}</small></button>`).join('')}<p class="left">Leave it two weeks and he decides himself.</p></div>`}</div>`; }
+let WORD = null;
+let C = 'D', WK = 'quiet';
+try { C = localStorage.getItem('fo-c2') || 'D'; WK = localStorage.getItem('fo-w') || 'quiet'; } catch (e) {}
+const $ = id => document.getElementById(id);
+function face(r, s = 56) { const [skin, hair, style] = FACES[r] || FACES.coach;
+  const hairPath = style === 1 ? '<path d="M14 26c0-12 9-18 18-18s18 6 18 18c-3-6-9-9-18-9s-15 3-18 9z" fill="' + hair + '"/>' : style === 2 ? '<path d="M15 24c2-9 9-13 17-13s15 4 17 13c-4-3-6-6-6-6-4 4-18 4-22 0 0 0-2 3-6 6z" fill="' + hair + '"/>' : '<path d="M14 28c0-14 8-20 18-20s18 6 18 20c-2-4-6-8-9-8h-18c-3 0-7 4-9 8z" fill="' + hair + '"/>';
+  return `<svg class="face" style="--s:${s}px" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#fbf4ec"/><path d="M10 64c2-12 11-18 22-18s20 6 22 18z" fill="#1f2a44"/><path d="M28 46h8l-4 10z" fill="#fff"/><path d="M31 48h2l1 10h-4z" fill="#7a1e2b"/><circle cx="32" cy="30" r="15" fill="${skin}"/>${hairPath}<circle cx="26.5" cy="31" r="1.8" fill="#1f1715"/><circle cx="37.5" cy="31" r="1.8" fill="#1f1715"/><path d="M27 38q5 3 10 0" stroke="#1f1715" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>`; }
+function who(p, i, s) { return `<button class="who" data-p="${i}" aria-label="${p.n} wants a word">${face(p.r, s)}<span class="bang" aria-hidden="true">!</span><small>${p.role === 'Board' ? 'Chairman' : p.n.split(' ')[0]}</small></button>`; }
+function room(d) {
+  const flags = d.sky === 'flags', storm = d.sky === 'storm';
+  return `<svg class="room" viewBox="0 0 390 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <rect width="390" height="520" fill="var(--wall)"/>
+    <rect x="22" y="70" width="230" height="170" rx="6" fill="${storm ? '#5f6b78' : 'var(--sky1)'}" stroke="var(--ink)" stroke-width="3"/>
+    <rect x="25" y="73" width="224" height="80" fill="${storm ? '#4a5560' : 'var(--sky2)'}" opacity=".6"/>
+    ${storm ? '<path d="M60 90q20-14 40 0q20-14 40 0" stroke="#2c333a" stroke-width="10" fill="none" stroke-linecap="round"/>' : '<circle cx="210" cy="100" r="14" fill="#f3d36b"/>'}
+    <path d="M40 200 L70 160 H205 L235 200 Z" fill="#c9c2b8" stroke="var(--ink)" stroke-width="2"/>
+    <rect x="70" y="150" width="135" height="12" fill="var(--club)" stroke="var(--ink)" stroke-width="2"/>
+    <path d="M30 236 H244 V200 H30Z" fill="var(--grass)"/>
+    ${[78, 112, 146, 180].map(x => `<line x1="${x}" y1="150" x2="${x}" y2="128" stroke="var(--ink)" stroke-width="2"/>${flags ? `<path d="M${x} 128 l14 5 -14 5z" fill="${x % 68 ? 'var(--club)' : 'var(--gold)'}"/>` : ''}`).join('')}
+    <line x1="137" y1="70" x2="137" y2="240" stroke="var(--ink)" stroke-width="3"/><line x1="22" y1="155" x2="252" y2="155" stroke="var(--ink)" stroke-width="2" opacity=".0"/>
+    <rect x="276" y="60" width="96" height="300" rx="4" fill="var(--wood)" stroke="var(--ink)" stroke-width="3"/>
+    <rect x="286" y="72" width="76" height="276" rx="2" fill="${d.door.length ? '#f6d98a' : '#3b2a20'}" opacity="${d.door.length ? '.55' : '.5'}"/>
+    <rect x="0" y="380" width="390" height="140" fill="var(--wood)"/><rect x="0" y="372" width="390" height="14" fill="#6e4329" stroke="var(--ink)" stroke-width="2"/>
+    <rect x="220" y="330" width="34" height="44" rx="4" fill="#fff" stroke="var(--ink)" stroke-width="2"/><path d="M254 342q12 0 12 10t-12 10" fill="none" stroke="var(--ink)" stroke-width="2"/>
+  </svg>`; }
+function render() {
+  const d = W[WK];
+  document.querySelectorAll('#sSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.s === SCREEN)); $('conceptCtl').hidden = SCREEN !== 'home';
+  $('tabs').innerHTML = ['Home', 'Club', 'Squad', 'League', 'Depts'].map(t => `<span class="${(SCREEN === 'home' && t === 'Home') || (SCREEN === 'depts' && t === 'Depts') ? 'on' : ''}">${t}</span>`).join('');
+  document.querySelectorAll('#cSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.c === C));
+  document.querySelectorAll('#wSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.w === WK));
+  $('idea').textContent = IDEA[C]; $('wk').textContent = d.wk; $('sheet').hidden = true;
+  const m = d.match;
+  $('go').innerHTML = `▶ Next match <small>${m.home ? 'vs' : 'at'} ${m.opp}</small>`;
+  let h = '';
+  if (SCREEN === 'depts') { $('idea').textContent = 'Each department: how it is going, who wants a word, then its rooms. Every room is one line with its key number; tap for the full detail.'; h = WORD ? wordView(DEPTS.find(x => x.k === WORD)) : ROOM && DEP ? roomView(DEPTS.find(x => x.k === DEP)) : deptsView(); $('screen').innerHTML = h; return; }
+  if (C === 'D') h = inboxView(d);
+  if (C === 'A') {
+    h = `<div class="office">${room(d)}
+      <div class="caption"><div class="tag"><b>${d.title}</b><span>${d.sub}</span></div><div class="pos">${d.pos}<small>${d.tgt}</small></div></div>
+      <button class="hotspot" data-go="club" style="left:22px;top:70px;width:230px;height:170px" aria-label="Your club, seen from the window"></button>
+      <button class="paperOn" data-go="paper"><small>THE HARWICK GAZETTE</small><b>${d.paper.head}</b></button>
+      <div class="door">${d.door.length ? d.door.map((p, i) => who(p, i, 54)).join('') : '<span class="empty" style="background:var(--paper);border:1.5px solid var(--ink);border-radius:10px;padding:4px 8px;font-size:12px">Nobody at the door</span>'}</div>
+    </div>`;
+  }
+  if (C === 'B') {
+    h = `<div class="hero"><div class="sides"><div class="side" style="background:var(--club)"><div><b>HAR</b><small>${d.pos}</small></div></div><span class="vs">${m.home ? 'vs' : 'at'}</span><div class="side" style="background:var(--opp)"><div><b>${m.opp.slice(0, 3).toUpperCase()}</b><small>${m.oppPos}</small></div></div></div>
+      <div class="meta">${m.derby ? '<span class="derby">DERBY</span>' : ''}<b>Saturday · ${m.full}</b><span>${m.stake}. Watch ${m.watch}.</span></div></div>
+      <div class="atdoor"><h3>At your door</h3>${d.door.length ? `<div class="row">${d.door.map((p, i) => who(p, i, 52)).join('')}</div>` : '<p class="empty">Nobody needs you this week.</p>'}</div>
+      <button class="strip" data-go="paper">${face(d.paper.leadWho, 34)}<span><small>THE HARWICK GAZETTE</small><b>${d.paper.head}</b></span></button>`;
+  }
+  if (C === 'C') {
+    const lead = d.door[0];
+    h = `<div class="fp"><div class="mast"><b>The Harwick Gazette</b><small>SEASON 1 · ${d.wk.toUpperCase()} · ${d.paper.kicker}</small></div>
+      <h2>${d.paper.head}</h2>
+      <div class="lead">${face(d.paper.leadWho, 64)}<p>${d.paper.lead}</p></div>
+      <div class="cols">
+        <button class="col" ${lead ? 'data-p="0"' : ''}><small>The boardroom</small><b>${lead ? '1 to decide' : 'All signed'}</b><span>${lead ? lead.t.split('.')[0].replace(/^"/, '') + '…' : 'Nothing needs you.'}</span></button>
+        <button class="col" ${d.door[1] ? 'data-p="1"' : ''}><small>At the club</small><b>${d.door.length ? d.door.length + ' at your door' : 'All quiet'}</b><span>${d.door.length ? d.door.map(p => p.n.split(' ').slice(-1)[0]).join(', ') : 'Staff at work.'}</span></button>
+        <button class="col" data-go="match"><small>Saturday</small><b>${m.home ? 'vs' : 'at'} ${m.opp}</b><span>${m.stake}.</span></button>
+      </div></div>`;
+  }
+  $('screen').innerHTML = h;
+  try { localStorage.setItem('fo-c2', C); localStorage.setItem('fo-w', WK); } catch (e) {}
+}
+function sheet(html) { const s = $('sheet'); s.innerHTML = html; s.hidden = false; }
+document.addEventListener('click', e => {
+  const c = e.target.closest('[data-c]'), w = e.target.closest('[data-w]'), p = e.target.closest('[data-p]'), g = e.target.closest('[data-go]'), x = e.target.closest('[data-x]');
+  if (c) { C = c.dataset.c; OPEN = null; render(); return; } if (w) { WK = w.dataset.w; OPEN = null; render(); return; }
+  const sc = e.target.closest('[data-s]'), dep = e.target.closest('[data-dep]'), db = e.target.closest('[data-dback]'), wd = e.target.closest('[data-word]'), wb = e.target.closest('[data-wback]'), wa = e.target.closest('[data-wa]');
+  const rm = e.target.closest('[data-room]'), rb = e.target.closest('[data-rback]'); if (rm) { ROOM = rm.dataset.room; render(); return; } if (rb) { ROOM = null; render(); return; }
+  if (sc) { SCREEN = sc.dataset.s; DEP = null; WORD = null; OPEN = null; ROOM = null; render(); return; } if (dep) { DEP = dep.dataset.dep; ROOM = null; render(); return; } if (db) { DEP = null; ROOM = null; render(); return; } if (wd) { WORD = wd.dataset.word; render(); return; } if (wb) { WORD = null; render(); return; } if (wa) { STATE.answered['w-' + WORD] = wa.dataset.wa; render(); return; }
+  const mm = e.target.closest('[data-m]'), bk = e.target.closest('[data-back]'), an = e.target.closest('.ans [data-a]');
+  if (mm) { OPEN = mm.dataset.m; render(); return; } if (bk) { OPEN = null; render(); return; } if (an) { STATE.answered[OPEN] = an.dataset.a; render(); return; }
+  if (x) { $('sheet').hidden = true; return; }
+  if (p) { const P = W[WK].door[+p.dataset.p]; if (!P) return; sheet(`<div class="hd">${face(P.r, 52)}<div><b>${P.n}</b><small>${P.role} · wants a word</small></div></div><p>${P.t}</p><div class="btns"><button class="k" data-x>${P.a}</button><button data-x>${P.b}</button></div>`); return; }
+  if (g) { const k = g.dataset.go, d = W[WK]; sheet(k === 'paper' ? `<div class="hd"><div><b>The Harwick Gazette</b><small>This week's edition</small></div></div><p><b>${d.paper.head}.</b> ${d.paper.lead}</p><div class="btns"><button class="k" data-x>Read the paper</button><button data-x>Close</button></div>`
+      : k === 'club' ? `<div class="hd"><div><b>Your club</b><small>From the window</small></div></div><p>The County Ground, 6,000 seats. ${d.pos}, ${d.tgt}. The stadium you see grows with the club.</p><div class="btns"><button class="k" data-x>Open the club</button><button data-x>Close</button></div>`
+      : `<div class="hd"><div><b>${d.match.full}</b><small>Saturday</small></div></div><p>${d.match.stake}. Watch ${d.match.watch}.</p><div class="btns"><button class="k" data-x>To the preview</button><button data-x>Close</button></div>`); return; }
+  if (e.target.closest('#go')) { const d = W[WK]; sheet(`<div class="hd"><div><b>${d.match.full}</b><small>${d.match.home ? 'Home' : 'Away'} · Saturday</small></div></div><p>${d.match.stake}.</p><div class="btns"><button class="k" data-x>Kick off</button><button data-x>Not yet</button></div>`); }
+});
+render();
+</script>

@@ -46,57 +46,57 @@ Maak er **een spel** van dat onmiskenbaar **voetbal** is, terwijl de speler **vo
 3. **Je ziet je club:** kleuren, wapen, tenue, stadion, publiek.
 4. **Er staat iets op het spel:** echte kans op falen, en herstel dat je zelf verdient.
 5. **Hoogtepunten worden momenten:** promotie, beker, records en afscheid krijgen een eigen scherm dat je onthoudt.
-6. **Elke week iets doen waar meteen resultaat op zit** (toegevoegd door de eigenaar). Een spellaag bovenop de bestaande lagen. De speler doet elke week iets kleins als eigenaar, en ziet direct dat het werkt.
-   - Het doel is het korte-termijngevoel van "ik deed iets, en kijk: het werkt".
-   - Wat de speler doet, moet niet alleen een getal verschuiven. Het effect moet zichtbaar worden in mensen, op de tribune, in de kas of op het veld.
+6. **Elke week iets leuks om te zien, en een club die je zichtbaar opbouwt** (toegevoegd door de eigenaar).
+   - **Kort:** elke week een levendige feed met updates over je spelers, je staf, de regio en de stad. De wereld moet dynamisch genoeg zijn om verrassend te blijven.
+   - **Lang:** een upgradeboom voor de club als plek, verdiend met punten uit de ALV, gehouden beloftes en sportieve mijlpalen.
 
-## De wekelijkse spellaag: snel resultaat
+## De wekelijkse laag: een levende feed en een club die groeit
 
-### Waarom
-Het bureau en de vergaderingen zijn **trage** beloningen: een afspraak werkt pas weken later door. Een spel heeft ook **snelle** beloningen nodig, elke week en liefst binnen één tik.
-Deze laag komt bovenop de bestaande lagen. Ze vervangt niets.
+### Keuzes van de eigenaar (bindend)
+- **Geen wedstrijdpremies en geen weekdoelen.**
+- **Het plezier zit in elke week naar leuke updates kijken,** in een wereld waar genoeg dynamisch gebeurt.
+- **Een upgradeboom is welkom,** gekoppeld aan punten:
+  - **punten uit:** de ALV (meer bij een ruimere herverkiezing), gehouden beloftes, sportieve mijlpalen (promotie, bekerrondes, een academiedebuut, records);
+  - **gebroken beloftes kosten een punt.**
+- **De boom bouwt de club als plek op:** stadion, academie, trainingscomplex, scouting en gemeenschap.
+- **Updates verschijnen als een feed met kaarten.**
 
-### Spanning met eerdere ontwerpregels (benoem dit eerlijk)
-De oorspronkelijke opdracht verbiedt drie dingen:
-- willekeurige wekelijkse verplichtingen;
-- schijnkeuzes;
-- een upgradesysteem in tycoon-stijl.
+Dit herziet het verbod op een upgradesysteem uit de oorspronkelijke opdracht, op uitdrukkelijk verzoek van de eigenaar. Het blijft wel verbonden met het voorzitterschap: punten verdien je met je woord en met resultaten, niet met klikken.
 
-Daarom gelden voor deze laag vijf regels:
-1. **Vrijwillig.** Een week zonder actie is een prima week. Er is niets dat je "moet" afvinken.
-2. **Elke actie raakt mensen of de club**, niet een abstract getal. Het resultaat is direct zichtbaar: een speler die opleeft, een vollere tribune, geld in de kas, een moment in de wedstrijd.
-3. **Eigenaarsniveau.** Geen opstelling of training, wel wat een betrokken eigenaar doet.
-4. **Echte afweging.** Elke week een paar opties uit een kleine, schaarse ruimte (de avonden of de invloed van de eigenaar), en ze kosten iets: geld, tijd of goodwill.
-5. **Geen upgradeboom.** Investeringen zijn eenmalige beslissingen met mensen eraan, zoals "de jeugdtrainer krijgt een minibus". Geen niveaus die je opwaardeert.
+### A. De feed: 4–6 kaarten per week
+- **Elke kaart:** een gezicht, wapen of beeld; een kop van maximaal acht woorden; één zin. Tik voor meer: het spelersprofiel, de club, de persoon.
+- **De belangrijkste kaart staat bovenaan:** iets over je eigen club, iemand die je kent, of je rivaal.
+- **Vier bronnen.** Elke week minstens drie verschillende, gekozen naar relevantie:
+  1. **Je spelers:** debuut, eerste doelpunt, vormdip, terugkeer na blessure, een verjaardag, vader worden, ruzie in de kleedkamer, een vriendschap, een speler die bij de jeugd meetraint, een speler die bijna stopt.
+  2. **Je staf aan het werk:** de TD bij een wedstrijd elders, de uitslag van een jeugdteam, de coach die iets nieuws probeert, de financieel directeur over de kas.
+  3. **De regio:** ontslagen, transfers, een club in de schulden, een wonderjongen bij de rivaal, een voorzitter die wordt weggestemd, en mensen die je kent die van club wisselen.
+  4. **De stad en de fans:** een uitverkocht uitvak, een sponsor die stopt of begint, de gemeente met een plan, een clubicoon die jarig is, een supporter met een verhaal.
 
-### Bouwstenen om te onderzoeken (stel ze voor in fase B, kies er samen met de eigenaar 2 à 3)
-- **De week van de eigenaar.** Een paar korte acties per week, elk met direct zichtbaar effect. Voorbeelden:
-  - een training bezoeken: de moraal van de speler die je spreekt, zichtbaar omhoog;
-  - een sponsor ontvangen in de bestuurskamer: geld in de kas, tikkend in beeld;
-  - een fanavond in het supporterscafé: de stemming van een groep en de verwachte opkomst;
-  - de jeugd bezoeken: een talent dat opvalt en naar voren schuift;
-  - met de TD naar een wedstrijd elders: een vrije speler of doelwit in beeld.
-- **Een premie per wedstrijd** (eigenaarsbesluit): een winst- of derbypremie. Die kost geld, geeft een zichtbare moraalboost, en komt terug in de uitslag ("The bonus showed in the last ten minutes").
-- **Weekdoelen uit de echte stand,** geen verzonnen klusjes. Bijvoorbeeld: *"Fill the ground for the derby"*, *"Get Reyes his first start"*, *"Three home wins in a row"*. Halen geeft een kort beloningsmoment, missen heeft geen straf.
-- **Reeksen en records:** een ongeslagen reeks, thuis een fort, de clean sheets van de keeper. Ze worden zichtbaar in de kop van het weekscherm en in de krant.
-- **Verzamelde momenten:** kaarten van hoogtepunten (een eerste doelpunt, een derbywinst, een debuut) in een clubalbum dat over seizoenen heen groeit.
-- **Een voorspelling van de voorzitter** vóór de wedstrijd. Een kleine gok op de uitslag of de doelpuntenmaker, met een knipoog in de krant als je gelijk had. Alleen als het leuk is; vervalt als het als gokken voelt.
+**Dynamiek, zodat het leuk blijft:**
+- **Gebeurtenissen komen uit de simulatie** (vorm, blessures, loopbanen, de stand, het geld). Daarbovenop komt een **bibliotheek van kleine, gewone voetbalgebeurtenissen**: een verjaardag, een nieuw sponsorbord, het weer, een dorpsclub die de beker haalt.
+- **Herhaling is begrensd:** geen dezelfde soort kaart binnen vier weken, en geen identieke zin binnen een seizoen.
+- **Verhalen lopen door.** Een kaart kan een vervolg krijgen ("Reyes trained with the first team" → twee weken later "Reyes makes his debut"). Elke vierde week heeft minstens één vervolg.
+- **Kaarten zijn meestal om te lezen, niet om te beslissen.** Beslissingen blijven op het bureau. Een kaart mag wel naar een situatie leiden als er echt iets speelt.
 
-### Feedback en ritme van beloningen
-| Niveau | Hoe vaak | Voorbeeld |
+### B. De upgradeboom: de club als plek
+- **Vijf takken, elk 3–4 niveaus:** stadion, academie, trainingscomplex, scouting, gemeenschap.
+- **Elk niveau verandert iets zichtbaars en heeft een echte afweging:**
+  - **kosten:** punten en meestal ook geld;
+  - **een gevolg dat je ziet:** meer plaatsen en een vollere tribune; een extra jeugdteam en meer debuten; minder blessures; betere vrije spelers in beeld van de TD; meer fans en een andere stemming bij de leden;
+  - **soms een bijwerking:** onderhoud dat geld kost, of een ledengroep die het niet wil.
+- **Een upgrade verschijnt in de feed** als moment: *"The new East Stand opens: 900 more seats"*. Hij is zichtbaar in de identiteit van de club, zoals de tribunekaart en het stadion.
+- **De boom past bij een ledenclub:** grote upgrades (bijvoorbeeld een nieuwe tribune) kunnen een **motie op de ALV** vragen. Het statuut kan dan in de weg zitten.
+- **Geen gratis winst.** Punten zijn schaars (±3–8 per seizoen). Je kiest per seizoen één à twee upgrades.
+
+### C. Ritme van beloningen
+| Niveau | Hoe vaak | Wat |
 |---|---|---|
-| Micro | Elke tik | Een getal dat oploopt, een vinkje, een stem die reageert |
-| Kort | Elke week | Een actie met effect, een weekdoel gehaald, een wedstrijdmoment met jouw invloed |
-| Middel | Per maand | Speler van de maand, een reeks, een bekerronde |
-| Lang | Per seizoen | Promotie, een prijs, de ALV, de prijzenkast |
+| Elke week | 30–90 seconden | De feed: iets verrassends, iets van je eigen spelers, iets uit de regio |
+| Elke week | Zaterdag | De wedstrijd, met momenten die naar jouw beslissingen verwijzen |
+| Per maand | | Speler van de maand, een vervolgverhaal, een bekerronde |
+| Per seizoen | | ALV en punten, een upgrade die opent, promotie of een prijs, de prijzenkast |
 
-**Juice:**
-- animaties van tellers, het publiek dat aanzwelt, een korte viering bij een doelpunt of een gehaald doel;
-- zuinig en betekenisvol, met respect voor `prefers-reduced-motion`.
-
-**Tempo:**
-- een gemiddelde week duurt 30–90 seconden;
-- een stille week mag in één tik.
+**Juice:** animaties van tellers, kaarten die binnenschuiven, een tribune die voller wordt. Zuinig en betekenisvol, met respect voor `prefers-reduced-motion`. Een stille week kost één tik.
 
 ## Werkwijze (fasen; sla er geen over zonder akkoord)
 
@@ -154,16 +154,11 @@ Stel ze interactief: hooguit vier per ronde, met concrete opties en een klein sp
    - een clubhistorie met hoogtepunten per seizoen;
    - een eregalerij van spelers die jij binnenhaalde of liet doorbreken.
 
-**Ronde 5 — De wekelijkse spellaag (snel resultaat)**
-1. **Welke 2–3 bouwstenen** maken de week van de eigenaar? Laat per bouwsteen in een preview zien wat de speler tikt en wat hij meteen ziet gebeuren.
-2. **Wat is de schaarse ruimte?** Bijvoorbeeld:
-   - twee avonden per week;
-   - een invloedsbudget dat met resultaten groeit;
-   - alleen geld.
-
-   Benoem het risico dat een nieuwe meter oplevert, en waarom dit geen actiepunten in vermomming zijn.
-3. **Weekdoelen:** zelf kiezen uit drie voorstellen, automatisch één, of geen weekdoelen?
-4. **Hoe sterk de juice is:** sober, als een krant die leeft, of uitbundig, met vieringen en geluid?
+**Ronde 5 — De feed en de upgradeboom** (de basis staat vast, zie hierboven)
+1. **Vervolgverhalen:** hoe vaak, en hoe lang mag een verhaal lopen (twee kaarten, of een hele seizoensboog)?
+2. **De kleine-gebeurtenissenbibliotheek:** welke toon (droog Brits, warm, ironisch) en hoeveel (±60 tot ±150 fragmenten voor de eerste versie)?
+3. **De boom:** welke vijf upgrades openen als eerste per tak, en welke heeft een ALV-motie nodig?
+4. **Punten:** precies hoeveel voor een ALV-uitslag, een gehouden belofte en een mijlpaal, zodat je per seizoen één à twee upgrades kunt kiezen?
 
 ### Fase C — Ontwerpnotities (vóór code)
 Korte notities van maximaal één A4 elk in `standalone-research/`. Neem de keuzes van de eigenaar op in het concept (§13).
@@ -171,13 +166,14 @@ Korte notities van maximaal één A4 elk in `standalone-research/`. Neem de keuz
 - `SEIZOENSBOOG-VOORZITTER.md`: beker, race, deadline day en de laatste speeldag.
 - `IDENTITEIT-VOORZITTER.md`: kleuren, wapen, tenue, stadion, publiek en visuele taal.
 - `INZET-VOORZITTER.md`: moeilijkheid, faalvormen, herstel, beloningen en de prijzenkast.
-- `WEEKLAAG-VOORZITTER.md`: de gekozen bouwstenen, de schaarse ruimte, weekdoelen, het ritme van beloningen en de juice. Laat per bouwsteen zien: actie → direct zichtbaar effect → later gevolg.
+- `FEED-VOORZITTER.md`: de vier bronnen, de bibliotheek van kleine gebeurtenissen, vervolgverhalen, de herhalingsregels en de vorm van een kaart.
+- `UPGRADES-VOORZITTER.md`: de vijf takken, niveaus, kosten, zichtbare gevolgen, bijwerkingen, de punten en de koppeling aan de ALV.
 
 **Elke notitie eindigt met:** welk gevoel dit oplevert, en waar dat gevoel vandaan komt in de rol van de voorzitter. Kun je dat niet concreet maken, dan bouw je het niet.
 
 ### Fase D — Prototype van één zaterdag
 Bouw eerst **één volledige week** als losse, klikbare proef:
-- de wekelijkse spellaag (de gekozen bouwstenen, met directe feedback);
+- de feed van die week (4–6 kaarten uit de vier bronnen, met één vervolgverhaal);
 - de opbouw naar zaterdag;
 - de wedstrijd zelf;
 - de nasleep.
@@ -188,16 +184,18 @@ Laat de eigenaar er drie spelen: een gewone week, een derby en een slotwedstrijd
 - voelde dit als voetbal;
 - voelde je dat het jouw club was;
 - zag je je eigen beslissingen terug;
-- had je elke week het gevoel dat je iets deed waar meteen resultaat op zat?
+- was de feed leuk om te lezen, en wilde je de volgende week zien?
+
+Laat daarna de upgradeboom zien, met een voorbeeld van één seizoen punten en één upgrade die opent.
 
 Ga pas verder na een "ja".
 
 ### Fase E — Bouwen (per pijler, in deze volgorde)
-1. **De zaterdag en de wekelijkse spellaag**, op basis van de proef.
+1. **De zaterdag en de feed**, op basis van de proef.
 2. **Identiteit:** kleuren, wapen, tenue, stadion en publiek in alle schermen.
 3. **De seizoensboog:** beker, de race met zones, deadline day en de laatste speeldag.
 4. **Inzet:** de balanspas, faalvormen en herstel.
-5. **Beloningen:** hoogtepuntschermen, prijzenkast, clubhistorie en eregalerij.
+5. **Beloningen en de upgradeboom:** hoogtepuntschermen, prijzenkast, clubhistorie, eregalerij, en de boom met punten uit ALV, beloftes en mijlpalen.
 
 Elke pijler is een eigen commit met een speelbare versie, een gepubliceerd artifact, en één gerichte vraag aan de eigenaar.
 
@@ -216,12 +214,16 @@ Elke pijler is een eigen commit met een speelbare versie, een gepubliceerd artif
 2. **Kalibratie van de wedstrijden:** gemiddeld aantal goals, aandeel 0-0 en thuisvoordeel binnen realistische marges over 1.000 wedstrijden.
 3. **Balans:** de audit over twintig seeds geeft actief ±60–75% gewonnen ALV's, passief en willekeurig duidelijk lager. Minstens één echte crisis per vijf seizoenen bij gewoon spel.
 4. **Zichtbaarheid:** in een gemiddeld seizoen verwijzen minstens tien wedstrijdmomenten naar beslissingen van de voorzitter (een speler die hij steunde, een aankoop binnen zijn mandaat).
-5. **De spellaag:**
-   - elke week is er minstens één vrijwillige actie met een effect dat binnen dezelfde week zichtbaar is;
-   - niets is verplicht: een seizoen zonder weekacties draait foutloos en is speelbaar;
-   - de gemiddelde tijd en het aantal tikken per week blijven binnen het tempo (30–90 seconden);
-   - weekacties hebben een meetbaar maar begrensd effect, zodat ze de balans niet breken.
-6. **Playwright:** twee seizoenen in licht en donker op 390 px. Geen fouten, geen horizontaal scrollen. Screenshots van een wedstrijd, de stand met zones, een bekerronde, deadline day en een hoogtepuntscherm.
+5. **De feed:**
+   - per week 4–6 kaarten uit minstens drie bronnen;
+   - geen identieke zin binnen een seizoen, en geen dezelfde soort kaart binnen vier weken;
+   - per seizoen minstens acht vervolgverhalen;
+   - de tijd per week blijft binnen 30–90 seconden.
+6. **De boom:**
+   - per seizoen ±3–8 punten bij gewoon spel;
+   - elke upgrade heeft een meetbaar en zichtbaar gevolg;
+   - de balans blijft binnen de afgesproken bandbreedte.
+7. **Playwright:** twee seizoenen in licht en donker op 390 px. Geen fouten, geen horizontaal scrollen. Screenshots van een wedstrijd, de stand met zones, een bekerronde, deadline day en een hoogtepuntscherm.
 
 ## Wat je níét doet
 - De voorzitter geen opstelling, tactiek, wissels of training geven, ook niet "een beetje".

@@ -1,4 +1,12 @@
-# De technisch directeur: ontwerpnotitie v0.2 (19-11-2026)
+# De technisch directeur: ontwerpnotitie v0.3 (19-11-2026)
+
+> **v0.3 (keuze 67):**
+> - "I'd keep him" is geschrapt; de evaluatie is alleen van de TD.
+> - Er is een stempel *Unlucky* bij een lange blessure.
+> - Een budgetregel: de A-targets kosten samen 1,2–1,5× het budget.
+> - Een gerucht heeft altijd een zichtbaar gevolg.
+>
+> Waar de tekst hieronder nog "I'd keep him" of "Kept by the chairman" noemt, geldt dat niet meer.
 
 *Bronnen: `PROMPT-TD-VOORZITTER.md`, `ONDERZOEK-TD-VOORZITTER.md` en de keuzes 65–66 van de eigenaar. Ter goedkeuring; er is nog niets gebouwd.*
 

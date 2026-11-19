@@ -283,6 +283,11 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - de ticker toont 4–6 regels per transferweek;
     - de TD stelt drie trainers voor en de voorzitter kiest;
     - bijzondere contractvormen komen later.
+67. **Na de papieren proef van de transferzomer:**
+    - "I'd keep him" verdwijnt; de evaluatie is helemaal van de TD, de voorzitter leest en reageert alleen;
+    - een aankoop die lang geblesseerd is, krijgt de stempel *Unlucky* en telt niet mee in het oordeel;
+    - de A-targets kosten samen 1,2–1,5× het budget plus de verkopen, zodat de volgorde van de voorzitter ertoe doet;
+    - een gerucht heeft altijd een zichtbaar gevolg.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

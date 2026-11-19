@@ -200,6 +200,12 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - een poging om je coach weg te halen.
 
     Elke situatie heeft meerdere partijen en een zichtbaar gevolg als je niets doet. Eigen initiatief zit in de vaste situatie "Your agenda" (een punt uit je eigen beloftes). Aanleiding: de eigenaar vond dat er per blok te weinig gebeurde.
+36. **De club wordt een fundering die vanzelf draait, met de voorzitterslaag erbovenop.** Uitwerking in `PROMPT-FUNDERING-VOORZITTER.md`, op de branch `voorzitter-fundering`.
+    - **Weekritme:** wedstrijd plus 0–2 situaties.
+    - **Selectief overnemen uit `claude-game`.**
+    - **Eerste afdeling:** de technisch directeur met de selectie.
+    - **De voorzitter kijkt en zet kaders.**
+    - Aanleiding: in blokken spelen gaf geen binding, en de club zelf (selectie, academie, scouting) bestond niet.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

@@ -27,6 +27,35 @@ Wie het spel opent, moet binnen drie seconden voelen: **dit is mijn club, en dit
 
 **Toets bij elk scherm:** *Kan dit scherm bij een boekhoudapp horen?* Zo ja, dan is het niet af.
 
+## Keuzes van de eigenaar (bindend, 20-11-2026)
+1. **Richting: "Matchday programme".** Het spel oogt als het wedstrijdprogramma van je eigen club:
+   - papier en drukwerk;
+   - clubkleuren in brede balken;
+   - stoere koppen;
+   - het wapen groot op de cover;
+   - kaarten als pagina's met een gewicht.
+2. **Veel clubkleur, als identiteit:** in de kop, in balken en strepen, op de wedstrijdkaart en op knoppen. Elke club voelt meteen anders, en tekst haalt altijd WCAG AA.
+3. **De sfeer volgt de richting:** licht papier als basis. Een donker thema alleen als het echt past bij de programma-look, bijvoorbeeld als een "avondeditie"; het hoeft niet.
+4. **Bij het openen zie je eerst je club:**
+   - het wapen groot, met naam, niveau en oprichtingsjaar;
+   - het stadion met capaciteit;
+   - de stand en de vorm;
+   - de volgende wedstrijd.
+
+   Daaronder de feed van deze week.
+5. **Portretten zijn getekende koppen in drukwerkstijl,** zoals portretjes in een programmaboekje: procedureel per persoon (huidtint, haar, leeftijd, uitdrukking), met een shirtkraag in clubkleuren. Vast en herkenbaar, zonder echte personen na te bootsen.
+6. **De zaterdag als programma plus uitslagbord:**
+   - vooraf een programmapagina met beide wapens, de opstelling als teamsheet en de inzet;
+   - achteraf komt de uitslag binnen als op een ouderwets scorebord, met een korte, ingetogen viering bij winst.
+7. **De interface spreekt programmataal.** Bijvoorbeeld:
+   - *Club news* (de feed);
+   - *In the post* (het bureau en de situaties);
+   - *Saturday 3pm* (de wedstrijd);
+   - *Chairman's notes* (je afspraken, beloftes en geld);
+   - *Members' corner* (leden en ALV);
+   - *The dressing room* (de selectie).
+8. **Geluid komt later.**
+
 ## Grenzen
 - **Fictieve wereld:** geen echte clubs, wapens, tenues, sponsors of spelers. Geen kopie van de look van een bestaand spel.
 - **Geen externe afbeeldingen.** Alles is SVG of canvas, procedureel uit een seed: wapen, tenue, stadion, portretten.
@@ -54,23 +83,13 @@ Wie het spel opent, moet binnen drie seconden voelen: **dit is mijn club, en dit
 
    Benoem welke elementen een kleine ledenclub in een Britse regio typeren.
 
-### Fase B — Interactieve keuzes (twee rondes van hooguit vier vragen)
-Gebruik previews en zet je aanbeveling als eerste optie, gemarkeerd "(Recommended)".
+### Fase B — Keuzes zijn gemaakt
+De richting, kleur, sfeer, het beginscherm, de portretten, de zaterdag, de taal en het geluid staan hierboven. Stel alleen nog interactief vragen over details die het ontwerp echt bepalen, met previews. Bijvoorbeeld:
+- het lettertype voor de koppen;
+- de vorm van de programmacover;
+- hoe het tenue op het beginscherm staat.
 
-**Ronde 1 — Richting**
-1. **Kies een visuele richting** uit drie wezenlijk verschillende richtingen, elk getoond als preview van het weekscherm. Bijvoorbeeld:
-   - **"Matchday programme":** papier, drukwerk, clubkleuren in balken, typografie van een programmaboekje.
-   - **"The terrace":** nacht, lichtmasten, het veld als ondergrond, sjaalstrepen, scorebordcijfers.
-   - **"The boardroom":** hout, messing, leer, het perspectief van de eigenaar, de club achter glas.
-2. **Hoeveel clubkleur:** overal (als achtergrond), als accent (strepen, koppen, knoppen), of alleen in het wapen en het tenue?
-3. **Licht, donker of één look:** beide thema's, of bewust één sfeer (bijvoorbeeld altijd avond onder de lichtmasten)?
-4. **Het beginscherm:** de feed, de club (wapen, stadion, volgende wedstrijd, vorm), of de plek van de eigenaar (zijn kantoor met post en een uitzicht op het veld)?
-
-**Ronde 2 — Mensen en rituelen**
-1. **Portretten:** procedurele gezichten in een tekenstijl, silhouetten in tenue, of een shirt met rugnummer als icoon?
-2. **De zaterdag als ritueel:** een kort aftrapmoment, de uitslag die "binnenkomt" (zoals een vidiprinter of scorebord), en een kleine viering bij winst. Hoe uitbundig?
-3. **Taal van de interface:** van "On your desk" naar woorden uit de club. Bijvoorbeeld "In the post", "At the club this week", "Saturday", "The dressing room". Kies een register.
-4. **Geluid** (optioneel, alleen na een tik): publiek, fluitsignaal, het rammelen van het kantoor. Ja, nee, of later?
+Hooguit één ronde.
 
 ### Fase C — Ontwerpsysteem (één A4 + een levende pagina)
 Schrijf `standalone-research/IDENTITEIT-VOORZITTER.md` opnieuw. Maak ook een **levende stijlpagina** als artifact met:
@@ -93,8 +112,8 @@ Schrijf `standalone-research/IDENTITEIT-VOORZITTER.md` opnieuw. Maak ook een **l
 
 ### Fase D — Proef: het weekscherm en de zaterdag
 Bouw **eerst alleen** deze schermen in de nieuwe stijl, met de echte data uit de build:
-- het beginscherm;
-- het weekscherm met de feed;
+- het beginscherm (je club: wapen, stadion, stand, vorm, volgende wedstrijd);
+- het weekscherm met de feed (*Club news*) en *In the post*;
 - de wedstrijdkaart;
 - de uitslag.
 

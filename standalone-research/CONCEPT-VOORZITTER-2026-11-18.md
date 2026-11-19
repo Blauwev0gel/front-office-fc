@@ -257,6 +257,10 @@ Uitwerking: `ALV-VOORZITTER.md`.
 56. **Vier manieren om te falen:** geld, degradatie, de leden, de staf.
 57. **Een upgradeboom voor de club als plek** (vijf takken), met punten uit de ALV, beloftes naar grootte en mijlpalen. Nadelen zijn echte dilemma's.
 58. **Pijlers in volgorde**, elk met een speeltest door de eigenaar.
+59. **Visuele richting "Matchday programme":** papier en drukwerk, veel clubkleur als identiteit. Licht als basis; donker alleen als het past.
+60. **Bij het openen zie je eerst je club** (wapen, stadion, stand, vorm, volgende wedstrijd). De feed staat eronder.
+61. **Portretten zijn getekende koppen in drukwerkstijl.** De zaterdag is een programmapagina vooraf en een uitslagbord achteraf, met een ingetogen viering.
+62. **De interface spreekt programmataal:** Club news, In the post, Saturday 3pm, Chairman's notes, Members' corner, The dressing room. Geluid komt later.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

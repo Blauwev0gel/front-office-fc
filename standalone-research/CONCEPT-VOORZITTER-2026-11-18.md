@@ -6,7 +6,9 @@
 - *`REGELSET-VOORZITTER.md`: de regels onder water;*
 - *`AFSPRAAK-VOORZITTER.md`: de kern-eenheid;*
 - *`GESPREK-VOORZITTER.md`: het gesprek;*
-- *`ALV-VOORZITTER.md`: de ALV.*
+- *`ALV-VOORZITTER.md`: de ALV;*
+- *`OPPOSITIE-VOORZITTER.md`: de oppositie;*
+- *`MOMENT-VOORZITTER.md`: het moment als scène.*
 
 ---
 
@@ -53,8 +55,9 @@ Elke betekenisvolle handeling volgt: **actie → consequentie → uitkomst → n
 
    Tussen de momenten spoel je de wedstrijden door.
 4. **Per moment:**
-   - **wie het moment veroorzaakte, komt naar je toe;**
-   - **daarna benader je zelf precies één persoon.**
+   - **eerst de krant;**
+   - **dan wie het moment veroorzaakte;**
+   - **daarna kies je één plek om heen te gaan, en dus één persoon.**
 
    Elk gesprek eindigt in een **afspraakkaart** of in een zichtbare "geen afspraak".
 5. **Na elk moment** volgt een korte terugblik in woorden: wat er veranderde, en waarom.
@@ -97,7 +100,7 @@ Mensen lezen (luisteren, geschiedenis, anderen) levert betere afspraakkaarten op
 
 ## 8. De leden en de ALV
 - **Drie ledengroepen** met tegenstrijdige wensen.
-- **Een oppositie** die zich op je zwakste groep richt en per moment één actieve zet doet.
+- **Een oppositie** uit je zwakste groep, met een eigen visie en een diepe wens. Per moment doet hij één zet: openlijk in de krant, of stil met wie jij laat liggen (zie `OPPOSITIE-VOORZITTER.md`).
 - **Op de ALV:**
   - moties zijn **bindend**;
   - in de wandelgangen deal je **onbeperkt maar zichtbaar**;
@@ -162,8 +165,10 @@ Uitwerking: `ALV-VOORZITTER.md`.
 15. De telling gaat per groep.
 16. Een tegenkandidaat komt alleen bij onvrede.
 17. De afspraak is de kern; het gesprek is de verpakking.
+18. De oppositie heeft een gecombineerde drijfveer (zwakste groep, visie, diepe wens) en zet openlijk én stil.
+19. Een moment opent met de krant.
+20. Je kiest wie je benadert door een plek te kiezen.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).
-2. Nog uit te werken: de oppositie als personage, en het moment als scène.
 3. Daarna: een HTML vertical slice van één seizoen.

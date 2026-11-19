@@ -132,6 +132,7 @@ Uitwerking: `ALV-VOORZITTER.md`.
 | Gesprek — Brook met kaarten | Dezelfde scène, nu met afspraakkaarten | **Spel** | Het gesprek is de verpakking; het spel is de afspraak |
 | Wereld — fase D (Ravensby) | Drie zetels uit een seed, verkiezing, nieuwe persoonlijkheden | **Eigen wereld, clubs en mensen voelbaar** | Geheugen en relaties over clubs heen maken de wereld levend |
 | Wereld — fase E (`northmarch.html`) | 32 clubs, kandidaatkeuze, twee seizoenen, audit over 20 seeds | Nog te spelen door de eigenaar | Actief wint 40/40 ALV's (gem. 80%), passief 30/40 (51%), willekeurig 23/40 (55%). Het verschil is aantoonbaar, maar voor een bewuste speler is het nog te makkelijk: balans is de volgende stap |
+| Wereld — bureau met situaties | 3,5 situaties per moment uit tien generatoren | Nog te spelen door de eigenaar | De les: wereldsimulatie telt pas als ze een beslissing op je bureau legt. Niets doen kost nu echt iets: passief wint 14/40 ALV's (was 30/40), actief 40/40, willekeurig 21/40 |
 
 ## 12. Wat we bewust anders doen dan eerder
 
@@ -185,6 +186,20 @@ Uitwerking: `ALV-VOORZITTER.md`.
 33. Eerst de krant, dan een rustig wereldscherm.
 34. Tekst uit gecombineerde fragmenten; geen AI-tekst in het spel.
 (Uitwerking: `WERELD-VOORZITTER.md`, `CLUBS-VOORZITTER.md`, `PERSONEN-VOORZITTER.md`.)
+35. **Een moment bestaat volledig uit situaties, zonder vrij bezoek.** Dit herziet keuze 11 en 20. Het bureau krijgt drie à vier situaties uit generatoren die de echte wereld lezen:
+    - een bod op een speler;
+    - een conflict tussen coach en directeur;
+    - een rivaal in crisis;
+    - een bekende die werk zoekt;
+    - een petitie;
+    - geldnood;
+    - een verhaal in de krant;
+    - een oppositie die handtekeningen verzamelt;
+    - derbyweek;
+    - een aflopend contract;
+    - een poging om je coach weg te halen.
+
+    Elke situatie heeft meerdere partijen en een zichtbaar gevolg als je niets doet. Eigen initiatief zit in de vaste situatie "Your agenda" (een punt uit je eigen beloftes). Aanleiding: de eigenaar vond dat er per blok te weinig gebeurde.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

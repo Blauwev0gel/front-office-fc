@@ -367,7 +367,7 @@ function pdef(id){
    talent:{slot:'person',t:`${tal} starts ten games`,size:'M',arch:['families','students','volunteers','workers']},
    noInvestor:{slot:'deal',t:'No outside investor while you are chairman',size:'M',arch:['workers','ultras','oldguard']},
    truce:{slot:'deal',t:'A fair review of outside investment',size:'M',arch:['business']},
-   fanWish:{slot:'deal',t:'What the supporters\' leader asked for',size:'M',arch:[P(cast('fan'))?.infl||'workers']}
+   fanWish:{slot:'deal',t:P(cast('fan'))?`${gname(C(),P(cast('fan')).infl)}: ${P(cast('fan')).deep}`:'What the supporters asked for',size:'M',arch:[P(cast('fan'))?.infl||'workers']}
   };
   return D[id];
 }
@@ -405,6 +405,7 @@ function applyManifest(){
 function oppMove(){
   const out=[],opp=P(cast('opp'));if(!opp)return out;
   if(S.flags.oppBoard){out.push(`${opp.name}, now on your board, has gone very quiet.`);return out}
+  S.oppMoves=(S.oppMoves||0)+1;
   if(!S.served)grp(S.oppGroup,-2,`You left ${gname(C(),S.oppGroup)} to ${opp.name}`);
   const pending=S.cross.filter(c=>c.dir==='down').map(c=>c.id);
   const low=['captain','td','coach','fan'].map(cast).filter(id=>id&&P(id).loy!=null&&P(id).loy<4&&!P(id).withOpp&&!pending.includes(id));
@@ -521,48 +522,112 @@ function hireCoach(pid){
   const p=P(pid);S.pool=S.pool.filter(x=>x!==pid);p.club=S.my;p.career.push(S.my);C().cast.coach=pid;p.infl=['students','ultras','newcomers'].find(grpOf)||null;meet(pid);
   addMod('newcoach',pid&&p.traits.includes('ambitious')?1:.5,30);log(`${p.name} is the new head coach`,'You chose them from the coaches available',null);S.hire=null;
 }
-function waitScene(w){
-  const pid=w.id,p=P(pid),nm=p?.name;
-  if(w.type==='owes'){
-    const uses=cardsFor(pid).filter(c=>c.t.startsWith('Call in')||c.t.startsWith('Speak for'));
-    return{who:pid,lines:['"You stood by me. If you need something, say so. Once."'],cards:[...uses,D('Keep it for later','Nothing yet','A favour in your pocket','Whenever you need it','Favours fade if you neglect them',()=>log(`${nm} owes you a favour`,'You kept it for later',null))],noDeal:null};
-  }
-  if(w.type==='defect'){const opp=P(cast('opp'));return{who:pid,lines:[`"${opp?opp.name:'The opposition'} returns my calls, chairman. You don't."`],cards:cardsFor(pid).filter(c=>c.stake&&c.stake!=='ask').slice(0,3),noDeal:noDeal(`${nm} goes over to the opposition.`,()=>{p.withOpp=true;log(`${nm} joins the opposition camp`,'You let them go',null)})}}
-  if(w.type==='captain')return{who:pid,lines:['The captain is waiting by your car after training.','"The director won\'t talk contracts until summer. I need to know where I stand."'],
-    cards:[...cardsFor(pid).filter(c=>c.t.startsWith('Promise')),D('"It\'s the director\'s call."','Nothing','The director stays in charge of contracts','—','They keep waiting',()=>{S.flags.captainWaiting=1;log('You sent the captain to the director','Contracts are the director\'s call',null)})],
-    noDeal:noDeal('They wait. Proud people do not wait well.',()=>{S.flags.captainWaiting=1})};
-  if(w.type==='poach'){const bc=CL(w.club),bch=P(bc.cast.chair);return{who:pid,lines:[`${nm} catches you at the gate.`,`"${bc.name} want me. ${bch.name} rang me himself. I wanted you to hear it from me."`],
-    cards:[D('Match their offer','£30k a year','They stay','—','Your books take the hit',()=>{cash(-30,'Matching an offer for the coach');loy(pid,'wish','You fought to keep them',{stake:'money'});log(`${nm} stays`,'You matched the offer',null)},{stake:'money'}),
-      ...(p.owes?[D('Call in the favour','The favour they owe you','They stay, for you','—','',()=>{p.owes=false;log(`${nm} turns ${bc.name} down`,'They owed you',null)})]:[]),
-      D('Go with my blessing','Your coach','Goodwill, and a new coach','—','You must find a replacement',()=>{loy(pid,null,'You let them go gracefully',{raw:1,mem:[1,'you let them go with your blessing']});const old=pid;p.club=bc.id;p.career.push(bc.id);const prev=bc.cast.coach;P(prev).club=null;S.pool.push(prev);bc.cast.coach=old;newsPush(`${nm} leaves ${C().name} for ${bc.name}.`,[old],[bc.id]);if(openP('coachYear')){S.promises.find(x=>x.id==='coachYear').st='void'}S.flags.coachBacked=0;S.flags.coachContract=0;while(S.pool.length<3)S.pool.push(mkPerson('coach',null));S.hire=pickN(S.pool,3)})],
-    noDeal:noDeal('They go. You did not even try.',()=>{p.mem.push({s:S.season,club:S.my,v:-1,txt:'you did not try to keep them'});p.club=bc.id;p.career.push(bc.id);const prev=bc.cast.coach;P(prev).club=null;S.pool.push(prev);bc.cast.coach=pid;newsPush(`${nm} leaves ${C().name} for ${bc.name}.`,[pid],[bc.id]);while(S.pool.length<3)S.pool.push(mkPerson('coach',null));S.hire=pickN(S.pool,3)})}}
-  if(w.type==='behind'){const pr=pdef(w.prom).t;return{who:pid,lines:[`${nm} finds you in the stand.`,`"We're behind on your promise, chairman. ${pr}. Better you hear it from me."`],
-    cards:cardsFor(pid).filter(c=>c.t.startsWith('Play it safe')||c.t.startsWith('Two more')).concat([D('"It\'s on me. Keep going."','Nothing','A coach who feels trusted','—','The promise is still behind',()=>loy(pid,'wish','You took the blame yourself'))]),
-    noDeal:noDeal(`${nm} goes back to the pitch, unsure where you stand.`,()=>loy(pid,'wait','You left the coach hanging'))}}
-  if(w.type==='league'){return{who:pid,lines:['The league meeting is next month.',`"${C().name} and ${CL(P(pid).club).name} want the same thing, chairman. Let's vote together."`],cards:cardsFor(pid),noDeal:noDeal('You keep your vote to yourself.',()=>{})}}
+/* ================= Situations: what the world puts on your desk ================= */
+function nm(pid){return P(pid)?P(pid).name:'someone'}
+function owesCard(pid,text,run){const p=P(pid);if(!p||!p.owes)return[];return[D(`Call in ${p.name}'s favour: ${text}`,'The favour they owe you','They go along with it, for you','—','',()=>{p.owes=false;log(`${p.name} does it for you`,'They owed you a favour',null);run()})]}
+function leaveClub(pid,toClub){const p=P(pid);if(!p)return;const role=p.role;p.club=toClub||null;if(toClub)p.career.push(toClub);else S.pool.push(pid);
+  if(C().cast[role]===pid)C().cast[role]=mkPerson(role,S.my,{infl:p.infl});}
+function nextBlockHasDerby(){const c=C(),to=BLOCK_ENDS.find(e=>e>S.round)||30;for(let r=S.round+1;r<=to;r++)for(const [h,a] of S.fx[c.tier][r-1])if((h===S.my&&a===c.rival)||(a===S.my&&h===c.rival))return{home:h===S.my,r};return null}
+const SIT={
+ poach:{pri:10,make(k){const coach=P(cast('coach'));if(k<2||!coach||S.flags.coachContract||S.flags.poachDone)return null;if(!(coach.traits.includes('ambitious')||coach.value==='glory'))return null;if(!(S.realPts-S.xPts>=3||myPos()<=3))return null;
+   const big=Object.keys(S.clubs).filter(i=>i!==S.my&&(CL(i).tier<C().tier||(CL(i).tier===C().tier&&CL(i).str>C().str+2))&&!S.flags['pact_'+CL(i).cast.chair]);if(!big.length)return null;S.flags.poachDone=1;return{pid:cast('coach'),club:pick(big)}},
+  build(d){const p=P(d.pid),bc=CL(d.club),bch=P(bc.cast.chair);
+   const go=(mem)=>{if(mem)p.mem.push({s:S.season,club:S.my,v:mem[0],txt:mem[1]});const prev=bc.cast.coach;P(prev).club=null;S.pool.push(prev);p.club=bc.id;p.career.push(bc.id);bc.cast.coach=d.pid;newsPush(`${p.name} leaves ${C().name} for ${bc.name}.`,[d.pid],[bc.id]);if(openP('coachYear'))S.promises.find(x=>x.id==='coachYear').st='void';S.flags.coachBacked=0;S.flags.coachContract=0;while(S.pool.length<3)S.pool.push(mkPerson('coach',null));S.hire=pickN(S.pool,3)};
+   return{title:`${bc.name} want your coach`,who:[d.pid,bch.id],lines:[`${p.name} catches you at the gate.`,`"${bc.name} want me. ${bch.name} rang me himself. I wanted you to hear it from me."`],
+    cards:[D('Match their offer','£30k a year','They stay','—','Your books take the hit',()=>{cash(-30,'Matching an offer for the coach');loy(d.pid,'wish','You fought to keep them',{stake:'money'});log(`${p.name} stays`,'You matched the offer',null)},{stake:'money'}),
+     ...owesCard(d.pid,'stay',()=>log(`${p.name} turns ${bc.name} down`,'For you',null)),
+     D('"Stay, and the job is yours for three years."','Security: a long contract','They stay, and stop listening to offers','—','Sacking them later costs a fortune',()=>{S.flags.coachContract=1;cash(-15,'A long contract');loy(d.pid,'deep','A long contract, offered when it mattered',{stake:'security',mem:[1,'you offered a long contract when a bigger club came']})},{stake:'security'}),
+     D('Go with my blessing','Your coach','Goodwill, and a choice of new coach','—','You must find a replacement',()=>{loy(d.pid,null,'You let them go gracefully',{raw:1});go([1,'you let them go with your blessing'])})],
+    noDeal:noDeal('If you do nothing: they go, and they remember you did not even try.',()=>go([-1,'you did not try to keep them']))}}},
+ defect:{pri:9,make(k){S.cross=S.cross.filter(x=>P(x.id)&&P(x.id).club===S.my&&(x.dir==='up'?P(x.id).owes:(P(x.id).loy<4&&!P(x.id).withOpp)));const dn=S.cross.find(x=>x.dir==='down');if(!dn)return null;S.cross.splice(S.cross.indexOf(dn),1);return{pid:dn.id}},
+  build(d){const p=P(d.pid),opp=cast('opp');return{title:`${p.name} is talking to ${nm(opp)}`,who:[d.pid,opp],lines:[`"${nm(opp)} returns my calls, chairman. You don't."`],
+   cards:cardsFor(d.pid).filter(c=>c.stake&&c.stake!=='ask').slice(0,3),noDeal:noDeal(`If you do nothing: ${p.name} joins the opposition camp.`,()=>{p.withOpp=true;log(`${p.name} joins the opposition camp`,'You let them go',null)})}}},
+ captain:{pri:8,make(k){if(k!==3||!S.flags.captainExpiring||S.flags.captainSigned||hasP('captainDeal'))return null;return{pid:cast('captain')}},
+  build(d){const p=P(d.pid),td=cast('td');return{title:`${p.name}'s contract runs out in June`,who:[d.pid,td],lines:['The captain is waiting by your car after training.',`"${nm(td)} won't talk contracts until summer. I need to know where I stand."`],
+   cards:[...cardsFor(d.pid).filter(c=>c.t.startsWith('Promise')||c.t.startsWith('A coaching')),D(`"Talk to ${nm(td)}."`,'Nothing','The director stays in charge of contracts','—','The captain keeps waiting',()=>{S.flags.captainWaiting=1;log('You sent the captain to the director','Contracts are the director\'s call',null)})],
+   noDeal:noDeal('If you do nothing: they wait. Proud people do not wait well.',()=>{S.flags.captainWaiting=1})}}},
+ cash:{pri:8,make(k){return C().cash<15?{}:null},
+  build(d){const td=cast('td'),cap=cast('captain'),coach=cast('coach'),g=['workers','families','retirees'].find(grpOf);return{title:'The money runs out in March',who:[td],lines:[`${nm(td)} puts a printout on your desk.`,'"We can\'t pay the bills by March. Something has to give, chairman."'],
+   cards:[D('Sell the best player','Your best player','About £60k','—','The fans will see it as giving up',()=>{cash(60,'Selling the best player');addMod('sold',-1,30);const k=P(cap)?.infl;if(k)grp(k,-3,'Our best player sold')}),
+    D('A bookmaker on the shirt','The shirt','£50k a season','—',g?`${gname(C(),g)} will hate it`:'Some members will hate it',()=>{cash(50,'A bookmaker sponsorship');if(g)grp(g,-6,'A bookmaker on our shirt');if(grpOf('business'))grp('business',3,'Money in the bank')}),
+    D('Cut wages, starting with mine','Your own salary, and theirs','£20k','—','The coach and the captain will feel it',()=>{cash(20,'Wage cuts');loy(coach,null,'A wage cut',{raw:-1});loy(cap,null,'A wage cut',{raw:-1});for(const x of C().groups)grp(x.k,1,'A chairman who cuts his own pay first')})],
+   noDeal:noDeal('If you do nothing: bills go unpaid, and the squad notices.',()=>{addMod('unpaid',-1,nextBlockEnd(S.round+1));log('Wages paid late','The money ran out',null)})}}},
+ bid:{pri:7,make(k){if(k<2||k>4)return null;const pool=[cast('captain'),cast('talent')].filter(x=>P(x)&&!S.flags['bid_'+x]);if(!pool.length)return null;if(rnd()<.45)return null;const pid=pick(pool);
+   const bidders=Object.keys(S.clubs).filter(i=>i!==S.my&&(CL(i).tier<C().tier||CL(i).str>C().str)&&CL(i).cash>40);if(!bidders.length)return null;S.flags['bid_'+pid]=1;return{pid,club:pick(bidders),fee:pick([40,55,70,90])}},
+  build(d){const p=P(d.pid),bc=CL(d.club),bch=bc.cast.chair,td=cast('td'),stat=C().statute.some(x=>x.startsWith('Members approve'));const g=p.infl;
+   return{title:`${bc.name} bid £${d.fee}k for ${p.name}`,who:[d.pid,bch,td],lines:[`${nm(bch)}, chairman of ${bc.name}, rings you at home.`,`"£${d.fee}k for ${p.name}. That's a good price for a club your size."`,P(td).value==='money'?`${nm(td)}: "Take it. We need that money."`:`${nm(td)}: "Your call, chairman. I'd rather keep them."`],
+   cards:[D('Accept the bid',p.name,`£${d.fee}k`,stat?'The members must approve the sale':'—',g?`${gname(C(),g)} will be angry`:'The dressing room will notice',()=>{if(stat&&g&&grpOf(g).mood<50){log('The members block the sale','The statute: members approve any sale above £50k',null);grp(g,3,'The members kept their player');loy(bch,null,'The deal fell through',{raw:-1});return}cash(d.fee,`Selling ${p.name}`);addMod('sold',p.role==='captain'?-1:-.5,30);if(g)grp(g,-6,`${p.name} sold`);loy(td,'wish','Money for the club',{stake:'money'});p.mem.push({s:S.season,club:S.my,v:P(d.pid).value==='money'?1:-1,txt:'you sold them'});leaveClub(d.pid,bc.id);newsPush(`${p.name} joins ${bc.name} for £${d.fee}k.`,[d.pid],[bc.id])},{warn:stat?'The statute says the members must approve':null}),
+    D('"Not for sale." In public','Your name, and the money','A player who knows you fought for them','—',P(td).value==='money'?`${nm(td)} wanted the money`:'—',()=>{loy(d.pid,'protect','You refused to sell them, in public',{stake:'security',mem:[1,'you refused to sell them']});if(g)grp(g,3,`${p.name} stays`);if(P(td).value==='money')loy(td,null,'You turned down good money',{raw:-1})},{stake:'security'}),
+    D('"Ask me again in the summer."','Your word to their chairman','Keep them this season, sell later','End of season','The player may sulk',()=>{S.flags['summer_'+d.pid]={club:d.club,fee:d.fee};loy(d.pid,null,'You did not say no',{raw:-.5});loy(bch,'wish','You kept the door open')})],
+   noDeal:noDeal(`If you do nothing: the bid lapses, and ${p.name} hears you never even answered.`,()=>loy(d.pid,'wait','You did not answer the bid'))}}},
+ escalate:{pri:7,make(k){const o=cast('opp');if(k<3||!o||S.flags.oppBoard||S.flags.escalated)return null;if(!(weighted()<53||(S.oppMoves||0)>=2))return null;S.flags.escalated=1;return{pid:o}},
+  build(d){const o=P(d.pid);return{title:`${o.name} is collecting signatures`,who:[d.pid],lines:[`${o.name} has a clipboard at every home game.`,'"Three hundred names so far, chairman. The members want a real choice in June."'],
+   cards:[...cardsFor(d.pid).filter(c=>!c.t.startsWith('Tell')),D('Debate them in public','Your reputation, on a stage','A chance to end this now','Now','If you lose the room, it gets worse',()=>{if(weighted()>=48){grp(S.oppGroup,-4,`You beat ${o.name} in the debate`);log(`${o.name} loses the debate`,'You had the better case',null)}else{for(const x of C().groups)grp(x.k,-2,'The chairman lost the debate');S.flags.challenge=1}})],
+   noDeal:noDeal(`If you do nothing: ${o.name} gets the signatures and will stand against you at the AGM.`,()=>{S.flags.challenge=1;grp(S.oppGroup,-2,`${o.name}'s petition grows`)})}}},
+ story:{pri:6,make(k){const j=S.journalist;if(k<2||S.flags.storyDone)return null;const t=['td','captain','coach','fan'].map(cast).find(x=>P(x)&&(P(x).withOpp||(P(x).loy!=null&&P(x).loy<4)));if(!t)return null;S.flags.storyDone=1;return{pid:t}},
+  build(d){const p=P(d.pid),j=S.journalist,o=cast('opp');return{title:`The Echo has a story about ${p.name}`,who:[j,d.pid],lines:[`${nm(j)} catches you in the car park.`,`"${p.name} has been lunching with ${nm(o)}. I run it Friday, unless you give me something better."`],
+   cards:[D('Give them a better story','An exclusive on the club\'s finances','The story about '+p.name+' is dropped','—','The finances are out in the open',()=>{loy(j,'wish','You gave them an exclusive',{stake:'name'});for(const k of ['business','oldguard'])if(grpOf(k))grp(k,-2,'The finances in the paper');loy(d.pid,null,'You protected them from the paper',{raw:1})},{stake:'name'}),
+    D(`Confront ${p.name} yourself`,'An awkward conversation','The truth, before the paper has it','—','They may walk',()=>{if(P(d.pid).withOpp){log(`${p.name} admits it`,'You confronted them',null);P(d.pid).withOpp=false;loy(d.pid,'admit','You dealt with it face to face')}else loy(d.pid,null,'You accused them',{raw:-1});if(p.infl)grp(p.infl,2,'A chairman who deals with things')}),
+    D('"Print it. I trust my people."','Your judgement, in public',`${p.name} sees you stood by them`,'—','If it is true, you look foolish',()=>{loy(d.pid,'protect','You backed them against the paper',{stake:'name'});if(P(d.pid).withOpp)for(const x of C().groups)grp(x.k,-2,'The chairman was the last to know')},{stake:'name'})],
+   noDeal:noDeal(`If you do nothing: the story runs on Friday.`,()=>{if(p.infl)grp(p.infl,-3,`The Echo: ${p.name} and ${nm(o)}`);loy(d.pid,null,'The story ran and you said nothing',{raw:-1})})}}},
+ conflict:{pri:6,make(k){const td=cast('td'),co=cast('coach');if(k<2||!td||!co||S.flags.tdFree||S.flags.conflictDone)return null;const bad=myPos()>C().expect+1||S.promises.some(p=>p.st==='open'&&pdef(p.id).slot==='sport'&&behind(p.id));if(!bad)return null;S.flags.conflictDone=1;return{}},
+  build(d){const td=cast('td'),co=cast('coach');return{title:`${nm(co)} and ${nm(td)} are at war`,who:[co,td],lines:[`${nm(co)}: "We need a striker. ${nm(td)} won't move."`,`${nm(td)}: "I don't buy players to fix a bad month. Never have."`],
+   cards:[D('Back the coach: a loan striker','£25k, and the director\'s pride','A sharper attack until May','Every match from now',`${nm(td)} feels overruled`,()=>{if(S.flags.council&&weighted()<50){log('The members\' council blocks the loan','The council vets big spending',null);return}cash(-25,'A loan striker');addMod('loan',1,30);loy(co,'wish','You backed them over the director',{stake:'power'});loy(td,'bypass','You overruled them on recruitment')},{stake:'power',warn:S.flags.council?'The members\' council must approve big spending':null}),
+    D('Back the director: no loan','The coach\'s trust','Principles, and money in the bank','—',`${nm(co)} feels let down`,()=>{loy(td,'wish','You backed their principles',{stake:'power'});loy(co,'against','You sided with the director')},{stake:'power'}),
+    D('Split it: the academy\'s best get a chance','A few points, probably','Both get something','—','Neither gets everything',()=>{S.youth=Math.max(S.youth,1);loy(td,'wish','The academy gets its chance');loy(co,null,'Half of what they asked for',{raw:-.5})}),
+    ...owesCard(co,'drop the request',()=>loy(td,'wish','No loan'))],
+   noDeal:noDeal('If you do nothing: they fight it out in the press, and both think you are weak.',()=>{loy(co,null,'You stayed out of it',{raw:-1});loy(td,null,'You stayed out of it',{raw:-1})})}}},
+ petition:{pri:6,make(k){const g=C().groups.filter(x=>x.mood<45&&!(S.lastPet===x.k)).sort((a,b)=>a.mood-b.mood)[0];if(!g)return null;S.lastPet=g.k;return{k:g.k,n:ri(250,600)}},
+  build(d){const m=ARCH[d.k].motion,gn=gname(C(),d.k),fan=cast('fan');const lead=P(fan)&&P(fan).infl===d.k?fan:null;
+   return{title:`${gn}: a petition with ${d.n} names`,who:lead?[lead]:[],lines:[`${lead?nm(lead):'A delegation from '+gn} hands you a petition.`,`"${m.t}. We want an answer before the next home game."`],
+   cards:[D('Grant it now',m.cost?`£${m.cost}k`:m.anti?'Some of your power':'Your goodwill elsewhere',`${gn} on your side`,'—',m.against&&grpOf(m.against)?`${gname(C(),m.against)} will object`:'Others may ask too',()=>{if(m.cost)cash(-m.cost,m.t);if(m.gain){cash(m.gain,m.t)}grp(d.k,8,`You granted their petition: ${m.t}`);if(m.against&&grpOf(m.against))grp(m.against,-3,`${gn} got their way`);if(m.anti){S.flags.council=1;log('A members\' council now vets big spending','You gave power away',null)}C().binding.push(`${m.t} (petition, season ${S.season})`)}),
+    D('"Put it to the members at the AGM."','A vote you might lose','Time, and a fair hearing','The AGM','If it fails, they blame you',()=>{S.alvExtra=d.k;grp(d.k,3,'Their petition goes to the AGM')}),
+    D('Meet them and explain','An evening','Understanding, maybe','—','Nothing changes on paper',()=>{grp(d.k,2,'You came to explain');if(lead)loy(lead,'wish','You came in person',{stake:'role'})}),
+    ...(lead?owesCard(lead,'ask them to call it off',()=>{}):[])],
+   noDeal:noDeal(`If you do nothing: ${gn} feel ignored, and the opposition takes the petition to the paper.`,()=>{grp(d.k,-5,'Their petition was ignored')})}}},
+ returns:{pri:5,make(k){const known=S.pool.filter(x=>P(x)&&P(x).mem.length&&!S.flags['ret_'+x]);const recent=S.pool.filter(x=>P(x)&&P(x).career.length>0&&!S.flags['ret_'+x]);const pid=known[0]||(rnd()<.5?recent[0]:null);if(!pid)return null;S.flags['ret_'+pid]=1;return{pid}},
+  build(d){const p=P(d.pid),co=cast('coach'),m=p.mem[p.mem.length-1],past=p.career.length?CL(p.career[p.career.length-1]).name:null;
+   const take=(as)=>{S.pool=S.pool.filter(x=>x!==d.pid);};
+   return{title:`${p.name} is looking for work`,who:[d.pid,co],lines:[past?`${p.name}, last at ${past}, is waiting in reception.`:`${p.name} is waiting in reception.`,m?`"I haven't forgotten: ${m.txt}. Have you got anything for me?"`:'"You\'ll have heard I\'m available. I can help you."'],
+   cards:[D('Assistant coach, now','£10k a year','Their experience on your bench','—',P(co).traits.includes('proud')?`${nm(co)} will see a rival on the bench`:'—',()=>{take();cash(-10,`${p.name} joins as assistant`);addMod('assist',.5,30);p.club=S.my;p.career.push(S.my);loy(d.pid,'wish','A job when they needed one',{stake:'role',mem:[1,'you gave them work']});if(P(co).traits.includes('proud'))loy(co,null,'A rival on the bench',{raw:-1})},{stake:'role'}),
+    D(`Replace ${nm(co)} with them`,S.flags.protectCoach?'Your word: you promised the coach the season':'Severance pay','A coach you chose yourself','The rest of the season',`${nm(co)}'s friends will remember`,()=>{const old=cast('coach');if(openP('coachYear'))breakPromise('coachYear','You replaced the coach you promised the season');S.flags.coachSacked=1;cash(S.flags.coachContract?-40:-15,'Severance');loy(old,'blame','You sacked them',{mem:[-2,'you sacked them']});P(old).club=null;S.pool.push(old);S.flags.coachBacked=0;S.flags.coachContract=0;S.flags.protectCoach=0;S.youth=0;hireCoach(d.pid);newsPush(`${C().name} sack ${nm(old)}. ${p.name} takes over.`,[old,d.pid],[S.my])},{warn:S.flags.protectCoach?'This breaks a public promise':null}),
+    D('"Not now. But I\'ll remember you."','Nothing','Goodwill','—','—',()=>loy(d.pid,null,'You were straight with them',{raw:1}))],
+   noDeal:noDeal('If you do nothing: they take a job somewhere else, and remember you never called back.',()=>{p.mem.push({s:S.season,club:S.my,v:-1,txt:'you never called back'});const free=Object.keys(S.clubs).filter(i=>i!==S.my);const c=CL(pick(free));S.pool=S.pool.filter(x=>x!==d.pid);p.club=c.id;p.career.push(c.id);newsPush(`${p.name} joins ${c.name}'s coaching staff.`,[d.pid],[c.id])})}}},
+ rival:{pri:5,make(k){const ids=Object.keys(S.clubs).filter(i=>i!==S.my&&CL(i).tier===C().tier&&!S.flags['riv_'+i]&&(posOf(i)>=14||CL(i).debt>=200));if(!ids.length||rnd()<.4)return null;const id=pick(ids);S.flags['riv_'+id]=1;return{club:id}},
+  build(d){const c=CL(d.club),ch=c.cast.chair;return{title:`${c.name}'s chairman needs help`,who:[ch],lines:[`${nm(ch)}, chairman of ${c.name}, asks to meet you in a lay-by off the ring road.`,'"We\'re in trouble. You know it, I know it. Help me now and I won\'t forget it."'],
+   cards:[D('Take their striker on loan','Your vote at the league meeting','A striker until May','Every match from now',`Their rivals will notice whose side you are on`,()=>{addMod('borrow',1,30);S.flags.leagueVote=ch;loy(ch,'wish','You did a deal with them',{stake:'power'})},{stake:'power'}),
+    D('Lend them a squad player','A player you can spare','A chairman who owes you','—','A thinner squad for you',()=>{addMod('lend',-.5,30);loy(ch,'deep','You helped when nobody else did',{mem:[1,'you helped them in a crisis']})},{stake:'role'}),
+    D('Share your youth coaches','£10k','Goodwill and youngsters for both clubs','—','—',()=>{cash(-10,'Shared youth coaching');S.youth=Math.max(S.youth,1);loy(ch,'wish','Shared youth coaching',{stake:'role'})},{stake:'role'})],
+   noDeal:noDeal('If you do nothing: they find help elsewhere, and remember who did not answer.',()=>{P(ch).mem.push({s:S.season,club:S.my,v:-1,txt:'you ignored them in a crisis'})})}}},
+ league:{pri:5,make(k){if(k!==3||S.flags.leagueVote)return null;const ch=pick(Object.keys(S.clubs).filter(i=>i!==S.my&&CL(i).tier===C().tier).map(i=>CL(i).cast.chair));return{pid:ch}},
+  build(d){const c=CL(P(d.pid).club);return{title:'The league meeting is next month',who:[d.pid],lines:[`${nm(d.pid)} of ${c.name} rings you.`,`"Our clubs want the same thing, chairman. A fairer split of the TV money. Vote with me."`],cards:cardsFor(d.pid),noDeal:noDeal('If you do nothing: you keep your vote, and your options.',()=>{})}}},
+ derby:{pri:4,make(k){const dd=nextBlockHasDerby();if(!dd||S.flags['derby_'+S.season+'_'+dd.r])return null;S.flags['derby_'+S.season+'_'+dd.r]=1;return dd},
+  build(d){const c=C(),fan=cast('fan'),rch=CL(c.rival).cast.chair;return{title:`Derby week: ${CL(c.rival).name}`,who:[fan,rch],lines:[`Round ${d.r}, ${d.home?'at home':'away'}. ${nm(fan)} wants to know what the club is doing.`,`"It's ${CL(c.rival).name}, chairman. ${c.rivalWhy.charAt(0).toUpperCase()+c.rivalWhy.slice(1)}. People remember."`],
+   cards:[D('Free buses and cheap tickets','£5k','A loud crowd',`Round ${d.r}`,'—',()=>{cash(-5,'Derby buses');if(d.home)S.flags.derbyCrowd=1;else addMod('awaycrowd',.5,d.r,d.r);loy(fan,'wish','A proper derby day',{stake:'money'})},{stake:'money'}),
+    D('Ban their away fans','Your relationship with their chairman','A home crowd with no distractions',`Round ${d.r}`,`${nm(rch)} will not forget`,()=>{if(d.home)S.flags.derbyCrowd=1;loy(rch,null,'You banned their fans',{raw:-2,mem:[-1,'you banned their fans']});const g=['workers','ultras'].find(grpOf);if(g)grp(g,3,'No away fans')}),
+    D(`Bet ${nm(rch)} a dinner on the result`,'A dinner, maybe','A friendlier rival chairman','—','—',()=>loy(rch,null,'A friendly bet between chairmen',{raw:1}))],
+   noDeal:noDeal('If you do nothing: a derby like any other.',()=>{})}}},
+ agenda:{pri:3,make(k){return{}},
+  build(d){const open=S.promises.filter(p=>p.st==='open');const bp=open.find(p=>behind(p.id))||open[0];const co=cast('coach'),td=cast('td'),cap=cast('captain'),fan=cast('fan');
+   if(bp){const id=bp.id,t=pdef(id).t,sport=pdef(id).slot==='sport';let cards;
+    if(sport)cards=cardsFor(co).filter(c=>/safe|kids|Back the coach/.test(c.t)).slice(0,3);
+    else if(['youth','talent'].includes(id))cards=[...cardsFor(co).filter(c=>/kids/.test(c.t)),...cardsFor(td).filter(c=>/academy/.test(c.t))];
+    else if(id==='captainDeal')cards=cardsFor(td).filter(c=>/captain/.test(c.t));
+    else if(id==='books')cards=[D('Cut costs across the club','Comfort, everywhere','About £20k','—','Everyone feels it',()=>{cash(20,'Cost cuts');loy(co,null,'Cuts',{raw:-.5});loy(td,null,'Cuts',{raw:-.5})})];
+    else cards=[D(`Visit ${pgroups(id).map(k=>gname(C(),k)).join(' and ')||'the members'}`,'An evening','They see you meant it','—','—',()=>{for(const k of pgroups(id))grp(k,3,`You came to talk about: ${t}`)})];
+    if(!cards.length)cards=[D('Back the coach in public','Your name','A coach who knows where they stand','—','—',()=>loy(co,'protect','You backed the coach in public',{stake:'name'}),{stake:'name'})];
+    return{title:`Your agenda: ${t}`,who:[sport?co:(id==='captainDeal'?td:co)],lines:[behind(id)?`Your promise is behind schedule: ${t}.`:`Your promise: ${t}. What do you push this month?`],cards,noDeal:noDeal('If you do nothing: the promise is left to run its course.',()=>{})}}
+   const cards=[...cardsFor(co).filter(c=>/Back the coach/.test(c.t)),...cardsFor(cap).filter(c=>/coaching future/.test(c.t)),...cardsFor(fan).filter(c=>/Name a stand/.test(c.t))].slice(0,3);
+   return{title:'Your agenda: a free evening',who:[co],lines:['No promise needs you this month. Who do you want to back?'],cards,noDeal:noDeal('If you do nothing: a quiet month.',()=>{})}}}
+};
+function genDesk(k){
+  const out=[],prev=S.lastGens||[];
+  for(const g of ['poach','defect','captain','cash','bid','escalate','story','conflict','petition','returns','rival','league','derby']){
+    if(out.length>=4)break;const pri=SIT[g].pri;if(prev.includes(g)&&pri<8&&out.length>=2)continue;const d=SIT[g].make(k);if(d)out.push({gen:g,data:d,done:false,choice:null});}
+  if(out.length<4)out.push({gen:'agenda',data:{},done:false,choice:null});
+  S.lastGens=out.map(x=>x.gen);return out;
 }
-function placeScene(pid){
-  const p=P(pid);meet(pid);const opp=P(cast('opp'));const v=(S.round+S.season+p.id.length)%3;
-  let first=TONE[bandIdx(p.loy)][v].replace('{opp}',opp?opp.name:'The opposition');
-  const lines=[first];
-  const m=p.mem.slice().reverse().find(x=>x.club!==S.my);if(m&&!p.shown){lines.push(m.v>0?`"I haven't forgotten: ${m.txt}."`:`"I haven't forgotten: ${m.txt}."`)}
-  else lines.push(FLAVOUR[p.traits[v%2]]);
-  if(S.scene.listened){lines.push(DEEPQ[p.value])}
-  return{who:pid,lines,cards:cardsFor(pid),noDeal:noDeal(`You leave with nothing agreed. ${p.name} notices.`)};
-}
-function places(){
-  const c=C(),bar=TOWNS[c.town].bar,rivalChair=CL(c.rival).cast.chair;
-  const list=[['training','Training ground',cast('coach')],['office','The director\'s office',cast('td')],['carpark','Car park after training',cast('captain')],['bar',bar,cast('fan')],['rotary','The Rotary lunch',cast('opp')],['echo','The Echo newsroom',S.journalist],['phone',`A call to ${CL(c.rival).name}`,rivalChair]];
-  if(S.flags.leagueVote&&typeof S.flags.leagueVote==='string'&&S.flags.leagueVote!==rivalChair){}
-  return list.filter(x=>x[2]&&P(x[2]));
-}
-function hint(pid){
-  const p=P(pid);if(p.loy==null){const m=p.mem[p.mem.length-1];return m?`${p.name} remembers you: ${m.txt}.`:`You have not met ${p.name} yet.`}
-  if(p.withOpp)return`${p.name} leaves early. The opposition's car is outside.`;
-  if(p.role==='captain'&&S.flags.captainExpiring&&!S.flags.captainSigned)return`${p.name} lingers by your car. The contract still isn't sorted.`;
-  if(p.owes)return`${p.name} owes you a favour.`;
-  return[`${p.name} looks away when you arrive.`,`${p.name} is cool, keeping their distance.`,`${p.name} is busy. Polite.`,`${p.name} waves you over.`,`${p.name} lights up when they see you.`][bandIdx(p.loy)];
-}
+function sitBuild(i){const s=S.desk[i];return SIT[s.gen].build(s.data)}
 
 /* ================= Flow (engine; UI calls act()) ================= */
 function startMoment(k){
@@ -571,7 +636,7 @@ function startMoment(k){
   if(S.flags.captainWaiting){S.flags.captainWaiting=0;loy(cast('captain'),'wait','You sent them to the director and nothing happened')}
   if(k===3)aiWinter();
   if(k>=2)lines.push(...oppMove());
-  S.echo=buildEcho(k,lines);S.wait=pickWait(k);S.served=false;S.scene=null;S.screen='echo';
+  S.echo=buildEcho(k,lines);S.desk=genDesk(k);S.sit=null;S.served=false;S.screen='echo';
 }
 function buildEcho(k,lines){
   const c=C();let head,first=[];
@@ -581,27 +646,13 @@ function buildEcho(k,lines){
   const news=S.news.filter(x=>x.s===S.season||x.s==null).sort((a,b)=>a.pri-b.pri).slice(0,3).map(x=>x.text);S.news=S.news.filter(x=>!news.includes(x.text));
   return{date:MONTH[k],head,lines:[...first,...lines,...news]};
 }
-function pickWait(k){
-  S.cross=S.cross.filter(x=>P(x.id)&&P(x.id).club===S.my&&(x.dir==='up'?P(x.id).owes:(P(x.id).loy<4&&!P(x.id).withOpp)));
-  const coach=P(cast('coach'));
-  if(k>=2&&coach&&!S.flags.coachContract&&!S.flags.poachDone&&(coach.traits.includes('ambitious')||coach.value==='glory')&&(S.realPts-S.xPts>=3||myPos()<=3)){
-    const big=Object.keys(S.clubs).filter(i=>i!==S.my&&(CL(i).tier<C().tier||(CL(i).tier===C().tier&&CL(i).str>C().str+2))&&!S.flags['pact_'+CL(i).cast.chair]);
-    if(big.length){S.flags.poachDone=1;return{type:'poach',id:cast('coach'),club:pick(big)}}}
-  const up=S.cross.find(x=>x.dir==='up');if(up){S.cross.splice(S.cross.indexOf(up),1);return{type:'owes',id:up.id}}
-  const dn=S.cross.find(x=>x.dir==='down');if(dn){S.cross.splice(S.cross.indexOf(dn),1);return{type:'defect',id:dn.id}}
-  if(k===3&&S.flags.captainExpiring&&!S.flags.captainSigned&&!hasP('captainDeal'))return{type:'captain',id:cast('captain')};
-  if(k===3&&!S.flags.leagueVote){const ch=pick(Object.keys(S.clubs).filter(i=>i!==S.my&&CL(i).tier===C().tier).map(i=>CL(i).cast.chair));return{type:'league',id:ch}}
-  if(k>=2){const bp=S.promises.find(p=>p.st==='open'&&pdef(p.id).slot==='sport'&&behind(p.id));if(bp)return{type:'behind',id:cast('coach'),prom:bp.id}}
-  return null;
-}
-function currentScene(){return S.wait&&!S.scene?waitScene(S.wait):placeScene(S.scene.id)}
+function currentScene(){return S.sit!=null?sitBuild(S.sit):null}
 function sceneCards(sc){return[...sc.cards,...(sc.noDeal?[sc.noDeal]:[])]}
-function applyCard(i){
-  const sc=currentScene(),card=sceneCards(sc)[i];if(!card)return;
-  const pid=sc.who;card.run();if(P(pid))P(pid).shown=1;
-  if(S.hire){S.afterHire=S.wait&&!S.scene?'places':'review';S.wait=null;S.screen='hire';return}
-  if(S.wait&&!S.scene){S.wait=null;S.screen='places'}else S.screen='review';
-}
+function applyCard(i){const s=S.desk[S.sit],sc=sitBuild(S.sit),card=sceneCards(sc)[i];if(!card)return;card.run();s.done=true;s.choice=card.none?'Left to run its course':card.t;
+  for(const pid of sc.who)if(P(pid)){P(pid).seen=(P(pid).seen||0)+1;if(P(pid).seen>=2)P(pid).deepKnown=true}
+  S.sit=null;if(S.hire){S.afterHire='desk';S.screen='hire';return}S.screen='desk'}
+function deskDone(){for(let i=0;i<S.desk.length;i++){const s=S.desk[i];if(s.done)continue;const sc=sitBuild(i);if(sc.noDeal)sc.noDeal.run();s.done=true;s.choice='Left to run its course'}
+  if(S.hire){S.afterHire='review';S.screen='hire';return}S.screen='review'}
 function runBlock(){const to=BLOCK_ENDS.find(e=>e>S.round);const res=[];for(let r=S.round+1;r<=to;r++){S.round=r;const m=simRound(r);if(m)res.push(m)}S.block=res;S.screen='block'}
 function afterBlock(){if(S.round>=30)startALV();else startMoment(S.moment+1)}
 
@@ -633,7 +684,7 @@ function startALV(){
   for(const p of S.promises){let v=p.st==='broken'?false:p.st==='void'?'void':evalP(p.id);if(v==='void'){report.push({id:p.id,res:'void'});continue}
     p.st=v?'kept':'broken';if(v)S.rep++;else S.rep--;report.push({id:p.id,res:p.st});for(const g of pgroups(p.id))grp(g,v?GAIN[pdef(p.id).size]:-20,`${v?'Kept':'Broken'}: ${pdef(p.id).t}`)}
   if(C().cash<0&&grpOf('business'))grp('business',-5,'The club is in the red');
-  const motions=C().groups.slice().sort((a,b)=>a.mood-b.mood).slice(0,3).map(g=>({id:g.k,by:g.k,...ARCH[g.k].motion})).filter(m=>!(m.id==='business'&&S.flags.oppBoard));
+  let mg=C().groups.slice().sort((a,b)=>a.mood-b.mood).slice(0,3).map(g=>g.k);if(S.alvExtra&&!mg.includes(S.alvExtra))mg=[S.alvExtra,...mg.slice(0,2)];S.alvExtra=null;const motions=mg.map(k=>({id:k,by:k,...ARCH[k].motion})).filter(m=>!(m.id==='business'&&S.flags.oppBoard));
   S.alv={step:'report',report,motions,lobby:[],speakers:[],defense:null,result:null,two:C().statute.some(x=>x.startsWith('Two-thirds'))};
   S.screen='alv';
 }
@@ -653,7 +704,7 @@ function applyLobby(sel){
     else if(S.flags[role+'Speaks']||p.owes){p.owes=false;sp.push({id:pid,line:`${p.name}: "The chairman kept faith with me. Keep faith with the chairman."`});if(g)grp(g,3,`${p.name} speaks for you`)}
     else if(g&&p.loy>6)grp(g,Math.min(2,Math.round(p.loy-6)),`${p.name} talks you up around the club`);
     else if(g&&p.loy<4)grp(g,-Math.round(4-p.loy),`${p.name} grumbles about you around the club`);}
-  A.speakers=sp;A.candidate=!S.flags.oppBoard&&(weighted()<50||c.groups.some(g=>g.share>=30&&g.mood<40));A.step='speech';
+  A.speakers=sp;A.candidate=!S.flags.oppBoard&&(S.flags.challenge||weighted()<50||c.groups.some(g=>g.share>=30&&g.mood<40));A.step='speech';
 }
 function applyDefense(d){
   const A=S.alv,c=C();A.defense=d;
@@ -668,12 +719,13 @@ function endSeason(){
   const won=S.alv.result.won;
   aiSeasonEnd();
   for(const m of S.alv.motions.filter(x=>x.pass)){C().binding.push(`${m.t} (season ${S.season})`);if(m.cost)C().cash-=m.cost;if(m.gain)C().cash+=m.gain}
+  for(const k of Object.keys(S.flags))if(k.startsWith('summer_')&&S.flags[k]){const pid=k.slice(7),x=S.flags[k];if(P(pid)&&P(pid).club===S.my){C().cash+=x.fee;newsPush(`${P(pid).name} leaves for ${CL(x.club).name} as agreed.`,[pid],[x.club]);leaveClub(pid,x.club)}}
   promoteRelegate();
   if(!won){const opp=cast('opp');const c=C();c.cast.chair=opp;P(opp).role='chair';c.cast.opp=mkPerson('opp',c.id,{infl:weakest(c)});S.formerClub=S.my;
     newsPush(`${P(opp).name} is the new chairman of ${c.name}.`,[opp],[c.id]);}
   S.season++;startSeasonWorld();
   if(won){S.promises=[];const keep={council:S.flags.council,coachContract:S.flags.coachContract,tdFree:S.flags.tdFree,academy:S.flags.academy,fanSeat:S.flags.fanSeat,fanName:S.flags.fanName,captainFuture:S.flags.captainFuture,oppBoard:S.flags.oppBoard,weakSeat:S.flags.weakSeat};
-    S.flags={...keep,captainExpiring:!keep.captainFuture&&rnd()<.4};S.mods=[];S.cashStart=C().cash;S.oppGroup=weakest(C());S.step=0;S.pick={};S.chances=computeChances();S.phase='manifest';S.screen='manifest';}
+    S.flags={...keep,captainExpiring:!keep.captainFuture&&rnd()<.4};S.mods=[];S.cashStart=C().cash;S.oppGroup=weakest(C());S.oppMoves=0;S.step=0;S.pick={};S.chances=computeChances();S.phase='manifest';S.screen='manifest';}
   else{S.my=null;makeSeats();S.phase='seats';S.screen='summer';}
 }
 
@@ -686,12 +738,12 @@ function act(a,arg){
     case'electCard':{const sc=electionScene();sceneCards(sc)[+arg].run();S.cashStart=C().cash;S.step=0;S.pick={};S.chances=computeChances();S.screen='manifest';break}
     case'pick':S.pick[['sport','club','person'][S.step]]=arg;S.step++;if(S.step>=3){applyManifest();if(S.phase==='election'){S.elect.result=electionResult();S.screen='electResult'}else startMoment(1)}break;
     case'electNext':if(S.elect.result.won){S.startSeason=S.season;S.history.push({s:S.season,club:S.my,txt:`Elected chairman of ${C().name} with ${Math.round(S.elect.result.total)}%.`});for(const id of Object.values(C().cast))if(P(id)&&P(id).role!=='talent'&&P(id).loy==null&&P(id).mem.length)meet(id);startMoment(1)}else{S.seats=S.seats.filter(x=>x.id!==S.my);S.my=null;if(!S.seats.length)makeSeats();S.phase='seats';S.screen='seats'}break;
-    case'echoNext':S.screen=S.wait?'wait':'places';break;
-    case'place':S.scene={id:arg,step:0,listened:false};S.screen='scene';break;
-    case'listen':S.scene.listened=true;P(S.scene.id).deepKnown=true;S.scene.step=1;break;
-    case'point':S.scene.step=1;break;
+    case'echoNext':S.screen='desk';break;
+    case'sit':S.sit=+arg;S.screen='sit';break;
+    case'back':S.sit=null;S.screen='desk';break;
     case'card':applyCard(+arg);break;
-    case'hire':hireCoach(arg);S.screen=S.afterHire||'review';break;
+    case'deskDone':deskDone();break;
+    case'hire':hireCoach(arg);S.screen=S.afterHire||'desk';break;
     case'reviewNext':runBlock();break;
     case'blockNext':afterBlock();break;
     case'alvLobby':S.alv.step='lobby';break;
@@ -723,7 +775,7 @@ function moodsPanel(title){return`<div class="panel">${title?`<p class="eyebrow"
 function render(){
   if(!HAS_DOM)return;const $=document.getElementById('app');
   if(!S||S.screen==='title'){$.innerHTML=titleView();return}
-  const v={prologue:prologueView,seats:seatsView,elect:electView,manifest:manifestView,electResult:electResultView,echo:echoView,wait:()=>sceneView(true),places:placesView,scene:()=>sceneView(false),hire:hireView,review:reviewView,block:blockView,alv:alvView,summer:summerView}[S.screen];
+  const v={prologue:prologueView,seats:seatsView,elect:electView,manifest:manifestView,electResult:electResultView,echo:echoView,desk:deskView,sit:sitView,hire:hireView,review:reviewView,block:blockView,alv:alvView,summer:summerView}[S.screen];
   $.innerHTML=topBar()+`<main>${v?v():''}</main>`+(UI.over?overlayView():'');
 }
 function titleView(){let has=false;try{has=!!localStorage.getItem(SAVE_KEY)}catch(e){}
@@ -761,20 +813,20 @@ function manifestView(){
 function electResultView(){const r=S.elect.result,c=C();const order=r.rows.slice().sort((a,b)=>a.v-b.v);
   return`<p class="eyebrow">Election night · ${esc(c.name)}</p><h2>The count</h2><div class="count">${order.map(x=>`<div class="cg panel"><div class="row"><b>${esc(gname(c,x.k))}</b><span class="mood">${verdict(x.v)}</span></div><div class="bar"><i style="width:${Math.round(x.v)}%"></i></div></div>`).join('')}</div>
   <div class="verdict stack"><p class="big ${r.won?'up':'down'}">${r.won?'Elected':'Defeated'}</p><p>${r.won?`You are the chairman of ${esc(c.name)}.`:`${esc(P(cast('opp')).name)} wins. Try another seat.`}</p><button class="btn" data-act="electNext">${r.won?'To work':'Back to the open seats'}</button></div>`}
-function echoView(){const e=S.echo;return`${echoBox(e.date,e.head,e.lines)}<button class="btn" data-act="echoNext">${S.wait?'Someone is waiting for you':'Choose where to go'}</button>`}
-function sceneView(isWait){
-  const sc=currentScene(),p=P(sc.who);
-  const where=isWait?'':(places().find(x=>x[2]===sc.who)||[])[1]||'';
-  const intro=`${where?`<p class="where">${esc(where)}</p>`:''}${whoRow(sc.who)}`;
-  const traitLine=p.deepKnown||p.loy!=null?`<p class="small muted">${esc(p.name)}: ${p.traits.join(', ')}. ${band(p.loy)} with you.${p.rel.length?' '+p.rel.slice(0,2).map(r=>`${r.type==='protégé'?'Mentor of':r.type==='mentor'?'Protégé of':r.type==='friends'?'Friends with':r.type==='rivals'?'Rivals with':'Related to'} ${P(r.id).name}`).join('. ')+'.':''}</p>`:'';
-  if(!isWait&&S.scene.step===0)return`<section class="scene">${intro}${traitLine}<p class="voice">${esc(sc.lines[0])}</p><p class="voice">${esc(sc.lines[1])}</p></section>
-    <div class="stack"><button class="choice" data-act="listen"><b>Hear them out</b><span class="meta">Ask what is really going on. You may learn what they value most.</span></button><button class="choice" data-act="point"><b>Get to the point</b><span class="meta">Put deals on the table straight away.</span></button></div>`;
-  const lines=sc.lines.map(l=>l.startsWith('"')?`<p class="voice">${esc(l)}</p>`:`<p>${esc(l)}</p>`).join('');
-  return`<section class="scene">${intro}${traitLine}${lines}${!isWait&&S.scene.listened?`<p class="small muted">What ${esc(p.name)} really wants: ${esc(p.deep)}. They value ${VALUE_WORD[p.value]}.</p>`:''}</section><p class="eyebrow">On the table</p><div class="stack">${sceneCards(sc).map(dealHTML).join('')}</div>`;
+function echoView(){const e=S.echo;return`${echoBox(e.date,e.head,e.lines)}<button class="btn" data-act="echoNext">To your desk</button>`}
+function deskView(){
+  const open=S.desk.filter(s=>!s.done).length,to=BLOCK_ENDS.find(e=>e>S.round);
+  const items=S.desk.map((s,i)=>{const sc=sitBuild(i);const who=sc.who.filter(x=>P(x)).map(x=>P(x).name).join(', ');
+    return s.done?`<div class="choice" aria-disabled="true"><b>${esc(sc.title)}</b><span class="meta">Done: ${esc(s.choice)}</span></div>`:`<button class="choice" data-act="sit" data-arg="${i}"><b>${esc(sc.title)}</b>${who?`<span class="meta">${esc(who)}</span>`:''}<span class="meta">${esc(sc.noDeal?sc.noDeal.fail:'')}</span></button>`}).join('');
+  return`<p class="eyebrow">${MONTH[S.moment]} · On your desk</p><h2>${open?`${open} thing${open>1?'s':''} need you`:'All dealt with'}</h2><p>Deal with what you choose. Whatever you leave runs its course.</p><div class="stack">${items}</div><button class="btn${open?' ghost':''}" data-act="deskDone">${open?`Leave the rest and play rounds ${S.round+1} to ${to}`:`Play rounds ${S.round+1} to ${to}`}</button>`;
 }
-function placesView(){
-  const list=places().map(([k,name,pid])=>`<button class="choice" data-act="place" data-arg="${pid}"><b>${esc(name)}</b><span class="meta">${esc(hint(pid))}</span></button>`).join('');
-  return`<p class="eyebrow">${MONTH[S.moment]} · One evening</p><h2>Where do you go?</h2><p>You have time for one conversation before the next block of games.</p><div class="stack">${list}</div>`;
+function personLine(pid){const p=P(pid);if(!p||p.loy==null&&!p.mem.length)return'';const rel=p.rel.filter(r=>P(r.id)).slice(0,2).map(r=>`${r.type==='protégé'?'mentor of':r.type==='mentor'?'protégé of':r.type==='friends'?'friends with':r.type==='rivals'?'rivals with':'related to'} ${P(r.id).name}`).join('; ');
+  return`<p class="small muted">${esc(p.name)}: ${p.traits.join(', ')}. ${band(p.loy)} with you${p.owes?', owes you a favour':''}${p.withOpp?', in the opposition camp':''}.${rel?' '+esc(rel.charAt(0).toUpperCase()+rel.slice(1))+'.':''}${p.deepKnown?` Values ${VALUE_WORD[p.value]}; wants ${esc(p.deep)}.`:''}</p>`}
+function sitView(){
+  const sc=sitBuild(S.sit);sc.who.forEach(x=>{if(P(x)&&P(x).role!=='talent')meet(x)});
+  const lines=sc.lines.map(l=>l.startsWith('"')||/^[A-Z][^"]*: "/.test(l)?`<p class="voice">${esc(l)}</p>`:`<p>${esc(l)}</p>`).join('');
+  return`<p class="eyebrow">On your desk</p><h2>${esc(sc.title)}</h2><section class="scene">${sc.who.filter(x=>P(x)).map(whoRow).join('')}${lines}${sc.who.map(personLine).join('')}</section>
+  <p class="eyebrow">On the table</p><div class="stack">${sceneCards(sc).map(dealHTML).join('')}</div><button class="btn ghost" data-act="back">Back to the desk</button>`;
 }
 function hireView(){
   const list=S.hire.map(pid=>{const p=P(pid);const m=p.mem[p.mem.length-1];const past=p.career.length?`Past: ${p.career.map(x=>CL(x).name).join(', ')}.`:'No league experience.';
@@ -855,7 +907,7 @@ if(HAS_DOM){
   window.claude?.hot?.snapshot?.(()=>({S}));
   window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});
 }
-if(typeof module!=='undefined')module.exports={act,get S(){return S},set S(v){S=v},currentScene,sceneCards,electionScene,manifestOptions,places,P,C,weighted,myPos,pdef};
+if(typeof module!=='undefined')module.exports={act,get S(){return S},set S(v){S=v},currentScene,sceneCards,electionScene,manifestOptions,sitBuild,P,C,weighted,myPos,pdef};
 </script>
 
 </body>

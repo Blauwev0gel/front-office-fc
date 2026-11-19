@@ -26,13 +26,9 @@ function play(policy,seed,seasons=2){
           else{if(slot==='sport'){const sc=id=>{const d=m.pdef(id);const w=RANK[(S.chances&&S.chances[id]!=null)?['Long shot','Unlikely','Coin toss','Likely','Near certain'][[.12,.35,.6,.85,1.01].findIndex(x=>S.chances[id]<x)]:'Coin toss'];return w*2+(d.size==='M'?1:d.size==='L'?2:0)-(w<3?6:0)};pick=o.slice().sort((a,b)=>sc(b)-sc(a))[0]}else pick=o[0]}
           m.act('pick',pick);break}
         case'electResult':out.elections.push(Math.round(S.elect.result.total));m.act('electNext');break;
-        case'echo':m.act('echoNext');break;
-        case'wait':{const sc=m.currentScene();m.act('card',chooseCard(m.sceneCards(sc),sc.who));break}
-        case'places':{const pl=m.places();let pid;if(policy==='random')pid=pl[ri(pl.length)][2];else if(policy==='passive')pid=pl[0][2];
-          else{const sc=x=>{const p=m.P(x[2]);let s=0;if(p.owes)s+=5;if(p.infl)s+=2;if(p.loy==null)s+=1;else s+=Math.max(0,6-p.loy);if(p.role==='opp'&&S.round>=15)s+=2;return s};pid=pl.slice().sort((a,b)=>sc(b)-sc(a))[0][2]}
-          m.act('place',pid);break}
-        case'scene':if(S.scene.step===0){m.act(policy==='passive'?'point':policy==='random'?(r()<.5?'listen':'point'):'listen');break}
-          {const sc=m.currentScene();m.act('card',chooseCard(m.sceneCards(sc),sc.who));break}
+        case'echo':m.act('echoNext');out.desks=(out.desks||0)+1;out.sits=(out.sits||0)+S.desk.length;S.desk.forEach(x=>{out.gens=out.gens||{};out.gens[x.gen]=(out.gens[x.gen]||0)+1});break;
+        case'desk':{const i=S.desk.findIndex(x=>!x.done);if(policy==='passive'||i<0||(policy==='random'&&r()<.3))m.act('deskDone');else m.act('sit',i);break}
+        case'sit':{const sc=m.currentScene();m.act('card',chooseCard(m.sceneCards(sc),sc.who[0]));break}
         case'hire':m.act('hire',S.hire[0]);break;
         case'review':m.act('reviewNext');break;
         case'block':m.act('blockNext');break;
@@ -65,3 +61,4 @@ for(const pol of ['active','passive','random']){let errs=0,el=0,elw=0,ag=0,agw=0
     o.elections.forEach(v=>{el++;if(v>=50)elw++});o.agms.forEach(x=>{ag++;if(x.won)agw++;sup+=x.v})}
   res[pol]={errors:errs,electionsWon:`${elw}/${el}`,agmsWon:`${agw}/${ag}`,avgAGMsupport:ag?Math.round(sup/ag):0};}
 console.log(JSON.stringify(res,null,1));
+const g=play('active',777);console.log('situations per moment:',(g.sits/g.desks).toFixed(1),'over',g.desks,'moments; generators used:',JSON.stringify(g.gens));

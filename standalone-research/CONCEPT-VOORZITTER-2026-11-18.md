@@ -249,6 +249,13 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - de TD kan ze in elke week halen bij een positie in nood, en in de windows naast gewone transfers.
 
     Te zien in het regio-overzicht onder *Free agents*.
+52. **De kern in één zin:** je ziet je club leven, reageert als eigenaar, beslist wat de staf uitvoert, ziet zaterdag het resultaat, en elk jaar oordelen de leden.
+53. **Een feed met kaarten** (4–6 per week, warme toon, vier bronnen, vervolgverhalen). Reacties via een briefje of de krant, op hooguit twee kaarten per week.
+54. **Geen wedstrijdpremies, weekdoelen of voorspellingen.** De wedstrijd is altijd een rijke samenvatting met momenten die naar jouw beslissingen verwijzen.
+55. **De Northmarch Cup** met vijf rondes en een finale.
+56. **Vier manieren om te falen:** geld, degradatie, de leden, de staf.
+57. **Een upgradeboom voor de club als plek** (vijf takken), met punten uit de ALV, beloftes naar grootte en mijlpalen. Nadelen zijn echte dilemma's.
+58. **Pijlers in volgorde**, elk met een speeltest door de eigenaar.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

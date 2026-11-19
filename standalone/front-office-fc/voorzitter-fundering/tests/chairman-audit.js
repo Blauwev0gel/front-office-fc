@@ -26,9 +26,14 @@ function play(policy,seed,seasons=2){
           else{if(slot==='sport'){const sc=id=>{const d=m.pdef(id);const w=RANK[(S.chances&&S.chances[id]!=null)?['Long shot','Unlikely','Coin toss','Likely','Near certain'][[.12,.35,.6,.85,1.01].findIndex(x=>S.chances[id]<x)]:'Coin toss'];return w*2+(d.size==='M'?1:d.size==='L'?2:0)-(w<3?6:0)};pick=o.slice().sort((a,b)=>sc(b)-sc(a))[0]}else pick=o[0]}
           m.act('pick',pick);break}
         case'electResult':out.elections.push(Math.round(S.elect.result.total));m.act('electNext');break;
-        case'frames':if(policy==='random'){for(const k of ['budget','cap','profile']){const opts={budget:[0,20,40,60,100],cap:[600,750,900,1200],profile:['youth','experience','value']}[k];m.act('frame',k+':'+opts[ri(opts.length)])}}else if(policy==='active')m.act('frame','profile:experience');m.act('framesDone');break;
+        case'meeting':{const M=S.meeting;if(M.step===0){m.act('meetNext');break}
+          if(M.step<=7){const pl=m.run?null:null;const opts={1:['survive','steady','push','promotion'],2:['balanced','reserves','borrow'],3:['own','local','pros','trade'],4:['flat','oneStar','performance'],5:['core','price','noMid'],6:['position','value','youth','wages'],7:['noRival','captainStays','heroesStay','noOldLong']}[M.step];
+            if(M.step===7){if(policy==='active'&&!M.rules.length)m.act('mchoose','captainStays');else if(policy==='random'&&!M.rules.length&&r()<.5)m.act('mchoose',opts[ri(4)]);m.act('meetNext');break}
+            const pickv=policy==='random'?opts[ri(opts.length)]:policy==='passive'?opts[0]:({1:'steady',2:'reserves',3:'pros',4:'oneStar',5:'core',6:'position'})[M.step];m.act('mchoose',pickv);break}
+          m.act('mdone');break}
         case'window':m.act('windowDone');break;
-        case'week':{out.weeks=(out.weeks||0)+1;out.sits=(out.sits||0)+S.desk.length;S.desk.forEach(x=>{if(!x._c){x._c=1;out.gens=out.gens||{};out.gens[x.gen]=(out.gens[x.gen]||0)+1}});
+        case'week':{out.weeks=(out.weeks||0)+1;out.sits=(out.sits||0)+S.desk.length;S.desk.forEach(x=>{if(!x._c){x._c=1;out.gens=out.gens||{};out.gens[x.gen]=(out.gens[x.gen]||0)+1;const tt=m.sitBuild(S.desk.indexOf(x)).title;const key=S.season+'|'+tt;out.titles=out.titles||{};out.titles[key]=(out.titles[key]||0)+1}});
+          out.cash=out.cash||[];if(S.week===30)out.cash.push(Math.round(S.clubs[S.my].cash));
           const i=S.desk.findIndex(x=>!x.done);if(policy==='passive'||i<0||(policy==='random'&&r()<.3))m.act('play');else m.act('sit',i);break}
         case'sit':{const sc=m.currentScene();m.act('card',chooseCard(m.sceneCards(sc),sc.who[0]));break}
         case'result':m.act('next');break;
@@ -63,3 +68,7 @@ for(const pol of ['active','passive','random']){let errs=0,el=0,elw=0,ag=0,agw=0
   res[pol]={errors:errs,electionsWon:`${elw}/${el}`,agmsWon:`${agw}/${ag}`,avgAGMsupport:ag?Math.round(sup/ag):0};}
 console.log(JSON.stringify(res,null,1));
 const g=play('active',777);console.log('situations per week:',(g.sits/g.weeks).toFixed(2),'over',g.weeks,'weeks; generators used:',JSON.stringify(g.gens));
+let maxRep=0,worst='';for(let s=1;s<=10;s++){const o=play(['active','random'][s%2],500+s*11);for(const [k,v] of Object.entries(o.titles||{}))if(v>maxRep){maxRep=v;worst=k}}
+console.log('most repeated situation title in one season:',maxRep,'×',worst);
+const st=g.final.cf.events.filter(e=>e.kind==='story');console.log('player storylines in the last season:',st.filter(e=>e.s===g.final.season).length,'| all seasons:',st.length,'| kinds:',JSON.stringify(st.reduce((a,e)=>(a[e.sk]=(a[e.sk]||0)+1,a),{})));
+console.log('cash at week 30 per season (active run):',JSON.stringify(g.cash));

@@ -43,10 +43,11 @@ function newWorld(seed){
   pell.cast.opp=mkPerson('opp','pell',{name:'Ruth Okon',traits:['honest','stubborn'],value:'control',infl:'business',mem:[{s:1,club:'pell',v:1,txt:'you gave Business a seat'}]});
   pell.cast.coach=mkPerson('coach','pell',{name:'Bryn Talbot',traits:['stubborn','loyal'],value:'loyalty',infl:'workers'});
   pell.cast.talent=mkPerson('talent','pell',{name:'Jay Okoro',age:19});
+  pell.cast.finance=mkPerson('finance','pell',{name:'Ann Priestley',traits:['cautious','honest'],value:'money'});
   corden.cast.chair=mkPerson('chair','corden',{name:'Frank Ollerton',traits:['proud','resentful'],value:'glory'});
   corden.cast.coach=mkPerson('coach','corden',{name:'Maria Esteves',traits:['honest','ambitious'],value:'recognition',infl:'students',mem:[{s:1,club:'pell',v:1,txt:'you backed her in public at Pell'}]});
   P(corden.cast.coach).career=['pell','corden'];
-  ['td','captain','fan','opp','talent'].forEach(r=>corden.cast[r]=mkPerson(r,'corden',{infl:r==='fan'?corden.groups[0].k:r==='captain'?corden.groups[0].k:r==='opp'?weakest(corden):null}));
+  ['td','captain','fan','opp','talent','finance'].forEach(r=>corden.cast[r]=mkPerson(r,'corden',{infl:r==='fan'?corden.groups[0].k:r==='captain'?corden.groups[0].k:r==='opp'?weakest(corden):null}));
   // relations inside clubs and across
   ids.forEach(i=>{const cs=Object.values(CL(i).cast).filter(x=>P(x).role!=='talent');cs.forEach(a=>{if(rnd()<.6){const b=pick(cs.filter(x=>x!==a));addRel(a,b,pick(['friends','rivals','mentor']))}})});
   addRel(pell.cast.fan,pell.cast.captain,'friends');addRel(pell.cast.td,pell.cast.talent,'mentor');addRel(pell.cast.chair,pell.cast.fan,'rivals');
@@ -73,6 +74,7 @@ function castClub(c){
   c.cast.fan=mkPerson('fan',c.id,{infl:big});
   c.cast.opp=mkPerson('opp',c.id,{infl:weakest(c)});
   c.cast.talent=mkPerson('talent',c.id,{age:ri(17,19)});
+  c.cast.finance=mkPerson('finance',c.id);
 }
 function weakest(c){return c.groups.slice().sort((a,b)=>a.mood-b.mood)[0].k}
 function addRel(a,b,type){if(!a||!b||a===b)return;P(a).rel.push({id:b,type});P(b).rel.push({id:a,type:type==='mentor'?'protégé':type})}

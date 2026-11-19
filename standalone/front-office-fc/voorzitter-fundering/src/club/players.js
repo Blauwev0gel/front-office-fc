@@ -15,8 +15,10 @@ function wageFor(q){return Math.round((200+(q-8)*95)/10)*10}
 function newPlayer(pos,o={}){
   const age=o.age??ri(18,33),q=o.q??Math.round((9+rnd()*5)*10)/10;
   const head=age<=19?1.5+rnd()*4:age<=22?rnd()*2.5:age<=24?rnd():0;
-  return{id:'pl'+(S.pc++),name:o.name||pname(),pos,age,q,pa:Math.round((q+head)*10)/10,contract:o.contract??ri(1,3),
-    wage:Math.round(wageFor(q)*(0.85+rnd()*.3)/10)*10,form:ri(55,75),inj:0,trait:o.trait||pick(PTRAITS),academy:!!o.academy,loan:false,apps:0,goals:0,joined:S.season};
+  const p={id:'pl'+(S.pc++),name:o.name||pname(),pos,age,q,pa:Math.round((q+head)*10)/10,contract:o.contract??ri(1,3),
+    wage:Math.round(wageFor(q)*(0.85+rnd()*.3)/10)*10,form:ri(55,75),inj:0,trait:o.trait||pick(PTRAITS),academy:!!o.academy,loan:false,apps:0,goals:0,joined:S.season,
+    morale:ri(55,72),formHist:[],sApps:0,sGoals:0,miles:[],career:o.academy?['Academy']:[]};
+  givePlayerLife(p,o);return p;
 }
 function playerValue(p){return Math.max(1,Math.round((p.q-7)*(p.q-7)*1.6*(p.age<=21?1.6:p.age<=25?1.3:p.age<=29?1:p.age<=31?.6:.35)*(1+Math.max(0,p.pa-p.q)*.12)))}
 function qWord(q){return q<9?'Poor':q<10.5?'Squad player':q<12?'Solid':q<13.5?'Key player':'Star'}

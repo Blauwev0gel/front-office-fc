@@ -11,15 +11,17 @@ const {chromium}=require('playwright');const path=require('path');
    maxW=Math.max(maxW,await p.evaluate(()=>document.documentElement.scrollWidth));
    const acts=await p.$$eval('main [data-act]',els=>els.map(e=>e.dataset.act+'|'+(e.dataset.arg||'')));const has=a=>acts.find(x=>x.startsWith(a+'|'));
    if(pick===0){
+     if(!shot.meeting&&has('mchoose')){await p.screenshot({path:path.join(shots,'meeting.png'),fullPage:true});shot.meeting=1}
+     if(!shot.voices&&has('meetNext')&&!has('mchoose')&&!shot.meeting){await p.screenshot({path:path.join(shots,'voices.png'),fullPage:true});shot.voices=1}
      if(!shot.week&&has('play')&&has('sit')){await p.screenshot({path:path.join(shots,'week.png'),fullPage:true});shot.week=1;
-       await p.click('[data-act=ov][data-arg=squad]');await p.screenshot({path:path.join(shots,'squad.png'),fullPage:false});await p.click('.overlay [data-act=ov]')}
+       await p.click('[data-act=ov][data-arg=squad]');await p.screenshot({path:path.join(shots,'squad.png'),fullPage:false});await p.click('.overlay [data-act=player]');await p.screenshot({path:path.join(shots,'player.png'),fullPage:false});await p.click('.overlay [data-act=ov]')}
      if(!shot.sit&&has('card')&&has('back')){await p.screenshot({path:path.join(shots,'situation.png'),fullPage:true});shot.sit=1}
      if(!shot.result&&has('next')){await p.screenshot({path:path.join(shots,'result.png'),fullPage:true});shot.result=1}
    }
    if(has('toEnd')){await p.waitForTimeout(3800);await p.click('main [data-act=toEnd]');continue}
    if(has('nextSeason')){done=true;break}
    let a=null;
-   for(const k of ['toSeats','seat','electCard','pick','electNext','framesDone','windowDone','sit','card','play','next','hire','alvLobby','lobbyDone','defend']){const m=acts.filter(x=>x.startsWith(k+'|'));if(m.length){a=m[Math.min(pick,m.length-1)];break}}
+   for(const k of ['toSeats','seat','electCard','pick','electNext','meetNext','mchoose','mdone','windowDone','sit','card','play','next','hire','alvLobby','lobbyDone','defend']){const m=acts.filter(x=>x.startsWith(k+'|'));if(m.length){a=m[Math.min(pick,m.length-1)];break}}
    if(!a){errs.push('stuck '+acts.join(','));break}
    const [act,arg]=a.split('|');await p.click(`main [data-act="${act}"]${arg?`[data-arg="${arg}"]`:''}`);
   }

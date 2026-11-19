@@ -6,6 +6,7 @@ if(HAS_DOM){
   document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,arg=b.dataset.arg;
     if(a==='ov'){UI.over=arg||null;if(arg==='region')UI.tab='tables';render();return}
     if(a==='tab'){UI.tab=arg;render();return}
+    if(a==='player'){UI.over='player';UI.pid=arg;render();return}
     if(a==='continue'){if(load())render();return}
     if(a==='new'){UI.lobby={};UI.over=null;act('new');}
     else if(a==='lobbyDone'){act('lobbyDone',Object.keys(UI.lobby).filter(k=>UI.lobby[k]));UI.lobby={}}

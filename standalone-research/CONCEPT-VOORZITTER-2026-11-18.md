@@ -217,6 +217,28 @@ Uitwerking: `ALV-VOORZITTER.md`.
 43. De wedstrijd is een uitslag met twee regels waarom.
 44. Na de papieren proef ("te heftig"): de TD verkoopt hooguit één sleutelspeler per window. Een jong toptalent verkoopt hij alleen bij een extreem bod, en hij herinvesteert in de zwakste plek van de elf.
 45. Open: de huisregels "never sell to the rival" en "local heroes stay" geven in tests geen meetbaar verschil, omdat ze zelden van toepassing zijn. "Five academy players" wel. De eigenaar beslist of ze blijven.
+46. **De schuifjes zijn vervangen door een zomervergadering met de hele staf** (TD, coach, financieel directeur). Ieder legt uit wat hij wil, met echte cijfers. De eigenaar beslist een mandaat van zeven pijlers:
+    - ambitie;
+    - financieel risico;
+    - identiteit;
+    - het loonhuis;
+    - verkoopbeleid;
+    - waarop de TD wordt afgerekend;
+    - rode lijnen.
+
+    De staf reageert op elke keuze. De huisregels uit keuze 45 zijn opgegaan in de rode lijnen.
+47. Geld is altijd zichtbaar als bedrag: de kas, het weekresultaat, de schuld, de loonsom en het transferbudget. De financieel directeur is een personage.
+48. Spelers krijgen een profiel en komen tot leven langs vier routes:
+    - een profiel (herkomst, verhaal, wens, vorm, cijfers);
+    - verhaallijnen uit de simulatie;
+    - momenten in de uitslag;
+    - ontmoetingen als eigenaar (eerste profcontract, speler van de maand, een speler in een crisis, afscheid van een veteraan, een speler die weg wil).
+49. Het bureau herhaalt zich minder:
+    - een seizoenslimiet per soort situatie;
+    - geen dezelfde titel binnen acht weken;
+    - logische voorwaarden.
+
+    Het is rustiger in beeld, met tekstballonnen, kaarten met een gezicht en compacte afspraakkaarten.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

@@ -7,7 +7,7 @@ function startWeek(){
   const cev=clubWeek(S.week);
   if(S.week===15)aiWinter();
   const lines=[];if(S.week%4===0){lines.push(...oppMove());S.served=false}
-  const rank={keySale:0,injury:1,sale:2,buy:3,pass:4,loanIn:5,renew:6,leave:7,window:8,return:9,refused:10,loanOut:11,frame:12,plan:13};
+  const rank={keySale:0,story:1,injury:1,sale:2,buy:3,pass:4,loanIn:5,renew:6,leave:7,window:8,return:9,refused:10,loanOut:11,frame:12,plan:13};
   S.atClub=cev.slice().sort((a,b)=>(rank[a.kind]??9)-(rank[b.kind]??9)).slice(0,3).map(e=>e.text);
   if(S.atClub.length<2){const plan=cfPlan()[0];const td=P(S.cf.tdId);if(plan)S.atClub.push(`${td.name} is working on it: ${plan.charAt(0).toLowerCase()+plan.slice(1)}.`);else S.atClub.push(`${td.name} says the squad is in good shape.`)}
   S.echo=buildEcho(lines,cev);S.desk=genDeskWeek(S.week);S.sit=null;S.screen='week';
@@ -24,11 +24,18 @@ function buildEcho(lines,cev){
   return{date:`Week ${S.week}`,head,lines:[...first,...lines,...news]};
 }
 function nextFixture(){const c=C(),r=S.week;if(!r||r>30)return null;for(const [h,a] of S.fx[c.tier][r-1])if(h===S.my||a===S.my)return{home:h===S.my,opp:h===S.my?a:h};return null}
+const SEASON_MAX={derby:2,agenda:2,award:3,slump:2,cash:2,petition:2,returns:2,rival:2,bid:2,story:1,escalate:1,league:1,captain:1,poach:1,firstContract:2,farewell:1,wantsOut:2,conflict:2,defect:3};
 function genDeskWeek(w){
-  const out=[];S.cool=S.cool||{};const k=momentOf(w);
-  const order=['poach','defect','captain','cash','conflict','bid','escalate','story','petition','returns','rival','league','derby','agenda'];
-  for(const g of order){if(out.length>=2)break;if((S.cool[g]||0)>w)continue;const pri=SIT[g].pri;if(pri<8&&g!=='derby'&&rnd()<.6)continue;
-    const d=SIT[g].make(k,w);if(d){out.push({gen:g,data:d,done:false,choice:null});S.cool[g]=w+(g==='derby'?1:g==='agenda'?5:6)}}
+  const out=[];S.cool=S.cool||{};S.genCount=S.genCount&&S.genCount._s===S.season?S.genCount:{_s:S.season};S.lastTitles=S.lastTitles||[];const k=momentOf(w);
+  const cands=Object.keys(SIT).filter(g=>(S.cool[g]||0)<=w&&(S.genCount[g]||0)<(SEASON_MAX[g]||2));
+  // weighted order: priority, minus recency; urgent ones (priority 8+) always first
+  const weight=g=>SIT[g].pri*(0.6+rnd()*0.8)+(SIT[g].pri>=8?10:0);
+  cands.sort((a,b)=>weight(b)-weight(a));
+  for(const g of cands){if(out.length>=2)break;if(SIT[g].pri<8&&g!=='derby'&&rnd()<.5)continue;
+    const d=SIT[g].make(k,w);if(!d)continue;const s={gen:g,data:d,done:false,choice:null};out.push(s);
+    const title=SIT[g].build(d).title;if(S.lastTitles.some(x=>x.t===title&&w-x.w<8)){out.pop();continue}
+    S.lastTitles.push({t:title,w});S.genCount[g]=(S.genCount[g]||0)+1;S.cool[g]=w+(g==='derby'?1:g==='agenda'?6:5)}
+  S.lastTitles=S.lastTitles.filter(x=>w-x.w<10);
   return out;
 }
 function currentScene(){return S.sit!=null?sitBuild(S.sit):null}
@@ -69,12 +76,13 @@ function startALV(){
   S.phase='alv';S.mlog=[];S.prevMood=Object.fromEntries(C().groups.map(g=>[g.k,g.mood]));
   if(openP('captainDeal')&&!S.flags.captainSigned){if(P(cast('td')).loy>=4){S.flags.captainSigned=1;log('The director signs the captain, reluctantly','Your promise, their signature',null)}else log('The director refuses to sign the captain','Distant with you',null)}
   if(S.flags.leagueVote){cash(20,'TV money from the league vote');const ch=P(S.flags.leagueVote);const riv=CL(CL(ch.club).rival).cast.chair;if(riv&&P(riv))P(riv).mem.push({s:S.season,club:S.my,v:-1,txt:'you voted against them at the league meeting'})}
+  const verdict=S.cf?judgeDirector():null;
   const report=[];
   for(const p of S.promises){let v=p.st==='broken'?false:p.st==='void'?'void':evalP(p.id);if(v==='void'){report.push({id:p.id,res:'void'});continue}
     p.st=v?'kept':'broken';if(v)S.rep++;else S.rep--;report.push({id:p.id,res:p.st});for(const g of pgroups(p.id))grp(g,v?GAIN[pdef(p.id).size]:-20,`${v?'Kept':'Broken'}: ${pdef(p.id).t}`)}
   if(C().cash<0&&grpOf('business'))grp('business',-5,'The club is in the red');
   let mg=C().groups.slice().sort((a,b)=>a.mood-b.mood).slice(0,3).map(g=>g.k);if(S.alvExtra&&!mg.includes(S.alvExtra))mg=[S.alvExtra,...mg.slice(0,2)];S.alvExtra=null;const motions=mg.map(k=>({id:k,by:k,...ARCH[k].motion})).filter(m=>!(m.id==='business'&&S.flags.oppBoard));
-  S.alv={step:'report',report,motions,lobby:[],speakers:[],defense:null,result:null,two:C().statute.some(x=>x.startsWith('Two-thirds'))};
+  S.alv={step:'report',report,verdict,motions,lobby:[],speakers:[],defense:null,result:null,two:C().statute.some(x=>x.startsWith('Two-thirds'))};
   S.screen='alv';
 }
 function applyLobby(sel){
@@ -126,8 +134,8 @@ function act(a,arg){
     case'toSeats':S.phase='seats';S.screen='seats';break;
     case'seat':chooseSeat(arg);break;
     case'electCard':{const sc=electionScene();sceneCards(sc)[+arg].run();S.cashStart=C().cash;S.step=0;S.pick={};S.chances=computeChances();S.screen='manifest';break}
-    case'pick':S.pick[['sport','club','person'][S.step]]=arg;S.step++;if(S.step>=3){applyManifest();if(S.phase==='election'){S.elect.result=electionResult();S.screen='electResult'}else S.screen='frames'}break;
-    case'electNext':if(S.elect.result.won){S.startSeason=S.season;S.history.push({s:S.season,club:S.my,txt:`Elected chairman of ${C().name} with ${Math.round(S.elect.result.total)}%.`});for(const id of Object.values(C().cast))if(P(id)&&P(id).role!=='talent'&&P(id).loy==null&&P(id).mem.length)meet(id);S.screen='frames'}else{S.seats=S.seats.filter(x=>x.id!==S.my);S.my=null;if(!S.seats.length)makeSeats();S.phase='seats';S.screen='seats'}break;
+    case'pick':S.pick[['sport','club','person'][S.step]]=arg;S.step++;if(S.step>=3){applyManifest();if(S.phase==='election'){S.elect.result=electionResult();S.screen='electResult'}else startMeeting()}break;
+    case'electNext':if(S.elect.result.won){S.startSeason=S.season;S.history.push({s:S.season,club:S.my,txt:`Elected chairman of ${C().name} with ${Math.round(S.elect.result.total)}%.`});for(const id of Object.values(C().cast))if(P(id)&&P(id).role!=='talent'&&P(id).loy==null&&P(id).mem.length)meet(id);startMeeting()}else{S.seats=S.seats.filter(x=>x.id!==S.my);S.my=null;if(!S.seats.length)makeSeats();S.phase='seats';S.screen='seats'}break;
     case'sit':S.sit=+arg;S.screen='sit';break;
     case'back':S.sit=null;S.screen='week';break;
     case'card':applyCard(+arg);break;
@@ -136,6 +144,10 @@ function act(a,arg){
     case'hire':hireCoach(arg);if(S.afterHire==='play'){S.hire=null;playMatch()}else S.screen=S.afterHire||'week';break;
     case'frame':{const [k,v]=String(arg).split(':');setFrame(k,k==='budget'||k==='cap'?+v:v);break}
     case'framesDone':summerWindow();break;
+    case'meetNext':S.meeting.step++;break;
+    case'mchoose':meetingChoose(arg);break;
+    case'mdone':applyMandate();summerWindow();break;
+    case'player':S.viewPlayer=arg;break;
     case'windowDone':startSeasonPlay();break;
     case'alvLobby':S.alv.step='lobby';break;
     case'lobbyDone':applyLobby(arg||[]);break;

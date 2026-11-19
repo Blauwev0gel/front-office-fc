@@ -130,6 +130,8 @@ Uitwerking: `ALV-VOORZITTER.md`.
 | Gesprek — Brook | Twee beurten, de diepe wens raken | Geen spel | Alleen een verborgen score; een quiz |
 | ALV — Pell opnieuw | Moties, wandelgangen, telling per groep | **Spel**; prijs precies goed | Deals met beperkingen voor later geven echte keuzes |
 | Gesprek — Brook met kaarten | Dezelfde scène, nu met afspraakkaarten | **Spel** | Het gesprek is de verpakking; het spel is de afspraak |
+| Wereld — fase D (Ravensby) | Drie zetels uit een seed, verkiezing, nieuwe persoonlijkheden | **Eigen wereld, clubs en mensen voelbaar** | Geheugen en relaties over clubs heen maken de wereld levend |
+| Wereld — fase E (`northmarch.html`) | 32 clubs, kandidaatkeuze, twee seizoenen, audit over 20 seeds | Nog te spelen door de eigenaar | Actief wint 40/40 ALV's (gem. 80%), passief 30/40 (51%), willekeurig 23/40 (55%). Het verschil is aantoonbaar, maar voor een bewuste speler is het nog te makkelijk: balans is de volgende stap |
 
 ## 12. Wat we bewust anders doen dan eerder
 

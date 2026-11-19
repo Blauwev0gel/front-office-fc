@@ -39,6 +39,7 @@ function play(policy,seed,seasons=2){
         case'sit':{const sc=m.currentScene();m.act('card',chooseCard(m.sceneCards(sc),sc.who[0]));break}
         case'result':m.act('next');break;
         case'hire':m.act('hire',S.hire[0]);break;
+        case'tdhire':m.act('tdhire',policy==='random'?S.tdCands[ri(3)]:S.tdCands[0]);break;
         case'alv':{const A=S.alv;
           if(A.step==='report')m.act('alvLobby');
           else if(A.step==='lobby'){let sel=[];if(policy==='active'){const m0=A.motions.find(x=>!x.anti);if(m0)sel=[m0.id];sel.push('seat')}else if(policy==='random')sel=A.motions.filter(()=>r()<.4).map(x=>x.id);m.act('lobbyDone',sel)}

@@ -10,10 +10,10 @@ function cfInit(clubId,clubStr,tdId,coachId,rivalId){
 function cfEv(kind,text,o={}){S.cf.events.push({w:S.week||0,s:S.season,kind,text,...o})}
 function tdTraits(){const p=P(S.cf.tdId);return p?{tr:p.traits,val:p.value,name:p.name}:{tr:[],val:'money',name:'The director'}}
 function profileAges(pr){return pr==='youth'?[19,23]:pr==='experience'?[26,31]:[20,32]}
-function marketFor(pos,n){const out=[],cf=S.cf,[a0,a1]=profileAges(cf.frames.profile);
+function marketFor(pos,n){const out=[],cf=S.cf,[a0,a1]=tdAges(cf.frames.profile);
   const base=11.5+((typeof myBaseStr==='function'?myBaseStr():50)-50)/4;
   for(let i=0;i<n;i++){const age=ri(a0,a1),q=Math.round((base-1.6+rnd()*3.4)*10)/10;const p=newPlayer(pos,{age,q,contract:ri(2,3)});
-    p.price=Math.max(2,Math.round(playerValue(p)*(cf.frames.profile==='value'?0.55+rnd()*.6:cf.frames.profile==='youth'?0.6+rnd()*.5:0.8+rnd()*.6)));p.from=pick(Object.keys(S.clubs).filter(i=>i!==cf.club));out.push(p)}
+    p.price=Math.max(2,Math.round(playerValue(p)*(cf.frames.profile==='value'?0.55+rnd()*.6:cf.frames.profile==='youth'?0.6+rnd()*.5:0.8+rnd()*.6)*tdPayF()));p.from=pick(Object.keys(S.clubs).filter(i=>i!==cf.club));out.push(p)}
   return out}
 function hasRule(r){const f=S.cf.frames;return (f.rules||[]).includes(r)||f.rule===r}
 function ruleBlocksSale(p,buyer){if(hasRule('noRival')&&buyer===S.cf.rivalId)return'Never sell to our rival';if(hasRule('captainStays')&&p.captain)return'The captain stays';if(hasRule('heroesStay')&&p.localKid)return'Our own lads are never sold';
@@ -26,8 +26,8 @@ function tdWindow(kind){
   const byVal=sq.filter(p=>!p.loan).sort((a,b)=>playerValue(b)-playerValue(a)).slice(0,3);
   for(const p of byVal){
     if(rnd()>(kind==='summer'?.35:.2))continue;if(F.sales==='noMid'&&kind==='winter')continue;
-    const strong=Object.keys(S.clubs).filter(i=>i!==cf.club&&CL(i).str>=CL(cf.club).str-2);const buyer=pick(strong.length?strong:Object.keys(S.clubs).filter(i=>i!==cf.club)),v=playerValue(p),bid=Math.round(v*(0.9+rnd()*.7));
-    let need=F.profile==='value'?1.3:F.profile==='experience'?1.6:2.0;if(greedy)need-=.15;const young=p.age<=21&&p.q>=12;if(young)need+=.4;if(F.sales==='core'&&sq.slice().sort((a,b)=>b.q-a.q).indexOf(p)<5)need+=.6;if(F.sales==='price')need-=.1;if(F.ambition==='promotion')need+=.3;
+    const strong=Object.keys(S.clubs).filter(i=>i!==cf.club&&CL(i).str>=CL(cf.club).str-2);const buyer=pick(strong.length?strong:Object.keys(S.clubs).filter(i=>i!==cf.club)),v=playerValue(p),bid=Math.round(v*(0.9+rnd()*.7)*tdSellF());
+    let need=F.profile==='value'?1.3:F.profile==='experience'?1.6:2.0;if(greedy)need-=.15;const young=p.age<=21&&p.q>=12;if(young)need+=.4;if(F.sales==='core'&&sq.slice().sort((a,b)=>b.q-a.q).indexOf(p)<5)need+=.6;if(F.sales==='price')need-=.1;if(F.ambition==='promotion')need+=.3;need+=tdSellNeed(p);
     const block=ruleBlocksSale(p,buyer);
     if(block){say('refused',`${CL(buyer).name} bid £${bid}k for ${p.name}. Refused: ${block.toLowerCase()}.`,{pid:p.id,buyer,bid});continue}
     if(bid>=v*need&&keySales<1){keySales++;sq.splice(sq.indexOf(p),1);S.clubs[cf.club].cash+=bid;cf.budgetLeft+=Math.round(bid*.5);CL(buyer).str=clamp(CL(buyer).str+.5,40,60);
@@ -41,13 +41,13 @@ function tdWindow(kind){
   const xi=pickXI(sq,0);const weakest=xi.slice().sort((a,b)=>a.p.q*fitFor(a.p,a.slot)-b.p.q*fitFor(b.p,b.slot))[0];if(weakest&&!targets.includes(weakest.slot))targets.push(weakest.slot);
   let buys=0;
   for(const pos of targets){if(buys>=3)break;
-    const [fa0,fa1]=profileAges(F.profile);const mk=marketFor(pos,8).concat(faFor(pos).filter(p=>p.age>=fa0&&p.age<=fa1).map(p=>Object.assign(p,{price:0})));let ok=mk.filter(p=>p.price<=cf.budgetLeft);const over=mk.filter(p=>p.price>cf.budgetLeft).sort((a,b)=>b.q-a.q)[0];
+    const [fa0,fa1]=tdAges(F.profile);const mk=marketFor(pos,8).concat(faFor(pos).filter(p=>p.age>=fa0&&p.age<=fa1).map(p=>Object.assign(p,{price:0})));let ok=mk.filter(p=>p.price<=cf.budgetLeft);const over=mk.filter(p=>p.price>cf.budgetLeft).sort((a,b)=>b.q-a.q)[0];
     const starAllowed=F.wagehouse==='oneStar'&&!sq.some(p=>p.wage>F.cap);const capOf=starAllowed?Math.round(F.cap*1.6):F.cap;const capped=ok.filter(p=>p.wage>capOf).sort((a,b)=>b.q-a.q)[0];ok=ok.filter(p=>p.wage<=capOf);if(F.identity==='local')ok.sort((a,b)=>(b.localKid?1:0)-(a.localKid?1:0));
     const cur=xi.find(x=>x.slot===pos);const curQ=cur?cur.p.q*fitFor(cur.p,pos):0;ok=ok.filter(p=>p.q>curQ-(F.profile==='youth'?1.2:.3)||(F.profile==='youth'&&p.pa>curQ+.5)||targets.indexOf(pos)<squadGaps(sq).filter(g=>g.kind==='short').length);
     if(cautious)ok=ok.filter(p=>p.age>=25);
     if(!ok.length){if(capped)say('pass',`${td.name} passed on ${capped.name} (${POS_ONE[pos]}): £${capped.wage}/wk is over your wage cap.`,{pos});else if(over)say('pass',`${td.name} wanted ${over.name} (${POS_ONE[pos]}) but £${over.price}k is over budget.`,{pos});else say('pass',`No ${POS_ONE[pos]} on the market good enough for ${td.name}.`,{pos});continue}
-    ok.sort(amb||F.profile!=='value'?(a,b)=>b.q-a.q:(a,b)=>(b.q/(b.price+3))-(a.q/(a.price+3)));
-    let p=ok[0];if(p.free){faSign(p,F.profile==='youth'?2:ri(1,2));p.mandateSigning=S.season;p.from=null;say('buy',`${td.name} signed ${p.name} (${POS_ONE[pos]}, ${p.age}, ${qWord(p.q).toLowerCase()}) on a free transfer: ${p.why}.`,{pid:p.id,pos,age:p.age,price:0,free:true});delete p.price;buys++;continue}
+    tdSort(ok,amb);
+    let p=ok[0];tdMarkSigning(p);if(p.free){faSign(p,F.profile==='youth'?2:ri(1,2));p.mandateSigning=S.season;p.from=null;say('buy',`${td.name} signed ${p.name} (${POS_ONE[pos]}, ${p.age}, ${qWord(p.q).toLowerCase()}) on a free transfer: ${p.why}.`,{pid:p.id,pos,age:p.age,price:0,free:true});delete p.price;buys++;continue}
     cf.budgetLeft-=p.price;S.clubs[cf.club].cash-=p.price;p.joined=S.season;p.mandateSigning=S.season;sq.push(p);buys++;
     say('buy',`${td.name} signed ${p.name} (${POS_ONE[pos]}, ${p.age}, ${qWord(p.q).toLowerCase()}) from ${CL(p.from).name}.`,{pid:p.id,pos,age:p.age,price:p.price});delete p.from;delete p.price;
   }
@@ -64,7 +64,7 @@ function tdFreeAgents(w){
   const crisis=POS.filter(pos=>available(cf.squad).filter(p=>p.pos===pos).length<Math.min(REQ[pos],pos==='GK'?1:2));if(!crisis.length)return;
   const pos=crisis[0],best=faFor(pos).filter(p=>p.wage<=F.cap).sort((a,b)=>b.q-a.q)[0];
   if(!best){cfEv('pass',`${td.name} looked for a free ${POS_ONE[pos]} but found nobody under your wage cap.`,{pos});cf.faLast=w;return}
-  faSign(best,1);cf.faLast=w;cfEv('buy',`${td.name} signed ${best.name} (${POS_ONE[pos]}, ${best.age}) on a free: ${best.why}. Cover for the injuries.`,{pid:best.id,pos,age:best.age,price:0,free:true});
+  faSign(best,1);tdMarkSigning(best);cf.faLast=w;cfEv('buy',`${td.name} signed ${best.name} (${POS_ONE[pos]}, ${best.age}) on a free: ${best.why}. Cover for the injuries.`,{pid:best.id,pos,age:best.age,price:0,free:true});
 }
 function tdRenewals(){
   const cf=S.cf,F=cf.frames,td=tdTraits();

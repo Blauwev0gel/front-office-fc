@@ -48,6 +48,15 @@ function deskDone(){for(let i=0;i<S.desk.length;i++){const s=S.desk[i];if(s.done
 function playMatch(){deskDone();if(S.hire){S.afterHire='play';S.screen='hire';return}
   const m=simRound(S.week);S.round=S.week;m.influence=influenceMoments(m);m.lines=matchMoments(m);S.last=m;S.myRes=(S.myRes||[]).concat([m.pts===3?'W':m.pts===1?'D':'L']).slice(-10);S.screen='result'}
 function afterResult(){if(S.week>=30)startALV();else startWeek()}
+/* ----- Hiring the technical director: at a new club, and after a sacking ----- */
+function startTdHire(){S.tdCands=tdCandidates(3);S.screen='tdhire'}
+function hireTd(pid){
+  if(!S.tdCands||!S.tdCands.includes(pid))pid=S.tdCands?S.tdCands[0]:pid;const old=cast('td'),c=C(),p=P(pid);
+  if(old&&P(old)&&old!==pid){P(old).club=null;p.infl=P(old).infl}
+  p.club=S.my;p.career.push(S.my);c.cast.td=pid;S.cf.tdId=pid;S.cf.tdHired=true;meet(pid);
+  log(`${p.name} is your new director of football`,`${TD_PHIL[tdOf(pid).phil].t}: ${TD_PHIL[tdOf(pid).phil].d.toLowerCase()}`,null);
+  S.history.push({s:S.season,club:S.my,txt:`Hired ${p.name} as director of football.`});S.tdCands=null;
+}
 function summerWindow(){S.windowLog=tdWindow('summer');S.screen='window'}
 
 /* ----- Election at a new club ----- */
@@ -123,7 +132,7 @@ function act(a,arg){
     case'toSeats':S.phase='seats';S.screen='seats';break;
     case'seat':chooseSeat(arg);break;
     case'arrive':S.cashStart=C().cash;S.step=0;S.pick={};S.chances=computeChances();S.phase='manifest';S.screen='manifest';break;
-    case'pick':S.pick[['sport','club','person'][S.step]]=arg;S.step++;if(S.step>=3){applyManifest();startMeeting()}break;
+    case'pick':S.pick[['sport','club','person'][S.step]]=arg;S.step++;if(S.step>=3){applyManifest();if(S.cf&&!S.cf.tdHired)startTdHire();else startMeeting()}break;
     case'sit':S.sit=+arg;S.screen='sit';break;
     case'back':S.sit=null;S.screen='week';break;
     case'card':applyCard(+arg);break;
@@ -133,6 +142,7 @@ function act(a,arg){
     case'hire':hireCoach(arg);if(S.afterHire==='play'){S.hire=null;playMatch()}else S.screen=S.afterHire||'week';break;
     case'frame':{const [k,v]=String(arg).split(':');setFrame(k,k==='budget'||k==='cap'?+v:v);break}
     case'framesDone':summerWindow();break;
+    case'tdhire':hireTd(arg);startMeeting();break;
     case'meetNext':S.meeting.step++;break;
     case'mchoose':meetingChoose(arg);break;
     case'mdone':applyMandate();summerWindow();break;

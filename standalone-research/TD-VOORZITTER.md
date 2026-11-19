@@ -105,6 +105,11 @@ Vertrekt de trainer, dan **stelt de TD drie kandidaten voor die bij zijn plan pa
   - kandidaatkaarten.
 
 ## Bouwvolgorde (klein en af)
+
+**Stand 19-11-2026:** stap 1 is gebouwd.
+- `club/td.js` bevat het profiel, de kandidaten en de hooks in `tdWindow`.
+- Het scherm *Hire a director* verschijnt bij een nieuwe club, na het manifest.
+- `tests/td-test.js` slaagt.
 1. TD-profiel en aannemen, met meetbaar gedrag per filosofie en vakmanschap.
 2. De zomer: evaluatie, plan met ordenen, ticker en deadline day.
 3. De maandmeeting.

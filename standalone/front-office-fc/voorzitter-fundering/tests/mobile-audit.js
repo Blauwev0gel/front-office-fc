@@ -9,6 +9,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
  const go=async(act,arg)=>{await p.click(`main [data-act="${act}"]${arg?`[data-arg="${arg}"]`:''}`)};
  // reach week 1
  await go('toSeats');await p.click('main [data-act=seat]');await go('arrive');for(let i=0;i<3;i++){await p.click('main [data-act=pick]')}
+ await p.waitForTimeout(260);await p.screenshot({path:path.join(shots,'m-tdhire.png'),fullPage:true});const th=await p.evaluate(()=>[...document.querySelectorAll('main [data-act=tdhire]')].map(b=>Math.round(b.getBoundingClientRect().height)));console.log('tdhire     | hire buttons',th.join(','),'px');await p.click('main [data-act=tdhire]');
  await go('meetNext');for(let i=0;i<6;i++)await p.click('main [data-act=mchoose]');await go('meetNext');await go('mdone');await go('windowDone');
  await go('play');await go('next'); // week 2, with a result and form
  const audit=async(name)=>{

@@ -11,7 +11,7 @@ if(HAS_DOM){
     if(a==='new'){UI.lobby={};UI.over=null;act('new');}
     else if(a==='lobbyDone'){act('lobbyDone',Object.keys(UI.lobby).filter(k=>UI.lobby[k]));UI.lobby={}}
     else act(a,arg);
-    save();render();if(a!=='frame')window.scrollTo(0,0);});
+    save();render();if(a!=='frame'&&a!=='react')window.scrollTo(0,0);});
   const boot=data=>{if(data&&data.S)S=data.S;render()};
   window.claude?.hot?.snapshot?.(()=>({S}));
   window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});

@@ -124,11 +124,11 @@ function overlayView(){
 function weekView(){
   const e=S.echo,fx=nextFixture(),open=S.desk.filter(s=>!s.done).length;
   const desk=S.desk.map((s,i)=>{const sc=sitBuild(i);const f=sc.who.find(x=>P(x));const hook=(sc.lines.find(l=>l.includes('"'))||sc.lines[0]||'').replace(/^[A-Z][A-Za-z'.\- ]+: /,'');return s.done?`<div class="deskc done"><b>${esc(sc.title)}</b><span class="meta">Done: ${esc(s.choice)}</span></div>`:`<button class="deskc" data-act="sit" data-arg="${i}">${f?face(f).replace('class="face','class="face sm'):'<span class="face sm" aria-hidden="true">★</span>'}<span class="dk"><b>${esc(sc.title)}</b><span class="meta clamp2">${esc(hook)}</span></span></button>`}).join('');
-  return`${echoBox(e.date,e.head,e.lines)}
+  return`<p class="eyebrow">Week ${S.week} · ${esc(C().name)}</p>
   ${moneyStrip()}
-  <div class="panel"><p class="eyebrow">This week at the club</p><ul class="log">${S.atClub.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></div>
+  ${feedView()}
   <div class="panel"><p class="eyebrow">On your desk</p>${S.desk.length?`<div class="stack">${desk}</div>`:'<p class="small muted">Nothing needs you this week.</p>'}</div>
-  ${fx?`<div class="panel"><p class="eyebrow">Saturday${fx.opp===C().rival?' · Derby':''}</p><div class="row"><b>${fx.home?esc(C().name)+' v '+esc(CL(fx.opp).name):esc(CL(fx.opp).name)+' v '+esc(C().name)}</b><span class="small muted">${ord(posOf(fx.opp))} in the table</span></div></div>`:''}
+  ${fx?fixtureCard(fx):''}
   <button class="btn" data-act="play">${open?'Leave the rest and play the match':'Play the match'}</button>`;
 }
 function resultView(){
@@ -138,8 +138,9 @@ function resultView(){
   const tbl=around.map(id=>`<div class="row small" style="font-variant-numeric:tabular-nums${id===S.my?';font-weight:600':''}"><span>${st.indexOf(id)+1}. ${esc(CL(id).name)}</span><span>${S.tbl[id].pts} pts</span></div>`).join('');
   const prom=S.promises.filter(x=>x.st==='open').map(x=>`<div class="row small"><span>${esc(pdef(x.id).t)}</span><span class="mood ${behind(x.id)?'down':'up'}">${behind(x.id)?'Behind':'On track'}</span></div>`).join('');
   return`<p class="eyebrow">Week ${S.week} · Full time${m.derby?' · Derby':''}</p>
-  <div class="panel"><div class="row"><b>${esc(m.home?c.name:CL(m.opp).name)}</b><span class="big" style="font-size:36px">${m.home?m.gf:m.ga}</span></div><div class="row"><b>${esc(m.home?CL(m.opp).name:c.name)}</b><span class="big" style="font-size:36px">${m.home?m.ga:m.gf}</span></div><p class="small muted">Our goals: ${esc(sc)}</p></div>
-  ${m.moments&&m.moments.length?`<div class="panel"><p class="eyebrow">Moments</p>${m.moments.map(x=>`<p>${esc(x)}</p>`).join('')}</div>`:''}
+  <div class="panel"><div class="row"><b>${esc(m.home?c.name:CL(m.opp).name)}</b><span class="big" style="font-size:36px">${m.home?m.gf:m.ga}</span></div><div class="row"><b>${esc(m.home?CL(m.opp).name:c.name)}</b><span class="big" style="font-size:36px">${m.home?m.ga:m.gf}</span></div></div>
+  ${(m.lines||[]).length?`<div class="panel"><p class="eyebrow">Moments</p>${m.lines.map(x=>`<p>${esc(x)}</p>`).join('')}</div>`:''}
+  ${(m.influence||[]).length?`<div class="panel yours"><p class="eyebrow">Your hand in it</p>${m.influence.map(x=>`<p>${esc(x)}</p>`).join('')}</div>`:''}
   <div class="panel"><p class="eyebrow">Why</p>${m.why.map(w=>`<p>${esc(w)}</p>`).join('')}</div>
   ${items?`<div class="panel"><p class="eyebrow">What changed this week</p><ul class="log">${items}</ul></div>`:''}
   <div class="panel"><p class="eyebrow">The table</p>${tbl}</div>${prom?`<div class="panel"><p class="eyebrow">Your promises</p>${prom}</div>`:''}
@@ -189,3 +190,19 @@ function arrivalView(){const c=C(),fan=P(cast('fan')),known=Object.values(c.cast
   <section class="scene"><div class="bubble">${face(fan.id).replace('class="face','class="face sm')}<div class="bb"><b>${esc(fan.name)} · ${esc(ROLE_WORD[fan.role])}</b><p>Welcome, chairman. Here's what ${esc(gname(c,fan.infl))} want: ${esc(fan.deep)}.</p></div></div></section>
   ${known.length?`<p class="small muted">Already knows you: ${known.map(x=>esc(P(x).name)).join(', ')}.</p>`:''}
   <button class="btn" data-act="arrive">Write your manifest for the season</button>`}
+
+/* ----- the feed and the fixture card ----- */
+function formDots(id){const res=[];const tier=CL(id).tier;for(let r=Math.max(1,S.round-4);r<=S.round;r++){const f=S.fx[tier][r-1];if(!f)continue;const g=f.find(([h,a])=>h===id||a===id);if(!g)continue;res.push(g)}
+  // results are not stored per match for AI clubs; use the table trend as an honest proxy
+  const t=S.tbl[id];if(!t||!t.p)return'';const ppg=t.pts/t.p;return`<span class="small muted">${t.w}W ${t.d}D ${t.l}L</span>`}
+function fixtureCard(fx){const c=C(),o=CL(fx.opp),derby=fx.opp===c.rival,ps=myPos(),po=posOf(fx.opp);
+  const stake=derby?'Derby':Math.abs(ps-po)<=2&&ps<=4?'Top of the table':ps>=14&&po>=13?'Relegation six-pointer':'League';
+  return`<div class="panel fixture"><p class="eyebrow">Saturday · ${stake}</p><div class="row"><span><b>${esc(fx.home?c.name:o.name)}</b><br>${formDots(fx.home?c.id:o.id)}</span><span class="vs">v</span><span style="text-align:right"><b>${esc(fx.home?o.name:c.name)}</b><br>${formDots(fx.home?o.id:c.id)}</span></div><p class="small muted">${ord(ps)} against ${ord(po)}${fx.home?', at home':', away'}.</p></div>`}
+function feedView(){
+  const left=reactsLeft();
+  const cards=(S.feed||[]).map(c=>{const p=c.pid?playerById(c.pid):null,r=(S.reacts||{})[c.id];
+    const img=p?`<span class="face sm" aria-hidden="true">${esc(p.name.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`:`<span class="face sm src-${c.src}" aria-hidden="true">${{region:'◆',town:'♣',staff:'✎',players:'●'}[c.src]}</span>`;
+    const btns=!r&&canReact(c)&&left>0?`<span class="reacts">${p?`<button class="rbtn" data-act="react" data-arg="${c.id}|note">Send a note</button>`:''}<button class="rbtn" data-act="react" data-arg="${c.id}|echo">Say it in the Echo</button></span>`:'';
+    return`<article class="fcard${c.follow?' follow':''}">${img}<div class="fc"><span class="fsrc">${FEED_SRC[c.src]}${c.follow?' · Follow-up':''}</span>${p?`<button class="fhead linkish" data-act="player" data-arg="${p.id}">${esc(c.head)}</button>`:`<b class="fhead">${esc(c.head)}</b>`}<p>${esc(c.line)}</p>${r?`<p class="reply">${r.type==='note'?'✉':'📰'} ${esc(r.reply)}</p>`:btns}</div></article>`}).join('');
+  return`<section class="feed" aria-label="This week">${cards||'<p class="small muted">A quiet week.</p>'}${left<2&&left>=0?`<p class="small muted">${left} reaction${left===1?'':'s'} left this week.</p>`:''}</section>`;
+}

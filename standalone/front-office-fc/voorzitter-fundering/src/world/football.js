@@ -40,6 +40,9 @@ function matchDetail(m){
   for(const x of xi){x.p.apps++;if(x.p.academy&&x.p.apps===1)S.debuts++;if(S.cf.talentPid===x.p.id)S.talentStarts++}
   const w={ST:4,W:3,AM:3,CM:1.2,DM:.5,FB:.4,CB:.5,GK:0};
   const scP=[];for(let g=0;g<m.gf;g++){let tot=0;for(const x of xi)tot+=(w[x.slot]||0)*x.p.q;let r=rnd()*tot,sc=xi[0].p;for(const x of xi){r-=(w[x.slot]||0)*x.p.q;if(r<=0){sc=x.p;break}}sc.goals++;sc.sGoals++;scP.push(sc);m.scorers.push(sc.name.split(' ').slice(-1)[0])}
+  const mins=scP.map(()=>ri(3,90)).sort((a,b)=>a-b);m.goals=scP.map((p,i)=>({id:p.id,name:p.name,min:mins[i]}));m.xiIds=xi.map(x=>x.p.id);
+  const gk=xi.find(x=>x.slot==='GK');if(gk&&m.ga===0&&m.xa>1.1)m.save={id:gk.p.id,name:gk.p.name};
+  if(m.ga>=3){const df=xi.filter(x=>['CB','FB'].includes(x.slot));if(df.length)m.error={id:df[0].p.id,name:fv?df[Math.floor(rnd()*df.length)].p.name:df[0].p.name}}
   storiesAfterMatch(m,xi,scP);m.moments=S.cf.events.filter(e=>e.kind==='story'&&e.w===S.week&&e.s===S.season&&['debut','firstGoal','hundred','comeback','winner'].includes(e.sk)).map(e=>e.text);
   const why=[],oop=xi.filter(x=>x.p.pos!==x.slot),injKey=S.cf.squad.filter(p=>p.inj>0&&p.q>=12),opp=CL(m.opp);
   if(m.pts<3&&oop.length)why.push(`${oop[0].p.name} played ${POS_ONE[oop[0].slot]} out of position${oop.length>1?`, and ${oop.length-1} more were out of place`:''}.`);

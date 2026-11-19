@@ -31,7 +31,9 @@ function play(policy,seed,seasons=2){
             const pickv=policy==='random'?opts[ri(opts.length)]:policy==='passive'?opts[0]:({1:'steady',2:'reserves',3:'pros',4:'oneStar',5:'core',6:'position'})[M.step];m.act('mchoose',pickv);break}
           m.act('mdone');break}
         case'window':m.act('windowDone');break;
-        case'week':{out.weeks=(out.weeks||0)+1;out.sits=(out.sits||0)+S.desk.length;S.desk.forEach(x=>{if(!x._c){x._c=1;out.gens=out.gens||{};out.gens[x.gen]=(out.gens[x.gen]||0)+1;const tt=m.sitBuild(S.desk.indexOf(x)).title;const key=S.season+'|'+tt;out.titles=out.titles||{};out.titles[key]=(out.titles[key]||0)+1}});
+        case'week':{if(!S._fedSeen||S._fedSeen!==S.season+'_'+S.week){S._fedSeen=S.season+'_'+S.week;const f=S.feed||[];out.fc=(out.fc||[]).concat([f.length]);out.fsrc=(out.fsrc||[]).concat([new Set(f.map(x=>x.src)).size]);out.texts=(out.texts||[]).concat(f.map(x=>x.head+'|'+x.line));
+            if(policy==='active'){const c=f.find(x=>x.pid&&!(S.reacts||{})[x.id]);if(c){m.act('react',c.id+'|note');break}}}
+          out.weeks=(out.weeks||0)+1;out.sits=(out.sits||0)+S.desk.length;S.desk.forEach(x=>{if(!x._c){x._c=1;out.gens=out.gens||{};out.gens[x.gen]=(out.gens[x.gen]||0)+1;const tt=m.sitBuild(S.desk.indexOf(x)).title;const key=S.season+'|'+tt;out.titles=out.titles||{};out.titles[key]=(out.titles[key]||0)+1}});
           out.cash=out.cash||[];if(S.week===30)out.cash.push(Math.round(S.clubs[S.my].cash));
           const i=S.desk.findIndex(x=>!x.done);if(policy==='passive'||i<0||(policy==='random'&&r()<.3))m.act('play');else m.act('sit',i);break}
         case'sit':{const sc=m.currentScene();m.act('card',chooseCard(m.sceneCards(sc),sc.who[0]));break}
@@ -71,3 +73,6 @@ let maxRep=0,worst='';for(let s=1;s<=10;s++){const o=play(['active','random'][s%
 console.log('most repeated situation title in one season:',maxRep,'×',worst);
 const st=g.final.cf.events.filter(e=>e.kind==='story');console.log('player storylines in the last season:',st.filter(e=>e.s===g.final.season).length,'| all seasons:',st.length,'| kinds:',JSON.stringify(st.reduce((a,e)=>(a[e.sk]=(a[e.sk]||0)+1,a),{})));
 console.log('cash at week 30 per season (active run):',JSON.stringify(g.cash));
+const fc=g.fc||[],fsr=g.fsrc||[];console.log('feed cards per week min/avg/max:',Math.min(...fc),(fc.reduce((a,b)=>a+b,0)/fc.length).toFixed(1),Math.max(...fc),'| weeks with 3+ sources:',fsr.filter(x=>x>=3).length+"/"+fsr.length);
+const dup=g.texts.length-new Set(g.texts).size;console.log('identical feed cards over the run:',dup,'| follow-ups per season:',JSON.stringify((g.final.feedLog||[]).reduce((a,e)=>(e.follow?(a[e.s]=(a[e.s]||0)+1):0,a),{})));
+console.log('match moments tied to your decisions per season:',JSON.stringify(g.final.influence||{}));

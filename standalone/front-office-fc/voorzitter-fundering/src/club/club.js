@@ -47,8 +47,8 @@ function tdWindow(kind){
     if(cautious)ok=ok.filter(p=>p.age>=25);
     if(!ok.length){if(capped)say('pass',`${td.name} passed on ${capped.name} (${POS_ONE[pos]}): £${capped.wage}/wk is over your wage cap.`,{pos});else if(over)say('pass',`${td.name} wanted ${over.name} (${POS_ONE[pos]}) but £${over.price}k is over budget.`,{pos});else say('pass',`No ${POS_ONE[pos]} on the market good enough for ${td.name}.`,{pos});continue}
     ok.sort(amb||F.profile!=='value'?(a,b)=>b.q-a.q:(a,b)=>(b.q/(b.price+3))-(a.q/(a.price+3)));
-    let p=ok[0];if(p.free){faSign(p,F.profile==='youth'?2:ri(1,2));p.from=null;say('buy',`${td.name} signed ${p.name} (${POS_ONE[pos]}, ${p.age}, ${qWord(p.q).toLowerCase()}) on a free transfer: ${p.why}.`,{pid:p.id,pos,age:p.age,price:0,free:true});delete p.price;buys++;continue}
-    cf.budgetLeft-=p.price;S.clubs[cf.club].cash-=p.price;p.joined=S.season;sq.push(p);buys++;
+    let p=ok[0];if(p.free){faSign(p,F.profile==='youth'?2:ri(1,2));p.mandateSigning=S.season;p.from=null;say('buy',`${td.name} signed ${p.name} (${POS_ONE[pos]}, ${p.age}, ${qWord(p.q).toLowerCase()}) on a free transfer: ${p.why}.`,{pid:p.id,pos,age:p.age,price:0,free:true});delete p.price;buys++;continue}
+    cf.budgetLeft-=p.price;S.clubs[cf.club].cash-=p.price;p.joined=S.season;p.mandateSigning=S.season;sq.push(p);buys++;
     say('buy',`${td.name} signed ${p.name} (${POS_ONE[pos]}, ${p.age}, ${qWord(p.q).toLowerCase()}) from ${CL(p.from).name}.`,{pid:p.id,pos,age:p.age,price:p.price});delete p.from;delete p.price;
   }
   // 4. Loan in for an empty position (not a stubborn director)

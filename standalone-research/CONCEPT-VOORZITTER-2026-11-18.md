@@ -135,6 +135,7 @@ Uitwerking: `ALV-VOORZITTER.md`.
 | Wereld — bureau met situaties | 3,5 situaties per moment uit tien generatoren | Nog te spelen door de eigenaar | De les: wereldsimulatie telt pas als ze een beslissing op je bureau legt. Niets doen kost nu echt iets: passief wint 14/40 ALV's (was 30/40), actief 40/40, willekeurig 21/40 |
 | Fundering — papieren proef (Ravensby) | Een selectie van 24, kaders, het zomerwindow, coach tegen TD | Binding ja, weken goed, TD te heftig | Kaders werken causaal; de TD moet terughoudender zijn en herinvesteren |
 | Fundering — build (`voorzitter-fundering/`) | Weekritme, een TD binnen kaders, de laag erbovenop | Nog te spelen door de eigenaar | De fundering draait drie seizoenen zonder voorzitter. Profiel, budget, plafond en de academieregel veranderen de TD meetbaar. 0,83 situaties per week. Actief wint 40/40 ALV's, passief 10/40, willekeurig 17/40: de balans is nog te makkelijk |
+| Spel — pijler 1 (feed en zaterdag) | Een feed met kaarten en reacties, een rijke samenvatting met momenten | Speeltest 1 staat open | 4–6 kaarten per week (gem. 4,4), 58/60 weken uit drie of meer bronnen, 0 dubbele kaarten, 19–26 vervolgkaarten per seizoen, 15–18 wedstrijdmomenten per seizoen die naar beslissingen van de voorzitter verwijzen. Balans: actief 39/40, passief 14/40, willekeurig 20/40 (nog te makkelijk; dat is pijler 4) |
 
 ## 12. Wat we bewust anders doen dan eerder
 

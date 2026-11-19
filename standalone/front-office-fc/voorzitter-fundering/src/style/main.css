@@ -117,3 +117,17 @@ hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
 .prow{display:block;width:100%;text-align:left;background:transparent;border:0;border-top:1px solid var(--line);padding:8px 0;color:var(--ink);font:inherit;cursor:pointer;min-height:44px}
 .choice.on{border-color:var(--navy)}
 details.who-more summary{cursor:pointer;color:var(--muted);font-size:14px;min-height:44px;display:flex;align-items:center}
+.feed{display:flex;flex-direction:column;gap:10px}
+.fcard{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.fcard.follow{border-color:var(--signal)}
+.fcard .fc{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fsrc{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.fhead{font-family:var(--f-display);font-weight:800;font-size:22px;line-height:1;text-transform:uppercase;text-wrap:balance;text-align:left}
+.linkish{background:none;border:0;padding:0;color:var(--ink);cursor:pointer;min-height:auto}
+.fcard p{font-size:15px}
+.reacts{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.rbtn{min-height:40px;padding:0 12px;border-radius:20px;border:1.5px solid var(--navy);background:transparent;color:var(--navy);font:600 13px var(--f-body);cursor:pointer}
+.reply{font-family:var(--f-voice);font-style:italic;color:var(--ink)}
+.face.src-region{background:var(--signal)} .face.src-town{background:var(--good)} .face.src-staff{background:var(--muted)}
+.fixture .vs{font-family:var(--f-display);font-weight:800;font-size:22px;color:var(--muted)}
+.yours{border-color:var(--navy);border-width:1.5px}

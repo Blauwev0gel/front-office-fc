@@ -13,6 +13,7 @@ const {chromium}=require('playwright');const path=require('path');
    if(pick===0){
      if(!shot.meeting&&has('mchoose')){await p.screenshot({path:path.join(shots,'meeting.png'),fullPage:true});shot.meeting=1}
      if(!shot.voices&&has('meetNext')&&!has('mchoose')&&!shot.meeting){await p.screenshot({path:path.join(shots,'voices.png'),fullPage:true});shot.voices=1}
+     if(!shot.feed&&has('react')){await p.screenshot({path:path.join(shots,'feed.png'),fullPage:true});shot.feed=1}
      if(!shot.week&&has('play')&&has('sit')){await p.screenshot({path:path.join(shots,'week.png'),fullPage:true});shot.week=1;
        await p.click('[data-act=ov][data-arg=squad]');await p.screenshot({path:path.join(shots,'squad.png'),fullPage:false});await p.click('.overlay [data-act=player]');await p.screenshot({path:path.join(shots,'player.png'),fullPage:false});await p.click('.overlay [data-act=ov]')}
      if(!shot.sit&&has('card')&&has('back')){await p.screenshot({path:path.join(shots,'situation.png'),fullPage:true});shot.sit=1}
@@ -21,9 +22,9 @@ const {chromium}=require('playwright');const path=require('path');
    if(has('toEnd')){await p.waitForTimeout(3800);await p.click('main [data-act=toEnd]');continue}
    if(has('nextSeason')){done=true;break}
    let a=null;
-   for(const k of ['toSeats','seat','arrive','pick','meetNext','mchoose','mdone','windowDone','sit','card','play','next','hire','alvLobby','lobbyDone','defend']){const m=acts.filter(x=>x.startsWith(k+'|'));if(m.length){a=m[Math.min(pick,m.length-1)];break}}
+   for(const k of ['toSeats','seat','arrive','pick','react','meetNext','mchoose','mdone','windowDone','sit','card','play','next','hire','alvLobby','lobbyDone','defend']){const m=acts.filter(x=>x.startsWith(k+'|'));if(m.length){a=m[Math.min(pick,m.length-1)];break}}
    if(!a){errs.push('stuck '+acts.join(','));break}
-   const [act,arg]=a.split('|');await p.click(`main [data-act="${act}"]${arg?`[data-arg="${arg}"]`:''}`);
+   const act=a.slice(0,a.indexOf('|')),arg=a.slice(a.indexOf('|')+1);await p.click(`main [data-act="${act}"]${arg?`[data-arg="${arg}"]`:''}`);
   }
   const st=await p.evaluate(()=>({season:S.season,week:S.week,screen:S.screen,squad:S.cf&&S.cf.squad.length,history:S.history.slice(-2).map(h=>h.txt)}));
   console.log(scheme,'steps',steps,'maxWidth',maxW,JSON.stringify(st));

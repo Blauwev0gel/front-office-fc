@@ -10,7 +10,7 @@ function startWeek(){
   const rank={keySale:0,story:1,injury:1,sale:2,buy:3,pass:4,loanIn:5,renew:6,leave:7,window:8,return:9,refused:10,loanOut:11,frame:12,plan:13};
   S.atClub=cev.slice().sort((a,b)=>(rank[a.kind]??9)-(rank[b.kind]??9)).slice(0,3).map(e=>e.text);
   if(S.atClub.length<2){const plan=cfPlan()[0];const td=P(S.cf.tdId);if(plan)S.atClub.push(`${td.name} is working on it: ${plan.charAt(0).toLowerCase()+plan.slice(1)}.`);else S.atClub.push(`${td.name} says the squad is in good shape.`)}
-  S.echo=buildEcho(lines,cev);S.desk=genDeskWeek(S.week);S.sit=null;S.screen='week';
+  S.echo=buildEcho(lines,cev);feedWeek(S.week);S.desk=genDeskWeek(S.week);S.sit=null;S.screen='week';
 }
 function buildEcho(lines,cev){
   const c=C(),m=S.last;let head;const key=cev.find(e=>e.kind==='keySale');
@@ -40,12 +40,13 @@ function genDeskWeek(w){
 }
 function currentScene(){return S.sit!=null?sitBuild(S.sit):null}
 function sceneCards(sc){return[...sc.cards,...(sc.noDeal?[sc.noDeal]:[])]}
-function applyCard(i){const s=S.desk[S.sit],sc=sitBuild(S.sit),card=sceneCards(sc)[i];if(!card)return;card.run();s.done=true;s.choice=card.none?'Left to run its course':card.t;
+const TOUCH={slump:'who you backed in his slump',firstContract:'whose first contract you made special',award:'whose award you presented',wantsOut:'who you persuaded to stay',farewell:'whose farewell you organised'};
+function applyCard(i){const s=S.desk[S.sit],sc=sitBuild(S.sit),card=sceneCards(sc)[i];if(!card)return;card.run();if(sc.player&&!card.none&&TOUCH[s.gen]){const pl=playerById(sc.player);setTouch(pl,TOUCH[s.gen]);if(s.gen==='firstContract'&&pl)pl.proDealByYou=1}s.done=true;s.choice=card.none?'Left to run its course':card.t;
   for(const pid of sc.who)if(P(pid)){P(pid).seen=(P(pid).seen||0)+1;if(P(pid).seen>=2)P(pid).deepKnown=true}
   S.sit=null;if(S.hire){S.afterHire='week';S.screen='hire';return}S.screen='week'}
 function deskDone(){for(let i=0;i<S.desk.length;i++){const s=S.desk[i];if(s.done)continue;const sc=sitBuild(i);if(sc.noDeal)sc.noDeal.run();s.done=true;s.choice='Left to run its course'}}
 function playMatch(){deskDone();if(S.hire){S.afterHire='play';S.screen='hire';return}
-  const m=simRound(S.week);S.round=S.week;S.last=m;S.screen='result'}
+  const m=simRound(S.week);S.round=S.week;m.influence=influenceMoments(m);m.lines=matchMoments(m);S.last=m;S.screen='result'}
 function afterResult(){if(S.week>=30)startALV();else startWeek()}
 function summerWindow(){S.windowLog=tdWindow('summer');S.screen='window'}
 
@@ -127,6 +128,7 @@ function act(a,arg){
     case'back':S.sit=null;S.screen='week';break;
     case'card':applyCard(+arg);break;
     case'play':playMatch();break;
+    case'react':{const [id,type]=String(arg).split('|');react(id,type);break}
     case'next':afterResult();break;
     case'hire':hireCoach(arg);if(S.afterHire==='play'){S.hire=null;playMatch()}else S.screen=S.afterHire||'week';break;
     case'frame':{const [k,v]=String(arg).split(':');setFrame(k,k==='budget'||k==='cap'?+v:v);break}

@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>Pell United Chairman</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=Literata:ital,opsz,wght@1,7..72,400;1,7..72,500&display=swap">
+<style>
+/* Layout: one narrow column, like a matchday programme held in one hand; harbour navy with crane-signal orange. */
+:root{
+  --paper:#eef1f3; --card:#fbfcfc; --ink:#14212b; --muted:#56636d; --line:#cfd8de;
+  --navy:#173a52; --signal:#c4521a; --good:#2b7346; --bad:#b03628; --onnavy:#ffffff; --chip:#e2e8ec;
+  --f-display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-voice:"Literata",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0f171d; --card:#17222a; --ink:#e6edf1; --muted:#9aa9b3; --line:#2a3a45;
+  --navy:#86b8d9; --signal:#f08a4b; --good:#7bc896; --bad:#ef8a7a; --onnavy:#0f171d; --chip:#22313b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f171d; --card:#17222a; --ink:#e6edf1; --muted:#9aa9b3; --line:#2a3a45;
+  --navy:#86b8d9; --signal:#f08a4b; --good:#7bc896; --bad:#ef8a7a; --onnavy:#0f171d; --chip:#22313b; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+#app{max-width:460px;margin:0 auto}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);display:flex;align-items:center;gap:12px;padding-block:10px;border-bottom:1px solid var(--line)}
+.crest{width:34px;height:34px;flex:none}
+.top .club{font-family:var(--f-display);font-weight:800;font-size:22px;letter-spacing:.02em;line-height:1;text-transform:uppercase}
+.top .sub{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.top .grow{flex:1;min-width:0}
+.tbtn{min-height:44px;padding:0 14px;border-radius:22px;border:1.5px solid var(--navy);background:transparent;color:var(--navy);font:600 14px var(--f-body);cursor:pointer}
+main{display:flex;flex-direction:column;gap:16px;padding-top:18px}
+h1,h2{font-family:var(--f-display);font-weight:800;text-transform:uppercase;letter-spacing:.01em;line-height:1;text-wrap:balance;margin:0}
+h1{font-size:40px} h2{font-size:26px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--signal)}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.voice{font-family:var(--f-voice);font-style:italic;font-size:19px;line-height:1.45}
+.scene{display:flex;flex-direction:column;gap:12px}
+.where{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.who{display:flex;align-items:center;gap:12px}
+.face{width:48px;height:48px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:20px;color:var(--onnavy);background:var(--navy)}
+.face.opp{background:var(--signal)}
+.who b{display:block;font-weight:600} .who span{font-size:13px;color:var(--muted)}
+.btn{display:block;width:100%;min-height:52px;padding:12px 16px;border:0;border-radius:10px;background:var(--navy);color:var(--onnavy);font:600 16px var(--f-body);cursor:pointer;text-align:center}
+.btn.ghost{background:transparent;color:var(--navy);border:1.5px solid var(--navy)}
+.btn:focus-visible,.choice:focus-visible,.tbtn:focus-visible,.deal:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.stack{display:flex;flex-direction:column;gap:10px}
+.choice{display:flex;flex-direction:column;gap:4px;width:100%;text-align:left;min-height:56px;padding:14px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.choice b{font-weight:600}
+.choice .meta{font-size:13px;color:var(--muted)}
+.chance{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:12px;background:var(--chip);color:var(--ink)}
+.deal{width:100%;text-align:left;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:14px 16px;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:8px}
+.deal .dt{font-weight:600;font-size:17px}
+.deal dl{display:grid;grid-template-columns:84px 1fr;gap:4px 10px;margin:0;font-size:14px}
+.deal dt{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.deal dd{margin:0;min-width:0}
+.deal .warn{font-size:13px;color:var(--bad);font-weight:600}
+.deal.none{border-style:dashed}
+.echo{background:var(--card);border:2px solid var(--ink);border-radius:4px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.echo .mast{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:6px}
+.echo .mast b{font-family:var(--f-display);font-weight:800;font-size:24px;letter-spacing:.06em}
+.echo .mast span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.echo .head{font-family:var(--f-display);font-weight:800;font-size:34px;line-height:.95;text-transform:uppercase;text-wrap:balance}
+.echo ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.row>span:first-child{min-width:0}
+.mood{font-weight:600}
+.up{color:var(--good)} .down{color:var(--bad)}
+.res{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;font-size:15px;font-variant-numeric:tabular-nums}
+.wdl{width:28px;height:28px;border-radius:6px;display:grid;place-items:center;font-weight:700;font-size:13px;color:var(--onnavy)}
+.wdl.W{background:var(--good)} .wdl.D{background:var(--muted)} .wdl.L{background:var(--bad)}
+.tag{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--signal)}
+.log li{font-size:14px} .log{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
+.log .why{display:block;color:var(--muted);font-size:13px}
+.num{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.places{display:grid;grid-template-columns:1fr;gap:10px}
+.count{display:flex;flex-direction:column;gap:12px}
+.cg{opacity:1;animation:reveal .5s ease both}
+.cg:nth-child(2){animation-delay:1.1s}.cg:nth-child(3){animation-delay:2.2s}
+.verdict{animation:reveal .6s ease both;animation-delay:3.3s}
+@keyframes reveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.cg,.verdict{animation:none}}
+.bar{height:10px;border-radius:5px;background:var(--chip);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--navy)}
+.big{font-family:var(--f-display);font-weight:800;font-size:48px;line-height:.9;text-transform:uppercase}
+.overlay{position:fixed;inset:0;z-index:20;background:var(--paper);overflow-y:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(env(safe-area-inset-top,0px) + 12px) calc(env(safe-area-inset-bottom,0px) + 24px)}
+.overlay .inner{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.check{display:flex;gap:12px;align-items:flex-start;min-height:56px;padding:14px 16px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);cursor:pointer}
+.check input{width:22px;height:22px;margin-top:2px;flex:none;accent-color:var(--navy)}
+.check.on{border-color:var(--navy)}
+hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
+</style>
+
+<div id="app"></div>
+
+<script>
+"use strict";
+/* ---------- Static world ---------- */
+const SAVE_KEY='pell-chairman-s1-v1';
+const GROUPS={docks:{name:'The Docks',share:.40,want:'Beat Corden. No outside investors.'},
+  students:{name:'Students',share:.25,want:'Attacking football. Cheap tickets.'},
+  business:{name:'Business',share:.35,want:'Healthy books. A new stadium.'}};
+const GORDER=['docks','students','business'];
+const TEAMS=[['pell','Pell United',50],['corden','Corden Athletic',53],['saltmere','Saltmere Rovers',48],['kestle','Kestle Albion',46],['brack','Brackwater',55],['dunmore','Dunmore Vale',44],['fenwick','Fenwick Athletic',51],['holbeck','Holbeck Town',49],['ilsworth','Ilsworth United',52],['marrow','Marrow Bay',45],['north','Northcliffe',58],['ottery','Ottery Wanderers',47],['ravens','Ravensby',54],['selcombe','Selcombe City',43],['tarn','Tarn Valley',50],['wexmoor','Wexmoor',56],['yarrow','Yarrowby',47],['harrow','Harrowgate Town',57]];
+const TNAME={},TSTR={};TEAMS.forEach(t=>{TNAME[t[0]]=t[1];TSTR[t[0]]=t[2]});
+const BLOCK_ENDS=[9,17,27,34];
+
+const CH={
+ esteves:{name:'Maria Esteves',short:'Esteves',role:'Head coach',traits:['honest','ambitious'],infl:'students',dislike:'docks',canDefect:true,place:'training',
+  surface:'Promotion, and one day a bigger job.',deep:'She wants to be trusted with a project, not judged every Saturday.',
+  deepLine:'"Every coach here gets one season. I want to build something, and I can\'t do that looking over my shoulder."'},
+ talbot:{name:'Bryn Talbot',short:'Talbot',role:'Head coach',traits:['stubborn','loyal'],infl:'docks',dislike:'students',canDefect:false,place:'training',
+  surface:'Grind out results.',deep:'One last proper job before he retires. He wants to be asked, not hired.',
+  deepLine:'"Twenty years I\'ve been the emergency number. Just once I\'d like to be the plan."'},
+ ward:{name:'Colin Ward',short:'Ward',role:'Director of football',traits:['loyal','stubborn'],infl:null,dislike:null,canDefect:true,place:'office',
+  surface:'Develop our own players. Never buy.',deep:'Jay Okoro is his life\'s work. He needs to see him break through.',
+  deepLine:'"I found Jay when he was nine. If he makes it, everything I\'ve done here makes sense."'},
+ hart:{name:'Lewis Hart',short:'Hart',role:'Captain',traits:['proud','loyal'],infl:'docks',dislike:'students',canDefect:true,place:'carpark',
+  surface:'A new contract. His runs out in June.',deep:'He wants to coach the kids when his legs go.',
+  deepLine:'"I\'m twenty-nine. I don\'t need two more years of running. I need to know there\'s a place for me after."'},
+ kearney:{name:'Pat Kearney',short:'Kearney',role:'Leader of the Docks',traits:['stubborn','loyal'],infl:'docks',dislike:'business',canDefect:false,place:'cafe',
+  surface:'Beat Corden. No outside investors.',deep:'Dockers built the old North Stand. He wants that remembered.',
+  deepLine:'"My grandad carried timber for that stand. Nobody under forty knows. Nobody cares."'},
+ okon:{name:'Ruth Okon',short:'Okon',role:'Chair, business association',traits:['honest','stubborn'],infl:'business',dislike:null,canDefect:true,place:'business',
+  surface:'Healthy books.',deep:'She wants a real say, not a seat at the annual dinner.',
+  deepLine:'"We pay for the boxes and the boards. We get one dinner a year and no say in anything."'},
+ vance:{name:'Gareth Vance',short:'Vance',role:'Opposition candidate',traits:['sly','ambitious'],infl:'business',dislike:null,canDefect:false,place:'hotel',
+  surface:'Outside money, growth, and your job.',deep:'His father ran half the town and was never asked onto the club board.',
+  deepLine:'"My father gave this club forty years of money. They never once asked him into the boardroom."'}
+};
+const OPEN={
+ esteves:['"I\'ve said what I needed to say to the board, chairman."','"Gareth Vance asked me for a coffee. I haven\'t said no."','"Chairman. If it\'s about Saturday, the report\'s on your desk."','"Good timing. The lads are flying in training."','"You came down. I like that. Pull up a cone."'],
+ talbot:['"Say what you came to say."','"I hear things, chairman. Most of them about you."','"Talbot. You\'ll want the short version."','"Not bad, this lot. Not bad at all."','"Chairman. Tea\'s on. Sit."'],
+ ward:['"I\'ve nothing more to discuss."','"Vance\'s people rang. I didn\'t ring back. Yet."','"Colin Ward. Spreadsheets, mostly."','"Come in. I\'ve got a lad you should see."','"Chairman! Shut the door, look at this."'],
+ hart:['"I\'ve got nothing to say to you."','"Gareth Vance at least returns my calls."','"Chairman." He keeps his kit bag on his shoulder.','"Alright, chairman? Good session today."','"Here he is. The lads were asking after you."'],
+ kearney:['"You\'ve got a nerve coming in here."','"The Docks are watching you, chairman. Closely."','"Pint? You\'re paying."','"Sit down, chairman. Ignore that lot singing."','"Room for the chairman! Make room!"'],
+ okon:['"I think we\'ve said everything, chairman."','"Gareth Vance has been very attentive lately."','"Ruth Okon. Shall we keep this short?"','"Chairman. Coffee? The good stuff, not the board\'s."','"There he is. My favourite chairman."'],
+ vance:['"Chairman. Come to concede?"','"Chairman. Come to concede?"','"Chairman. Drink? I insist. Members\' money, after all."','"Chairman. Drink? I insist. Members\' money, after all."','"Chairman. I think we could do business, you and I."']
+};
+const PLACES={
+ training:{name:'Training ground',who:()=>S.coach},
+ carpark:{name:'Car park after training',who:()=>'hart'},
+ office:{name:'Ward\'s office',who:()=>'ward'},
+ cafe:{name:'The Anchor, supporters\' café',who:()=>'kearney'},
+ business:{name:'Business club',who:()=>'okon'},
+ hotel:{name:'Harbour Hotel bar',who:()=>'vance'}
+};
+const PROM={
+ top8:{slot:'sport',t:'Top eight',size:'M',g:['docks','business'],desc:'The Docks and Business want to see progress.'},
+ derby:{slot:'sport',t:'Four points from the Corden derbies',size:'M',g:['docks'],desc:'Kearney lives for these two games.'},
+ goals:{slot:'sport',t:'Fifty league goals',size:'S',g:['students'],desc:'Attacking football. A small promise gives Vance something to mock.'},
+ promo:{slot:'sport',t:'Promotion',size:'L',g:['docks','students','business'],desc:'Every member dreams of it. Clubs this size rarely manage it.'},
+ tickets:{slot:'club',t:'Tickets under £10',size:'M',g:['students','docks'],desc:'Costs £60k a year. Business will notice the gap.',word:'Yours to keep'},
+ stadium:{slot:'club',t:'A stadium plan put to the members',size:'L',g:['business'],desc:'Business wants it badly. You will need a partner.',word:'Needs a partner'},
+ youth3:{slot:'club',t:'Three academy debuts',size:'M',g:['students'],desc:'Ward will love it. The coach decides who plays.',word:'Needs the coach'},
+ estevesYear:{slot:'person',t:'Esteves gets the season',size:'M',g:['students'],desc:'She is backed in public. You cannot sack her without breaking your word.',word:'Yours to keep'},
+ hartContract:{slot:'person',t:'Hart gets a new contract',size:'M',g:['docks'],desc:'The Docks adore him. Contracts are Ward\'s call.',word:'Needs Ward'},
+ okoro:{slot:'person',t:'Jay Okoro starts ten games',size:'M',g:['students'],desc:'Ward\'s wonderkid. The coach picks the team.',word:'Needs the coach'},
+ noInvestor:{slot:'deal',t:'No outside investor while you are chairman',size:'M',g:['docks']},
+ harlanReview:{slot:'deal',t:'A fair review of outside investment',size:'M',g:['business']}
+};
+const SIZE_WORD={S:'Small promise',M:'Medium promise',L:'Big promise'};
+const GAIN={S:8,M:15,L:22};
+
+/* ---------- RNG ---------- */
+let S=null; const UI={table:false,lobby:{},showLog:false};
+function rnd(){let t=(S.rs=(S.rs+0x6D2B79F5)|0);t=Math.imul(t^(t>>>15),1|t);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}
+function mkRng(seed){let s=seed|0;return()=>{let t=(s=(s+0x6D2B79F5)|0);t=Math.imul(t^(t>>>15),1|t);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}}
+function pois(l,r){const L=Math.exp(-l);let k=0,p=1;do{k++;p*=r()}while(p>L);return k-1}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+/* ---------- Football ---------- */
+function makeFixtures(r){
+  const ids=TEAMS.map(t=>t[0]);
+  for(let i=ids.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}
+  const n=ids.length;let arr=ids.slice();const first=[];
+  for(let k=0;k<n-1;k++){const m=[];for(let i=0;i<n/2;i++){const a=arr[i],b=arr[n-1-i];m.push((k+i)%2?[b,a]:[a,b])}first.push(m);arr=[arr[0],arr[n-1],...arr.slice(1,n-1)]}
+  let k=first.findIndex(rd=>rd.some(([a,b])=>(a==='pell'&&b==='corden')||(a==='corden'&&b==='pell')));
+  [first[8],first[k]]=[first[k],first[8]];
+  const second=first.map(rd=>rd.map(([a,b])=>[b,a]));
+  return first.concat(second);
+}
+function lambdas(sa,sb,home){const d=(sa-sb)/20+(home?.15:-.15);return[Math.max(.4,1.35+.6*d),Math.max(.4,1.35-.6*d)]}
+function pmf(l,k){let p=Math.exp(-l);for(let i=1;i<=k;i++)p*=l/i;return p}
+function xpts(la,lb){let w=0,d=0;for(let i=0;i<=9;i++){const a=pmf(la,i);for(let j=0;j<=9;j++){const b=pmf(lb,j);if(i>j)w+=a*b;else if(i===j)d+=a*b}}return 3*w+d}
+function pellStr(round,home,opp){let s=50;for(const m of S.mods)if(m.from<=round&&m.until>=round)s+=m.v;s-=.5*S.youth;if(opp==='corden'&&home&&S.flags.docksDerby)s+=2;return s}
+function addMod(key,v,until,from){S.mods.push({key,v,until,from:from??S.round+1})}
+function nextBlockEnd(r){return BLOCK_ENDS.find(e=>e>=r)??34}
+function simRound(r){
+  let mine=null;
+  for(const [h,a] of S.fx[r-1]){
+    const sh=h==='pell'?pellStr(r,true,a):TSTR[h], sa=a==='pell'?pellStr(r,false,h):TSTR[a];
+    const [lh,la]=lambdas(sh,sa,true);const gh=pois(lh,rnd),ga=pois(la,rnd);
+    rec(h,gh,ga);rec(a,ga,gh);
+    if(h==='pell'||a==='pell'){
+      const home=h==='pell',gf=home?gh:ga,gag=home?ga:gh,opp=home?a:h;
+      const xp=home?xpts(lh,la):xpts(la,lh);const pts=gf>gag?3:gf===gag?1:0;
+      S.realPts+=pts;S.xPts+=xp;
+      if(opp==='corden')S.derbyPts+=pts;
+      if(S.youth>0){if(S.youth===2||rnd()<.5)S.okoroStarts++;if(S.debuts<6&&rnd()<.12*S.youth)S.debuts++}
+      mine={r,opp,home,gf,ga:gag,pts,derby:opp==='corden'};
+    }
+  }
+  return mine;
+}
+function rec(id,f,a){const t=S.tbl[id];t.p++;t.gf+=f;t.ga+=a;if(f>a){t.w++;t.pts+=3}else if(f===a){t.d++;t.pts++}else t.l++}
+function standings(){return Object.keys(S.tbl).sort((x,y)=>{const a=S.tbl[x],b=S.tbl[y];return b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf})}
+function pos(){return standings().indexOf('pell')+1}
+function ord(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
+function luck(){const d=S.realPts-S.xPts;return d<=-4?'unlucky':d>=4?'lucky':'fair'}
+function luckWord(){return{unlucky:'Unlucky: we deserved more',lucky:'Lucky: we got more than we deserved',fair:'About what we deserved'}[luck()]}
+
+function computeChances(){
+  const r=mkRng(S.seed^0x5eed),N=220,c={top8:0,derby:0,goals:0,promo:0};
+  for(let s=0;s<N;s++){
+    const tb={};TEAMS.forEach(t=>tb[t[0]]={pts:0,gd:0,gf:0});let dp=0;
+    for(const rd of S.fx)for(const [h,a] of rd){const [lh,la]=lambdas(TSTR[h],TSTR[a],true);const gh=pois(lh,r),ga=pois(la,r);
+      const ph=gh>ga?3:gh===ga?1:0,pa=ga>gh?3:gh===ga?1:0;tb[h].pts+=ph;tb[a].pts+=pa;tb[h].gd+=gh-ga;tb[a].gd+=ga-gh;tb[h].gf+=gh;tb[a].gf+=ga;
+      if(h==='pell'&&a==='corden')dp+=ph;if(a==='pell'&&h==='corden')dp+=pa}
+    const order=Object.keys(tb).sort((x,y)=>tb[y].pts-tb[x].pts||tb[y].gd-tb[x].gd);const p=order.indexOf('pell')+1;
+    if(p<=8)c.top8++;if(p<=3)c.promo++;if(dp>=4)c.derby++;if(tb.pell.gf>=50)c.goals++;
+  }
+  const out={};for(const k in c)out[k]=c[k]/N;return out;
+}
+function chanceWord(p){return p<.12?'Long shot':p<.35?'Unlikely':p<.6?'Coin toss':p<.85?'Likely':'Near certain'}
+
+/* ---------- Words ---------- */
+function band(l){return l<2?'Broken':l<4?'Distant':l<6?'Businesslike':l<8?'Warm':'Devoted'}
+function bandIdx(l){return l<2?0:l<4?1:l<6?2:l<8?3:4}
+function moodWord(p){return p<25?'Furious':p<40?'Angry':p<50?'Wary':p<65?'Content':'Thrilled'}
+function moneyWord(c){return c>=100?'Comfortable':c>=40?'Tight':c>=0?'Stretched':'In the red'}
+function weighted(){return GORDER.reduce((s,g)=>s+GROUPS[g].share*S.grp[g],0)}
+
+/* ---------- State changes (every change is logged with its cause) ---------- */
+function log(text,why,num){const e={r:S.round,text,why,num};S.log.push(e);S.mlog.push(e)}
+const KIND={protect:[2,'loyal',1.5],wish:[1,'ambitious',1.5],against:[-1,'stubborn',2],bypass:[-2,'proud',1.5],blame:[-3,'honest',.5],deep:[3,null,1],wait:[-1,'proud',1.5]};
+function loy(id,kind,why,raw){
+  const c=S.ch[id];if(!c)return;const d=CH[id];let v;
+  if(raw!=null)v=raw;else{const [b,t,m]=KIND[kind];v=b*(t&&d.traits.includes(t)?m:1)}
+  const before=c.loy;c.loy=clamp(c.loy+v,0,10);
+  if(before<8&&c.loy>=8){c.owes=true;S.cross.push({id,dir:'up'})}
+  if(before>=8&&c.loy<8)c.owes=false;
+  if(before>=4&&c.loy<4&&!c.withVance)S.cross.push({id,dir:'down'});
+  log(`${d.short}: ${band(before)} → ${band(c.loy)}`,why,(v>0?'+':'')+v);
+}
+function grp(g,d,why){if(!d)return;const b=S.grp[g];S.grp[g]=clamp(b+d,0,100);if(g==='business'&&d>0)S.served=true;log(`${GROUPS[g].name}: ${moodWord(b)} → ${moodWord(S.grp[g])}`,why,(d>0?'+':'')+d)}
+function cash(d,why){S.cash+=d;log(`Money: ${d>0?'+':'−'}£${Math.abs(d)}k`,why,null)}
+function hasP(id){return S.promises.some(p=>p.id===id)}
+function openP(id){return S.promises.find(p=>p.id===id&&p.st==='open')}
+function addPromise(id,why){if(hasP(id))return;S.promises.push({id,st:'open'});log(`New promise: ${PROM[id].t}`,why,null)}
+function breakPromise(id,why){const p=openP(id);if(!p)return;p.st='broken';log(`Promise broken: ${PROM[id].t}`,why,null)}
+function comply(id,against,useOwes){const c=S.ch[id];if(useOwes){c.owes=false;return'full'}if(!against)return c.loy>=2?'full':'refuse';return c.loy>=4?'half':'refuse'}
+function youthAsk(id,useOwes){
+  const r=comply(id,true,useOwes);
+  if(r==='refuse'){log(`${CH[id].short} refuses to play the kids`,`${CH[id].short} is ${band(S.ch[id].loy).toLowerCase()} with you`,null);return}
+  S.youth=Math.max(S.youth,r==='full'?2:1);
+  log(r==='full'?'The academy kids start every week':'The kids get some minutes, not many',r==='full'?'The coach does it properly':'The coach does it half-heartedly',null);
+  if(!useOwes)loy(id,'against','You asked for youth over results');
+  if(S.ch.ward)loy('ward','wish','Ward sees his academy players get minutes');
+}
+function behind(id){
+  const r=S.round,p=pos(),gf=S.tbl.pell.gf;
+  switch(id){
+    case'top8':return r>=9&&p>10; case'promo':return r>=9&&p>6;
+    case'derby':return r>=9&&(S.derbyPts<(r>=26?4:3));
+    case'goals':return r>=9&&gf<50*r/34-3;
+    case'youth3':return r>=17&&S.debuts<3*r/34-.5;
+    case'okoro':return r>=17&&S.okoroStarts<10*r/34-1;
+    case'hartContract':return r>=27&&!S.flags.hartSigned;
+    case'stadium':return r>=17&&!S.flags.stadiumPartner;
+    default:return false;
+  }
+}
+function evalP(id){
+  switch(id){
+    case'top8':return pos()<=8; case'promo':return pos()<=3; case'derby':return S.derbyPts>=4; case'goals':return S.tbl.pell.gf>=50;
+    case'tickets':return true; case'stadium':return !!S.flags.stadiumPartner; case'youth3':return S.debuts>=3;
+    case'estevesYear':return S.flags.estevesLeft?'void':S.coach==='esteves';
+    case'hartContract':return !!S.flags.hartSigned; case'okoro':return S.okoroStarts>=10;
+    case'noInvestor':return true; case'harlanReview':return true;
+  }
+}
+function pStatus(p){if(p.st!=='open')return p.st==='broken'?'Broken':p.st;if(S.phase==='alv'){const v=evalP(p.id);return v==='void'?'Void':v?'Kept':'Broken'}return behind(p.id)?'Behind':'On track'}
+
+/* ---------- New game ---------- */
+function newGame(){
+  const seed=(Date.now()%2147483647)|0;
+  S={v:1,seed,rs:seed,phase:'intro',screen:'intro',round:0,moment:0,
+    grp:{docks:55,students:60,business:42},grpPrev:{docks:55,students:60,business:42},
+    ch:{esteves:{loy:6},ward:{loy:7},hart:{loy:5},kearney:{loy:5},okon:{loy:4},vance:{loy:2}},
+    coach:'esteves',flags:{},promises:[],mods:[],youth:0,okoroStarts:0,debuts:0,cash:120,
+    tbl:{},fx:null,realPts:0,xPts:0,derbyPts:0,log:[],mlog:[],cross:[],served:false,talked:false,
+    pick:{},step:0,chances:null,echo:null,wait:null,scene:null,block:null,alv:null};
+  for(const id in S.ch)Object.assign(S.ch[id],{owes:false,withVance:false,deepKnown:false});
+  TEAMS.forEach(t=>S.tbl[t[0]]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});
+  S.fx=makeFixtures(rnd);
+  S.chances=computeChances();
+  save();render();
+}
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{const t=localStorage.getItem(SAVE_KEY);if(t){const s=JSON.parse(t);if(s&&s.v===1){S=s;return true}}}catch(e){}return false}
+
+/* ---------- Manifest ---------- */
+const SLOTS=[{key:'sport',title:'Your sporting promise',ask:'What do you promise about the first team?'},
+  {key:'club',title:'Your promise about the club',ask:'What do you promise about the club itself?'},
+  {key:'person',title:'Your personal promise',ask:'One public promise about one person.'}];
+function chanceFor(id){const c=S.chances;return{top8:chanceWord(c.top8),derby:chanceWord(c.derby),goals:chanceWord(c.goals),promo:chanceWord(c.promo)}[id]||PROM[id].word}
+function applyManifest(){
+  for(const k of ['sport','club','person']){const id=S.pick[k];if(id&&id!=='none')addPromise(id,'Your manifest')}
+  if(hasP('tickets')){cash(-60,'Tickets under £10: the first year\'s gap');grp('business',-3,'Business sees £60k walk out of the door')}
+  if(hasP('estevesYear')){loy('esteves','protect','You promised her the season in public');S.flags.protectCoach=1}
+  if(hasP('hartContract')){loy('hart','protect','You promised his contract in public');loy('ward','bypass','Contracts are Ward\'s call, and you made it for him')}
+  if(hasP('okoro')){loy('ward','wish','You backed his wonderkid in public');youthAsk(S.coach,false)}
+  if(hasP('youth3'))loy('ward','wish','Academy debuts are Ward\'s dream');
+  if(S.pick.person==='none')log('No personal promise','You keep your hands free',null);
+  startMoment(1);
+}
+
+/* ---------- Moments ---------- */
+function startMoment(k){
+  S.phase='season';S.moment=k;S.mlog=[];S.grpPrev={...S.grp};
+  const lines=[];
+  if(S.flags.hartWaiting){S.flags.hartWaiting=0;loy('hart','wait','You sent him to Ward and nothing happened')}
+  if(k===2&&hasP('tickets')&&!S.flags.gapSolved){S.flags.gapSolved=1;addMod('sold',-1,34);cash(70,'Ward sells a midfielder to cover the ticket gap');loy('ward','wait','You never answered him about the money');lines.push('Ward sells midfielder Dean Fry to cover the ticket gap.')}
+  if(k===3&&S.flags.sponsorForWard&&!S.flags.sponsor){S.flags.sponsorForWard=0;addMod('sold',-1,34);cash(70,'The sponsor never came, so Ward sells after all');loy('ward','against','You said you would find the money')}
+  if(k>=2)lines.push(...oppMove());
+  S.echo=buildEcho(k,lines);
+  S.wait=pickWait(k);
+  S.served=false;S.talked=false;S.scene=null;S.screen='echo';save();render();
+}
+function oppMove(){
+  const out=[];
+  if(S.flags.vanceBoard){out.push('Gareth Vance, now on your board, has gone very quiet.');return out}
+  if(!S.served)grp('business',-2,'You left the Business vote to Vance');
+  const pending=S.cross.filter(c=>c.dir==='down').map(c=>c.id);
+  const low=['hart','ward',S.coach,'okon'].filter(id=>S.ch[id]&&CH[id].canDefect&&S.ch[id].loy<4&&!S.ch[id].withVance&&!pending.includes(id));
+  if(low.length&&!(S.flags.vanceCommittee&&rnd()<.5)){const id=low[0];S.ch[id].withVance=true;log(`${CH[id].short} is now in Vance's camp`,'Vance courts the people you neglect',null);out.push(`Rumour: ${CH[id].short} was seen at the Harbour Hotel with Gareth Vance. Twice.`);return out}
+  const bp=S.promises.find(p=>p.st==='open'&&behind(p.id));
+  if(bp&&!S.flags.truce){grp(PROM[bp.id].g[0],-3,`Vance attacks your promise: ${PROM[bp.id].t}`);out.push(`Vance: "${PROM[bp.id].t}? Look at the table. What else did he promise you?"`);return out}
+  if(S.flags.truce){out.push('Vance keeps his word on the truce. The Echo finds him dull.');return out}
+  out.push('Vance at the business breakfast: "Pell could be twice this size. Ask yourselves why it isn\'t."');
+  return out;
+}
+function buildEcho(k,lines){
+  const months=['','July','October','January','April'];
+  if(k===1){
+    const ps=S.promises.map(p=>PROM[p.id].t);
+    return{date:months[k],head:'New chairman, old problems',lines:[`Elected with 52%. Vance: "One year. Then we talk."`,ps.length?`The manifest: ${ps.join('; ')}.`:'A manifest with no promises at all.',...lines]};
+  }
+  const b=S.block||[];const pts=b.reduce((s,m)=>s+m.pts,0),n=b.length||1,ppg=pts/n;
+  const head=ppg>=2?'Pell on the rise':ppg>=1.4?'Steady as she goes':ppg>=.9?'Pell stall':'Pell in freefall';
+  const open=S.promises.filter(p=>p.st==='open');const beh=open.find(p=>behind(p.id));
+  const status=beh?`Behind schedule: ${PROM[beh.id].t}.`:open.length?`On track: ${PROM[open[0].id].t}.`:null;
+  return{date:months[k],head,lines:[`${pts} points from ${n} games. ${luckWord()}. ${ord(pos())} in the table.`,...lines,...(status?[status]:[])]};
+}
+function pickWait(k){
+  S.cross=S.cross.filter(c=>S.ch[c.id]&&c.id!=='vance'&&(c.id!=='esteves'||S.coach==='esteves')&&(c.id!=='talbot'||S.coach==='talbot')&&(c.dir==='up'?S.ch[c.id].owes:(S.ch[c.id].loy<4&&!S.ch[c.id].withVance)));
+  if(k>=2&&S.coach==='esteves'&&!S.flags.offerDone&&!S.flags.coachContract&&(S.realPts-S.xPts>=4||(k>=3&&pos()<=4))){S.flags.offerDone=1;return{type:'offer',id:'esteves'}}
+  const up=S.cross.find(c=>c.dir==='up');if(up){S.cross.splice(S.cross.indexOf(up),1);return{type:'owes',id:up.id}}
+  const dn=S.cross.find(c=>c.dir==='down');if(dn){S.cross.splice(S.cross.indexOf(dn),1);return{type:'defect',id:dn.id}}
+  if(k===3&&!S.flags.hartSigned&&!S.flags.hartDeal&&!hasP('hartContract'))return{type:'hart',id:'hart'};
+  if(k===1&&hasP('tickets'))return{type:'gap',id:'ward'};
+  if(k>=2){const bp=S.promises.find(p=>p.st==='open'&&PROM[p.id].slot==='sport'&&behind(p.id));if(bp)return{type:'behind',id:S.coach,prom:bp.id}}
+  return null;
+}
+
+/* ---------- Deal cards ---------- */
+function D(t,give,get,test,fail,run,warn){return{t,give,get,test,fail,run,warn}}
+function noDeal(text,run){return{t:'No deal',none:true,fail:text,run:run||(()=>{})}}
+
+function coachCards(id){
+  const cs=[],c=S.ch[id],n=CH[id].short;
+  if(c.owes)cs.push(D('Call in the favour: play the kids','The favour you are owed','The academy kids start every week','Points may suffer','—',()=>youthAsk(id,true)));
+  if(!S.flags.coachBacked)cs.push(D('Back the coach in public',`Your name: "${n} is my coach."`,'A coach who knows where she stands','Every bad result is partly yours','The Echo will quote you back',()=>{loy(id,'protect','You backed the coach in public');S.flags.coachBacked=1;if(CH[id].infl)grp(CH[id].infl,2,`${n} tells the press she has your backing`)}));
+  cs.push(D('Play the academy kids','Nothing. It is an ask','Minutes for Okoro and the youth team','Points may suffer','Against the coach\'s instinct: she may only half do it',()=>youthAsk(id,false)));
+  cs.push(D('Play it safe for a while','Nothing. It is an ask','Steadier results until the next moment','The Students hate dull football','A coach who is cool on you only half listens',()=>{const r=comply(id,true,false);if(r==='refuse'){log(`${n} ignores the request`,`${n} is distant with you`,null);return}addMod('safe',r==='full'?1:.5,nextBlockEnd(S.round+1));log('The team plays it safe','You asked for results over style',null);loy(id,'against','You asked for safety over style');grp('students',-2,'Dull football at Pell')}));
+  if(c.deepKnown&&id==='esteves'&&!S.flags.coachContract)cs.push(D('Two more years, signed this week','Security: sacking her becomes expensive','She stays, even if a bigger club calls','End of season','Sacking her would cost a year\'s wages',()=>{loy(id,'deep','A long contract: she is the plan, not a stopgap');S.flags.coachContract=1;cash(-20,'A longer contract for Esteves');grp('business',-2,'Business frowns at the wage bill')}));
+  if(c.deepKnown&&id==='talbot'&&!S.flags.coachContract)cs.push(D('Make him the plan','A two-year deal and your name on it','A coach who stays loyal to the end','End of season','He becomes expensive to remove',()=>{loy(id,'deep','You asked him to be the plan');S.flags.coachContract=1;cash(-15,'Talbot\'s new deal')}));
+  if(id==='esteves'&&S.moment>=3&&pos()>12)cs.push(D('Replace her with Bryn Talbot',S.flags.protectCoach?'Your word: you promised her the season':'Severance pay','A safe, experienced coach','The rest of the season','Students will hate it',()=>replaceCoach(),S.flags.protectCoach?'This breaks your promise to the Students':null));
+  return cs;
+}
+function replaceCoach(){
+  if(openP('estevesYear'))breakPromise('estevesYear','You sacked the coach you promised the season');
+  cash(S.flags.coachContract?-40:-15,S.flags.coachContract?'A year\'s wages for Esteves':'Severance for Esteves');
+  S.coach='talbot';S.ch.talbot={loy:6,owes:false,withVance:false,deepKnown:false};S.flags.coachBacked=0;S.flags.coachContract=0;S.flags.protectCoach=0;
+  addMod('talbot',1,34);S.youth=Math.min(S.youth,1);
+  log('Bryn Talbot is the new head coach','You replaced Maria Esteves',null);
+  grp('students',-5,'The attacking coach is gone');grp('docks',3,'A no-nonsense coach');
+}
+function wardCards(){
+  const cs=[],c=S.ch.ward;
+  if(hasP('tickets')&&!S.flags.gapSolved)cs.push(...gapCards());
+  if(!S.flags.hartSigned&&!S.flags.hartDeal&&S.round<34)cs.push(D('Extend Hart\'s contract','Nothing. It is his call, with your nudge','Hart signed for two more years','Now','A cool Ward may say no',()=>{if(c.loy>=4){S.flags.hartSigned=1;log('Ward extends Hart\'s contract','You asked, and it is his call',null);loy('hart','wish','His contract is sorted')}else log('Ward refuses: "Not now."','Ward is distant with you',null)}));
+  if(!S.flags.wardFree&&S.round>=9)cs.push(D('A loan striker for the run-in','£30k and Ward\'s principles','A sharper attack for the rest of the season','Every match from now','He hates buying. He may only half commit',()=>{if(S.flags.commission&&S.ch.okon.loy<6){log('Okon\'s committee blocks the loan','The finance committee has a veto',null);return}const r=comply('ward',true,false);if(r==='refuse'){log('Ward refuses the loan','Ward is distant with you',null);return}addMod('loan',r==='full'?1:.5,34);cash(-30,'A loan striker');log(r==='full'?'A good loan striker arrives':'A so-so loan striker arrives','Ward did what you asked',null);loy('ward','against','You made him buy')},S.flags.commission&&S.ch.okon.loy<6?'Okon\'s finance committee must approve, and she is not with you':null));
+  if(c.deepKnown&&!hasP('okoro'))cs.push(D('"Jay Okoro will start." In public','Your name: a new public promise','Ward\'s life\'s work, backed by the chairman','Ten starts by the AGM','The coach still picks the team',()=>{addPromise('okoro','You promised it to Ward, in public');loy('ward','deep','You backed his wonderkid in public');youthAsk(S.coach,false)}));
+  if(!S.flags.wardFree)cs.push(D('Recruitment is yours alone','Power: no more asks from you','A director who feels trusted','—','You can no longer ask him to buy',()=>{S.flags.wardFree=1;loy('ward',null,'You gave him full control of recruitment',2)}));
+  return cs;
+}
+function gapCards(){
+  return[
+   D('Sell who you must','A first-team midfielder','The £60k gap closed','Now','The team gets a little weaker',()=>{S.flags.gapSolved=1;addMod('sold',-1,34);cash(70,'Ward sells midfielder Dean Fry');grp('business',2,'Business likes a prudent club')}),
+   D('Play the kids instead of buying','Points, probably','No spending, academy minutes','The whole season','The coach decides how far she goes',()=>{S.flags.gapSolved=1;loy('ward','wish','Ward gets to play his own');youthAsk(S.coach,false)}),
+   D('"I\'ll find a sponsor by January."','Your word to Ward','No sale, no weaker team','January','If you fail, he sells anyway and remembers',()=>{S.flags.gapSolved=1;S.flags.sponsorForWard=1;log('You promised Ward a sponsor by January','Now you need to find one',null)})
+  ];
+}
+function hartCards(){
+  const cs=[],c=S.ch.hart;
+  if(!S.flags.hartSigned&&!hasP('hartContract'))cs.push(D('Promise him the contract, in public','Your name, and Ward\'s authority','Your captain, back with you','Signed before the AGM','A broken promise to the Docks',()=>{addPromise('hartContract','You promised Hart in public');loy('hart','protect','You promised his contract in public');loy('ward','bypass','You made Ward\'s call for him')}));
+  if(c.deepKnown&&!S.flags.hartFuture)cs.push(D('A coaching future','A role: youth coach when he retires','A captain who stays loyal to the end','—','You will have to find him a place',()=>{S.flags.hartFuture=1;loy('hart','deep','A future at the club after his legs go');grp('docks',2,'The Docks love it')}));
+  if(c.loy>=4)cs.push(D('Rally the dressing room','Nothing. It is an ask','A lift for the next block of games','Next block','—',()=>{addMod('morale',1,nextBlockEnd(S.round+1));log('Hart rallies the squad','You asked your captain',null)}));
+  if(c.owes&&!S.flags.hartSpeaks)cs.push(D('Speak for me at the AGM','The favour you are owed','Your captain on your side in front of the members','The AGM','—',()=>{c.owes=false;S.flags.hartSpeaks=1;log('Hart will speak for you at the AGM','He owed you',null)}));
+  return cs;
+}
+function kearneyCards(){
+  const cs=[],c=S.ch.kearney;
+  if(!hasP('noInvestor'))cs.push(D('"No investor while I\'m chairman." In public','Your name: a new public promise','The Docks behind you','The AGM','Broken the moment you back outside money',()=>{addPromise('noInvestor','You promised the Docks in public');loy('kearney','protect','You promised: no outside investor')}));
+  if(c.deepKnown&&!S.flags.stand)cs.push(D('Name it the Dockers\' Stand','£15k and the old stand\'s name','History honoured, the Docks moved','—','Business will grumble at the cost',()=>{S.flags.stand=1;cash(-15,'New signage: the Dockers\' Stand');loy('kearney','deep','The stand his grandad built carries the Docks\' name');grp('docks',4,'The Dockers\' Stand');grp('business',-2,'Money spent on signs')}));
+  if(S.round<26&&!S.flags.docksDerby)cs.push(D('Fill the ground for the second derby','Nothing but your enthusiasm','A roaring crowd for the home derby','Round 26','—',()=>{S.flags.docksDerby=1;loy('kearney','wish','The Docks will make noise for the derby')}));
+  if(c.owes&&!S.flags.kearneySpeaks)cs.push(D('Speak for me at the AGM','The favour you are owed','Kearney on his feet for you','The AGM','—',()=>{c.owes=false;S.flags.kearneySpeaks=1;log('Kearney will speak for you at the AGM','He owed you',null)}));
+  return cs;
+}
+function okonCards(){
+  const cs=[],c=S.ch.okon;
+  if(!S.flags.sponsor)cs.push(D('Find me a local sponsor','Your evenings and your name','About £60k from local firms','—','Business remembers who asked',()=>{S.flags.sponsor=1;cash(60,'A local sponsorship package');loy('okon','wish','You asked Business for help, not money');grp('business',4,'Local firms back the club')}));
+  if(c.deepKnown&&!S.flags.commission)cs.push(D('A finance committee with a veto','Power: big spending needs their approval','Business at the table','—','You will have to ask before you spend',()=>{S.flags.commission=1;loy('okon','deep','A real say, not a dinner');grp('business',8,'Business gets a seat at the table');if(hasP('stadium')){S.flags.stadiumPartner=1;log('The committee will draft the stadium plan','A partner for your promise',null)}}));
+  if(openP('tickets'))cs.push(D('Raise ticket prices after all','Your word to the Students','£60k back, Business pleased','—','A broken promise, in public',()=>{breakPromise('tickets','You raised the prices you promised to freeze');cash(60,'Ticket prices up');grp('business',6,'Sensible pricing');grp('students',-10,'He lied about the tickets')},'This breaks your promise to the Students'));
+  if(c.owes&&!S.flags.okonSpeaks)cs.push(D('Endorse me at the AGM','The favour you are owed','Business hears it from one of their own','The AGM','—',()=>{c.owes=false;S.flags.okonSpeaks=1;log('Okon will endorse you at the AGM','She owed you',null)}));
+  return cs;
+}
+function vanceCards(){
+  const cs=[],c=S.ch.vance;
+  if(!S.flags.vanceCommittee&&!S.flags.vanceBoard)cs.push(D('Chair a stadium committee','A platform inside the club','Business sees you working with them','—','He is sly. He may use it against you',()=>{S.flags.vanceCommittee=1;loy('vance',null,'You gave him a platform',2);grp('business',4,'Vance and the chairman, working together');if(hasP('stadium')){S.flags.stadiumPartner=1;log('Vance\'s committee will draft the stadium plan','A partner for your promise',null)}}));
+  if(!S.flags.truce)cs.push(D('A truce: a fair review of outside money','Your word: a review of investment','He stops attacking you in the Echo','The AGM','The Docks will call it betrayal',()=>{S.flags.truce=1;addPromise('harlanReview','Your truce with Vance');if(openP('noInvestor'))breakPromise('noInvestor','You agreed to review outside money');loy('kearney','against','You opened the door to investors');grp('docks',-5,'Talk of investors');grp('business',8,'Finally, a grown-up conversation')},hasP('noInvestor')?'This breaks your promise to the Docks':null));
+  if(c.deepKnown&&!S.flags.vanceBoard)cs.push(D('A seat on the board','Power: Vance in your boardroom','He withdraws as your opponent','—','The Docks will not like it',()=>{S.flags.vanceBoard=1;loy('vance','deep','The seat his father never got');grp('business',6,'One of their own on the board');loy('kearney',null,'Vance on the board',-2);grp('docks',-3,'Vance on the board')}));
+  cs.push(D('Tell him to back off','Nothing','Maybe nothing','—','He is sly. Pressure only feeds him',()=>{log('Vance smiles. The Echo has a quote by morning','Pressure does not work on him',null);grp('business',-2,'Vance: "The chairman threatened me."')}));
+  return cs;
+}
+function placeCards(id){return id==='ward'?wardCards():id==='hart'?hartCards():id==='kearney'?kearneyCards():id==='okon'?okonCards():id==='vance'?vanceCards():coachCards(id)}
+
+function waitScene(w){
+  const id=w.id,n=CH[id]?.short;
+  if(w.type==='owes'){
+    const uses={esteves:[D('Play the academy kids, properly','The favour','The kids start every week','—','—',()=>youthAsk(id,true)),D('Defend me in the press','The favour','The Students hear it from her','—','—',()=>{S.ch[id].owes=false;grp('students',3,'Esteves defends the chairman in the Echo')})],
+      talbot:[D('Play the kids, properly','The favour','The kids start every week','—','—',()=>youthAsk(id,true))],
+      ward:[D('Extend Hart\'s contract now','The favour','Hart signed','—','—',()=>{S.ch.ward.owes=false;S.flags.hartSigned=1;log('Ward extends Hart\'s contract','He owed you',null);loy('hart','wish','His contract is sorted')})],
+      hart:[D('Speak for me at the AGM','The favour','Your captain speaks for you','The AGM','—',()=>{S.ch.hart.owes=false;S.flags.hartSpeaks=1;log('Hart will speak for you at the AGM','He owed you',null)})],
+      kearney:[D('Speak for me at the AGM','The favour','Kearney on his feet for you','The AGM','—',()=>{S.ch.kearney.owes=false;S.flags.kearneySpeaks=1;log('Kearney will speak for you at the AGM','He owed you',null)}),D('Fill the ground for the derby','The favour','A roaring home derby','Round 26','—',()=>{S.ch.kearney.owes=false;S.flags.docksDerby=1;log('The Docks will fill the ground for the derby','He owed you',null)})],
+      okon:[D('Endorse me at the AGM','The favour','Business hears it from one of their own','The AGM','—',()=>{S.ch.okon.owes=false;S.flags.okonSpeaks=1;log('Okon will endorse you at the AGM','She owed you',null)})],
+      vance:[]};
+    const lines={esteves:'"You backed me when nobody did. Ask me something, once."',talbot:'"You\'ve been straight with me. I owe you one."',ward:'"You\'ve stood by me. If you need something, say so."',hart:'"You looked after me. I won\'t forget it. What do you need?"',kearney:'"The Docks are with you, chairman. Name it."',okon:'"You\'ve treated us like partners. I owe you a favour."',vance:''};
+    return{who:id,place:CH[id].place,lines:[lines[id]],cards:[...uses[id],D('Keep it for later','Nothing yet','A favour in your pocket','Whenever you need it','Favours fade if you neglect them',()=>log(`${n} owes you a favour`,'You kept it for later',null))],noDeal:null};
+  }
+  if(w.type==='defect'){
+    const amends=placeCards(id).filter(c=>!c.t.startsWith('Tell him'));
+    return{who:id,place:CH[id].place,lines:[`"Gareth Vance returns my calls, chairman. You don't."`],cards:amends.slice(0,3),noDeal:noDeal(`${n} goes over to Vance.`,()=>{S.ch[id].withVance=true;log(`${n} joins Vance's camp`,'You let them go',null)})};
+  }
+  if(w.type==='hart')return{who:'hart',place:'carpark',lines:['Hart is waiting by your car after training. No coat.','"Ward won\'t talk contracts until summer. I\'m twenty-nine. I need to know."'],
+    cards:[D('Promise him the contract, in public','Your name, and Ward\'s authority','Your captain, back with you','Signed before the AGM','A broken promise to the Docks if Ward refuses',()=>{addPromise('hartContract','You promised Hart in public');loy('hart','protect','You promised his contract in public');loy('ward','bypass','You made Ward\'s call for him')}),
+      D('"It\'s Ward\'s call."','Nothing','Ward stays in charge of contracts','—','Hart keeps waiting, and he is proud',()=>{S.flags.hartWaiting=1;log('You sent Hart to Ward','Contracts are Ward\'s call',null)}),
+      D('"Finish twelfth or better and it\'s yours."','A condition on your word','A captain with something to play for','End of season','If we finish lower, he feels cheated',()=>{S.flags.hartDeal=1;loy('hart','wish','A deal with a target');log('Deal: twelfth or better and Hart signs','A target for the run-in',null)})],
+    noDeal:noDeal('He waits. Proud men do not wait well.',()=>{S.flags.hartWaiting=1})};
+  if(w.type==='gap')return{who:'ward',place:'office',lines:['Ward has a spreadsheet open before you sit down.','"Sixty grand less from your tickets. I don\'t buy players, you know that. So either I sell someone, or we play our own."'],cards:gapCards(),noDeal:noDeal('He sells someone anyway, and remembers you did not answer.',()=>{S.flags.gapSolved=1;addMod('sold',-1,34);cash(70,'Ward sells a midfielder');loy('ward','wait','You left him to sort it alone')})};
+  if(w.type==='offer')return{who:'esteves',place:'training',lines:['Esteves catches you at the gate.','"Harrowgate Town want me. They\'re a division up. I wanted you to hear it from me."'],
+    cards:[D('Match their offer','£30k a year','She stays','—','Business will notice the wage bill',()=>{cash(-30,'Matching Harrowgate\'s offer');grp('business',-3,'A pay rise for the coach');loy('esteves','wish','You fought to keep her');log('Esteves stays','You matched the offer',null)}),
+      ...(S.ch.esteves.owes?[D('Call in the favour','The favour she owes you','She stays, for you','—','—',()=>{S.ch.esteves.owes=false;log('Esteves turns Harrowgate down','She owed you',null)})]:[]),
+      D('Go with my blessing','Your coach','Goodwill, and a new coach','—','The Students loved her',()=>{S.flags.estevesLeft=1;S.coach='talbot';S.ch.talbot={loy:6,owes:false,withVance:false,deepKnown:false};addMod('talbot',1,34);S.youth=Math.min(S.youth,1);S.flags.coachBacked=0;log('Esteves leaves for Harrowgate. Bryn Talbot takes over','You let her go',null);grp('students',-4,'Their coach is gone')})],
+    noDeal:noDeal('She goes. You did not even try.',()=>{S.flags.estevesLeft=1;S.coach='talbot';S.ch.talbot={loy:6,owes:false,withVance:false,deepKnown:false};addMod('talbot',1,34);S.youth=Math.min(S.youth,1);S.flags.coachBacked=0;log('Esteves leaves for Harrowgate. Bryn Talbot takes over','You did not fight for her',null);grp('students',-6,'He did not even try to keep her')})};
+  if(w.type==='behind'){const pr=PROM[w.prom].t;return{who:id,place:'training',lines:[`${n} finds you in the stand.`,`"We're behind on your promise, chairman. ${pr}. I thought you should hear it from me."`],
+    cards:[D('Play it safe until the next moment','Nothing. It is an ask','Steadier results','Next block','The Students hate dull football',()=>{const r=comply(id,true,false);if(r==='refuse'){log(`${n} ignores the request`,'Distant with you',null);return}addMod('safe',r==='full'?1:.5,nextBlockEnd(S.round+1));loy(id,'against','You asked for safety over style');grp('students',-2,'Dull football at Pell')}),
+      D('"It\'s on me. Keep going."','Nothing','A coach who feels trusted','—','The promise is still behind',()=>{loy(id,'wish','You took the blame yourself')})],
+    noDeal:noDeal(`${n} goes back to the training pitch, unsure where you stand.`,()=>loy(id,'wait','You left the coach hanging'))}}
+}
+function placeScene(id){
+  const c=S.ch[id],lines=[OPEN[id][bandIdx(c.loy)]];
+  if(S.scene.listened)lines.push(CH[id].deepLine);
+  return{who:id,place:CH[id].place,lines,cards:placeCards(id),noDeal:noDeal(`You leave with nothing agreed. ${CH[id].short} notices.`)};
+}
+function hint(pl){
+  const id=PLACES[pl].who(),c=S.ch[id];if(!c)return'';
+  if(c.withVance)return`${CH[id].short} leaves early. Vance's car is outside.`;
+  if(id==='hart'&&!S.flags.hartSigned&&S.moment>=2)return'Hart lingers by your car. His contract still isn\'t sorted.';
+  if(id==='ward'&&hasP('tickets')&&!S.flags.gapSolved)return'The light is on. Ward is still waiting on an answer about the money.';
+  if(id==='vance')return S.flags.vanceBoard?'Vance, now on your board, is buying rounds.':'Vance holds court with three business owners.';
+  if(c.owes)return`${CH[id].short} owes you a favour.`;
+  const b=bandIdx(c.loy);
+  return[`${CH[id].short} looks away when you arrive.`,`${CH[id].short} is cool, and keeping their distance.`,`${CH[id].short} is busy. Polite.`,`${CH[id].short} waves you over.`,`${CH[id].short} lights up when they see you.`][b];
+}
+function applyCard(i){
+  const sc=S.wait&&!S.scene?waitScene(S.wait):placeScene(S.scene.id);
+  const list=[...sc.cards,...(sc.noDeal?[sc.noDeal]:[])];const card=list[i];if(!card)return;
+  card.run();
+  if(S.wait&&!S.scene){S.wait=null;S.screen='places'}else{S.talked=true;S.screen='review'}
+  save();render();window.scrollTo(0,0);
+}
+
+/* ---------- Blocks ---------- */
+function runBlock(){
+  const to=BLOCK_ENDS.find(e=>e>S.round);const res=[];
+  for(let r=S.round+1;r<=to;r++){S.round=r;res.push(simRound(r))}
+  S.block=res;S.screen='block';save();render();window.scrollTo(0,0);
+}
+function afterBlock(){if(S.round>=34)startALV();else startMoment(S.moment+1);window.scrollTo(0,0)}
+
+/* ---------- AGM ---------- */
+function startALV(){
+  S.phase='alv';S.mlog=[];S.grpPrev={...S.grp};
+  if(openP('hartContract')&&!S.flags.hartSigned){if(S.ch.ward.loy>=4){S.flags.hartSigned=1;log('Ward signs Hart, reluctantly','Your promise, his signature',null)}else log('Ward refuses to sign Hart','Ward is distant with you',null)}
+  if(S.flags.hartDeal&&!S.flags.hartSigned){if(pos()<=12){S.flags.hartSigned=1;log('Hart signs: we finished twelfth or better','Your deal with him',null)}else loy('hart',null,'We missed the target in your deal',-3)}
+  const report=[];
+  for(const p of S.promises){
+    let v=p.st==='broken'?false:evalP(p.id);
+    if(v==='void'){p.st='void';report.push({id:p.id,res:'void'});continue}
+    p.st=v?'kept':'broken';report.push({id:p.id,res:p.st});
+    for(const g of PROM[p.id].g)grp(g,v?GAIN[PROM[p.id].size]:-20,`${v?'Kept':'Broken'}: ${PROM[p.id].t}`);
+  }
+  if(S.cash<0)grp('business',-5,'The club is in the red');
+  const motions=[];
+  if(!S.flags.vanceBoard&&(S.grp.business<55||!S.flags.truce))motions.push({id:'inv',by:'business',against:'docks',t:'Allow outside investment up to 49%'});
+  motions.push({id:'cap',by:'docks',against:'business',t:'No outside owner above 25%, ever'});
+  motions.push({id:'tix',by:'students',against:null,t:hasP('tickets')&&S.promises.find(p=>p.id==='tickets').st==='kept'?'Freeze tickets under £10 for three seasons':'Cut tickets to under £10'});
+  S.alv={step:'report',report,motions,lobby:[],speakers:[],defense:null,result:null};
+  S.screen='alv';save();render();
+}
+function applyLobby(sel){
+  const A=S.alv;A.lobby=sel;const m=id=>A.motions.find(x=>x.id===id);
+  for(const id of sel){
+    const mo=m(id);
+    if(mo){grp(mo.by,10,`You back their motion: ${mo.t}`);if(mo.against)grp(mo.against,-3,'They saw the deal');if(id==='inv'){S.flags.backedInvestor=1;if(openP('noInvestor')||(hasP('noInvestor')&&S.promises.find(p=>p.id==='noInvestor').st==='kept')){const p=S.promises.find(p=>p.id==='noInvestor');p.st='broken';grp('docks',-20,'Broken: no outside investor')}}}
+    if(id==='seat'){S.flags.commission=1;grp('business',15,'You give Business a finance seat with a veto')}
+    if(id==='stand'){S.flags.stand=1;cash(-15,'The Dockers\' Stand');grp('docks',10,'The North Stand becomes the Dockers\' Stand');grp('business',-3,'Money on signs')}
+  }
+  if(sel.includes('inv')&&sel.includes('cap')){grp('docks',-5,'He promised both sides');grp('business',-5,'He promised both sides')}
+  for(const mo of A.motions){let yes=0;for(const g of GORDER){let base=g===mo.by?90:g===mo.against?15:45;if(sel.includes(mo.id))base+=10;yes+=GROUPS[g].share*clamp(base,0,100)}mo.pass=yes>=50}
+  const sp=[];
+  const voices=[['kearney','kearneySpeaks'],['hart','hartSpeaks'],['okon','okonSpeaks'],[S.coach,null],['ward',null]];
+  for(const [id,fl] of voices){const c=S.ch[id];if(!c)continue;const g=CH[id].infl;
+    if(c.withVance){sp.push({id,for:false,line:`${CH[id].short} stands with Vance: "I backed the wrong man last summer."`});if(g)grp(g,-3,`${CH[id].short} speaks for Vance`)}
+    else if((fl&&S.flags[fl])||c.owes){if(c.owes)c.owes=false;sp.push({id,for:true,line:`${CH[id].short}: "He kept faith with me. Keep faith with him."`});if(g)grp(g,3,`${CH[id].short} speaks for you`)}
+    else if(g&&c.loy>6)grp(g,Math.round(c.loy-6),`${CH[id].short} talks you up around the club`);
+    else if(g&&c.loy<4)grp(g,-Math.round(4-c.loy),`${CH[id].short} grumbles about you around the club`);
+  }
+  A.speakers=sp;A.candidate=!S.flags.vanceBoard&&(weighted()<50||S.grp.business<40);
+  A.step='speech';save();render();window.scrollTo(0,0);
+}
+function applyDefense(d){
+  const A=S.alv;A.defense=d;
+  if(d==='luck'){const v=luck()==='unlucky'?5:-5;for(const g of GORDER)grp(g,v,v>0?'They accept it was bad luck: the numbers back you':'Excuses: we got what we deserved')}
+  if(d==='success'){const kept=A.report.filter(r=>r.res==='kept');if(kept.length){const g=PROM[kept[0].id].g[0];grp(g,5,`You remind them: ${PROM[kept[0].id].t}`);const other=GORDER.filter(x=>x!==g).sort((a,b)=>S.grp[a]-S.grp[b])[0];grp(other,-3,'They hear a man changing the subject')}else for(const g of GORDER)grp(g,-3,'Nothing to point at')}
+  if(d==='blame'){const id=S.coach;loy(id,'blame','You blamed the coach in front of the members');const dis=CH[id].dislike;if(dis)grp(dis,5,`They never liked ${CH[id].short}`);if(CH[id].infl)grp(CH[id].infl,-3,`They liked ${CH[id].short}`)}
+  if(d==='wrong'){S.flags.trusted=1;log('You admitted your mistake','Next manifest starts trusted',null)}
+  const total=weighted();A.result={total,won:total>=50};A.step='count';save();render();window.scrollTo(0,0);
+}
+
+/* ---------- Rendering ---------- */
+const $=document.getElementById('app');
+const crest=`<svg class="crest" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 L31 7 V17 C31 25 24 30 17 32 C10 30 3 25 3 17 V7 Z" fill="var(--navy)"/><path d="M10 22 L17 9 L24 22" stroke="var(--signal)" stroke-width="3" fill="none"/><path d="M8 24 H26" stroke="var(--onnavy)" stroke-width="2"/></svg>`;
+function topBar(){
+  const sub=S.phase==='intro'?'Members\' club, est. 1891':S.phase==='alv'?'Annual general meeting':S.round===0?'Summer':`After round ${S.round} · ${ord(pos())}`;
+  return`<header class="top">${crest}<div class="grow"><div class="club">Pell United</div><div class="sub">${sub}</div></div>${S.phase==='season'||S.phase==='alv'?'<button class="tbtn" data-act="table">The table</button>':''}</header>`;
+}
+function face(id){const n=CH[id].name.split(' ').map(x=>x[0]).join('');return`<div class="face${id==='vance'?' opp':''}" aria-hidden="true">${n}</div>`}
+function whoRow(id){return`<div class="who">${face(id)}<div><b>${esc(CH[id].name)}</b><span>${esc(CH[id].role)}</span></div></div>`}
+function dealHTML(c,i){
+  if(c.none)return`<button class="deal none" data-act="card" data-arg="${i}"><span class="dt">No deal</span><span class="muted small">${esc(c.fail)}</span></button>`;
+  return`<button class="deal" data-act="card" data-arg="${i}"><span class="dt">${esc(c.t)}</span><dl>${[['You give',c.give],['They give',c.get],['Tested',c.test],['If it fails',c.fail]].filter(x=>x[1]&&x[1]!=='—').map(x=>`<dt>${x[0]}</dt><dd>${esc(x[1])}</dd>`).join('')}</dl>${c.warn?`<span class="warn">⚠ ${esc(c.warn)}</span>`:''}</button>`;
+}
+function arrow(g){const d=S.grp[g]-S.grpPrev[g];return d>=6?'<span class="up">↑↑</span>':d>0?'<span class="up">↑</span>':d<=-6?'<span class="down">↓↓</span>':d<0?'<span class="down">↓</span>':''}
+
+function render(){
+  if(!S){$.innerHTML=titleView();return}
+  let body='';
+  switch(S.screen){
+    case'intro':body=introView();break; case'manifest':body=manifestView();break;
+    case'echo':body=echoView();break; case'wait':body=sceneView(true);break;
+    case'places':body=placesView();break; case'scene':body=sceneView(false);break;
+    case'review':body=reviewView();break; case'block':body=blockView();break;
+    case'alv':body=alvView();break;
+  }
+  $.innerHTML=topBar()+`<main>${body}</main>`+(UI.table?tableView():'')+(UI.showLog?logView():'');
+}
+function titleView(){
+  let has=false;try{has=!!localStorage.getItem(SAVE_KEY)}catch(e){}
+  return`<main style="padding-top:48px">${crest.replace('class="crest"','class="crest" style="width:64px;height:64px"')}
+  <p class="eyebrow">Pell United · Members' club</p><h1>The Chairman</h1>
+  <p>You were elected chairman of a members' club in a harbour town. You never pick the team. You make promises, strike deals with people, and face the members every June.</p>
+  <div class="stack"><button class="btn" data-act="new">Start season one</button>${has?'<button class="btn ghost" data-act="continue">Continue</button>':''}</div></main>`;
+}
+function introView(){
+  const g=GORDER.map(k=>`<div class="row"><span><b>${GROUPS[k].name}</b><br><span class="small muted">${GROUPS[k].want}</span></span><span class="mood">${moodWord(S.grp[k])}</span></div>`).join('<hr>');
+  const ppl=['esteves','ward','hart','kearney','okon','vance'].map(id=>`<div class="stack" style="gap:4px">${whoRow(id)}<p class="small muted">Wants: ${esc(CH[id].surface)}</p></div>`).join('<hr>');
+  return`<p class="eyebrow">Summer · You won 52 to 48</p><h2>Your club</h2>
+  <p>Fifth tier, eighteen clubs, thirty-four rounds. The members vote on you at the AGM in June.</p>
+  <div class="panel"><p class="eyebrow">The members</p>${g}</div>
+  <div class="panel"><p class="eyebrow">The people</p>${ppl}</div>
+  <div class="panel"><p class="eyebrow">How you play</p><p class="small">Four times a season something happens and someone comes to you. Then you choose one place to go and one person to see. Every conversation ends in a deal, or in no deal. The members judge you on your promises.</p></div>
+  <button class="btn" data-act="toManifest">Write your manifest</button>`;
+}
+function manifestView(){
+  const sl=SLOTS[S.step];
+  const opts=Object.keys(PROM).filter(id=>PROM[id].slot===sl.key);
+  const items=opts.map(id=>`<button class="choice" data-act="pick" data-arg="${id}"><b>${esc(PROM[id].t)}</b><span class="meta">${esc(PROM[id].desc)}</span><span><span class="chance">${esc(chanceFor(id))}</span> <span class="meta">${SIZE_WORD[PROM[id].size]} · ${PROM[id].g.map(x=>GROUPS[x].name).join(', ')}</span></span></button>`).join('');
+  const none=sl.key==='person'?`<button class="choice" data-act="pick" data-arg="none"><b>No personal promise</b><span class="meta">Hands free. Nobody gets anything.</span></button>`:'';
+  return`<p class="eyebrow">Manifest · ${S.step+1} of 3</p><h2>${sl.title}</h2><p>${sl.ask} The members will measure it in June. Kept: they reward you. Broken: they punish you, whatever the size.</p><div class="stack">${items}${none}</div>`;
+}
+function echoView(){
+  const e=S.echo;
+  return`<article class="echo"><div class="mast"><b>THE PELL ECHO</b><span>${e.date}</span></div><div class="head">${esc(e.head)}</div><ul>${e.lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></article>
+  <button class="btn" data-act="echoNext">${S.wait?'Someone is waiting for you':'Choose where to go'}</button>`;
+}
+function sceneView(isWait){
+  const sc=isWait?waitScene(S.wait):placeScene(S.scene.id);
+  const intro=`<p class="where">${esc(PLACES[sc.place]?.name||'')}</p>${whoRow(sc.who)}`;
+  if(!isWait&&S.scene.step===0){
+    return`<section class="scene">${intro}<p class="voice">${esc(sc.lines[0])}</p></section>
+    <div class="stack"><button class="choice" data-act="listen"><b>Hear them out</b><span class="meta">Ask what is really going on. You might learn what they actually want.</span></button>
+    <button class="choice" data-act="point"><b>Get to the point</b><span class="meta">Put deals on the table straight away.</span></button></div>`;
+  }
+  const lines=sc.lines.map(l=>l.startsWith('"')?`<p class="voice">${esc(l)}</p>`:`<p>${esc(l)}</p>`).join('');
+  const cards=[...sc.cards,...(sc.noDeal?[sc.noDeal]:[])];
+  return`<section class="scene">${intro}${lines}${!isWait&&S.scene.listened?`<p class="small muted">You learned what ${esc(CH[sc.who].short)} really wants: ${esc(CH[sc.who].deep)}</p>`:''}</section>
+  <p class="eyebrow">On the table</p><div class="stack">${cards.map(dealHTML).join('')}</div>`;
+}
+function placesView(){
+  const list=Object.keys(PLACES).filter(p=>S.ch[PLACES[p].who()]).map(p=>`<button class="choice" data-act="place" data-arg="${p}"><b>${esc(PLACES[p].name)}</b><span class="meta">${esc(hint(p))}</span></button>`).join('');
+  return`<p class="eyebrow">${['','July','October','January','April'][S.moment]} · One evening</p><h2>Where do you go?</h2><p>You have time for one conversation before the next block of games.</p><div class="places">${list}</div>`;
+}
+function reviewView(){
+  const items=S.mlog.map(e=>`<li>${esc(e.text)} ${e.num?`<span class="num">${esc(e.num)}</span>`:''}<span class="why">${esc(e.why)}</span></li>`).join('')||'<li>Nothing changed.</li>';
+  const moods=GORDER.map(g=>`<div class="row"><span>${GROUPS[g].name}</span><span class="mood">${moodWord(S.grp[g])} ${arrow(g)}</span></div>`).join('');
+  const to=BLOCK_ENDS.find(e=>e>S.round);
+  return`<p class="eyebrow">Looking back</p><h2>What changed, and why</h2><ul class="log">${items}</ul><div class="panel">${moods}</div><button class="btn" data-act="reviewNext">Play rounds ${S.round+1} to ${to}</button>`;
+}
+function blockView(){
+  const b=S.block;const pts=b.reduce((s,m)=>s+m.pts,0);
+  const rows=b.map(m=>`<div class="res"><span class="wdl ${m.pts===3?'W':m.pts===1?'D':'L'}">${m.pts===3?'W':m.pts===1?'D':'L'}</span><span>${m.home?'':'at '}${esc(TNAME[m.opp])}${m.derby?' <span class="tag">Derby</span>':''}</span><span>${m.gf}–${m.ga}</span></div>`).join('');
+  const st=standings();const p=st.indexOf('pell');const around=st.slice(Math.max(0,p-2),Math.min(18,p+3));
+  const tbl=around.map(id=>`<div class="row small" style="font-variant-numeric:tabular-nums${id==='pell'?';font-weight:600':''}"><span>${st.indexOf(id)+1}. ${esc(TNAME[id])}</span><span>${S.tbl[id].pts} pts</span></div>`).join('');
+  const prom=S.promises.filter(x=>x.st==='open').map(x=>`<div class="row small"><span>${esc(PROM[x.id].t)}</span><span class="mood ${behind(x.id)?'down':'up'}">${behind(x.id)?'Behind':'On track'}</span></div>`).join('');
+  return`<p class="eyebrow">Rounds ${b[0].r} to ${b[b.length-1].r}</p><h2>${pts} points from ${b.length}</h2><p class="muted">${luckWord()}.</p>
+  <div class="panel">${rows}</div><div class="panel"><p class="eyebrow">The table</p>${tbl}</div>${prom?`<div class="panel"><p class="eyebrow">Your promises</p>${prom}</div>`:''}
+  <button class="btn" data-act="blockNext">${S.round>=34?'To the AGM':'Next moment'}</button>`;
+}
+function verdict(p){return p>=75?'Overwhelmingly for':p>=58?'Clearly for':p>=50?'Narrowly for':p>=42?'Narrowly against':p>=25?'Clearly against':'Overwhelmingly against'}
+function alvView(){
+  const A=S.alv;
+  if(A.step==='report'){
+    const rows=A.report.map(r=>`<div class="row"><span>${esc(PROM[r.id].t)}<br><span class="small muted">${PROM[r.id].g.map(g=>GROUPS[g].name).join(', ')}</span></span><span class="mood ${r.res==='kept'?'up':r.res==='broken'?'down':''}">${r.res==='kept'?'Kept':r.res==='broken'?'Broken':'Void'}</span></div>`).join('<hr>')||'<p>You promised nothing.</p>';
+    const moods=GORDER.map(g=>`<div class="row"><span>${GROUPS[g].name}</span><span class="mood">${moodWord(S.grp[g])} ${arrow(g)}</span></div>`).join('');
+    return`<p class="eyebrow">June · Sports hall, 8pm</p><h2>The annual report</h2><p>Final position: ${ord(pos())}, ${S.tbl.pell.pts} points. ${luckWord()}.</p><div class="panel">${rows}</div><div class="panel"><p class="eyebrow">How they walk in</p>${moods}</div><button class="btn" data-act="alvLobby">Into the corridor</button>`;
+  }
+  if(A.step==='lobby'){
+    const opts=[...A.motions.map(m=>({id:m.id,t:`Back the ${GROUPS[m.by].name} motion`,d:`"${m.t}". ${GROUPS[m.by].name} warm to you${m.against?`; ${GROUPS[m.against].name} see the deal`:''}. If it passes, it binds the club.`})),
+      ...(!S.flags.commission?[{id:'seat',t:'Offer Business a finance seat with a veto',d:'Business at the table. Your big spending goes past them from now on.'}]:[]),
+      ...(!S.flags.stand?[{id:'stand',t:'Promise the Docks: the Dockers\' Stand',d:'£15k of signs and history. Business grumbles.'}]:[])];
+    const mo=A.motions.map(m=>`<li><b>${GROUPS[m.by].name}:</b> ${esc(m.t)}</li>`).join('');
+    const ch=opts.map(o=>`<label class="check${UI.lobby[o.id]?' on':''}" for="lb-${o.id}"><input type="checkbox" id="lb-${o.id}" data-lobby="${o.id}" ${UI.lobby[o.id]?'checked':''}><span><b>${esc(o.t)}</b><br><span class="small muted">${esc(o.d)}</span></span></label>`).join('');
+    return`<p class="eyebrow">The corridor, 7.45pm</p><h2>Motions and deals</h2><p>Binding motions on tonight's agenda:</p><ul class="log">${mo}</ul><p>Make as many deals as you like. Everyone in the hall will know about every one of them.</p><div class="stack">${ch}</div><button class="btn" data-act="lobbyDone">Into the hall</button>`;
+  }
+  if(A.step==='speech'){
+    const sp=A.speakers.map(s=>`<div class="stack" style="gap:6px">${whoRow(s.id)}<p class="voice">${esc(s.line)}</p></div>`).join('<hr>')||'<p class="muted">Nobody stands up for you, and nobody against.</p>';
+    const res=A.motions.map(m=>`<div class="row"><span>${esc(m.t)}</span><span class="mood ${m.pass?'up':'down'}">${m.pass?'Carried':'Defeated'}</span></div>`).join('');
+    const cand=A.candidate?`<div class="stack" style="gap:6px">${whoRow('vance')}<p class="voice">"He promised you things. Count them. Then vote for someone who delivers."</p></div>`:'<p>No one stands against you. Tonight is a vote of confidence.</p>';
+    const defs=[['wrong','"Where I fell short, I was wrong."','Nothing changes tonight. The members will trust your next manifest more.'],['luck','"We were unlucky."',luck()==='unlucky'?'True this season. They may accept it.':'The table says otherwise.'],['success','"Look at what worked."','Point to what you delivered. Some will call it changing the subject.'],['blame',`"The coach let us down."`,`${CH[S.coach].short} hears every word.`]];
+    return`<p class="eyebrow">The hall</p><h2>Motions and voices</h2><div class="panel">${res}</div><div class="panel">${sp}</div><div class="panel"><p class="eyebrow">${A.candidate?'Your opponent':'No challenger'}</p>${cand}</div><p class="eyebrow">Your speech</p><div class="stack">${defs.map(d=>`<button class="choice" data-act="defend" data-arg="${d[0]}"><b>${esc(d[1])}</b><span class="meta">${esc(d[2])}</span></button>`).join('')}</div>`;
+  }
+  if(A.step==='count'){
+    const order=GORDER.slice().sort((a,b)=>S.grp[a]-S.grp[b]);
+    const rows=order.map(g=>`<div class="cg panel"><div class="row"><b>${GROUPS[g].name}</b><span class="mood">${verdict(S.grp[g])}</span></div><div class="bar"><i style="width:${Math.round(S.grp[g])}%"></i></div></div>`).join('');
+    const won=A.result.won;
+    return`<p class="eyebrow">The count</p><h2>${A.candidate?'You or Gareth Vance':'Confidence in the chairman'}</h2><div class="count">${rows}</div>
+    <div class="verdict stack"><p class="big ${won?'up':'down'}">${won?'Re-elected':'Voted out'}</p><p>${won?'The members keep you. What you gave away tonight now binds the club.':'Vance takes the chair. Your reputation goes with you to the next club.'}</p><button class="btn" data-act="toEnd">The season in full</button></div>`;
+  }
+  if(A.step==='end')return endView();
+}
+function endView(){
+  const A=S.alv,kept=S.promises.filter(p=>p.st==='kept').length,broken=S.promises.filter(p=>p.st==='broken').length;
+  const binds=[...A.motions.filter(m=>m.pass).map(m=>`Motion carried: ${m.t}`),...(S.flags.commission?['Business finance committee with a veto']:[]),...(S.flags.stand?['The Dockers\' Stand']:[]),...(S.flags.coachContract?[`${CH[S.coach].short} under contract for two more years`]:[]),...(S.flags.vanceBoard?['Gareth Vance on your board']:[]),...(S.flags.hartSigned?['Hart signed for two more years']:['Hart\'s contract has run out'])];
+  const ppl=Object.keys(S.ch).filter(id=>id!=='esteves'||S.coach==='esteves').map(id=>`<div class="row small"><span>${esc(CH[id].name)}</span><span class="mood">${band(S.ch[id].loy)}${S.ch[id].withVance?' · with Vance':''}</span></div>`).join('');
+  return`<p class="eyebrow">End of season one</p><h2>${A.result.won?'Chairman for another year':'Former chairman'}</h2>
+  <p>${ord(pos())} with ${S.tbl.pell.pts} points. Promises kept: ${kept}. Broken: ${broken}. ${A.defense==='wrong'?'Your next manifest starts trusted.':''}</p>
+  <div class="panel"><p class="eyebrow">What the club carries into next season</p><ul class="log">${binds.map(b=>`<li>${esc(b)}</li>`).join('')}</ul></div>
+  <div class="panel"><p class="eyebrow">Your people</p>${ppl}</div>
+  <div class="stack"><button class="btn ghost" data-act="showLog">Read every change, with its cause</button><button class="btn" data-act="new">Play season one again</button></div>`;
+}
+function tableView(){
+  const g=GORDER.map(k=>`<div class="row"><span>${GROUPS[k].name}</span><span class="mood">${moodWord(S.grp[k])} ${arrow(k)}</span></div>`).join('');
+  const ppl=Object.keys(S.ch).filter(id=>!(id==='esteves'&&S.coach!=='esteves')).map(id=>`<div class="row small"><span>${esc(CH[id].name)}<br><span class="muted">${esc(CH[id].role)}</span></span><span class="mood">${band(S.ch[id].loy)}${S.ch[id].owes?' · owes you':''}${S.ch[id].withVance?' · with Vance':''}</span></div>`).join('<hr>');
+  const pr=S.promises.map(p=>`<div class="row small"><span>${esc(PROM[p.id].t)}</span><span class="mood">${pStatus(p)}</span></div>`).join('')||'<p class="small muted">No promises.</p>';
+  const deals=[...(S.flags.coachContract?[`${CH[S.coach].short}: two-year contract`]:[]),...(S.flags.commission?['Business finance committee (veto)']:[]),...(S.flags.vanceCommittee?['Vance chairs a stadium committee']:[]),...(S.flags.truce?['Truce with Vance']:[]),...(S.flags.vanceBoard?['Vance on the board']:[]),...(S.flags.hartFuture?['Hart: coaching future']:[]),...(S.flags.hartDeal?['Hart: twelfth or better and he signs']:[]),...(S.flags.hartSigned?['Hart signed']:[]),...(S.flags.sponsorForWard?['Promised Ward a sponsor by January']:[]),...(S.flags.sponsor?['Local sponsorship']:[]),...(S.flags.stand?['The Dockers\' Stand']:[]),...(S.flags.docksDerby?['The Docks fill the derby']:[]),...(S.flags.wardFree?['Ward runs recruitment alone']:[])];
+  return`<div class="overlay" role="dialog" aria-label="The table"><div class="inner"><div class="row"><h2>The table</h2><button class="tbtn" data-act="table">Close</button></div>
+  <p class="muted small">${S.round?`${ord(pos())} after round ${S.round}. `:''}Money: ${moneyWord(S.cash)}.</p>
+  <div class="panel"><p class="eyebrow">Your promises</p>${pr}</div>
+  <div class="panel"><p class="eyebrow">Deals on the table</p>${deals.length?deals.map(d=>`<p class="small">${esc(d)}</p>`).join(''):'<p class="small muted">None yet.</p>'}</div>
+  <div class="panel"><p class="eyebrow">The members</p>${g}</div>
+  <div class="panel"><p class="eyebrow">Your people</p>${ppl}</div></div></div>`;
+}
+function logView(){
+  const items=S.log.map(e=>`<li><span class="num">R${e.r}</span> ${esc(e.text)} ${e.num?`<span class="num">${esc(e.num)}</span>`:''}<span class="why">${esc(e.why)}</span></li>`).join('');
+  return`<div class="overlay" role="dialog" aria-label="Season log"><div class="inner"><div class="row"><h2>The season</h2><button class="tbtn" data-act="showLog">Close</button></div><ul class="log">${items}</ul></div></div>`;
+}
+
+/* ---------- Input ---------- */
+document.addEventListener('change',e=>{const id=e.target.dataset&&e.target.dataset.lobby;if(id){UI.lobby[id]=e.target.checked;render()}});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,arg=b.dataset.arg;
+  switch(a){
+    case'new':UI.showLog=false;UI.table=false;UI.lobby={};newGame();window.scrollTo(0,0);break;
+    case'continue':if(load())render();break;
+    case'toManifest':S.screen='manifest';S.step=0;save();render();window.scrollTo(0,0);break;
+    case'pick':S.pick[SLOTS[S.step].key]=arg;S.step++;if(S.step>=3)applyManifest();else{save();render()}window.scrollTo(0,0);break;
+    case'echoNext':S.screen=S.wait?'wait':'places';save();render();window.scrollTo(0,0);break;
+    case'place':S.scene={id:PLACES[arg].who(),step:0,listened:false};S.screen='scene';save();render();window.scrollTo(0,0);break;
+    case'listen':S.scene.listened=true;S.ch[S.scene.id].deepKnown=true;S.scene.step=1;save();render();break;
+    case'point':S.scene.step=1;save();render();break;
+    case'card':applyCard(+arg);break;
+    case'reviewNext':runBlock();break;
+    case'blockNext':afterBlock();break;
+    case'table':UI.table=!UI.table;render();break;
+    case'showLog':UI.showLog=!UI.showLog;render();break;
+    case'alvLobby':S.alv.step='lobby';UI.lobby={};save();render();window.scrollTo(0,0);break;
+    case'lobbyDone':applyLobby(Object.keys(UI.lobby).filter(k=>UI.lobby[k]));break;
+    case'defend':applyDefense(arg);break;
+    case'toEnd':S.alv.step='end';save();render();window.scrollTo(0,0);break;
+  }
+});
+function boot(data){if(data&&data.S)S=data.S;render()}
+window.claude?.hot?.snapshot?.(()=>({S}));
+window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});
+</script>
+
+</body>
+</html>

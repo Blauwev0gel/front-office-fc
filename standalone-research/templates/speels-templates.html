@@ -1,0 +1,298 @@
+<title>Chairman Screen Templates</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=Source+Serif+4:ital,opsz,wght@1,8..60,400&display=swap">
+<style>
+/* Layout: a row of phone-sized screens on a light table; one deliberate light "programme" look, the club's colours as identity. */
+:root{
+  --paper:#f3f1eb; --card:#ffffff; --ink:#16161a; --muted:#5b5a62; --line:#d8d3c6; --rule:#16161a;
+  --club:#e2702f; --club2:#16161a; --onclub:#16161a;
+  --good:#1f7a3f; --goodbg:#e3f3e7; --bad:#b3261e; --badbg:#fbe5e2; --warn:#8a5a00; --warnbg:#fdf0cf; --info:#2f4c7a; --infobg:#e6ecf6;
+  --src-players:#2f4c7a; --src-staff:#6b4fa0; --src-region:#8a5a00; --src-town:#1f7a3f;
+  --f-display:"Anton","Arial Narrow",Impact,sans-serif; --f-body:"Barlow",system-ui,sans-serif; --f-label:"Barlow Condensed","Arial Narrow",sans-serif; --f-voice:"Source Serif 4",Georgia,serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#e9e6dd;color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.page{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.intro h1{font-family:var(--f-display);font-weight:400;font-size:40px;line-height:1;margin:0;text-transform:uppercase}
+.intro p{margin:6px 0 0;max-width:62ch;color:var(--muted)}
+.controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.seg{display:flex;border:2px solid var(--rule);border-radius:999px;overflow:hidden;background:var(--card)}
+.seg span{font-family:var(--f-label);font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;padding:0 12px;display:flex;align-items:center;color:var(--muted)}
+.seg button{min-height:44px;padding:0 14px;border:0;border-left:1.5px solid var(--rule);background:transparent;font:600 15px var(--f-body);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.seg button:focus-visible,.rb:focus-visible,.trade:focus-visible{outline:3px solid var(--club);outline-offset:2px}
+.screens{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(390px,100%),1fr));gap:24px;align-items:start}
+.phone{background:var(--paper);border:2px solid var(--rule);border-radius:28px;overflow:hidden;box-shadow:0 8px 0 rgba(0,0,0,.08);display:flex;flex-direction:column;min-width:0}
+.cap{font-family:var(--f-label);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:14px;color:var(--muted);text-align:center;padding:6px 0 0}
+/* club header */
+.hd{background:var(--club);color:var(--onclub);display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:5px solid var(--club2)}
+.hd b{font-family:var(--f-display);font-weight:400;font-size:22px;line-height:1;text-transform:uppercase;display:block}
+.hd small{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.hd .money{margin-left:auto;display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.85);border:1.5px solid var(--rule);border-radius:999px;padding:2px 10px;font-weight:700;font-size:15px}
+.body{padding:12px;display:flex;flex-direction:column;gap:10px;flex:1}
+.sec{font-family:var(--f-label);font-weight:700;font-size:14px;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.sec svg{width:18px;height:18px}
+/* icons */
+.ic{width:18px;height:18px;flex:none;display:inline-block;vertical-align:-3px}
+.ic use{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.filled .ic use{fill:currentColor;stroke:currentColor;stroke-width:1.2}
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:4px;font-weight:700;font-size:14px;padding:3px 9px;border-radius:999px;border:1.5px solid currentColor;line-height:1.2;white-space:nowrap}
+.chip.g{color:var(--good);background:var(--goodbg)} .chip.r{color:var(--bad);background:var(--badbg)} .chip.w{color:var(--warn);background:var(--warnbg)} .chip.i{color:var(--info);background:var(--infobg)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+/* feed */
+.fc{display:flex;gap:10px;background:var(--card);border:1.5px solid var(--rule);border-radius:14px;padding:10px;position:relative}
+.fc .src{position:absolute;left:-1.5px;top:12px;bottom:12px;width:5px;border-radius:0 4px 4px 0}
+.fc h3{font-family:var(--f-display);font-weight:400;font-size:21px;line-height:1.02;margin:0;text-transform:uppercase}
+.fc p{margin:2px 0 0;font-size:15px;color:#333}
+.fc .meta{display:flex;align-items:center;gap:6px;font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.fc .acts{display:flex;gap:6px;margin-top:8px}
+.rb{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border:1.5px solid var(--rule);border-radius:999px;background:var(--paper);font:600 14px var(--f-body);cursor:pointer;transition:transform .08s}
+.rb:active{transform:scale(.95)}
+.hero{border:2px solid var(--rule);border-radius:16px;overflow:hidden;background:var(--card)}
+.hero .top{background:var(--club);padding:10px 12px;display:flex;gap:12px;align-items:center;position:relative}
+.hero h3{font-family:var(--f-display);font-weight:400;font-size:28px;line-height:.98;margin:0;text-transform:uppercase;color:var(--onclub)}
+.hero .bot{padding:10px 12px}
+.sticker{position:absolute;right:10px;top:-8px;background:#ffd84a;border:2px solid var(--rule);border-radius:8px;padding:2px 8px;font-family:var(--f-display);font-size:15px;transform:rotate(6deg);box-shadow:2px 2px 0 var(--rule)}
+.calm .sticker{transform:none;box-shadow:none;background:var(--card)}
+.bubble{display:flex;gap:8px;align-items:flex-end;margin-top:8px;animation:pop .3s cubic-bezier(.3,1.6,.6,1) both}
+.bubble .bb{background:var(--infobg);border:1.5px solid var(--rule);border-radius:14px 14px 14px 4px;padding:6px 10px;font-family:var(--f-voice);font-style:italic;font-size:16px}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.fix{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--rule);border-radius:14px;padding:10px;text-align:center}
+.fix b{font-family:var(--f-display);font-weight:400;font-size:17px;line-height:1;text-transform:uppercase}
+.fix .vs{font-family:var(--f-display);font-size:22px}
+.cta{margin-top:auto;position:sticky;bottom:0;background:linear-gradient(transparent,var(--paper) 30%);padding:10px 12px 0}
+.btn{width:100%;min-height:52px;border:2px solid var(--rule);border-radius:14px;background:var(--club);color:var(--onclub);font-family:var(--f-display);font-size:22px;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 4px 0 var(--rule);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--rule)}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);border-top:2.5px solid var(--rule);background:var(--card);margin-top:10px}
+.tabs div{min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);position:relative}
+.tabs div.on{color:var(--ink)} .tabs div.on::before{content:"";position:absolute;top:0;left:22%;right:22%;height:5px;background:var(--club);border-radius:0 0 4px 4px}
+.tabs .ic{width:22px;height:22px}
+.tabs .badge{position:absolute;top:6px;right:24%;background:var(--bad);color:#fff;border-radius:999px;font-size:12px;min-width:20px;height:20px;display:grid;place-items:center;font-family:var(--f-body)}
+/* situation */
+.sit-h{font-family:var(--f-display);font-weight:400;font-size:28px;line-height:1;margin:0;text-transform:uppercase}
+.talk{display:flex;flex-direction:column;gap:8px}
+.say{display:flex;gap:8px;align-items:flex-start}
+.say .bb{background:var(--card);border:1.5px solid var(--rule);border-radius:4px 14px 14px 14px;padding:6px 10px;min-width:0}
+.say .bb b{display:block;font-family:var(--f-label);font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.say .bb i{font-family:var(--f-voice);font-size:16px}
+.trade{background:var(--card);border:2px solid var(--rule);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .08s;text-align:left;width:100%;padding:0;font:inherit;color:inherit}
+.trade:active{transform:scale(.98)}
+.trade .tt{display:flex;align-items:center;gap:8px;padding:9px 10px;border-bottom:1.5px solid var(--line)}
+.trade .tt b{font-weight:700;font-size:17px;line-height:1.15;flex:1}
+.tone{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:2px 8px;border:1.5px solid currentColor;white-space:nowrap}
+.tone.safe{color:var(--good);background:var(--goodbg)} .tone.bold{color:var(--warn);background:var(--warnbg)} .tone.breaks{color:var(--bad);background:var(--badbg)}
+.trade .cols{display:grid;grid-template-columns:1fr 1fr}
+.trade .col{padding:8px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.trade .col i{font-style:normal;font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.trade .give{background:var(--badbg);color:var(--bad)} .trade .get{background:var(--goodbg);color:var(--good)}
+.trade .col span{color:var(--ink);font-weight:600;font-size:15px;display:flex;gap:6px;align-items:center}
+.trade .risk{padding:8px 10px;border-top:1.5px solid var(--line)}
+.nodeal{border:2px dashed var(--muted);border-radius:16px;padding:10px;color:var(--muted);display:flex;gap:8px;align-items:center;font-weight:600}
+/* result */
+.board{background:#141414;border-radius:14px;border:2px solid var(--rule);padding:10px 14px;color:#f5c542;display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;position:relative}
+.board .t{color:#f3f1eb;font-family:var(--f-display);font-size:20px;text-transform:uppercase}
+.board .s{font-family:var(--f-display);font-size:42px;line-height:1}
+.board .ft{grid-column:1/-1;font-family:var(--f-label);font-weight:700;letter-spacing:.2em;font-size:13px}
+.board .win{position:absolute;right:-6px;top:-10px;background:#ffd84a;color:var(--ink);border:2px solid var(--rule);border-radius:8px;font-family:var(--f-display);font-size:16px;padding:0 8px;transform:rotate(8deg)}
+.calm .board .win{display:none}
+.tl{display:flex;flex-direction:column;gap:0;background:var(--card);border:1.5px solid var(--rule);border-radius:14px;padding:6px 10px}
+.tl div{display:grid;grid-template-columns:42px 22px 1fr;align-items:center;gap:6px;min-height:36px;border-bottom:1px dashed var(--line);font-size:15px}
+.tl div:last-child{border-bottom:0}
+.tl .min{font-family:var(--f-display);font-size:18px;text-align:right}
+.yours{background:#fff6d6;border:2px solid var(--rule);border-radius:14px;padding:8px 10px;display:flex;gap:8px;align-items:center;transform:rotate(-1deg);box-shadow:3px 3px 0 var(--rule)}
+.calm .yours{transform:none;box-shadow:none}
+.sum{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--card);border:1.5px solid var(--rule);border-radius:14px;padding:8px 10px}
+.eff{display:flex;gap:10px;align-items:center;background:var(--card);border:1.5px solid var(--rule);border-radius:14px;padding:8px 10px}
+.eff .who{flex:1;min-width:0}
+.eff .who b{display:block;font-size:15px}
+.eff .who small{color:var(--muted);font-size:14px}
+.link{display:flex;gap:6px;align-items:center;font-size:14px;color:var(--muted);padding-left:52px;margin-top:-4px}
+/* squad and player card */
+.row{display:flex;gap:10px;align-items:center;background:var(--card);border:1.5px solid var(--rule);border-radius:12px;padding:6px 10px;min-height:52px}
+.pos{font-family:var(--f-label);font-weight:700;font-size:13px;border-radius:6px;padding:1px 6px;color:#fff;min-width:34px;text-align:center}
+.pos.df{background:#2f4c7a} .pos.mf{background:#1f7a3f} .pos.fw{background:#b3261e} .pos.gk{background:#8a5a00}
+.stars{color:#c48a00;letter-spacing:-1px;font-size:15px}
+.row .nm{flex:1;min-width:0;font-weight:600;font-size:15px}
+.row .ics{display:flex;gap:6px;color:var(--muted)}
+.card{border:2.5px solid var(--rule);border-radius:18px;overflow:hidden;background:var(--card);box-shadow:4px 4px 0 var(--rule)}
+.calm .card{box-shadow:none}
+.card .ctop{background:var(--club);display:flex;align-items:flex-end;gap:10px;padding:10px 12px 0;position:relative;min-height:110px}
+.card .num{position:absolute;right:12px;top:6px;font-family:var(--f-display);font-size:46px;line-height:1;color:var(--onclub);opacity:.9}
+.card .cbot{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.card h3{font-family:var(--f-display);font-weight:400;font-size:26px;line-height:1;margin:0;text-transform:uppercase}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.facts div{background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:6px;text-align:center;font-size:13px;color:var(--muted);font-family:var(--f-label);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.facts b{display:block;font-family:var(--f-display);font-weight:400;font-size:20px;color:var(--ink);letter-spacing:0}
+.spark{display:flex;gap:3px;align-items:flex-end;height:26px}
+.spark i{width:9px;border-radius:2px;background:#bbb}
+.spark i.h{background:var(--good)} .spark i.l{background:var(--bad)}
+/* members */
+.mood{display:flex;gap:10px;align-items:center;background:var(--card);border:1.5px solid var(--rule);border-radius:12px;padding:8px 10px}
+.mood .lbl{flex:1;min-width:0}
+.mood .lbl b{display:block;font-size:15px}
+.mood .lbl small{color:var(--muted);font-size:14px}
+.meter{display:flex;gap:3px}
+.meter i{width:16px;height:12px;border-radius:3px;background:#e2ded2;border:1px solid #c9c4b6}
+.faces .meter{display:none} .meters .face5{display:none}
+.face5{display:flex;align-items:center;gap:4px}
+.money-big{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1.5px solid var(--rule);border-radius:14px;padding:10px 12px}
+.money-big b{font-family:var(--f-display);font-weight:400;font-size:34px;line-height:1}
+.prom{display:flex;gap:8px;align-items:center;background:var(--card);border:1.5px solid var(--rule);border-radius:12px;padding:8px 10px;font-weight:600;font-size:15px}
+.prom .st{margin-left:auto}
+@media (prefers-reduced-motion:reduce){.bubble{animation:none}.rb,.trade,.btn{transition:none}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <symbol id="i-money" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.5c-.5-1-1.5-1.5-2.5-1.5-1.4 0-2.5.8-2.5 2s1.1 1.6 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1 0-2-.5-2.5-1.5M12 6.5v11"/></symbol>
+ <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9.5A4 4 0 0 1 12 8a4 4 0 0 1 7 2.5C19 15.6 12 20 12 20z"/></symbol>
+ <symbol id="i-morale" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M9 14c1.5 1.5 4.5 1.5 6 0M9.5 10h.01M14.5 10h.01"/></symbol>
+ <symbol id="i-fans" viewBox="0 0 24 24"><circle cx="8" cy="9" r="2.5"/><circle cx="16" cy="9" r="2.5"/><path d="M3.5 19c0-3 2-4.5 4.5-4.5s4.5 1.5 4.5 4.5M11.5 19c0-3 2-4.5 4.5-4.5s4.5 1.5 4.5 4.5"/></symbol>
+ <symbol id="i-name" viewBox="0 0 24 24"><path d="M4 5h16v10H9l-5 4z"/><path d="M8 9h8M8 12h5"/></symbol>
+ <symbol id="i-paper" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="1"/><path d="M7 9h10M7 12h10M7 15h6"/></symbol>
+ <symbol id="i-note" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="1"/><path d="M3 7l9 6 9-6"/></symbol>
+ <symbol id="i-power" viewBox="0 0 24 24"><path d="M5 18h14M7 18l1-8 4 3 4-3 1 8M12 6v.01"/><circle cx="12" cy="5" r="1.5"/></symbol>
+ <symbol id="i-time" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></symbol>
+ <symbol id="i-risk" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></symbol>
+ <symbol id="i-broken" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9.5A4 4 0 0 1 12 8a4 4 0 0 1 7 2.5C19 15.6 12 20 12 20z"/><path d="M12 8l-1.5 4 3 2-1.5 4"/></symbol>
+ <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></symbol>
+ <symbol id="i-injury" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="6" rx="3" transform="rotate(-35 12 12)"/><path d="M11 11h.01M13 13h.01"/></symbol>
+ <symbol id="i-contract" viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><path d="M9 10h6M9 13h6M9 17c1-1 2-1 3 0s2 1 3 0"/></symbol>
+ <symbol id="i-goal" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8l3 2.2-1.2 3.6h-3.6L9 10.2zM12 4v4M20 10l-5 .2M17 19l-3.2-5.2M7 19l3.2-5.2M4 10l5 .2"/></symbol>
+ <symbol id="i-glove" viewBox="0 0 24 24"><path d="M7 20v-6l-2-3V7a1.5 1.5 0 0 1 3 0v3V5a1.5 1.5 0 0 1 3 0v5V4a1.5 1.5 0 0 1 3 0v6V6a1.5 1.5 0 0 1 3 0v8l-2 6z"/></symbol>
+ <symbol id="i-cross" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></symbol>
+ <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 4l2.4 5 5.6.6-4.2 3.8 1.2 5.6L12 16.2 7 19l1.2-5.6L4 9.6 9.6 9z"/></symbol>
+ <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8M9 17h6"/></symbol>
+ <symbol id="i-fire" viewBox="0 0 24 24"><path d="M12 21c-4 0-6-2.5-6-5.5 0-3 2-4.5 3-7 1 2 2 2.5 3 2.5 0-3 1-5 3-7 0 4 3 6 3 10 0 4-2 7-6 7z"/></symbol>
+ <symbol id="i-boot" viewBox="0 0 24 24"><path d="M4 16V6h6v5l6 2c2.5.8 4 2 4 3v2H4z"/></symbol>
+ <symbol id="i-staff" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="1"/><path d="M9 4h6v3H9zM8 11h8M8 14h8M8 17h5"/></symbol>
+ <symbol id="i-scarf" viewBox="0 0 24 24"><path d="M5 4h4v16H5zM15 4h4v16h-4zM9 8h6M9 12h6"/></symbol>
+ <symbol id="i-shield" viewBox="0 0 24 24"><path d="M5 4h14v7c0 5-3.5 8-7 9-3.5-1-7-4-7-9z"/></symbol>
+ <symbol id="i-post" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="1"/><path d="M3 7l9 6 9-6"/></symbol>
+ <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3l-4 3 2 4 2-1v12h8V9l2 1 2-4-4-3c-1 2-3 2-4 2s-3 0-4-2z"/></symbol>
+ <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.6 0l3-3a4 4 0 0 0-5.6-5.6l-1 1M14 10a4 4 0 0 0-5.6 0l-3 3a4 4 0 0 0 5.6 5.6l1-1"/></symbol>
+ <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+ <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+ <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></symbol>
+ <symbol id="i-stadium" viewBox="0 0 24 24"><path d="M3 10c3-3 15-3 18 0v7c-3 3-15 3-18 0zM3 10c3 3 15 3 18 0"/></symbol>
+</svg>
+
+<div class="page" id="root">
+  <header class="intro">
+    <h1>Screen templates</h1>
+    <p>Five screens of De Voorzitter in a playful, clear style: icons, colour with meaning, and short text. Sample club: Ravensby Wanderers. Use the switches to compare the open choices.</p>
+  </header>
+  <div class="controls" role="group" aria-label="Variants">
+    <div class="seg" data-k="ic"><span>Icons</span><button id="v-line" aria-pressed="true" data-v="line">Line</button><button id="v-filled" aria-pressed="false" data-v="filled">Filled</button></div>
+    <div class="seg" data-k="mood"><span>Moods</span><button id="v-faces" aria-pressed="true" data-v="faces">Faces</button><button id="v-meters" aria-pressed="false" data-v="meters">Meters</button></div>
+    <div class="seg" data-k="fun"><span>Playful</span><button id="v-sticker" aria-pressed="true" data-v="sticker">Sticker album</button><button id="v-calm" aria-pressed="false" data-v="calm">Calm</button></div>
+  </div>
+  <div class="screens" id="screens"></div>
+</div>
+
+<script>
+(function(){
+const I=(n,cls)=>`<svg class="ic${cls?' '+cls:''}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+function hash(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+const SKIN=['#f2d0b5','#e7b896','#c98f65','#a86b45','#7c4a2d'],HAIR=['#1b1b1b','#3b2a1e','#6a4a2c','#a8743f','#d9b36c','#9a9a9a'];
+function face(name,size=40,age=26){const h=hash(name),sk=SKIN[h%5],hr=age>45?HAIR[5]:HAIR[(h>>3)%5],smile=(h>>6)%3;
+  return`<svg width="${size}" height="${size}" viewBox="0 0 100 100" role="img" aria-label="${name}" style="flex:none"><circle cx="50" cy="50" r="49" fill="#ece7da" stroke="#16161a" stroke-width="2"/><path d="M18 100c2-18 14-26 32-26s30 8 32 26z" fill="var(--club)" stroke="#16161a" stroke-width="2"/><rect x="43" y="62" width="14" height="14" fill="${sk}" stroke="#16161a" stroke-width="2"/><ellipse cx="50" cy="46" rx="21" ry="24" fill="${sk}" stroke="#16161a" stroke-width="2.4"/><path d="M29 40c1-14 10-20 21-20s20 6 21 20c-5-5-12-7-21-7s-16 2-21 7z" fill="${hr}" stroke="#16161a" stroke-width="1.6"/><circle cx="42" cy="47" r="2.4" fill="#16161a"/><circle cx="58" cy="47" r="2.4" fill="#16161a"/>${smile?'<path d="M41 59c5 5 13 5 18 0" fill="none" stroke="#16161a" stroke-width="2.4" stroke-linecap="round"/>':'<path d="M43 61h14" stroke="#16161a" stroke-width="2.4" stroke-linecap="round"/>'}</svg>`}
+function crest(size,p='#e2702f',s='#16161a'){return`<svg width="${size}" height="${size}" viewBox="0 0 100 100" role="img" aria-label="Ravensby Wanderers crest" style="flex:none"><path d="M10 8h80v38c0 26-18 40-40 48C28 86 10 72 10 46z" fill="${p}" stroke="#16161a" stroke-width="4"/><path d="M10 8h80v24H10z" fill="${s}"/><path d="M42 40h16l4 10H38zM38 50h24l-4 26H42z" fill="${s}"/></svg>`}
+function crestB(size){return crest(size,'#2f4c7a','#f2c94c')}
+const moodFace=v=>{const m=['M8 15c1.5-2 6.5-2 8 0','M9 15h6','M8 14c1.5 1.5 6.5 1.5 8 0'][v<2?0:v<3?1:2];const col=v<2?'var(--bad)':v<3?'var(--warn)':'var(--good)';return`<svg class="ic" style="width:28px;height:28px;color:${col}" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="currentColor" opacity=".18" stroke="currentColor" stroke-width="2"/><path d="${m}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 10h.01M15 10h.01" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>`};
+const meter=v=>`<span class="meter" aria-hidden="true">${[0,1,2,3,4].map(i=>`<i style="${i<=v?`background:${v<2?'var(--bad)':v<3?'#d99a1e':'var(--good)'};border-color:#16161a`:''}"></i>`).join('')}</span>`;
+const moodRow=(label,share,word,v,dir,why)=>`<div class="mood"><span class="face5">${moodFace(v)}</span>${meter(v)}<span class="lbl"><b>${label} <span style="color:var(--muted);font-weight:500">${share}</span></b><small>${word} ${dir==='up'?`<span style="color:var(--good)">${I('up')}</span>`:dir==='down'?`<span style="color:var(--bad)">${I('down')}</span>`:''} · ${why}</small></span></div>`;
+const header=(sub)=>`<div class="hd">${crest(36)}<div><b>Ravensby Wanderers</b><small>${sub}</small></div><span class="money">${I('money')} £81k</span></div>`;
+const tabs=(on,post)=>`<nav class="tabs" aria-label="Club">${[['club','shield','Club'],['post','post','In the post'],['room','shirt','Dressing room'],['members','fans','Members']].map(([k,ic,n])=>`<div class="${on===k?'on':''}">${I(ic)}${n}${k==='post'&&post?`<span class="badge">${post}</span>`:''}</div>`).join('')}</nav>`;
+
+const S1=`<div class="phone">${header('Week 5 · 4th in the One')}
+<div class="body">
+ <div class="sec">${I('paper')} Club news · Week 5</div>
+ <article class="hero"><div class="top">${face('Zach Waddington',56,19)}<h3>Waddington's first goal</h3><span class="sticker">FIRST GOAL ★</span></div>
+  <div class="bot"><p style="margin:0">He ran straight to the corner where his friends stand.</p>
+  <div class="bubble">${face('Zach Waddington',32,19)}<span class="bb">"Thanks, chairman. That means a lot."</span></div></div></article>
+ <article class="fc"><span class="src" style="background:var(--src-players)"></span>${face('Tyler Kowalczyk',40,17)}<div><div class="meta" style="color:var(--src-players)">${I('shirt')} Your players</div><h3>Kowalczyk trains with the first team</h3><p>He's 17. His dad watched from the fence.</p><div class="acts"><button class="rb">${I('note')} Note</button><button class="rb">${I('paper')} Echo</button></div></div></article>
+ <article class="fc"><span class="src" style="background:var(--src-staff)"></span><span style="color:var(--src-staff)">${I('staff')}</span><div><div class="meta" style="color:var(--src-staff)">${I('staff')} Your staff</div><h3>Usher on the money</h3><p>A tighter week: we lost £3k. Wages keep coming.</p></div></article>
+ <article class="fc"><span class="src" style="background:var(--src-region)"></span>${crestB(36)}<div><div class="meta" style="color:var(--src-region)">${I('shield')} The region</div><h3>Saltmere sack their coach</h3><p>Helen Banerjee is out of work.</p></div></article>
+ <div class="fix">${crest(44)}<span class="vs">V</span>${crestB(44)}<b>Ravensby</b><span class="chip w" style="justify-self:center">${I('fire')} Derby</span><b>Saltmere</b></div>
+ <div class="cta"><button class="btn">${I('play')} Play Saturday</button></div>
+</div>${tabs('club',2)}</div>`;
+
+const S2=`<div class="phone">${header('In the post')}
+<div class="body">
+ <h2 class="sit-h">The coach and the director are at war</h2>
+ <div class="talk">
+  <div class="say">${face('Moira Rowntree',36,44)}<span class="bb"><b>Rowntree · Coach</b><i>"We need a striker. Marsh won't move."</i></span></div>
+  <div class="say">${face('Alan Marsh',36,58)}<span class="bb"><b>Marsh · Director</b><i>"I don't buy players to fix a bad month."</i></span></div>
+ </div>
+ <div class="sec">${I('contract')} On the table</div>
+ <button class="trade"><div class="tt">${face('Moira Rowntree',30,44)}<b>Back the coach: sign a striker</b><span class="tone bold">Bold</span></div>
+  <div class="cols"><div class="col give"><i>You give</i><span>${I('money')} £25k</span><span>${I('power')} Marsh's say</span></div><div class="col get"><i>You get</i><span>${I('goal')} A sharper attack</span><span>${I('heart')} Rowntree +</span></div></div>
+  <div class="risk chips"><span class="chip r">${I('heart')} Marsh −</span><span class="chip w">${I('time')} Until May</span></div></button>
+ <button class="trade"><div class="tt">${face('Alan Marsh',30,58)}<b>Back the director</b><span class="tone safe">Safe</span></div>
+  <div class="cols"><div class="col give"><i>You give</i><span>${I('heart')} Rowntree's trust</span></div><div class="col get"><i>You get</i><span>${I('money')} Money stays</span><span>${I('heart')} Marsh +</span></div></div></button>
+ <button class="trade"><div class="tt">${I('star')}<b>Change the profile to youth</b><span class="tone breaks">Breaks a promise</span></div>
+  <div class="cols"><div class="col give"><i>You give</i><span>${I('name')} Your word: "proven pros"</span></div><div class="col get"><i>You get</i><span>${I('boot')} Kids get minutes</span></div></div>
+  <div class="risk chips"><span class="chip r">${I('broken')} Members remember</span><span class="chip w">${I('risk')} Points</span></div></button>
+ <div class="nodeal">${I('cross')} No deal: they fight it out in the paper.</div>
+</div>${tabs('post',1)}</div>`;
+
+const S3=`<div class="phone">${header('Week 5 · Full time')}
+<div class="body">
+ <div class="board"><span class="ft">FULL TIME · DERBY</span><span class="t">Ravensby</span><span class="s">2</span><span class="t">Saltmere</span><span class="s">1</span><span class="win">WIN!</span></div>
+ <div class="tl" aria-label="Match moments">
+  <div><span class="min">23'</span><span style="color:var(--good)">${I('goal')}</span><span><b>Waddington</b>, his first goal</span></div>
+  <div><span class="min">51'</span><span style="color:var(--bad)">${I('goal')}</span><span>Saltmere level through Doyle</span></div>
+  <div><span class="min">78'</span><span style="color:var(--info)">${I('glove')}</span><span><b>Holt</b> saves a penalty</span></div>
+  <div><span class="min">88'</span><span style="color:var(--good)">${I('goal')}</span><span><b>Kershaw</b> wins it</span></div>
+ </div>
+ <div class="yours">${I('star')}<span><b>Your hand in it:</b> Kershaw, who got your note last week, scored the winner.</span></div>
+ <div class="sec">${I('morale')} What changed</div>
+ <div class="sum"><span class="chip g">${I('up')} 3 happier</span><span class="chip r">${I('down')} 1 upset</span><span class="chip g">${I('fans')} Fans ↑</span><span class="chip r">${I('money')} −£3k</span></div>
+ <div class="eff">${face('Tyler Kowalczyk',40,17)}<span class="who"><b>Kowalczyk</b><small>Your note after training</small></span><span class="chip g">${I('morale')} +6</span></div>
+ <div class="eff">${face('Kofi Thackeray',40,24)}<span class="who"><b>Thackeray</b><small>You wrote to Kowalczyk, not him</small></span><span class="chip r">${I('morale')} −3</span></div>
+ <div class="eff">${face('Moira Rowntree',40,44)}<span class="who"><b>Rowntree</b><small>You backed her in public</small></span><span class="chip g">${I('heart')} +2</span></div>
+ <div class="link">${I('link')} Marsh, her mentor, is pleased</div>
+ <div class="eff"><span style="color:var(--src-town)">${I('fans','')}</span><span class="who"><b>Ultras</b><small>Derby win, and your words in the Echo</small></span><span class="chip g">${I('up')} Happier</span></div>
+ <div class="cta"><button class="btn">Next week ${I('play')}</button></div>
+</div></div>`;
+
+const S4=`<div class="phone">${header('Dressing room')}
+<div class="body">
+ <article class="card"><div class="ctop">${face('Zach Waddington',96,19)}<span class="num">9</span><div style="padding-bottom:10px"><span class="pos fw">ST</span></div></div>
+  <div class="cbot"><h3>Zach Waddington</h3><span class="stars" aria-label="3 of 5 stars">★★★☆☆ <span style="color:var(--muted);font-size:14px">rising</span></span>
+   <p style="margin:0;font-size:15px">Grew up two streets from the ground. Wants to play every week.</p>
+   <div class="facts"><div><b>19</b>Age</div><div><b>4</b>Goals</div><div><b>2y</b>Contract</div></div>
+   <div style="display:flex;justify-content:space-between;align-items:center"><span class="sec" style="font-size:13px">${I('morale')} Form</span><span class="spark" aria-label="recent form"><i style="height:10px"></i><i style="height:14px"></i><i class="h" style="height:20px"></i><i class="h" style="height:24px"></i><i class="h" style="height:22px"></i><i class="h" style="height:26px"></i></span></div>
+   <div class="chips"><span class="chip g">${I('star')} First goal</span><span class="chip i">${I('note')} Your note</span><span class="chip w">${I('heart')} Local lad</span></div></div></article>
+ <div class="sec">${I('shirt')} Squad · 26 players</div>
+ <div class="row"><span class="pos gk">GK</span>${face('Rhys Holt',32,29)}<span class="nm">Rhys Holt</span><span class="stars">★★★★☆</span></div>
+ <div class="row"><span class="pos df">FB</span>${face('Femi Whitlock',32,28)}<span class="nm">Femi Whitlock</span><span class="ics"><span style="color:var(--bad)">${I('injury')}</span></span><span class="stars">★★★☆☆</span></div>
+ <div class="row"><span class="pos mf">CM</span>${face('Kofi Thackeray',32,24)}<span class="nm">Kofi Thackeray</span><span class="ics"><span style="color:var(--warn)">${I('contract')}</span></span><span class="stars">★★★☆☆</span></div>
+ <div class="row"><span class="pos fw">ST</span>${face('Dean Kershaw',32,31)}<span class="nm">Dean Kershaw</span><span class="ics"><span style="color:var(--good)">${I('fire')}</span></span><span class="stars">★★★★☆</span></div>
+</div>${tabs('room',0)}</div>`;
+
+const S5=`<div class="phone">${header("Members' corner")}
+<div class="body">
+ <div class="money-big"><span><span class="sec" style="font-size:13px">${I('money')} In the bank</span><b>£81k</b></span><span class="chips" style="flex-direction:column;align-items:flex-end"><span class="chip r">${I('down')} −£3k this week</span><span class="chip i">${I('contract')} Wages £14k/wk</span></span></div>
+ <div class="sec">${I('fans')} The members</div>
+ ${moodRow('The Pit','36%','Content',3,'up','the derby win')}
+ ${moodRow('Ultras','29%','Thrilled',4,'up','your words in the Echo')}
+ ${moodRow('Old Guard','21%','Wary',2,'down','the loan striker')}
+ ${moodRow('Volunteers','15%','Angry',1,'','nobody asked them')}
+ <div class="sec">${I('check')} Chairman's notes</div>
+ <div class="prom"><span style="color:var(--good)">${I('check')}</span>A top-half finish<span class="st chip g">On track</span></div>
+ <div class="prom"><span style="color:var(--warn)">${I('time')}</span>Kowalczyk starts ten games<span class="st chip w">Behind</span></div>
+ <div class="prom"><span style="color:var(--bad)">${I('broken')}</span>Cheaper tickets<span class="st chip r">Broken</span></div>
+</div>${tabs('members',0)}</div>`;
+
+const caps=['Club · home and Club news','In the post · a situation','Saturday · full time','Dressing room · player card','Members · moods, money, promises'];
+document.getElementById('screens').innerHTML=[S1,S2,S3,S4,S5].map((s,i)=>`<section aria-label="${caps[i]}"><p class="cap">${caps[i]}</p>${s}</section>`).join('');
+const root=document.getElementById('root');const state={ic:'line',mood:'faces',fun:'sticker'};
+function apply(){root.classList.toggle('filled',state.ic==='filled');root.classList.toggle('faces',state.mood==='faces');root.classList.toggle('meters',state.mood==='meters');root.classList.toggle('calm',state.fun==='calm');
+  document.querySelectorAll('.seg').forEach(g=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(state[g.dataset.k]===b.dataset.v))))}
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{state[b.parentElement.dataset.k]=b.dataset.v;try{localStorage.setItem('tpl-variants',JSON.stringify(state))}catch(e){}apply()}));
+try{const s=JSON.parse(localStorage.getItem('tpl-variants')||'null');if(s)Object.assign(state,s)}catch(e){}
+apply();
+})();
+</script>

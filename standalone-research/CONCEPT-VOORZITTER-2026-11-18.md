@@ -267,6 +267,7 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - stevige en snelle knoppen: elke tik reageert binnen 100 ms, keuzes worden bevestigd met een stempel, overgangen duren ±200 ms;
     - ruime tekst: minimaal 16 px, labels nooit onder 13 px, ±45 tekens per regel;
     - automatisch getest per scherm.
+64. **De speelse schermtemplates zijn goedgekeurd als doelbeeld** (`templates/speels-templates.html`, 19-11-2026): iconen, semantische kleuren, ruilkaarten, effectchips, tijdlijn, verzamelkaart, compacte feed. Ze worden later geïmplementeerd via `PROMPT-SPEELS-VOORZITTER.md`; de keuze lijn/gevuld, gezichtjes/meters en sticker/rustig volgt bij de implementatie.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

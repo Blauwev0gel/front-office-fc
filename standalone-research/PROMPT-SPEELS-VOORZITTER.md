@@ -5,6 +5,8 @@
 
 ---
 
+> **Status (19-11-2026): geparkeerd, doelbeeld goedgekeurd.** De templates in `templates/speels-templates.html` zijn het eindbeeld. Implementeer deze prompt pas als de eigenaar dat vraagt; begin dan met de drie variantkeuzes (iconen, stemmingen, speelsheid) en de spacer- en "X → X"-bug.
+
 ## De vraag van de eigenaar
 > *"De dialoog en informatie zijn niet duidelijk genoeg. Ik wil kleur en duidelijkheid, iconen waar mogelijk. Ik wil iets dat leuk en speels voelt, niet als een dik boek. Geldt voor alle facetten."*
 

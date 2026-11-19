@@ -274,6 +274,15 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - karakter zichtbaar, vakmanschap verborgen;
     - Hit/Miss per aankoop en een zomerrapport;
     - ontslaan kan alleen in de zomer.
+66. **Aanvullingen op de TD, na onderzoek** (zie `ONDERZOEK-TD-VOORZITTER.md` en `TD-VOORZITTER.md` v0.2):
+    - de voorzitter spreekt nooit een wens uit voor een speler of profiel;
+    - in het zomerplan ordent de voorzitter de prioriteiten; de TD verdeelt het budget;
+    - bij de evaluatie mag de voorzitter een speler houden, en dat kost iets;
+    - je kiest je TD zelf uit drie kandidaten, met filosofie, plan voor drie jaar, eigenschappen en een gerucht;
+    - het verborgen vakmanschap heeft vier kanten: eye, deal, plan en bond;
+    - de ticker toont 4–6 regels per transferweek;
+    - de TD stelt drie trainers voor en de voorzitter kiest;
+    - bijzondere contractvormen komen later.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

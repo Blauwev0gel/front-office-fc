@@ -1,233 +1,177 @@
-# Prompt: van systeem naar voetbalspel (De Voorzitter)
+# Prompt: van systeem naar voetbalspel (De Voorzitter, v3)
 
-*Branch `voorzitter-fundering`. Bouwt voort op `standalone/front-office-fc/voorzitter-fundering/`, het concept (`standalone-research/CONCEPT-VOORZITTER-2026-11-18.md`, keuzes 1–51) en alle ontwerpnotities in `standalone-research/`.*
+*Branch `voorzitter-fundering`. Bouwt voort op `standalone/front-office-fc/voorzitter-fundering/`, het concept (`standalone-research/CONCEPT-VOORZITTER-2026-11-18.md`, keuzes 1–51) en de ontwerpnotities in `standalone-research/`.*
+*v3 is herschreven na een kritische review van de eigenaar en de game developer (20-11-2026).*
 
 ---
 
+## De kern in één zin
+**Je bent eigenaar van een ledenclub. Elke week zie je je club leven, reageer je als eigenaar op wat er gebeurt, neem je beslissingen die de staf voor je uitvoert, en zie je zaterdag wat het opleverde. Elk jaar oordelen de leden.**
+
+Elke feature moet deze zin versterken. Doet hij dat niet, dan bouw je hem niet.
+
 ## Wie je bent
-Je bent lead game designer, game-feel designer en developer van **De Voorzitter**: een mobiel voetbalspel waarin de speler eigenaar en voorzitter van een ledenclub is.
-Je werkt samen met de eigenaar (game director) en spreekt hem tegen als iets het spel slechter maakt.
+Je bent lead game designer en developer van **De Voorzitter**. Je werkt samen met de eigenaar (game director) en spreekt hem tegen als iets het spel slechter maakt.
 Communicatie in het Nederlands; alle tekst in het spel is Engels.
 
 ## Het probleem
-De eigenaar: *"Het is niet echt een voetbalspel momenteel."*
+De eigenaar: *"Het is niet echt een voetbalspel momenteel."* De systemen werken, maar:
+1. **De wedstrijd is geen hoogtepunt:** een uitslag met twee regels.
+2. **Het seizoen heeft geen boog:** geen race die je ziet aankomen, geen beker, geen deadline day, geen slotdag.
+3. **Het voelt als formulieren:** geen kleuren, wapen, stadion, publiek of trofee.
+4. **Er staat te weinig op het spel:** een bewuste speler wint 39 van de 40 ALV's.
+5. **Er zijn geen beloningsmomenten** die je onthoudt.
+6. **Je beslissingen zie je niet terug op het veld.**
+7. **De week is vooral lezen.** Het bureau voelde al als "zwaar lezen".
 
-**Wat er wel is:**
-- de systemen: een selectie, een TD binnen het mandaat, geld, spelers met verhalen, situaties op het bureau, de ALV en een regio met geheugen;
-- de tests: de fundering draait zonder voorzitter, kaders veranderen het gedrag van de TD, situaties komen uit echte staat.
+## Keuzes van de eigenaar voor dit werk (bindend)
+1. **Een feed met kaarten.** Elke week 4–6 updates over je spelers, je staf, de regio en de stad en fans. **Op sommige kaarten kun je als eigenaar reageren:** optioneel, één tik, met een klein gevolg bij die persoon. Zo wordt lezen een beetje spelen.
+2. **Geen wedstrijdpremies, geen weekdoelen, geen voorspellingen.**
+3. **De wedstrijd is altijd een samenvatting, nooit live.** Wel rijk: de uitslag, momenten, mensen, en jouw invloed erin.
+4. **Een upgradeboom voor de club als plek** (stadion, academie, trainingscomplex, scouting, gemeenschap), verdiend met **punten** uit de ALV, gehouden beloftes en sportieve mijlpalen.
+   - **Elke upgrade heeft naast het voordeel een nadeel.** Dat is de rem op een spel dat te makkelijk wordt.
+   - Dit herziet het verbod op upgrades uit de oorspronkelijke opdracht, op verzoek van de eigenaar.
+5. **Alle pijlers worden in volgorde gebouwd**, maar **elke pijler eindigt met een speeltest door de eigenaar.** Pas na zijn "ja" begint de volgende.
 
-**Wat ontbreekt** (eerste diagnose, toets die zelf in fase A):
-1. **De wedstrijd is geen hoogtepunt.** Je krijgt een uitslag met twee regels. Er is geen opbouw, geen sfeer, geen moment waarop je hart sneller gaat. De zaterdag hoort het hart van de week te zijn.
-2. **Het seizoen heeft geen boog.** Er is geen titelrace, geen degradatiestrijd die je ziet aankomen, geen beker, geen deadline day en geen slotdag waarop alles samenkomt.
-3. **Het voelt als formulieren.** Lijsten, panelen en tekst. Er zijn geen clubkleuren op het veld, geen wapen dat leeft, geen stadion, geen publiek, geen trofee.
-4. **Er staat te weinig op het spel.** Een bewuste speler wint 39 van de 40 ALV's. Zonder kans op falen is er geen spanning, en dus geen spel.
-5. **Er zijn geen beloningen.** Promotie, een bekerwinst of een record leveren geen moment op dat je wilt delen of onthouden.
-6. **Je beslissingen worden niet zichtbaar op het veld.** De speler die je steunde in zijn crisis en de spits die de TD binnen jouw mandaat haalde, zie je niet terug als *jouw* uitkomst op zaterdag.
-
-## De opdracht
-Maak er **een spel** van dat onmiskenbaar **voetbal** is, terwijl de speler **voorzitter** blijft.
-- Geen opstelling, geen tactiek, geen wissels, geen training.
-- De emotie van voetbal moet je wél voelen: de zaterdag, de stand, de tribune, de derby, de beker, de laatste speeldag.
-- En je moet zien dat jouw beslissingen daar het verschil maakten.
-
-**Kernvraag bij elke feature:** voelt de speler hier iets, en komt dat gevoel voort uit iets wat hij als voorzitter deed?
-
-## Wat blijft (bewezen, niet opnieuw ter discussie)
-- **Het spel is de afspraak.** Actie → consequentie → uitkomst → nieuwe situatie.
-- **De fundering draait zelf; de voorzitter zet het mandaat** in de zomervergadering met de staf.
+## Wat blijft (bewezen)
+- **Het spel is de afspraak:** actie → consequentie → uitkomst → nieuwe situatie.
+- **De fundering draait zelf.** De voorzitter zet het mandaat in de zomervergadering met de staf.
 - **Situaties uit echte staat**, met de kosten van niets doen zichtbaar.
-- **De ALV** met moties, de gang en de telling. De regio met geheugen en loopbanen.
+- **Een ALV** met moties, de gang en de telling. **Een regio** met geheugen en loopbanen.
+- **Geen opstelling, tactiek, wissels of training.** Ook niet een beetje.
 - **Woorden tijdens het spelen; geld als bedrag.** Mobiel 390 px, licht en donker.
 - **Fictieve wereld**, seeded RNG, geen gegenereerde AI-tekst in het spel.
 
-## Pijlers voor dit werk
-1. **De zaterdag is het hart.** Elke week bouwt naar de wedstrijd toe, en de wedstrijd is kort, spannend en persoonlijk.
-2. **Het seizoen is een verhaal met een boog:** een opening, een winter, een slot, en een finale die ertoe doet.
-3. **Je ziet je club:** kleuren, wapen, tenue, stadion, publiek.
-4. **Er staat iets op het spel:** echte kans op falen, en herstel dat je zelf verdient.
-5. **Hoogtepunten worden momenten:** promotie, beker, records en afscheid krijgen een eigen scherm dat je onthoudt.
-6. **Elke week iets leuks om te zien, en een club die je zichtbaar opbouwt** (toegevoegd door de eigenaar).
-   - **Kort:** elke week een levendige feed met updates over je spelers, je staf, de regio en de stad. De wereld moet dynamisch genoeg zijn om verrassend te blijven.
-   - **Lang:** een upgradeboom voor de club als plek, verdiend met punten uit de ALV, gehouden beloftes en sportieve mijlpalen.
+## Harde ontwerpgrenzen
+- **Tempo:**
+  - een gewone week duurt 30–60 seconden, een stille week één tik;
+  - een seizoen van 30 weken duurt ±20–30 minuten, ALV inbegrepen.
+- **Lezen:**
+  - per kaart één kop van maximaal acht woorden en één zin;
+  - per scherm hooguit één tekstblok van twee zinnen;
+  - meer staat achter een tik.
+- **De eerste vijf minuten:** een nieuwe speler moet binnen vijf minuten zijn eerste wedstrijd zien. Uitleg gebeurt in het spel zelf, met een staflid dat het zegt, niet in een handleiding.
+- **Punten zijn een munt met een reden:** je verdient ze met je woord en met resultaat, niet met klikken. Er komt geen andere nieuwe munt bij.
 
-## De wekelijkse laag: een levende feed en een club die groeit
+## De vijf pijlers (in deze volgorde, elk met een speeltest)
 
-### Keuzes van de eigenaar (bindend)
-- **Geen wedstrijdpremies en geen weekdoelen.**
-- **Het plezier zit in elke week naar leuke updates kijken,** in een wereld waar genoeg dynamisch gebeurt.
-- **Een upgradeboom is welkom,** gekoppeld aan punten:
-  - **punten uit:** de ALV (meer bij een ruimere herverkiezing), gehouden beloftes, sportieve mijlpalen (promotie, bekerrondes, een academiedebuut, records);
-  - **gebroken beloftes kosten een punt.**
-- **De boom bouwt de club als plek op:** stadion, academie, trainingscomplex, scouting en gemeenschap.
-- **Updates verschijnen als een feed met kaarten.**
+### Pijler 1 — De week en de zaterdag
+**De feed (4–6 kaarten per week)**
+- **Vier bronnen, minstens drie per week:**
+  1. **je spelers:** debuut, eerste goal, vormdip, terugkeer, verjaardag, vader worden, ruzie, een jongen die bij het eerste meetraint;
+  2. **je staf aan het werk:** de TD bij een wedstrijd elders, een uitslag van de jeugd;
+  3. **de regio:** ontslagen, transfers, schulden, een wonderjongen bij de rivaal, mensen die je kent die van club wisselen;
+  4. **de stad en de fans:** een uitverkocht uitvak, een sponsor, de gemeente.
+- **De belangrijkste kaart staat bovenaan**: iets van je eigen club, iemand die je kent, of je rivaal.
+- **Reageren als eigenaar.** Op hooguit twee kaarten per week een knop, bijvoorbeeld "Send a note", "Call him", "Say something in the Echo" of "Stay out of it".
+  - Het effect is klein en zichtbaar bij die persoon: zijn moraal of loyaliteit, met een korte reactie in zijn eigen woorden.
+  - Het heeft soms een bijeffect via relaties: een speler die je feliciteert, maakt een rivaal in de kleedkamer jaloers.
+  - Nooit verplicht. Reacties zijn begrensd, zodat ze de balans niet breken.
+- **Vervolgverhalen.** Een kaart kan een vervolg krijgen ("Reyes trained with the first team" → "Reyes makes his debut"). Minstens acht vervolgverhalen per seizoen.
+- **Tekst zonder AI, en toch niet herhalend.**
+  - Kaarten bestaan uit **combinaties**: een echte gebeurtenis uit de simulatie, plus sjablonen met variabele delen (naam, aantal, plaats, eerdere gebeurtenis), plus een kleine bibliotheek met gewone voetbalgebeurtenissen.
+  - Reken het tekstbudget uit (±150 kaarten per seizoen) en ontwerp zo dat er binnen twee seizoenen geen identieke zin terugkomt.
 
-Dit herziet het verbod op een upgradesysteem uit de oorspronkelijke opdracht, op uitdrukkelijk verzoek van de eigenaar. Het blijft wel verbonden met het voorzitterschap: punten verdien je met je woord en met resultaten, niet met klikken.
+**De zaterdag: een samenvatting die je wilt lezen**
+- **Vooraf** een wedstrijdkaart: beide wapens, de vorm, de inzet (derby, top tegen onder, beker), de verwachte opkomst en het weer.
+- **Daarna** het verslag:
+  - de uitslag met doelpuntenmakers;
+  - **2–4 momenten met namen**: de winnende goal, een redding, een fout, een debuut, een mijlpaal;
+  - een regel waarom;
+  - de stand die meebeweegt.
+- **Jouw invloed zichtbaar:** momenten verwijzen naar wat jij deed. Bijvoorbeeld: *"Whitlock, signed under your mandate, clears off the line"*, *"Reyes, who you backed in his slump, scores"*, *"The stand you built was full"*. Minstens tien zulke momenten per seizoen.
 
-### A. De feed: 4–6 kaarten per week
-- **Elke kaart:** een gezicht, wapen of beeld; een kop van maximaal acht woorden; één zin. Tik voor meer: het spelersprofiel, de club, de persoon.
-- **De belangrijkste kaart staat bovenaan:** iets over je eigen club, iemand die je kent, of je rivaal.
-- **Vier bronnen.** Elke week minstens drie verschillende, gekozen naar relevantie:
-  1. **Je spelers:** debuut, eerste doelpunt, vormdip, terugkeer na blessure, een verjaardag, vader worden, ruzie in de kleedkamer, een vriendschap, een speler die bij de jeugd meetraint, een speler die bijna stopt.
-  2. **Je staf aan het werk:** de TD bij een wedstrijd elders, de uitslag van een jeugdteam, de coach die iets nieuws probeert, de financieel directeur over de kas.
-  3. **De regio:** ontslagen, transfers, een club in de schulden, een wonderjongen bij de rivaal, een voorzitter die wordt weggestemd, en mensen die je kent die van club wisselen.
-  4. **De stad en de fans:** een uitverkocht uitvak, een sponsor die stopt of begint, de gemeente met een plan, een clubicoon die jarig is, een supporter met een verhaal.
-
-**Dynamiek, zodat het leuk blijft:**
-- **Gebeurtenissen komen uit de simulatie** (vorm, blessures, loopbanen, de stand, het geld). Daarbovenop komt een **bibliotheek van kleine, gewone voetbalgebeurtenissen**: een verjaardag, een nieuw sponsorbord, het weer, een dorpsclub die de beker haalt.
-- **Herhaling is begrensd:** geen dezelfde soort kaart binnen vier weken, en geen identieke zin binnen een seizoen.
-- **Verhalen lopen door.** Een kaart kan een vervolg krijgen ("Reyes trained with the first team" → twee weken later "Reyes makes his debut"). Elke vierde week heeft minstens één vervolg.
-- **Kaarten zijn meestal om te lezen, niet om te beslissen.** Beslissingen blijven op het bureau. Een kaart mag wel naar een situatie leiden als er echt iets speelt.
-
-### B. De upgradeboom: de club als plek
-- **Vijf takken, elk 3–4 niveaus:** stadion, academie, trainingscomplex, scouting, gemeenschap.
-- **Elk niveau verandert iets zichtbaars en heeft een echte afweging:**
-  - **kosten:** punten en meestal ook geld;
-  - **een gevolg dat je ziet:** meer plaatsen en een vollere tribune; een extra jeugdteam en meer debuten; minder blessures; betere vrije spelers in beeld van de TD; meer fans en een andere stemming bij de leden;
-  - **soms een bijwerking:** onderhoud dat geld kost, of een ledengroep die het niet wil.
-- **Een upgrade verschijnt in de feed** als moment: *"The new East Stand opens: 900 more seats"*. Hij is zichtbaar in de identiteit van de club, zoals de tribunekaart en het stadion.
-- **De boom past bij een ledenclub:** grote upgrades (bijvoorbeeld een nieuwe tribune) kunnen een **motie op de ALV** vragen. Het statuut kan dan in de weg zitten.
-- **Geen gratis winst.** Punten zijn schaars (±3–8 per seizoen). Je kiest per seizoen één à twee upgrades.
-
-### C. Ritme van beloningen
-| Niveau | Hoe vaak | Wat |
-|---|---|---|
-| Elke week | 30–90 seconden | De feed: iets verrassends, iets van je eigen spelers, iets uit de regio |
-| Elke week | Zaterdag | De wedstrijd, met momenten die naar jouw beslissingen verwijzen |
-| Per maand | | Speler van de maand, een vervolgverhaal, een bekerronde |
-| Per seizoen | | ALV en punten, een upgrade die opent, promotie of een prijs, de prijzenkast |
-
-**Juice:** animaties van tellers, kaarten die binnenschuiven, een tribune die voller wordt. Zuinig en betekenisvol, met respect voor `prefers-reduced-motion`. Een stille week kost één tik.
-
-## Werkwijze (fasen; sla er geen over zonder akkoord)
-
-### Fase A — Spelen en diagnose (kort, in chat)
-1. **Speel twee seizoenen** van `dist/index.html` met Playwright.
-2. **Noteer per week** wat de speler voelt, ziet en doet, en hoeveel tikken het kost.
-3. **Toets de zes punten hierboven:** klopt de diagnose, wat ontbreekt er nog, en wat is al goed genoeg?
-4. **Analyseer drie andere spellen op overdraagbare mechanismen** (niet kopiëren). Denk aan:
-   - de wedstrijdpresentatie en het seizoensritme van managementspellen;
-   - beslissingen met spanning in korte sessies, zoals in Reigns-achtige spellen;
-   - hoogtepunten en run-structuur in roguelites.
-
-### Fase B — Interactieve ontwerpvragen
-Stel ze interactief: hooguit vier per ronde, met concrete opties en een klein speelvoorbeeld (preview), en je aanbeveling als eerste optie ("Recommended"). Analyseer elk antwoord kort: spelplezier, rol van de voorzitter, complexiteit, scope.
-
-**Ronde 1 — De zaterdag**
-1. **Hoe beleef je de wedstrijd?**
-   - Een korte live-tekst van 30–45 seconden met de belangrijke momenten.
-   - Een veld met stippen en een ticker.
-   - Een krantenverslag achteraf.
-   - Een mix: live voor grote duels, kort voor gewone weken.
-2. **Wat doet de voorzitter tijdens de wedstrijd?** Niets op het veld, maar wel als eigenaar:
-   - in de bestuurskamer met de voorzitter van de tegenstander;
-   - de rust (kleedkamer in of niet: moraal, geen tactiek);
-   - een reactie na afloop.
-3. **Hoe zie je dat jouw keuzes meespelen?** Bijvoorbeeld:
-   - *"Whitlock, the left-back your mandate brought in, clears off the line"*;
-   - *"Reyes, who you backed in his slump, scores"*.
-4. **Opbouw in de week:**
-   - een wedstrijdkaart met de vorm van beide clubs, de inzet en het weer;
-   - de verwachte opkomst;
-   - de derbykoorts.
-
-**Ronde 2 — Het seizoen als boog**
-1. **Een bekercompetitie:** een regionale beker met uitwedstrijden bij amateurs en een finale. Ja of nee, en hoe zwaar weegt hij?
-2. **De race zichtbaar maken:** een stand met zones (promotie, play-offs, degradatie), "wat moet er gebeuren" in de slotweken, en de rivaal in beeld.
-3. **Deadline day in de winter:** een kort, spannend scherm waarin de TD aan het werk is binnen jouw mandaat en jij hooguit één keer mag ingrijpen.
-4. **De laatste speeldag:** live uitslagen van andere velden die jouw stand bepalen.
-
-**Ronde 3 — Je club zien**
-1. **Identiteit:** clubkleuren, een gegenereerd wapen, een tenue en een stadion met een naam en een tribunekaart.
-2. **Het publiek:** de opkomst als getal en als beeld (een tribune die voller wordt), sfeer, en invloed op het thuisvoordeel.
-3. **Visuele stijl van de wedstrijd en de stand**, licht en donker, met mobiel eerst.
-4. **Geluid** (optioneel, alleen na een tik): het publiek bij een doelpunt, een fluitsignaal.
-
-**Ronde 4 — Inzet, falen en beloning**
-1. **Moeilijkheid:** echte druk.
-   - Een actieve speler wint ±60–75% van de ALV's.
-   - Geld kan echt misgaan: punten aftrek, administratie, gedwongen verkoop.
-   - Een slechte zomer kost een seizoen.
-2. **Herstel:** hoe kom je terug? Bijvoorbeeld een crisisvergadering, een investeerder met voorwaarden, of de leden die je een laatste kans geven.
-3. **Beloningsmomenten:** promotie, een kampioenschap, de beker, een record, een speler die doorbreekt, een clubicoon die afscheid neemt. Hoe ziet zo'n scherm eruit?
-4. **Doelen op lange termijn,** zonder mijlpalen-meter (zie ook ronde 5):
-   - een prijzenkast;
-   - een clubhistorie met hoogtepunten per seizoen;
-   - een eregalerij van spelers die jij binnenhaalde of liet doorbreken.
-
-**Ronde 5 — De feed en de upgradeboom** (de basis staat vast, zie hierboven)
-1. **Vervolgverhalen:** hoe vaak, en hoe lang mag een verhaal lopen (twee kaarten, of een hele seizoensboog)?
-2. **De kleine-gebeurtenissenbibliotheek:** welke toon (droog Brits, warm, ironisch) en hoeveel (±60 tot ±150 fragmenten voor de eerste versie)?
-3. **De boom:** welke vijf upgrades openen als eerste per tak, en welke heeft een ALV-motie nodig?
-4. **Punten:** precies hoeveel voor een ALV-uitslag, een gehouden belofte en een mijlpaal, zodat je per seizoen één à twee upgrades kunt kiezen?
-
-### Fase C — Ontwerpnotities (vóór code)
-Korte notities van maximaal één A4 elk in `standalone-research/`. Neem de keuzes van de eigenaar op in het concept (§13).
-- `WEDSTRIJD-VOORZITTER.md`: de zaterdag van opbouw tot nasleep, en hoe beslissingen van de voorzitter in de wedstrijd zichtbaar worden.
-- `SEIZOENSBOOG-VOORZITTER.md`: beker, race, deadline day en de laatste speeldag.
-- `IDENTITEIT-VOORZITTER.md`: kleuren, wapen, tenue, stadion, publiek en visuele taal.
-- `INZET-VOORZITTER.md`: moeilijkheid, faalvormen, herstel, beloningen en de prijzenkast.
-- `FEED-VOORZITTER.md`: de vier bronnen, de bibliotheek van kleine gebeurtenissen, vervolgverhalen, de herhalingsregels en de vorm van een kaart.
-- `UPGRADES-VOORZITTER.md`: de vijf takken, niveaus, kosten, zichtbare gevolgen, bijwerkingen, de punten en de koppeling aan de ALV.
-
-**Elke notitie eindigt met:** welk gevoel dit oplevert, en waar dat gevoel vandaan komt in de rol van de voorzitter. Kun je dat niet concreet maken, dan bouw je het niet.
-
-### Fase D — Prototype van één zaterdag
-Bouw eerst **één volledige week** als losse, klikbare proef:
-- de feed van die week (4–6 kaarten uit de vier bronnen, met één vervolgverhaal);
-- de opbouw naar zaterdag;
-- de wedstrijd zelf;
-- de nasleep.
-
-Gebruik de eigen selectie en echte verhalen uit de simulatie.
-
-Laat de eigenaar er drie spelen: een gewone week, een derby en een slotwedstrijd met inzet. Vraag daarna:
-- voelde dit als voetbal;
-- voelde je dat het jouw club was;
+**Speeltest 1:** drie weken (een gewone week, een derby, een slotwedstrijd met inzet). Vraag de eigenaar:
+- voelde het als voetbal;
+- was het jouw club;
 - zag je je eigen beslissingen terug;
-- was de feed leuk om te lezen, en wilde je de volgende week zien?
+- wilde je de volgende week zien?
 
-Laat daarna de upgradeboom zien, met een voorbeeld van één seizoen punten en één upgrade die opent.
+### Pijler 2 — Je club zien
+- Clubkleuren, een **wapen** en een **tenue**, procedureel uit een seed, in SVG.
+- Een **stadion** met een naam en een tribunekaart. Het **publiek** als getal en als beeld, en de opkomst heeft invloed op het thuisvoordeel.
+- Dezelfde visuele taal in alle schermen: weekscherm, wedstrijdkaart, stand, selectie.
 
-Ga pas verder na een "ja".
+**Speeltest 2:** herken je je club in één oogopslag?
 
-### Fase E — Bouwen (per pijler, in deze volgorde)
-1. **De zaterdag en de feed**, op basis van de proef.
-2. **Identiteit:** kleuren, wapen, tenue, stadion en publiek in alle schermen.
-3. **De seizoensboog:** beker, de race met zones, deadline day en de laatste speeldag.
-4. **Inzet:** de balanspas, faalvormen en herstel.
-5. **Beloningen en de upgradeboom:** hoogtepuntschermen, prijzenkast, clubhistorie, eregalerij, en de boom met punten uit ALV, beloftes en mijlpalen.
+### Pijler 3 — Het seizoen als boog
+- **Een regionale beker:** rondes verspreid over het seizoen, uitwedstrijden bij kleinere clubs, en een finale.
+- **De stand met zones:** promotie, play-offs, degradatie. In de slotweken staat erbij "wat moet er gebeuren".
+- **Deadline day in de winter:** een kort scherm waarin de TD binnen jouw mandaat werkt.
+- **De laatste speeldag** met de uitslagen van andere velden die jouw plek bepalen.
 
-Elke pijler is een eigen commit met een speelbare versie, een gepubliceerd artifact, en één gerichte vraag aan de eigenaar.
+**Speeltest 3:** voelde je de race aankomen?
+
+### Pijler 4 — Inzet: falen en herstel
+- **Moeilijkheid:** een actieve speler wint ±60–75% van de ALV's; passief en willekeurig duidelijk minder.
+- **Geld kan echt misgaan:** puntenaftrek, administratie, gedwongen verkoop.
+- **Herstel verdien je zelf:** een crisisvergadering met de staf, een investeerder met voorwaarden (statuut!), of de leden die je een laatste kans geven.
+- **Minstens één echte crisis per vijf seizoenen** bij gewoon spel.
+
+**Speeltest 4:** was er een moment waarop je echt bang was het te verliezen?
+
+### Pijler 5 — Beloningen en de upgradeboom
+- **Hoogtepuntschermen** voor promotie, een prijs, een record, een doorbraak of een afscheid. Daarbij een **prijzenkast**, een **clubhistorie** per seizoen, en een **eregalerij** van spelers die jij haalde of liet doorbreken.
+- **De upgradeboom.** Vijf takken (stadion, academie, trainingscomplex, scouting, gemeenschap), elk 3–4 niveaus.
+  - **Elke upgrade:** een voordeel dat je ziet, een nadeel dat je voelt, en meestal geld.
+  - **Voorbeelden:**
+    - een nieuwe tribune: meer plaatsen, maar de Ultras verliezen hun staanplaats;
+    - een tweede jeugdteam: meer debuten, maar een hogere loonsom;
+    - een beter trainingscomplex: minder blessures, maar de gemeente wil gemeenschapsuren.
+  - **Grote upgrades** kunnen een **motie op de ALV** vragen.
+  - **Een geopende upgrade** verschijnt als kaart in de feed.
+- **Punten:** uit de ALV (meer bij een ruime herverkiezing), gehouden beloftes en mijlpalen. Een gebroken belofte kost een punt.
+  - *Voorstel van de game developer:* beloftes tellen naar grootte (klein 1, groot 3), zodat veel kleine beloftes niet lonen. Leg dit voor aan de eigenaar.
+  - Richtlijn: ±3–8 punten per seizoen, genoeg voor één à twee upgrades.
+
+**Speeltest 5:** voelde een geopende upgrade als iets wat je verdiend had, en woog het nadeel mee?
+
+## Werkwijze
+1. **Fase A — spelen en diagnose (kort).** Speel twee seizoenen van `dist/index.html` met Playwright. Noteer per week de tijd, het aantal tikken en wat je ziet. Toets de zeven punten van het probleem.
+2. **Fase B — alleen wat nog open is,** interactief, hooguit **twee rondes** van vier vragen, met previews en je aanbeveling als eerste optie. Bijvoorbeeld:
+   - de toon van de feed;
+   - welke reacties er zijn;
+   - de beker ja of nee;
+   - de faalvormen;
+   - de eerste upgrades;
+   - de puntentelling, inclusief het voorstel "beloftes naar grootte".
+3. **Fase C — ontwerpnotities** van maximaal één A4 elk in `standalone-research/`. Neem keuzes op in het concept (§13).
+   - `FEED-VOORZITTER.md`
+   - `WEDSTRIJD-VOORZITTER.md`
+   - `IDENTITEIT-VOORZITTER.md`
+   - `SEIZOENSBOOG-VOORZITTER.md`
+   - `INZET-VOORZITTER.md`
+   - `UPGRADES-VOORZITTER.md`
+
+   Elke notitie eindigt met: welk gevoel dit oplevert, en waar het vandaan komt in de rol van de voorzitter.
+4. **Fase D — bouwen, pijler voor pijler.** Elke pijler is een eigen commit met een speelbare versie, een gepubliceerd artifact en een speeltest door de eigenaar.
 
 ## Technische regels
-- **De lagenstructuur blijft:** `core`, `world`, `club`, `chairman`, `ui`, `style`, met de build naar één offline HTML-bestand.
-  - De wedstrijd hoort in `club/` (simulatie) en `ui/` (beleving).
+- **De lagen blijven:** `core`, `world`, `club`, `chairman`, `ui`, `style`. De build maakt één offline HTML-bestand.
+  - Feedgebeurtenissen en wedstrijdmomenten worden gegenereerd in `club/`; reacties en de boom horen in `chairman/`.
   - `club/` weet niets van de voorzitter.
-- **Wedstrijdsimulatie:** gebeurtenissen per minuut of per blok, met echte spelers aan beide kanten. De uitslagen blijven gekalibreerd: het gemiddelde aantal goals en het aantal gelijke spelen realistisch. De presentatie verandert de uitkomst nooit.
-- **Grafiek** met SVG of canvas, geen externe afbeeldingen. Het wapen en het tenue worden per club procedureel gegenereerd uit een seed.
-- **Animatie** zuinig en betekenisvol, met respect voor `prefers-reduced-motion`. Geluid alleen na een tik van de speler.
-- **Prestatie:** een week moet op een middenklasse telefoon binnen een seconde reageren.
-- **Saves** krijgen een versienummer; oude saves starten anders netjes opnieuw.
+- **De wedstrijd** wordt gesimuleerd met echte spelers aan beide kanten. De uitslagen blijven gekalibreerd (goals per duel, aandeel 0-0, thuisvoordeel). De presentatie verandert de uitkomst nooit.
+- **SVG of canvas**, geen externe afbeeldingen. Animatie zuinig, met respect voor `prefers-reduced-motion`.
+- **Een week reageert binnen een seconde** op een middenklasse telefoon. Saves krijgen een versienummer.
 
 ## Testen (eerlijk melden wat faalt)
-1. **Alle bestaande tests blijven groen:** de fundering zonder voorzitter, de audit en de browserdoorloop.
-2. **Kalibratie van de wedstrijden:** gemiddeld aantal goals, aandeel 0-0 en thuisvoordeel binnen realistische marges over 1.000 wedstrijden.
-3. **Balans:** de audit over twintig seeds geeft actief ±60–75% gewonnen ALV's, passief en willekeurig duidelijk lager. Minstens één echte crisis per vijf seizoenen bij gewoon spel.
-4. **Zichtbaarheid:** in een gemiddeld seizoen verwijzen minstens tien wedstrijdmomenten naar beslissingen van de voorzitter (een speler die hij steunde, een aankoop binnen zijn mandaat).
-5. **De feed:**
-   - per week 4–6 kaarten uit minstens drie bronnen;
-   - geen identieke zin binnen een seizoen, en geen dezelfde soort kaart binnen vier weken;
-   - per seizoen minstens acht vervolgverhalen;
-   - de tijd per week blijft binnen 30–90 seconden.
-6. **De boom:**
-   - per seizoen ±3–8 punten bij gewoon spel;
-   - elke upgrade heeft een meetbaar en zichtbaar gevolg;
-   - de balans blijft binnen de afgesproken bandbreedte.
-7. **Playwright:** twee seizoenen in licht en donker op 390 px. Geen fouten, geen horizontaal scrollen. Screenshots van een wedstrijd, de stand met zones, een bekerronde, deadline day en een hoogtepuntscherm.
+1. **Bestaande tests blijven groen:** de fundering zonder voorzitter, de audit en de browserdoorloop.
+2. **Kalibratie over 1.000 wedstrijden:** goals per duel, aandeel 0-0 en thuisvoordeel realistisch.
+3. **Feed:**
+   - 4–6 kaarten per week uit minstens drie bronnen;
+   - geen identieke zin binnen twee seizoenen;
+   - minstens acht vervolgverhalen per seizoen;
+   - reacties begrensd en meetbaar.
+4. **Zichtbaarheid:** minstens tien wedstrijdmomenten per seizoen verwijzen naar beslissingen van de voorzitter.
+5. **Tempo:** een gemiddelde week duurt 30–60 seconden, en tikken per week worden gemeten in de browsertest.
+6. **Balans:** actief ±60–75% gewonnen ALV's over twintig seeds, en minstens één crisis per vijf seizoenen.
+7. **Boom:** elke upgrade heeft een meetbaar voordeel en nadeel, en ±3–8 punten per seizoen.
+8. **Playwright:** twee seizoenen in licht en donker op 390 px, zonder fouten of horizontaal scrollen. Screenshots van de feed met een reactie, het wedstrijdverslag, de stand met zones, een bekerronde, deadline day, een hoogtepunt en de boom.
 
 ## Wat je níét doet
-- De voorzitter geen opstelling, tactiek, wissels of training geven, ook niet "een beetje".
-- Geen schermen, meters of valuta toevoegen zonder een gevoel dat aantoonbaar uit de voorzittersrol komt.
-- Geen kopie van een bestaand spel (naam, look, content). Overdraagbare mechanismen mogen.
-- Geen echte clubs, spelers of merken.
+- Geen opstelling, tactiek, wissels of training.
+- Geen wedstrijdpremies, weekdoelen of voorspellingen.
+- Geen schermen, meters of munten zonder een gevoel dat aantoonbaar uit de voorzittersrol komt.
+- Geen kopie van een bestaand spel, en geen echte clubs, spelers of merken.
+- Geen volgende pijler voordat de eigenaar de vorige heeft getest.
 - Niets op `main`, `claude-game` of `chatgpt`.

@@ -145,7 +145,11 @@ function act(a,arg){
     case'tdhire':hireTd(arg);startMeeting();break;
     case'meetNext':S.meeting.step++;break;
     case'mchoose':meetingChoose(arg);break;
-    case'mdone':applyMandate();summerWindow();break;
+    case'mdone':applyMandate();startSummer();break;
+    case'sumNext':summerNext();break;
+    case'sumUp':sumMove(arg,-1);break;
+    case'sumDown':sumMove(arg,1);break;
+    case'talk':talkAnswer(arg);break;
     case'player':S.viewPlayer=arg;break;
     case'windowDone':startSeasonPlay();break;
     case'alvLobby':S.alv.step='lobby';break;

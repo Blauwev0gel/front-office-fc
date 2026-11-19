@@ -34,4 +34,17 @@ check(+e5.err<+e1.err&&+e5.q>+e1.q,'a sharp eye misjudges less and buys better p
 console.log('deal (price), data philosophy:');const d1=agg({...base,phil:'data',deal:1}),d5=agg({...base,phil:'data',deal:5});
 console.log(`  deal 1: £${d1.perQ} per quality point, sale income £${d1.inc}k | deal 5: £${d5.perQ}, sale income £${d5.inc}k`);
 check(+d5.perQ<+d1.perQ,'a good negotiator pays less per quality point');
+console.log('the transfer summer (20 seeds, own order vs reversed):');
+function summer(seed,reverse){const m=load();m.act('new',seed);return m.run(`(function(){
+  const id=Object.keys(S.clubs).find(i=>CL(i).tier===1&&i!=='pell');S.my=id;S.flags={};S.mods=[];S.youth=0;S.promises=[];
+  const c=CL(id);cfInit(id,c.str,c.cast.td,c.cast.coach,c.rival);const s=tdSummerStart();const first=s.prios.slice().sort((a,b)=>a.order-b.order)[0].id;
+  if(${reverse})sumSetOrder(s.prios.slice().sort((a,b)=>b.order-a.order).map(x=>x.id));
+  const lens=[];for(let i=0;i<4;i++)lens.push(tdSumWeek().length);tdSumDeadline();
+  const f=s.prios.find(x=>x.id===first);return{lens,keySold:s.keySold,firstA:f.res==='A'?1:0,firstOk:f.res&&f.res!=='fail'?1:0,n:s.prios.length,done:s.prios.filter(x=>x.res&&x.res!=='fail').length}})()`)}
+let lens=[],key=0,aOwn=0,aRev=0,done=0,tot=0;for(const sd of SEEDS){const o=summer(sd,false),r=summer(sd,true);lens.push(...o.lens);key=Math.max(key,o.keySold,r.keySold);aOwn+=o.firstA;aRev+=r.firstA;done+=o.done;tot+=o.n}
+console.log(`  ticker lines per week ${Math.min(...lens)}-${Math.max(...lens)} | most key sales in one summer ${key} | priorities done ${done}/${tot}`);
+console.log(`  the director's first priority lands its A-target: ${aOwn}/20 at the top of the list, ${aRev}/20 at the bottom`);
+check(Math.min(...lens)>=4&&Math.max(...lens)<=6,'every transfer week has 4-6 ticker lines');
+check(key<=1,'at most one key sale per summer');
+check(aOwn>aRev,'the chairman\'s order changes which priority gets its A-target');
 console.log(fails?`${fails} check(s) failed`:'all checks passed');

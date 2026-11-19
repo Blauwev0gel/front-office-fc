@@ -19,6 +19,7 @@ function hasRule(r){const f=S.cf.frames;return (f.rules||[]).includes(r)||f.rule
 function ruleBlocksSale(p,buyer){if(hasRule('noRival')&&buyer===S.cf.rivalId)return'Never sell to our rival';if(hasRule('captainStays')&&p.captain)return'The captain stays';if(hasRule('heroesStay')&&p.localKid)return'Our own lads are never sold';
   if((hasRule('ownFive')||S.cf.frames.identity==='own')&&p.academy&&S.cf.squad.filter(x=>x.academy).length<=5)return'Five academy players must stay';return null}
 function tdWindow(kind){
+  if(kind==='summer')return tdSummerAuto();
   const cf=S.cf,sq=cf.squad,td=tdTraits(),F=cf.frames,greedy=td.tr.includes('greedy')||td.val==='money',amb=td.tr.includes('ambitious')||F.ambition==='push'||F.ambition==='promotion',cautious=td.tr.includes('cautious'),stubborn=td.tr.includes('stubborn');
   const evs=[];const say=(k,t,o)=>{cfEv(k,t,o);evs.push(t)};
   // 1. Sales: bids on the most valuable players. At most one key sale per window ("te heftig").

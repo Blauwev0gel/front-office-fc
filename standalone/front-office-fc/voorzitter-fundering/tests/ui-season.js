@@ -22,7 +22,7 @@ const {chromium}=require('playwright');const path=require('path');
    if(has('toEnd')){await p.waitForTimeout(3800);await p.click('main [data-act=toEnd]');continue}
    if(has('nextSeason')){done=true;break}
    let a=null;
-   for(const k of ['toSeats','seat','arrive','pick','tdhire','react','meetNext','mchoose','mdone','windowDone','sit','card','play','next','hire','alvLobby','lobbyDone','defend']){const m=acts.filter(x=>x.startsWith(k+'|'));if(m.length){a=m[Math.min(pick,m.length-1)];break}}
+   for(const k of ['toSeats','seat','arrive','pick','tdhire','react','meetNext','mchoose','mdone','talk','sumNext','windowDone','sit','card','play','next','hire','alvLobby','lobbyDone','defend']){const m=acts.filter(x=>x.startsWith(k+'|'));if(m.length){a=m[Math.min(pick,m.length-1)];break}}
    if(!a){errs.push('stuck '+acts.join(','));break}
    const act=a.slice(0,a.indexOf('|')),arg=a.slice(a.indexOf('|')+1);await p.click(`main [data-act="${act}"]${arg?`[data-arg="${arg}"]`:''}`);
   }

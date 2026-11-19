@@ -106,7 +106,15 @@ Vertrekt de trainer, dan **stelt de TD drie kandidaten voor die bij zijn plan pa
 
 ## Bouwvolgorde (klein en af)
 
-**Stand 19-11-2026:** stap 1 is gebouwd.
+**Stand 19-11-2026:** stap 1 en 2 zijn gebouwd.
+- **Stap 2, de zomer:** `club/summer.js` (clublaag), `chairman/transfer.js` (meldingen en reacties) en `ui/transfer.js` (schermen).
+- **Zonder voorzitter:** `tdWindow('summer')` speelt nu dezelfde zomer automatisch af.
+- **Nog niet gedaan:**
+  - het winterwindow werkt nog op de oude manier;
+  - een C-keuze (een huur) lukt altijd, dus "Missed" komt in de praktijk niet voor;
+  - de kleine belofte "six weeks" wordt nog niet afgerekend.
+
+**Eerder:** stap 1 is gebouwd.
 - `club/td.js` bevat het profiel, de kandidaten en de hooks in `tdWindow`.
 - Het scherm *Hire a director* verschijnt bij een nieuwe club, na het manifest.
 - `tests/td-test.js` slaagt.

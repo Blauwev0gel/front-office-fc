@@ -18,4 +18,4 @@ if(HAS_DOM){
   window.claude?.hot?.snapshot?.(()=>({S}));
   window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});
 }
-if(typeof module!=='undefined')module.exports={act,get S(){return S},set S(v){S=v},currentScene,sceneCards,manifestOptions,sitBuild,P,C,weighted,myPos,pdef};
+if(typeof module!=='undefined')module.exports={act,get S(){return S},set S(v){S=v},currentScene,sceneCards,manifestOptions,sitBuild,P,C,weighted,myPos,pdef,talkOptions};

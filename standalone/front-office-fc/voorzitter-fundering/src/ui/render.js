@@ -18,14 +18,14 @@ function dealHTML(c,i){
 }
 function arrow(k){const g=grpOf(k);const d=g.mood-((S.prevMood||{})[k]??g.mood);return d>=6?'<span class="up">↑↑</span>':d>0?'<span class="up">↑</span>':d<=-6?'<span class="down">↓↓</span>':d<0?'<span class="down">↓</span>':''}
 function moodsPanel(title){return`<div class="panel">${title?`<p class="eyebrow">${title}</p>`:''}${C().groups.map(g=>`<div class="row"><span>${esc(gname(C(),g.k))} <span class="small muted">${g.share}%</span></span><span class="mood">${moodWord(g.mood)} ${arrow(g.k)}</span></div>`).join('')}</div>`}
-const PRIMARY=['play','next','windowDone','mdone','meetNext','arrive','alvLobby','lobbyDone','toEnd','nextSeason','summerNext','toSeats','framesDone'];
+const PRIMARY=['sumNext','play','next','windowDone','mdone','meetNext','arrive','alvLobby','lobbyDone','toEnd','nextSeason','summerNext','toSeats','framesDone'];
 let LAST_VIEW='';
 function render(){
   if(!HAS_DOM)return;const $=document.getElementById('app');
   if(location.hash==='#style'){$.setAttribute('style','');$.innerHTML=styleView();document.body.classList.add('noNav');return}
   if(!S||S.screen==='title'){$.setAttribute('style','');$.innerHTML=titleView();document.body.classList.add('noNav');return}
   if(S.my&&!C().col)assignClubColours();
-  const v={prologue:prologueView,seats:seatsView,arrival:arrivalView,manifest:manifestView,week:weekView,meeting:meetingView,sit:sitView,hire:hireView,result:resultView,frames:framesView,window:windowView,tdhire:tdHireView,alv:alvView,summer:summerView}[S.screen];
+  const v={prologue:prologueView,seats:seatsView,arrival:arrivalView,manifest:manifestView,week:weekView,meeting:meetingView,sit:sitView,hire:hireView,result:resultView,frames:framesView,window:windowView,tdhire:tdHireView,tsum:tsumView,alv:alvView,summer:summerView}[S.screen];
   const nav=S.screen==='week';UI.t=UI.t||'club';
   let body=v?v():'';
   body=body.replace(/class="btn( ghost)?" data-act="([a-zA-Z]+)"/g,(m,g,a)=>PRIMARY.includes(a)?`class="btn${g||''} primary" data-act="${a}"`:m);
@@ -83,15 +83,6 @@ function sitView(){
   return`<p class="eyebrow">In the post</p><h2>${esc(sc.title)}</h2>${sc.player?miniPlayer(sc.player):''}<section class="scene">${bubbles(sc)}</section>
   <details class="who-more"><summary>Who is involved</summary>${sc.who.filter(x=>P(x)).map(x=>whoRow(x)+personLine(x)).join('')}</details>
   <p class="eyebrow">On the table</p><div class="stack">${sceneCards(sc).map(dealHTML).join('')}</div><button class="btn ghost" data-act="back">Back to the week</button>`;
-}
-function tdHireView(){
-  const cards=(S.tdCands||[]).map(pid=>{const p=P(pid),td=tdOf(pid),ph=TD_PHIL[td.phil];
-    return`<article class="cand"><div class="cand-top">${personPortrait(pid,64)}<div><b>${esc(p.name)}</b><span class="phil">${esc(ph.t)}</span><span class="meta">${esc(ph.d)}</span></div></div>
-    <p class="cand-h">The three-year plan</p><ul class="cand-plan">${ph.plan.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
-    <div class="chips">${p.traits.map(t=>`<span class="tag2">${esc(t)}</span>`).join('')}<span class="tag2">Age ${p.age}</span></div>
-    ${td.rumour?`<p class="rumour">Word is: "${esc(td.rumour.text)}"</p>`:''}
-    <button class="btn" data-act="tdhire" data-arg="${pid}">Hire ${esc(p.name.split(' ')[0])}</button></article>`}).join('');
-  return`<p class="eyebrow">The director's office is empty</p><h2>Hire a director of football</h2><p>The director buys and sells; you never pick a player. Choose who you trust.</p><div class="stack">${cards}</div>`;
 }
 function hireView(){
   const list=S.hire.map(pid=>{const p=P(pid);const m=p.mem[p.mem.length-1];const past=p.career.length?`Past: ${p.career.map(x=>CL(x).name).join(', ')}.`:'No league experience.';

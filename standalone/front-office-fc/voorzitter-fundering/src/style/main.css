@@ -71,7 +71,7 @@ p{margin:0}
 .tag{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--signal)}
 .log{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px} .log li{font-size:14px}
 .log .why{display:block;color:var(--muted);font-size:13px}
-.num{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.num{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .count{display:flex;flex-direction:column;gap:12px}
 .cg{animation:reveal .5s ease both}
 .cg:nth-child(2){animation-delay:.9s}.cg:nth-child(3){animation-delay:1.8s}.cg:nth-child(4){animation-delay:2.7s}
@@ -235,3 +235,27 @@ body.noNav{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .cand-plan{margin:0;padding-left:20px;font-size:16px}
 .cand .chips{display:flex;flex-wrap:wrap;gap:6px}
 .rumour{margin:0;font-family:var(--f-voice);font-style:italic;font-size:16px;background:var(--paper2);border-radius:4px 14px 14px 14px;padding:8px 12px}
+
+/* the transfer summer */
+.sum-money{margin:0;font-family:var(--f-label);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:14px}
+.svl,.ticker,.tl2,.tgts,.balr{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.sv{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:10px;font-size:15px}
+.sv-v{flex:none;min-width:76px;text-align:center;font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:3px 8px;border:1.5px solid currentColor}
+.sv-bad{color:var(--bad);background:#fbe5e2} .sv-good{color:var(--good);background:#e3f3e7} .sv-wait{color:#7a5200;background:#fdf0cf} .sv-info{color:#2f4c7a;background:#e6ecf6}
+.prio{background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.prio-h{display:flex;align-items:center;gap:10px}.prio-h b{flex:1;font-size:16px;line-height:1.2}
+.prio-n{flex:none;width:32px;height:32px;border-radius:50%;background:var(--club);color:var(--onclub);display:grid;place-items:center;font-family:var(--f-display);font-size:18px}
+.prio-mv{display:flex;gap:6px}.mv{min-width:44px;min-height:44px;border:1.5px solid var(--rule);border-radius:10px;background:var(--paper);font-size:16px;cursor:pointer;color:var(--ink)}.mv:disabled{opacity:.35;cursor:default}
+.tgts li{display:flex;gap:8px;align-items:center;font-size:15px}.tgt{flex:none;width:26px;height:26px;border-radius:6px;background:var(--paper2);display:grid;place-items:center;font-family:var(--f-display);font-size:15px}
+.tk{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;font-size:15px}
+.tk-i{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;background:var(--paper2)}
+.tk-good .tk-i{background:#e3f3e7;color:var(--good)}.tk-bad .tk-i{background:#fbe5e2;color:var(--bad)}.tk-wait .tk-i{background:#fdf0cf;color:#7a5200}.tk-rumour .tk-i{background:#e6ecf6;color:#2f4c7a}.tk-echo .tk-i{background:#e6ecf6;color:#2f4c7a}
+.tk-rumour{font-style:italic}.tk-world{color:var(--muted)}
+.talk{background:#fff6d6;border:2px solid var(--rule);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}.talk p{margin:0}
+.talk-h{font-family:var(--f-label);font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase}
+.tl2 li{display:grid;grid-template-columns:56px 1fr;gap:8px;align-items:start;font-size:15px;border-bottom:1px dashed var(--line);padding:6px 0}
+.tl-t{font-family:var(--f-display);font-size:17px}
+.bal{display:grid;grid-template-columns:1fr 1fr;gap:10px}.bal>div{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:10px;font-size:15px}.bal p{margin:0}
+.balr li{display:flex;gap:8px;align-items:center;font-size:15px}
+.chipr{display:inline-flex;align-items:center;gap:4px;font-weight:700;font-size:14px;padding:3px 9px;border-radius:999px;border:1.5px solid currentColor;white-space:nowrap}
+.chipr.good{color:var(--good);background:#e3f3e7}.chipr.bad{color:var(--bad);background:#fbe5e2}

@@ -31,6 +31,7 @@ function play(policy,seed,seasons=2){
             const pickv=policy==='random'?opts[ri(opts.length)]:policy==='passive'?opts[0]:({1:'steady',2:'reserves',3:'pros',4:'oneStar',5:'core',6:'position'})[M.step];m.act('mchoose',pickv);break}
           m.act('mdone');break}
         case'window':m.act('windowDone');break;
+        case'tsum':{const sm=S.cf.sum;if(sm.step==='week'&&sm.talk&&!sm.talk.answered&&policy!=='passive'){const o=m.talkOptions(sm.talk);m.act('talk',policy==='random'?o[ri(o.length)].k:o[0].k);break}m.act('sumNext');break}
         case'week':{if(!S._fedSeen||S._fedSeen!==S.season+'_'+S.week){S._fedSeen=S.season+'_'+S.week;const f=S.feed||[];out.fc=(out.fc||[]).concat([f.length]);out.fsrc=(out.fsrc||[]).concat([new Set(f.map(x=>x.src)).size]);out.texts=(out.texts||[]).concat(f.map(x=>x.head+'|'+x.line));
             if(policy==='active'){const c=f.find(x=>x.pid&&!(S.reacts||{})[x.id]);if(c){m.act('react',c.id+'|note');break}}}
           out.weeks=(out.weeks||0)+1;out.sits=(out.sits||0)+S.desk.length;S.desk.forEach(x=>{if(!x._c){x._c=1;out.gens=out.gens||{};out.gens[x.gen]=(out.gens[x.gen]||0)+1;const tt=m.sitBuild(S.desk.indexOf(x)).title;const key=S.season+'|'+tt;out.titles=out.titles||{};out.titles[key]=(out.titles[key]||0)+1}});

@@ -10,8 +10,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
  // reach week 1
  await go('toSeats');await p.click('main [data-act=seat]');await go('arrive');for(let i=0;i<3;i++){await p.click('main [data-act=pick]')}
  await p.waitForTimeout(260);await p.screenshot({path:path.join(shots,'m-tdhire.png'),fullPage:true});const th=await p.evaluate(()=>[...document.querySelectorAll('main [data-act=tdhire]')].map(b=>Math.round(b.getBoundingClientRect().height)));console.log('tdhire     | hire buttons',th.join(','),'px');await p.click('main [data-act=tdhire]');
- await go('meetNext');for(let i=0;i<6;i++)await p.click('main [data-act=mchoose]');await go('meetNext');await go('mdone');await go('windowDone');
- await go('play');await go('next'); // week 2, with a result and form
+ await go('meetNext');for(let i=0;i<6;i++)await p.click('main [data-act=mchoose]');await go('meetNext');await go('mdone');
  const audit=async(name)=>{
    await p.waitForTimeout(260);
    const r=await p.evaluate(()=>{const out={small:[],tiny:[],wide:document.documentElement.scrollWidth,nav:!!document.querySelector('.tabbar'),primary:null};
@@ -22,6 +21,11 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
    await p.screenshot({path:path.join(shots,`m-${name}.png`),fullPage:false});
    console.log(name.padEnd(10),'| small targets:',r.small.length?r.small.slice(0,4).join(' '):'none','| text <13px:',r.tiny.length?r.tiny.slice(0,3).join(' '):'none','| primary at',r.primary==null?'—':r.primary+'% of screen height','| bottom bar:',r.nav?'yes':'no','| width',r.wide);
  };
+ // the transfer summer: review, plan, four weeks (answer a talking point if there is one), deadline, balance
+ await audit('sum-review');await go('sumNext');await audit('sum-plan');await go('sumNext');
+ for(let w=1;w<=4;w++){if(w===1||await p.$('main [data-act=talk]')){await audit('sum-week'+w)}const t=await p.$('main [data-act=talk]');if(t)await t.click();await go('sumNext')}
+ await audit('sum-deadline');await go('sumNext');await audit('sum-balance');await go('sumNext');
+ await go('play');await go('next'); // week 2, with a result and form
  await audit('club');
  await p.evaluate(()=>window.scrollTo(0,0));await p.screenshot({path:path.join(shots,'m-club-full.png'),fullPage:true});
  await p.click('.tabbar [data-arg=post]');await audit('post');

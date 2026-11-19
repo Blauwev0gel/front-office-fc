@@ -136,6 +136,7 @@ Uitwerking: `ALV-VOORZITTER.md`.
 | Fundering — papieren proef (Ravensby) | Een selectie van 24, kaders, het zomerwindow, coach tegen TD | Binding ja, weken goed, TD te heftig | Kaders werken causaal; de TD moet terughoudender zijn en herinvesteren |
 | Fundering — build (`voorzitter-fundering/`) | Weekritme, een TD binnen kaders, de laag erbovenop | Nog te spelen door de eigenaar | De fundering draait drie seizoenen zonder voorzitter. Profiel, budget, plafond en de academieregel veranderen de TD meetbaar. 0,83 situaties per week. Actief wint 40/40 ALV's, passief 10/40, willekeurig 17/40: de balans is nog te makkelijk |
 | Spel — pijler 1 (feed en zaterdag) | Een feed met kaarten en reacties, een rijke samenvatting met momenten | Speeltest 1 staat open | 4–6 kaarten per week (gem. 4,4), 58/60 weken uit drie of meer bronnen, 0 dubbele kaarten, 19–26 vervolgkaarten per seizoen, 15–18 wedstrijdmomenten per seizoen die naar beslissingen van de voorzitter verwijzen. Balans: actief 39/40, passief 14/40, willekeurig 20/40 (nog te makkelijk; dat is pijler 4) |
+| Warmte — proef (programmalook) | Clubkleuren, wapen, tenue, portretten, cover, balk onderaan, programmapagina, scorebord | Speeltest staat open | 0 contrastfouten over 5 seeds × 32 clubs, 0 dubbele wapens, deterministisch. Mobiele controle: geen te kleine tikdoelen of tekst, hoofdknop op 85–92% van de schermhoogte, balk op elk hoofdscherm, geen horizontaal scrollen |
 
 ## 12. Wat we bewust anders doen dan eerder
 

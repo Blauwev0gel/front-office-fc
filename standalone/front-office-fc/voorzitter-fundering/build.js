@@ -3,7 +3,7 @@
 const fs=require('fs'),path=require('path');const S=p=>fs.readFileSync(path.join(__dirname,'src',p),'utf8');
 const ORDER=[
   'core/content.js','core/rng.js',          // basis: inhoud, rng, helpers
-  'world/world.js','world/football.js','world/news.js', // de regio
+  'world/identity.js','world/world.js','world/football.js','world/news.js', // de regio
   'core/words.js',
   'club/players.js','club/stories.js','club/finance.js','club/market.js','club/club.js','club/feed.js',         // de fundering (weet niets van de voorzitter)
   'chairman/state.js','chairman/promises.js','chairman/cards.js','chairman/situations.js','chairman/meeting.js','chairman/reactions.js','chairman/flow.js', // de voorzitterslaag

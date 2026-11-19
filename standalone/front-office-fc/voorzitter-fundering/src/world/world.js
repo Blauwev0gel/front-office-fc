@@ -58,6 +58,7 @@ function newWorld(seed){
   // free coaches pool
   for(let k=0;k<5;k++)S.pool.push(mkPerson('coach',null));
   faInit();
+  assignClubColours();
   // fixtures and expectations
   startSeasonWorld();
   // seats: three open chairs with spread

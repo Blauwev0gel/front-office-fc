@@ -46,14 +46,14 @@ function applyCard(i){const s=S.desk[S.sit],sc=sitBuild(S.sit),card=sceneCards(s
   S.sit=null;if(S.hire){S.afterHire='week';S.screen='hire';return}S.screen='week'}
 function deskDone(){for(let i=0;i<S.desk.length;i++){const s=S.desk[i];if(s.done)continue;const sc=sitBuild(i);if(sc.noDeal)sc.noDeal.run();s.done=true;s.choice='Left to run its course'}}
 function playMatch(){deskDone();if(S.hire){S.afterHire='play';S.screen='hire';return}
-  const m=simRound(S.week);S.round=S.week;m.influence=influenceMoments(m);m.lines=matchMoments(m);S.last=m;S.screen='result'}
+  const m=simRound(S.week);S.round=S.week;m.influence=influenceMoments(m);m.lines=matchMoments(m);S.last=m;S.myRes=(S.myRes||[]).concat([m.pts===3?'W':m.pts===1?'D':'L']).slice(-10);S.screen='result'}
 function afterResult(){if(S.week>=30)startALV();else startWeek()}
 function summerWindow(){S.windowLog=tdWindow('summer');S.screen='window'}
 
 /* ----- Election at a new club ----- */
 function chooseSeat(id){
   S.my=id;const c=C();S.oppGroup=weakest(c);S.promises=[];S.flags={captainExpiring:rnd()<.6};S.mods=[];S.youth=0;S.debuts=0;S.talentStarts=0;
-  S.mlog=[];S.phase='arrival';S.screen='arrival';S.cool={};S.last=null;S.startSeason=S.season;
+  S.myRes=[];S.mlog=[];S.phase='arrival';S.screen='arrival';S.cool={};S.last=null;S.startSeason=S.season;
   cfInit(id,c.str,cast('td'),cast('coach'),c.rival);
   const sq=S.cf.squad,tal=sq.filter(p=>p.academy).sort((a,b)=>b.pa-a.pa)[0]||sq.slice().sort((a,b)=>a.age-b.age)[0];S.cf.talentPid=tal.id;if(P(cast('talent')))P(cast('talent')).name=tal.name;
   const capP=sq.filter(p=>p.age>=25).sort((a,b)=>b.q-a.q)[0];if(capP&&P(cast('captain'))){capP.name=P(cast('captain')).name;capP.captain=true;capP.age=P(cast('captain')).age;if(S.flags.captainExpiring)capP.contract=1}

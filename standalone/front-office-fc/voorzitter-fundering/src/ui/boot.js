@@ -6,6 +6,7 @@ if(HAS_DOM){
   document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,arg=b.dataset.arg;
     if(a==='ov'){UI.over=arg||null;if(arg==='region')UI.tab='tables';render();return}
     if(a==='tab'){UI.tab=arg;render();return}
+    if(a==='tab2'){UI.t=arg;render();window.scrollTo(0,0);return}
     if(a==='player'){UI.over='player';UI.pid=arg;render();return}
     if(a==='continue'){if(load())render();return}
     if(a==='new'){UI.lobby={};UI.over=null;act('new');}
@@ -13,6 +14,7 @@ if(HAS_DOM){
     else act(a,arg);
     save();render();if(a!=='frame'&&a!=='react')window.scrollTo(0,0);});
   const boot=data=>{if(data&&data.S)S=data.S;render()};
+  window.addEventListener('hashchange',render);
   window.claude?.hot?.snapshot?.(()=>({S}));
   window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});
 }

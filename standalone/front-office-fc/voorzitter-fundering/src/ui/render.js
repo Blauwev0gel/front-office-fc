@@ -3,10 +3,10 @@ const crest=`<svg class="crest" viewBox="0 0 34 34" aria-hidden="true"><path d="
 function topBar(){
   const c=S.my?C():null;
   const title=c?c.name:'The Northmarch';
-  const sub=!c?`Season ${S.season} · Between clubs`:S.phase==='alv'?'Annual general meeting':S.phase==='summer'?`Season ${S.season} · Summer`:!S.week?`Season ${S.season} · Summer`:`Season ${S.season} · Week ${S.week} · ${ord(myPos())}`;
-  return`<header class="top">${crest}<div class="grow"><div class="club">${esc(title)}</div><div class="sub">${esc(sub)}</div></div><nav class="navbtns" aria-label="Club">${S.phase!=='title'?'<button class="tbtn" data-act="ov" data-arg="region">Region</button>':''}${S.cf&&S.phase!=='arrival'?'<button class="tbtn" data-act="ov" data-arg="squad">Squad</button>':''}${c&&S.phase!=='arrival'?'<button class="tbtn" data-act="ov" data-arg="table">Table</button>':''}</nav></header>`;
+  const sub=!c?`Season ${S.season} · Between clubs`:S.phase==='alv'?"Members' corner · The AGM":S.phase==='summer'?`Season ${S.season} · Summer`:!S.week?`Season ${S.season} · Pre-season`:`Week ${S.week} · ${ord(myPos())} in the ${c.tier===0?'Premier':'One'}`;
+  return`<header class="top">${c&&c.col?crestSVG(c,40):crest}<div class="grow"><div class="club">${esc(title)}</div><div class="sub">${esc(sub)}</div></div>${S.phase!=='title'&&!(S.screen==='week')?'<button class="tbtn" style="border-color:var(--onclub);color:var(--onclub)" data-act="ov" data-arg="region">Region</button>':''}</header>`;
 }
-function face(pid){const p=P(pid);const n=p.name.split(' ').map(x=>x[0]).join('').slice(0,2);return`<div class="face${p.role==='opp'?' opp':''}" aria-hidden="true">${n}</div>`}
+function face(pid){return personPortrait(pid,48)}
 function whoRow(pid){const p=P(pid);const where=p.club?CL(p.club).name:p.role==='journalist'?'The Northmarch Echo':'Out of work';return`<div class="who">${face(pid)}<div><b>${esc(p.name)}</b><span>${esc(ROLE_WORD[p.role]||p.role)} · ${esc(where)}</span></div></div>`}
 function dealHTML(c,i){
   const act=S.screen==='elect'?'electCard':'card';
@@ -18,12 +18,28 @@ function dealHTML(c,i){
 }
 function arrow(k){const g=grpOf(k);const d=g.mood-((S.prevMood||{})[k]??g.mood);return d>=6?'<span class="up">↑↑</span>':d>0?'<span class="up">↑</span>':d<=-6?'<span class="down">↓↓</span>':d<0?'<span class="down">↓</span>':''}
 function moodsPanel(title){return`<div class="panel">${title?`<p class="eyebrow">${title}</p>`:''}${C().groups.map(g=>`<div class="row"><span>${esc(gname(C(),g.k))} <span class="small muted">${g.share}%</span></span><span class="mood">${moodWord(g.mood)} ${arrow(g.k)}</span></div>`).join('')}</div>`}
+const PRIMARY=['play','next','windowDone','mdone','meetNext','arrive','alvLobby','lobbyDone','toEnd','nextSeason','summerNext','toSeats','framesDone'];
+let LAST_VIEW='';
 function render(){
   if(!HAS_DOM)return;const $=document.getElementById('app');
-  if(!S||S.screen==='title'){$.innerHTML=titleView();return}
+  if(location.hash==='#style'){$.setAttribute('style','');$.innerHTML=styleView();document.body.classList.add('noNav');return}
+  if(!S||S.screen==='title'){$.setAttribute('style','');$.innerHTML=titleView();document.body.classList.add('noNav');return}
+  if(S.my&&!C().col)assignClubColours();
   const v={prologue:prologueView,seats:seatsView,arrival:arrivalView,manifest:manifestView,week:weekView,meeting:meetingView,sit:sitView,hire:hireView,result:resultView,frames:framesView,window:windowView,alv:alvView,summer:summerView}[S.screen];
-  $.innerHTML=topBar()+`<main>${v?v():''}</main>`+(UI.over?overlayView():'');
+  const nav=S.screen==='week';UI.t=UI.t||'club';
+  let body=v?v():'';
+  body=body.replace(/class="btn( ghost)?" data-act="([a-zA-Z]+)"/g,(m,g,a)=>PRIMARY.includes(a)?`class="btn${g||''} primary" data-act="${a}"`:m);
+  const key=S.screen+(nav?UI.t:'')+(S.sit??'');const enter=key!==LAST_VIEW?' enter':'';LAST_VIEW=key;
+  $.setAttribute('style',S.my&&C().col?clubVars(C()):'');
+  document.body.classList.toggle('noNav',!nav);
+  $.innerHTML=topBar()+`<main class="${enter.trim()}">${body}</main>`+(nav?tabBar():'')+(UI.over?overlayView():'');
 }
+const TAB_ICON={club:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v8c0 5-4 7.5-8 8.5C8 19.5 4 17 4 12z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+ post:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 7l9 6 9-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+ room:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3l-4 3 2 4 2-1v12h8V9l2 1 2-4-4-3c-1 2-3 2-4 2s-3 0-4-2z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+ members:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 20c0-4 2.5-6 5-6s5 2 5 6M11 20c0-4 2.5-6 5-6s5 2 5 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>'};
+function tabBar(){const open=S.desk?S.desk.filter(s=>!s.done).length:0;
+  return`<nav class="tabbar" aria-label="Club">${[['club','Club'],['post','In the post'],['room','Dressing room'],['members','Members']].map(([k,n])=>`<button class="tab${UI.t===k?' on':''}" data-act="tab2" data-arg="${k}" aria-current="${UI.t===k?'page':'false'}">${TAB_ICON[k]}<span>${n}</span>${k==='post'&&open?`<span class="badge">${open}</span>`:''}</button>`).join('')}</nav>`}
 function titleView(){let has=false;try{has=!!localStorage.getItem(SAVE_KEY)}catch(e){}
   return`<main style="padding-top:48px">${crest.replace('class="crest"','class="crest" style="width:64px;height:64px"')}<p class="eyebrow">A world of members' clubs</p><h1>The Northmarch Chairman</h1>
   <p>Thirty-two clubs in one county. Every club has its own members, money, rivals and people, and every one of them remembers you. You never pick the team.</p>
@@ -64,9 +80,9 @@ function miniPlayer(id){const p=playerById(id);if(!p)return'';return`<button cla
 function spark(p){const h=p.formHist||[];if(!h.length)return'';return`<span class="spark" aria-label="recent form">${h.map(v=>`<i style="height:${Math.max(4,Math.round((v-30)/60*22))}px" class="${v>=70?'hi':v<50?'lo':''}"></i>`).join('')}</span>`}
 function sitView(){
   const sc=sitBuild(S.sit);sc.who.forEach(x=>{if(P(x)&&P(x).role!=='talent')meet(x)});
-  return`<p class="eyebrow">On your desk</p><h2>${esc(sc.title)}</h2>${sc.player?miniPlayer(sc.player):''}<section class="scene">${bubbles(sc)}</section>
+  return`<p class="eyebrow">In the post</p><h2>${esc(sc.title)}</h2>${sc.player?miniPlayer(sc.player):''}<section class="scene">${bubbles(sc)}</section>
   <details class="who-more"><summary>Who is involved</summary>${sc.who.filter(x=>P(x)).map(x=>whoRow(x)+personLine(x)).join('')}</details>
-  <p class="eyebrow">Your options</p><div class="stack">${sceneCards(sc).map(dealHTML).join('')}</div><button class="btn ghost" data-act="back">Back to the week</button>`;
+  <p class="eyebrow">On the table</p><div class="stack">${sceneCards(sc).map(dealHTML).join('')}</div><button class="btn ghost" data-act="back">Back to the week</button>`;
 }
 function hireView(){
   const list=S.hire.map(pid=>{const p=P(pid);const m=p.mem[p.mem.length-1];const past=p.career.length?`Past: ${p.career.map(x=>CL(x).name).join(', ')}.`:'No league experience.';
@@ -102,6 +118,8 @@ function summerView(){
   const news=S.news.filter(n=>n.s===S.season-1||n.s===S.season).sort((a,b)=>a.pri-b.pri).slice(0,5).map(n=>n.text);
   return`${echoBox('June',S.formerClub?`Life after ${CL(S.formerClub).name}`:'The summer',news.length?news:['A quiet summer in the Northmarch.'])}<p>The region moved on while you packed your desk. The people you met remember what you did.</p><button class="btn" data-act="summerNext">See the open seats</button>`;
 }
+function membersBody(){const c=C();const pr=S.promises.map(p=>`<div class="row small"><span>${esc(pdef(p.id).t)}</span><span class="mood">${p.st!=='open'?p.st:behind(p.id)?'Behind':'On track'}</span></div>`).join('')||'<p class="small muted">No promises.</p>';
+  const st=standings(c.tier);return`<p class="eyebrow">Members' corner</p>${moodsPanel('The members')}<div class="panel"><p class="eyebrow">Chairman's notes</p>${pr}</div>${S.cf?moneyPanel()+mandatePanel():''}<div class="panel"><p class="eyebrow">The table</p>${st.map((id,i)=>`<div class="row small" style="font-variant-numeric:tabular-nums${id===S.my?';font-weight:700':''}${i===1?';border-bottom:2px solid var(--good)':''}${i===13?';border-bottom:2px solid var(--bad)':''}"><span style="display:flex;gap:8px;align-items:center">${i+1}. ${crestSVG(CL(id),20)} ${esc(CL(id).name)}</span><span>${S.tbl[id].pts}</span></div>`).join('')}</div><button class="btn ghost" data-act="ov" data-arg="region">The region, people and free agents</button>`}
 function overlayView(){
   if(UI.over==='player')return playerOverlay();
   if(UI.over==='squad')return squadOverlay();
@@ -122,15 +140,21 @@ function overlayView(){
 
 /* ----- foundation screens ----- */
 function weekView(){
-  const e=S.echo,fx=nextFixture(),open=S.desk.filter(s=>!s.done).length;
-  const desk=S.desk.map((s,i)=>{const sc=sitBuild(i);const f=sc.who.find(x=>P(x));const hook=(sc.lines.find(l=>l.includes('"'))||sc.lines[0]||'').replace(/^[A-Z][A-Za-z'.\- ]+: /,'');return s.done?`<div class="deskc done"><b>${esc(sc.title)}</b><span class="meta">Done: ${esc(s.choice)}</span></div>`:`<button class="deskc" data-act="sit" data-arg="${i}">${f?face(f).replace('class="face','class="face sm'):'<span class="face sm" aria-hidden="true">★</span>'}<span class="dk"><b>${esc(sc.title)}</b><span class="meta clamp2">${esc(hook)}</span></span></button>`}).join('');
-  return`<p class="eyebrow">Week ${S.week} · ${esc(C().name)}</p>
-  ${moneyStrip()}
-  ${feedView()}
-  <div class="panel"><p class="eyebrow">On your desk</p>${S.desk.length?`<div class="stack">${desk}</div>`:'<p class="small muted">Nothing needs you this week.</p>'}</div>
-  ${fx?fixtureCard(fx):''}
-  <button class="btn" data-act="play">${open?'Leave the rest and play the match':'Play the match'}</button>`;
+  const fx=nextFixture(),open=S.desk.filter(s=>!s.done).length;
+  const playBtn=`<button class="btn" data-act="play">${open?`Play Saturday · ${open} in the post`:'Play Saturday'}</button>`;
+  if(UI.t==='post'){
+    const desk=S.desk.map((s,i)=>{const sc=sitBuild(i);const f=sc.who.find(x=>P(x));const hook=(sc.lines.find(l=>l.includes('"'))||sc.lines[0]||'').replace(/^[A-Z][A-Za-z'.\- ]+: /,'');
+      return s.done?`<div class="deskc done"><b>${esc(sc.title)}</b><span class="stamp${s.choice==='Left to run its course'||/^No deal/.test(s.choice)?' no':''}">${s.choice==='Left to run its course'?'NO DEAL':'AGREED'}</span><span class="meta">${esc(s.choice)}</span></div>`
+        :`<button class="deskc" data-act="sit" data-arg="${i}">${f?personPortrait(f,44):crestSVG(C(),44)}<span class="dk"><b>${esc(sc.title)}</b><span class="meta clamp2">${esc(hook)}</span></span></button>`}).join('');
+    return`<p class="eyebrow">In the post · Week ${S.week}</p>${S.desk.length?`<div class="stack">${desk}</div>`:'<p class="muted">Nothing in the post this week. Enjoy it.</p>'}${playBtn}`}
+  if(UI.t==='room')return squadBody()+playBtn;
+  if(UI.t==='members')return membersBody()+playBtn;
+  return`${coverView()}<p class="eyebrow">Club news</p>${feedView()}${fx?fixtureCard(fx):''}${playBtn}`;
 }
+function myForm(){return(S.myRes||[]).slice(-5).map(r=>`<span class="${r}">${r}</span>`).join('')}
+function coverView(){const c=C(),t=S.tbl[S.my],f=S.cf&&S.cf.fin;
+  return`<section class="cover">${crestSVG(c,96,true)}<div><h1>${esc(c.name)}</h1><p class="meta2">Founded ${c.founded} · ${c.tier===0?'Northmarch Premier':'Northmarch One'}</p><p class="meta2">${esc(c.ground)} · ${c.capacity.toLocaleString('en-GB')}</p></div></section>
+  <div class="cover-stats"><div><i>Position</i><b>${S.week>1?ord(myPos()):'—'}</b></div><div><i>Form</i><span class="form">${myForm()||'<b>—</b>'}</span></div><div><i>Bank</i><b class="${c.cash<0?'down':''}">£${Math.round(c.cash)}k</b></div></div>`}
 function resultView(){
   const m=S.last,c=C();const sc=m.scorers.length?m.scorers.join(', '):'none';
   const items=S.mlog.map(e=>`<li>${esc(e.text)} ${e.num?`<span class="num">${esc(e.num)}</span>`:''}<span class="why">${esc(e.why)}</span></li>`).join('');
@@ -138,7 +162,7 @@ function resultView(){
   const tbl=around.map(id=>`<div class="row small" style="font-variant-numeric:tabular-nums${id===S.my?';font-weight:600':''}"><span>${st.indexOf(id)+1}. ${esc(CL(id).name)}</span><span>${S.tbl[id].pts} pts</span></div>`).join('');
   const prom=S.promises.filter(x=>x.st==='open').map(x=>`<div class="row small"><span>${esc(pdef(x.id).t)}</span><span class="mood ${behind(x.id)?'down':'up'}">${behind(x.id)?'Behind':'On track'}</span></div>`).join('');
   return`<p class="eyebrow">Week ${S.week} · Full time${m.derby?' · Derby':''}</p>
-  <div class="panel"><div class="row"><b>${esc(m.home?c.name:CL(m.opp).name)}</b><span class="big" style="font-size:36px">${m.home?m.gf:m.ga}</span></div><div class="row"><b>${esc(m.home?CL(m.opp).name:c.name)}</b><span class="big" style="font-size:36px">${m.home?m.ga:m.gf}</span></div></div>
+  <div class="board${m.pts===3?' celebrate':''}" role="img" aria-label="Full time"><span class="ft">FULL TIME</span><span class="t">${esc(m.home?c.name:CL(m.opp).name)}</span><span class="s">${m.home?m.gf:m.ga}</span><span class="t">${esc(m.home?CL(m.opp).name:c.name)}</span><span class="s" style="animation-delay:.25s">${m.home?m.ga:m.gf}</span></div>${m.pts===3?`<p class="small" style="display:flex;gap:8px;align-items:center">${crestSVG(c,28)} ${m.derby?'The town is ours tonight.':'The crowd sings all the way home.'}</p>`:''}
   ${(m.lines||[]).length?`<div class="panel"><p class="eyebrow">Moments</p>${m.lines.map(x=>`<p>${esc(x)}</p>`).join('')}</div>`:''}
   ${(m.influence||[]).length?`<div class="panel yours"><p class="eyebrow">Your hand in it</p>${m.influence.map(x=>`<p>${esc(x)}</p>`).join('')}</div>`:''}
   <div class="panel"><p class="eyebrow">Why</p>${m.why.map(w=>`<p>${esc(w)}</p>`).join('')}</div>
@@ -151,6 +175,8 @@ function framesPanel(){const td=P(S.cf.tdId);return`<div class="panel"><p class=
 function planPanel(){const plan=cfPlan(),td=P(S.cf.tdId);return`<div class="panel"><p class="eyebrow">${esc(td.name)}'s plan</p>${plan.length?`<ul class="log">${plan.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<p class="small muted">No holes he is worried about.</p>'}<p class="small muted">${esc(td.name)}: ${td.traits.join(', ')}, values ${VALUE_WORD[td.value]}.</p></div>`}
 function framesView(){return`<p class="eyebrow">Summer · Season ${S.season}</p><h2>Set the frames</h2><p>The director of football works inside these. You never pick a player.</p>${planPanel()}${framesPanel()}<button class="btn" data-act="framesDone">Open the summer window</button>`}
 function windowView(){return`<p class="eyebrow">The summer window</p><h2>What ${esc(P(S.cf.tdId).name)} did</h2><div class="panel"><ul class="log">${S.windowLog.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></div>${planPanel()}<p class="small muted">Team strength: ${qWord(squadQuality(S.cf.squad,0))}. Open the squad to see who plays where.</p><button class="btn" data-act="windowDone">Start the season</button>`}
+function squadBody(){const sq=S.cf.squad,xi=pickXI(sq,S.youth),inXI=new Map(xi.map(x=>[x.p.id,x.slot]));
+  return`<p class="eyebrow">The dressing room</p><p class="small muted">${sq.length} players. ● in the coach's eleven. Strength: ${qWord(squadQuality(sq,S.youth))}.</p>${planPanel()}${POS.map(pos=>{const ps=sq.filter(p=>p.pos===pos).sort((a,b)=>b.q-a.q);return`<div class="panel"><p class="eyebrow">${POS_L[pos]} <span class="muted">${ps.filter(p=>!p.loan&&p.inj<=0).length}/${REQ[pos]}</span></p>${ps.map(p=>`<button class="prow" data-act="player" data-arg="${p.id}"><span class="row small"><span style="display:flex;gap:10px;align-items:center">${playerPortrait(p,36)}<span>${inXI.has(p.id)?'● ':''}<b>${esc(p.name)}</b>${p.captain?' (c)':''} · ${p.age}<br><span class="muted">${qWord(p.q)}, ${phaseWord(p)}</span></span></span><span class="mood">${p.inj>0?`<span class="down">Injured</span>`:p.loan?'On loan':inXI.has(p.id)&&inXI.get(p.id)!==p.pos?`<span class="down">Plays ${inXI.get(p.id)}</span>`:''}</span></span></button>`).join('')||'<p class="small muted">Nobody.</p>'}</div>`}).join('')}`}
 function squadOverlay(){
   const sq=S.cf.squad,xi=pickXI(sq,S.youth),inXI=new Map(xi.map(x=>[x.p.id,x.slot]));
   const rows=POS.map(pos=>{const ps=sq.filter(p=>p.pos===pos).sort((a,b)=>b.q-a.q);return`<div class="panel"><p class="eyebrow">${POS_L[pos]} <span class="muted">${ps.filter(p=>!p.loan&&p.inj<=0).length}/${REQ[pos]}</span></p>${ps.map(p=>`<button class="prow" data-act="player" data-arg="${p.id}"><span class="row small"><span>${inXI.has(p.id)?'● ':''}<b>${esc(p.name)}</b>${p.captain?' (c)':''} · ${p.age}<br><span class="muted">${qWord(p.q)}, ${phaseWord(p)} · ${p.contract>0?p.contract+'y':'loan'} · £${p.wage}/wk${p.trait?' · '+p.trait:''}</span></span><span class="mood">${p.inj>0?`<span class="down">Injured ${p.inj}w</span>`:p.loan?'On loan':inXI.has(p.id)&&inXI.get(p.id)!==p.pos?`<span class="down">Plays ${inXI.get(p.id)}</span>`:''}</span></span></button>`).join('')||'<p class="small muted">Nobody.</p>'}</div>`}).join('');
@@ -196,13 +222,21 @@ function formDots(id){const res=[];const tier=CL(id).tier;for(let r=Math.max(1,S
   // results are not stored per match for AI clubs; use the table trend as an honest proxy
   const t=S.tbl[id];if(!t||!t.p)return'';const ppg=t.pts/t.p;return`<span class="small muted">${t.w}W ${t.d}D ${t.l}L</span>`}
 function fixtureCard(fx){const c=C(),o=CL(fx.opp),derby=fx.opp===c.rival,ps=myPos(),po=posOf(fx.opp);
-  const stake=derby?'Derby':Math.abs(ps-po)<=2&&ps<=4?'Top of the table':ps>=14&&po>=13?'Relegation six-pointer':'League';
-  return`<div class="panel fixture"><p class="eyebrow">Saturday · ${stake}</p><div class="row"><span><b>${esc(fx.home?c.name:o.name)}</b><br>${formDots(fx.home?c.id:o.id)}</span><span class="vs">v</span><span style="text-align:right"><b>${esc(fx.home?o.name:c.name)}</b><br>${formDots(fx.home?o.id:c.id)}</span></div><p class="small muted">${ord(ps)} against ${ord(po)}${fx.home?', at home':', away'}.</p></div>`}
+  const stake=derby?'The derby':Math.abs(ps-po)<=2&&ps<=4?'Top of the table':ps>=14&&po>=13?'Six-pointer at the bottom':'League match';
+  const home=fx.home?c:o,away=fx.home?o:c,xi=S.cf?pickXI(S.cf.squad,S.youth):[];
+  return`<section class="prog"><div class="band">Saturday 3pm · ${esc(home.ground||'')} · ${stake}</div><div class="vsrow"><div class="side">${crestSVG(home,64)}<b>${esc(home.name)}</b><span class="small muted">${ord(posOf(home.id))}</span></div><span class="vs">V</span><div class="side">${crestSVG(away,64)}<b>${esc(away.name)}</b><span class="small muted">${ord(posOf(away.id))}</span></div></div>
+  ${xi.length?`<details><summary class="small" style="padding:0 12px 10px;min-height:44px;display:flex;align-items:center;cursor:pointer">Today's teamsheet</summary><ol class="teamsheet">${xi.map((x,i)=>`<li><b>${i+1}</b>${esc(lastName(x.p.name))}${x.p.pos!==x.slot?' <span class="down small">('+x.slot+')</span>':''}</li>`).join('')}</ol></details>`:''}</section>`}
 function feedView(){
   const left=reactsLeft();
   const cards=(S.feed||[]).map(c=>{const p=c.pid?playerById(c.pid):null,r=(S.reacts||{})[c.id];
-    const img=p?`<span class="face sm" aria-hidden="true">${esc(p.name.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`:`<span class="face sm src-${c.src}" aria-hidden="true">${{region:'◆',town:'♣',staff:'✎',players:'●'}[c.src]}</span>`;
+    const img=p?playerPortrait(p,44):c.src==='town'||c.src==='staff'?crestSVG(C(),40):`<span class="face sm src-${c.src}" aria-hidden="true">◆</span>`;const wt=['debut','firstGoal','winner','comeback','hundred','lastSeason'].includes(c.kind)?' heavy':['weather','groundsman','volunteers','physio','pubTalk','leader'].includes(c.kind)?' small':'';
     const btns=!r&&canReact(c)&&left>0?`<span class="reacts">${p?`<button class="rbtn" data-act="react" data-arg="${c.id}|note">Send a note</button>`:''}<button class="rbtn" data-act="react" data-arg="${c.id}|echo">Say it in the Echo</button></span>`:'';
-    return`<article class="fcard${c.follow?' follow':''}">${img}<div class="fc"><span class="fsrc">${FEED_SRC[c.src]}${c.follow?' · Follow-up':''}</span>${p?`<button class="fhead linkish" data-act="player" data-arg="${p.id}">${esc(c.head)}</button>`:`<b class="fhead">${esc(c.head)}</b>`}<p>${esc(c.line)}</p>${r?`<p class="reply">${r.type==='note'?'✉':'📰'} ${esc(r.reply)}</p>`:btns}</div></article>`}).join('');
+    return`<article class="fcard${wt}${c.follow?' follow':''}">${img}<div class="fc"><span class="fsrc">${FEED_SRC[c.src]}${c.follow?' · Follow-up':''}</span>${p?`<button class="fhead linkish" data-act="player" data-arg="${p.id}">${esc(c.head)}</button>`:`<b class="fhead">${esc(c.head)}</b>`}<p>${esc(c.line)}</p>${r?`<p class="reply">${r.type==='note'?'✉':'📰'} ${esc(r.reply)}</p>`:btns}</div></article>`}).join('');
   return`<section class="feed" aria-label="This week">${cards||'<p class="small muted">A quiet week.</p>'}${left<2&&left>=0?`<p class="small muted">${left} reaction${left===1?'':'s'} left this week.</p>`:''}</section>`;
 }
+
+function styleView(){if(!S)act('new',7);const ids=Object.keys(S.clubs);
+  return`<main style="padding-top:16px"><h1>Northmarch style</h1><p>Every club's crest, kit and colours, generated from the seed. Portraits below.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px">${ids.map(id=>{const c=CL(id);return`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center">${crestSVG(c,72,true)}${kitSVG(c,48)}<span class="small">${esc(c.name)}</span></div>`}).join('')}</div>
+  <h2>Portraits</h2><div style="display:flex;flex-wrap:wrap;gap:8px">${Object.keys(S.P).slice(0,24).map(id=>personPortrait(id,64)).join('')}</div>
+  <h2>Stadium</h2>${stadiumSVG(CL(ids[0]),.7)}</main>`}

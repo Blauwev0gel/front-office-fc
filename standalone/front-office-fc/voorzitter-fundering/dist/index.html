@@ -8,23 +8,22 @@
 <title>Northmarch Club Foundation</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=Literata:ital,opsz,wght@1,7..72,400;1,7..72,500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
 
 <style>
 /* Layout: one narrow column, a matchday programme held in one hand; moorland slate with a lamp-orange signal. */
+/* Matchday programme: newsprint paper, black ink, the club's own colours as the identity.
+   One deliberate light look (the programme is printed on paper); club colours come in as --club / --club2. */
 :root{
-  --paper:#eef0f1; --card:#fbfcfc; --ink:#151d24; --muted:#56616b; --line:#cfd6dc;
-  --navy:#1d3b4f; --signal:#bf4f17; --good:#2b7346; --bad:#b03628; --onnavy:#ffffff; --chip:#e1e7eb;
-  --f-display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
-  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --f-voice:"Literata",Georgia,"Times New Roman",serif;
+  --paper:#f3f1eb; --paper2:#e8e4d8; --card:#fbfaf6; --ink:#151515; --muted:#57534a; --line:#cbc5b6; --rule:#151515;
+  --navy:#151515; --signal:#b3261e; --good:#1d6b38; --bad:#a8231b; --onnavy:#ffffff; --chip:#e8e4d8;
+  --club:#1d3557; --club2:#f4a300; --onclub:#ffffff; --onclub2:#111111;
+  --f-display:"Anton","Arial Narrow",Impact,sans-serif;
+  --f-body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-label:"Barlow Condensed","Arial Narrow",sans-serif;
+  --f-voice:"Source Serif 4",Georgia,serif;
+  color-scheme:light;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#0f161c; --card:#17212a; --ink:#e6ecf0; --muted:#9aa8b2; --line:#2b3a46;
-  --navy:#8bbad8; --signal:#f08a4b; --good:#7bc896; --bad:#ef8a7a; --onnavy:#0f161c; --chip:#22303a; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --paper:#0f161c; --card:#17212a; --ink:#e6ecf0; --muted:#9aa8b2; --line:#2b3a46;
-  --navy:#8bbad8; --signal:#f08a4b; --good:#7bc896; --bad:#ef8a7a; --onnavy:#0f161c; --chip:#22303a; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px}
@@ -144,6 +143,100 @@ details.who-more summary{cursor:pointer;color:var(--muted);font-size:14px;min-he
 .face.src-region{background:var(--signal)} .face.src-town{background:var(--good)} .face.src-staff{background:var(--muted)}
 .fixture .vs{font-family:var(--f-display);font-weight:800;font-size:22px;color:var(--muted)}
 .yours{border-color:var(--navy);border-width:1.5px}
+
+/* ===== programme layer ===== */
+body{font-family:var(--f-body);font-size:16.5px;line-height:1.5;background:var(--paper);padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+body::before{background:var(--club)}
+h1,h2{font-family:var(--f-display);font-weight:400;letter-spacing:.01em;line-height:1}
+h2{font-size:30px}
+.eyebrow,.fsrc,.where,.tag,.who span,.deal dt,.money i,.tag2,.tbtn,.tabs button{font-family:var(--f-label);letter-spacing:.08em}
+.eyebrow{font-size:14px;font-weight:700;color:var(--ink);border-bottom:3px solid var(--club);display:inline-block;padding-bottom:2px;align-self:flex-start}
+.small{font-size:14px}.meta,.choice .meta{font-size:14px}
+p{max-width:46ch}
+.top{background:var(--club);color:var(--onclub);margin-left:calc(-1 * max(16px, env(safe-area-inset-left,0px)));margin-right:calc(-1 * max(16px, env(safe-area-inset-right,0px)));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:6px solid var(--club2)}
+.top .club{font-family:var(--f-display);font-weight:400;font-size:24px;color:var(--onclub)}
+.top .sub{font-family:var(--f-label);font-size:13px;font-weight:600;color:var(--onclub);opacity:.85}
+.top .crest{width:40px;height:40px}
+.navbtns{display:none}
+/* buttons: firm and fast */
+.btn,.choice,.deal,.deskc,.rbtn,.prow,.tab,.mini,.fhead.linkish{transition:transform .08s ease,box-shadow .08s ease,background .12s}
+.btn:active,.choice:active,.deal:active,.deskc:active,.rbtn:active,.tab:active,.mini:active{transform:scale(.97)}
+.btn{background:var(--club);color:var(--onclub);border:2px solid var(--rule);border-radius:4px;font-family:var(--f-label);font-weight:700;font-size:19px;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 3px 0 var(--rule)}
+.btn:active{box-shadow:0 1px 0 var(--rule);transform:translateY(2px)}
+.btn.ghost{background:var(--card);color:var(--ink);border:2px solid var(--rule)}
+.btn.primary{position:sticky;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:6}
+.noNav .btn.primary{bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+.choice,.deal,.deskc,.panel,.fcard,.mini{border-radius:4px;border:1.5px solid var(--rule);background:var(--card)}
+.panel{box-shadow:none}
+/* bottom bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--card);border-top:3px solid var(--rule);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.tab{min-height:62px;background:none;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;position:relative}
+.tab svg{width:24px;height:24px}
+.tab.on{color:var(--ink)}.tab.on::before{content:"";position:absolute;top:0;left:18%;right:18%;height:5px;background:var(--club)}
+.tab .badge{position:absolute;top:8px;right:22%;min-width:20px;height:20px;border-radius:10px;background:var(--signal);color:#fff;font-size:12px;display:grid;place-items:center;padding:0 5px}
+/* the cover */
+.cover{margin-left:calc(-1 * max(16px, env(safe-area-inset-left,0px)));margin-right:calc(-1 * max(16px, env(safe-area-inset-right,0px)));padding:18px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));background:var(--club);color:var(--onclub);display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;border-bottom:8px solid var(--club2);margin-top:-18px}
+.cover .crest{width:96px;height:96px}
+.cover h1{font-size:36px;color:var(--onclub);text-wrap:balance}
+.cover .meta2{font-family:var(--f-label);font-size:15px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.cover-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:2px solid var(--rule);background:var(--card)}
+.cover-stats>div{padding:8px 10px;border-right:1.5px solid var(--rule);min-width:0}.cover-stats>div:last-child{border-right:0}
+.cover-stats i{display:block;font-style:normal;font-family:var(--f-label);font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cover-stats b{font-family:var(--f-display);font-weight:400;font-size:24px}
+.form{display:flex;gap:4px}.form span{width:22px;height:22px;display:grid;place-items:center;font-family:var(--f-label);font-weight:700;font-size:13px;color:#fff}
+.form .W{background:var(--good)}.form .D{background:#77736a}.form .L{background:var(--bad)}
+.stadium{width:100%;height:auto;max-width:100%}
+/* feed: three weights */
+.fcard{border-left:8px solid var(--club)}
+.fcard.heavy{flex-direction:column;border-left-width:1.5px;border-top:10px solid var(--club)}
+.fcard.heavy .fhead{font-size:30px}
+.fcard.small{padding:8px 12px}.fcard.small .fhead{font-size:18px}
+.fhead{font-family:var(--f-display);font-weight:400}
+.portrait,.crest,.kit{flex:none;display:block}
+/* stamp */
+.stamp{display:inline-block;font-family:var(--f-display);font-size:18px;letter-spacing:.06em;color:var(--signal);border:3px solid var(--signal);padding:0 8px;transform:rotate(-6deg);animation:stamp .25s ease-out both}
+.stamp.no{color:var(--muted);border-color:var(--muted)}
+@keyframes stamp{from{transform:rotate(-6deg) scale(1.6);opacity:0}to{transform:rotate(-6deg) scale(1);opacity:1}}
+/* programme page for Saturday */
+.prog{border:2px solid var(--rule);background:var(--card)}
+.prog .band{background:var(--club);color:var(--onclub);padding:6px 12px;font-family:var(--f-label);font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-bottom:4px solid var(--club2)}
+.prog .vsrow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:12px}
+.prog .vsrow .side{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;min-width:0}
+.prog .vsrow b{font-family:var(--f-display);font-weight:400;font-size:20px;line-height:1;text-wrap:balance}
+.prog .vs{font-family:var(--f-display);font-size:26px}
+.teamsheet{columns:2;column-gap:16px;padding:0 12px 12px;font-size:15px}
+.teamsheet li{list-style:none;break-inside:avoid}.teamsheet b{font-family:var(--f-label);display:inline-block;width:24px}
+/* scoreboard */
+.board{background:#121212;color:#f5c542;border:3px solid var(--rule);padding:12px 14px;font-family:var(--f-display);display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
+.board .t{font-size:22px;color:#f3f1eb;text-transform:uppercase;min-width:0;overflow-wrap:anywhere}
+.board .s{font-size:44px;line-height:1;animation:roll .5s ease-out both}
+.board .ft{grid-column:1/-1;font-family:var(--f-label);font-weight:700;letter-spacing:.2em;color:#f5c542;font-size:14px}
+@keyframes roll{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
+.celebrate .crest{animation:pulse .9s ease-out 2}
+@keyframes pulse{50%{transform:scale(1.08)}}
+.enter{animation:enter .2s ease-out both}
+@keyframes enter{from{opacity:0}to{opacity:1}}
+main.enter>*{animation:enterUp .2s ease-out both}
+@keyframes enterUp{from{opacity:.0;translate:0 6px}to{opacity:1;translate:0 0}}
+main.enter>.btn.primary{animation:none}
+@media (prefers-reduced-motion:reduce){.enter{animation:fade .15s both}.stamp,.board .s,.celebrate .crest{animation:none}.btn,.choice,.deal,.deskc{transition:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.rbtn{border-radius:4px;border:2px solid var(--rule);color:var(--ink);font-family:var(--f-label);font-size:15px;font-weight:700;letter-spacing:.04em;min-height:44px}
+.deskc{border-left:8px solid var(--club)}
+.face.sm{width:40px;height:40px}
+.bubble .bb{border:1.5px solid var(--rule);border-radius:2px 12px 12px 12px}
+.bubble .bb b{font-family:var(--f-label);font-size:13px;color:var(--ink);text-transform:uppercase}
+.bubble .bb p{font-style:italic;font-size:17px}
+/* audit fixes: reach, size, legibility */
+.fsrc{font-size:13px}
+.deal .trade i{font-size:13px}
+.tag2{font-size:13px}
+.tab .badge{font-size:13px;min-width:22px;height:22px}
+.fhead.linkish{min-height:44px;display:flex;align-items:center;padding:4px 0}
+.btn.primary{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(74px + env(safe-area-inset-bottom,0px));width:auto;max-width:460px;margin:0 auto;z-index:7}
+.noNav .btn.primary{bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
+body.noNav{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 </style>
 
 <div id="app"></div>
@@ -219,6 +312,88 @@ function ord(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[
 const P=id=>S.P[id], CL=id=>S.clubs[id], C=()=>S.clubs[S.my];
 function gname(c,k){return k==='workers'?TOWNS[c.town].wk:ARCH[k].n}
 
+/* ---- world/identity.js ---- */
+/* ================= World: club identity, generated from the seed =================
+   Colours, crest, kit, stadium and drawn portraits. Deterministic per club or person, SVG only, cached. */
+const KIT_PAIRS=[['#1d3557','#f4a300'],['#7a1f2b','#8fc8ec'],['#111111','#ffffff'],['#0b6b3a','#ffffff'],['#c8102e','#ffffff'],['#1446a0','#ffd400'],['#f26b1d','#111111'],['#6b1a2a','#d4a537'],['#6cace4','#ffffff'],['#4b2a7b','#ffffff'],['#004d40','#f2c94c'],['#b31b1b','#111111'],['#1b3d2f','#e9d8a6'],['#0d2b52','#c8102e'],['#ffd100','#111111'],['#5d2e46','#9ad1d4'],['#2f4858','#f6ae2d'],['#8d0801','#f4d58d'],['#003f88','#ffffff'],['#2a9d8f','#264653'],['#e63946','#1d3557'],['#3d405b','#f2cc8f'],['#14213d','#fca311'],['#6a040f','#ffba08'],['#283618','#dda15e'],['#03045e','#00b4d8'],['#9b2226','#e9d8a6'],['#001219','#94d2bd'],['#432818','#ffe6a7'],['#540b0e','#e09f3e'],['#1a1a2e','#e94560'],['#22223b','#c9ada7']];
+const SYMBOL_BY_TOWN={harbour:['anchor','ship','gull'],mill:['wheel','bee','shuttle'],cathedral:['tower','key','lion'],resort:['gull','sun','wave'],newtown:['star','oak','bridge'],mining:['lamp','picks','pithead']};
+const ID_CACHE={};
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function hrng(s){let x=hashStr(s)||1;return()=>{x^=x<<13;x>>>=0;x^=x>>>17;x^=x<<5;x>>>=0;return(x%100000)/100000}}
+function assignClubColours(){
+  const ids=Object.keys(S.clubs).sort(),r=mkRng(S.seed^0xc01);const pairs=KIT_PAIRS.slice();
+  for(let i=pairs.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[pairs[i],pairs[j]]=[pairs[j],pairs[i]]}
+  ids.forEach((id,i)=>{const c=S.clubs[id];if(id==='pell'){c.col=['#1d3557','#f4a300']}else c.col=pairs[i%pairs.length].slice();
+    const h=hrng(S.seed+':'+id);c.crestShape=['shield','round','diamond','banner'][Math.floor(h()*4)];c.crestField=['plain','pale','quarter','bend','chief'][Math.floor(h()*5)];
+    c.symbol=(SYMBOL_BY_TOWN[c.town]||['star'])[Math.floor(h()*3)];c.kitPat=['plain','stripes','hoops','halves','sash','quarters'][Math.floor(h()*6)];
+    c.ground=c.ground||`${c.name.split(' ')[0]} ${['Park','Road','Lane','Meadow','Fields','Ground'][Math.floor(h()*6)]}`;c.capacity=c.capacity||(c.tier===0?ri(5200,9000):ri(2400,5200));});
+  // Pell and its rival must never share colours
+}
+/* --- colour helpers: contrast always WCAG AA --- */
+function hexRgb(h){h=h.replace('#','');return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}
+function lum(h){const [r,g,b]=hexRgb(h).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b}
+function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
+function onColour(bg){return contrast(bg,'#ffffff')>=contrast(bg,'#111111')?'#ffffff':'#111111'}
+function clubVars(c){const p=c.col[0],s=c.col[1];return`--club:${p};--club2:${s};--onclub:${onColour(p)};--onclub2:${onColour(s)}`}
+/* --- crest --- */
+const SYM={
+ anchor:'<path d="M50 22v50M38 30h24M30 58c4 12 12 16 20 16s16-4 20-16" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="20" r="5" fill="none" stroke="currentColor" stroke-width="5"/>',
+ ship:'<path d="M28 62h44l-8 12H36z M50 26v34 M50 28l16 26H50z" fill="currentColor"/>',
+ gull:'<path d="M24 52c8-10 18-10 26 0 8-10 18-10 26 0" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>',
+ wheel:'<circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" stroke-width="6"/><path d="M50 26v48M26 50h48M33 33l34 34M67 33L33 67" stroke="currentColor" stroke-width="4"/>',
+ bee:'<ellipse cx="50" cy="54" rx="12" ry="16" fill="currentColor"/><ellipse cx="40" cy="38" rx="9" ry="6" fill="none" stroke="currentColor" stroke-width="4"/><ellipse cx="60" cy="38" rx="9" ry="6" fill="none" stroke="currentColor" stroke-width="4"/>',
+ shuttle:'<path d="M24 50L50 40 76 50 50 60z" fill="currentColor"/><path d="M30 50h40" stroke="var(--crestbg,#fff)" stroke-width="3"/>',
+ tower:'<path d="M38 74V40h24v34z M36 40l14-14 14 14z" fill="currentColor"/><rect x="46" y="54" width="8" height="12" fill="var(--crestbg,#fff)"/>',
+ key:'<circle cx="40" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="6"/><path d="M47 47l22 22M60 60l6-6M65 65l6-6" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>',
+ lion:'<path d="M30 70c0-16 8-26 20-26 6-10 18-10 22 0-6 0-8 4-8 8 6 2 8 8 6 18z" fill="currentColor"/>',
+ sun:'<circle cx="50" cy="50" r="12" fill="currentColor"/><path d="M50 26v8M50 66v8M26 50h8M66 50h8M33 33l6 6M61 61l6 6M67 33l-6 6M39 61l-6 6" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>',
+ wave:'<path d="M22 46c7-8 14-8 21 0s14 8 21 0 14-8 14-8M22 62c7-8 14-8 21 0s14 8 21 0 14-8 14-8" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>',
+ star:'<path d="M50 24l7 17h18l-14 11 5 18-16-10-16 10 5-18-14-11h18z" fill="currentColor"/>',
+ oak:'<circle cx="50" cy="42" r="16" fill="currentColor"/><rect x="46" y="54" width="8" height="18" fill="currentColor"/>',
+ bridge:'<path d="M22 62h56M28 62c4-18 40-18 44 0M34 62v-8M50 62V46M66 62v-8" fill="none" stroke="currentColor" stroke-width="5"/>',
+ lamp:'<path d="M42 30h16l4 10H38z M38 40h24l-4 28H42z" fill="currentColor"/><rect x="47" y="22" width="6" height="8" fill="currentColor"/>',
+ picks:'<path d="M30 30l40 40M70 30L30 70" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><path d="M24 34c4-8 12-12 16-10M76 34c-4-8-12-12-16-10" fill="none" stroke="currentColor" stroke-width="5"/>',
+ pithead:'<path d="M34 74l10-46h12l10 46M38 56h24M40 44h20" fill="none" stroke="currentColor" stroke-width="5"/><circle cx="50" cy="26" r="6" fill="none" stroke="currentColor" stroke-width="4"/>'};
+function crestSVG(c,size,big){
+  const key='crest:'+c.id+':'+size+(big?'b':'');if(ID_CACHE[key])return ID_CACHE[key];
+  const p=c.col[0],s=c.col[1],shape={shield:'M10 8h80v38c0 26-18 40-40 48C28 86 10 72 10 46z',round:'M50 6a44 44 0 1 0 0.1 0z',diamond:'M50 4l44 46-44 46L6 50z',banner:'M12 6h76v70l-38 18-38-18z'}[c.crestShape||'shield'];
+  const id='cl'+c.id.replace(/\W/g,'')+size;let field='';
+  if(c.crestField==='pale')field=`<rect x="50" y="0" width="50" height="100" fill="${s}"/>`;
+  if(c.crestField==='quarter')field=`<rect x="50" y="0" width="50" height="50" fill="${s}"/><rect x="0" y="50" width="50" height="50" fill="${s}"/>`;
+  if(c.crestField==='bend')field=`<path d="M0 30L70 100H100V70L30 0H0z" fill="${s}"/>`;
+  if(c.crestField==='chief')field=`<rect x="0" y="0" width="100" height="32" fill="${s}"/>`;
+  const plainish=c.crestField==='plain'||c.crestField==='chief';const symCol=plainish&&contrast(s,p)>=2.2?s:onColour(p);
+  const badge=plainish?'':`<circle cx="50" cy="50" r="27" fill="${p}" stroke="#111" stroke-width="2.5"/>`;
+  const svg=`<svg class="crest" width="${size}" height="${size}" viewBox="0 0 100 100" role="img" aria-label="${esc(c.name)} crest"><defs><clipPath id="${id}"><path d="${shape}"/></clipPath></defs><g clip-path="url(#${id})"><rect width="100" height="100" fill="${p}"/>${field}</g>${badge}<g style="color:${symCol};--crestbg:${p}" transform="translate(0,${c.crestField==='chief'?6:0})">${SYM[c.symbol]||SYM.star}</g><path d="${shape}" fill="none" stroke="#111" stroke-width="3.5"/>${big?`<text x="50" y="${c.crestShape==='round'?88:84}" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="700" font-size="11" fill="${onColour(p)}">${c.founded}</text>`:''}</svg>`;
+  ID_CACHE[key]=svg;return svg;
+}
+/* --- kit --- */
+function kitSVG(c,size){
+  const key='kit:'+c.id+size;if(ID_CACHE[key])return ID_CACHE[key];const p=c.col[0],s=c.col[1],id='k'+c.id.replace(/\W/g,'')+size;
+  const body='M30 14l12-6c2 6 14 6 16 0l12 6 18 14-10 14-8-6v54H30V36l-8 6-10-14z';
+  const pat={plain:'',stripes:[38,50,62].map(x=>`<rect x="${x-4}" y="0" width="7" height="100" fill="${s}"/>`).join(''),hoops:[34,50,66,82].map(y=>`<rect x="0" y="${y-4}" width="100" height="8" fill="${s}"/>`).join(''),halves:`<rect x="50" y="0" width="50" height="100" fill="${s}"/>`,sash:`<path d="M22 20L36 14 82 86 68 96z" fill="${s}"/>`,quarters:`<rect x="50" y="0" width="50" height="50" fill="${s}"/><rect x="0" y="50" width="50" height="50" fill="${s}"/>`}[c.kitPat||'plain'];
+  const svg=`<svg class="kit" width="${size}" height="${size}" viewBox="0 0 100 100" role="img" aria-label="${esc(c.name)} home kit"><defs><clipPath id="${id}"><path d="${body}"/></clipPath></defs><g clip-path="url(#${id})"><rect width="100" height="100" fill="${p}"/>${pat}</g><path d="${body}" fill="none" stroke="#111" stroke-width="3"/><path d="M42 8c2 6 14 6 16 0" fill="none" stroke="${s}" stroke-width="4"/></svg>`;
+  ID_CACHE[key]=svg;return svg;
+}
+/* --- stadium: four stands, filled to the crowd --- */
+function stadiumSVG(c,fill){
+  const p=c.col[0],f=Math.max(.1,Math.min(1,fill??.6));const stand=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#d9d4c7" stroke="#111" stroke-width="1.5"/><rect x="${x}" y="${y}" width="${w*f}" height="${h}" fill="${p}" opacity=".85"/>`;
+  return`<svg class="stadium" viewBox="0 0 200 120" role="img" aria-label="${esc(c.ground)}, ${c.capacity} seats">${stand(30,4,140,18)}${stand(30,98,140,18)}${stand(4,26,18,68)}${stand(178,26,18,68)}<rect x="30" y="26" width="140" height="68" fill="#3f7d3a" stroke="#111" stroke-width="1.5"/><path d="M100 26v68" stroke="#fff" stroke-width="1.5"/><circle cx="100" cy="60" r="10" fill="none" stroke="#fff" stroke-width="1.5"/><rect x="30" y="44" width="16" height="32" fill="none" stroke="#fff" stroke-width="1.5"/><rect x="154" y="44" width="16" height="32" fill="none" stroke="#fff" stroke-width="1.5"/></svg>`;
+}
+/* --- drawn portraits: print-style heads, deterministic per person --- */
+const SKIN=['#f2d0b5','#e7b896','#c98f65','#a86b45','#7c4a2d','#5a3420'];
+const HAIR=['#1b1b1b','#3b2a1e','#6a4a2c','#a8743f','#d9b36c','#8c8c8c','#c9c9c9'];
+function portraitSVG(key,o={}){
+  const size=o.size||48,ck='por:'+key+':'+size+':'+(o.club||'')+(o.age||'');if(ID_CACHE[ck])return ID_CACHE[ck];
+  const h=hrng(key),skin=SKIN[Math.floor(h()*SKIN.length)],age=o.age||30;let hair=HAIR[Math.floor(h()*5)];if(age>=48)hair=HAIR[5+Math.floor(h()*2)];
+  const style=Math.floor(h()*5),brow=h()<.5,beard=h()<(age>=28?.3:.1),smile=h(),col=o.col||['#1d3557','#f4a300'];
+  const hairPath=[`M28 40c0-14 10-22 22-22s22 8 22 22c-4-6-12-9-22-9s-18 3-22 9z`,`M27 44c-2-18 10-27 23-27s25 9 23 27c-3-10-10-13-23-13s-20 3-23 13z`,`M30 36c4-12 12-16 20-16s16 4 20 16c-6-3-12-4-20-4s-14 1-20 4z`,`M26 46c-1-20 11-30 24-30 14 0 26 10 24 30-2-4-4-8-6-10-6 2-12 3-18 3s-12-1-18-3c-2 2-4 6-6 10z`,age>=40&&h()<.6?`M30 38c2-6 6-9 10-10M70 38c-2-6-6-9-10-10`:`M29 38c2-12 10-18 21-18s19 6 21 18c-5-4-12-6-21-6s-16 2-21 6z`][style];
+  const svg=`<svg class="portrait" width="${size}" height="${size}" viewBox="0 0 100 100" role="img" aria-label="${esc(o.name||'Portrait')}"><circle cx="50" cy="50" r="49" fill="${o.bg||'#ece7da'}"/><path d="M18 100c2-18 14-26 32-26s30 8 32 26z" fill="${col[0]}" stroke="#111" stroke-width="2"/><path d="M40 75l10 10 10-10" fill="${col[1]}" stroke="#111" stroke-width="2"/><rect x="43" y="62" width="14" height="14" fill="${skin}" stroke="#111" stroke-width="2"/><ellipse cx="50" cy="46" rx="21" ry="24" fill="${skin}" stroke="#111" stroke-width="2.4"/>${style===4&&age>=40?`<path d="${hairPath}" stroke="${hair}" stroke-width="5" fill="none"/>`:`<path d="${hairPath}" fill="${hair}" stroke="#111" stroke-width="1.6"/>`}${brow?`<path d="M38 41h8M54 41h8" stroke="#111" stroke-width="2.4" stroke-linecap="round"/>`:''}<circle cx="42" cy="47" r="2.2" fill="#111"/><circle cx="58" cy="47" r="2.2" fill="#111"/><path d="M50 49l-2 7h4" fill="none" stroke="#111" stroke-width="1.6"/>${smile>.4?`<path d="M42 60c4 4 12 4 16 0" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>`:`<path d="M43 61h14" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>`}${beard?`<path d="M30 52c2 16 10 22 20 22s18-6 20-22c-4 8-10 10-20 10s-16-2-20-10z" fill="${hair}" opacity=".85"/>`:''}${age>=45?`<path d="M36 36h6M58 36h6" stroke="#111" stroke-width="1" opacity=".5"/>`:''}</svg>`;
+  ID_CACHE[ck]=svg;return svg;
+}
+function personPortrait(pid,size){const p=P(pid);if(!p)return'';const c=p.club&&S.clubs[p.club];return portraitSVG(pid,{size,age:p.age,col:c?c.col:['#555','#ccc'],name:p.name})}
+function playerPortrait(pl,size){const c=S.cf&&S.clubs[S.cf.club];return portraitSVG(pl.id,{size,age:pl.age,col:c?c.col:['#555','#ccc'],name:pl.name})}
+
 /* ---- world/world.js ---- */
 /* ================= World generation ================= */
 function mkPerson(role,club,o={}){
@@ -280,6 +455,7 @@ function newWorld(seed){
   // free coaches pool
   for(let k=0;k<5;k++)S.pool.push(mkPerson('coach',null));
   faInit();
+  assignClubColours();
   // fixtures and expectations
   startSeasonWorld();
   // seats: three open chairs with spread
@@ -1298,14 +1474,14 @@ function applyCard(i){const s=S.desk[S.sit],sc=sitBuild(S.sit),card=sceneCards(s
   S.sit=null;if(S.hire){S.afterHire='week';S.screen='hire';return}S.screen='week'}
 function deskDone(){for(let i=0;i<S.desk.length;i++){const s=S.desk[i];if(s.done)continue;const sc=sitBuild(i);if(sc.noDeal)sc.noDeal.run();s.done=true;s.choice='Left to run its course'}}
 function playMatch(){deskDone();if(S.hire){S.afterHire='play';S.screen='hire';return}
-  const m=simRound(S.week);S.round=S.week;m.influence=influenceMoments(m);m.lines=matchMoments(m);S.last=m;S.screen='result'}
+  const m=simRound(S.week);S.round=S.week;m.influence=influenceMoments(m);m.lines=matchMoments(m);S.last=m;S.myRes=(S.myRes||[]).concat([m.pts===3?'W':m.pts===1?'D':'L']).slice(-10);S.screen='result'}
 function afterResult(){if(S.week>=30)startALV();else startWeek()}
 function summerWindow(){S.windowLog=tdWindow('summer');S.screen='window'}
 
 /* ----- Election at a new club ----- */
 function chooseSeat(id){
   S.my=id;const c=C();S.oppGroup=weakest(c);S.promises=[];S.flags={captainExpiring:rnd()<.6};S.mods=[];S.youth=0;S.debuts=0;S.talentStarts=0;
-  S.mlog=[];S.phase='arrival';S.screen='arrival';S.cool={};S.last=null;S.startSeason=S.season;
+  S.myRes=[];S.mlog=[];S.phase='arrival';S.screen='arrival';S.cool={};S.last=null;S.startSeason=S.season;
   cfInit(id,c.str,cast('td'),cast('coach'),c.rival);
   const sq=S.cf.squad,tal=sq.filter(p=>p.academy).sort((a,b)=>b.pa-a.pa)[0]||sq.slice().sort((a,b)=>a.age-b.age)[0];S.cf.talentPid=tal.id;if(P(cast('talent')))P(cast('talent')).name=tal.name;
   const capP=sq.filter(p=>p.age>=25).sort((a,b)=>b.q-a.q)[0];if(capP&&P(cast('captain'))){capP.name=P(cast('captain')).name;capP.captain=true;capP.age=P(cast('captain')).age;if(S.flags.captainExpiring)capP.contract=1}
@@ -1405,10 +1581,10 @@ const crest=`<svg class="crest" viewBox="0 0 34 34" aria-hidden="true"><path d="
 function topBar(){
   const c=S.my?C():null;
   const title=c?c.name:'The Northmarch';
-  const sub=!c?`Season ${S.season} · Between clubs`:S.phase==='alv'?'Annual general meeting':S.phase==='summer'?`Season ${S.season} · Summer`:!S.week?`Season ${S.season} · Summer`:`Season ${S.season} · Week ${S.week} · ${ord(myPos())}`;
-  return`<header class="top">${crest}<div class="grow"><div class="club">${esc(title)}</div><div class="sub">${esc(sub)}</div></div><nav class="navbtns" aria-label="Club">${S.phase!=='title'?'<button class="tbtn" data-act="ov" data-arg="region">Region</button>':''}${S.cf&&S.phase!=='arrival'?'<button class="tbtn" data-act="ov" data-arg="squad">Squad</button>':''}${c&&S.phase!=='arrival'?'<button class="tbtn" data-act="ov" data-arg="table">Table</button>':''}</nav></header>`;
+  const sub=!c?`Season ${S.season} · Between clubs`:S.phase==='alv'?"Members' corner · The AGM":S.phase==='summer'?`Season ${S.season} · Summer`:!S.week?`Season ${S.season} · Pre-season`:`Week ${S.week} · ${ord(myPos())} in the ${c.tier===0?'Premier':'One'}`;
+  return`<header class="top">${c&&c.col?crestSVG(c,40):crest}<div class="grow"><div class="club">${esc(title)}</div><div class="sub">${esc(sub)}</div></div>${S.phase!=='title'&&!(S.screen==='week')?'<button class="tbtn" style="border-color:var(--onclub);color:var(--onclub)" data-act="ov" data-arg="region">Region</button>':''}</header>`;
 }
-function face(pid){const p=P(pid);const n=p.name.split(' ').map(x=>x[0]).join('').slice(0,2);return`<div class="face${p.role==='opp'?' opp':''}" aria-hidden="true">${n}</div>`}
+function face(pid){return personPortrait(pid,48)}
 function whoRow(pid){const p=P(pid);const where=p.club?CL(p.club).name:p.role==='journalist'?'The Northmarch Echo':'Out of work';return`<div class="who">${face(pid)}<div><b>${esc(p.name)}</b><span>${esc(ROLE_WORD[p.role]||p.role)} · ${esc(where)}</span></div></div>`}
 function dealHTML(c,i){
   const act=S.screen==='elect'?'electCard':'card';
@@ -1420,12 +1596,28 @@ function dealHTML(c,i){
 }
 function arrow(k){const g=grpOf(k);const d=g.mood-((S.prevMood||{})[k]??g.mood);return d>=6?'<span class="up">↑↑</span>':d>0?'<span class="up">↑</span>':d<=-6?'<span class="down">↓↓</span>':d<0?'<span class="down">↓</span>':''}
 function moodsPanel(title){return`<div class="panel">${title?`<p class="eyebrow">${title}</p>`:''}${C().groups.map(g=>`<div class="row"><span>${esc(gname(C(),g.k))} <span class="small muted">${g.share}%</span></span><span class="mood">${moodWord(g.mood)} ${arrow(g.k)}</span></div>`).join('')}</div>`}
+const PRIMARY=['play','next','windowDone','mdone','meetNext','arrive','alvLobby','lobbyDone','toEnd','nextSeason','summerNext','toSeats','framesDone'];
+let LAST_VIEW='';
 function render(){
   if(!HAS_DOM)return;const $=document.getElementById('app');
-  if(!S||S.screen==='title'){$.innerHTML=titleView();return}
+  if(location.hash==='#style'){$.setAttribute('style','');$.innerHTML=styleView();document.body.classList.add('noNav');return}
+  if(!S||S.screen==='title'){$.setAttribute('style','');$.innerHTML=titleView();document.body.classList.add('noNav');return}
+  if(S.my&&!C().col)assignClubColours();
   const v={prologue:prologueView,seats:seatsView,arrival:arrivalView,manifest:manifestView,week:weekView,meeting:meetingView,sit:sitView,hire:hireView,result:resultView,frames:framesView,window:windowView,alv:alvView,summer:summerView}[S.screen];
-  $.innerHTML=topBar()+`<main>${v?v():''}</main>`+(UI.over?overlayView():'');
+  const nav=S.screen==='week';UI.t=UI.t||'club';
+  let body=v?v():'';
+  body=body.replace(/class="btn( ghost)?" data-act="([a-zA-Z]+)"/g,(m,g,a)=>PRIMARY.includes(a)?`class="btn${g||''} primary" data-act="${a}"`:m);
+  const key=S.screen+(nav?UI.t:'')+(S.sit??'');const enter=key!==LAST_VIEW?' enter':'';LAST_VIEW=key;
+  $.setAttribute('style',S.my&&C().col?clubVars(C()):'');
+  document.body.classList.toggle('noNav',!nav);
+  $.innerHTML=topBar()+`<main class="${enter.trim()}">${body}</main>`+(nav?tabBar():'')+(UI.over?overlayView():'');
 }
+const TAB_ICON={club:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v8c0 5-4 7.5-8 8.5C8 19.5 4 17 4 12z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+ post:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 7l9 6 9-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+ room:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3l-4 3 2 4 2-1v12h8V9l2 1 2-4-4-3c-1 2-3 2-4 2s-3 0-4-2z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+ members:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 20c0-4 2.5-6 5-6s5 2 5 6M11 20c0-4 2.5-6 5-6s5 2 5 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>'};
+function tabBar(){const open=S.desk?S.desk.filter(s=>!s.done).length:0;
+  return`<nav class="tabbar" aria-label="Club">${[['club','Club'],['post','In the post'],['room','Dressing room'],['members','Members']].map(([k,n])=>`<button class="tab${UI.t===k?' on':''}" data-act="tab2" data-arg="${k}" aria-current="${UI.t===k?'page':'false'}">${TAB_ICON[k]}<span>${n}</span>${k==='post'&&open?`<span class="badge">${open}</span>`:''}</button>`).join('')}</nav>`}
 function titleView(){let has=false;try{has=!!localStorage.getItem(SAVE_KEY)}catch(e){}
   return`<main style="padding-top:48px">${crest.replace('class="crest"','class="crest" style="width:64px;height:64px"')}<p class="eyebrow">A world of members' clubs</p><h1>The Northmarch Chairman</h1>
   <p>Thirty-two clubs in one county. Every club has its own members, money, rivals and people, and every one of them remembers you. You never pick the team.</p>
@@ -1466,9 +1658,9 @@ function miniPlayer(id){const p=playerById(id);if(!p)return'';return`<button cla
 function spark(p){const h=p.formHist||[];if(!h.length)return'';return`<span class="spark" aria-label="recent form">${h.map(v=>`<i style="height:${Math.max(4,Math.round((v-30)/60*22))}px" class="${v>=70?'hi':v<50?'lo':''}"></i>`).join('')}</span>`}
 function sitView(){
   const sc=sitBuild(S.sit);sc.who.forEach(x=>{if(P(x)&&P(x).role!=='talent')meet(x)});
-  return`<p class="eyebrow">On your desk</p><h2>${esc(sc.title)}</h2>${sc.player?miniPlayer(sc.player):''}<section class="scene">${bubbles(sc)}</section>
+  return`<p class="eyebrow">In the post</p><h2>${esc(sc.title)}</h2>${sc.player?miniPlayer(sc.player):''}<section class="scene">${bubbles(sc)}</section>
   <details class="who-more"><summary>Who is involved</summary>${sc.who.filter(x=>P(x)).map(x=>whoRow(x)+personLine(x)).join('')}</details>
-  <p class="eyebrow">Your options</p><div class="stack">${sceneCards(sc).map(dealHTML).join('')}</div><button class="btn ghost" data-act="back">Back to the week</button>`;
+  <p class="eyebrow">On the table</p><div class="stack">${sceneCards(sc).map(dealHTML).join('')}</div><button class="btn ghost" data-act="back">Back to the week</button>`;
 }
 function hireView(){
   const list=S.hire.map(pid=>{const p=P(pid);const m=p.mem[p.mem.length-1];const past=p.career.length?`Past: ${p.career.map(x=>CL(x).name).join(', ')}.`:'No league experience.';
@@ -1504,6 +1696,8 @@ function summerView(){
   const news=S.news.filter(n=>n.s===S.season-1||n.s===S.season).sort((a,b)=>a.pri-b.pri).slice(0,5).map(n=>n.text);
   return`${echoBox('June',S.formerClub?`Life after ${CL(S.formerClub).name}`:'The summer',news.length?news:['A quiet summer in the Northmarch.'])}<p>The region moved on while you packed your desk. The people you met remember what you did.</p><button class="btn" data-act="summerNext">See the open seats</button>`;
 }
+function membersBody(){const c=C();const pr=S.promises.map(p=>`<div class="row small"><span>${esc(pdef(p.id).t)}</span><span class="mood">${p.st!=='open'?p.st:behind(p.id)?'Behind':'On track'}</span></div>`).join('')||'<p class="small muted">No promises.</p>';
+  const st=standings(c.tier);return`<p class="eyebrow">Members' corner</p>${moodsPanel('The members')}<div class="panel"><p class="eyebrow">Chairman's notes</p>${pr}</div>${S.cf?moneyPanel()+mandatePanel():''}<div class="panel"><p class="eyebrow">The table</p>${st.map((id,i)=>`<div class="row small" style="font-variant-numeric:tabular-nums${id===S.my?';font-weight:700':''}${i===1?';border-bottom:2px solid var(--good)':''}${i===13?';border-bottom:2px solid var(--bad)':''}"><span style="display:flex;gap:8px;align-items:center">${i+1}. ${crestSVG(CL(id),20)} ${esc(CL(id).name)}</span><span>${S.tbl[id].pts}</span></div>`).join('')}</div><button class="btn ghost" data-act="ov" data-arg="region">The region, people and free agents</button>`}
 function overlayView(){
   if(UI.over==='player')return playerOverlay();
   if(UI.over==='squad')return squadOverlay();
@@ -1524,15 +1718,21 @@ function overlayView(){
 
 /* ----- foundation screens ----- */
 function weekView(){
-  const e=S.echo,fx=nextFixture(),open=S.desk.filter(s=>!s.done).length;
-  const desk=S.desk.map((s,i)=>{const sc=sitBuild(i);const f=sc.who.find(x=>P(x));const hook=(sc.lines.find(l=>l.includes('"'))||sc.lines[0]||'').replace(/^[A-Z][A-Za-z'.\- ]+: /,'');return s.done?`<div class="deskc done"><b>${esc(sc.title)}</b><span class="meta">Done: ${esc(s.choice)}</span></div>`:`<button class="deskc" data-act="sit" data-arg="${i}">${f?face(f).replace('class="face','class="face sm'):'<span class="face sm" aria-hidden="true">★</span>'}<span class="dk"><b>${esc(sc.title)}</b><span class="meta clamp2">${esc(hook)}</span></span></button>`}).join('');
-  return`<p class="eyebrow">Week ${S.week} · ${esc(C().name)}</p>
-  ${moneyStrip()}
-  ${feedView()}
-  <div class="panel"><p class="eyebrow">On your desk</p>${S.desk.length?`<div class="stack">${desk}</div>`:'<p class="small muted">Nothing needs you this week.</p>'}</div>
-  ${fx?fixtureCard(fx):''}
-  <button class="btn" data-act="play">${open?'Leave the rest and play the match':'Play the match'}</button>`;
+  const fx=nextFixture(),open=S.desk.filter(s=>!s.done).length;
+  const playBtn=`<button class="btn" data-act="play">${open?`Play Saturday · ${open} in the post`:'Play Saturday'}</button>`;
+  if(UI.t==='post'){
+    const desk=S.desk.map((s,i)=>{const sc=sitBuild(i);const f=sc.who.find(x=>P(x));const hook=(sc.lines.find(l=>l.includes('"'))||sc.lines[0]||'').replace(/^[A-Z][A-Za-z'.\- ]+: /,'');
+      return s.done?`<div class="deskc done"><b>${esc(sc.title)}</b><span class="stamp${s.choice==='Left to run its course'||/^No deal/.test(s.choice)?' no':''}">${s.choice==='Left to run its course'?'NO DEAL':'AGREED'}</span><span class="meta">${esc(s.choice)}</span></div>`
+        :`<button class="deskc" data-act="sit" data-arg="${i}">${f?personPortrait(f,44):crestSVG(C(),44)}<span class="dk"><b>${esc(sc.title)}</b><span class="meta clamp2">${esc(hook)}</span></span></button>`}).join('');
+    return`<p class="eyebrow">In the post · Week ${S.week}</p>${S.desk.length?`<div class="stack">${desk}</div>`:'<p class="muted">Nothing in the post this week. Enjoy it.</p>'}${playBtn}`}
+  if(UI.t==='room')return squadBody()+playBtn;
+  if(UI.t==='members')return membersBody()+playBtn;
+  return`${coverView()}<p class="eyebrow">Club news</p>${feedView()}${fx?fixtureCard(fx):''}${playBtn}`;
 }
+function myForm(){return(S.myRes||[]).slice(-5).map(r=>`<span class="${r}">${r}</span>`).join('')}
+function coverView(){const c=C(),t=S.tbl[S.my],f=S.cf&&S.cf.fin;
+  return`<section class="cover">${crestSVG(c,96,true)}<div><h1>${esc(c.name)}</h1><p class="meta2">Founded ${c.founded} · ${c.tier===0?'Northmarch Premier':'Northmarch One'}</p><p class="meta2">${esc(c.ground)} · ${c.capacity.toLocaleString('en-GB')}</p></div></section>
+  <div class="cover-stats"><div><i>Position</i><b>${S.week>1?ord(myPos()):'—'}</b></div><div><i>Form</i><span class="form">${myForm()||'<b>—</b>'}</span></div><div><i>Bank</i><b class="${c.cash<0?'down':''}">£${Math.round(c.cash)}k</b></div></div>`}
 function resultView(){
   const m=S.last,c=C();const sc=m.scorers.length?m.scorers.join(', '):'none';
   const items=S.mlog.map(e=>`<li>${esc(e.text)} ${e.num?`<span class="num">${esc(e.num)}</span>`:''}<span class="why">${esc(e.why)}</span></li>`).join('');
@@ -1540,7 +1740,7 @@ function resultView(){
   const tbl=around.map(id=>`<div class="row small" style="font-variant-numeric:tabular-nums${id===S.my?';font-weight:600':''}"><span>${st.indexOf(id)+1}. ${esc(CL(id).name)}</span><span>${S.tbl[id].pts} pts</span></div>`).join('');
   const prom=S.promises.filter(x=>x.st==='open').map(x=>`<div class="row small"><span>${esc(pdef(x.id).t)}</span><span class="mood ${behind(x.id)?'down':'up'}">${behind(x.id)?'Behind':'On track'}</span></div>`).join('');
   return`<p class="eyebrow">Week ${S.week} · Full time${m.derby?' · Derby':''}</p>
-  <div class="panel"><div class="row"><b>${esc(m.home?c.name:CL(m.opp).name)}</b><span class="big" style="font-size:36px">${m.home?m.gf:m.ga}</span></div><div class="row"><b>${esc(m.home?CL(m.opp).name:c.name)}</b><span class="big" style="font-size:36px">${m.home?m.ga:m.gf}</span></div></div>
+  <div class="board${m.pts===3?' celebrate':''}" role="img" aria-label="Full time"><span class="ft">FULL TIME</span><span class="t">${esc(m.home?c.name:CL(m.opp).name)}</span><span class="s">${m.home?m.gf:m.ga}</span><span class="t">${esc(m.home?CL(m.opp).name:c.name)}</span><span class="s" style="animation-delay:.25s">${m.home?m.ga:m.gf}</span></div>${m.pts===3?`<p class="small" style="display:flex;gap:8px;align-items:center">${crestSVG(c,28)} ${m.derby?'The town is ours tonight.':'The crowd sings all the way home.'}</p>`:''}
   ${(m.lines||[]).length?`<div class="panel"><p class="eyebrow">Moments</p>${m.lines.map(x=>`<p>${esc(x)}</p>`).join('')}</div>`:''}
   ${(m.influence||[]).length?`<div class="panel yours"><p class="eyebrow">Your hand in it</p>${m.influence.map(x=>`<p>${esc(x)}</p>`).join('')}</div>`:''}
   <div class="panel"><p class="eyebrow">Why</p>${m.why.map(w=>`<p>${esc(w)}</p>`).join('')}</div>
@@ -1553,6 +1753,8 @@ function framesPanel(){const td=P(S.cf.tdId);return`<div class="panel"><p class=
 function planPanel(){const plan=cfPlan(),td=P(S.cf.tdId);return`<div class="panel"><p class="eyebrow">${esc(td.name)}'s plan</p>${plan.length?`<ul class="log">${plan.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<p class="small muted">No holes he is worried about.</p>'}<p class="small muted">${esc(td.name)}: ${td.traits.join(', ')}, values ${VALUE_WORD[td.value]}.</p></div>`}
 function framesView(){return`<p class="eyebrow">Summer · Season ${S.season}</p><h2>Set the frames</h2><p>The director of football works inside these. You never pick a player.</p>${planPanel()}${framesPanel()}<button class="btn" data-act="framesDone">Open the summer window</button>`}
 function windowView(){return`<p class="eyebrow">The summer window</p><h2>What ${esc(P(S.cf.tdId).name)} did</h2><div class="panel"><ul class="log">${S.windowLog.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></div>${planPanel()}<p class="small muted">Team strength: ${qWord(squadQuality(S.cf.squad,0))}. Open the squad to see who plays where.</p><button class="btn" data-act="windowDone">Start the season</button>`}
+function squadBody(){const sq=S.cf.squad,xi=pickXI(sq,S.youth),inXI=new Map(xi.map(x=>[x.p.id,x.slot]));
+  return`<p class="eyebrow">The dressing room</p><p class="small muted">${sq.length} players. ● in the coach's eleven. Strength: ${qWord(squadQuality(sq,S.youth))}.</p>${planPanel()}${POS.map(pos=>{const ps=sq.filter(p=>p.pos===pos).sort((a,b)=>b.q-a.q);return`<div class="panel"><p class="eyebrow">${POS_L[pos]} <span class="muted">${ps.filter(p=>!p.loan&&p.inj<=0).length}/${REQ[pos]}</span></p>${ps.map(p=>`<button class="prow" data-act="player" data-arg="${p.id}"><span class="row small"><span style="display:flex;gap:10px;align-items:center">${playerPortrait(p,36)}<span>${inXI.has(p.id)?'● ':''}<b>${esc(p.name)}</b>${p.captain?' (c)':''} · ${p.age}<br><span class="muted">${qWord(p.q)}, ${phaseWord(p)}</span></span></span><span class="mood">${p.inj>0?`<span class="down">Injured</span>`:p.loan?'On loan':inXI.has(p.id)&&inXI.get(p.id)!==p.pos?`<span class="down">Plays ${inXI.get(p.id)}</span>`:''}</span></span></button>`).join('')||'<p class="small muted">Nobody.</p>'}</div>`}).join('')}`}
 function squadOverlay(){
   const sq=S.cf.squad,xi=pickXI(sq,S.youth),inXI=new Map(xi.map(x=>[x.p.id,x.slot]));
   const rows=POS.map(pos=>{const ps=sq.filter(p=>p.pos===pos).sort((a,b)=>b.q-a.q);return`<div class="panel"><p class="eyebrow">${POS_L[pos]} <span class="muted">${ps.filter(p=>!p.loan&&p.inj<=0).length}/${REQ[pos]}</span></p>${ps.map(p=>`<button class="prow" data-act="player" data-arg="${p.id}"><span class="row small"><span>${inXI.has(p.id)?'● ':''}<b>${esc(p.name)}</b>${p.captain?' (c)':''} · ${p.age}<br><span class="muted">${qWord(p.q)}, ${phaseWord(p)} · ${p.contract>0?p.contract+'y':'loan'} · £${p.wage}/wk${p.trait?' · '+p.trait:''}</span></span><span class="mood">${p.inj>0?`<span class="down">Injured ${p.inj}w</span>`:p.loan?'On loan':inXI.has(p.id)&&inXI.get(p.id)!==p.pos?`<span class="down">Plays ${inXI.get(p.id)}</span>`:''}</span></span></button>`).join('')||'<p class="small muted">Nobody.</p>'}</div>`}).join('');
@@ -1598,16 +1800,24 @@ function formDots(id){const res=[];const tier=CL(id).tier;for(let r=Math.max(1,S
   // results are not stored per match for AI clubs; use the table trend as an honest proxy
   const t=S.tbl[id];if(!t||!t.p)return'';const ppg=t.pts/t.p;return`<span class="small muted">${t.w}W ${t.d}D ${t.l}L</span>`}
 function fixtureCard(fx){const c=C(),o=CL(fx.opp),derby=fx.opp===c.rival,ps=myPos(),po=posOf(fx.opp);
-  const stake=derby?'Derby':Math.abs(ps-po)<=2&&ps<=4?'Top of the table':ps>=14&&po>=13?'Relegation six-pointer':'League';
-  return`<div class="panel fixture"><p class="eyebrow">Saturday · ${stake}</p><div class="row"><span><b>${esc(fx.home?c.name:o.name)}</b><br>${formDots(fx.home?c.id:o.id)}</span><span class="vs">v</span><span style="text-align:right"><b>${esc(fx.home?o.name:c.name)}</b><br>${formDots(fx.home?o.id:c.id)}</span></div><p class="small muted">${ord(ps)} against ${ord(po)}${fx.home?', at home':', away'}.</p></div>`}
+  const stake=derby?'The derby':Math.abs(ps-po)<=2&&ps<=4?'Top of the table':ps>=14&&po>=13?'Six-pointer at the bottom':'League match';
+  const home=fx.home?c:o,away=fx.home?o:c,xi=S.cf?pickXI(S.cf.squad,S.youth):[];
+  return`<section class="prog"><div class="band">Saturday 3pm · ${esc(home.ground||'')} · ${stake}</div><div class="vsrow"><div class="side">${crestSVG(home,64)}<b>${esc(home.name)}</b><span class="small muted">${ord(posOf(home.id))}</span></div><span class="vs">V</span><div class="side">${crestSVG(away,64)}<b>${esc(away.name)}</b><span class="small muted">${ord(posOf(away.id))}</span></div></div>
+  ${xi.length?`<details><summary class="small" style="padding:0 12px 10px;min-height:44px;display:flex;align-items:center;cursor:pointer">Today's teamsheet</summary><ol class="teamsheet">${xi.map((x,i)=>`<li><b>${i+1}</b>${esc(lastName(x.p.name))}${x.p.pos!==x.slot?' <span class="down small">('+x.slot+')</span>':''}</li>`).join('')}</ol></details>`:''}</section>`}
 function feedView(){
   const left=reactsLeft();
   const cards=(S.feed||[]).map(c=>{const p=c.pid?playerById(c.pid):null,r=(S.reacts||{})[c.id];
-    const img=p?`<span class="face sm" aria-hidden="true">${esc(p.name.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`:`<span class="face sm src-${c.src}" aria-hidden="true">${{region:'◆',town:'♣',staff:'✎',players:'●'}[c.src]}</span>`;
+    const img=p?playerPortrait(p,44):c.src==='town'||c.src==='staff'?crestSVG(C(),40):`<span class="face sm src-${c.src}" aria-hidden="true">◆</span>`;const wt=['debut','firstGoal','winner','comeback','hundred','lastSeason'].includes(c.kind)?' heavy':['weather','groundsman','volunteers','physio','pubTalk','leader'].includes(c.kind)?' small':'';
     const btns=!r&&canReact(c)&&left>0?`<span class="reacts">${p?`<button class="rbtn" data-act="react" data-arg="${c.id}|note">Send a note</button>`:''}<button class="rbtn" data-act="react" data-arg="${c.id}|echo">Say it in the Echo</button></span>`:'';
-    return`<article class="fcard${c.follow?' follow':''}">${img}<div class="fc"><span class="fsrc">${FEED_SRC[c.src]}${c.follow?' · Follow-up':''}</span>${p?`<button class="fhead linkish" data-act="player" data-arg="${p.id}">${esc(c.head)}</button>`:`<b class="fhead">${esc(c.head)}</b>`}<p>${esc(c.line)}</p>${r?`<p class="reply">${r.type==='note'?'✉':'📰'} ${esc(r.reply)}</p>`:btns}</div></article>`}).join('');
+    return`<article class="fcard${wt}${c.follow?' follow':''}">${img}<div class="fc"><span class="fsrc">${FEED_SRC[c.src]}${c.follow?' · Follow-up':''}</span>${p?`<button class="fhead linkish" data-act="player" data-arg="${p.id}">${esc(c.head)}</button>`:`<b class="fhead">${esc(c.head)}</b>`}<p>${esc(c.line)}</p>${r?`<p class="reply">${r.type==='note'?'✉':'📰'} ${esc(r.reply)}</p>`:btns}</div></article>`}).join('');
   return`<section class="feed" aria-label="This week">${cards||'<p class="small muted">A quiet week.</p>'}${left<2&&left>=0?`<p class="small muted">${left} reaction${left===1?'':'s'} left this week.</p>`:''}</section>`;
 }
+
+function styleView(){if(!S)act('new',7);const ids=Object.keys(S.clubs);
+  return`<main style="padding-top:16px"><h1>Northmarch style</h1><p>Every club's crest, kit and colours, generated from the seed. Portraits below.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px">${ids.map(id=>{const c=CL(id);return`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center">${crestSVG(c,72,true)}${kitSVG(c,48)}<span class="small">${esc(c.name)}</span></div>`}).join('')}</div>
+  <h2>Portraits</h2><div style="display:flex;flex-wrap:wrap;gap:8px">${Object.keys(S.P).slice(0,24).map(id=>personPortrait(id,64)).join('')}</div>
+  <h2>Stadium</h2>${stadiumSVG(CL(ids[0]),.7)}</main>`}
 
 /* ---- ui/boot.js ---- */
 /* ================= Input, save, boot ================= */
@@ -1618,6 +1828,7 @@ if(HAS_DOM){
   document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,arg=b.dataset.arg;
     if(a==='ov'){UI.over=arg||null;if(arg==='region')UI.tab='tables';render();return}
     if(a==='tab'){UI.tab=arg;render();return}
+    if(a==='tab2'){UI.t=arg;render();window.scrollTo(0,0);return}
     if(a==='player'){UI.over='player';UI.pid=arg;render();return}
     if(a==='continue'){if(load())render();return}
     if(a==='new'){UI.lobby={};UI.over=null;act('new');}
@@ -1625,6 +1836,7 @@ if(HAS_DOM){
     else act(a,arg);
     save();render();if(a!=='frame'&&a!=='react')window.scrollTo(0,0);});
   const boot=data=>{if(data&&data.S)S=data.S;render()};
+  window.addEventListener('hashchange',render);
   window.claude?.hot?.snapshot?.(()=>({S}));
   window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});
 }

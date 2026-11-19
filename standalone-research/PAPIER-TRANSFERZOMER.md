@@ -170,3 +170,43 @@ Elke transferweek blijft binnen 30–60 s. Een zomer van ±5 min past bij een se
 1. **"I'd keep him":** bij hooguit één speler per zomer? (bevinding 5)
 2. **Een Miss door blessure:** een eigen stempel *Unlucky*, of telt het mee? (bevinding 6)
 3. **Klopt het gevoel?** Wil je ook één zomer zelf op papier spelen, waarbij ik de TD en de wereld speel en jij de voorzitter bent?
+
+---
+
+## Proef 2: gespeeld door de eigenaar (19-11-2026)
+De eigenaar speelde de voorzitter; Claude speelde de TD en de wereld. Dit was de eerste proef na keuze 67, dus zonder "I'd keep him".
+
+**Het verloop:**
+1. **Aannemen:** Hannah Okafor (Data). Verborgen: eye 4, deal 3, plan 4, bond 2.
+2. **Evaluatie:** Okafor besliste.
+   - Verkopen: Kershaw (31, 14 goals) en Whitlock.
+   - Laten gaan: Osei. Verhuren: Kowalczyk.
+   - Thackeray kreeg een nieuw contract.
+3. **Plan:** de voorzitter nam Okafor's eigen volgorde over (spits → centrale verdediger → linksback).
+4. **Meldingen en reacties:**
+   - Kershaw in de krant → *briefje aan Kershaw*. Gevolg: "That's class", de Pit waardeert het.
+   - Botsing tussen Rowntree en Okafor → *briefje aan Rowntree, "six weeks"*. Gevolg: een kleine belofte, na zes weken nagekomen.
+   - Spandoek "KERSHAW > SPREADSHEETS" → *krant: wijs op Doherty*. Gevolg: de Ultras zijn milder, Doherty wordt een publieksfiguur.
+5. **Uitkomst:**
+   - Spits ✔ A (Benali, via een ruil met Whitlock), centrale verdediger ✔ A (Hartigan), linksback ✔ C (Doherty, uit de academie).
+   - Waddington bleef, ook bij een bod van £60k.
+   - Na een half seizoen: Benali Hit, Hartigan Unlucky, Doherty Too early.
+
+**Oordeel van de eigenaar:**
+- **"Leuk, zo bouwen."**
+- **Hoogtepunten:** de kandidaat kiezen, de meldingen en reacties, en de ticker met deadline day.
+- De onthulling van het vakmanschap en de stempels noemde de eigenaar níét als hoogtepunt.
+
+**Lessen voor de bouw:**
+1. **De reacties zijn het spel van de voorzitter tijdens het window.**
+   - Eén melding per week, met vier antwoorden: een briefje aan persoon A, een briefje aan persoon B, de krant met een bepaalde lijn, of niets.
+   - Elk antwoord krijgt een zichtbaar gevolg in de volgende week.
+   - Een week zonder melding mag; dat geeft ritme.
+2. **Een briefje kan een kleine belofte worden** ("six weeks"). Die staat in Chairman's notes en wordt later afgerekend. Dit hergebruikt het bestaande systeem voor beloftes.
+3. **De TD mag zelf omschakelen naar C**, bijvoorbeeld de academie in plaats van een B-keuze. Daardoor voelt zijn filosofie echt.
+4. **Meldingen ontstaan uit zijn eigen beslissingen:**
+   - een verkochte publiekslieveling leidt tot een melding in de krant en een spandoek;
+   - een lage *bond* leidt tot een botsing met de trainer.
+
+   Het window maakt dus zijn eigen verhalen; losse random events zijn niet nodig.
+5. **Het verborgen vakmanschap blijft in het spel verborgen.** Er komt geen onthullingstabel; de speler ziet het aan het werk en leest het zomerrapport in woorden. De stempels blijven, maar zijn geen hoogtepunt. Houd ze klein, als chips.

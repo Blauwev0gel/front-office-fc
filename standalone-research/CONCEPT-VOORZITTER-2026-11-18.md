@@ -206,6 +206,13 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - **Eerste afdeling:** de technisch directeur met de selectie.
     - **De voorzitter kijkt en zet kaders.**
     - Aanleiding: in blokken spelen gaf geen binding, en de club zelf (selectie, academie, scouting) bestond niet.
+37. De speler heeft een simpel profiel in woorden. Intern rekent het spel met de posities en de opstelling uit `claude-game`.
+38. De TD doet vier dingen zichtbaar: gaten bijhouden, contracten verlengen, kopen en verkopen, huren en uitlenen.
+39. De voorzitter zet vier kaders: transferbudget, loonplafond, profiel en een huisregel. Elk kader moet meetbaar ander gedrag van de TD geven.
+40. Er is een zomer- en een winterwindow (weken 15–17).
+41. Nieuwe situatie uit de fundering: coach tegen TD. "Boven budget" en "boven plafond" zijn zichtbaar werk van de TD, geen situatie.
+42. Eén weekscherm: krant, *This week at the club*, het bureau (0–2 situaties), en de wedstrijd.
+43. De wedstrijd is een uitslag met twee regels waarom.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

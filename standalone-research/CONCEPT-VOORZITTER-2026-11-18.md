@@ -133,6 +133,8 @@ Uitwerking: `ALV-VOORZITTER.md`.
 | Wereld — fase D (Ravensby) | Drie zetels uit een seed, verkiezing, nieuwe persoonlijkheden | **Eigen wereld, clubs en mensen voelbaar** | Geheugen en relaties over clubs heen maken de wereld levend |
 | Wereld — fase E (`northmarch.html`) | 32 clubs, kandidaatkeuze, twee seizoenen, audit over 20 seeds | Nog te spelen door de eigenaar | Actief wint 40/40 ALV's (gem. 80%), passief 30/40 (51%), willekeurig 23/40 (55%). Het verschil is aantoonbaar, maar voor een bewuste speler is het nog te makkelijk: balans is de volgende stap |
 | Wereld — bureau met situaties | 3,5 situaties per moment uit tien generatoren | Nog te spelen door de eigenaar | De les: wereldsimulatie telt pas als ze een beslissing op je bureau legt. Niets doen kost nu echt iets: passief wint 14/40 ALV's (was 30/40), actief 40/40, willekeurig 21/40 |
+| Fundering — papieren proef (Ravensby) | Een selectie van 24, kaders, het zomerwindow, coach tegen TD | Binding ja, weken goed, TD te heftig | Kaders werken causaal; de TD moet terughoudender zijn en herinvesteren |
+| Fundering — build (`voorzitter-fundering/`) | Weekritme, een TD binnen kaders, de laag erbovenop | Nog te spelen door de eigenaar | De fundering draait drie seizoenen zonder voorzitter. Profiel, budget, plafond en de academieregel veranderen de TD meetbaar. 0,83 situaties per week. Actief wint 40/40 ALV's, passief 10/40, willekeurig 17/40: de balans is nog te makkelijk |
 
 ## 12. Wat we bewust anders doen dan eerder
 
@@ -213,6 +215,8 @@ Uitwerking: `ALV-VOORZITTER.md`.
 41. Nieuwe situatie uit de fundering: coach tegen TD. "Boven budget" en "boven plafond" zijn zichtbaar werk van de TD, geen situatie.
 42. Eén weekscherm: krant, *This week at the club*, het bureau (0–2 situaties), en de wedstrijd.
 43. De wedstrijd is een uitslag met twee regels waarom.
+44. Na de papieren proef ("te heftig"): de TD verkoopt hooguit één sleutelspeler per window. Een jong toptalent verkoopt hij alleen bij een extreem bod, en hij herinvesteert in de zwakste plek van de elf.
+45. Open: de huisregels "never sell to the rival" en "local heroes stay" geven in tests geen meetbaar verschil, omdat ze zelden van toepassing zijn. "Five academy players" wel. De eigenaar beslist of ze blijven.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

@@ -1,0 +1,1140 @@
+<title>The Northmarch Chairman</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=Literata:ital,opsz,wght@1,7..72,400;1,7..72,500&display=swap">
+
+<style>
+/* Layout: one narrow column, a matchday programme held in one hand; moorland slate with a lamp-orange signal. */
+:root{
+  --paper:#eef0f1; --card:#fbfcfc; --ink:#151d24; --muted:#56616b; --line:#cfd6dc;
+  --navy:#1d3b4f; --signal:#bf4f17; --good:#2b7346; --bad:#b03628; --onnavy:#ffffff; --chip:#e1e7eb;
+  --f-display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-voice:"Literata",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0f161c; --card:#17212a; --ink:#e6ecf0; --muted:#9aa8b2; --line:#2b3a46;
+  --navy:#8bbad8; --signal:#f08a4b; --good:#7bc896; --bad:#ef8a7a; --onnavy:#0f161c; --chip:#22303a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f161c; --card:#17212a; --ink:#e6ecf0; --muted:#9aa8b2; --line:#2b3a46;
+  --navy:#8bbad8; --signal:#f08a4b; --good:#7bc896; --bad:#ef8a7a; --onnavy:#0f161c; --chip:#22303a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+#app{max-width:460px;margin:0 auto}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);display:flex;align-items:center;gap:10px;padding-block:10px;border-bottom:1px solid var(--line)}
+.crest{width:34px;height:34px;flex:none}
+.top .club{font-family:var(--f-display);font-weight:800;font-size:21px;letter-spacing:.02em;line-height:1;text-transform:uppercase;overflow-wrap:anywhere}
+.top .sub{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.top{flex-wrap:wrap}
+.top .grow{flex:1;min-width:0}
+.navbtns{display:flex;gap:8px;width:100%;justify-content:flex-start}
+.navbtns:empty{display:none}
+.tbtn{min-height:44px;padding:0 12px;border-radius:22px;border:1.5px solid var(--navy);background:transparent;color:var(--navy);font:600 13px var(--f-body);cursor:pointer;flex:none}
+main{display:flex;flex-direction:column;gap:16px;padding-top:18px}
+h1,h2{font-family:var(--f-display);font-weight:800;text-transform:uppercase;letter-spacing:.01em;line-height:1;text-wrap:balance;margin:0}
+h1{font-size:40px} h2{font-size:26px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--signal)}
+p{margin:0}
+.muted{color:var(--muted)} .small{font-size:13px}
+.voice{font-family:var(--f-voice);font-style:italic;font-size:19px;line-height:1.45}
+.scene{display:flex;flex-direction:column;gap:12px}
+.where{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.who{display:flex;align-items:center;gap:12px}
+.face{width:48px;height:48px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:19px;color:var(--onnavy);background:var(--navy)}
+.face.opp{background:var(--signal)}
+.who b{display:block;font-weight:600} .who span{font-size:13px;color:var(--muted)}
+.btn{display:block;width:100%;min-height:52px;padding:12px 16px;border:0;border-radius:10px;background:var(--navy);color:var(--onnavy);font:600 16px var(--f-body);cursor:pointer;text-align:center}
+.btn.ghost{background:transparent;color:var(--navy);border:1.5px solid var(--navy)}
+.btn:focus-visible,.choice:focus-visible,.tbtn:focus-visible,.deal:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.stack{display:flex;flex-direction:column;gap:10px}
+.choice{display:flex;flex-direction:column;gap:4px;width:100%;text-align:left;min-height:56px;padding:14px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.choice b{font-weight:600} .choice .meta{font-size:13px;color:var(--muted)}
+.chance{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:12px;background:var(--chip);color:var(--ink)}
+.dots{letter-spacing:.1em;color:var(--signal);font-size:15px}
+.deal{width:100%;text-align:left;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:14px 16px;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:8px}
+.deal .dt{font-weight:600;font-size:17px}
+.deal dl{display:grid;grid-template-columns:84px 1fr;gap:4px 10px;margin:0;font-size:14px}
+.deal dt{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.deal dd{margin:0;min-width:0}
+.deal .warn{font-size:13px;color:var(--bad);font-weight:600}
+.deal .hit{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--good)}
+.deal.none{border-style:dashed}
+.echo{background:var(--card);border:2px solid var(--ink);border-radius:4px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.echo .mast{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:2px solid var(--ink);padding-bottom:6px}
+.echo .mast b{font-family:var(--f-display);font-weight:800;font-size:20px;letter-spacing:.05em}
+.echo .mast span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;flex:none}
+.echo .head{font-family:var(--f-display);font-weight:800;font-size:32px;line-height:.95;text-transform:uppercase;text-wrap:balance}
+.echo ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.row>span:first-child{min-width:0}
+.mood{font-weight:600;text-align:right}
+.up{color:var(--good)} .down{color:var(--bad)}
+.res{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;font-size:15px;font-variant-numeric:tabular-nums}
+.wdl{width:28px;height:28px;border-radius:6px;display:grid;place-items:center;font-weight:700;font-size:13px;color:var(--onnavy)}
+.wdl.W{background:var(--good)} .wdl.D{background:var(--muted)} .wdl.L{background:var(--bad)}
+.tag{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--signal)}
+.log{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px} .log li{font-size:14px}
+.log .why{display:block;color:var(--muted);font-size:13px}
+.num{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.count{display:flex;flex-direction:column;gap:12px}
+.cg{animation:reveal .5s ease both}
+.cg:nth-child(2){animation-delay:.9s}.cg:nth-child(3){animation-delay:1.8s}.cg:nth-child(4){animation-delay:2.7s}
+.verdict{animation:reveal .6s ease both;animation-delay:3.4s}
+@keyframes reveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.cg,.verdict{animation:none}}
+.bar{height:10px;border-radius:5px;background:var(--chip);overflow:hidden} .bar i{display:block;height:100%;background:var(--navy)}
+.big{font-family:var(--f-display);font-weight:800;font-size:46px;line-height:.9;text-transform:uppercase}
+.overlay{position:fixed;inset:0;z-index:20;background:var(--paper);overflow-y:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(env(safe-area-inset-top,0px) + 12px) calc(env(safe-area-inset-bottom,0px) + 24px)}
+.overlay .inner{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.check{display:flex;gap:12px;align-items:flex-start;min-height:56px;padding:14px 16px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);cursor:pointer}
+.check input{width:22px;height:22px;margin-top:2px;flex:none;accent-color:var(--navy)}
+.check.on{border-color:var(--navy)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tabs button{min-height:44px;padding:0 14px;border-radius:22px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:600 14px var(--f-body);cursor:pointer}
+.tabs button.on{border-color:var(--navy);color:var(--navy)}
+hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
+</style>
+
+<div id="app"></div>
+
+<script>
+/* ---- core/content.js ---- */
+
+"use strict";
+const HAS_DOM=typeof document!=='undefined';
+const SAVE_KEY='northmarch-chairman-v1';
+
+/* ================= Static content ================= */
+const FIRST=['Alan','Bev','Carl','Dawn','Eddie','Fiona','Gary','Helen','Ian','Jackie','Karen','Lee','Mandy','Neil','Pam','Rob','Sue','Terry','Una','Vic','Wendy','Yusuf','Zara','Priya','Tomasz','Kwame','Siobhan','Declan','Aisha','Rhys','Moira','Glen','Nadia','Owen','Bernie','Hamid','Lorna','Stuart','Ingrid','Dev'];
+const LAST=['Ashby','Brook','Crane','Dowd','Ellery','Finch','Garside','Holt','Ince','Jessop','Kerr','Lund','Marsh','Nuttall','Oakes','Pryce','Quinlan','Rudd','Sowerby','Thwaite','Usher','Vasey','Wragg','Yates','Banerjee','Kowalski','Mensah','Doyle','Haddad','Ollerton','Pickles','Rowntree','Sefton','Tranter','Whitlock','Agyeman','Bairstow','Corrigan','Dunleavy','Fairclough'];
+const TRAITS=['stubborn','proud','sly','honest','vain','loyal','ambitious','cautious','warm','resentful','impulsive','patient','principled','greedy'];
+const VALUES=['money','glory','loyalty','recognition','control','community'];
+const VALUE_WORD={money:'money',glory:'glory',loyalty:'loyalty',recognition:'recognition',control:'control',community:'community'};
+const TOWNS={
+ harbour:{n:'Harbour town',wk:'The Docks',bar:'The Anchor',w:{workers:5,business:3,students:2,families:2,ultras:2}},
+ mill:{n:'Mill town',wk:'The Mill',bar:'The Weavers Arms',w:{workers:5,oldguard:4,families:3,ultras:2}},
+ cathedral:{n:'Cathedral city',wk:'The Works',bar:'The Bishop\'s Head',w:{oldguard:4,students:4,business:3,retirees:3}},
+ resort:{n:'Seaside resort',wk:'The Works',bar:'The Pier Bar',w:{traders:5,retirees:4,families:3,newcomers:2}},
+ newtown:{n:'New town',wk:'The Works',bar:'The Social Club',w:{newcomers:5,families:4,business:3,volunteers:2}},
+ mining:{n:'Mining valley',wk:'The Pit',bar:'Miners\' Welfare',w:{workers:5,oldguard:4,volunteers:3,ultras:2}}};
+const ARCH={
+ workers:{n:null,wants:'Beat the rival. No outside investor.',motion:{t:'No outside owner above 25%, ever',against:'business'}},
+ oldguard:{n:'Old Guard',wants:'Results and tradition. No adventures.',motion:{t:'A chairman may serve two terms at most',against:null,anti:true}},
+ families:{n:'Families',wants:'Affordable tickets. Our own youngsters.',motion:{t:'Freeze ticket prices for three seasons',against:'business',cost:30}},
+ ultras:{n:'Ultras',wants:'A standing terrace. Keep the icons.',motion:{t:'Bring back a standing terrace',against:'retirees',cost:15}},
+ students:{n:'Students',wants:'Attacking football. Cheap tickets.',motion:{t:'Half-price student season tickets',against:'business',cost:15}},
+ business:{n:'Business',wants:'Healthy books. A new stadium.',motion:{t:'Allow outside investment up to 49%',against:'workers',gain:100}},
+ retirees:{n:'Retirees',wants:'Seats and peace. Honour the old names.',motion:{t:'Seats in every stand, no standing',against:'ultras'}},
+ traders:{n:'Traders',wants:'Busy matchdays. Parking.',motion:{t:'A matchday parking scheme',against:null,cost:10}},
+ newcomers:{n:'Newcomers',wants:'A modern club. A women\'s team.',motion:{t:'Start a women\'s team',against:'oldguard',cost:20}},
+ volunteers:{n:'Volunteers',wants:'A say. It\'s the volunteers\' club.',motion:{t:'A members\' council with a veto on big spending',against:null,anti:true}}};
+const STATUTE=['Two-thirds majority to change anything at the AGM','No outside owner above 25%','Members approve any sale above £50k','Ticket prices are set by the members'];
+const SCAR=['relegated three times in ten years','went into administration in 2009','lost a cup final to their rivals','sold the ground and rent it back','a match-fixing scandal in the eighties'];
+const RIVALRY=['the 1984 strike','a captain sold to them on deadline day','a shared ground they were thrown out of','a cup semi-final nobody has forgiven','the bus company that served one town and not the other'];
+const SUFFIX=['United','Town','Athletic','Rovers','Albion','City','Vale','Wanderers'];
+const TOWNNAMES=['Saltmere','Kestle','Brackwater','Dunmore','Fenwick','Holbeck','Ilsworth','Marrow Bay','Northcliffe','Ottery','Ravensby','Selcombe','Tarn Valley','Wexmoor','Yarrowby','Ashcombe','Blackridge','Cragmoor','Downholme','Eastwick','Farleigh','Gorsedale','Hadley Cross','Irwell','Kilnsey','Longthwaite','Mardale','Netherby','Penhallow','Rothmere','Skelwith','Ullsby','Varley'];
+const ROLE_WORD={coach:'Head coach',td:'Director of football',captain:'Captain',fan:'Supporters\' leader',opp:'Opposition candidate',chair:'Chairman',journalist:'Chief reporter, The Echo'};
+const DEEP={
+ coach:{money:'a contract that finally pays like a real job',glory:'a promotion with their name on it',loyalty:'a chairman who stands by them through a bad run',recognition:'to stop being called a stopgap',control:'the final say on who plays',community:'a team built on local players'},
+ td:{money:'a budget they do not have to beg for',glory:'one signing the whole region talks about',loyalty:'to stay at the club that gave them their start',recognition:'public credit for the players they find',control:'nobody interfering in recruitment',community:'an academy for the town\'s kids'},
+ captain:{money:'one last contract that looks after the family',glory:'to lift something before they retire',loyalty:'to finish their career here',recognition:'to be remembered as a club great',control:'a say in how the dressing room is run',community:'to coach the kids when the legs go'},
+ fan:{money:'cheaper tickets for the regulars',glory:'to see the club go up in their lifetime',loyalty:'that the club never forgets its old supporters',recognition:'the supporters\' name on something permanent',control:'a vote on the big decisions',community:'the ground open to the town on weekdays'},
+ opp:{money:'a stake in the club\'s future',glory:'to be the one who saved the club',loyalty:'revenge for how the last board treated their friends',recognition:'a seat at the table their family never got',control:'to run the club like their own business',community:'to hand the club back to the members'},
+ chair:{money:'a club that pays its own way',glory:'to beat their rival to promotion',loyalty:'friends they can count on at the league meeting',recognition:'respect from the bigger clubs',control:'to run their club without the league meddling',community:'a region where small clubs survive'},
+ talent:{money:'a first professional contract',glory:'a debut in front of a full house',loyalty:'to play for the club they grew up watching',recognition:'to be picked on merit',control:'a say in their own future',community:'to make the town proud'},
+ journalist:{money:'a story that sells papers',glory:'a scoop the nationals pick up',loyalty:'sources who stay with them',recognition:'their byline on the big story',control:'to set the agenda, not follow it',community:'clubs that answer to their towns'}};
+const DEEPQ={money:'"I\'ve given years to this. I\'d like to be paid like I matter."',glory:'"I want one thing people remember. Just one."',loyalty:'"Stand by me when it goes wrong. That\'s all I ask."',recognition:'"Everyone gets the credit but me. Once, I\'d like it said out loud."',control:'"Let me do my job without someone looking over my shoulder."',community:'"This club belongs to the town. I want the town to feel it."'};
+const TONE=[['"Say it and go."','"I\'ve nothing to say to you."','"You\'ve got a nerve."'],['"{opp} returns my calls, chairman. You don\'t."','"I hear you\'ve been busy. Not with me."','"Funny. {opp} asked after you yesterday."'],['"Chairman."','"Keep it short?"','"What can I do for you?"'],['"Good to see you."','"Pull up a chair."','"Come in, come in."'],['"For you, always."','"Sit down, I\'ll get them in."','"There they are! The lads were asking after you."']];
+const FLAVOUR={stubborn:'"If this is about changing my mind, save your breath."',proud:'"I don\'t usually wait for people."',sly:'"Funny, I was just talking about you."',honest:'"I\'ll be straight with you."',vain:'"Did you see the paper? They spelled my name right for once."',loyal:'"Whatever the club needs."',ambitious:'"I\'ve plans, chairman. Big ones."',cautious:'"Let\'s not rush anything."',warm:'"How are you holding up?"',resentful:'"I remember the last person who sat in that chair."',impulsive:'"Go on then, spit it out."',patient:'"Take your time."',principled:'"As long as this is above board."',greedy:'"Is this about money? I hope it\'s about money."'};
+const STRONG={money:['money'],glory:['name','role'],loyalty:['security'],recognition:['name','role'],control:['power'],community:['role']};
+const WEAK={money:['name'],glory:['security'],loyalty:['money'],recognition:['money'],control:['ask'],community:['money']};
+const BLOCK_ENDS=[8,15,23,30];
+const MONTH=['','July','October','January','April'];
+const GAIN={S:8,M:15,L:22};
+const SIZE_WORD={S:'Small promise',M:'Medium promise',L:'Big promise'};
+
+/* ---- core/rng.js ---- */
+/* ================= RNG and helpers ================= */
+let S=null;const UI={over:null,tab:'tables',lobby:{}};
+function rnd(){let t=(S.rs=(S.rs+0x6D2B79F5)|0);t=Math.imul(t^(t>>>15),1|t);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}
+function mkRng(seed){let s=seed|0;return()=>{let t=(s=(s+0x6D2B79F5)|0);t=Math.imul(t^(t>>>15),1|t);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}}
+const pick=a=>a[Math.floor(rnd()*a.length)],ri=(a,b)=>a+Math.floor(rnd()*(b-a+1));
+function pickN(a,n){const c=a.slice(),o=[];while(o.length<n&&c.length)o.push(c.splice(Math.floor(rnd()*c.length),1)[0]);return o}
+function pois(l,r){const L=Math.exp(-l);let k=0,p=1;do{k++;p*=r()}while(p>L);return k-1}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function ord(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
+const P=id=>S.P[id], CL=id=>S.clubs[id], C=()=>S.clubs[S.my];
+function gname(c,k){return k==='workers'?TOWNS[c.town].wk:ARCH[k].n}
+
+/* ---- world/world.js ---- */
+/* ================= World generation ================= */
+function mkPerson(role,club,o={}){
+  const id='p'+(S.pc++);
+  const p={id,name:o.name||`${pick(FIRST)} ${pick(LAST)}`,age:o.age||(role==='fan'?ri(38,70):role==='captain'?ri(27,33):ri(34,62)),role,club,
+    traits:o.traits||pickN(TRAITS,2),value:o.value||pick(VALUES),infl:o.infl??null,loy:o.loy??null,mem:o.mem||[],rel:[],career:club?[club]:[],
+    owes:false,withOpp:false,deepKnown:false,shown:0};
+  p.deep=DEEP[role][p.value];S.P[id]=p;return id;
+}
+function mkClub(id,name,town,tier,o={}){
+  const t=TOWNS[town],keys=Object.keys(t.w),n=o.groups?o.groups.length:(rnd()<.5?3:4),groups=[];
+  if(o.groups)o.groups.forEach(([k,sh,m])=>groups.push({k,share:sh,mood:m}));
+  else{const pool=keys.slice();while(groups.length<n&&pool.length){const tot=pool.reduce((a,k)=>a+t.w[k],0);let x=rnd()*tot,k=pool[0];for(const kk of pool){x-=t.w[kk];if(x<=0){k=kk;break}}pool.splice(pool.indexOf(k),1);groups.push({k,share:ri(15,40),mood:ri(34,62)})}
+    const sum=groups.reduce((a,g)=>a+g.share,0);groups.forEach(g=>g.share=Math.round(g.share/sum*100));}
+  const c={id,name,town,tier,str:o.str??(tier===0?ri(48,58):ri(43,54)),cash:o.cash??ri(20,140),debt:o.debt??pick([0,0,80,200,450]),
+    statute:o.statute||pickN(STATUTE,rnd()<.5?1:2),founded:o.founded||ri(1874,1925),scar:o.scar||pick(SCAR),legend:o.legend||`${pick(FIRST)} '${pick(['Big','Wee','Iron','Doc','Sailor'])}' ${pick(LAST)}`,
+    rival:null,rivalWhy:pick(RIVALRY),groups,cast:{},last:ri(2,16),hist:[],binding:[]};
+  S.clubs[id]=c;return c;
+}
+function newWorld(seed){
+  S={v:1,seed,rs:seed,pc:1,clubs:{},P:{},season:1,round:0,my:null,rep:2,log:[],mlog:[],news:[],
+    phase:'title',screen:'title',moment:0,promises:[],flags:{},mods:[],youth:0,debuts:0,talentStarts:0,
+    realPts:0,xPts:0,derbyPts:0,cross:[],served:false,echo:null,wait:null,scene:null,block:null,alv:null,
+    seats:[],elect:null,pick:{},step:0,chances:null,pool:[],history:[],journalist:null,cashStart:0,hire:null,knownChairs:{}};
+  // fixed core
+  const pell=mkClub('pell','Pell United','harbour',1,{str:50,cash:60,debt:0,groups:[['workers',40,58],['students',25,62],['business',35,40]],statute:['No outside owner above 25%'],founded:1891,legend:"Jack 'Sailor' Garside",scar:'lost a cup final to their rivals'});
+  const corden=mkClub('corden','Corden Athletic','mill',1,{str:53});
+  const harrow=mkClub('harrow','Harrowgate Town','cathedral',0,{str:57});
+  pell.rival='corden';pell.rivalWhy='a captain sold to them on deadline day';corden.rival='pell';corden.rivalWhy=pell.rivalWhy;
+  const names=pickN(TOWNNAMES,29);const towns=Object.keys(TOWNS);
+  names.forEach((tn,i)=>{const tier=i<15?0:1;const nm=tn+(rnd()<.85?' '+pick(SUFFIX):'');mkClub('c'+i,nm,pick(towns),tier)});
+  // fix tier sizes: 16 + 16
+  const ids=Object.keys(S.clubs);let t0=ids.filter(i=>CL(i).tier===0);while(t0.length>16){CL(t0.pop()).tier=1}t0=ids.filter(i=>CL(i).tier===0);
+  let t1=ids.filter(i=>CL(i).tier===1&&!['pell','corden'].includes(i));while(t0.length<16){const x=t1.pop();CL(x).tier=0;t0.push(x)}
+  // rivals
+  ids.forEach(i=>{const c=CL(i);if(c.rival)return;const cands=ids.filter(j=>j!==i&&CL(j).tier===c.tier&&!CL(j).rival);const r=cands.length?pick(cands):pick(ids.filter(j=>j!==i));c.rival=r;if(!CL(r).rival){CL(r).rival=i;CL(r).rivalWhy=c.rivalWhy}});
+  // casts
+  ids.forEach(i=>{const c=CL(i);if(['pell','corden'].includes(i))return;castClub(c)});
+  // Pell core people
+  pell.cast.chair=mkPerson('chair','pell',{name:'Gareth Vance',traits:['sly','ambitious'],value:'recognition',infl:'business',mem:[{s:1,club:'pell',v:-1,txt:'beat you at the AGM'}]});
+  pell.cast.fan=mkPerson('fan','pell',{name:'Pat Kearney',traits:['stubborn','loyal'],value:'recognition',infl:'workers',mem:[{s:1,club:'pell',v:1,txt:'you kept your word to the Docks'}]});
+  pell.cast.captain=mkPerson('captain','pell',{name:'Lewis Hart',age:30,traits:['proud','loyal'],value:'community',infl:'workers',mem:[{s:1,club:'pell',v:1,txt:'you looked after his contract'}]});
+  pell.cast.td=mkPerson('td','pell',{name:'Colin Ward',traits:['loyal','stubborn'],value:'community',mem:[]});
+  pell.cast.opp=mkPerson('opp','pell',{name:'Ruth Okon',traits:['honest','stubborn'],value:'control',infl:'business',mem:[{s:1,club:'pell',v:1,txt:'you gave Business a seat'}]});
+  pell.cast.coach=mkPerson('coach','pell',{name:'Bryn Talbot',traits:['stubborn','loyal'],value:'loyalty',infl:'workers'});
+  pell.cast.talent=mkPerson('talent','pell',{name:'Jay Okoro',age:19});
+  corden.cast.chair=mkPerson('chair','corden',{name:'Frank Ollerton',traits:['proud','resentful'],value:'glory'});
+  corden.cast.coach=mkPerson('coach','corden',{name:'Maria Esteves',traits:['honest','ambitious'],value:'recognition',infl:'students',mem:[{s:1,club:'pell',v:1,txt:'you backed her in public at Pell'}]});
+  P(corden.cast.coach).career=['pell','corden'];
+  ['td','captain','fan','opp','talent'].forEach(r=>corden.cast[r]=mkPerson(r,'corden',{infl:r==='fan'?corden.groups[0].k:r==='captain'?corden.groups[0].k:r==='opp'?weakest(corden):null}));
+  // relations inside clubs and across
+  ids.forEach(i=>{const cs=Object.values(CL(i).cast).filter(x=>P(x).role!=='talent');cs.forEach(a=>{if(rnd()<.6){const b=pick(cs.filter(x=>x!==a));addRel(a,b,pick(['friends','rivals','mentor']))}})});
+  addRel(pell.cast.fan,pell.cast.captain,'friends');addRel(pell.cast.td,pell.cast.talent,'mentor');addRel(pell.cast.chair,pell.cast.fan,'rivals');
+  // a few cross-club links to the core
+  const core=[pell.cast.fan,pell.cast.td,corden.cast.coach,pell.cast.chair];
+  pickN(ids.filter(i=>!['pell','corden'].includes(i)),5).forEach(i=>{const a=pick(Object.values(CL(i).cast).filter(x=>P(x).role!=='talent'));addRel(a,pick(core),pick(['friends','rivals','cousins']))});
+  S.journalist=mkPerson('journalist',null,{name:'Mo Abara',traits:pickN(['vain','honest','sly','ambitious','principled'],2),value:pick(['recognition','glory','money','community'])});
+  // free coaches pool
+  for(let k=0;k<5;k++)S.pool.push(mkPerson('coach',null));
+  // fixtures and expectations
+  startSeasonWorld();
+  // seats: three open chairs with spread
+  S.history.push({s:0,club:'pell',txt:'One season as chairman of Pell United. Voted out by Gareth Vance.'});
+  makeSeats();
+  S.news=[{pri:1,text:'Maria Esteves, sacked by Pell at Christmas, is the new coach of Corden Athletic.'},{pri:1,text:'Pat Kearney at the Pell AGM: "Say what you like about the last chairman. At least he came to the Anchor."'},{pri:2,text:'Gareth Vance renames Pell\'s North Stand after a bookmaker.'}];
+  S.phase='prologue';S.screen='prologue';
+}
+function castClub(c){
+  const big=c.groups.slice().sort((a,b)=>b.share-a.share)[0].k;
+  c.cast.chair=mkPerson('chair',c.id);
+  c.cast.coach=mkPerson('coach',c.id,{infl:c.groups.find(g=>['students','ultras','newcomers'].includes(g.k))?.k||null});
+  c.cast.td=mkPerson('td',c.id);
+  c.cast.captain=mkPerson('captain',c.id,{infl:big});
+  c.cast.fan=mkPerson('fan',c.id,{infl:big});
+  c.cast.opp=mkPerson('opp',c.id,{infl:weakest(c)});
+  c.cast.talent=mkPerson('talent',c.id,{age:ri(17,19)});
+}
+function weakest(c){return c.groups.slice().sort((a,b)=>a.mood-b.mood)[0].k}
+function addRel(a,b,type){if(!a||!b||a===b)return;P(a).rel.push({id:b,type});P(b).rel.push({id:a,type:type==='mentor'?'protégé':type})}
+function makeFixtures(ids){
+  const a=ids.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+  const n=a.length;let arr=a.slice();const first=[];
+  for(let k=0;k<n-1;k++){const m=[];for(let i=0;i<n/2;i++){const x=arr[i],y=arr[n-1-i];m.push((k+i)%2?[y,x]:[x,y])}first.push(m);arr=[arr[0],arr[n-1],...arr.slice(1,n-1)]}
+  return first.concat(first.map(rd=>rd.map(([x,y])=>[y,x])));
+}
+function startSeasonWorld(){
+  S.tbl={};S.fx={};
+  for(const tier of [0,1]){const ids=Object.keys(S.clubs).filter(i=>CL(i).tier===tier);S.fx[tier]=makeFixtures(ids);
+    const byStr=ids.slice().sort((x,y)=>CL(y).str-CL(x).str);byStr.forEach((id,i)=>CL(id).expect=i+1);
+    ids.forEach(id=>S.tbl[id]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});}
+  S.round=0;S.realPts=0;S.xPts=0;S.derbyPts=0;
+}
+function makeSeats(){
+  const ids=Object.keys(S.clubs).filter(i=>i!=='pell'&&i!==S.my);
+  const diff=id=>clubDiff(CL(id));const seats=[];
+  for(const want of [[1,2],[3],[4,3]]){const cand=ids.filter(i=>want.includes(diff(i))&&!seats.includes(i)&&!seats.some(x=>CL(x).town===CL(i).town));seats.push(cand.length?pick(cand):pick(ids.filter(i=>!seats.includes(i))))}
+  S.seats=seats.map(id=>({id,reason:pick(['the chairman resigned after a vote of no confidence','the chairman is retiring after twenty years','the chairman was ousted at the last AGM','the chairman quit over a sponsorship scandal'])}));
+}
+function clubDiff(c){const avg=c.groups.reduce((a,g)=>a+g.mood*g.share,0)/100;return clamp(Math.round(1+(c.debt>=200?1:0)+(avg<46?1:0)+((c.last-(c.expect||8))>=4?1:0)+(c.statute.length>1?.5:0)),1,4)}
+const DIFF_LABEL={1:'Comfortable and cautious',2:'Steady, with an itch',3:'A club in trouble',4:'A club in crisis'};
+
+/* ---- world/football.js ---- */
+/* ================= Football ================= */
+function lambdas(sa,sb,home){const d=(sa-sb)/20+(home?.15:-.15);return[Math.max(.4,1.35+.6*d),Math.max(.4,1.35-.6*d)]}
+function pmf(l,k){let p=Math.exp(-l);for(let i=1;i<=k;i++)p*=l/i;return p}
+function xpts(la,lb){let w=0,d=0;for(let i=0;i<=9;i++){const a=pmf(la,i);for(let j=0;j<=9;j++){const b=pmf(lb,j);if(i>j)w+=a*b;else if(i===j)d+=a*b}}return 3*w+d}
+function myStr(r,home,opp){const c=C();let s=S.cf?cfStrength(S.youth):c.str;for(const m of S.mods)if(m.from<=r&&m.until>=r)s+=m.v;if(opp===c.rival&&home&&S.flags.derbyCrowd)s+=2;return s}
+function addMod(key,v,until,from){S.mods.push({key,v,until,from:from??S.round+1})}
+function nextBlockEnd(r){return BLOCK_ENDS.find(e=>e>=r)??30}
+function rec(id,f,a){const t=S.tbl[id];t.p++;t.gf+=f;t.ga+=a;if(f>a){t.w++;t.pts+=3}else if(f===a){t.d++;t.pts++}else t.l++}
+function simRound(r){
+  let mine=null;if(S.cf)C().str=cfStrength(0);
+  for(const tier of [0,1])for(const [h,a] of S.fx[tier][r-1]){
+    const sh=h===S.my?myStr(r,true,a):CL(h).str,sa=a===S.my?myStr(r,false,h):CL(a).str;
+    const [lh,la]=lambdas(sh,sa,true);const gh=pois(lh,rnd),ga=pois(la,rnd);rec(h,gh,ga);rec(a,ga,gh);
+    if(h===S.my||a===S.my){const home=h===S.my,gf=home?gh:ga,gag=home?ga:gh,opp=home?a:h;const xp=home?xpts(lh,la):xpts(la,lh);const pts=gf>gag?3:gf===gag?1:0;
+      S.realPts+=pts;S.xPts+=xp;if(opp===C().rival)S.derbyPts+=pts;
+      mine={r,opp,home,gf,ga:gag,pts,derby:opp===C().rival,xf:home?lh:la,xa:home?la:lh,scorers:[],why:[]};
+      if(S.cf)matchDetail(mine);}
+  }
+  return mine;
+}
+function standings(tier){return Object.keys(S.tbl).filter(i=>CL(i).tier===tier).sort((x,y)=>{const a=S.tbl[x],b=S.tbl[y];return b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf})}
+function posOf(id){return standings(CL(id).tier).indexOf(id)+1}
+function myPos(){return posOf(S.my)}
+function luck(){const d=S.realPts-S.xPts;return d<=-4?'unlucky':d>=4?'lucky':'fair'}
+function luckWord(){return{unlucky:'Unlucky: we deserved more',lucky:'Lucky: we got more than we deserved',fair:'About what we deserved'}[luck()]}
+function computeChances(){
+  if(S.cf)C().str=cfStrength(0);const r=mkRng(S.seed^(S.season*7919)),N=150,c=C(),tier=c.tier,ids=Object.keys(S.clubs).filter(i=>CL(i).tier===tier),cnt={survive:0,topHalf:0,promo:0,derby:0,goals:0};
+  for(let s=0;s<N;s++){const tb={};ids.forEach(i=>tb[i]={pts:0,gd:0,gf:0});let dp=0;
+    for(const rd of S.fx[tier])for(const [h,a] of rd){const [lh,la]=lambdas(CL(h).str,CL(a).str,true);const gh=pois(lh,r),ga=pois(la,r);const ph=gh>ga?3:gh===ga?1:0,pa=ga>gh?3:gh===ga?1:0;
+      tb[h].pts+=ph;tb[a].pts+=pa;tb[h].gd+=gh-ga;tb[a].gd+=ga-gh;tb[h].gf+=gh;tb[a].gf+=ga;if(h===c.id&&a===c.rival)dp+=ph;if(a===c.id&&h===c.rival)dp+=pa}
+    const o=ids.slice().sort((x,y)=>tb[y].pts-tb[x].pts||tb[y].gd-tb[x].gd);const p=o.indexOf(c.id)+1;
+    if(p<=14)cnt.survive++;if(p<=8)cnt.topHalf++;if(p<=2)cnt.promo++;if(dp>=4)cnt.derby++;if(tb[c.id].gf>=42)cnt.goals++;}
+  const out={};for(const k in cnt)out[k]=cnt[k]/N;return out;
+}
+function chanceWord(p){return p<.12?'Long shot':p<.35?'Unlikely':p<.6?'Coin toss':p<.85?'Likely':'Near certain'}
+
+/* the squad behind the result: who played, who scored, and two lines of why */
+function matchDetail(m){
+  const xi=pickXI(S.cf.squad,S.youth),c=C();
+  for(const x of xi){x.p.apps++;if(x.p.academy&&x.p.apps===1)S.debuts++;if(S.cf.talentPid===x.p.id)S.talentStarts++}
+  const w={ST:4,W:3,AM:3,CM:1.2,DM:.5,FB:.4,CB:.5,GK:0};
+  for(let g=0;g<m.gf;g++){let tot=0;for(const x of xi)tot+=(w[x.slot]||0)*x.p.q;let r=rnd()*tot,sc=xi[0].p;for(const x of xi){r-=(w[x.slot]||0)*x.p.q;if(r<=0){sc=x.p;break}}sc.goals++;m.scorers.push(sc.name.split(' ').slice(-1)[0])}
+  const why=[],oop=xi.filter(x=>x.p.pos!==x.slot),injKey=S.cf.squad.filter(p=>p.inj>0&&p.q>=12),opp=CL(m.opp);
+  if(m.pts<3&&oop.length)why.push(`${oop[0].p.name} played ${POS_ONE[oop[0].slot]} out of position${oop.length>1?`, and ${oop.length-1} more were out of place`:''}.`);
+  if(m.pts<3&&injKey.length)why.push(`We missed ${injKey[0].name}${injKey.length>1?' and '+injKey[1].name:''} through injury.`);
+  if(m.gf+.8<m.xf)why.push('We created enough. The finishing let us down.');
+  if(m.gf>m.xf+1.2)why.push('We scored more than our chances deserved.');
+  if(m.xa>m.xf+.5&&m.pts<3)why.push(`${opp.name} were simply the stronger side.`);
+  if(m.xf>m.xa+.5&&m.pts===3)why.push(`We were the better side and it showed.`);
+  if(m.derby&&m.home&&S.flags.derbyCrowd)why.push('The crowd carried us through the derby.');
+  if(S.youth&&xi.some(x=>x.p.age<=21))why.push(`The youngsters started: ${xi.filter(x=>x.p.age<=21).map(x=>x.p.name.split(' ').slice(-1)[0]).slice(0,3).join(', ')}.`);
+  if(!why.length)why.push(m.pts===3?'A solid team performance.':m.pts===1?'An even game.':'A bad day at the office.');
+  m.why=why.slice(0,2);m.xi=xi.map(x=>({n:x.p.name,slot:x.slot,oop:x.p.pos!==x.slot}));
+}
+
+/* ---- world/news.js ---- */
+/* ================= Opposition and news ================= */
+function oppMove(){
+  const out=[],opp=P(cast('opp'));if(!opp)return out;
+  if(S.flags.oppBoard){out.push(`${opp.name}, now on your board, has gone very quiet.`);return out}
+  S.oppMoves=(S.oppMoves||0)+1;
+  if(!S.served)grp(S.oppGroup,-2,`You left ${gname(C(),S.oppGroup)} to ${opp.name}`);
+  const pending=S.cross.filter(c=>c.dir==='down').map(c=>c.id);
+  const low=['captain','td','coach','fan'].map(cast).filter(id=>id&&P(id).loy!=null&&P(id).loy<4&&!P(id).withOpp&&!pending.includes(id));
+  if(low.length&&!(S.flags.oppCommittee&&rnd()<.5)){const id=low[0];P(id).withOpp=true;log(`${P(id).name} is now in ${opp.name}'s camp`,`${opp.name} courts the people you neglect`,null);out.push(`Rumour: ${P(id).name} was seen at lunch with ${opp.name}. Twice.`);return out}
+  const bp=S.promises.find(p=>p.st==='open'&&behind(p.id));
+  if(bp&&!S.flags.truce){const g=pgroups(bp.id)[0];if(g)grp(g,-3,`${opp.name} attacks your promise: ${pdef(bp.id).t}`);out.push(`${opp.name}: "${pdef(bp.id).t}? Look at the table. What else did the chairman promise you?"`);return out}
+  out.push(`${opp.name} at a members' evening: "This club could be so much more. Ask yourselves why it isn't."`);return out;
+}
+function knows(pid){const p=P(pid);return p&&(p.loy!=null||p.mem.length>0)}
+function newsPush(text,ids=[],clubs=[]){let pri=4;if(ids.some(knows))pri=1;else if(clubs.includes(C()?.rival))pri=2;else if(clubs.some(c=>CL(c)&&C()&&CL(c).tier===C().tier))pri=3;S.news.push({pri,text,s:S.season,r:S.round})}
+function aiWinter(){
+  for(const id of Object.keys(S.clubs)){if(id===S.my)continue;const c=CL(id),ch=P(c.cast.chair),pos=posOf(id);
+    const imp=ch&&(ch.traits.includes('impulsive')||ch.traits.includes('ambitious')||ch.value==='glory');
+    if(pos-c.expect>=(imp?4:6)&&rnd()<.6)sackAI(c,'at Christmas');}
+}
+function sackAI(c,when){
+  const old=c.cast.coach,op=P(old);if(!op)return;op.club=null;S.pool.push(old);c.str=clamp(c.str-0.5,40,60);
+  const cand=S.pool.filter(x=>x!==old);let nu=cand.length?pick(cand):mkPerson('coach',null);S.pool=S.pool.filter(x=>x!==nu);
+  const np=P(nu);np.club=c.id;np.career.push(c.id);c.cast.coach=nu;c.str=clamp(c.str+(rnd()<.5?1:0),40,60);
+  newsPush(`${c.name} sack ${op.name} ${when}. ${np.name} takes over.`,[old,nu],[c.id]);
+}
+function aiSeasonEnd(){
+  for(const id of Object.keys(S.clubs)){if(id===S.my)continue;const c=CL(id),pos=posOf(id);
+    if(pos-c.expect>=5&&rnd()<.55){const old=P(c.cast.chair),nu=c.cast.opp;c.cast.chair=nu;P(nu).role='chair';c.cast.opp=mkPerson('opp',id,{infl:weakest(c)});newsPush(`${c.name}: chairman ${old.name} voted out at the AGM. ${P(nu).name} takes the chair.`,[old.id,nu],[id]);old.club=null}
+    else if(pos-c.expect>=3&&rnd()<.35)sackAI(c,'in the summer');
+    if(c.cast.captain&&P(c.cast.captain).age>=33&&rnd()<.5){const cap=P(c.cast.captain);cap.role='retired';newsPush(`${cap.name} retires as captain of ${c.name}.`,[cap.id],[id]);c.cast.captain=mkPerson('captain',id,{infl:cap.infl})}
+  }
+}
+function promoteRelegate(){
+  const t0=standings(0),t1=standings(1),down=t0.slice(-2),up=t1.slice(0,2);
+  down.forEach(i=>CL(i).tier=1);up.forEach(i=>CL(i).tier=0);
+  up.forEach(i=>newsPush(`${CL(i).name} are promoted to the Northmarch Premier.`,[],[i]));down.forEach(i=>newsPush(`${CL(i).name} go down.`,[],[i]));
+  // a relegated club's star moves to a promoted one
+  const from=pick(down),to=pick(up);CL(from).str=clamp(CL(from).str-1,40,60);CL(to).str=clamp(CL(to).str+1,40,60);
+  newsPush(`${CL(from).name}'s best player joins ${CL(to).name}.`,[],[from,to]);
+  Object.keys(S.clubs).forEach(i=>{CL(i).last=posOf(i);CL(i).str=clamp(CL(i).str+(rnd()<.5?-1:1)*(rnd()<.4?1:0),40,60)});
+  Object.values(S.P).forEach(p=>p.age++);
+}
+
+/* ---- core/words.js ---- */
+/* ================= Words ================= */
+function band(l){return l==null?'Unknown':l<2?'Broken':l<4?'Distant':l<6?'Businesslike':l<8?'Warm':'Devoted'}
+function bandIdx(l){return l<2?0:l<4?1:l<6?2:l<8?3:4}
+function moodWord(p){return p<25?'Furious':p<40?'Angry':p<50?'Wary':p<65?'Content':'Thrilled'}
+function moneyWord(c){return c>=100?'Comfortable':c>=40?'Tight':c>=0?'Stretched':'In the red'}
+function weighted(){return C().groups.reduce((s,g)=>s+g.share/100*g.mood,0)}
+function grpOf(k){return C().groups.find(g=>g.k===k)}
+
+/* ---- club/players.js ---- */
+/* ================= Club foundation: players and the squad =================
+   This layer knows nothing about the chairman. It reads core and world only.
+   Positions, neighbouring positions and the minimum per position come from claude-game (engine/03-players.js). */
+const POS=['GK','CB','FB','DM','CM','AM','W','ST'];
+const POS_L={GK:'Goalkeepers',CB:'Centre-backs',FB:'Full-backs',DM:'Holding midfield',CM:'Central midfield',AM:'Attacking midfield',W:'Wingers',ST:'Strikers'};
+const POS_ONE={GK:'goalkeeper',CB:'centre-back',FB:'full-back',DM:'holding midfielder',CM:'central midfielder',AM:'attacking midfielder',W:'winger',ST:'striker'};
+const NEAR={GK:[],CB:['FB','DM'],FB:['CB','W'],DM:['CM','CB'],CM:['DM','AM'],AM:['CM','W','ST'],W:['AM','FB','ST'],ST:['W','AM']};
+const REQ={GK:2,CB:4,FB:3,DM:2,CM:3,AM:2,W:3,ST:3};
+const XI_SLOTS=['GK','FB','CB','CB','FB','DM','CM','AM','W','ST','W'];
+const PTRAITS=['leader','professional','temperamental','injury-prone','local hero','quiet'];
+const PFIRST=['Kyle','Bradley','Ryan','Nathan','Mo','Femi','Josh','Connor','Jamie','Callum','Kieran','Liam','Marcus','Jordan','Sam','Tyler','Ellis','Dean','Reece','Harvey','Aaron','Lewis','Theo','Ollie','Kofi','Jakub','Matty','Ethan','Joe','Danny','Brandon','Cian','Ruben','Isaac','Noah','Alfie','Zach','Billy','Jay','Ashley'];
+const PLAST=['Agyeman','Rowntree','Whitlock','Dunleavy','Corrigan','Sefton','Pickles','Fairclough','Ashworth','Barraclough','Cawthorne','Dearden','Entwistle','Fenton','Greenhalgh','Hepworth','Illingworth','Jowett','Kershaw','Lockwood','Midgley','Nolan','Ormerod','Priestley','Ramsden','Sutcliffe','Thackeray','Uttley','Varley','Waddington','Yeadon','Okonjo','Mensah','Kowalczyk','Brannigan','Hussain','Achterberg','Doherty','Lomax','Tetley'];
+function pname(){const used=new Set((S.cf&&S.cf.squad||[]).map(p=>p.name));for(let i=0;i<20;i++){const n=`${pick(PFIRST)} ${pick(PLAST)}`;if(!used.has(n))return n}return `${pick(PFIRST)} ${pick(PLAST)}`}
+function wageFor(q){return Math.round((200+(q-8)*95)/10)*10}
+function newPlayer(pos,o={}){
+  const age=o.age??ri(18,33),q=o.q??Math.round((9+rnd()*5)*10)/10;
+  const head=age<=19?1.5+rnd()*4:age<=22?rnd()*2.5:age<=24?rnd():0;
+  return{id:'pl'+(S.pc++),name:o.name||pname(),pos,age,q,pa:Math.round((q+head)*10)/10,contract:o.contract??ri(1,3),
+    wage:Math.round(wageFor(q)*(0.85+rnd()*.3)/10)*10,form:ri(55,75),inj:0,trait:o.trait||pick(PTRAITS),academy:!!o.academy,loan:false,apps:0,goals:0,joined:S.season};
+}
+function playerValue(p){return Math.max(1,Math.round((p.q-7)*(p.q-7)*1.6*(p.age<=21?1.6:p.age<=25?1.3:p.age<=29?1:p.age<=31?.6:.35)*(1+Math.max(0,p.pa-p.q)*.12)))}
+function qWord(q){return q<9?'Poor':q<10.5?'Squad player':q<12?'Solid':q<13.5?'Key player':'Star'}
+function phaseWord(p){return p.age<=23&&p.pa>p.q+1?'rising':p.age>=31?'fading':'at their peak'}
+function genSquad(clubStr){
+  // A club's squad matches its strength: str 50 ~ average quality 11.5
+  const base=11.5+(clubStr-50)/4,sq=[];
+  for(const pos of POS)for(let i=0;i<REQ[pos];i++)sq.push(newPlayer(pos,{q:Math.round((base-1.2+rnd()*2.6)*10)/10}));
+  // the dice leave real holes: one position short, two academy kids, one extra midfielder
+  const short=pick(['FB','CB','W','DM']);sq.splice(sq.findIndex(p=>p.pos===short),1);
+  sq.push(newPlayer(pick(['CM','ST','W']),{q:Math.round((base-.8+rnd()*1.6)*10)/10}));
+  sq.push(newPlayer(pick(['ST','W','CM']),{age:ri(17,18),q:Math.round((base-3+rnd())*10)/10,academy:true,contract:2}));
+  sq.push(newPlayer(pick(['CB','FB','AM']),{age:ri(17,18),q:Math.round((base-3+rnd())*10)/10,academy:true,contract:2}));
+  return sq;
+}
+function fitFor(p,slot){return p.pos===slot?1:NEAR[p.pos].includes(slot)?.85:(slot==='GK'||p.pos==='GK')?.3:.6}
+function available(sq){return sq.filter(p=>p.inj<=0&&!p.loan)}
+function pickXI(sq,youthBias){
+  const av=available(sq),xi=[];
+  const score=p=>p.q+(p.form-65)/40+(youthBias&&p.age<=21?youthBias*.9:0);
+  for(const slot of XI_SLOTS){let b=null,bv=-99;for(const p of av){if(xi.some(x=>x.p===p))continue;const v=score(p)*fitFor(p,slot);if(v>bv){bv=v;b=p}}if(b)xi.push({p:b,slot})}
+  return xi;
+}
+function squadQuality(sq,youthBias){const xi=pickXI(sq,youthBias);if(!xi.length)return 8;return xi.reduce((a,x)=>a+x.p.q*fitFor(x.p,x.slot),0)/11-(11-xi.length)*.6}
+function qualityToStr(q){return 50+(q-11.5)*4}
+function squadGaps(sq){
+  const out=[];
+  for(const pos of POS){const n=available(sq).filter(p=>p.pos===pos).length;if(n<REQ[pos])out.push({pos,kind:'short',text:`Only ${n} fit ${POS_ONE[pos]}${n===1?'':'s'}; we need ${REQ[pos]}`})}
+  const xi=pickXI(sq,0);for(const x of xi)if(x.p.pos!==x.slot)out.push({pos:x.slot,kind:'oop',text:`${x.p.name} plays ${POS_ONE[x.slot]} out of position`});
+  for(const p of sq)if(p.contract===1&&!p.loan&&p.q>=11)out.push({pos:p.pos,kind:'contract',text:`${p.name}'s contract ends in June`});
+  return out;
+}
+
+/* ---- club/club.js ---- */
+/* ================= Club foundation: the week, the director of football, the API =================
+   The club runs on its own. The chairman layer only reads it through cfApi functions at the bottom
+   and changes it through setFrame() and signFreeAgent(). A season without a chairman must run cleanly. */
+const FRAME_OPTS={budget:[0,20,40,60,100],cap:[600,750,900,1200],profile:['youth','experience','value'],rule:['none','noRival','ownFive','heroesStay']};
+const FRAME_WORD={youth:'Youth: develop young players',experience:'Experience: ready-made quality',value:'Value: buy cheap, sell well',none:'No house rule',noRival:'Never sell to our rival',ownFive:'Always five academy players in the squad',heroesStay:'Local heroes are never sold'};
+function cfInit(clubId,clubStr,tdId,coachId,rivalId){
+  S.cf={club:clubId,squad:genSquad(clubStr),frames:{budget:40,cap:900,profile:'value',rule:'none'},budgetLeft:40,tdId,coachId,rivalId,events:[],oopWeeks:0,keySold:null,history:[]};
+  return S.cf;
+}
+function cfEv(kind,text,o={}){S.cf.events.push({w:S.week||0,s:S.season,kind,text,...o})}
+function tdTraits(){const p=P(S.cf.tdId);return p?{tr:p.traits,val:p.value,name:p.name}:{tr:[],val:'money',name:'The director'}}
+function profileAges(pr){return pr==='youth'?[19,23]:pr==='experience'?[26,31]:[20,32]}
+function marketFor(pos,n){const out=[],cf=S.cf,[a0,a1]=profileAges(cf.frames.profile);
+  const base=11.5+((typeof myBaseStr==='function'?myBaseStr():50)-50)/4;
+  for(let i=0;i<n;i++){const age=ri(a0,a1),q=Math.round((base-1.6+rnd()*3.4)*10)/10;const p=newPlayer(pos,{age,q,contract:ri(2,3)});
+    p.price=Math.max(2,Math.round(playerValue(p)*(cf.frames.profile==='value'?0.55+rnd()*.6:cf.frames.profile==='youth'?0.6+rnd()*.5:0.8+rnd()*.6)));p.from=pick(Object.keys(S.clubs).filter(i=>i!==cf.club));out.push(p)}
+  return out}
+function ruleBlocksSale(p,buyer){const r=S.cf.frames.rule;if(r==='noRival'&&buyer===S.cf.rivalId)return'Never sell to our rival';if(r==='heroesStay'&&p.trait==='local hero')return'Local heroes are never sold';
+  if(r==='ownFive'&&p.academy&&S.cf.squad.filter(x=>x.academy).length<=5)return'Five academy players must stay';return null}
+function tdWindow(kind){
+  const cf=S.cf,sq=cf.squad,td=tdTraits(),F=cf.frames,greedy=td.tr.includes('greedy')||td.val==='money',amb=td.tr.includes('ambitious'),cautious=td.tr.includes('cautious'),stubborn=td.tr.includes('stubborn');
+  const evs=[];const say=(k,t,o)=>{cfEv(k,t,o);evs.push(t)};
+  // 1. Sales: bids on the most valuable players. At most one key sale per window ("te heftig").
+  let keySales=0;
+  const byVal=sq.filter(p=>!p.loan).sort((a,b)=>playerValue(b)-playerValue(a)).slice(0,3);
+  for(const p of byVal){
+    if(rnd()>(kind==='summer'?.35:.2))continue;
+    const strong=Object.keys(S.clubs).filter(i=>i!==cf.club&&CL(i).str>=CL(cf.club).str-2);const buyer=pick(strong.length?strong:Object.keys(S.clubs).filter(i=>i!==cf.club)),v=playerValue(p),bid=Math.round(v*(0.9+rnd()*.7));
+    let need=F.profile==='value'?1.3:F.profile==='experience'?1.6:2.0;if(greedy)need-=.15;const young=p.age<=21&&p.q>=12;if(young)need+=.4;
+    const block=ruleBlocksSale(p,buyer);
+    if(block){say('refused',`${CL(buyer).name} bid £${bid}k for ${p.name}. Refused: ${block.toLowerCase()}.`,{pid:p.id,buyer,bid});continue}
+    if(bid>=v*need&&keySales<1){keySales++;sq.splice(sq.indexOf(p),1);S.clubs[cf.club].cash+=bid;cf.budgetLeft+=Math.round(bid*.5);CL(buyer).str=clamp(CL(buyer).str+.5,40,60);
+      say(p.q>=12?'keySale':'sale',`${td.name} sold ${p.name} to ${CL(buyer).name} for £${bid}k. Half goes back into the transfer budget.`,{pid:p.id,name:p.name,buyer,bid});if(p.q>=12)cf.keySold={name:p.name,w:S.week||0,s:S.season}}
+    else say('refused',`${CL(buyer).name} bid £${bid}k for ${p.name}. ${td.name} said no.`,{pid:p.id,buyer,bid});
+  }
+  // 2. Loans out: youngsters who will not play
+  for(const p of sq.filter(p=>p.age<=19&&p.q<squadQuality(sq,0)-2&&!p.loan&&kind==='summer')){if(F.rule==='ownFive'&&sq.filter(x=>x.academy&&!x.loan).length<=5)break;p.loan=true;say('loanOut',`${p.name} (${p.age}) loaned out to play senior football.`,{pid:p.id})}
+  // 3. Buys: shortages first, then the weakest slot in the eleven; an ambitious director spends to the edge
+  const targets=[];for(const g of squadGaps(sq))if(g.kind==='short')targets.push(g.pos);
+  const xi=pickXI(sq,0);const weakest=xi.slice().sort((a,b)=>a.p.q*fitFor(a.p,a.slot)-b.p.q*fitFor(b.p,b.slot))[0];if(weakest&&!targets.includes(weakest.slot))targets.push(weakest.slot);
+  let buys=0;
+  for(const pos of targets){if(buys>=3)break;
+    const mk=marketFor(pos,6);let ok=mk.filter(p=>p.price<=cf.budgetLeft);const over=mk.filter(p=>p.price>cf.budgetLeft).sort((a,b)=>b.q-a.q)[0];
+    const capped=ok.filter(p=>p.wage>F.cap).sort((a,b)=>b.q-a.q)[0];ok=ok.filter(p=>p.wage<=F.cap);
+    const cur=xi.find(x=>x.slot===pos);const curQ=cur?cur.p.q*fitFor(cur.p,pos):0;ok=ok.filter(p=>p.q>curQ-(F.profile==='youth'?1.2:.3)||(F.profile==='youth'&&p.pa>curQ+.5)||targets.indexOf(pos)<squadGaps(sq).filter(g=>g.kind==='short').length);
+    if(cautious)ok=ok.filter(p=>p.age>=25);
+    if(!ok.length){if(capped)say('pass',`${td.name} passed on ${capped.name} (${POS_ONE[pos]}): £${capped.wage}/wk is over your wage cap.`,{pos});else if(over)say('pass',`${td.name} wanted ${over.name} (${POS_ONE[pos]}) but £${over.price}k is over budget.`,{pos});else say('pass',`No ${POS_ONE[pos]} on the market good enough for ${td.name}.`,{pos});continue}
+    ok.sort(amb||F.profile!=='value'?(a,b)=>b.q-a.q:(a,b)=>(b.q/(b.price+3))-(a.q/(a.price+3)));
+    const p=ok[0];cf.budgetLeft-=p.price;S.clubs[cf.club].cash-=p.price;p.joined=S.season;sq.push(p);buys++;
+    say('buy',`${td.name} signed ${p.name} (${POS_ONE[pos]}, ${p.age}, ${qWord(p.q).toLowerCase()}) from ${CL(p.from).name}.`,{pid:p.id,pos,age:p.age,price:p.price});delete p.from;delete p.price;
+  }
+  // 4. Loan in for an empty position (not a stubborn director)
+  if(!stubborn)for(const g of squadGaps(sq).filter(g=>g.kind==='short'&&available(sq).filter(p=>p.pos===g.pos).length===0)){const p=marketFor(g.pos,1)[0];delete p.price;p.loan=false;p.loanIn=true;p.contract=0;sq.push(p);say('loanIn',`${p.name} arrives on loan to cover ${POS_ONE[g.pos]}.`,{pid:p.id})}
+  // 5. Too many players: release the weakest veteran
+  while(sq.length>28){const o=sq.filter(p=>p.age>=30).sort((a,b)=>a.q-b.q)[0]||sq.slice().sort((a,b)=>a.q-b.q)[0];sq.splice(sq.indexOf(o),1);say('leave',`${o.name} released to make room.`,{pid:o.id})}
+  if(!evs.length)say('plan',`A quiet window for ${td.name}.`);
+  return evs;
+}
+function tdRenewals(){
+  const cf=S.cf,F=cf.frames,td=tdTraits();
+  for(const p of cf.squad.filter(p=>p.contract===1&&!p.loanIn&&!p.renewDone)){
+    p.renewDone=true;const ask=Math.round(p.wage*1.15/10)*10;
+    let want=F.profile==='youth'?p.age<=27:F.profile==='experience'?p.q>=11:(p.age<=29&&p.q>=10.5);
+    if(F.rule==='heroesStay'&&p.trait==='local hero')want=true;if(p.academy&&F.rule==='ownFive')want=true;
+    if(!want){cfEv('leave',`${td.name} will let ${p.name} go in the summer.`,{pid:p.id});p.leaving=true;continue}
+    if(ask>F.cap){cfEv('pass',`${p.name} wants £${ask}/wk, over your wage cap. He will leave in the summer.`,{pid:p.id});p.leaving=true;continue}
+    p.contract=ri(2,3);p.wage=ask;cfEv('renew',`${td.name} renewed ${p.name} for ${p.contract} years.`,{pid:p.id});
+  }
+}
+function clubWeek(w){
+  const cf=S.cf;
+  for(const p of cf.squad){
+    if(p.inj>0){p.inj--;if(p.inj===0)cfEv('return',`${p.name} is fit again.`,{pid:p.id})}
+    else if(!p.loan&&rnd()<(p.trait==='injury-prone'?.05:.022)){p.inj=ri(1,5);cfEv('injury',`${p.name} injured: out for ${p.inj} week${p.inj>1?'s':''}.`,{pid:p.id,key:p.q>=12})}
+    p.form=clamp(p.form+ri(-6,6),35,90);
+  }
+  if(w===15){cfEv('window','The winter window opens.');tdWindow('winter')}
+  if(w>=20&&w<=26&&w%2===0)tdRenewals();
+  const oop=pickXI(cf.squad,0).filter(x=>x.p.pos!==x.slot).length;
+  cf.oopWeeks=oop>=1?cf.oopWeeks+1:0;
+  return cf.events.filter(e=>e.w===w&&e.s===S.season);
+}
+function clubSeasonEnd(){
+  const cf=S.cf;
+  for(const p of cf.squad.slice()){
+    if(p.loanIn){cf.squad.splice(cf.squad.indexOf(p),1);continue}
+    p.loan=false;p.renewDone=false;p.contract--;p.age++;
+    if(p.age<=23)p.q=Math.round(clamp(p.q+(p.pa-p.q)*(.25+rnd()*.3),1,19)*10)/10;else if(p.age>=31)p.q=Math.round(clamp(p.q-(.3+rnd()*.6),1,19)*10)/10;
+    if(p.contract<=0||p.leaving){cf.squad.splice(cf.squad.indexOf(p),1);cfEv('leave',`${p.name} leaves at the end of his contract.`,{pid:p.id})}
+    else if(p.age>=35&&rnd()<.6){cf.squad.splice(cf.squad.indexOf(p),1);cfEv('leave',`${p.name} retires.`,{pid:p.id})}
+  }
+  // two academy graduates every summer
+  for(let i=0;i<2;i++)cf.squad.push(newPlayer(pick(POS.slice(1)),{age:17,q:Math.round((squadQuality(cf.squad,0)-3+rnd()*1.2)*10)/10,academy:true,contract:2}));
+  cf.budgetLeft=cf.frames.budget;cf.keySold=null;
+}
+/* ----- API for the chairman layer ----- */
+function myBaseStr(){return S.cf?qualityToStr(squadQuality(S.cf.squad,0)):50}
+function cfStrength(youthBias){return qualityToStr(squadQuality(S.cf.squad,youthBias))}
+function cfNeeds(){return squadGaps(S.cf.squad)}
+function cfPlan(){const g=cfNeeds();const out=[];for(const k of ['short','oop','contract'])for(const x of g.filter(y=>y.kind===k))if(out.length<3)out.push(x.text);return out}
+function cfEvents(w){return S.cf.events.filter(e=>e.w===w&&e.s===S.season)}
+function setFrame(k,v){const cf=S.cf,old=cf.frames[k];cf.frames[k]=v;if(k==='budget'){cf.budgetLeft=Math.max(0,cf.budgetLeft+(v-old))}cfEv('frame',`New frame: ${k==='budget'?'£'+v+'k transfer budget':k==='cap'?'£'+v+'/wk wage cap':FRAME_WORD[v]}.`)}
+function signFreeAgent(pos){const p=newPlayer(pos,{age:ri(25,31),q:Math.round((squadQuality(S.cf.squad,0)-.6+rnd()*1.2)*10)/10,contract:1});S.cf.squad.push(p);cfEv('buy',`${p.name} (${POS_ONE[pos]}, ${p.age}) signs as a free agent.`,{pid:p.id});return p}
+
+/* ---- chairman/state.js ---- */
+/* ================= State changes (each logs its cause) ================= */
+function log(text,why,num){const e={s:S.season,r:S.round,text,why,num};S.log.push(e);S.mlog.push(e)}
+function memo(pid,v,txt){P(pid).mem.push({s:S.season,club:S.my,v,txt})}
+function meet(pid){const p=P(pid);if(p.loy!=null)return;const ms=p.mem.reduce((a,m)=>a+m.v*(p.traits.includes('resentful')&&m.v<0?2:1),0);p.loy=clamp(5+clamp(ms,-3,3)+clamp(Math.round(S.rep/2),-2,2),1,8)}
+function traitMul(kind,tr){let m=1;const has=t=>tr.includes(t);
+  if(kind==='protect'&&has('loyal'))m*=1.5; if(kind==='wish'&&has('ambitious'))m*=1.5;
+  if(kind==='against'&&has('stubborn'))m*=2; if(kind==='bypass'&&has('proud'))m*=1.5; if(kind==='blame'&&has('honest'))m*=.5;
+  if((kind==='blame'||kind==='wait'||kind==='bypass')&&has('resentful'))m*=1.5; if(kind==='wait'&&has('proud'))m*=1.5;
+  if(kind==='admit'&&has('proud'))m*=2; if(kind==='admit'&&has('sly'))m*=0; if(kind==='publicOffer'&&has('vain'))m*=1.5; return m}
+const KIND={protect:2,wish:1,against:-1,bypass:-2,blame:-3,deep:3,wait:-1,admit:1,publicOffer:1};
+function loy(pid,kind,why,o={}){
+  const p=P(pid);if(!p)return;meet(pid);
+  let v=o.raw!=null?o.raw:KIND[kind]*traitMul(kind,p.traits);
+  if(o.stake&&o.raw==null&&v>0){if(STRONG[p.value].includes(o.stake))v*=2;else if(WEAK[p.value].includes(o.stake))v*=.5}
+  v=Math.round(v*10)/10;const before=p.loy;p.loy=clamp(p.loy+v,0,10);
+  if(before<8&&p.loy>=8){p.owes=true;S.cross.push({id:pid,dir:'up'})}
+  if(before>=8&&p.loy<8)p.owes=false;
+  if(before>=4&&p.loy<4&&!p.withOpp)S.cross.push({id:pid,dir:'down'});
+  log(`${p.name}: ${band(before)} → ${band(p.loy)}`,why,(v>0?'+':'')+v);
+  if(o.mem)memo(pid,o.mem[0],o.mem[1]);
+  if(!o.noRipple&&Math.abs(v)>=1)for(const r of p.rel){const q=P(r.id);if(!q||q.club!==S.my||q.loy==null)continue;
+    const d=r.type==='rivals'?-.5*Math.sign(v):.5*Math.sign(v);loy(r.id,null,`${q.name} hears how you treated ${p.name} (${r.type==='protégé'?'their mentor':r.type==='mentor'?'their protégé':r.type})`,{raw:d,noRipple:true})}
+}
+function grp(k,d,why){if(!d)return;const g=grpOf(k);if(!g)return;const b=g.mood;g.mood=clamp(b+d,0,100);if(k===weakestNow()&&d>0)S.served=true;log(`${gname(C(),k)}: ${moodWord(b)} → ${moodWord(g.mood)}`,why,(d>0?'+':'')+d)}
+function weakestNow(){return S.oppGroup}
+function cash(d,why){C().cash+=d;log(`Money: ${d>0?'+':'−'}£${Math.abs(d)}k`,why,null)}
+function hasP(id){return S.promises.some(p=>p.id===id)}
+function openP(id){return S.promises.find(p=>p.id===id&&p.st==='open')}
+function addPromise(id,why){if(hasP(id))return;S.promises.push({id,st:'open'});log(`New promise: ${pdef(id).t}`,why,null)}
+function breakPromise(id,why){const p=openP(id);if(!p)return;p.st='broken';S.rep--;log(`Promise broken: ${pdef(id).t}`,why,null)}
+function comply(pid,against,useOwes){const p=P(pid);meet(pid);if(useOwes){p.owes=false;return'full'}if(!against)return p.loy>=2?'full':'refuse';return p.loy>=4?'half':'refuse'}
+function cast(r){return C().cast[r]}
+
+/* ---- chairman/promises.js ---- */
+/* ================= Promises ================= */
+function pdef(id){
+  const c=C(),tal=P(cast('talent'))?.name||'our best youngster',coach=P(cast('coach')),cap=P(cast('captain'));
+  const D={
+   survive:{slot:'sport',t:'Stay up',size:'S',arch:['oldguard','retirees','volunteers','families']},
+   topHalf:{slot:'sport',t:'A top-half finish',size:'M',arch:['oldguard','business','workers','traders']},
+   promo:{slot:'sport',t:'Promotion',size:'L',arch:['workers','oldguard','ultras','business','students','families','retirees','traders','newcomers','volunteers']},
+   derby:{slot:'sport',t:`Four points from the ${CL(c.rival).name} derbies`,size:'M',arch:['workers','ultras']},
+   goals:{slot:'sport',t:'Forty-two league goals',size:'S',arch:['students','ultras','newcomers']},
+   tickets:{slot:'club',t:'Cheaper tickets for everyone',size:'S',arch:['students','families','ultras','workers']},
+   books:{slot:'club',t:'Books that balance',size:'M',arch:['business','oldguard','retirees']},
+   women:{slot:'club',t:'A women\'s team',size:'S',arch:['newcomers','families','volunteers']},
+   standing:{slot:'club',t:'A standing terrace',size:'S',arch:['ultras','workers']},
+   council:{slot:'club',t:'A members\' council',size:'S',arch:['volunteers','ultras','families']},
+   youth:{slot:'club',t:'Three academy debuts',size:'M',arch:['families','students','volunteers']},
+   coachYear:{slot:'person',t:`${coach?coach.name:'The coach'} gets the season`,size:'M',arch:coach&&coach.infl?[coach.infl]:['oldguard']},
+   captainDeal:{slot:'person',t:`${cap?cap.name:'The captain'} gets a new contract`,size:'M',arch:cap&&cap.infl?[cap.infl]:['workers']},
+   talent:{slot:'person',t:`${tal} starts ten games`,size:'M',arch:['families','students','volunteers','workers']},
+   noInvestor:{slot:'deal',t:'No outside investor while you are chairman',size:'M',arch:['workers','ultras','oldguard']},
+   truce:{slot:'deal',t:'A fair review of outside investment',size:'M',arch:['business']},
+   fanWish:{slot:'deal',t:P(cast('fan'))?`${gname(C(),P(cast('fan')).infl)}: ${P(cast('fan')).deep}`:'What the supporters asked for',size:'M',arch:[P(cast('fan'))?.infl||'workers']}
+  };
+  return D[id];
+}
+function pgroups(id){const ks=c=>C().groups.map(g=>g.k);return pdef(id).arch.filter(a=>ks().includes(a))}
+function behind(id){
+  const r=S.round,p=myPos(),gf=S.tbl[S.my].gf;
+  switch(id){case'survive':return r>=8&&p>13;case'topHalf':return r>=8&&p>10;case'promo':return r>=8&&p>5;
+    case'derby':return r>=15&&S.derbyPts<(r>=23?4:1);case'goals':return r>=8&&gf<42*r/30-3;
+    case'youth':return r>=15&&S.debuts<3*r/30-.5;case'talent':return r>=15&&S.talentStarts<10*r/30-1;
+    case'captainDeal':return r>=23&&!S.flags.captainSigned;case'books':return r>=15&&C().cash<S.cashStart-20;default:return false}
+}
+function evalP(id){
+  switch(id){case'survive':return myPos()<=14;case'topHalf':return myPos()<=8;case'promo':return myPos()<=2;case'derby':return S.derbyPts>=4;case'goals':return S.tbl[S.my].gf>=42;
+    case'books':return C().cash>=S.cashStart;case'youth':return S.debuts>=3;case'talent':return S.talentStarts>=10;
+    case'coachYear':return !S.flags.coachSacked;case'captainDeal':return !!S.flags.captainSigned;default:return true}
+}
+function chanceFor(id){const c=S.chances;if(c&&c[id]!=null)return chanceWord(c[id]);return{tickets:'Yours to keep',books:'Depends on you',women:'Yours to keep',standing:'Yours to keep',council:'Yours to keep',youth:'Needs the coach',coachYear:'Yours to keep',captainDeal:'Needs the director',talent:'Needs the coach'}[id]||''}
+function manifestOptions(slot){
+  const ids=['survive','topHalf','promo','derby','goals','tickets','books','women','standing','council','youth','coachYear','captainDeal','talent'];
+  return ids.filter(id=>{const d=pdef(id);if(d.slot!==slot)return false;if(id==='derby'&&CL(C().rival).tier!==C().tier)return false;return pgroups(id).length>0||slot==='person'}).slice(0,5);
+}
+function applyManifest(){
+  for(const k of ['sport','club','person']){const id=S.pick[k];if(id&&id!=='none')addPromise(id,'Your manifest')}
+  if(hasP('tickets')){cash(-40,'Cheaper tickets: the first year\'s gap');if(grpOf('business'))grp('business',-3,'Business sees money walk out of the door')}
+  if(hasP('women'))cash(-20,'Setting up a women\'s team');
+  if(hasP('standing')){cash(-15,'Building a standing terrace');if(grpOf('retirees'))grp('retirees',-3,'Standing near the old seats')}
+  if(hasP('council')){S.flags.council=1;log('A members\' council will vet big spending','Your manifest',null)}
+  if(hasP('coachYear')){loy(cast('coach'),'protect','You promised the coach the season in public',{stake:'security',mem:[1,'you promised them the season']});S.flags.protectCoach=1}
+  if(hasP('captainDeal')){loy(cast('captain'),'protect','You promised the captain a contract in public',{stake:'security'});loy(cast('td'),'bypass','Contracts are the director\'s call, and you made it for them')}
+  if(hasP('talent')){loy(cast('td'),'wish','You backed the academy\'s best youngster');youthAsk(cast('coach'),false)}
+  if(hasP('youth'))loy(cast('td'),'wish','Academy debuts are the director\'s pride');
+}
+
+/* ---- chairman/cards.js ---- */
+/* ================= Cards ================= */
+function D(t,give,get,test,fail,run,o={}){return{t,give,get,test,fail,run,...o}}
+function noDeal(text,run){return{t:'No deal',none:true,fail:text,run:run||(()=>{})}}
+function youthAsk(pid,useOwes){
+  const p=P(pid),r=comply(pid,true,useOwes);
+  if(r==='refuse'){log(`${p.name} refuses to play the kids`,`${p.name} is ${band(p.loy).toLowerCase()} with you`,null);return}
+  S.youth=Math.max(S.youth,r==='full'?2:1);log(r==='full'?'The academy kids start every week':'The kids get some minutes, not many',r==='full'?'The coach does it properly':'The coach does it half-heartedly',null);
+  if(!useOwes)loy(pid,'against','You asked for youth over results',{stake:'ask'});
+  if(cast('td'))loy(cast('td'),'wish','The director sees academy players get minutes');
+}
+function valueHit(p,stake){return STRONG[p.value].includes(stake)}
+function cardsFor(pid){
+  const p=P(pid),r=p.role,cs=[],nm=p.name,deep=p.deepKnown;
+  const add=(c)=>{if(c.stake&&deep&&valueHit(p,c.stake))c.hit=`Speaks to what ${nm} values most: ${VALUE_WORD[p.value]}`;cs.push(c)};
+  if(r==='coach'){
+    if(p.owes)add(D('Call in the favour: play the kids','The favour you are owed','The academy kids start every week','Points may suffer','',()=>youthAsk(pid,true)));
+    if(!S.flags.coachBacked)add(D('Back the coach in public',`Your name: "${nm} is my coach."`,'A coach who knows where they stand','Every bad result is partly yours','The paper will quote you back',()=>{S.flags.coachBacked=1;loy(pid,'protect','You backed the coach in public',{stake:'name',mem:[1,'you backed them in public']});if(p.infl)grp(p.infl,2,`${nm} tells the press they have your backing`)},{stake:'name'}));
+    add(D('Play the academy kids','Nothing. It is an ask','Minutes for the youngsters','Points may suffer','Against the coach\'s instinct: they may only half do it',()=>youthAsk(pid,false),{stake:'ask'}));
+    add(D('Play it safe for a while','Nothing. It is an ask','Steadier results until the next moment','Fans who like attacking football will grumble','A coach who is cool on you only half listens',()=>{const x=comply(pid,true,false);if(x==='refuse'){log(`${nm} ignores the request`,'Distant with you',null);return}addMod('safe',x==='full'?1:.5,nextBlockEnd(S.round+1));log('The team plays it safe','You asked for results over style',null);loy(pid,'against','You asked for safety over style',{stake:'ask'});const g=['students','ultras','newcomers'].find(grpOf);if(g)grp(g,-2,'Dull football')},{stake:'ask'}));
+    if(!S.flags.coachContract)add(D('Two more years, signed this week','Security: sacking them becomes expensive','They stay, even if a bigger club calls','End of season','Sacking them would cost a year\'s wages',()=>{S.flags.coachContract=1;cash(-20,'A longer contract for the coach');loy(pid,'deep','A long contract: the plan, not a stopgap',{stake:'security',mem:[1,'you gave them a long contract']})},{stake:'security'}));
+    if(!S.flags.coachFinalSay)add(D('The final say on who plays and who is signed','Power, taken from the director','A coach in full control','—','The director will feel passed over',()=>{S.flags.coachFinalSay=1;loy(pid,'wish','You gave them full control',{stake:'power'});loy(cast('td'),'bypass','You gave the coach the director\'s job')},{stake:'power'}));
+    if(S.moment>=3&&myPos()>11)add(D(`Replace ${nm}`,S.flags.protectCoach?'Your word: you promised them the season':'Severance pay','A new coach from the people available','The rest of the season','Their friends will remember',()=>sackMine(),{warn:S.flags.protectCoach?'This breaks a public promise':null}));
+  }
+  if(r==='td'){
+    if(hasP('captainDeal')&&!S.flags.captainSigned||(!S.flags.captainSigned&&S.flags.captainExpiring))add(D('Extend the captain\'s contract','Nothing. It is their call, with your nudge','The captain signed','Now','A cool director may say no',()=>{if(p.loy>=4){S.flags.captainSigned=1;log('The director extends the captain\'s contract','You asked, and it is their call',null);loy(cast('captain'),'wish','Their contract is sorted',{stake:'security'})}else log(`${nm} refuses: "Not now."`,'Distant with you',null)}));
+    if(!S.flags.tdFree&&S.round>=8)add(D('A loan striker for the run-in','£25k and the director\'s principles','A sharper attack for the rest of the season','Every match from now','They may only half commit',()=>{if(S.flags.council&&weighted()<50){log('The members\' council blocks the loan','The council vets big spending',null);return}const x=comply(pid,true,false);if(x==='refuse'){log(`${nm} refuses the loan`,'Distant with you',null);return}addMod('loan',x==='full'?1:.5,30);cash(-25,'A loan striker');log(x==='full'?'A good loan striker arrives':'A so-so loan striker arrives','The director did what you asked',null);loy(pid,'against','You made them buy',{stake:'ask'})},{stake:'ask',warn:S.flags.council?'The members\' council must approve big spending':null}));
+    if(!S.flags.tdFree)add(D('Recruitment is yours alone','Power: no more asks from you','A director who feels trusted','—','You can no longer ask them to buy',()=>{S.flags.tdFree=1;loy(pid,'wish','You gave them full control of recruitment',{stake:'power',mem:[1,'you trusted them with recruitment']})},{stake:'power'}));
+    if(!S.flags.tdPraise)add(D('Credit their signings in public','Your name, in the Echo','Recognition for their work','—','Others may feel overlooked',()=>{S.flags.tdPraise=1;loy(pid,'wish','You credited their work in public',{stake:'name'})},{stake:'name'}));
+    if(!S.flags.academy)add(D('Head of a new academy','A role, and £20k','The director\'s legacy, built here','—','Money the coach would rather spend now',()=>{S.flags.academy=1;cash(-20,'Setting up an academy');loy(pid,'wish','A new academy to build',{stake:'role',mem:[1,'you gave them an academy']});S.youth=Math.max(S.youth,1)},{stake:'role'}));
+  }
+  if(r==='captain'){
+    if(!S.flags.captainSigned&&!hasP('captainDeal'))add(D('Promise the contract, in public','Your name, and the director\'s authority','Your captain, back with you','Signed before the AGM','A broken promise to the dressing room',()=>{addPromise('captainDeal','You promised the captain in public');loy(pid,'protect','You promised their contract in public',{stake:'security'});loy(cast('td'),'bypass','You made the director\'s call for them')},{stake:'security'}));
+    if(!S.flags.captainFuture)add(D('A coaching future','A role: youth coach when they retire','A captain loyal to the end','—','You will have to find them a place',()=>{S.flags.captainFuture=1;loy(pid,'wish','A future at the club',{stake:'role',mem:[1,'you promised them a future']});if(p.infl)grp(p.infl,2,'The fans love it')},{stake:'role'}));
+    if(p.loy==null||p.loy>=4)add(D('Rally the dressing room','Nothing. It is an ask','A lift for the next block of games','Next block','—',()=>{meet(pid);if(p.loy>=4){addMod('morale',1,nextBlockEnd(S.round+1));log('The captain rallies the squad','You asked',null)}else log('The captain shrugs','Distant with you',null)},{stake:'ask'}));
+    if(!S.flags.captainRaise)add(D('A pay rise','£10k','A happier captain','—','Others will ask too',()=>{S.flags.captainRaise=1;cash(-10,'A pay rise for the captain');loy(pid,'wish','A pay rise',{stake:'money'})},{stake:'money'}));
+    if(p.owes&&!S.flags.captainSpeaks)add(D('Speak for me at the AGM','The favour you are owed','Your captain on your side','The AGM','',()=>{p.owes=false;S.flags.captainSpeaks=1;log('The captain will speak for you at the AGM','They owed you',null)}));
+  }
+  if(r==='fan'){
+    const g=p.infl;
+    if(!hasP('noInvestor')&&['workers','ultras','oldguard'].includes(g))add(D('"No investor while I\'m chairman." In public','Your name: a new public promise','The supporters behind you','The AGM','Broken the moment you back outside money',()=>{addPromise('noInvestor','You promised the supporters in public');loy(pid,'protect','You promised: no outside investor',{stake:'name'})},{stake:'name'}));
+    if(!S.flags.fanSeat)add(D(`A seat on the board for ${gname(C(),g)}`,'Power: they sit in on decisions','The supporters at the table','—',C().statute.some(x=>x.startsWith('Two-thirds'))?'Needs two-thirds of the members at the AGM':'You will have to listen',()=>{S.flags.fanSeat=1;grp(g,6,'A seat at the table');loy(pid,'wish','A seat at the table',{stake:'power'})},{stake:'power'}));
+    if(!S.flags.fanName)add(D('Name a stand after the supporters','£15k and a name over the gate','History honoured','—','Others will grumble at the cost',()=>{S.flags.fanName=1;cash(-15,'New signage');loy(pid,'wish','Their name over the gate',{stake:'role',mem:[1,'you named a stand for the supporters']});grp(g,4,'Their name on the stand')},{stake:'role'}));
+    if(!S.flags.derbyCrowd&&S.round<23)add(D('Fill the ground for the home derby','Free buses on derby day (£5k)','A roaring crowd','The home derby','—',()=>{S.flags.derbyCrowd=1;cash(-5,'Derby buses');loy(pid,'wish','The supporters will make noise for the derby',{stake:'money'})},{stake:'money'}));
+    if(p.owes&&!S.flags.fanSpeaks)add(D('Speak for me at the AGM','The favour you are owed','The supporters hear it from one of their own','The AGM','',()=>{p.owes=false;S.flags.fanSpeaks=1;log(`${nm} will speak for you at the AGM`,'They owed you',null)}));
+  }
+  if(r==='opp'){
+    if(!S.flags.oppCommittee&&!S.flags.oppBoard)add(D('Chair a committee of your own choosing','A platform inside the club','Their followers see you working together','—','A sly opponent may use it',()=>{S.flags.oppCommittee=1;loy(pid,null,'You gave them a platform',{raw:2});grp(S.oppGroup,4,'Chairman and opposition, working together')},{stake:'role'}));
+    if(!S.flags.truce)add(D('A truce: you review their big idea','Your word: a public review','They stop attacking you in the paper','The AGM','Your own supporters may call it weakness',()=>{S.flags.truce=1;addPromise('truce','Your truce with the opposition');if(openP('noInvestor'))breakPromise('noInvestor','You agreed to review outside money');grp(S.oppGroup,8,'A grown-up conversation at last');const fan=cast('fan');if(fan&&P(fan).infl!==S.oppGroup)loy(fan,'against','You did a deal with the opposition')},{stake:'name',warn:hasP('noInvestor')?'This breaks a public promise':null}));
+    if(deep&&!S.flags.oppBoard)add(D('A seat on the board','Power: your opponent in the boardroom','They withdraw as your opponent','—','Your allies will not like it',()=>{S.flags.oppBoard=1;loy(pid,'deep','The seat they always wanted',{stake:'power'});grp(S.oppGroup,6,'One of their own on the board');const fan=cast('fan');if(fan)loy(fan,null,'The opposition on the board',{raw:-2})},{stake:'power'}));
+    add(D('Tell them to back off','Nothing','Maybe nothing','—','Pressure feeds a sly opponent',()=>{if(p.traits.includes('cautious')){log(`${nm} backs off`,'Cautious people avoid a fight',null);S.flags.truce=1}else{log(`${nm} smiles. The paper has a quote by morning`,'Pressure does not work',null);grp(S.oppGroup,-2,`${nm}: "The chairman threatened me."`)}}));
+  }
+  if(r==='journalist'){
+    add(D('Give them an exclusive','A story: the club\'s real finances','Fair coverage this season','—','Your enemies read it too',()=>{S.flags.pressFriend=1;loy(pid,'wish','An exclusive',{stake:'name'});const g=C().groups.slice().sort((a,b)=>a.mood-b.mood)[0].k;grp(g,3,'The paper explains the club\'s situation fairly')},{stake:'name'}));
+    add(D('Off the record, every month','Your time, and trust','A friendly ear at the paper','—','If you fall out, they know everything',()=>{S.flags.pressBriefing=1;loy(pid,'wish','Regular briefings',{stake:'security'})},{stake:'security'}));
+    add(D('Refuse to talk','Nothing','Nothing','—','They will write it their way',()=>{S.flags.pressHostile=1;loy(pid,null,'You froze the paper out',{raw:-2});log('The Echo turns sharper','You refused to talk',null)}));
+  }
+  if(r==='chair'){
+    const their=CL(p.club);
+    if(!S.flags['loan_'+pid])add(D('Borrow a player for the run-in','A favour you will owe','A useful player until May','Every match from now','They will call the favour in',()=>{S.flags['loan_'+pid]=1;addMod('borrow',.5,30);S.knownChairs[pid]=(S.knownChairs[pid]||0)+1;log(`You owe ${nm} a favour`,'A borrowed player',null);meet(pid)},{stake:'ask'}));
+    if(!S.flags['pact_'+pid])add(D('A pact: neither of us poaches staff','Security, both ways','They will not approach your coach','—','You cannot approach theirs',()=>{S.flags['pact_'+pid]=1;loy(pid,'wish','A pact between chairmen',{stake:'security'})},{stake:'security'}));
+    if(!S.flags.leagueVote)add(D('Vote with them at the league meeting','Your vote','A fairer share of TV money (£20k at season end)','End of season',`Their rivals at ${CL(their.rival).name} will remember`,()=>{S.flags.leagueVote=pid;loy(pid,'wish','Your vote at the league meeting',{stake:'power'})},{stake:'power'}));
+  }
+  return cs;
+}
+function sackMine(){
+  const old=cast('coach'),op=P(old);if(openP('coachYear'))breakPromise('coachYear','You sacked the coach you promised the season');S.flags.coachSacked=1;
+  cash(S.flags.coachContract?-40:-15,S.flags.coachContract?'A year\'s wages':'Severance');
+  loy(old,'blame','You sacked them',{mem:[-2,'you sacked them']});op.club=null;S.pool.push(old);
+  S.flags.coachBacked=0;S.flags.coachContract=0;S.flags.protectCoach=0;S.youth=0;
+  while(S.pool.filter(x=>x!==old).length<3)S.pool.push(mkPerson('coach',null));
+  S.hire=pickN(S.pool.filter(x=>x!==old),3);
+  newsPush(`${C().name} sack ${op.name}.`,[old],[S.my]);
+}
+function hireCoach(pid){
+  const p=P(pid);S.pool=S.pool.filter(x=>x!==pid);p.club=S.my;p.career.push(S.my);C().cast.coach=pid;p.infl=['students','ultras','newcomers'].find(grpOf)||null;meet(pid);
+  addMod('newcoach',pid&&p.traits.includes('ambitious')?1:.5,30);log(`${p.name} is the new head coach`,'You chose them from the coaches available',null);S.hire=null;
+}
+
+/* ---- chairman/situations.js ---- */
+/* ================= Situations: what the world puts on your desk ================= */
+function nm(pid){return P(pid)?P(pid).name:'someone'}
+function owesCard(pid,text,run){const p=P(pid);if(!p||!p.owes)return[];return[D(`Call in ${p.name}'s favour: ${text}`,'The favour they owe you','They go along with it, for you','—','',()=>{p.owes=false;log(`${p.name} does it for you`,'They owed you a favour',null);run()})]}
+function leaveClub(pid,toClub){const p=P(pid);if(!p)return;if(S.cf){const sp=S.cf.squad.find(x=>x.name===p.name);if(sp)S.cf.squad.splice(S.cf.squad.indexOf(sp),1)}const role=p.role;p.club=toClub||null;if(toClub)p.career.push(toClub);else S.pool.push(pid);
+  if(C().cast[role]===pid)C().cast[role]=mkPerson(role,S.my,{infl:p.infl});}
+function nextBlockHasDerby(){const c=C(),to=Math.min(30,S.round+1);for(let r=S.round+1;r<=to;r++)for(const [h,a] of S.fx[c.tier][r-1])if((h===S.my&&a===c.rival)||(a===S.my&&h===c.rival))return{home:h===S.my,r};return null}
+const SIT={
+ poach:{pri:10,make(k){const coach=P(cast('coach'));if(k<2||!coach||S.flags.coachContract||S.flags.poachDone)return null;if(!(coach.traits.includes('ambitious')||coach.value==='glory'))return null;if(!(S.realPts-S.xPts>=3||myPos()<=3))return null;
+   const big=Object.keys(S.clubs).filter(i=>i!==S.my&&(CL(i).tier<C().tier||(CL(i).tier===C().tier&&CL(i).str>C().str+2))&&!S.flags['pact_'+CL(i).cast.chair]);if(!big.length)return null;S.flags.poachDone=1;return{pid:cast('coach'),club:pick(big)}},
+  build(d){const p=P(d.pid),bc=CL(d.club),bch=P(bc.cast.chair);
+   const go=(mem)=>{if(mem)p.mem.push({s:S.season,club:S.my,v:mem[0],txt:mem[1]});const prev=bc.cast.coach;P(prev).club=null;S.pool.push(prev);p.club=bc.id;p.career.push(bc.id);bc.cast.coach=d.pid;newsPush(`${p.name} leaves ${C().name} for ${bc.name}.`,[d.pid],[bc.id]);if(openP('coachYear'))S.promises.find(x=>x.id==='coachYear').st='void';S.flags.coachBacked=0;S.flags.coachContract=0;while(S.pool.length<3)S.pool.push(mkPerson('coach',null));S.hire=pickN(S.pool,3)};
+   return{title:`${bc.name} want your coach`,who:[d.pid,bch.id],lines:[`${p.name} catches you at the gate.`,`"${bc.name} want me. ${bch.name} rang me personally. I wanted you to hear it from me."`],
+    cards:[D('Match their offer','£30k a year','They stay','—','Your books take the hit',()=>{cash(-30,'Matching an offer for the coach');loy(d.pid,'wish','You fought to keep them',{stake:'money'});log(`${p.name} stays`,'You matched the offer',null)},{stake:'money'}),
+     ...owesCard(d.pid,'stay',()=>log(`${p.name} turns ${bc.name} down`,'For you',null)),
+     D('"Stay, and the job is yours for three years."','Security: a long contract','They stay, and stop listening to offers','—','Sacking them later costs a fortune',()=>{S.flags.coachContract=1;cash(-15,'A long contract');loy(d.pid,'deep','A long contract, offered when it mattered',{stake:'security',mem:[1,'you offered a long contract when a bigger club came']})},{stake:'security'}),
+     D('Go with my blessing','Your coach','Goodwill, and a choice of new coach','—','You must find a replacement',()=>{loy(d.pid,null,'You let them go gracefully',{raw:1});go([1,'you let them go with your blessing'])})],
+    noDeal:noDeal('If you do nothing: they go, and they remember you did not even try.',()=>go([-1,'you did not try to keep them']))}}},
+ defect:{pri:9,make(k){S.cross=S.cross.filter(x=>P(x.id)&&P(x.id).club===S.my&&(x.dir==='up'?P(x.id).owes:(P(x.id).loy<4&&!P(x.id).withOpp)));const dn=S.cross.find(x=>x.dir==='down');if(!dn)return null;S.cross.splice(S.cross.indexOf(dn),1);return{pid:dn.id}},
+  build(d){const p=P(d.pid),opp=cast('opp');return{title:`${p.name} is talking to ${nm(opp)}`,who:[d.pid,opp],lines:[`"${nm(opp)} returns my calls, chairman. You don't."`],
+   cards:cardsFor(d.pid).filter(c=>c.stake&&c.stake!=='ask').slice(0,3),noDeal:noDeal(`If you do nothing: ${p.name} joins the opposition camp.`,()=>{p.withOpp=true;log(`${p.name} joins the opposition camp`,'You let them go',null)})}}},
+ captain:{pri:8,make(k){if(k!==3||!S.flags.captainExpiring||S.flags.captainSigned||hasP('captainDeal'))return null;return{pid:cast('captain')}},
+  build(d){const p=P(d.pid),td=cast('td');return{title:`${p.name}'s contract runs out in June`,who:[d.pid,td],lines:['The captain is waiting by your car after training.',`"${nm(td)} won't talk contracts until summer. I need to know where I stand."`],
+   cards:[...cardsFor(d.pid).filter(c=>c.t.startsWith('Promise')||c.t.startsWith('A coaching')),D(`"Talk to ${nm(td)}."`,'Nothing','The director stays in charge of contracts','—','The captain keeps waiting',()=>{S.flags.captainWaiting=1;log('You sent the captain to the director','Contracts are the director\'s call',null)})],
+   noDeal:noDeal('If you do nothing: they wait. Proud people do not wait well.',()=>{S.flags.captainWaiting=1})}}},
+ cash:{pri:8,make(k){return C().cash<15?{}:null},
+  build(d){const td=cast('td'),cap=cast('captain'),coach=cast('coach'),g=['workers','families','retirees'].find(grpOf);return{title:'The money runs out in March',who:[td],lines:[`${nm(td)} puts a printout on your desk.`,'"We can\'t pay the bills by March. Something has to give, chairman."'],
+   cards:[D('Sell the best player','Your best player','About £60k','—','The fans will see it as giving up',()=>{const best=S.cf.squad.slice().sort((a,b)=>b.q-a.q)[0];S.cf.squad.splice(S.cf.squad.indexOf(best),1);cash(Math.max(40,playerValue(best)),`Selling ${best.name}`);const k=P(cap)?.infl;if(k)grp(k,-3,'Our best player sold')}),
+    D('A bookmaker on the shirt','The shirt','£50k a season','—',g?`${gname(C(),g)} will hate it`:'Some members will hate it',()=>{cash(50,'A bookmaker sponsorship');if(g)grp(g,-6,'A bookmaker on our shirt');if(grpOf('business'))grp('business',3,'Money in the bank')}),
+    D('Cut wages, starting with mine','Your own salary, and theirs','£20k','—','The coach and the captain will feel it',()=>{cash(20,'Wage cuts');loy(coach,null,'A wage cut',{raw:-1});loy(cap,null,'A wage cut',{raw:-1});for(const x of C().groups)grp(x.k,1,'A chairman who cuts his own pay first')})],
+   noDeal:noDeal('If you do nothing: bills go unpaid, and the squad notices.',()=>{addMod('unpaid',-1,nextBlockEnd(S.round+1));log('Wages paid late','The money ran out',null)})}}},
+ bid:{pri:7,make(k){if(k<2||k>4)return null;const pool=[cast('captain'),cast('talent')].filter(x=>P(x)&&!S.flags['bid_'+x]);if(!pool.length)return null;if(rnd()<.45)return null;const pid=pick(pool);
+   const bidders=Object.keys(S.clubs).filter(i=>i!==S.my&&(CL(i).tier<C().tier||CL(i).str>C().str)&&CL(i).cash>40);if(!bidders.length)return null;S.flags['bid_'+pid]=1;return{pid,club:pick(bidders),fee:pick([40,55,70,90])}},
+  build(d){const p=P(d.pid),bc=CL(d.club),bch=bc.cast.chair,td=cast('td'),stat=C().statute.some(x=>x.startsWith('Members approve'));const g=p.infl;
+   return{title:`${bc.name} bid £${d.fee}k for ${p.name}`,who:[d.pid,bch,td],lines:[`${nm(bch)}, chairman of ${bc.name}, rings you at home.`,`"£${d.fee}k for ${p.name}. That's a good price for a club your size."`,P(td).value==='money'?`${nm(td)}: "Take it. We need that money."`:`${nm(td)}: "Your call, chairman. I'd rather keep them."`],
+   cards:[D('Accept the bid',p.name,`£${d.fee}k`,stat?'The members must approve the sale':'—',g?`${gname(C(),g)} will be angry`:'The dressing room will notice',()=>{if(stat&&g&&grpOf(g).mood<50){log('The members block the sale','The statute: members approve any sale above £50k',null);grp(g,3,'The members kept their player');loy(bch,null,'The deal fell through',{raw:-1});return}cash(d.fee,`Selling ${p.name}`);if(g)grp(g,-6,`${p.name} sold`);loy(td,'wish','Money for the club',{stake:'money'});p.mem.push({s:S.season,club:S.my,v:P(d.pid).value==='money'?1:-1,txt:'you sold them'});leaveClub(d.pid,bc.id);newsPush(`${p.name} joins ${bc.name} for £${d.fee}k.`,[d.pid],[bc.id])},{warn:stat?'The statute says the members must approve':null}),
+    D('"Not for sale." In public','Your name, and the money','A player who knows you fought for them','—',P(td).value==='money'?`${nm(td)} wanted the money`:'—',()=>{loy(d.pid,'protect','You refused to sell them, in public',{stake:'security',mem:[1,'you refused to sell them']});if(g)grp(g,3,`${p.name} stays`);if(P(td).value==='money')loy(td,null,'You turned down good money',{raw:-1})},{stake:'security'}),
+    D('"Ask me again in the summer."','Your word to their chairman','Keep them this season, sell later','End of season','The player may sulk',()=>{S.flags['summer_'+d.pid]={club:d.club,fee:d.fee};loy(d.pid,null,'You did not say no',{raw:-.5});loy(bch,'wish','You kept the door open')})],
+   noDeal:noDeal(`If you do nothing: the bid lapses, and ${p.name} hears you never even answered.`,()=>loy(d.pid,'wait','You did not answer the bid'))}}},
+ escalate:{pri:7,make(k){const o=cast('opp');if(k<3||!o||S.flags.oppBoard||S.flags.escalated)return null;if(!(weighted()<53||(S.oppMoves||0)>=2))return null;S.flags.escalated=1;return{pid:o}},
+  build(d){const o=P(d.pid);return{title:`${o.name} is collecting signatures`,who:[d.pid],lines:[`${o.name} has a clipboard at every home game.`,'"Three hundred names so far, chairman. The members want a real choice in June."'],
+   cards:[...cardsFor(d.pid).filter(c=>!c.t.startsWith('Tell')),D('Debate them in public','Your reputation, on a stage','A chance to end this now','Now','If you lose the room, it gets worse',()=>{if(weighted()>=48){grp(S.oppGroup,-4,`You beat ${o.name} in the debate`);log(`${o.name} loses the debate`,'You had the better case',null)}else{for(const x of C().groups)grp(x.k,-2,'The chairman lost the debate');S.flags.challenge=1}})],
+   noDeal:noDeal(`If you do nothing: ${o.name} gets the signatures and will stand against you at the AGM.`,()=>{S.flags.challenge=1;grp(S.oppGroup,-2,`${o.name}'s petition grows`)})}}},
+ story:{pri:6,make(k){const j=S.journalist;if(k<2||S.flags.storyDone)return null;const t=['td','captain','coach','fan'].map(cast).find(x=>P(x)&&(P(x).withOpp||(P(x).loy!=null&&P(x).loy<4)));if(!t)return null;S.flags.storyDone=1;return{pid:t}},
+  build(d){const p=P(d.pid),j=S.journalist,o=cast('opp');return{title:`The Echo has a story about ${p.name}`,who:[j,d.pid],lines:[`${nm(j)} catches you in the car park.`,`"${p.name} has been lunching with ${nm(o)}. I run it Friday, unless you give me something better."`],
+   cards:[D('Give them a better story','An exclusive on the club\'s finances','The story about '+p.name+' is dropped','—','The finances are out in the open',()=>{loy(j,'wish','You gave them an exclusive',{stake:'name'});for(const k of ['business','oldguard'])if(grpOf(k))grp(k,-2,'The finances in the paper');loy(d.pid,null,'You protected them from the paper',{raw:1})},{stake:'name'}),
+    D(`Confront ${p.name} yourself`,'An awkward conversation','The truth, before the paper has it','—','They may walk',()=>{if(P(d.pid).withOpp){log(`${p.name} admits it`,'You confronted them',null);P(d.pid).withOpp=false;loy(d.pid,'admit','You dealt with it face to face')}else loy(d.pid,null,'You accused them',{raw:-1});if(p.infl)grp(p.infl,2,'A chairman who deals with things')}),
+    D('"Print it. I trust my people."','Your judgement, in public',`${p.name} sees you stood by them`,'—','If it is true, you look foolish',()=>{loy(d.pid,'protect','You backed them against the paper',{stake:'name'});if(P(d.pid).withOpp)for(const x of C().groups)grp(x.k,-2,'The chairman was the last to know')},{stake:'name'})],
+   noDeal:noDeal(`If you do nothing: the story runs on Friday.`,()=>{if(p.infl)grp(p.infl,-3,`The Echo: ${p.name} and ${nm(o)}`);loy(d.pid,null,'The story ran and you said nothing',{raw:-1})})}}},
+ conflict:{pri:7,make(k,w){const td=cast('td'),co=cast('coach');if(!S.cf||!td||!co)return null;
+   const ks=S.cf.keySold&&S.cf.keySold.s===S.season&&!S.flags['ck_'+S.cf.keySold.name]?S.cf.keySold:null;
+   const gap=S.cf.oopWeeks>=4?pickXI(S.cf.squad,0).find(x=>x.p.pos!==x.slot):null;
+   if(ks){S.flags['ck_'+ks.name]=1;return{kind:'sale',name:ks.name}}
+   if(gap){S.cf.oopWeeks=0;return{kind:'gap',slot:gap.slot,player:gap.p.name}}return null},
+  build(d){const td=cast('td'),co=cast('coach'),F=S.cf.frames,prof=F.profile;
+   const lines=d.kind==='sale'?[`${nm(co)}: "You let ${nm(td)} sell ${d.name}. Who replaces him? A thirty-year-old from the bargain bin?"`,`${nm(td)}: "I did what the frames say, chairman. ${FRAME_WORD[prof]}."`]
+     :[`${nm(co)}: "${d.player} has played ${POS_ONE[d.slot]} for weeks. He isn't one. We need a real ${POS_ONE[d.slot]}."`,`${nm(td)}: "${S.week>=15&&S.week<=17?'I\'m looking.':'The window is shut. You know the rules.'}"`];
+   const pos=d.kind==='gap'?d.slot:(pickXI(S.cf.squad,0).find(x=>x.p.pos!==x.slot)||{slot:'CM'}).slot;
+   const otherProf=prof==='experience'?'youth':'experience';
+   return{title:d.kind==='sale'?`${nm(co)} is furious about ${d.name}`:`${nm(co)} wants a real ${POS_ONE[pos]}`,who:[co,td],lines,
+    cards:[D('Back the coach: sign someone now','£60k more budget, and the director\'s pride',`A ${POS_ONE[pos]} who starts this week`,'Every match from now',`${nm(td)} feels overruled`,()=>{setFrame('budget',F.budget+60);const p=signFreeAgent(pos);S.cf.budgetLeft=Math.max(0,S.cf.budgetLeft-20);cash(-20,`Signing ${p.name}`);loy(co,'wish','You backed them over the director',{stake:'power'});loy(td,'bypass','You overruled them on recruitment')},{stake:'power'}),
+     D('Back the director','The coach\'s trust','The frames stay as they are','—',`${nm(co)} feels let down`,()=>{loy(td,'wish','You backed the frames you set',{stake:'power'});loy(co,'against','You sided with the director')},{stake:'power'}),
+     D(`Change the profile to ${otherProf}`,'Your own frame, changed in public',otherProf==='experience'?`Ready-made quality now: a ${POS_ONE[pos]} who starts`:'A plan built on young players','—','The members will notice you changed course',()=>{setFrame('profile',otherProf);if(otherProf==='experience'){const p=signFreeAgent(pos);p.q=Math.round((p.q+.8)*10)/10}loy(co,'wish','You listened',{stake:'role'});loy(td,null,'New frames, but still their job',{raw:.5})}),
+     ...owesCard(co,'live with it',()=>loy(td,'wish','The frames stand'))],
+    noDeal:noDeal('If you do nothing: they fight it out in the press, and both think you are weak.',()=>{loy(co,null,'You stayed out of it',{raw:-1});loy(td,null,'You stayed out of it',{raw:-1})})}}},
+ petition:{pri:6,make(k){const g=C().groups.filter(x=>x.mood<45&&!(S.lastPet===x.k)).sort((a,b)=>a.mood-b.mood)[0];if(!g)return null;S.lastPet=g.k;return{k:g.k,n:ri(250,600)}},
+  build(d){const m=ARCH[d.k].motion,gn=gname(C(),d.k),fan=cast('fan');const lead=P(fan)&&P(fan).infl===d.k?fan:null;
+   return{title:`${gn}: a petition with ${d.n} names`,who:lead?[lead]:[],lines:[`${lead?nm(lead):'A delegation from '+gn} hands you a petition.`,`"${m.t}. We want an answer before the next home game."`],
+   cards:[D('Grant it now',m.cost?`£${m.cost}k`:m.anti?'Some of your power':'Your goodwill elsewhere',`${gn} on your side`,'—',m.against&&grpOf(m.against)?`${gname(C(),m.against)} will object`:'Others may ask too',()=>{if(m.cost)cash(-m.cost,m.t);if(m.gain){cash(m.gain,m.t)}grp(d.k,8,`You granted their petition: ${m.t}`);if(m.against&&grpOf(m.against))grp(m.against,-3,`${gn} got their way`);if(m.anti){S.flags.council=1;log('A members\' council now vets big spending','You gave power away',null)}C().binding.push(`${m.t} (petition, season ${S.season})`)}),
+    D('"Put it to the members at the AGM."','A vote you might lose','Time, and a fair hearing','The AGM','If it fails, they blame you',()=>{S.alvExtra=d.k;grp(d.k,3,'Their petition goes to the AGM')}),
+    D('Meet them and explain','An evening','Understanding, maybe','—','Nothing changes on paper',()=>{grp(d.k,2,'You came to explain');if(lead)loy(lead,'wish','You came in person',{stake:'role'})}),
+    ...(lead?owesCard(lead,'ask them to call it off',()=>{}):[])],
+   noDeal:noDeal(`If you do nothing: ${gn} feel ignored, and the opposition takes the petition to the paper.`,()=>{grp(d.k,-5,'Their petition was ignored')})}}},
+ returns:{pri:5,make(k){const known=S.pool.filter(x=>P(x)&&P(x).mem.length&&!S.flags['ret_'+x]);const recent=S.pool.filter(x=>P(x)&&P(x).career.length>0&&!S.flags['ret_'+x]);const pid=known[0]||(rnd()<.5?recent[0]:null);if(!pid)return null;S.flags['ret_'+pid]=1;return{pid}},
+  build(d){const p=P(d.pid),co=cast('coach'),m=p.mem[p.mem.length-1],past=p.career.length?CL(p.career[p.career.length-1]).name:null;
+   const take=(as)=>{S.pool=S.pool.filter(x=>x!==d.pid);};
+   return{title:`${p.name} is looking for work`,who:[d.pid,co],lines:[past?`${p.name}, last at ${past}, is waiting in reception.`:`${p.name} is waiting in reception.`,m?`"I haven't forgotten: ${m.txt}. Have you got anything for me?"`:'"You\'ll have heard I\'m available. I can help you."'],
+   cards:[D('Assistant coach, now','£10k a year','Their experience on your bench','—',P(co).traits.includes('proud')?`${nm(co)} will see a rival on the bench`:'—',()=>{take();cash(-10,`${p.name} joins as assistant`);addMod('assist',.5,30);p.club=S.my;p.career.push(S.my);loy(d.pid,'wish','A job when they needed one',{stake:'role',mem:[1,'you gave them work']});if(P(co).traits.includes('proud'))loy(co,null,'A rival on the bench',{raw:-1})},{stake:'role'}),
+    D(`Replace ${nm(co)} with them`,S.flags.protectCoach?'Your word: you promised the coach the season':'Severance pay','A coach you chose yourself','The rest of the season',`${nm(co)}'s friends will remember`,()=>{const old=cast('coach');if(openP('coachYear'))breakPromise('coachYear','You replaced the coach you promised the season');S.flags.coachSacked=1;cash(S.flags.coachContract?-40:-15,'Severance');loy(old,'blame','You sacked them',{mem:[-2,'you sacked them']});P(old).club=null;S.pool.push(old);S.flags.coachBacked=0;S.flags.coachContract=0;S.flags.protectCoach=0;S.youth=0;hireCoach(d.pid);newsPush(`${C().name} sack ${nm(old)}. ${p.name} takes over.`,[old,d.pid],[S.my])},{warn:S.flags.protectCoach?'This breaks a public promise':null}),
+    D('"Not now. But I\'ll remember you."','Nothing','Goodwill','—','—',()=>loy(d.pid,null,'You were straight with them',{raw:1}))],
+   noDeal:noDeal('If you do nothing: they take a job somewhere else, and remember you never called back.',()=>{p.mem.push({s:S.season,club:S.my,v:-1,txt:'you never called back'});const free=Object.keys(S.clubs).filter(i=>i!==S.my);const c=CL(pick(free));S.pool=S.pool.filter(x=>x!==d.pid);p.club=c.id;p.career.push(c.id);newsPush(`${p.name} joins ${c.name}'s coaching staff.`,[d.pid],[c.id])})}}},
+ rival:{pri:5,make(k){const ids=Object.keys(S.clubs).filter(i=>i!==S.my&&CL(i).tier===C().tier&&!S.flags['riv_'+i]&&(posOf(i)>=14||CL(i).debt>=200));if(!ids.length||rnd()<.4)return null;const id=pick(ids);S.flags['riv_'+id]=1;return{club:id}},
+  build(d){const c=CL(d.club),ch=c.cast.chair;return{title:`${c.name}'s chairman needs help`,who:[ch],lines:[`${nm(ch)}, chairman of ${c.name}, asks to meet you in a lay-by off the ring road.`,'"We\'re in trouble. You know it, I know it. Help me now and I won\'t forget it."'],
+   cards:[D('Take their striker on loan','Your vote at the league meeting','A striker until May','Every match from now',`Their rivals will notice whose side you are on`,()=>{addMod('borrow',1,30);S.flags.leagueVote=ch;loy(ch,'wish','You did a deal with them',{stake:'power'})},{stake:'power'}),
+    D('Lend them a squad player','A player you can spare','A chairman who owes you','—','A thinner squad for you',()=>{addMod('lend',-.5,30);loy(ch,'deep','You helped when nobody else did',{mem:[1,'you helped them in a crisis']})},{stake:'role'}),
+    D('Share your youth coaches','£10k','Goodwill and youngsters for both clubs','—','—',()=>{cash(-10,'Shared youth coaching');S.youth=Math.max(S.youth,1);loy(ch,'wish','Shared youth coaching',{stake:'role'})},{stake:'role'})],
+   noDeal:noDeal('If you do nothing: they find help elsewhere, and remember who did not answer.',()=>{P(ch).mem.push({s:S.season,club:S.my,v:-1,txt:'you ignored them in a crisis'})})}}},
+ league:{pri:5,make(k){if(k!==3||S.flags.leagueVote)return null;const ch=pick(Object.keys(S.clubs).filter(i=>i!==S.my&&CL(i).tier===C().tier).map(i=>CL(i).cast.chair));return{pid:ch}},
+  build(d){const c=CL(P(d.pid).club);return{title:'The league meeting is next month',who:[d.pid],lines:[`${nm(d.pid)} of ${c.name} rings you.`,`"Our clubs want the same thing, chairman. A fairer split of the TV money. Vote with me."`],cards:cardsFor(d.pid),noDeal:noDeal('If you do nothing: you keep your vote, and your options.',()=>{})}}},
+ derby:{pri:4,make(k){const dd=nextBlockHasDerby();if(!dd||S.flags['derby_'+S.season+'_'+dd.r])return null;S.flags['derby_'+S.season+'_'+dd.r]=1;return dd},
+  build(d){const c=C(),fan=cast('fan'),rch=CL(c.rival).cast.chair;return{title:`Derby week: ${CL(c.rival).name}`,who:[fan,rch],lines:[`Round ${d.r}, ${d.home?'at home':'away'}. ${nm(fan)} wants to know what the club is doing.`,`"It's ${CL(c.rival).name}, chairman. ${c.rivalWhy.charAt(0).toUpperCase()+c.rivalWhy.slice(1)}. People remember."`],
+   cards:[D('Free buses and cheap tickets','£5k','A loud crowd',`Round ${d.r}`,'—',()=>{cash(-5,'Derby buses');if(d.home)S.flags.derbyCrowd=1;else addMod('awaycrowd',.5,d.r,d.r);loy(fan,'wish','A proper derby day',{stake:'money'})},{stake:'money'}),
+    D('Ban their away fans','Your relationship with their chairman','A home crowd with no distractions',`Round ${d.r}`,`${nm(rch)} will not forget`,()=>{if(d.home)S.flags.derbyCrowd=1;loy(rch,null,'You banned their fans',{raw:-2,mem:[-1,'you banned their fans']});const g=['workers','ultras'].find(grpOf);if(g)grp(g,3,'No away fans')}),
+    D(`Bet ${nm(rch)} a dinner on the result`,'A dinner, maybe','A friendlier rival chairman','—','—',()=>loy(rch,null,'A friendly bet between chairmen',{raw:1}))],
+   noDeal:noDeal('If you do nothing: a derby like any other.',()=>{})}}},
+ agenda:{pri:3,make(k){return{}},
+  build(d){const open=S.promises.filter(p=>p.st==='open');const bp=open.find(p=>behind(p.id))||open[0];const co=cast('coach'),td=cast('td'),cap=cast('captain'),fan=cast('fan');
+   if(bp){const id=bp.id,t=pdef(id).t,sport=pdef(id).slot==='sport';let cards;
+    if(sport)cards=cardsFor(co).filter(c=>/safe|kids|Back the coach/.test(c.t)).slice(0,3);
+    else if(['youth','talent'].includes(id))cards=[...cardsFor(co).filter(c=>/kids/.test(c.t)),...cardsFor(td).filter(c=>/academy/.test(c.t))];
+    else if(id==='captainDeal')cards=cardsFor(td).filter(c=>/captain/.test(c.t));
+    else if(id==='books')cards=[D('Cut costs across the club','Comfort, everywhere','About £20k','—','Everyone feels it',()=>{cash(20,'Cost cuts');loy(co,null,'Cuts',{raw:-.5});loy(td,null,'Cuts',{raw:-.5})})];
+    else cards=[D(`Visit ${pgroups(id).map(k=>gname(C(),k)).join(' and ')||'the members'}`,'An evening','They see you meant it','—','—',()=>{for(const k of pgroups(id))grp(k,3,`You came to talk about: ${t}`)})];
+    if(!cards.length)cards=[D('Back the coach in public','Your name','A coach who knows where they stand','—','—',()=>loy(co,'protect','You backed the coach in public',{stake:'name'}),{stake:'name'})];
+    return{title:`Your agenda: ${t}`,who:[sport?co:(id==='captainDeal'?td:co)],lines:[behind(id)?`Your promise is behind schedule: ${t}.`:`Your promise: ${t}. What do you push this month?`],cards,noDeal:noDeal('If you do nothing: the promise is left to run its course.',()=>{})}}
+   const cards=[...cardsFor(co).filter(c=>/Back the coach/.test(c.t)),...cardsFor(cap).filter(c=>/coaching future/.test(c.t)),...cardsFor(fan).filter(c=>/Name a stand/.test(c.t))].slice(0,3);
+   return{title:'Your agenda: a free evening',who:[co],lines:['No promise needs you this month. Who do you want to back?'],cards,noDeal:noDeal('If you do nothing: a quiet month.',()=>{})}}}
+};
+function sitBuild(i){const s=S.desk[i];return SIT[s.gen].build(s.data)}
+
+/* ---- chairman/flow.js ---- */
+/* ================= Flow (engine; UI calls act()) ================= */
+function momentOf(w){return w<8?1:w<15?2:w<23?3:4}
+function startSeasonPlay(){S.week=0;S.round=0;S.served=true;startWeek()}
+function startWeek(){
+  S.phase='season';S.week++;S.round=S.week-1;S.moment=momentOf(S.week);S.mlog=[];S.prevMood=Object.fromEntries(C().groups.map(g=>[g.k,g.mood]));
+  if(S.flags.captainWaiting&&S.week%3===0){S.flags.captainWaiting=0;loy(cast('captain'),'wait','You sent them to the director and nothing happened')}
+  const cev=clubWeek(S.week);
+  if(S.week===15)aiWinter();
+  const lines=[];if(S.week%4===0){lines.push(...oppMove());S.served=false}
+  const rank={keySale:0,injury:1,sale:2,buy:3,pass:4,loanIn:5,renew:6,leave:7,window:8,return:9,refused:10,loanOut:11,frame:12,plan:13};
+  S.atClub=cev.slice().sort((a,b)=>(rank[a.kind]??9)-(rank[b.kind]??9)).slice(0,3).map(e=>e.text);
+  if(S.atClub.length<2){const plan=cfPlan()[0];const td=P(S.cf.tdId);if(plan)S.atClub.push(`${td.name} is working on it: ${plan.charAt(0).toLowerCase()+plan.slice(1)}.`);else S.atClub.push(`${td.name} says the squad is in good shape.`)}
+  S.echo=buildEcho(lines,cev);S.desk=genDeskWeek(S.week);S.sit=null;S.screen='week';
+}
+function buildEcho(lines,cev){
+  const c=C(),m=S.last;let head;const key=cev.find(e=>e.kind==='keySale');
+  if(key)head=`${key.name} sold`;
+  else if(S.week===1)head=S.season===S.startSeason?`New broom at ${c.name}`:`${c.name}: a new season`;
+  else if(m)head=m.pts===3?(m.derby?`Derby delight for ${c.name}`:`${c.name} win`):m.pts===1?`${c.name} held`:(m.derby?`Derby misery for ${c.name}`:`${c.name} beaten`);
+  else head='Matchday week';
+  const first=S.week>1&&m?[`Last week: ${m.home?'':'at '}${CL(m.opp).name} ${m.gf}–${m.ga}. ${ord(myPos())} in the table.`]:[`The manifest: ${S.promises.map(p=>pdef(p.id).t).join('; ')||'no promises at all'}.`];
+  if(S.flags.pressHostile&&S.week%4===0)first.push('Mo Abara: "The chairman still won\'t talk to this paper."');
+  const news=S.news.filter(x=>x.s===S.season||x.s==null).sort((a,b)=>a.pri-b.pri).slice(0,2).map(x=>x.text);S.news=S.news.filter(x=>!news.includes(x.text));
+  return{date:`Week ${S.week}`,head,lines:[...first,...lines,...news]};
+}
+function nextFixture(){const c=C(),r=S.week;if(!r||r>30)return null;for(const [h,a] of S.fx[c.tier][r-1])if(h===S.my||a===S.my)return{home:h===S.my,opp:h===S.my?a:h};return null}
+function genDeskWeek(w){
+  const out=[];S.cool=S.cool||{};const k=momentOf(w);
+  const order=['poach','defect','captain','cash','conflict','bid','escalate','story','petition','returns','rival','league','derby','agenda'];
+  for(const g of order){if(out.length>=2)break;if((S.cool[g]||0)>w)continue;const pri=SIT[g].pri;if(pri<8&&g!=='derby'&&rnd()<.6)continue;
+    const d=SIT[g].make(k,w);if(d){out.push({gen:g,data:d,done:false,choice:null});S.cool[g]=w+(g==='derby'?1:g==='agenda'?5:6)}}
+  return out;
+}
+function currentScene(){return S.sit!=null?sitBuild(S.sit):null}
+function sceneCards(sc){return[...sc.cards,...(sc.noDeal?[sc.noDeal]:[])]}
+function applyCard(i){const s=S.desk[S.sit],sc=sitBuild(S.sit),card=sceneCards(sc)[i];if(!card)return;card.run();s.done=true;s.choice=card.none?'Left to run its course':card.t;
+  for(const pid of sc.who)if(P(pid)){P(pid).seen=(P(pid).seen||0)+1;if(P(pid).seen>=2)P(pid).deepKnown=true}
+  S.sit=null;if(S.hire){S.afterHire='week';S.screen='hire';return}S.screen='week'}
+function deskDone(){for(let i=0;i<S.desk.length;i++){const s=S.desk[i];if(s.done)continue;const sc=sitBuild(i);if(sc.noDeal)sc.noDeal.run();s.done=true;s.choice='Left to run its course'}}
+function playMatch(){deskDone();if(S.hire){S.afterHire='play';S.screen='hire';return}
+  const m=simRound(S.week);S.round=S.week;S.last=m;S.screen='result'}
+function afterResult(){if(S.week>=30)startALV();else startWeek()}
+function summerWindow(){S.windowLog=tdWindow('summer');S.screen='window'}
+
+/* ----- Election at a new club ----- */
+function chooseSeat(id){
+  S.my=id;const c=C();S.oppGroup=weakest(c);S.promises=[];S.flags={captainExpiring:rnd()<.6};S.mods=[];S.youth=0;S.debuts=0;S.talentStarts=0;
+  S.elect={stage:'wait'};S.mlog=[];S.phase='election';S.screen='elect';S.cool={};S.last=null;
+  cfInit(id,c.str,cast('td'),cast('coach'),c.rival);
+  const sq=S.cf.squad,tal=sq.filter(p=>p.academy).sort((a,b)=>b.pa-a.pa)[0]||sq.slice().sort((a,b)=>a.age-b.age)[0];S.cf.talentPid=tal.id;if(P(cast('talent')))P(cast('talent')).name=tal.name;
+  const capP=sq.filter(p=>p.age>=25).sort((a,b)=>b.q-a.q)[0];if(capP&&P(cast('captain'))){capP.name=P(cast('captain')).name;capP.captain=true;capP.age=P(cast('captain')).age;if(S.flags.captainExpiring)capP.contract=1}
+  const fan=cast('fan');meet(fan);
+}
+function electionScene(){
+  const c=C(),fan=P(cast('fan')),g=gname(c,fan.infl);const want=fan.deep;
+  return{who:fan.id,lines:[`${fan.name} is at the bar of ${TOWNS[c.town].bar}. They do not turn round when you walk in.`,FLAVOUR[fan.traits[0]],`"Here's what ${g} want: ${want}."`],
+    cards:[D(`Put it in your manifest`,`Your name: a public promise to ${g}`,`${g} behind you in the election`,'Every AGM','If you fail, they never forget',()=>{addPromise('fanWish',`Your promise to ${g}`);loy(fan.id,'deep','You made their wish a public promise',{stake:'name'});grp(fan.infl,10,`${fan.name} tells ${g} to back you`)},{stake:'name',hit:`Speaks to what ${fan.name} values: ${VALUE_WORD[fan.value]}`}),
+      D(`A seat on the board for ${g}`,'Power: they sit in on decisions',`${g} behind you`,'The AGM',c.statute.some(x=>x.startsWith('Two-thirds'))?'Needs two-thirds of the members':'You will have to listen',()=>{S.flags.fanSeat=1;loy(fan.id,'wish','A seat at the table',{stake:'power'});grp(fan.infl,7,'A seat at the table')},{stake:'power'}),
+      D('The honest version','The truth: debts first, dreams later','Respect from the cautious','—','They may campaign for your opponent',()=>{loy(fan.id,'against','You told them what they did not want to hear');for(const x of c.groups)if(['oldguard','business','retirees'].includes(x.k))grp(x.k,4,'Finally, a sensible candidate')})],
+    noDeal:noDeal(`You finish your drink and leave. ${fan.name} backs your opponent.`,()=>{grp(fan.infl,-6,`${fan.name} campaigns against you`)})};
+}
+function electionResult(){
+  const c=C();let total=0;const rows=[];
+  for(const g of c.groups){let v=g.mood;const promised=S.promises.filter(p=>pgroups(p.id).includes(g.k)).length;v+=promised*6+S.rep*1.5;if(g.k===S.oppGroup)v-=8;v=clamp(v,0,100);rows.push({k:g.k,v});total+=g.share/100*v}
+  return{total,rows,won:total>=50};
+}
+/* ----- AGM ----- */
+function startALV(){
+  S.phase='alv';S.mlog=[];S.prevMood=Object.fromEntries(C().groups.map(g=>[g.k,g.mood]));
+  if(openP('captainDeal')&&!S.flags.captainSigned){if(P(cast('td')).loy>=4){S.flags.captainSigned=1;log('The director signs the captain, reluctantly','Your promise, their signature',null)}else log('The director refuses to sign the captain','Distant with you',null)}
+  if(S.flags.leagueVote){cash(20,'TV money from the league vote');const ch=P(S.flags.leagueVote);const riv=CL(CL(ch.club).rival).cast.chair;if(riv&&P(riv))P(riv).mem.push({s:S.season,club:S.my,v:-1,txt:'you voted against them at the league meeting'})}
+  const report=[];
+  for(const p of S.promises){let v=p.st==='broken'?false:p.st==='void'?'void':evalP(p.id);if(v==='void'){report.push({id:p.id,res:'void'});continue}
+    p.st=v?'kept':'broken';if(v)S.rep++;else S.rep--;report.push({id:p.id,res:p.st});for(const g of pgroups(p.id))grp(g,v?GAIN[pdef(p.id).size]:-20,`${v?'Kept':'Broken'}: ${pdef(p.id).t}`)}
+  if(C().cash<0&&grpOf('business'))grp('business',-5,'The club is in the red');
+  let mg=C().groups.slice().sort((a,b)=>a.mood-b.mood).slice(0,3).map(g=>g.k);if(S.alvExtra&&!mg.includes(S.alvExtra))mg=[S.alvExtra,...mg.slice(0,2)];S.alvExtra=null;const motions=mg.map(k=>({id:k,by:k,...ARCH[k].motion})).filter(m=>!(m.id==='business'&&S.flags.oppBoard));
+  S.alv={step:'report',report,motions,lobby:[],speakers:[],defense:null,result:null,two:C().statute.some(x=>x.startsWith('Two-thirds'))};
+  S.screen='alv';
+}
+function applyLobby(sel){
+  const A=S.alv,c=C();A.lobby=sel;
+  for(const id of sel){const m=A.motions.find(x=>x.id===id);
+    if(m){grp(m.by,6,`You back their motion: ${m.t}`);if(m.against&&grpOf(m.against))grp(m.against,-3,'They saw the deal');if(m.anti)log('You backed a motion that limits your own power','Power traded for votes',null);
+      if(m.id==='business'&&(hasP('noInvestor'))){const p=S.promises.find(x=>x.id==='noInvestor');if(p.st!=='broken'){p.st='broken';S.rep--;for(const g of pgroups('noInvestor'))grp(g,-20,'Broken: no outside investor')}}}
+    if(id==='seat'){S.flags.weakSeat=1;grp(S.oppGroup,9,`You give ${gname(c,S.oppGroup)} a seat with a veto`)}}
+  const sides=sel.map(id=>A.motions.find(x=>x.id===id)).filter(Boolean);
+  for(const a of sides)for(const b of sides)if(a!==b&&a.against===b.by){grp(a.by,-3,'They saw you promise the other side');}
+  const need=A.two?66.7:50;
+  for(const m of A.motions){let yes=0;for(const g of c.groups){let base=g.k===m.by?90:g.k===m.against?15:45;if(sel.includes(m.id))base+=10;yes+=g.share/100*clamp(base,0,100)}m.pass=yes>=need;m.yes=yes}
+  const sp=[];
+  for(const role of ['fan','captain','coach','td']){const pid=cast(role);if(!pid)continue;const p=P(pid);if(p.loy==null)continue;const g=p.infl;
+    if(p.withOpp){sp.push({id:pid,line:`${p.name} stands with the opposition: "I backed the wrong person."`});if(g)grp(g,-3,`${p.name} speaks against you`)}
+    else if(S.flags[role+'Speaks']||p.owes){p.owes=false;sp.push({id:pid,line:`${p.name}: "The chairman kept faith with me. Keep faith with the chairman."`});if(g)grp(g,3,`${p.name} speaks for you`)}
+    else if(g&&p.loy>6)grp(g,Math.min(2,Math.round(p.loy-6)),`${p.name} talks you up around the club`);
+    else if(g&&p.loy<4)grp(g,-Math.round(4-p.loy),`${p.name} grumbles about you around the club`);}
+  A.speakers=sp;A.candidate=!S.flags.oppBoard&&(S.flags.challenge||weighted()<50||c.groups.some(g=>g.share>=30&&g.mood<40));A.step='speech';
+}
+function applyDefense(d){
+  const A=S.alv,c=C();A.defense=d;
+  if(d==='luck'){const v=luck()==='unlucky'?5:-5;for(const g of c.groups)grp(g.k,v,v>0?'They accept it was bad luck: the numbers back you':'Excuses: we got what we deserved')}
+  if(d==='success'){const kept=A.report.filter(r=>r.res==='kept');if(kept.length){const g=pgroups(kept[0].id)[0]||c.groups[0].k;grp(g,5,`You remind them: ${pdef(kept[0].id).t}`);const o=c.groups.filter(x=>x.k!==g).sort((a,b)=>a.mood-b.mood)[0];if(o)grp(o.k,-3,'They hear a chairman changing the subject')}else for(const g of c.groups)grp(g.k,-3,'Nothing to point at')}
+  if(d==='blame'){const pid=cast('coach');loy(pid,'blame','You blamed the coach in front of the members',{mem:[-2,'you blamed them in front of the members']});const p=P(pid);if(p.infl)grp(p.infl,-3,`They liked ${p.name}`);const o=c.groups.find(x=>x.k!==p.infl);if(o)grp(o.k,4,'Someone finally takes the blame')}
+  if(d==='wrong'){S.rep+=0;S.flags.trusted=1;log('You admitted your mistakes','Your next manifest will be believed',null)}
+  const total=weighted();A.result={total,won:total>=50};A.step='count';
+  S.history.push({s:S.season,club:S.my,txt:`${ord(myPos())} in the ${C().tier===0?'Premier':'One'}. ${A.result.won?'Re-elected':'Voted out'} with ${Math.round(total)}%.`});
+}
+function endSeason(){
+  const won=S.alv.result.won;
+  aiSeasonEnd();
+  for(const m of S.alv.motions.filter(x=>x.pass)){C().binding.push(`${m.t} (season ${S.season})`);if(m.cost)C().cash-=m.cost;if(m.gain)C().cash+=m.gain}
+  for(const k of Object.keys(S.flags))if(k.startsWith('summer_')&&S.flags[k]){const pid=k.slice(7),x=S.flags[k];if(P(pid)&&P(pid).club===S.my){C().cash+=x.fee;newsPush(`${P(pid).name} leaves for ${CL(x.club).name} as agreed.`,[pid],[x.club]);leaveClub(pid,x.club)}}
+  if(won&&S.cf){if(S.flags.captainSigned){const cp=S.cf.squad.find(p=>p.captain);if(cp)cp.contract=Math.max(cp.contract,3)}clubSeasonEnd()}
+  promoteRelegate();
+  if(!won){const opp=cast('opp');const c=C();c.cast.chair=opp;P(opp).role='chair';c.cast.opp=mkPerson('opp',c.id,{infl:weakest(c)});S.formerClub=S.my;
+    newsPush(`${P(opp).name} is the new chairman of ${c.name}.`,[opp],[c.id]);}
+  S.season++;startSeasonWorld();
+  if(won){S.promises=[];const keep={council:S.flags.council,coachContract:S.flags.coachContract,tdFree:S.flags.tdFree,academy:S.flags.academy,fanSeat:S.flags.fanSeat,fanName:S.flags.fanName,captainFuture:S.flags.captainFuture,oppBoard:S.flags.oppBoard,weakSeat:S.flags.weakSeat};
+    S.flags={...keep,captainExpiring:!keep.captainFuture&&rnd()<.4};S.mods=[];S.cashStart=C().cash;S.oppGroup=weakest(C());S.oppMoves=0;S.step=0;S.pick={};S.chances=computeChances();S.phase='manifest';S.screen='manifest';}
+  else{S.my=null;S.cf=null;makeSeats();S.phase='seats';S.screen='summer';}
+}
+
+/* ----- action dispatcher (used by the UI and by the audit bots) ----- */
+function act(a,arg){
+  switch(a){
+    case'new':newWorld(arg??((Date.now()%2147483647)|0));break;
+    case'toSeats':S.phase='seats';S.screen='seats';break;
+    case'seat':chooseSeat(arg);break;
+    case'electCard':{const sc=electionScene();sceneCards(sc)[+arg].run();S.cashStart=C().cash;S.step=0;S.pick={};S.chances=computeChances();S.screen='manifest';break}
+    case'pick':S.pick[['sport','club','person'][S.step]]=arg;S.step++;if(S.step>=3){applyManifest();if(S.phase==='election'){S.elect.result=electionResult();S.screen='electResult'}else S.screen='frames'}break;
+    case'electNext':if(S.elect.result.won){S.startSeason=S.season;S.history.push({s:S.season,club:S.my,txt:`Elected chairman of ${C().name} with ${Math.round(S.elect.result.total)}%.`});for(const id of Object.values(C().cast))if(P(id)&&P(id).role!=='talent'&&P(id).loy==null&&P(id).mem.length)meet(id);S.screen='frames'}else{S.seats=S.seats.filter(x=>x.id!==S.my);S.my=null;if(!S.seats.length)makeSeats();S.phase='seats';S.screen='seats'}break;
+    case'sit':S.sit=+arg;S.screen='sit';break;
+    case'back':S.sit=null;S.screen='week';break;
+    case'card':applyCard(+arg);break;
+    case'play':playMatch();break;
+    case'next':afterResult();break;
+    case'hire':hireCoach(arg);if(S.afterHire==='play'){S.hire=null;playMatch()}else S.screen=S.afterHire||'week';break;
+    case'frame':{const [k,v]=String(arg).split(':');setFrame(k,k==='budget'||k==='cap'?+v:v);break}
+    case'framesDone':summerWindow();break;
+    case'windowDone':startSeasonPlay();break;
+    case'alvLobby':S.alv.step='lobby';break;
+    case'lobbyDone':applyLobby(arg||[]);break;
+    case'defend':applyDefense(arg);break;
+    case'toEnd':S.alv.step='end';break;
+    case'nextSeason':endSeason();break;
+    case'summerNext':S.screen='seats';break;
+  }
+}
+
+/* ---- ui/render.js ---- */
+/* ================= Rendering ================= */
+const crest=`<svg class="crest" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 L31 7 V17 C31 25 24 30 17 32 C10 30 3 25 3 17 V7 Z" fill="var(--navy)"/><path d="M8 22 L14 12 L18 18 L21 14 L26 22" stroke="var(--signal)" stroke-width="2.6" fill="none" stroke-linejoin="round"/><path d="M8 25 H26" stroke="var(--onnavy)" stroke-width="2"/></svg>`;
+function topBar(){
+  const c=S.my?C():null;
+  const title=c?c.name:'The Northmarch';
+  const sub=!c?`Season ${S.season} · Between clubs`:S.phase==='alv'?'Annual general meeting':S.phase==='election'?'The election':!S.week?`Season ${S.season} · Summer`:`Season ${S.season} · Week ${S.week} · ${ord(myPos())}`;
+  return`<header class="top">${crest}<div class="grow"><div class="club">${esc(title)}</div><div class="sub">${esc(sub)}</div></div><nav class="navbtns" aria-label="Club">${S.phase!=='title'?'<button class="tbtn" data-act="ov" data-arg="region">Region</button>':''}${S.cf&&S.phase!=='election'?'<button class="tbtn" data-act="ov" data-arg="squad">Squad</button>':''}${c&&S.phase!=='election'?'<button class="tbtn" data-act="ov" data-arg="table">Table</button>':''}</nav></header>`;
+}
+function face(pid){const p=P(pid);const n=p.name.split(' ').map(x=>x[0]).join('').slice(0,2);return`<div class="face${p.role==='opp'?' opp':''}" aria-hidden="true">${n}</div>`}
+function whoRow(pid){const p=P(pid);const where=p.club?CL(p.club).name:p.role==='journalist'?'The Northmarch Echo':'Out of work';return`<div class="who">${face(pid)}<div><b>${esc(p.name)}</b><span>${esc(ROLE_WORD[p.role]||p.role)} · ${esc(where)}</span></div></div>`}
+function dealHTML(c,i){
+  if(c.none)return`<button class="deal none" data-act="card" data-arg="${i}"><span class="dt">No deal</span><span class="muted small">${esc(c.fail)}</span></button>`;
+  const rows=[['You give',c.give],['They give',c.get],['Tested',c.test],['If it fails',c.fail]].filter(x=>x[1]&&x[1]!=='—').map(x=>`<dt>${x[0]}</dt><dd>${esc(x[1])}</dd>`).join('');
+  return`<button class="deal" data-act="${S.screen==='elect'?'electCard':'card'}" data-arg="${i}"><span class="dt">${esc(c.t)}</span>${c.hit?`<span class="hit">${esc(c.hit)}</span>`:''}<dl>${rows}</dl>${c.warn?`<span class="warn">⚠ ${esc(c.warn)}</span>`:''}</button>`;
+}
+function arrow(k){const g=grpOf(k);const d=g.mood-((S.prevMood||{})[k]??g.mood);return d>=6?'<span class="up">↑↑</span>':d>0?'<span class="up">↑</span>':d<=-6?'<span class="down">↓↓</span>':d<0?'<span class="down">↓</span>':''}
+function moodsPanel(title){return`<div class="panel">${title?`<p class="eyebrow">${title}</p>`:''}${C().groups.map(g=>`<div class="row"><span>${esc(gname(C(),g.k))} <span class="small muted">${g.share}%</span></span><span class="mood">${moodWord(g.mood)} ${arrow(g.k)}</span></div>`).join('')}</div>`}
+function render(){
+  if(!HAS_DOM)return;const $=document.getElementById('app');
+  if(!S||S.screen==='title'){$.innerHTML=titleView();return}
+  const v={prologue:prologueView,seats:seatsView,elect:electView,manifest:manifestView,electResult:electResultView,week:weekView,sit:sitView,hire:hireView,result:resultView,frames:framesView,window:windowView,alv:alvView,summer:summerView}[S.screen];
+  $.innerHTML=topBar()+`<main>${v?v():''}</main>`+(UI.over?overlayView():'');
+}
+function titleView(){let has=false;try{has=!!localStorage.getItem(SAVE_KEY)}catch(e){}
+  return`<main style="padding-top:48px">${crest.replace('class="crest"','class="crest" style="width:64px;height:64px"')}<p class="eyebrow">A world of members' clubs</p><h1>The Northmarch Chairman</h1>
+  <p>Thirty-two clubs in one county. Every club has its own members, money, rivals and people, and every one of them remembers you. You never pick the team.</p>
+  <div class="stack"><button class="btn" data-act="new">Start a new career</button>${has?'<button class="btn ghost" data-act="continue">Continue</button>':''}</div></main>`}
+function echoBox(date,head,lines){return`<article class="echo"><div class="mast"><b>THE NORTHMARCH ECHO</b><span>${esc(date)}</span></div><div class="head">${esc(head)}</div><ul>${lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></article>`}
+function prologueView(){
+  return`${echoBox('June','Pell\'s old chairman back on the market',S.news.map(n=>n.text))}
+  <p>Last season you were chairman of Pell United. Gareth Vance beat you at the AGM. You kept your word to the Docks, and the region knows it.</p>
+  <p class="muted small">Your reputation: someone who keeps promises. People who never met you will give you a fair hearing.</p>
+  <button class="btn" data-act="toSeats">See the open seats</button>`;
+}
+function seatsView(){
+  const items=S.seats.map(({id,reason})=>{const c=CL(id),d=clubDiff(c);const big=c.groups.slice().sort((a,b)=>b.share-a.share);
+    const known=Object.values(c.cast).filter(x=>P(x)&&P(x).mem.length);
+    return`<button class="choice" data-act="seat" data-arg="${id}"><span class="row"><b>${esc(c.name)}</b><span class="dots" aria-label="difficulty ${d} of 4">${'●'.repeat(d)}${'○'.repeat(4-d)}</span></span>
+    <span class="meta">"${DIFF_LABEL[d]}." ${c.tier===0?'Northmarch Premier':'Northmarch One'} · ${TOWNS[c.town].n} · last season ${ord(c.last)}</span>
+    <span class="meta">Why the seat is open: ${esc(reason)}.</span>
+    <span class="meta">Members: ${big.map(g=>`${gname(c,g.k)} ${g.share}% (${moodWord(g.mood).toLowerCase()})`).join(', ')}.</span>
+    <span class="meta">Money: ${moneyWord(c.cash)}${c.debt?`, £${c.debt}k debt`:', no debt'}. Rival: ${esc(CL(c.rival).name)} (${esc(c.rivalWhy)}).</span>
+    ${known.length?`<span class="meta"><b>Knows you:</b> ${known.map(x=>esc(P(x).name)).join(', ')}</span>`:''}</button>`}).join('');
+  return`<p class="eyebrow">Summer · Season ${S.season}</p><h2>Open seats</h2><p>Three members' clubs need a chairman. You stand as a candidate, then face an election.</p><div class="stack">${items}</div>`;
+}
+function electView(){const sc=electionScene();const c=C();
+  return`<p class="eyebrow">The campaign · ${esc(c.name)}</p><p>Founded ${c.founded}. Legend: ${esc(c.legend)}. Scar: ${esc(c.scar)}. Statute: ${esc(c.statute.join('; '))}.</p>
+  ${moodsPanel('The members')}<section class="scene"><p class="where">${esc(TOWNS[c.town].bar)}</p>${whoRow(sc.who)}${sc.lines.map(l=>l.startsWith('"')?`<p class="voice">${esc(l)}</p>`:`<p>${esc(l)}</p>`).join('')}</section>
+  <p class="eyebrow">On the table</p><div class="stack">${sceneCards(sc).map((x,i)=>x.none?`<button class="deal none" data-act="electCard" data-arg="${i}"><span class="dt">No deal</span><span class="muted small">${esc(x.fail)}</span></button>`:dealHTML(x,i)).join('')}</div>`}
+function manifestView(){
+  const slot=['sport','club','person'][S.step],titles={sport:'Your sporting promise',club:'Your promise about the club',person:'Your personal promise'};
+  const items=manifestOptions(slot).map(id=>{const d=pdef(id),gs=pgroups(id).map(k=>gname(C(),k));return`<button class="choice" data-act="pick" data-arg="${id}"><b>${esc(d.t)}</b><span><span class="chance">${esc(chanceFor(id))}</span> <span class="meta">${SIZE_WORD[d.size]}${gs.length?' · '+gs.join(', '):''}</span></span></button>`}).join('');
+  const none=slot!=='sport'?`<button class="choice" data-act="pick" data-arg="none"><b>No promise here</b><span class="meta">Hands free. Nobody gets anything.</span></button>`:'';
+  return`<p class="eyebrow">${S.phase==='election'?'Your manifest':'Season '+S.season+' manifest'} · ${S.step+1} of 3</p><h2>${titles[slot]}</h2><p>The members measure it at the AGM. Kept: they reward you. Broken: they punish you, whatever the size.${S.flags.trusted?' They trust you more after last year.':''}</p><div class="stack">${items}${none}</div>`;
+}
+function electResultView(){const r=S.elect.result,c=C();const order=r.rows.slice().sort((a,b)=>a.v-b.v);
+  return`<p class="eyebrow">Election night · ${esc(c.name)}</p><h2>The count</h2><div class="count">${order.map(x=>`<div class="cg panel"><div class="row"><b>${esc(gname(c,x.k))}</b><span class="mood">${verdict(x.v)}</span></div><div class="bar"><i style="width:${Math.round(x.v)}%"></i></div></div>`).join('')}</div>
+  <div class="verdict stack"><p class="big ${r.won?'up':'down'}">${r.won?'Elected':'Defeated'}</p><p>${r.won?`You are the chairman of ${esc(c.name)}.`:`${esc(P(cast('opp')).name)} wins. Try another seat.`}</p><button class="btn" data-act="electNext">${r.won?'To work':'Back to the open seats'}</button></div>`}
+function personLine(pid){const p=P(pid);if(!p||p.loy==null&&!p.mem.length)return'';const rel=p.rel.filter(r=>P(r.id)).slice(0,2).map(r=>`${r.type==='protégé'?'mentor of':r.type==='mentor'?'protégé of':r.type==='friends'?'friends with':r.type==='rivals'?'rivals with':'related to'} ${P(r.id).name}`).join('; ');
+  return`<p class="small muted">${esc(p.name)}: ${p.traits.join(', ')}. ${band(p.loy)} with you${p.owes?', owes you a favour':''}${p.withOpp?', in the opposition camp':''}.${rel?' '+esc(rel.charAt(0).toUpperCase()+rel.slice(1))+'.':''}${p.deepKnown?` Values ${VALUE_WORD[p.value]}; wants ${esc(p.deep)}.`:''}</p>`}
+function sitView(){
+  const sc=sitBuild(S.sit);sc.who.forEach(x=>{if(P(x)&&P(x).role!=='talent')meet(x)});
+  const lines=sc.lines.map(l=>l.startsWith('"')||/^[A-Z][^"]*: "/.test(l)?`<p class="voice">${esc(l)}</p>`:`<p>${esc(l)}</p>`).join('');
+  return`<p class="eyebrow">On your desk</p><h2>${esc(sc.title)}</h2><section class="scene">${sc.who.filter(x=>P(x)).map(whoRow).join('')}${lines}${sc.who.map(personLine).join('')}</section>
+  <p class="eyebrow">On the table</p><div class="stack">${sceneCards(sc).map(dealHTML).join('')}</div><button class="btn ghost" data-act="back">Back to the week</button>`;
+}
+function hireView(){
+  const list=S.hire.map(pid=>{const p=P(pid);const m=p.mem[p.mem.length-1];const past=p.career.length?`Past: ${p.career.map(x=>CL(x).name).join(', ')}.`:'No league experience.';
+    return`<button class="choice" data-act="hire" data-arg="${pid}"><b>${esc(p.name)}</b><span class="meta">${p.traits.join(', ')} · values ${VALUE_WORD[p.value]} · ${p.age}</span><span class="meta">${esc(past)}${m?` Remembers you: ${esc(m.txt)}.`:''}</span></button>`}).join('');
+  return`<p class="eyebrow">The coaches available</p><h2>Who takes the job?</h2><p>These are the coaches out of work in the Northmarch right now.</p><div class="stack">${list}</div>`;
+}
+function verdict(p){return p>=75?'Overwhelmingly for':p>=58?'Clearly for':p>=50?'Narrowly for':p>=42?'Narrowly against':p>=25?'Clearly against':'Overwhelmingly against'}
+function alvView(){
+  const A=S.alv,c=C();
+  if(A.step==='report'){const rows=A.report.map(r=>`<div class="row"><span>${esc(pdef(r.id).t)}</span><span class="mood ${r.res==='kept'?'up':r.res==='broken'?'down':''}">${r.res==='kept'?'Kept':r.res==='broken'?'Broken':'Void'}</span></div>`).join('<hr>')||'<p>You promised nothing.</p>';
+    return`<p class="eyebrow">June · ${esc(c.name)}</p><h2>The annual report</h2><p>Final position: ${ord(myPos())}, ${S.tbl[S.my].pts} points. ${luckWord()}.</p><div class="panel">${rows}</div>${moodsPanel('How they walk in')}<button class="btn" data-act="alvLobby">Into the corridor</button>`}
+  if(A.step==='lobby'){
+    const opts=[...A.motions.map(m=>({id:m.id,t:`Back the ${gname(c,m.by)} motion`,d:`"${m.t}". ${gname(c,m.by)} warm to you${m.against&&grpOf(m.against)?`; ${gname(c,m.against)} see the deal`:''}.${m.anti?' It limits your own power.':''} If it passes, it binds the club.`})),
+      ...(!S.flags.weakSeat?[{id:'seat',t:`Offer ${gname(c,S.oppGroup)} a seat with a veto`,d:'They join the table. Your big decisions go past them from now on.'}]:[])];
+    return`<p class="eyebrow">The corridor, 7.45pm</p><h2>Motions and deals</h2><p>Binding motions tonight${A.two?', and the statute demands two-thirds':''}:</p><ul class="log">${A.motions.map(m=>`<li><b>${esc(gname(c,m.by))}:</b> ${esc(m.t)}</li>`).join('')}</ul><p>Make as many deals as you like. Everyone in the hall will know about each one.</p>
+    <div class="stack">${opts.map(o=>`<label class="check${UI.lobby[o.id]?' on':''}" for="lb-${o.id}"><input type="checkbox" id="lb-${o.id}" data-lobby="${o.id}" ${UI.lobby[o.id]?'checked':''}><span><b>${esc(o.t)}</b><br><span class="small muted">${esc(o.d)}</span></span></label>`).join('')}</div><button class="btn" data-act="lobbyDone">Into the hall</button>`}
+  if(A.step==='speech'){const opp=P(cast('opp'));
+    const sp=A.speakers.map(s=>`<div class="stack" style="gap:6px">${whoRow(s.id)}<p class="voice">${esc(s.line)}</p></div>`).join('<hr>')||'<p class="muted">Nobody stands up for you, and nobody against.</p>';
+    const res=A.motions.map(m=>`<div class="row"><span>${esc(m.t)}</span><span class="mood ${m.pass?'up':'down'}">${m.pass?'Carried':'Defeated'}</span></div>`).join('');
+    const cand=A.candidate?`<div class="stack" style="gap:6px">${whoRow(opp.id)}<p class="voice">"Count the chairman's promises. Then vote for someone who delivers."</p></div>`:'<p>No one stands against you. Tonight is a vote of confidence.</p>';
+    const defs=[['wrong','"Where I fell short, I was wrong."','Nothing changes tonight. Your next manifest will be believed.'],['luck','"We were unlucky."',luck()==='unlucky'?'True this season. They may accept it.':'The table says otherwise.'],['success','"Look at what worked."','Point to what you delivered. Some will call it changing the subject.'],['blame','"The coach let us down."',`${P(cast('coach')).name} hears every word.`]];
+    return`<p class="eyebrow">The hall</p><h2>Motions and voices</h2><div class="panel">${res}</div><div class="panel">${sp}</div><div class="panel"><p class="eyebrow">${A.candidate?'Your opponent':'No challenger'}</p>${cand}</div><p class="eyebrow">Your speech</p><div class="stack">${defs.map(d=>`<button class="choice" data-act="defend" data-arg="${d[0]}"><b>${esc(d[1])}</b><span class="meta">${esc(d[2])}</span></button>`).join('')}</div>`}
+  if(A.step==='count'){const order=c.groups.slice().sort((a,b)=>a.mood-b.mood);const won=A.result.won;
+    return`<p class="eyebrow">The count</p><h2>${A.candidate?`You or ${esc(P(cast('opp')).name)}`:'Confidence in the chairman'}</h2><div class="count">${order.map(g=>`<div class="cg panel"><div class="row"><b>${esc(gname(c,g.k))}</b><span class="mood">${verdict(g.mood)}</span></div><div class="bar"><i style="width:${Math.round(g.mood)}%"></i></div></div>`).join('')}</div>
+    <div class="verdict stack"><p class="big ${won?'up':'down'}">${won?'Re-elected':'Voted out'}</p><p>${won?'The members keep you. What you gave away tonight now binds the club.':'Your time here is over. Your reputation goes with you.'}</p><button class="btn" data-act="toEnd">The season in full</button></div>`}
+  if(A.step==='end'){const kept=S.promises.filter(p=>p.st==='kept').length,broken=S.promises.filter(p=>p.st==='broken').length;
+    const ppl=['coach','td','captain','fan','opp'].map(cast).filter(x=>x&&P(x).loy!=null).map(x=>`<div class="row small"><span>${esc(P(x).name)}<br><span class="muted">${esc(ROLE_WORD[P(x).role])}</span></span><span class="mood">${band(P(x).loy)}${P(x).withOpp?' · with the opposition':''}</span></div>`).join('');
+    return`<p class="eyebrow">End of season ${S.season}</p><h2>${A.result.won?'Chairman for another year':'Former chairman of '+esc(c.name)}</h2><p>${ord(myPos())} with ${S.tbl[S.my].pts} points. Promises kept: ${kept}. Broken: ${broken}.</p>
+    ${c.binding.length||A.motions.some(m=>m.pass)?`<div class="panel"><p class="eyebrow">What binds the club</p><ul class="log">${A.motions.filter(m=>m.pass).map(m=>`<li>${esc(m.t)}</li>`).join('')}${c.binding.map(b=>`<li>${esc(b)}</li>`).join('')}</ul></div>`:''}
+    <div class="panel"><p class="eyebrow">Your people</p>${ppl}</div><button class="btn" data-act="nextSeason">${A.result.won?'Into the summer':'Into the summer, without a club'}</button>`}
+}
+function summerView(){
+  const news=S.news.filter(n=>n.s===S.season-1||n.s===S.season).sort((a,b)=>a.pri-b.pri).slice(0,5).map(n=>n.text);
+  return`${echoBox('June',S.formerClub?`Life after ${CL(S.formerClub).name}`:'The summer',news.length?news:['A quiet summer in the Northmarch.'])}<p>The region moved on while you packed your desk. The people you met remember what you did.</p><button class="btn" data-act="summerNext">See the open seats</button>`;
+}
+function overlayView(){
+  if(UI.over==='squad')return squadOverlay();
+  if(UI.over==='table'){const c=C();
+    const pr=S.promises.map(p=>`<div class="row small"><span>${esc(pdef(p.id).t)}</span><span class="mood">${p.st!=='open'?p.st:behind(p.id)?'Behind':'On track'}</span></div>`).join('')||'<p class="small muted">No promises.</p>';
+    const ppl=['coach','td','captain','fan','opp'].map(cast).filter(Boolean).map(x=>{const p=P(x);return`<div class="row small"><span>${esc(p.name)}<br><span class="muted">${esc(ROLE_WORD[p.role])} · ${p.traits.join(', ')}</span></span><span class="mood">${band(p.loy)}${p.owes?' · owes you':''}${p.withOpp?' · with the opposition':''}</span></div>`}).join('<hr>');
+    const fl=S.flags,deals=[fl.coachContract&&'Coach: two-year contract',fl.coachFinalSay&&'Coach has the final say',fl.tdFree&&'Director runs recruitment alone',fl.academy&&'A new academy',fl.captainSigned&&'Captain signed',fl.captainFuture&&'Captain: coaching future',fl.fanSeat&&'Supporters\' seat on the board',fl.fanName&&'A stand named for the supporters',fl.derbyCrowd&&'Free buses for the derby',fl.oppCommittee&&'Opposition chairs a committee',fl.truce&&'Truce with the opposition',fl.oppBoard&&'Opposition on the board',fl.council&&'Members\' council vets spending',fl.pressFriend&&'Exclusive given to the Echo',fl.pressHostile&&'Frozen out the Echo',fl.leagueVote&&`League vote with ${P(fl.leagueVote).name}`].filter(Boolean);
+    return`<div class="overlay" role="dialog" aria-label="The table"><div class="inner"><div class="row"><h2>The table</h2><button class="tbtn" data-act="ov">Close</button></div><p class="muted small">${S.round?`${ord(myPos())} after round ${S.round}. `:''}Money: ${moneyWord(c.cash)}${c.debt?`, £${c.debt}k debt`:''}.</p>
+    <div class="panel"><p class="eyebrow">Your promises</p>${pr}</div><div class="panel"><p class="eyebrow">Deals on the table</p>${deals.length?deals.map(d=>`<p class="small">${esc(d)}</p>`).join(''):'<p class="small muted">None yet.</p>'}</div>${moodsPanel('The members')}<div class="panel"><p class="eyebrow">Your people</p>${ppl}</div></div></div>`}
+  const tabs=`<div class="tabs" role="tablist">${[['tables','Tables'],['people','People you know'],['history','Your career']].map(([k,n])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-arg="${k}">${n}</button>`).join('')}</div>`;
+  let body='';
+  if(UI.tab==='tables'){body=[0,1].map(t=>`<div class="panel"><p class="eyebrow">${t===0?'Northmarch Premier':'Northmarch One'}</p>${standings(t).map((id,i)=>`<div class="row small" style="font-variant-numeric:tabular-nums${id===S.my?';font-weight:600':''}"><span>${i+1}. ${esc(CL(id).name)}</span><span>${S.tbl[id].pts}</span></div>`).join('')}</div>`).join('')}
+  if(UI.tab==='people'){const known=Object.values(S.P).filter(p=>(p.loy!=null||p.mem.length)&&p.role!=='talent');body=`<div class="panel">${known.map(p=>`<div class="row small"><span>${esc(p.name)}<br><span class="muted">${esc(ROLE_WORD[p.role]||p.role)} · ${p.club?esc(CL(p.club).name):'out of work'}</span></span><span class="mood">${band(p.loy)}</span></div>`).join('<hr>')||'<p class="small muted">Nobody yet.</p>'}</div>`}
+  if(UI.tab==='history'){body=`<div class="panel"><ul class="log">${S.history.map(h=>`<li><span class="num">S${h.s}</span> ${esc(h.txt)}</li>`).join('')}</ul></div><p class="small muted">Reputation: ${S.rep>=4?'a chairman who keeps promises':S.rep>=0?'mixed':'a chairman who breaks promises'}.</p>`}
+  return`<div class="overlay" role="dialog" aria-label="The region"><div class="inner"><div class="row"><h2>The Northmarch</h2><button class="tbtn" data-act="ov">Close</button></div>${tabs}${body}</div></div>`;
+}
+
+/* ----- foundation screens ----- */
+function weekView(){
+  const e=S.echo,fx=nextFixture(),open=S.desk.filter(s=>!s.done).length;
+  const desk=S.desk.map((s,i)=>{const sc=sitBuild(i);return s.done?`<div class="choice" aria-disabled="true"><b>${esc(sc.title)}</b><span class="meta">Done: ${esc(s.choice)}</span></div>`:`<button class="choice" data-act="sit" data-arg="${i}"><b>${esc(sc.title)}</b><span class="meta">${esc(sc.noDeal?sc.noDeal.fail:'')}</span></button>`}).join('');
+  return`${echoBox(e.date,e.head,e.lines)}
+  <div class="panel"><p class="eyebrow">This week at the club</p><ul class="log">${S.atClub.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></div>
+  <div class="panel"><p class="eyebrow">On your desk</p>${S.desk.length?`<div class="stack">${desk}</div>`:'<p class="small muted">Nothing needs you this week.</p>'}</div>
+  ${fx?`<div class="panel"><p class="eyebrow">Saturday${fx.opp===C().rival?' · Derby':''}</p><div class="row"><b>${fx.home?esc(C().name)+' v '+esc(CL(fx.opp).name):esc(CL(fx.opp).name)+' v '+esc(C().name)}</b><span class="small muted">${ord(posOf(fx.opp))} in the table</span></div></div>`:''}
+  <button class="btn" data-act="play">${open?'Leave the rest and play the match':'Play the match'}</button>`;
+}
+function resultView(){
+  const m=S.last,c=C();const sc=m.scorers.length?m.scorers.join(', '):'none';
+  const items=S.mlog.map(e=>`<li>${esc(e.text)} ${e.num?`<span class="num">${esc(e.num)}</span>`:''}<span class="why">${esc(e.why)}</span></li>`).join('');
+  const st=standings(c.tier),p=st.indexOf(S.my);const around=st.slice(Math.max(0,p-2),Math.min(16,p+3));
+  const tbl=around.map(id=>`<div class="row small" style="font-variant-numeric:tabular-nums${id===S.my?';font-weight:600':''}"><span>${st.indexOf(id)+1}. ${esc(CL(id).name)}</span><span>${S.tbl[id].pts} pts</span></div>`).join('');
+  const prom=S.promises.filter(x=>x.st==='open').map(x=>`<div class="row small"><span>${esc(pdef(x.id).t)}</span><span class="mood ${behind(x.id)?'down':'up'}">${behind(x.id)?'Behind':'On track'}</span></div>`).join('');
+  return`<p class="eyebrow">Week ${S.week} · Full time${m.derby?' · Derby':''}</p>
+  <div class="panel"><div class="row"><b>${esc(m.home?c.name:CL(m.opp).name)}</b><span class="big" style="font-size:36px">${m.home?m.gf:m.ga}</span></div><div class="row"><b>${esc(m.home?CL(m.opp).name:c.name)}</b><span class="big" style="font-size:36px">${m.home?m.ga:m.gf}</span></div><p class="small muted">Our goals: ${esc(sc)}</p></div>
+  <div class="panel"><p class="eyebrow">Why</p>${m.why.map(w=>`<p>${esc(w)}</p>`).join('')}</div>
+  ${items?`<div class="panel"><p class="eyebrow">What changed this week</p><ul class="log">${items}</ul></div>`:''}
+  <div class="panel"><p class="eyebrow">The table</p>${tbl}</div>${prom?`<div class="panel"><p class="eyebrow">Your promises</p>${prom}</div>`:''}
+  <button class="btn" data-act="next">${S.week>=30?'To the AGM':'Next week'}</button>`;
+}
+function frameChips(k,label){const cur=S.cf.frames[k];return`<div class="stack" style="gap:6px"><p class="small"><b>${label}</b></p><div class="tabs">${FRAME_OPTS[k].map(v=>`<button class="${v===cur?'on':''}" data-act="frame" data-arg="${k}:${v}" aria-pressed="${v===cur}">${k==='budget'?'£'+v+'k':k==='cap'?'£'+v+'/wk':esc(FRAME_WORD[v].split(':')[0])}</button>`).join('')}</div></div>`}
+function framesPanel(){const td=P(S.cf.tdId);return`<div class="panel"><p class="eyebrow">Your frames for ${esc(td.name)}</p>${frameChips('budget','Transfer budget')}${frameChips('cap','Wage cap per player')}${frameChips('profile','Profile')}${frameChips('rule','House rule')}<p class="small muted">${esc(FRAME_WORD[S.cf.frames.profile])}. ${esc(FRAME_WORD[S.cf.frames.rule])}. Money: ${moneyWord(C().cash)}.</p></div>`}
+function planPanel(){const plan=cfPlan(),td=P(S.cf.tdId);return`<div class="panel"><p class="eyebrow">${esc(td.name)}'s plan</p>${plan.length?`<ul class="log">${plan.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<p class="small muted">No holes he is worried about.</p>'}<p class="small muted">${esc(td.name)}: ${td.traits.join(', ')}, values ${VALUE_WORD[td.value]}.</p></div>`}
+function framesView(){return`<p class="eyebrow">Summer · Season ${S.season}</p><h2>Set the frames</h2><p>The director of football works inside these. You never pick a player.</p>${planPanel()}${framesPanel()}<button class="btn" data-act="framesDone">Open the summer window</button>`}
+function windowView(){return`<p class="eyebrow">The summer window</p><h2>What ${esc(P(S.cf.tdId).name)} did</h2><div class="panel"><ul class="log">${S.windowLog.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></div>${planPanel()}<p class="small muted">Team strength: ${qWord(squadQuality(S.cf.squad,0))}. Open the squad to see who plays where.</p><button class="btn" data-act="windowDone">Start the season</button>`}
+function squadOverlay(){
+  const sq=S.cf.squad,xi=pickXI(sq,S.youth),inXI=new Map(xi.map(x=>[x.p.id,x.slot]));
+  const rows=POS.map(pos=>{const ps=sq.filter(p=>p.pos===pos).sort((a,b)=>b.q-a.q);return`<div class="panel"><p class="eyebrow">${POS_L[pos]} <span class="muted">${ps.filter(p=>!p.loan&&p.inj<=0).length}/${REQ[pos]}</span></p>${ps.map(p=>`<div class="row small"><span>${inXI.has(p.id)?'● ':''}<b>${esc(p.name)}</b>${p.captain?' (c)':''} · ${p.age}<br><span class="muted">${qWord(p.q)}, ${phaseWord(p)} · ${p.contract>0?p.contract+'y':'loan'} · £${p.wage}/wk${p.trait?' · '+p.trait:''}</span></span><span class="mood">${p.inj>0?`<span class="down">Injured ${p.inj}w</span>`:p.loan?'On loan':inXI.has(p.id)&&inXI.get(p.id)!==p.pos?`<span class="down">Plays ${inXI.get(p.id)}</span>`:''}</span></div>`).join('')||'<p class="small muted">Nobody.</p>'}</div>`}).join('');
+  return`<div class="overlay" role="dialog" aria-label="The squad"><div class="inner"><div class="row"><h2>The squad</h2><button class="tbtn" data-act="ov">Close</button></div><p class="small muted">${sq.length} players. ● means in the coach's eleven. Strength: ${qWord(squadQuality(sq,S.youth))}.</p>${planPanel()}${framesPanel()}${rows}</div></div>`;
+}
+
+/* ---- ui/boot.js ---- */
+/* ================= Input, save, boot ================= */
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{const t=localStorage.getItem(SAVE_KEY);if(t){const s=JSON.parse(t);if(s&&s.v===1){S=s;return true}}}catch(e){}return false}
+if(HAS_DOM){
+  document.addEventListener('change',e=>{const id=e.target.dataset&&e.target.dataset.lobby;if(id){UI.lobby[id]=e.target.checked;render()}});
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,arg=b.dataset.arg;
+    if(a==='ov'){UI.over=arg||null;if(arg==='region')UI.tab='tables';render();return}
+    if(a==='tab'){UI.tab=arg;render();return}
+    if(a==='continue'){if(load())render();return}
+    if(a==='new'){UI.lobby={};UI.over=null;act('new');}
+    else if(a==='lobbyDone'){act('lobbyDone',Object.keys(UI.lobby).filter(k=>UI.lobby[k]));UI.lobby={}}
+    else act(a,arg);
+    save();render();if(a!=='frame')window.scrollTo(0,0);});
+  const boot=data=>{if(data&&data.S)S=data.S;render()};
+  window.claude?.hot?.snapshot?.(()=>({S}));
+  window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});
+}
+if(typeof module!=='undefined')module.exports={act,get S(){return S},set S(v){S=v},currentScene,sceneCards,electionScene,manifestOptions,sitBuild,P,C,weighted,myPos,pdef};
+
+</script>

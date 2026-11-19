@@ -261,6 +261,11 @@ Uitwerking: `ALV-VOORZITTER.md`.
 60. **Bij het openen zie je eerst je club** (wapen, stadion, stand, vorm, volgende wedstrijd). De feed staat eronder.
 61. **Portretten zijn getekende koppen in drukwerkstijl.** De zaterdag is een programmapagina vooraf en een uitslagbord achteraf, met een ingetogen viering.
 62. **De interface spreekt programmataal:** Club news, In the post, Saturday 3pm, Chairman's notes, Members' corner, The dressing room. Geluid komt later.
+63. **Mobiel spelgevoel:**
+    - een vaste balk onderaan (Club, In the post, Dressing room, Members), met de actie van het moment als vaste knop erboven;
+    - stevige en snelle knoppen: elke tik reageert binnen 100 ms, keuzes worden bevestigd met een stempel, overgangen duren ±200 ms;
+    - ruime tekst: minimaal 16 px, labels nooit onder 13 px, ±45 tekens per regel;
+    - automatisch getest per scherm.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

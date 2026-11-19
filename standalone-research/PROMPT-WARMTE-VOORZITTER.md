@@ -63,6 +63,43 @@ Wie het spel opent, moet binnen drie seconden voelen: **dit is mijn club, en dit
 - **Rustig blijven.** Warmte komt uit materiaal, kleur en ritme, niet uit drukte. Hooguit twee zinnen per tekstblok.
 - **De lagen in de code blijven.** Visuele componenten horen in `ui/` en `style/`. Procedurele generators (wapen, tenue, portret) mogen in `world/`, omdat ze bij de wereld horen.
 
+## Mobiel spelgevoel: interactie, leesbaarheid, navigatie (bindend)
+*Keuzes van de eigenaar: een vaste balk onderaan, stevige en snelle knoppen, ruime en leesbare tekst.*
+
+**Navigatie en duimbereik**
+- **Een vaste balk onderaan** met vier tabs:
+  - **Club**: het beginscherm met wapen, stadion, stand, vorm, Club news;
+  - **In the post**: situaties en afspraken;
+  - **Dressing room**: selectie en profielen;
+  - **Members**: leden, beloftes, geld, ALV, regio.
+- **De actieve tab** is zichtbaar in clubkleur, met een label onder elk icoon. De balk respecteert de safe area onderaan.
+- **De grote actie van het moment** staat als vaste knop boven de balk, binnen duimbereik. Bijvoorbeeld *Play Saturday*, *Open the window* of *To the AGM*. Er is altijd hooguit één primaire actie per scherm.
+- **Terug** werkt altijd en voorspelbaar: een terugknop linksboven in subschermen, en overlays die sluiten met een knop en met een veeg naar beneden.
+- **Speelbaar met één hand.** Wat vaak getikt wordt, staat in de onderste helft van het scherm.
+
+**Knoppen en feedback**
+- **Elke tik reageert binnen 100 ms:** een knop drukt zichtbaar in (schaal of schaduw), daarna volgt de actie.
+- **Bevestiging bij elke keuze.** Een afspraakkaart "stempelt" (*AGREED*, *NO DEAL*), een briefje vliegt weg, en het resultaat verschijnt op dezelfde plek, zonder dat het scherm verspringt.
+- **Overgangen van ±200 ms** tussen schermen, als pagina's van een programma die omslaan of inschuiven. Nooit langer, en bij `prefers-reduced-motion` alleen een korte fade.
+- **Geen laadmomenten en geen verspringende inhoud.** Afbeeldingen zoals wapens en portretten hebben een vaste maat en worden gecachet.
+- **Tikdoelen zijn minstens 44×44 px,** met minstens 8 px ruimte ertussen. Er zijn geen knoppen die je per ongeluk raakt naast de hoofdknop.
+- **Er is altijd een zichtbare focus** voor toetsenbordgebruik.
+
+**Leesbaarheid**
+- **Lettergroottes:**
+  - lopende tekst 16–17 px;
+  - koppen 24–32 px, kort;
+  - labels en kleine tekst nooit onder 13 px.
+- **Ongeveer 45 tekens per regel** op mobiel, met een regelafstand van 1,45–1,55.
+- **Contrast** haalt WCAG AA overal, ook op clubkleur en op het papiertextuur.
+- **Liever minder tekst dan kleinere tekst.** Wat niet past, gaat achter een tik.
+- **Getallen** gebruiken tabelcijfers, en uitslagen een duidelijk scorebordlettertype.
+
+**Spelgevoel**
+- **Hiërarchie van gevoel:** grote momenten krijgen een hele pagina (debuut, promotie, een bekerwinst); gewone momenten een kaart; kleine dingen een regel.
+- **Elk scherm heeft één ding dat je aandacht trekt,** en de rest is rustig.
+- **Het geld en de stand** zijn altijd binnen één tik bereikbaar.
+
 ## Werkwijze
 
 ### Fase A — Diagnose met beeld (kort)
@@ -121,6 +158,7 @@ Bouw **eerst alleen** deze schermen in de nieuwe stijl, met de echte data uit de
 - voelt dit als jouw club;
 - voelt dit als voetbal;
 - herken je de twee clubs als verschillend;
+- voelen de knoppen goed en lees je alles makkelijk met één hand;
 - wat voelt nog koud?
 
 Ga pas verder na een "ja".
@@ -152,10 +190,19 @@ Elk scherm krijgt een screenshot in licht en donker, of in de gekozen look.
 ## Testen (eerlijk melden wat faalt)
 1. **Alle bestaande tests blijven groen:** de fundering, de audit en de browserdoorloop.
 2. **Contrast:** elke combinatie van clubkleur en tekst haalt WCAG AA. Test dit automatisch voor alle 32 clubs.
-3. **Determinisme:** dezelfde seed geeft hetzelfde wapen, tenue en portret.
-4. **Onderscheid:** de wapens en tenues van de 32 clubs zijn onderling te onderscheiden. Test dat geen twee clubs dezelfde combinatie van vorm, symbool en kleuren hebben.
-5. **Playwright** op 390 px, zonder fouten in de console en zonder horizontaal scrollen. Screenshots van elk scherm, bij twee verschillende clubs.
-6. **Prestatie:** een week opent binnen een seconde op een middenklasse telefoon. De generators worden gecachet.
+3. **Mobiele audit (automatisch, Playwright op 390×844):**
+   - alle tikdoelen zijn minstens 44×44 px;
+   - geen tekst onder 13 px, en lopende tekst minstens 16 px;
+   - de primaire actie staat in de onderste 40% van het scherm;
+   - de onderste balk is op elk hoofdscherm zichtbaar;
+   - geen layout shift na het laden, en geen horizontaal scrollen;
+   - een tik reageert binnen 100 ms.
+
+   Rapporteer per scherm wat niet voldoet.
+4. **Determinisme:** dezelfde seed geeft hetzelfde wapen, tenue en portret.
+5. **Onderscheid:** de wapens en tenues van de 32 clubs zijn onderling te onderscheiden. Test dat geen twee clubs dezelfde combinatie van vorm, symbool en kleuren hebben.
+6. **Playwright** op 390 px, zonder fouten in de console en zonder horizontaal scrollen. Screenshots van elk scherm, bij twee verschillende clubs.
+7. **Prestatie:** een week opent binnen een seconde op een middenklasse telefoon. De generators worden gecachet.
 
 ## Wat je níét doet
 - Geen echte clublogo's, tenues, sponsors of herkenbare stijlen van bestaande spellen.

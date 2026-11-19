@@ -20,12 +20,11 @@ function play(policy,seed,seasons=2){
       switch(S.screen){
         case'prologue':m.act('toSeats');break;
         case'seats':m.act('seat',policy==='random'?S.seats[ri(S.seats.length)].id:S.seats[0].id);break;
-        case'elect':{const sc=m.electionScene();m.act('electCard',chooseCard(m.sceneCards(sc),sc.who));break}
+        case'arrival':out.elections.push(100);m.act('arrive');break;
         case'manifest':{const slot=['sport','club','person'][S.step];let o=m.manifestOptions(slot);if(slot!=='sport')o=o.concat(['none']);let pick;
           if(policy==='random')pick=o[ri(o.length)];else if(policy==='passive')pick=slot==='sport'?(o.includes('survive')?'survive':o[0]):'none';
           else{if(slot==='sport'){const sc=id=>{const d=m.pdef(id);const w=RANK[(S.chances&&S.chances[id]!=null)?['Long shot','Unlikely','Coin toss','Likely','Near certain'][[.12,.35,.6,.85,1.01].findIndex(x=>S.chances[id]<x)]:'Coin toss'];return w*2+(d.size==='M'?1:d.size==='L'?2:0)-(w<3?6:0)};pick=o.slice().sort((a,b)=>sc(b)-sc(a))[0]}else pick=o[0]}
           m.act('pick',pick);break}
-        case'electResult':out.elections.push(Math.round(S.elect.result.total));m.act('electNext');break;
         case'meeting':{const M=S.meeting;if(M.step===0){m.act('meetNext');break}
           if(M.step<=7){const pl=m.run?null:null;const opts={1:['survive','steady','push','promotion'],2:['balanced','reserves','borrow'],3:['own','local','pros','trade'],4:['flat','oneStar','performance'],5:['core','price','noMid'],6:['position','value','youth','wages'],7:['noRival','captainStays','heroesStay','noOldLong']}[M.step];
             if(M.step===7){if(policy==='active'&&!M.rules.length)m.act('mchoose','captainStays');else if(policy==='random'&&!M.rules.length&&r()<.5)m.act('mchoose',opts[ri(4)]);m.act('meetNext');break}

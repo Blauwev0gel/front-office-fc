@@ -265,6 +265,7 @@ function newWorld(seed){
   S.journalist=mkPerson('journalist',null,{name:'Mo Abara',traits:pickN(['vain','honest','sly','ambitious','principled'],2),value:pick(['recognition','glory','money','community'])});
   // free coaches pool
   for(let k=0;k<5;k++)S.pool.push(mkPerson('coach',null));
+  faInit();
   // fixtures and expectations
   startSeasonWorld();
   // seats: three open chairs with spread
@@ -534,6 +535,20 @@ function financeWeek(home){
 }
 function seasonForecast(){const wb=wageBill();const inc=weeklyIncome(false)+2.25;return Math.round((inc-wb)*30)}
 
+/* ---- club/market.js ---- */
+/* ================= Club foundation: the player market =================
+   A persistent pool of free agents in the region (released, out of contract, back from abroad).
+   Free agents cost no fee, only wages, and can be signed in any week. The pool refreshes every summer. */
+function faNew(n){const out=[];for(let i=0;i<n;i++){const pos=pick(POS),age=ri(21,34);const p=newPlayer(pos,{age,q:Math.round((9+rnd()*3.6-(age>=32?.6:0))*10)/10,contract:0});p.free=true;p.why=pick(['released in the summer','out of contract','back from a spell abroad','released after a long injury','left a club that went bust']);out.push(p)}return out}
+function faInit(){S.fa=faNew(48)}
+function faSummer(){
+  // other clubs sign about a third; new names arrive; our own leavers join the pool
+  S.fa=(S.fa||[]).filter(()=>rnd()>.35);for(const p of S.fa)p.age++;S.fa=S.fa.filter(p=>p.age<=35);S.fa.push(...faNew(22));
+}
+function faRelease(p){if(!S.fa||p.age>=35||p.loanIn)return;const c=JSON.parse(JSON.stringify(p));c.free=true;c.contract=0;c.why='released by '+(S.clubs[S.cf.club]?S.clubs[S.cf.club].name:'a club');c.captain=false;S.fa.push(c)}
+function faFor(pos){return (S.fa||[]).filter(p=>p.pos===pos)}
+function faSign(p,years){S.fa.splice(S.fa.indexOf(p),1);p.free=false;p.contract=years||ri(1,2);p.joined=S.season;p.apps=0;p.goals=0;p.sApps=0;p.sGoals=0;S.cf.squad.push(p);return p}
+
 /* ---- club/club.js ---- */
 /* ================= Club foundation: the week, the director of football, the API =================
    The club runs on its own. The chairman layer only reads it through cfApi functions at the bottom
@@ -578,13 +593,14 @@ function tdWindow(kind){
   const xi=pickXI(sq,0);const weakest=xi.slice().sort((a,b)=>a.p.q*fitFor(a.p,a.slot)-b.p.q*fitFor(b.p,b.slot))[0];if(weakest&&!targets.includes(weakest.slot))targets.push(weakest.slot);
   let buys=0;
   for(const pos of targets){if(buys>=3)break;
-    const mk=marketFor(pos,6);let ok=mk.filter(p=>p.price<=cf.budgetLeft);const over=mk.filter(p=>p.price>cf.budgetLeft).sort((a,b)=>b.q-a.q)[0];
+    const [fa0,fa1]=profileAges(F.profile);const mk=marketFor(pos,8).concat(faFor(pos).filter(p=>p.age>=fa0&&p.age<=fa1).map(p=>Object.assign(p,{price:0})));let ok=mk.filter(p=>p.price<=cf.budgetLeft);const over=mk.filter(p=>p.price>cf.budgetLeft).sort((a,b)=>b.q-a.q)[0];
     const starAllowed=F.wagehouse==='oneStar'&&!sq.some(p=>p.wage>F.cap);const capOf=starAllowed?Math.round(F.cap*1.6):F.cap;const capped=ok.filter(p=>p.wage>capOf).sort((a,b)=>b.q-a.q)[0];ok=ok.filter(p=>p.wage<=capOf);if(F.identity==='local')ok.sort((a,b)=>(b.localKid?1:0)-(a.localKid?1:0));
     const cur=xi.find(x=>x.slot===pos);const curQ=cur?cur.p.q*fitFor(cur.p,pos):0;ok=ok.filter(p=>p.q>curQ-(F.profile==='youth'?1.2:.3)||(F.profile==='youth'&&p.pa>curQ+.5)||targets.indexOf(pos)<squadGaps(sq).filter(g=>g.kind==='short').length);
     if(cautious)ok=ok.filter(p=>p.age>=25);
     if(!ok.length){if(capped)say('pass',`${td.name} passed on ${capped.name} (${POS_ONE[pos]}): £${capped.wage}/wk is over your wage cap.`,{pos});else if(over)say('pass',`${td.name} wanted ${over.name} (${POS_ONE[pos]}) but £${over.price}k is over budget.`,{pos});else say('pass',`No ${POS_ONE[pos]} on the market good enough for ${td.name}.`,{pos});continue}
     ok.sort(amb||F.profile!=='value'?(a,b)=>b.q-a.q:(a,b)=>(b.q/(b.price+3))-(a.q/(a.price+3)));
-    const p=ok[0];cf.budgetLeft-=p.price;S.clubs[cf.club].cash-=p.price;p.joined=S.season;sq.push(p);buys++;
+    let p=ok[0];if(p.free){faSign(p,F.profile==='youth'?2:ri(1,2));p.from=null;say('buy',`${td.name} signed ${p.name} (${POS_ONE[pos]}, ${p.age}, ${qWord(p.q).toLowerCase()}) on a free transfer: ${p.why}.`,{pid:p.id,pos,age:p.age,price:0,free:true});delete p.price;buys++;continue}
+    cf.budgetLeft-=p.price;S.clubs[cf.club].cash-=p.price;p.joined=S.season;sq.push(p);buys++;
     say('buy',`${td.name} signed ${p.name} (${POS_ONE[pos]}, ${p.age}, ${qWord(p.q).toLowerCase()}) from ${CL(p.from).name}.`,{pid:p.id,pos,age:p.age,price:p.price});delete p.from;delete p.price;
   }
   // 4. Loan in for an empty position (not a stubborn director)
@@ -593,6 +609,14 @@ function tdWindow(kind){
   while(sq.length>28){const o=sq.filter(p=>p.age>=30).sort((a,b)=>a.q-b.q)[0]||sq.slice().sort((a,b)=>a.q-b.q)[0];sq.splice(sq.indexOf(o),1);say('leave',`${o.name} released to make room.`,{pid:o.id})}
   if(!evs.length)say('plan',`A quiet window for ${td.name}.`);
   return evs;
+}
+function tdFreeAgents(w){
+  // outside the windows the director can still sign a free agent when a position is empty or in crisis
+  const cf=S.cf,td=tdTraits(),F=cf.frames;if(w>=15&&w<=17)return;if(cf.squad.length>=28)return;if((cf.faLast||-9)>w-4)return;
+  const crisis=POS.filter(pos=>available(cf.squad).filter(p=>p.pos===pos).length<Math.min(REQ[pos],pos==='GK'?1:2));if(!crisis.length)return;
+  const pos=crisis[0],best=faFor(pos).filter(p=>p.wage<=F.cap).sort((a,b)=>b.q-a.q)[0];
+  if(!best){cfEv('pass',`${td.name} looked for a free ${POS_ONE[pos]} but found nobody under your wage cap.`,{pos});cf.faLast=w;return}
+  faSign(best,1);cf.faLast=w;cfEv('buy',`${td.name} signed ${best.name} (${POS_ONE[pos]}, ${best.age}) on a free: ${best.why}. Cover for the injuries.`,{pid:best.id,pos,age:best.age,price:0,free:true});
 }
 function tdRenewals(){
   const cf=S.cf,F=cf.frames,td=tdTraits();
@@ -616,6 +640,7 @@ function clubWeek(w){
   {const tier=S.clubs[cf.club].tier,fx=S.fx&&S.fx[tier]&&S.fx[tier][w-1];const home=fx?fx.some(([h])=>h===cf.club):false;financeWeek(home)}
   if(w===15){cfEv('window','The winter window opens.');tdWindow('winter')}
   if(w>=20&&w<=26&&w%2===0)tdRenewals();
+  tdFreeAgents(w);
   const oop=pickXI(cf.squad,0).filter(x=>x.p.pos!==x.slot).length;
   cf.oopWeeks=oop>=1?cf.oopWeeks+1:0;
   return cf.events.filter(e=>e.w===w&&e.s===S.season);
@@ -626,12 +651,12 @@ function clubSeasonEnd(){
     if(p.loanIn){cf.squad.splice(cf.squad.indexOf(p),1);continue}
     p.loan=false;p.renewDone=false;p.contract--;p.age++;p.sApps=0;p.sGoals=0;p.storySeen={};p.career.push(`${S.clubs[cf.club].name} ${S.season}`);
     if(p.age<=23)p.q=Math.round(clamp(p.q+(p.pa-p.q)*(.25+rnd()*.3),1,19)*10)/10;else if(p.age>=31)p.q=Math.round(clamp(p.q-(.3+rnd()*.6),1,19)*10)/10;
-    if(p.contract<=0||p.leaving){cf.squad.splice(cf.squad.indexOf(p),1);cfEv('leave',`${p.name} leaves at the end of his contract.`,{pid:p.id})}
+    if(p.contract<=0||p.leaving){cf.squad.splice(cf.squad.indexOf(p),1);faRelease(p);cfEv('leave',`${p.name} leaves at the end of his contract.`,{pid:p.id})}
     else if(p.age>=35&&rnd()<.6){cf.squad.splice(cf.squad.indexOf(p),1);cfEv('leave',`${p.name} retires.`,{pid:p.id})}
   }
   // two academy graduates every summer
   for(let i=0;i<2;i++)cf.squad.push(newPlayer(pick(POS.slice(1)),{age:17,q:Math.round((squadQuality(cf.squad,0)-3+rnd()*1.2)*10)/10,academy:true,contract:2}));
-  cf.budgetLeft=cf.frames.budget;cf.keySold=null;
+  cf.budgetLeft=cf.frames.budget;cf.keySold=null;faSummer();
 }
 /* ----- API for the chairman layer ----- */
 function myBaseStr(){return S.cf?qualityToStr(squadQuality(S.cf.squad,0)):50}
@@ -640,7 +665,7 @@ function cfNeeds(){return squadGaps(S.cf.squad)}
 function cfPlan(){const g=cfNeeds();const out=[];for(const k of ['short','oop','contract'])for(const x of g.filter(y=>y.kind===k))if(out.length<3)out.push(x.text);return out}
 function cfEvents(w){return S.cf.events.filter(e=>e.w===w&&e.s===S.season)}
 function setFrame(k,v){const cf=S.cf,old=cf.frames[k];cf.frames[k]=v;if(k==='budget'){cf.budgetLeft=Math.max(0,cf.budgetLeft+(v-old))}cfEv('frame',`New frame: ${k==='budget'?'£'+v+'k transfer budget':k==='cap'?'£'+v+'/wk wage cap':FRAME_WORD[v]}.`)}
-function signFreeAgent(pos){const p=newPlayer(pos,{age:ri(25,31),q:Math.round((squadQuality(S.cf.squad,0)-.6+rnd()*1.2)*10)/10,contract:1});S.cf.squad.push(p);cfEv('buy',`${p.name} (${POS_ONE[pos]}, ${p.age}) signs as a free agent.`,{pid:p.id});return p}
+function signFreeAgent(pos){const best=faFor(pos).filter(x=>x.wage<=S.cf.frames.cap*1.2).sort((a,b)=>b.q-a.q)[0];if(best){faSign(best,1);cfEv('buy',`${best.name} (${POS_ONE[pos]}, ${best.age}) signs as a free agent: ${best.why}.`,{pid:best.id,free:true});return best}const p=newPlayer(pos,{age:ri(25,31),q:Math.round((squadQuality(S.cf.squad,0)-.6+rnd()*1.2)*10)/10,contract:1});S.cf.squad.push(p);cfEv('buy',`${p.name} (${POS_ONE[pos]}, ${p.age}) signs as a free agent.`,{pid:p.id});return p}
 
 /* ---- chairman/state.js ---- */
 /* ================= State changes (each logs its cause) ================= */
@@ -1102,24 +1127,12 @@ function summerWindow(){S.windowLog=tdWindow('summer');S.screen='window'}
 /* ----- Election at a new club ----- */
 function chooseSeat(id){
   S.my=id;const c=C();S.oppGroup=weakest(c);S.promises=[];S.flags={captainExpiring:rnd()<.6};S.mods=[];S.youth=0;S.debuts=0;S.talentStarts=0;
-  S.elect={stage:'wait'};S.mlog=[];S.phase='election';S.screen='elect';S.cool={};S.last=null;
+  S.mlog=[];S.phase='arrival';S.screen='arrival';S.cool={};S.last=null;S.startSeason=S.season;
   cfInit(id,c.str,cast('td'),cast('coach'),c.rival);
   const sq=S.cf.squad,tal=sq.filter(p=>p.academy).sort((a,b)=>b.pa-a.pa)[0]||sq.slice().sort((a,b)=>a.age-b.age)[0];S.cf.talentPid=tal.id;if(P(cast('talent')))P(cast('talent')).name=tal.name;
   const capP=sq.filter(p=>p.age>=25).sort((a,b)=>b.q-a.q)[0];if(capP&&P(cast('captain'))){capP.name=P(cast('captain')).name;capP.captain=true;capP.age=P(cast('captain')).age;if(S.flags.captainExpiring)capP.contract=1}
-  const fan=cast('fan');meet(fan);
-}
-function electionScene(){
-  const c=C(),fan=P(cast('fan')),g=gname(c,fan.infl);const want=fan.deep;
-  return{who:fan.id,lines:[`${fan.name} is at the bar of ${TOWNS[c.town].bar}. They do not turn round when you walk in.`,FLAVOUR[fan.traits[0]],`"Here's what ${g} want: ${want}."`],
-    cards:[D(`Put it in your manifest`,`Your name: a public promise to ${g}`,`${g} behind you in the election`,'Every AGM','If you fail, they never forget',()=>{addPromise('fanWish',`Your promise to ${g}`);loy(fan.id,'deep','You made their wish a public promise',{stake:'name'});grp(fan.infl,10,`${fan.name} tells ${g} to back you`)},{stake:'name',hit:`Speaks to what ${fan.name} values: ${VALUE_WORD[fan.value]}`}),
-      D(`A seat on the board for ${g}`,'Power: they sit in on decisions',`${g} behind you`,'The AGM',c.statute.some(x=>x.startsWith('Two-thirds'))?'Needs two-thirds of the members':'You will have to listen',()=>{S.flags.fanSeat=1;loy(fan.id,'wish','A seat at the table',{stake:'power'});grp(fan.infl,7,'A seat at the table')},{stake:'power'}),
-      D('The honest version','The truth: debts first, dreams later','Respect from the cautious','—','They may campaign for your opponent',()=>{loy(fan.id,'against','You told them what they did not want to hear');for(const x of c.groups)if(['oldguard','business','retirees'].includes(x.k))grp(x.k,4,'Finally, a sensible candidate')})],
-    noDeal:noDeal(`You finish your drink and leave. ${fan.name} backs your opponent.`,()=>{grp(fan.infl,-6,`${fan.name} campaigns against you`)})};
-}
-function electionResult(){
-  const c=C();let total=0;const rows=[];
-  for(const g of c.groups){let v=g.mood;const promised=S.promises.filter(p=>pgroups(p.id).includes(g.k)).length;v+=promised*6+S.rep*1.5;if(g.k===S.oppGroup)v-=8;v=clamp(v,0,100);rows.push({k:g.k,v});total+=g.share/100*v}
-  return{total,rows,won:total>=50};
+  for(const pid of Object.values(c.cast))if(P(pid)&&P(pid).role!=='talent')meet(pid);
+  S.history.push({s:S.season,club:S.my,txt:`Became chairman of ${c.name}.`});
 }
 /* ----- AGM ----- */
 function startALV(){
@@ -1183,9 +1196,8 @@ function act(a,arg){
     case'new':newWorld(arg??((Date.now()%2147483647)|0));break;
     case'toSeats':S.phase='seats';S.screen='seats';break;
     case'seat':chooseSeat(arg);break;
-    case'electCard':{const sc=electionScene();sceneCards(sc)[+arg].run();S.cashStart=C().cash;S.step=0;S.pick={};S.chances=computeChances();S.screen='manifest';break}
-    case'pick':S.pick[['sport','club','person'][S.step]]=arg;S.step++;if(S.step>=3){applyManifest();if(S.phase==='election'){S.elect.result=electionResult();S.screen='electResult'}else startMeeting()}break;
-    case'electNext':if(S.elect.result.won){S.startSeason=S.season;S.history.push({s:S.season,club:S.my,txt:`Elected chairman of ${C().name} with ${Math.round(S.elect.result.total)}%.`});for(const id of Object.values(C().cast))if(P(id)&&P(id).role!=='talent'&&P(id).loy==null&&P(id).mem.length)meet(id);startMeeting()}else{S.seats=S.seats.filter(x=>x.id!==S.my);S.my=null;if(!S.seats.length)makeSeats();S.phase='seats';S.screen='seats'}break;
+    case'arrive':S.cashStart=C().cash;S.step=0;S.pick={};S.chances=computeChances();S.phase='manifest';S.screen='manifest';break;
+    case'pick':S.pick[['sport','club','person'][S.step]]=arg;S.step++;if(S.step>=3){applyManifest();startMeeting()}break;
     case'sit':S.sit=+arg;S.screen='sit';break;
     case'back':S.sit=null;S.screen='week';break;
     case'card':applyCard(+arg);break;
@@ -1214,8 +1226,8 @@ const crest=`<svg class="crest" viewBox="0 0 34 34" aria-hidden="true"><path d="
 function topBar(){
   const c=S.my?C():null;
   const title=c?c.name:'The Northmarch';
-  const sub=!c?`Season ${S.season} · Between clubs`:S.phase==='alv'?'Annual general meeting':S.phase==='election'?'The election':S.phase==='summer'?`Season ${S.season} · Summer`:!S.week?`Season ${S.season} · Summer`:`Season ${S.season} · Week ${S.week} · ${ord(myPos())}`;
-  return`<header class="top">${crest}<div class="grow"><div class="club">${esc(title)}</div><div class="sub">${esc(sub)}</div></div><nav class="navbtns" aria-label="Club">${S.phase!=='title'?'<button class="tbtn" data-act="ov" data-arg="region">Region</button>':''}${S.cf&&S.phase!=='election'?'<button class="tbtn" data-act="ov" data-arg="squad">Squad</button>':''}${c&&S.phase!=='election'?'<button class="tbtn" data-act="ov" data-arg="table">Table</button>':''}</nav></header>`;
+  const sub=!c?`Season ${S.season} · Between clubs`:S.phase==='alv'?'Annual general meeting':S.phase==='summer'?`Season ${S.season} · Summer`:!S.week?`Season ${S.season} · Summer`:`Season ${S.season} · Week ${S.week} · ${ord(myPos())}`;
+  return`<header class="top">${crest}<div class="grow"><div class="club">${esc(title)}</div><div class="sub">${esc(sub)}</div></div><nav class="navbtns" aria-label="Club">${S.phase!=='title'?'<button class="tbtn" data-act="ov" data-arg="region">Region</button>':''}${S.cf&&S.phase!=='arrival'?'<button class="tbtn" data-act="ov" data-arg="squad">Squad</button>':''}${c&&S.phase!=='arrival'?'<button class="tbtn" data-act="ov" data-arg="table">Table</button>':''}</nav></header>`;
 }
 function face(pid){const p=P(pid);const n=p.name.split(' ').map(x=>x[0]).join('').slice(0,2);return`<div class="face${p.role==='opp'?' opp':''}" aria-hidden="true">${n}</div>`}
 function whoRow(pid){const p=P(pid);const where=p.club?CL(p.club).name:p.role==='journalist'?'The Northmarch Echo':'Out of work';return`<div class="who">${face(pid)}<div><b>${esc(p.name)}</b><span>${esc(ROLE_WORD[p.role]||p.role)} · ${esc(where)}</span></div></div>`}
@@ -1232,7 +1244,7 @@ function moodsPanel(title){return`<div class="panel">${title?`<p class="eyebrow"
 function render(){
   if(!HAS_DOM)return;const $=document.getElementById('app');
   if(!S||S.screen==='title'){$.innerHTML=titleView();return}
-  const v={prologue:prologueView,seats:seatsView,elect:electView,manifest:manifestView,electResult:electResultView,week:weekView,meeting:meetingView,sit:sitView,hire:hireView,result:resultView,frames:framesView,window:windowView,alv:alvView,summer:summerView}[S.screen];
+  const v={prologue:prologueView,seats:seatsView,arrival:arrivalView,manifest:manifestView,week:weekView,meeting:meetingView,sit:sitView,hire:hireView,result:resultView,frames:framesView,window:windowView,alv:alvView,summer:summerView}[S.screen];
   $.innerHTML=topBar()+`<main>${v?v():''}</main>`+(UI.over?overlayView():'');
 }
 function titleView(){let has=false;try{has=!!localStorage.getItem(SAVE_KEY)}catch(e){}
@@ -1255,21 +1267,14 @@ function seatsView(){
     <span class="meta">Members: ${big.map(g=>`${gname(c,g.k)} ${g.share}% (${moodWord(g.mood).toLowerCase()})`).join(', ')}.</span>
     <span class="meta">Money: ${moneyWord(c.cash)}${c.debt?`, £${c.debt}k debt`:', no debt'}. Rival: ${esc(CL(c.rival).name)} (${esc(c.rivalWhy)}).</span>
     ${known.length?`<span class="meta"><b>Knows you:</b> ${known.map(x=>esc(P(x).name)).join(', ')}</span>`:''}</button>`}).join('');
-  return`<p class="eyebrow">Summer · Season ${S.season}</p><h2>Open seats</h2><p>Three members' clubs need a chairman. You stand as a candidate, then face an election.</p><div class="stack">${items}</div>`;
+  return`<p class="eyebrow">Summer · Season ${S.season}</p><h2>Three clubs want you</h2><p>Three members' clubs have asked you to take over as chairman. Choose one; the members will judge you at the AGM next June.</p><div class="stack">${items}</div>`;
 }
-function electView(){const sc=electionScene();const c=C();
-  return`<p class="eyebrow">The campaign · ${esc(c.name)}</p><p>Founded ${c.founded}. Legend: ${esc(c.legend)}. Scar: ${esc(c.scar)}. Statute: ${esc(c.statute.join('; '))}.</p>
-  ${moodsPanel('The members')}<section class="scene"><p class="where">${esc(TOWNS[c.town].bar)}</p>${whoRow(sc.who)}${sc.lines.map(l=>l.startsWith('"')?`<p class="voice">${esc(l)}</p>`:`<p>${esc(l)}</p>`).join('')}</section>
-  <p class="eyebrow">On the table</p><div class="stack">${sceneCards(sc).map((x,i)=>x.none?`<button class="deal none" data-act="electCard" data-arg="${i}"><span class="dt">No deal</span><span class="muted small">${esc(x.fail)}</span></button>`:dealHTML(x,i)).join('')}</div>`}
 function manifestView(){
   const slot=['sport','club','person'][S.step],titles={sport:'Your sporting promise',club:'Your promise about the club',person:'Your personal promise'};
   const items=manifestOptions(slot).map(id=>{const d=pdef(id),gs=pgroups(id).map(k=>gname(C(),k));return`<button class="choice" data-act="pick" data-arg="${id}"><b>${esc(d.t)}</b><span><span class="chance">${esc(chanceFor(id))}</span> <span class="meta">${SIZE_WORD[d.size]}${gs.length?' · '+gs.join(', '):''}</span></span></button>`}).join('');
   const none=slot!=='sport'?`<button class="choice" data-act="pick" data-arg="none"><b>No promise here</b><span class="meta">Hands free. Nobody gets anything.</span></button>`:'';
-  return`<p class="eyebrow">${S.phase==='election'?'Your manifest':'Season '+S.season+' manifest'} · ${S.step+1} of 3</p><h2>${titles[slot]}</h2><p>The members measure it at the AGM. Kept: they reward you. Broken: they punish you, whatever the size.${S.flags.trusted?' They trust you more after last year.':''}</p><div class="stack">${items}${none}</div>`;
+  return`<p class="eyebrow">Season ${S.season} manifest · ${S.step+1} of 3</p><h2>${titles[slot]}</h2><p>The members measure it at the AGM. Kept: they reward you. Broken: they punish you, whatever the size.${S.flags.trusted?' They trust you more after last year.':''}</p><div class="stack">${items}${none}</div>`;
 }
-function electResultView(){const r=S.elect.result,c=C();const order=r.rows.slice().sort((a,b)=>a.v-b.v);
-  return`<p class="eyebrow">Election night · ${esc(c.name)}</p><h2>The count</h2><div class="count">${order.map(x=>`<div class="cg panel"><div class="row"><b>${esc(gname(c,x.k))}</b><span class="mood">${verdict(x.v)}</span></div><div class="bar"><i style="width:${Math.round(x.v)}%"></i></div></div>`).join('')}</div>
-  <div class="verdict stack"><p class="big ${r.won?'up':'down'}">${r.won?'Elected':'Defeated'}</p><p>${r.won?`You are the chairman of ${esc(c.name)}.`:`${esc(P(cast('opp')).name)} wins. Try another seat.`}</p><button class="btn" data-act="electNext">${r.won?'To work':'Back to the open seats'}</button></div>`}
 function personLine(pid){const p=P(pid);if(!p||p.loy==null&&!p.mem.length)return'';const rel=p.rel.filter(r=>P(r.id)).slice(0,2).map(r=>`${r.type==='protégé'?'mentor of':r.type==='mentor'?'protégé of':r.type==='friends'?'friends with':r.type==='rivals'?'rivals with':'related to'} ${P(r.id).name}`).join('; ');
   return`<p class="small muted">${esc(p.name)}: ${p.traits.join(', ')}. ${band(p.loy)} with you${p.owes?', owes you a favour':''}${p.withOpp?', in the opposition camp':''}.${rel?' '+esc(rel.charAt(0).toUpperCase()+rel.slice(1))+'.':''}${p.deepKnown?` Values ${VALUE_WORD[p.value]}; wants ${esc(p.deep)}.`:''}</p>`}
 function bubbles(sc){
@@ -1329,9 +1334,10 @@ function overlayView(){
     const fl=S.flags,deals=[fl.coachContract&&'Coach: two-year contract',fl.coachFinalSay&&'Coach has the final say',fl.tdFree&&'Director runs recruitment alone',fl.academy&&'A new academy',fl.captainSigned&&'Captain signed',fl.captainFuture&&'Captain: coaching future',fl.fanSeat&&'Supporters\' seat on the board',fl.fanName&&'A stand named for the supporters',fl.derbyCrowd&&'Free buses for the derby',fl.oppCommittee&&'Opposition chairs a committee',fl.truce&&'Truce with the opposition',fl.oppBoard&&'Opposition on the board',fl.council&&'Members\' council vets spending',fl.pressFriend&&'Exclusive given to the Echo',fl.pressHostile&&'Frozen out the Echo',fl.leagueVote&&`League vote with ${P(fl.leagueVote).name}`].filter(Boolean);
     return`<div class="overlay" role="dialog" aria-label="The table"><div class="inner"><div class="row"><h2>The table</h2><button class="tbtn" data-act="ov">Close</button></div><p class="muted small">${S.round?`${ord(myPos())} after round ${S.round}. `:''}Money: ${moneyWord(c.cash)}${c.debt?`, £${c.debt}k debt`:''}.</p>
     ${S.cf?moneyPanel():''}<div class="panel"><p class="eyebrow">Your promises</p>${pr}</div><div class="panel"><p class="eyebrow">Deals on the table</p>${deals.length?deals.map(d=>`<p class="small">${esc(d)}</p>`).join(''):'<p class="small muted">None yet.</p>'}</div>${moodsPanel('The members')}<div class="panel"><p class="eyebrow">Your people</p>${ppl}</div></div></div>`}
-  const tabs=`<div class="tabs" role="tablist">${[['tables','Tables'],['people','People you know'],['history','Your career']].map(([k,n])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-arg="${k}">${n}</button>`).join('')}</div>`;
+  const tabs=`<div class="tabs" role="tablist">${[['tables','Tables'],['free','Free agents'],['people','People you know'],['history','Your career']].map(([k,n])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-arg="${k}">${n}</button>`).join('')}</div>`;
   let body='';
   if(UI.tab==='tables'){body=[0,1].map(t=>`<div class="panel"><p class="eyebrow">${t===0?'Northmarch Premier':'Northmarch One'}</p>${standings(t).map((id,i)=>`<div class="row small" style="font-variant-numeric:tabular-nums${id===S.my?';font-weight:600':''}"><span>${i+1}. ${esc(CL(id).name)}</span><span>${S.tbl[id].pts}</span></div>`).join('')}</div>`).join('')}
+  if(UI.tab==='free'){const fa=S.fa||[];body=`<p class="small muted">${fa.length} players without a club in the Northmarch. They cost no fee, only wages, and can be signed in any week.</p>`+POS.map(pos=>{const ps=fa.filter(p=>p.pos===pos).sort((a,b)=>b.q-a.q);return`<div class="panel"><p class="eyebrow">${POS_L[pos]} <span class="muted">${ps.length}</span></p>${ps.slice(0,4).map(p=>`<div class="row small"><span><b>${esc(p.name)}</b> · ${p.age}<br><span class="muted">${qWord(p.q)}, ${esc(p.why)}</span></span><span class="mood">£${p.wage}/wk</span></div>`).join('')||'<p class="small muted">Nobody.</p>'}</div>`}).join('')}
   if(UI.tab==='people'){const known=Object.values(S.P).filter(p=>(p.loy!=null||p.mem.length)&&p.role!=='talent');body=`<div class="panel">${known.map(p=>`<div class="row small"><span>${esc(p.name)}<br><span class="muted">${esc(ROLE_WORD[p.role]||p.role)} · ${p.club?esc(CL(p.club).name):'out of work'}</span></span><span class="mood">${band(p.loy)}</span></div>`).join('<hr>')||'<p class="small muted">Nobody yet.</p>'}</div>`}
   if(UI.tab==='history'){body=`<div class="panel"><ul class="log">${S.history.map(h=>`<li><span class="num">S${h.s}</span> ${esc(h.txt)}</li>`).join('')}</ul></div><p class="small muted">Reputation: ${S.rep>=4?'a chairman who keeps promises':S.rep>=0?'mixed':'a chairman who breaks promises'}.</p>`}
   return`<div class="overlay" role="dialog" aria-label="The region"><div class="inner"><div class="row"><h2>The Northmarch</h2><button class="tbtn" data-act="ov">Close</button></div>${tabs}${body}</div></div>`;
@@ -1399,6 +1405,14 @@ function playerOverlay(){const p=playerById(UI.pid);if(!p)return'';
   <div class="panel"><p class="eyebrow">On the pitch</p><div class="row small"><span>Quality</span><b>${qWord(p.q)}, ${phaseWord(p)}</b></div><div class="row small"><span>Form</span>${spark(p)||'<b>—</b>'}</div><div class="row small"><span>This season</span><b>${p.sApps} games, ${p.sGoals} goals</b></div><div class="row small"><span>For the club</span><b>${p.apps} games, ${p.goals} goals</b></div><div class="row small"><span>Contract</span><b>${p.contract>0?p.contract+' year'+(p.contract>1?'s':''):'on loan'} · £${p.wage}/wk</b></div>${p.inj>0?`<p class="down small">Injured: ${p.inj} week${p.inj>1?'s':''}</p>`:''}</div>
   ${stories?`<div class="panel"><p class="eyebrow">His story so far</p><ul class="log">${stories}</ul></div>`:''}</div></div>`}
 
+function arrivalView(){const c=C(),fan=P(cast('fan')),known=Object.values(c.cast).filter(x=>P(x)&&P(x).mem.length);
+  return`<p class="eyebrow">Your first day · ${esc(c.name)}</p><h2>${esc(c.name)}</h2><p>${esc(TOWNS[c.town].n)}, founded ${c.founded}. Legend: ${esc(c.legend)}. Scar: ${esc(c.scar)}.</p>
+  ${moneyStrip()}${moodsPanel('The members')}
+  <div class="panel"><p class="eyebrow">The statute</p>${c.statute.map(s=>`<p class="small">${esc(s)}</p>`).join('')}</div>
+  <section class="scene"><div class="bubble">${face(fan.id).replace('class="face','class="face sm')}<div class="bb"><b>${esc(fan.name)} · ${esc(ROLE_WORD[fan.role])}</b><p>Welcome, chairman. Here's what ${esc(gname(c,fan.infl))} want: ${esc(fan.deep)}.</p></div></div></section>
+  ${known.length?`<p class="small muted">Already knows you: ${known.map(x=>esc(P(x).name)).join(', ')}.</p>`:''}
+  <button class="btn" data-act="arrive">Write your manifest for the season</button>`}
+
 /* ---- ui/boot.js ---- */
 /* ================= Input, save, boot ================= */
 function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
@@ -1418,7 +1432,7 @@ if(HAS_DOM){
   window.claude?.hot?.snapshot?.(()=>({S}));
   window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});
 }
-if(typeof module!=='undefined')module.exports={act,get S(){return S},set S(v){S=v},currentScene,sceneCards,electionScene,manifestOptions,sitBuild,P,C,weighted,myPos,pdef};
+if(typeof module!=='undefined')module.exports={act,get S(){return S},set S(v){S=v},currentScene,sceneCards,manifestOptions,sitBuild,P,C,weighted,myPos,pdef};
 
 </script>
 </body>

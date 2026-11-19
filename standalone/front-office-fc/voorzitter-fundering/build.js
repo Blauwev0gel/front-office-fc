@@ -5,7 +5,7 @@ const ORDER=[
   'core/content.js','core/rng.js',          // basis: inhoud, rng, helpers
   'world/world.js','world/football.js','world/news.js', // de regio
   'core/words.js',
-  'club/players.js','club/stories.js','club/finance.js','club/club.js',         // de fundering (weet niets van de voorzitter)
+  'club/players.js','club/stories.js','club/finance.js','club/market.js','club/club.js',         // de fundering (weet niets van de voorzitter)
   'chairman/state.js','chairman/promises.js','chairman/cards.js','chairman/situations.js','chairman/meeting.js','chairman/flow.js', // de voorzitterslaag
   'ui/render.js','ui/boot.js'               // schermen
 ];

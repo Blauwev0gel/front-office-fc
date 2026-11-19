@@ -57,6 +57,7 @@ function newWorld(seed){
   S.journalist=mkPerson('journalist',null,{name:'Mo Abara',traits:pickN(['vain','honest','sly','ambitious','principled'],2),value:pick(['recognition','glory','money','community'])});
   // free coaches pool
   for(let k=0;k<5;k++)S.pool.push(mkPerson('coach',null));
+  faInit();
   // fixtures and expectations
   startSeasonWorld();
   // seats: three open chairs with spread

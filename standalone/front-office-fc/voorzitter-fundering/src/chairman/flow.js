@@ -52,24 +52,12 @@ function summerWindow(){S.windowLog=tdWindow('summer');S.screen='window'}
 /* ----- Election at a new club ----- */
 function chooseSeat(id){
   S.my=id;const c=C();S.oppGroup=weakest(c);S.promises=[];S.flags={captainExpiring:rnd()<.6};S.mods=[];S.youth=0;S.debuts=0;S.talentStarts=0;
-  S.elect={stage:'wait'};S.mlog=[];S.phase='election';S.screen='elect';S.cool={};S.last=null;
+  S.mlog=[];S.phase='arrival';S.screen='arrival';S.cool={};S.last=null;S.startSeason=S.season;
   cfInit(id,c.str,cast('td'),cast('coach'),c.rival);
   const sq=S.cf.squad,tal=sq.filter(p=>p.academy).sort((a,b)=>b.pa-a.pa)[0]||sq.slice().sort((a,b)=>a.age-b.age)[0];S.cf.talentPid=tal.id;if(P(cast('talent')))P(cast('talent')).name=tal.name;
   const capP=sq.filter(p=>p.age>=25).sort((a,b)=>b.q-a.q)[0];if(capP&&P(cast('captain'))){capP.name=P(cast('captain')).name;capP.captain=true;capP.age=P(cast('captain')).age;if(S.flags.captainExpiring)capP.contract=1}
-  const fan=cast('fan');meet(fan);
-}
-function electionScene(){
-  const c=C(),fan=P(cast('fan')),g=gname(c,fan.infl);const want=fan.deep;
-  return{who:fan.id,lines:[`${fan.name} is at the bar of ${TOWNS[c.town].bar}. They do not turn round when you walk in.`,FLAVOUR[fan.traits[0]],`"Here's what ${g} want: ${want}."`],
-    cards:[D(`Put it in your manifest`,`Your name: a public promise to ${g}`,`${g} behind you in the election`,'Every AGM','If you fail, they never forget',()=>{addPromise('fanWish',`Your promise to ${g}`);loy(fan.id,'deep','You made their wish a public promise',{stake:'name'});grp(fan.infl,10,`${fan.name} tells ${g} to back you`)},{stake:'name',hit:`Speaks to what ${fan.name} values: ${VALUE_WORD[fan.value]}`}),
-      D(`A seat on the board for ${g}`,'Power: they sit in on decisions',`${g} behind you`,'The AGM',c.statute.some(x=>x.startsWith('Two-thirds'))?'Needs two-thirds of the members':'You will have to listen',()=>{S.flags.fanSeat=1;loy(fan.id,'wish','A seat at the table',{stake:'power'});grp(fan.infl,7,'A seat at the table')},{stake:'power'}),
-      D('The honest version','The truth: debts first, dreams later','Respect from the cautious','—','They may campaign for your opponent',()=>{loy(fan.id,'against','You told them what they did not want to hear');for(const x of c.groups)if(['oldguard','business','retirees'].includes(x.k))grp(x.k,4,'Finally, a sensible candidate')})],
-    noDeal:noDeal(`You finish your drink and leave. ${fan.name} backs your opponent.`,()=>{grp(fan.infl,-6,`${fan.name} campaigns against you`)})};
-}
-function electionResult(){
-  const c=C();let total=0;const rows=[];
-  for(const g of c.groups){let v=g.mood;const promised=S.promises.filter(p=>pgroups(p.id).includes(g.k)).length;v+=promised*6+S.rep*1.5;if(g.k===S.oppGroup)v-=8;v=clamp(v,0,100);rows.push({k:g.k,v});total+=g.share/100*v}
-  return{total,rows,won:total>=50};
+  for(const pid of Object.values(c.cast))if(P(pid)&&P(pid).role!=='talent')meet(pid);
+  S.history.push({s:S.season,club:S.my,txt:`Became chairman of ${c.name}.`});
 }
 /* ----- AGM ----- */
 function startALV(){
@@ -133,9 +121,8 @@ function act(a,arg){
     case'new':newWorld(arg??((Date.now()%2147483647)|0));break;
     case'toSeats':S.phase='seats';S.screen='seats';break;
     case'seat':chooseSeat(arg);break;
-    case'electCard':{const sc=electionScene();sceneCards(sc)[+arg].run();S.cashStart=C().cash;S.step=0;S.pick={};S.chances=computeChances();S.screen='manifest';break}
-    case'pick':S.pick[['sport','club','person'][S.step]]=arg;S.step++;if(S.step>=3){applyManifest();if(S.phase==='election'){S.elect.result=electionResult();S.screen='electResult'}else startMeeting()}break;
-    case'electNext':if(S.elect.result.won){S.startSeason=S.season;S.history.push({s:S.season,club:S.my,txt:`Elected chairman of ${C().name} with ${Math.round(S.elect.result.total)}%.`});for(const id of Object.values(C().cast))if(P(id)&&P(id).role!=='talent'&&P(id).loy==null&&P(id).mem.length)meet(id);startMeeting()}else{S.seats=S.seats.filter(x=>x.id!==S.my);S.my=null;if(!S.seats.length)makeSeats();S.phase='seats';S.screen='seats'}break;
+    case'arrive':S.cashStart=C().cash;S.step=0;S.pick={};S.chances=computeChances();S.phase='manifest';S.screen='manifest';break;
+    case'pick':S.pick[['sport','club','person'][S.step]]=arg;S.step++;if(S.step>=3){applyManifest();startMeeting()}break;
     case'sit':S.sit=+arg;S.screen='sit';break;
     case'back':S.sit=null;S.screen='week';break;
     case'card':applyCard(+arg);break;

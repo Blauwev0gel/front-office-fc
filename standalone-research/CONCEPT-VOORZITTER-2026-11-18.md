@@ -239,6 +239,16 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - logische voorwaarden.
 
     Het is rustiger in beeld, met tekstballonnen, kaarten met een gezicht en compacte afspraakkaarten.
+50. **Herziet keuze 25: geen verkiezing bij een nieuwe club.**
+    - Drie clubs vragen je als voorzitter, je kiest er één en begint meteen: eerste dag, manifest, zomervergadering.
+    - De leden oordelen pas bij de ALV aan het eind van het seizoen.
+51. Er is een vaste pool van transfervrije spelers in de regio:
+    - ±48 bij de start, elk seizoen ververst;
+    - spelers die je club verlaten, komen erin;
+    - ze kosten geen transfersom, alleen loon;
+    - de TD kan ze in elke week halen bij een positie in nood, en in de windows naast gewone transfers.
+
+    Te zien in het regio-overzicht onder *Free agents*.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

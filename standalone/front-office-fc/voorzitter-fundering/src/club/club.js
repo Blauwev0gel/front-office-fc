@@ -41,13 +41,14 @@ function tdWindow(kind){
   const xi=pickXI(sq,0);const weakest=xi.slice().sort((a,b)=>a.p.q*fitFor(a.p,a.slot)-b.p.q*fitFor(b.p,b.slot))[0];if(weakest&&!targets.includes(weakest.slot))targets.push(weakest.slot);
   let buys=0;
   for(const pos of targets){if(buys>=3)break;
-    const mk=marketFor(pos,6);let ok=mk.filter(p=>p.price<=cf.budgetLeft);const over=mk.filter(p=>p.price>cf.budgetLeft).sort((a,b)=>b.q-a.q)[0];
+    const [fa0,fa1]=profileAges(F.profile);const mk=marketFor(pos,8).concat(faFor(pos).filter(p=>p.age>=fa0&&p.age<=fa1).map(p=>Object.assign(p,{price:0})));let ok=mk.filter(p=>p.price<=cf.budgetLeft);const over=mk.filter(p=>p.price>cf.budgetLeft).sort((a,b)=>b.q-a.q)[0];
     const starAllowed=F.wagehouse==='oneStar'&&!sq.some(p=>p.wage>F.cap);const capOf=starAllowed?Math.round(F.cap*1.6):F.cap;const capped=ok.filter(p=>p.wage>capOf).sort((a,b)=>b.q-a.q)[0];ok=ok.filter(p=>p.wage<=capOf);if(F.identity==='local')ok.sort((a,b)=>(b.localKid?1:0)-(a.localKid?1:0));
     const cur=xi.find(x=>x.slot===pos);const curQ=cur?cur.p.q*fitFor(cur.p,pos):0;ok=ok.filter(p=>p.q>curQ-(F.profile==='youth'?1.2:.3)||(F.profile==='youth'&&p.pa>curQ+.5)||targets.indexOf(pos)<squadGaps(sq).filter(g=>g.kind==='short').length);
     if(cautious)ok=ok.filter(p=>p.age>=25);
     if(!ok.length){if(capped)say('pass',`${td.name} passed on ${capped.name} (${POS_ONE[pos]}): £${capped.wage}/wk is over your wage cap.`,{pos});else if(over)say('pass',`${td.name} wanted ${over.name} (${POS_ONE[pos]}) but £${over.price}k is over budget.`,{pos});else say('pass',`No ${POS_ONE[pos]} on the market good enough for ${td.name}.`,{pos});continue}
     ok.sort(amb||F.profile!=='value'?(a,b)=>b.q-a.q:(a,b)=>(b.q/(b.price+3))-(a.q/(a.price+3)));
-    const p=ok[0];cf.budgetLeft-=p.price;S.clubs[cf.club].cash-=p.price;p.joined=S.season;sq.push(p);buys++;
+    let p=ok[0];if(p.free){faSign(p,F.profile==='youth'?2:ri(1,2));p.from=null;say('buy',`${td.name} signed ${p.name} (${POS_ONE[pos]}, ${p.age}, ${qWord(p.q).toLowerCase()}) on a free transfer: ${p.why}.`,{pid:p.id,pos,age:p.age,price:0,free:true});delete p.price;buys++;continue}
+    cf.budgetLeft-=p.price;S.clubs[cf.club].cash-=p.price;p.joined=S.season;sq.push(p);buys++;
     say('buy',`${td.name} signed ${p.name} (${POS_ONE[pos]}, ${p.age}, ${qWord(p.q).toLowerCase()}) from ${CL(p.from).name}.`,{pid:p.id,pos,age:p.age,price:p.price});delete p.from;delete p.price;
   }
   // 4. Loan in for an empty position (not a stubborn director)
@@ -56,6 +57,14 @@ function tdWindow(kind){
   while(sq.length>28){const o=sq.filter(p=>p.age>=30).sort((a,b)=>a.q-b.q)[0]||sq.slice().sort((a,b)=>a.q-b.q)[0];sq.splice(sq.indexOf(o),1);say('leave',`${o.name} released to make room.`,{pid:o.id})}
   if(!evs.length)say('plan',`A quiet window for ${td.name}.`);
   return evs;
+}
+function tdFreeAgents(w){
+  // outside the windows the director can still sign a free agent when a position is empty or in crisis
+  const cf=S.cf,td=tdTraits(),F=cf.frames;if(w>=15&&w<=17)return;if(cf.squad.length>=28)return;if((cf.faLast||-9)>w-4)return;
+  const crisis=POS.filter(pos=>available(cf.squad).filter(p=>p.pos===pos).length<Math.min(REQ[pos],pos==='GK'?1:2));if(!crisis.length)return;
+  const pos=crisis[0],best=faFor(pos).filter(p=>p.wage<=F.cap).sort((a,b)=>b.q-a.q)[0];
+  if(!best){cfEv('pass',`${td.name} looked for a free ${POS_ONE[pos]} but found nobody under your wage cap.`,{pos});cf.faLast=w;return}
+  faSign(best,1);cf.faLast=w;cfEv('buy',`${td.name} signed ${best.name} (${POS_ONE[pos]}, ${best.age}) on a free: ${best.why}. Cover for the injuries.`,{pid:best.id,pos,age:best.age,price:0,free:true});
 }
 function tdRenewals(){
   const cf=S.cf,F=cf.frames,td=tdTraits();
@@ -79,6 +88,7 @@ function clubWeek(w){
   {const tier=S.clubs[cf.club].tier,fx=S.fx&&S.fx[tier]&&S.fx[tier][w-1];const home=fx?fx.some(([h])=>h===cf.club):false;financeWeek(home)}
   if(w===15){cfEv('window','The winter window opens.');tdWindow('winter')}
   if(w>=20&&w<=26&&w%2===0)tdRenewals();
+  tdFreeAgents(w);
   const oop=pickXI(cf.squad,0).filter(x=>x.p.pos!==x.slot).length;
   cf.oopWeeks=oop>=1?cf.oopWeeks+1:0;
   return cf.events.filter(e=>e.w===w&&e.s===S.season);
@@ -89,12 +99,12 @@ function clubSeasonEnd(){
     if(p.loanIn){cf.squad.splice(cf.squad.indexOf(p),1);continue}
     p.loan=false;p.renewDone=false;p.contract--;p.age++;p.sApps=0;p.sGoals=0;p.storySeen={};p.career.push(`${S.clubs[cf.club].name} ${S.season}`);
     if(p.age<=23)p.q=Math.round(clamp(p.q+(p.pa-p.q)*(.25+rnd()*.3),1,19)*10)/10;else if(p.age>=31)p.q=Math.round(clamp(p.q-(.3+rnd()*.6),1,19)*10)/10;
-    if(p.contract<=0||p.leaving){cf.squad.splice(cf.squad.indexOf(p),1);cfEv('leave',`${p.name} leaves at the end of his contract.`,{pid:p.id})}
+    if(p.contract<=0||p.leaving){cf.squad.splice(cf.squad.indexOf(p),1);faRelease(p);cfEv('leave',`${p.name} leaves at the end of his contract.`,{pid:p.id})}
     else if(p.age>=35&&rnd()<.6){cf.squad.splice(cf.squad.indexOf(p),1);cfEv('leave',`${p.name} retires.`,{pid:p.id})}
   }
   // two academy graduates every summer
   for(let i=0;i<2;i++)cf.squad.push(newPlayer(pick(POS.slice(1)),{age:17,q:Math.round((squadQuality(cf.squad,0)-3+rnd()*1.2)*10)/10,academy:true,contract:2}));
-  cf.budgetLeft=cf.frames.budget;cf.keySold=null;
+  cf.budgetLeft=cf.frames.budget;cf.keySold=null;faSummer();
 }
 /* ----- API for the chairman layer ----- */
 function myBaseStr(){return S.cf?qualityToStr(squadQuality(S.cf.squad,0)):50}
@@ -103,4 +113,4 @@ function cfNeeds(){return squadGaps(S.cf.squad)}
 function cfPlan(){const g=cfNeeds();const out=[];for(const k of ['short','oop','contract'])for(const x of g.filter(y=>y.kind===k))if(out.length<3)out.push(x.text);return out}
 function cfEvents(w){return S.cf.events.filter(e=>e.w===w&&e.s===S.season)}
 function setFrame(k,v){const cf=S.cf,old=cf.frames[k];cf.frames[k]=v;if(k==='budget'){cf.budgetLeft=Math.max(0,cf.budgetLeft+(v-old))}cfEv('frame',`New frame: ${k==='budget'?'£'+v+'k transfer budget':k==='cap'?'£'+v+'/wk wage cap':FRAME_WORD[v]}.`)}
-function signFreeAgent(pos){const p=newPlayer(pos,{age:ri(25,31),q:Math.round((squadQuality(S.cf.squad,0)-.6+rnd()*1.2)*10)/10,contract:1});S.cf.squad.push(p);cfEv('buy',`${p.name} (${POS_ONE[pos]}, ${p.age}) signs as a free agent.`,{pid:p.id});return p}
+function signFreeAgent(pos){const best=faFor(pos).filter(x=>x.wage<=S.cf.frames.cap*1.2).sort((a,b)=>b.q-a.q)[0];if(best){faSign(best,1);cfEv('buy',`${best.name} (${POS_ONE[pos]}, ${best.age}) signs as a free agent: ${best.why}.`,{pid:best.id,free:true});return best}const p=newPlayer(pos,{age:ri(25,31),q:Math.round((squadQuality(S.cf.squad,0)-.6+rnd()*1.2)*10)/10,contract:1});S.cf.squad.push(p);cfEv('buy',`${p.name} (${POS_ONE[pos]}, ${p.age}) signs as a free agent.`,{pid:p.id});return p}

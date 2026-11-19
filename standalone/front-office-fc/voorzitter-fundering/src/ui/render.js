@@ -3,8 +3,8 @@ const crest=`<svg class="crest" viewBox="0 0 34 34" aria-hidden="true"><path d="
 function topBar(){
   const c=S.my?C():null;
   const title=c?c.name:'The Northmarch';
-  const sub=!c?`Season ${S.season} · Between clubs`:S.phase==='alv'?'Annual general meeting':S.phase==='election'?'The election':S.phase==='summer'?`Season ${S.season} · Summer`:!S.week?`Season ${S.season} · Summer`:`Season ${S.season} · Week ${S.week} · ${ord(myPos())}`;
-  return`<header class="top">${crest}<div class="grow"><div class="club">${esc(title)}</div><div class="sub">${esc(sub)}</div></div><nav class="navbtns" aria-label="Club">${S.phase!=='title'?'<button class="tbtn" data-act="ov" data-arg="region">Region</button>':''}${S.cf&&S.phase!=='election'?'<button class="tbtn" data-act="ov" data-arg="squad">Squad</button>':''}${c&&S.phase!=='election'?'<button class="tbtn" data-act="ov" data-arg="table">Table</button>':''}</nav></header>`;
+  const sub=!c?`Season ${S.season} · Between clubs`:S.phase==='alv'?'Annual general meeting':S.phase==='summer'?`Season ${S.season} · Summer`:!S.week?`Season ${S.season} · Summer`:`Season ${S.season} · Week ${S.week} · ${ord(myPos())}`;
+  return`<header class="top">${crest}<div class="grow"><div class="club">${esc(title)}</div><div class="sub">${esc(sub)}</div></div><nav class="navbtns" aria-label="Club">${S.phase!=='title'?'<button class="tbtn" data-act="ov" data-arg="region">Region</button>':''}${S.cf&&S.phase!=='arrival'?'<button class="tbtn" data-act="ov" data-arg="squad">Squad</button>':''}${c&&S.phase!=='arrival'?'<button class="tbtn" data-act="ov" data-arg="table">Table</button>':''}</nav></header>`;
 }
 function face(pid){const p=P(pid);const n=p.name.split(' ').map(x=>x[0]).join('').slice(0,2);return`<div class="face${p.role==='opp'?' opp':''}" aria-hidden="true">${n}</div>`}
 function whoRow(pid){const p=P(pid);const where=p.club?CL(p.club).name:p.role==='journalist'?'The Northmarch Echo':'Out of work';return`<div class="who">${face(pid)}<div><b>${esc(p.name)}</b><span>${esc(ROLE_WORD[p.role]||p.role)} · ${esc(where)}</span></div></div>`}
@@ -21,7 +21,7 @@ function moodsPanel(title){return`<div class="panel">${title?`<p class="eyebrow"
 function render(){
   if(!HAS_DOM)return;const $=document.getElementById('app');
   if(!S||S.screen==='title'){$.innerHTML=titleView();return}
-  const v={prologue:prologueView,seats:seatsView,elect:electView,manifest:manifestView,electResult:electResultView,week:weekView,meeting:meetingView,sit:sitView,hire:hireView,result:resultView,frames:framesView,window:windowView,alv:alvView,summer:summerView}[S.screen];
+  const v={prologue:prologueView,seats:seatsView,arrival:arrivalView,manifest:manifestView,week:weekView,meeting:meetingView,sit:sitView,hire:hireView,result:resultView,frames:framesView,window:windowView,alv:alvView,summer:summerView}[S.screen];
   $.innerHTML=topBar()+`<main>${v?v():''}</main>`+(UI.over?overlayView():'');
 }
 function titleView(){let has=false;try{has=!!localStorage.getItem(SAVE_KEY)}catch(e){}
@@ -44,21 +44,14 @@ function seatsView(){
     <span class="meta">Members: ${big.map(g=>`${gname(c,g.k)} ${g.share}% (${moodWord(g.mood).toLowerCase()})`).join(', ')}.</span>
     <span class="meta">Money: ${moneyWord(c.cash)}${c.debt?`, £${c.debt}k debt`:', no debt'}. Rival: ${esc(CL(c.rival).name)} (${esc(c.rivalWhy)}).</span>
     ${known.length?`<span class="meta"><b>Knows you:</b> ${known.map(x=>esc(P(x).name)).join(', ')}</span>`:''}</button>`}).join('');
-  return`<p class="eyebrow">Summer · Season ${S.season}</p><h2>Open seats</h2><p>Three members' clubs need a chairman. You stand as a candidate, then face an election.</p><div class="stack">${items}</div>`;
+  return`<p class="eyebrow">Summer · Season ${S.season}</p><h2>Three clubs want you</h2><p>Three members' clubs have asked you to take over as chairman. Choose one; the members will judge you at the AGM next June.</p><div class="stack">${items}</div>`;
 }
-function electView(){const sc=electionScene();const c=C();
-  return`<p class="eyebrow">The campaign · ${esc(c.name)}</p><p>Founded ${c.founded}. Legend: ${esc(c.legend)}. Scar: ${esc(c.scar)}. Statute: ${esc(c.statute.join('; '))}.</p>
-  ${moodsPanel('The members')}<section class="scene"><p class="where">${esc(TOWNS[c.town].bar)}</p>${whoRow(sc.who)}${sc.lines.map(l=>l.startsWith('"')?`<p class="voice">${esc(l)}</p>`:`<p>${esc(l)}</p>`).join('')}</section>
-  <p class="eyebrow">On the table</p><div class="stack">${sceneCards(sc).map((x,i)=>x.none?`<button class="deal none" data-act="electCard" data-arg="${i}"><span class="dt">No deal</span><span class="muted small">${esc(x.fail)}</span></button>`:dealHTML(x,i)).join('')}</div>`}
 function manifestView(){
   const slot=['sport','club','person'][S.step],titles={sport:'Your sporting promise',club:'Your promise about the club',person:'Your personal promise'};
   const items=manifestOptions(slot).map(id=>{const d=pdef(id),gs=pgroups(id).map(k=>gname(C(),k));return`<button class="choice" data-act="pick" data-arg="${id}"><b>${esc(d.t)}</b><span><span class="chance">${esc(chanceFor(id))}</span> <span class="meta">${SIZE_WORD[d.size]}${gs.length?' · '+gs.join(', '):''}</span></span></button>`}).join('');
   const none=slot!=='sport'?`<button class="choice" data-act="pick" data-arg="none"><b>No promise here</b><span class="meta">Hands free. Nobody gets anything.</span></button>`:'';
-  return`<p class="eyebrow">${S.phase==='election'?'Your manifest':'Season '+S.season+' manifest'} · ${S.step+1} of 3</p><h2>${titles[slot]}</h2><p>The members measure it at the AGM. Kept: they reward you. Broken: they punish you, whatever the size.${S.flags.trusted?' They trust you more after last year.':''}</p><div class="stack">${items}${none}</div>`;
+  return`<p class="eyebrow">Season ${S.season} manifest · ${S.step+1} of 3</p><h2>${titles[slot]}</h2><p>The members measure it at the AGM. Kept: they reward you. Broken: they punish you, whatever the size.${S.flags.trusted?' They trust you more after last year.':''}</p><div class="stack">${items}${none}</div>`;
 }
-function electResultView(){const r=S.elect.result,c=C();const order=r.rows.slice().sort((a,b)=>a.v-b.v);
-  return`<p class="eyebrow">Election night · ${esc(c.name)}</p><h2>The count</h2><div class="count">${order.map(x=>`<div class="cg panel"><div class="row"><b>${esc(gname(c,x.k))}</b><span class="mood">${verdict(x.v)}</span></div><div class="bar"><i style="width:${Math.round(x.v)}%"></i></div></div>`).join('')}</div>
-  <div class="verdict stack"><p class="big ${r.won?'up':'down'}">${r.won?'Elected':'Defeated'}</p><p>${r.won?`You are the chairman of ${esc(c.name)}.`:`${esc(P(cast('opp')).name)} wins. Try another seat.`}</p><button class="btn" data-act="electNext">${r.won?'To work':'Back to the open seats'}</button></div>`}
 function personLine(pid){const p=P(pid);if(!p||p.loy==null&&!p.mem.length)return'';const rel=p.rel.filter(r=>P(r.id)).slice(0,2).map(r=>`${r.type==='protégé'?'mentor of':r.type==='mentor'?'protégé of':r.type==='friends'?'friends with':r.type==='rivals'?'rivals with':'related to'} ${P(r.id).name}`).join('; ');
   return`<p class="small muted">${esc(p.name)}: ${p.traits.join(', ')}. ${band(p.loy)} with you${p.owes?', owes you a favour':''}${p.withOpp?', in the opposition camp':''}.${rel?' '+esc(rel.charAt(0).toUpperCase()+rel.slice(1))+'.':''}${p.deepKnown?` Values ${VALUE_WORD[p.value]}; wants ${esc(p.deep)}.`:''}</p>`}
 function bubbles(sc){
@@ -118,9 +111,10 @@ function overlayView(){
     const fl=S.flags,deals=[fl.coachContract&&'Coach: two-year contract',fl.coachFinalSay&&'Coach has the final say',fl.tdFree&&'Director runs recruitment alone',fl.academy&&'A new academy',fl.captainSigned&&'Captain signed',fl.captainFuture&&'Captain: coaching future',fl.fanSeat&&'Supporters\' seat on the board',fl.fanName&&'A stand named for the supporters',fl.derbyCrowd&&'Free buses for the derby',fl.oppCommittee&&'Opposition chairs a committee',fl.truce&&'Truce with the opposition',fl.oppBoard&&'Opposition on the board',fl.council&&'Members\' council vets spending',fl.pressFriend&&'Exclusive given to the Echo',fl.pressHostile&&'Frozen out the Echo',fl.leagueVote&&`League vote with ${P(fl.leagueVote).name}`].filter(Boolean);
     return`<div class="overlay" role="dialog" aria-label="The table"><div class="inner"><div class="row"><h2>The table</h2><button class="tbtn" data-act="ov">Close</button></div><p class="muted small">${S.round?`${ord(myPos())} after round ${S.round}. `:''}Money: ${moneyWord(c.cash)}${c.debt?`, £${c.debt}k debt`:''}.</p>
     ${S.cf?moneyPanel():''}<div class="panel"><p class="eyebrow">Your promises</p>${pr}</div><div class="panel"><p class="eyebrow">Deals on the table</p>${deals.length?deals.map(d=>`<p class="small">${esc(d)}</p>`).join(''):'<p class="small muted">None yet.</p>'}</div>${moodsPanel('The members')}<div class="panel"><p class="eyebrow">Your people</p>${ppl}</div></div></div>`}
-  const tabs=`<div class="tabs" role="tablist">${[['tables','Tables'],['people','People you know'],['history','Your career']].map(([k,n])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-arg="${k}">${n}</button>`).join('')}</div>`;
+  const tabs=`<div class="tabs" role="tablist">${[['tables','Tables'],['free','Free agents'],['people','People you know'],['history','Your career']].map(([k,n])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-arg="${k}">${n}</button>`).join('')}</div>`;
   let body='';
   if(UI.tab==='tables'){body=[0,1].map(t=>`<div class="panel"><p class="eyebrow">${t===0?'Northmarch Premier':'Northmarch One'}</p>${standings(t).map((id,i)=>`<div class="row small" style="font-variant-numeric:tabular-nums${id===S.my?';font-weight:600':''}"><span>${i+1}. ${esc(CL(id).name)}</span><span>${S.tbl[id].pts}</span></div>`).join('')}</div>`).join('')}
+  if(UI.tab==='free'){const fa=S.fa||[];body=`<p class="small muted">${fa.length} players without a club in the Northmarch. They cost no fee, only wages, and can be signed in any week.</p>`+POS.map(pos=>{const ps=fa.filter(p=>p.pos===pos).sort((a,b)=>b.q-a.q);return`<div class="panel"><p class="eyebrow">${POS_L[pos]} <span class="muted">${ps.length}</span></p>${ps.slice(0,4).map(p=>`<div class="row small"><span><b>${esc(p.name)}</b> · ${p.age}<br><span class="muted">${qWord(p.q)}, ${esc(p.why)}</span></span><span class="mood">£${p.wage}/wk</span></div>`).join('')||'<p class="small muted">Nobody.</p>'}</div>`}).join('')}
   if(UI.tab==='people'){const known=Object.values(S.P).filter(p=>(p.loy!=null||p.mem.length)&&p.role!=='talent');body=`<div class="panel">${known.map(p=>`<div class="row small"><span>${esc(p.name)}<br><span class="muted">${esc(ROLE_WORD[p.role]||p.role)} · ${p.club?esc(CL(p.club).name):'out of work'}</span></span><span class="mood">${band(p.loy)}</span></div>`).join('<hr>')||'<p class="small muted">Nobody yet.</p>'}</div>`}
   if(UI.tab==='history'){body=`<div class="panel"><ul class="log">${S.history.map(h=>`<li><span class="num">S${h.s}</span> ${esc(h.txt)}</li>`).join('')}</ul></div><p class="small muted">Reputation: ${S.rep>=4?'a chairman who keeps promises':S.rep>=0?'mixed':'a chairman who breaks promises'}.</p>`}
   return`<div class="overlay" role="dialog" aria-label="The region"><div class="inner"><div class="row"><h2>The Northmarch</h2><button class="tbtn" data-act="ov">Close</button></div>${tabs}${body}</div></div>`;
@@ -187,3 +181,11 @@ function playerOverlay(){const p=playerById(UI.pid);if(!p)return'';
   <div class="panel"><p>${esc(p.story)}</p><p class="small">Wants ${esc(WANTS[p.want]||'to play')}. Character: ${esc(p.trait)}. Mood: ${p.morale>=70?'happy':p.morale>=50?'settled':p.morale>=35?'unsettled':'unhappy'}.</p></div>
   <div class="panel"><p class="eyebrow">On the pitch</p><div class="row small"><span>Quality</span><b>${qWord(p.q)}, ${phaseWord(p)}</b></div><div class="row small"><span>Form</span>${spark(p)||'<b>—</b>'}</div><div class="row small"><span>This season</span><b>${p.sApps} games, ${p.sGoals} goals</b></div><div class="row small"><span>For the club</span><b>${p.apps} games, ${p.goals} goals</b></div><div class="row small"><span>Contract</span><b>${p.contract>0?p.contract+' year'+(p.contract>1?'s':''):'on loan'} · £${p.wage}/wk</b></div>${p.inj>0?`<p class="down small">Injured: ${p.inj} week${p.inj>1?'s':''}</p>`:''}</div>
   ${stories?`<div class="panel"><p class="eyebrow">His story so far</p><ul class="log">${stories}</ul></div>`:''}</div></div>`}
+
+function arrivalView(){const c=C(),fan=P(cast('fan')),known=Object.values(c.cast).filter(x=>P(x)&&P(x).mem.length);
+  return`<p class="eyebrow">Your first day · ${esc(c.name)}</p><h2>${esc(c.name)}</h2><p>${esc(TOWNS[c.town].n)}, founded ${c.founded}. Legend: ${esc(c.legend)}. Scar: ${esc(c.scar)}.</p>
+  ${moneyStrip()}${moodsPanel('The members')}
+  <div class="panel"><p class="eyebrow">The statute</p>${c.statute.map(s=>`<p class="small">${esc(s)}</p>`).join('')}</div>
+  <section class="scene"><div class="bubble">${face(fan.id).replace('class="face','class="face sm')}<div class="bb"><b>${esc(fan.name)} · ${esc(ROLE_WORD[fan.role])}</b><p>Welcome, chairman. Here's what ${esc(gname(c,fan.infl))} want: ${esc(fan.deep)}.</p></div></div></section>
+  ${known.length?`<p class="small muted">Already knows you: ${known.map(x=>esc(P(x).name)).join(', ')}.</p>`:''}
+  <button class="btn" data-act="arrive">Write your manifest for the season</button>`}

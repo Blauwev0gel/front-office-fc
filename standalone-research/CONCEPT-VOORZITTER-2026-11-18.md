@@ -268,6 +268,12 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - ruime tekst: minimaal 16 px, labels nooit onder 13 px, ±45 tekens per regel;
     - automatisch getest per scherm.
 64. **De speelse schermtemplates zijn goedgekeurd als doelbeeld** (`templates/speels-templates.html`, 19-11-2026): iconen, semantische kleuren, ruilkaarten, effectchips, tijdlijn, verzamelkaart, compacte feed. Ze worden later geïmplementeerd via `PROMPT-SPEELS-VOORZITTER.md`; de keuze lijn/gevuld, gezichtjes/meters en sticker/rustig volgt bij de implementatie.
+65. **De TD werkt met een plan; de voorzitter koopt of keurt geen spelers** (zie `TD-VOORZITTER.md`):
+    - elke maand een meeting: rapport plus één richting;
+    - de zomer is een eigen fase: evaluatie, plan met targets A/B/C dat je samen bespreekt, transferweken met een automatische ticker en deadline day. De winter is een kleinere versie;
+    - karakter zichtbaar, vakmanschap verborgen;
+    - Hit/Miss per aankoop en een zomerrapport;
+    - ontslaan kan alleen in de zomer.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

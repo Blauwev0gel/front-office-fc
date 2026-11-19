@@ -168,6 +168,21 @@ Uitwerking: `ALV-VOORZITTER.md`.
 18. De oppositie heeft een gecombineerde drijfveer (zwakste groep, visie, diepe wens) en zet openlijk én stil.
 19. Een moment opent met de krant.
 20. Je kiest wie je benadert door een plek te kiezen.
+21. De wereld is één regio (The Northmarch). In bouwronde 1: 32 clubs in twee niveaus.
+22. Alle clubs leven (voorzitter-AI, ALV, loopbanen). Je merkt dat via mensen en de krant.
+23. Eindeloos, over clubs heen, zonder mijlpalen.
+24. Een handgemaakte kern met een procedurele rest per seed.
+25. Je kiest een club door je kandidaat te stellen bij een club met onvrede: drie open zetels, eerst een verkiezing.
+26. Clubs verschillen in stad en leden, geld en statuut, geschiedenis en rivaal, en de cast.
+27. De moeilijkheid zie je op het keuzescherm als stippen, met een typering in woorden.
+28. Ledengroepen komen uit een pool van tien archetypen; elke club heeft er drie of vier.
+29. Een persoonlijkheid bestaat uit twee trekken (pool van 14) en één kernwaarde.
+30. Relaties tussen personages tellen.
+31. Loopbanen met geheugen, over clubs heen.
+32. Nieuwe rollen: andere voorzitters en de journalist (bouwronde 1); wethouder, sponsor, legende en makelaar (bouwronde 2).
+33. Eerst de krant, dan een rustig wereldscherm.
+34. Tekst uit gecombineerde fragmenten; geen AI-tekst in het spel.
+(Uitwerking: `WERELD-VOORZITTER.md`, `CLUBS-VOORZITTER.md`, `PERSONEN-VOORZITTER.md`.)
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

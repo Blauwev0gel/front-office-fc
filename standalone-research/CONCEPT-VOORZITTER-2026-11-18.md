@@ -330,6 +330,12 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - de doelen, in volgorde: (1) mijn keuze deed ertoe (gaat voor), (2) mijn club leeft, (3) ik kan het verliezen, (4) ik ben de baas;
     - het spel is niet: een spreadsheet, een vragenlijst, Football Manager-light, of een kijkspel;
     - mobiel, sessies van 5–10 minuten, doelgroep voetbalfans.
+75. **De kern: de Bouwer met beslismomenten** (21-11-2026, zie `KERN-VOORZITTER.md`):
+    - vijf ontwerppijlers;
+    - het seizoen draait om opbouwen (groeiprojecten plus de mensen die ze uitvoeren);
+    - de week draait om zware beslismomenten, zonder kaartstroom;
+    - mensen met karakter en geheugen dragen alles;
+    - het open risico (genoeg betrokkenheid in een sessie van 5–10 minuten) wordt getoetst in de papieren proef.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

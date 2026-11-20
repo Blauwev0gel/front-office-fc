@@ -64,28 +64,22 @@ In `standalone/front-office-fc/voorzitter-fundering/`:
 ## 5. Waar we nu staan
 | Fase | Stand |
 |---|---|
-| 0. Concept en markt | **Half.** De fantasie en het genre-onderzoek liggen er. Doelgroep, platform, businessmodel en positionering ontbreken. |
+| 0. Concept en markt | **Afgerond door de eigenaar:** het spel is mobiel en de doelgroep is voetbalfans. Verder geen marktfase. |
 | 1. Pre-productie | **Niet gedaan.** Er is geen scope, MVP, roadmap, risicoregister of technisch ontwerp, en de ervaringsdoelen ontbreken ook. |
 | 2. Prototype (het plezier vinden) | **Bezig, niet bewezen.** Er zijn veel systemen gebouwd, maar de kern is niet bewezen leuk. Er waren twee papieren proeven en een simulatie. |
 | 3–7 | Nog niet begonnen |
 
-**Gevolg:** we gaan terug naar fase 0 en 1, en zetten de gebouwde code en het onderzoek in als bibliotheek. Je gaat pas door naar productie als fase 2 en 3 hun poort halen.
+**Gevolg:** we beginnen bij fase 1, en zetten de gebouwde code en het onderzoek in als bibliotheek. Je gaat pas door naar productie als fase 2 en 3 hun poort halen.
 
 ## 6. Het ontwikkelplan: acht fasen, elk met oplevering en poort
 **Spelregels:**
 - Elke sessie duurt 20–30 minuten, levert één `.md` van hooguit één pagina op, en eindigt met een vraag aan de eigenaar.
 - Een fase is pas klaar als de eigenaar de poort passeert. Een poort mag ook "stop" of "terug" zeggen.
 
-### Fase 0: Concept en markt
-- **Doel:** weten wat we maken, voor wie, en waarom iemand het kiest boven de alternatieven.
-- **Op te leveren:** `CONCEPT-1PAGER.md` met:
-  - pitch en fantasie in één zin;
-  - **doelgroep** (wie, hoe oud, wat spelen ze nu, hoe lang per sessie);
-  - **platform** (mobiel, web, Steam) en **businessmodel** (eenmalige aankoop of gratis met een betaalde volledige versie; nooit microtransacties in de kern);
-  - **concurrentieanalyse** (The Chairman, Football Boardroom, Club Soccer Director, New Star Manager, Football Manager): wat zij doen en wat wij anders doen;
-  - **unique selling points** (hooguit 3);
-  - de **haalbaarheid** voor een klein team.
-- **Poort:** de eigenaar kan in twee zinnen uitleggen waarom iemand dit wil spelen.
+### Fase 0: Concept en markt (overgeslagen, vastgesteld door de eigenaar)
+- **Platform:** mobiel (390 px, met duim te bedienen, korte sessies).
+- **Doelgroep:** voetbalfans.
+- Geen businessmodel, concurrentieanalyse of positionering uitwerken. Toets ideeën wel aan de vraag: *spreekt dit een voetbalfan aan op zijn telefoon?*
 
 ### Fase 1: Pre-productie (het fundament)
 - **Doel:** de kaders zo scherp dat de rest van het project ertegen kan worden getoetst.
@@ -186,7 +180,7 @@ In `standalone/front-office-fc/voorzitter-fundering/`:
 | Techniek, save, performance | | ● | · | ● | ● | ● | · | ● |
 | QA en testen | | · | · | ● | ● | ● | ● | ● |
 | Speeltests (extern) | | | ● | ● | ● | ● | | ● |
-| Markt, store, community | ● | · | | · | · | ● | ● | ● |
+| Store en community | | | | · | · | ● | ● | ● |
 | Productie (roadmap, backlog, risico) | · | ● | · | ● | ● | ● | ● | ● |
 
 ● = hoofdwerk, · = bijwerk
@@ -202,4 +196,4 @@ In `standalone/front-office-fc/voorzitter-fundering/`:
 ## 9. Je eerste antwoord
 1. Een samenvatting van het dossier (hooguit 15 regels, met de drie zwaarste bevindingen en hun soort bewijs).
 2. Eén alinea over wat je ziet als de grootste kans en het grootste risico.
-3. De eerste interactieve vragen van **fase 0** (doelgroep, platform, businessmodel, positionering).
+3. De eerste interactieve vragen van **fase 1** (de ervaringsdoelen: wat moet een voetbalfan voelen als hij De Voorzitter op zijn telefoon speelt?).

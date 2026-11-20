@@ -96,3 +96,58 @@ Er komt geen nieuwe meter. We maken zichtbaar wat er al is.
 - [38-0 challenge](https://82-0-challenge.com/38-0)
 - [PC Gamer: how Reigns makes its Tinderocracy work](https://pcgamer.com/how-reigns-and-its-forthcoming-sequel-make-their-tinderocracy-work)
 - [GamesRadar: how Reigns convinced two million people](https://gamesradar.com/how-reigns-convinced-two-million-people-to-swipe-right-to-rule-their-kingdom-and-captured-the-game-of-thrones-license)
+
+---
+
+## Uitbreiding v2: de loop verrijkt op basis van het onderzoek (keuze 72)
+
+### 1. De wedstrijddag live, met sms'jes aan de trainer (Football Boardroom, uitgewerkt)
+- **Een live wedstrijd in ±20 seconden:** een klok van 0 tot 90 minuten, de stand, en momenten als kaarten (goal, kans, kaart, blessure).
+- **Spelersstats live:** per speler een rating (1–10, op basis van vorm en bijdrage), goals en assists, en conditie die met de minuten zakt. Je ziet wie het doet en wie niet.
+- **Twee sms-momenten per wedstrijd** (rust en ±70'). Opties komen uit de stats, bijvoorbeeld:
+  - "Take off Thackeray (5.1, tired)";
+  - "Get the ball to Waddington (8.2)";
+  - "Give the kid a chance";
+  - "Keep it tight, we're ahead";
+  - "Say nothing".
+- **De trainer beslist.** De kans dat hij luistert hangt af van zijn loyaliteit, zijn eigenschappen (koppig of trots) en hoe vaak je je al bemoeide. Zijn antwoord komt als sms terug ("Leave it to me, chairman" of "Done").
+- **Gevolg:**
+  - de trainer volgt je en het werkt: de steun stijgt, en je ziet "Your text" bij het moment;
+  - het mislukt: de leden geven jou de schuld;
+  - hij weigert: zijn loyaliteit en jullie relatie zijn zichtbaar geraakt;
+  - te veel bemoeienis: de trainer onthoudt het, en in de krant staat "The chairman picks the team now?"
+- **Herziening van een oude regel:** "geen wissels of tactiek voor de voorzitter" wordt **"de voorzitter kiest niets zelf, maar mag het de trainer vragen"**. De opstelling en de tactiek blijven bij de trainer.
+
+### 2. Drie achtergronden bij de start (Football Boardroom)
+| Achtergrond | Voordeel | Nadeel |
+|---|---|---|
+| **Local lad made good** | Supporters en ultras warm | Zakenleden wantrouwig, minder geld |
+| **City money** | Kas vol, groter budget | Leden argwanend ("who is he?") |
+| **Former player** | Kleedkamer en trainer met je | Geld krap, het bestuur twijfelt aan je zakelijke kant |
+
+Je kiest in *The call*, vóór de dossiers. De achtergrond kleurt de startstemming, de kas en de eerste kaarten.
+
+### 3. De trainer ontslaan als groot moment
+- **Na een slechte reeks** (bijvoorbeeld drie nederlagen, of de steun zakt onder 50%) komt een grote kaart: **"Sack the coach?"**
+- **Het effect is meteen zichtbaar:**
+  - een sprong in steun bij de boze leden;
+  - een afkoopsom van de kas;
+  - onrust in de kleedkamer;
+  - de spelers die bij hem horen worden onrustig.
+- **Ontslaan:** de TD stelt drie opvolgers voor en jij kiest (keuze 66).
+- **Niet ontslaan:** dan sta je achter hem, en dat wordt een kleine belofte ("He gets until Christmas").
+
+### 4. Kleinere lessen die we meenemen
+- **Na elke wedstrijd één regel waarom** (The Chairman): "Lost 0–2: no left-back, and your text to take off Holt backfired."
+- **Falen hoort erbij** (Reigns). Het scherm *Voted out* is een hoogtepunt met je periode in cijfers, en daarna ga je meteen verder naar nieuwe dossiers.
+- **Een voorvertoning op elke kaart** (Reigns): iconen tonen welke wijzers een keuze raakt, maar niet hoeveel.
+- **Geen seeds en geen delen** (keuze 72). Wel je eigen records en de carrièrekaart.
+
+### De week, compleet
+1. Opening: steun, kas en kleedkamer.
+2. Twee tot vier snelle kaarten, elk met direct gevolg.
+3. **De wedstrijddag live**, met stats en hooguit twee sms'jes.
+4. Uitslag, één regel waarom, en de beweging van de steun.
+5. Soms een groot moment: trainer ontslaan, de derby, het winterwindow, de ALV.
+
+**Tijd:** de wedstrijd duurt ±20 s, de week blijft 45–75 s. De wedstrijd mag je overslaan, dan speelt hij zonder sms'jes.

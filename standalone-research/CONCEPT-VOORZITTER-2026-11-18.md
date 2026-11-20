@@ -317,6 +317,14 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - de trainer ontslaan als groot moment met groot zichtbaar effect;
     - na elke wedstrijd één regel waarom;
     - geen seeds en geen delen.
+73. **De volledige spelloop v1.0** (21-11-2026, zie `SPELLOOP-VOORZITTER.md`):
+    - **mandaat:** vier keuzes (ambitie, geld, identiteit, rode lijnen);
+    - **kaarten:** 2–4 per week, wisselend; een genegeerde kaart escaleert;
+    - **wedstrijd:** standaard live met twee sms'jes, overslaan mag;
+    - **steun:** zakt langzaam vanzelf, en uitslagen en bestuur wegen half om half;
+    - **seizoensdoel:** beloftes halen en de ALV boven 50%;
+    - **moeilijkheid:** groeit met de grootte van de club;
+    - **carrière:** open, met blijven en bouwen óf in de zomer overstappen naar een grotere club na een aanbieding. Reputatie, records en mensen gaan mee.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

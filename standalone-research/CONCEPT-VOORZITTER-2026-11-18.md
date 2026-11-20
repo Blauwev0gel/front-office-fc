@@ -288,6 +288,12 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - een aankoop die lang geblesseerd is, krijgt de stempel *Unlucky* en telt niet mee in het oordeel;
     - de A-targets kosten samen 1,2–1,5× het budget plus de verkopen, zodat de volgorde van de voorzitter ertoe doet;
     - een gerucht heeft altijd een zichtbaar gevolg.
+68. **Geen schijninvloed in de transferzomer** (20-11-2026):
+    - de TD bepaalt de prioriteiten zelf uit diepte, zwakte en vertrekken, met contracten erbij;
+    - hij legt ze voor in de zomervergadering, waar trainer en financieel directeur reageren; de invloed van de voorzitter is het mandaat;
+    - geen ordenen en geen meldingen tijdens de zomer: één doorlopende ticker met een bord In/Out;
+    - daarna een zomerrapport met profielkaarten van aankomsten en vertrekken, en een analyse per linie (rating, aantal spelers, leeftijd);
+    - tijdens het seizoen staat de TD onder een vijfde knop **Staff**: zijn plan, waar hij aan werkt, contracten, zijn aankopen en zijn werklog.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

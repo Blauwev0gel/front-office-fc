@@ -50,15 +50,15 @@ function valueLikes(role,pillar,v){
   return 0;
 }
 function staffVoices(){
-  const c=C(),td=P(cast('td')),co=P(cast('coach')),fi=P(cast('finance')),plan=cfPlan(),fin=S.cf.fin||{inc:weeklyIncome(false),wb:wageBill()},fc=seasonForecast();
+  const c=C(),sm=S.cf.sum,td=P(cast('td')),co=P(cast('coach')),fi=P(cast('finance')),plan=cfPlan(),fin=S.cf.fin||{inc:weeklyIncome(false),wb:wageBill()},fc=seasonForecast();
   const gaps=cfNeeds().filter(g=>g.kind==='short'||g.kind==='oop').length,ask=Math.max(20,gaps*30);
   const coPos=(cfNeeds().find(g=>g.kind==='oop'||g.kind==='short')||{pos:'CM'}).pos;
   return[
-   {pid:td.id,line:plan.length?`"${plan.slice(0,2).join('. ')}. To fix it properly I'd want about £${ask}k."`:`"The squad is in decent shape. Give me £${ask}k and I'll make it better."`},
-   {pid:co.id,line:`"${co.traits.includes('ambitious')?'I want to go for it this year.':'I want us hard to beat.'} And I need a proper ${POS_ONE[coPos]}."`},
+   {pid:td.id,line:sm&&sm.prios.length?`"My list: ${sm.prios.map(x=>x.goal.toLowerCase()).join(', ')}. My first choices cost about £${sumAsk()}k."`:`"The squad is in decent shape. Give me £${ask}k and I'll make it better."`},
+   {pid:co.id,line:`"${co.traits.includes('ambitious')?'I want to go for it this year.':'I want us hard to beat.'} ${sm&&sm.prios.some(x=>x.pos===coPos)?`Good that a ${POS_ONE[coPos]} is on the list.`:`I'd have put a ${POS_ONE[coPos]} on that list.`}"`},
    {pid:fi.id,line:`"We have £${Math.round(c.cash)}k in the bank${c.debt?` and £${c.debt}k of debt`:''}. Wages are £${fin.wb}k a week against £${fin.inc}k coming in. ${fc<0?`On this course we lose about £${-fc}k by May.`:`We should end the season about £${fc}k up.`}"`}];
 }
-function startMeeting(){S.meeting={step:0,choice:{},rules:[]};S.phase='summer';S.screen='meeting'}
+function startMeeting(){S.meeting={step:0,choice:{},rules:[]};S.phase='summer';S.screen='meeting';if(S.cf)tdSummerStart()}
 function meetingChoose(v){
   const M=S.meeting,pl=PILLARS[M.step-1];
   if(pl.multi){const i=M.rules.indexOf(v);if(i>=0)M.rules.splice(i,1);else M.rules.push(v);return}

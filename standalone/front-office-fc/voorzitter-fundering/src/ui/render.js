@@ -34,12 +34,12 @@ function render(){
   document.body.classList.toggle('noNav',!nav);
   $.innerHTML=topBar()+`<main class="${enter.trim()}">${body}</main>`+(nav?tabBar():'')+(UI.over?overlayView():'');
 }
-const TAB_ICON={club:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v8c0 5-4 7.5-8 8.5C8 19.5 4 17 4 12z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+const TAB_ICON={staff:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 4h6v3H9zM8 11h8M8 14h8M8 17h5" fill="none" stroke="currentColor" stroke-width="2"/></svg>',club:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v8c0 5-4 7.5-8 8.5C8 19.5 4 17 4 12z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
  post:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 7l9 6 9-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
  room:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3l-4 3 2 4 2-1v12h8V9l2 1 2-4-4-3c-1 2-3 2-4 2s-3 0-4-2z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
  members:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 20c0-4 2.5-6 5-6s5 2 5 6M11 20c0-4 2.5-6 5-6s5 2 5 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>'};
 function tabBar(){const open=S.desk?S.desk.filter(s=>!s.done).length:0;
-  return`<nav class="tabbar" aria-label="Club">${[['club','Club'],['post','In the post'],['room','Dressing room'],['members','Members']].map(([k,n])=>`<button class="tab${UI.t===k?' on':''}" data-act="tab2" data-arg="${k}" aria-current="${UI.t===k?'page':'false'}">${TAB_ICON[k]}<span>${n}</span>${k==='post'&&open?`<span class="badge">${open}</span>`:''}</button>`).join('')}</nav>`}
+  return`<nav class="tabbar" aria-label="Club">${[['club','Club'],['post','In the post'],['room','Squad'],['staff','Staff'],['members','Members']].map(([k,n])=>`<button class="tab${UI.t===k?' on':''}" data-act="tab2" data-arg="${k}" aria-current="${UI.t===k?'page':'false'}">${TAB_ICON[k]}<span>${n}</span>${k==='post'&&open?`<span class="badge">${open}</span>`:''}</button>`).join('')}</nav>`}
 function titleView(){let has=false;try{has=!!localStorage.getItem(SAVE_KEY)}catch(e){}
   return`<main style="padding-top:48px">${crest.replace('class="crest"','class="crest" style="width:64px;height:64px"')}<p class="eyebrow">A world of members' clubs</p><h1>The Northmarch Chairman</h1>
   <p>Thirty-two clubs in one county. Every club has its own members, money, rivals and people, and every one of them remembers you. You never pick the team.</p>
@@ -149,6 +149,7 @@ function weekView(){
     return`<p class="eyebrow">In the post · Week ${S.week}</p>${S.desk.length?`<div class="stack">${desk}</div>`:'<p class="muted">Nothing in the post this week. Enjoy it.</p>'}${playBtn}`}
   if(UI.t==='room')return squadBody()+playBtn;
   if(UI.t==='members')return membersBody()+playBtn;
+  if(UI.t==='staff')return staffBody()+playBtn;
   return`${coverView()}<p class="eyebrow">Club news</p>${feedView()}${fx?fixtureCard(fx):''}${playBtn}`;
 }
 function myForm(){return(S.myRes||[]).slice(-5).map(r=>`<span class="${r}">${r}</span>`).join('')}
@@ -192,7 +193,7 @@ function mandatePanel(){const F=S.cf.frames,ch=(k,v)=>{const pl=PILLARS.find(x=>
 function meetingView(){
   const M=S.meeting;
   if(M.step===0){const v=staffVoices();return`<p class="eyebrow">Summer · The boardroom</p><h2>The summer meeting</h2><p>Your staff tell you what they want. Then you set the mandate: seven decisions only an owner makes.</p>${moneyStrip()}
-    <section class="scene">${v.map(x=>`<div class="bubble">${face(x.pid).replace('class="face','class="face sm')}<div class="bb"><b>${esc(P(x.pid).name)} · ${esc(ROLE_WORD[P(x.pid).role])}</b><p>${esc(x.line.replace(/^"|"$/g,''))}</p></div></div>`).join('')}</section>${planPanel()}<button class="btn" data-act="meetNext">Set the mandate</button>`}
+    <section class="scene">${v.map(x=>`<div class="bubble">${face(x.pid).replace('class="face','class="face sm')}<div class="bb"><b>${esc(P(x.pid).name)} · ${esc(ROLE_WORD[P(x.pid).role])}</b><p>${esc(x.line.replace(/^"|"$/g,''))}</p></div></div>`).join('')}</section>${tdAssessment()}<button class="btn" data-act="meetNext">Set the mandate</button>`}
   if(M.step<=PILLARS.length){const pl=PILLARS[M.step-1];
     const opts=pl.opts.map(o=>{const r=['td','coach','finance'].map(role=>{const pid=staffPid(role);if(!pid||pl.multi)return'';let s=(o.like||[]).includes(role)?1:(o.dis||[]).includes(role)?-1:0;s+=valueLikes(role,pl.k,o.v);return s>0?`<span class="up">${esc(P(pid).name.split(' ')[0])} ↑</span>`:s<0?`<span class="down">${esc(P(pid).name.split(' ')[0])} ↓</span>`:''}).filter(Boolean).join(' · ');
       const on=pl.multi&&M.rules.includes(o.v);return`<button class="choice${on?' on':''}" data-act="mchoose" data-arg="${o.v}" ${pl.multi?`aria-pressed="${on}"`:''}><b>${pl.multi?(on?'✓ ':'')+'':''}${esc(o.t)}</b><span class="meta">${esc(o.d)}</span>${r?`<span class="meta">${r}</span>`:''}</button>`}).join('');

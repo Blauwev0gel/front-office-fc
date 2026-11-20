@@ -44,6 +44,6 @@ function tdSellNeed(p){const td=curTd();let n=0;
 function tdSee(p){const e=curTd().eye;return p.q+(rnd()*2-1)*(5-e)*.45}
 function tdSort(list,amb){const td=curTd();
   for(const p of list){const seen=tdSee(p),seenPa=p.pa+(rnd()*2-1)*(5-td.eye)*.45,price=p.price||0;p.seenQ=Math.round(seen*10)/10;
-    p._k=amb?seen:td.phil==='data'?seen-price*.03:td.phil==='network'?seen+(p.localKid?1.2:0)+(p.free?.4:0):td.phil==='eye'?seen*.4+seenPa*.6:seen/(price+3)*6}
+    p._k=amb?seen:td.phil==='data'?seen-price*.03:td.phil==='network'?seen+(p.localKid?1.2:0)+(p.free?.4:0)+Math.min(1.2,Math.max(0,p.age-25)*.2):td.phil==='eye'?seen*.4+seenPa*.6:seen/(price+3)*6}
   list.sort((a,b)=>b._k-a._k);for(const p of list)delete p._k;return list}
 function tdMarkSigning(p){p.signedBy=S.cf.tdId;p.signedS=S.season;if(p.seenQ==null)p.seenQ=p.q}

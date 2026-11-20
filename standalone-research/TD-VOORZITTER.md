@@ -1,4 +1,8 @@
-# De technisch directeur: ontwerpnotitie v0.3 (19-11-2026)
+# De technisch directeur: ontwerpnotitie v0.4
+
+> **v0.4 (keuze 68):** de TD bepaalt de prioriteiten en legt ze voor in de zomervergadering. Het ordenen door de voorzitter en de meldingen in de zomer zijn geschrapt. De zomer is één doorlopende ticker met daarna een rapport (profielen en een analyse per linie). Tijdens het seizoen is er een knop Staff. Waar de tekst hieronder iets anders zegt, geldt dit.
+
+(Was v0.3) (19-11-2026)
 
 > **v0.3 (keuze 67):**
 > - "I'd keep him" is geschrapt; de evaluatie is alleen van de TD.

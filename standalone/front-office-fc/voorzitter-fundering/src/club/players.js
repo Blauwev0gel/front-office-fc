@@ -46,7 +46,7 @@ function squadQuality(sq,youthBias){const xi=pickXI(sq,youthBias);if(!xi.length)
 function qualityToStr(q){return 50+(q-11.5)*4}
 function squadGaps(sq){
   const out=[];
-  for(const pos of POS){const n=available(sq).filter(p=>p.pos===pos).length;if(n<REQ[pos])out.push({pos,kind:'short',text:`Only ${n} fit ${POS_ONE[pos]}${n===1?'':'s'}; we need ${REQ[pos]}`})}
+  for(const pos of POS){const n=available(sq).filter(p=>p.pos===pos).length;if(n<REQ[pos])out.push({pos,kind:'short',text:`${n?'Only '+n:'No'} fit ${POS_ONE[pos]}${n===1?'':'s'}; we need ${REQ[pos]}`})}
   const xi=pickXI(sq,0);for(const x of xi)if(x.p.pos!==x.slot)out.push({pos:x.slot,kind:'oop',text:`${x.p.name} plays ${POS_ONE[x.slot]} out of position`});
   for(const p of sq)if(p.contract===1&&!p.loan&&p.q>=11)out.push({pos:p.pos,kind:'contract',text:`${p.name}'s contract ends in June`});
   return out;

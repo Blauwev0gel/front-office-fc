@@ -306,6 +306,11 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - uit het origineel komen een getekende summer brief met afrekenpunten, een zomereditie met een cijfer van A tot E en een debrief met vijf vragen (die het oordeel Keep/Warn/Sack voedt);
     - targets krijgen een scoutcijfer van A tot D dat kan afwijken van hun echte niveau;
     - eerst templates.
+71. **De hook en de loop** (21-11-2026, zie `HOOK-LOOP-VOORZITTER.md`):
+    - de ledensteun in % is altijd in beeld als de score;
+    - beslissen gebeurt met 2–4 snelle kaarten per week met twee keuzes, en het gevolg op steun, groepen, kas en kleedkamer is meteen zichtbaar;
+    - het spel is een open carrière: weggestemd betekent een nieuwe club, met een groeiende carrièrekaart en records;
+    - eerst templates.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

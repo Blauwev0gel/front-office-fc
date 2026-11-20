@@ -23,6 +23,7 @@ Basis voor de links: `https://github.com/blauwev0gel/front-office-fc/blob/voorzi
 | 1 | [`standalone-research/LEESWIJZER-VOORZITTER.md`](https://github.com/blauwev0gel/front-office-fc/blob/voorzitter-fundering/standalone-research/LEESWIJZER-VOORZITTER.md) | Dit bestand |
 | 2 | [`standalone-research/CONCEPT-VOORZITTER-2026-11-18.md`](https://github.com/blauwev0gel/front-office-fc/blob/voorzitter-fundering/standalone-research/CONCEPT-VOORZITTER-2026-11-18.md) | **Bron van waarheid.** §13 bevat de bindende keuzes van de eigenaar (1–70); hoe hoger het nummer, hoe recenter. Bij een conflict wint de laatste keuze. |
 | 3 | [`standalone-research/PROMPT-ECHT-SPEL-VOORZITTER.md`](https://github.com/blauwev0gel/front-office-fc/blob/voorzitter-fundering/standalone-research/PROMPT-ECHT-SPEL-VOORZITTER.md) | De kernzin, de vijf pijlers met speeltests, en de harde grenzen (een week duurt 30–60 s, een seizoen 20–30 min) |
+| 3b | [`standalone-research/HOOK-LOOP-VOORZITTER.md`](https://github.com/blauwev0gel/front-office-fc/blob/voorzitter-fundering/standalone-research/HOOK-LOOP-VOORZITTER.md) | **De hook en de loop** (keuze 71): ledensteun in % als score, snelle kaarten met direct gevolg, open carrière. Dit stuurt alles wat hierna wordt gebouwd. |
 | 4 | [`CLAUDE.md`](https://github.com/blauwev0gel/front-office-fc/blob/voorzitter-fundering/CLAUDE.md) | De werkwijze: de loop per feature, de definition of done, de houding. Let op: de branchregels daarin gelden voor `claude-game`. Dit spoor werkt alleen op `voorzitter-fundering`. |
 
 ## 2. Per systeem (lees wat je taak raakt)
@@ -68,6 +69,6 @@ De overige `.md`-bestanden in `standalone-research/` zijn eerdere stappen (gespr
   - de TD met aannemen en profiel (keuze 65–67);
   - de transferzomer met brief, transfer centre, editie en debrief (keuze 68 en 70);
   - de Staff-tab.
-- **Volgende stap:** het oordeel over de TD in juni (Keep/Warn/Sack, ontslaan alleen in de zomer, drie kandidaten), op basis van strikes en Hit/Miss. Daarna de maandmeeting met de TD.
+- **Volgende stap (keuze 71):** de hook en de loop: templates voor het weekscherm met de ledensteun en snelle kaarten. Daarna het oordeel over de TD in juni (Keep/Warn/Sack, ontslaan alleen in de zomer, drie kandidaten), op basis van strikes en Hit/Miss. Daarna de maandmeeting met de TD.
 - **Geparkeerd:** de speelse UI uit `PROMPT-SPEELS` (keuze 64), en pijlers 3–5 (seizoensboog en beker, inzet en balans, upgradeboom).
 - **Niet aanraken:** `main`, `claude-game` en `chatgpt`. Dit spoor staat op zichzelf.

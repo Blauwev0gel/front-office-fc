@@ -325,6 +325,11 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - **seizoensdoel:** beloftes halen en de ALV boven 50%;
     - **moeilijkheid:** groeit met de grootte van de club;
     - **carrière:** open, met blijven en bouwen óf in de zomer overstappen naar een grotere club na een aanbieding. Reputatie, records en mensen gaan mee.
+74. **De ervaringsdoelen** (21-11-2026, zie `ERVARING-VOORZITTER.md`):
+    - de fantasie is een club opbouwen over jaren;
+    - de doelen, in volgorde: (1) mijn keuze deed ertoe (gaat voor), (2) mijn club leeft, (3) ik kan het verliezen, (4) ik ben de baas;
+    - het spel is niet: een spreadsheet, een vragenlijst, Football Manager-light, of een kijkspel;
+    - mobiel, sessies van 5–10 minuten, doelgroep voetbalfans.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

@@ -1,0 +1,241 @@
+<title>Chairman Opening Templates</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=Source+Serif+4:ital,opsz,wght@1,8..60,400&display=swap">
+<style>
+/* Layout: phone-sized screens in story order on a light table; one deliberate "matchday programme" look, the chosen club's colours flood the later screens. */
+:root{
+  --table:#e6e2d7;--paper:#f4f1e9;--card:#ffffff;--ink:#141417;--muted:#585660;--line:#d6d0c2;--rule:#141417;
+  --good:#1f7a3f;--goodbg:#e2f2e6;--bad:#b3261e;--badbg:#fbe4e1;--warn:#8a5a00;--warnbg:#fcefcd;--info:#2f4c7a;--infobg:#e5ebf5;--gold:#ffd84a;
+  --club:#7a1f2b;--club2:#e0b23a;--onclub:#ffffff;
+  --f-display:"Anton","Arial Narrow",Impact,sans-serif;--f-body:"Barlow",system-ui,sans-serif;--f-label:"Barlow Condensed","Arial Narrow",sans-serif;--f-voice:"Source Serif 4",Georgia,serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--table);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.page{max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.intro h1{font-family:var(--f-display);font-weight:400;font-size:40px;line-height:1;margin:0;text-transform:uppercase}
+.intro p{margin:6px 0 0;max-width:64ch;color:var(--muted)}
+.controls{display:flex;flex-wrap:wrap;gap:12px}
+.seg{display:flex;border:2px solid var(--rule);border-radius:999px;overflow:hidden;background:var(--card)}
+.seg span{font-family:var(--f-label);font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;padding:0 12px;display:flex;align-items:center;color:var(--muted)}
+.seg button{min-height:44px;padding:0 14px;border:0;border-left:1.5px solid var(--rule);background:transparent;font:600 15px var(--f-body);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+button:focus-visible{outline:3px solid var(--info);outline-offset:2px}
+.screens{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(370px,100%),1fr));gap:22px;align-items:start}
+.cap{font-family:var(--f-label);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:14px;color:var(--muted);text-align:center;margin:0 0 6px}
+.phone{background:var(--paper);border:2px solid var(--rule);border-radius:28px;overflow:hidden;box-shadow:0 8px 0 rgba(0,0,0,.08);min-height:640px;display:flex;flex-direction:column;position:relative}
+.body{padding:16px;display:flex;flex-direction:column;gap:12px;flex:1}
+.h1{font-family:var(--f-display);font-weight:400;text-transform:uppercase;line-height:.95;margin:0;text-wrap:balance}
+.lbl{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+.btn{width:100%;min-height:52px;border:2px solid var(--rule);border-radius:14px;background:var(--club);color:var(--onclub);font-family:var(--f-display);font-size:21px;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 4px 0 var(--rule);cursor:pointer}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--rule)}
+.btn.dark{background:var(--ink);color:#fff}
+.chip{display:inline-flex;align-items:center;gap:4px;font-weight:700;font-size:14px;padding:3px 9px;border-radius:999px;border:1.5px solid currentColor;white-space:nowrap}
+.chip.g{color:var(--good);background:var(--goodbg)}.chip.r{color:var(--bad);background:var(--badbg)}.chip.w{color:var(--warn);background:var(--warnbg)}.chip.i{color:var(--info);background:var(--infobg)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+/* 0 title */
+.title{background:#101418;color:#f4f1e9;justify-content:flex-end}
+.title canvas{position:absolute;inset:0;width:100%;height:100%}
+.title .body{position:relative;justify-content:flex-end;gap:14px;padding:22px}
+.title .h1{font-size:56px;color:#fff}
+.title p{margin:0;font-size:18px;max-width:28ch}
+.title .btn{background:var(--gold);color:var(--ink)}
+/* 1 the call */
+.call{display:flex;flex-direction:column;gap:10px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field input{min-height:48px;border:2px solid var(--rule);border-radius:12px;padding:0 12px;font:600 18px var(--f-body);background:var(--card);color:var(--ink)}
+.msg{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1.5px solid var(--rule);border-radius:4px 16px 16px 16px;padding:10px;animation:drop .4s cubic-bezier(.3,1.5,.6,1) both}
+.msg:nth-child(2){animation-delay:.5s}.msg:nth-child(3){animation-delay:1s}
+.msg b{display:block;font-size:15px}.msg i{font-family:var(--f-voice);font-size:16px}
+@keyframes drop{from{opacity:0;transform:translateY(-10px) scale(.96)}to{opacity:1;transform:none}}
+/* 2 dossiers */
+.deck{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 10px;margin:0 -16px;padding-left:16px;padding-right:16px}
+.list .deck{flex-direction:column;overflow:visible;margin:0;padding:0}
+.dos{flex:0 0 88%;scroll-snap-align:center;border:2.5px solid var(--rule);border-radius:18px;background:var(--card);overflow:hidden;display:flex;flex-direction:column;box-shadow:4px 4px 0 var(--rule)}
+.list .dos{flex:none}
+.dos .top{background:var(--c1);color:var(--c3);padding:12px;display:flex;gap:10px;align-items:center;position:relative;min-height:112px}
+.dos .top b{font-family:var(--f-display);font-weight:400;font-size:26px;line-height:.95;text-transform:uppercase;display:block}
+.tag{display:inline-block;margin-top:6px;background:var(--gold);color:var(--ink);border:2px solid var(--rule);border-radius:8px;padding:1px 8px;font-family:var(--f-display);font-size:14px;transform:rotate(-3deg)}
+.stars{display:inline-block;margin-left:8px;font-size:14px;letter-spacing:1px;vertical-align:middle}
+.dos .mid{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.dos .pitch{margin:0;font-size:16px}
+.dream{display:flex;gap:8px;align-items:center;font-weight:600;font-size:15px}
+.env{display:flex;gap:10px;align-items:center;border:2px dashed var(--muted);border-radius:12px;padding:8px 10px;color:var(--muted);font-weight:600;font-size:15px}
+.env svg{animation:wig 2.4s ease-in-out infinite}
+@keyframes wig{0%,85%,100%{transform:none}90%{transform:rotate(-8deg)}95%{transform:rotate(8deg)}}
+.dos .pick{min-height:48px;border:0;border-top:2px solid var(--rule);background:var(--paper);font:700 16px var(--f-body);color:var(--ink);cursor:pointer}
+.dos.on .pick{background:var(--ink);color:#fff}
+.count{display:flex;justify-content:center;gap:6px}.count i{width:8px;height:8px;border-radius:50%;background:#bdb6a6}.count i.on{background:var(--ink)}
+.list .count{display:none}
+/* 3 signature */
+.contract{background:#fffdf6;border:1.5px solid var(--line);border-radius:6px;padding:16px;box-shadow:0 2px 0 var(--line);position:relative;display:flex;flex-direction:column;gap:8px;font-family:var(--f-voice);font-size:16px}
+.contract .head{font-family:var(--f-display);font-size:22px;text-transform:uppercase;text-align:center;letter-spacing:.02em}
+.sigline{border-bottom:2px solid var(--ink);height:52px;position:relative;margin-top:6px}
+.sigline svg{position:absolute;left:0;bottom:2px;width:100%;height:46px}
+.sigline path{fill:none;stroke:#1a2a6c;stroke-width:2.6;stroke-linecap:round;stroke-dasharray:600;stroke-dashoffset:600}
+.signed .sigline path{stroke-dashoffset:0;transition:stroke-dashoffset .9s ease}
+.stamp{position:absolute;right:14px;top:40px;border:4px solid var(--bad);color:var(--bad);font-family:var(--f-display);font-size:28px;padding:0 10px;border-radius:8px;transform:rotate(-12deg) scale(2);opacity:0}
+.signed .stamp{opacity:.9;transform:rotate(-12deg) scale(1);transition:all .25s cubic-bezier(.3,1.6,.6,1) .9s}
+.hold{position:relative;overflow:hidden}
+.hold .fill{position:absolute;inset:0;background:rgba(255,255,255,.35);transform-origin:left;transform:scaleX(0)}
+.hold.go .fill{transform:scaleX(1);transition:transform 1s linear}
+.flood{position:absolute;inset:0;background:var(--club);clip-path:circle(0 at 50% 60%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--onclub);text-align:center;padding:20px;pointer-events:none}
+.signed .flood{clip-path:circle(150% at 50% 60%);transition:clip-path .7s ease 1.3s;pointer-events:auto}
+.flood .h1{font-size:34px}
+.paper{background:#fff;color:var(--ink);border:2px solid var(--rule);border-radius:4px;padding:8px 12px;transform:rotate(-2deg);font-family:var(--f-display);font-size:19px;text-transform:uppercase;max-width:90%}
+.reset{min-height:44px;background:transparent;border:2px solid currentColor;color:inherit;border-radius:999px;padding:0 16px;font:600 15px var(--f-body);cursor:pointer}
+/* 4 envelope */
+.envbig{border:2.5px solid var(--rule);border-radius:16px;background:#f3e6c4;min-height:170px;position:relative;display:grid;place-items:center;cursor:pointer;overflow:hidden}
+.envbig .flap{position:absolute;inset:0 0 50% 0;background:#e6d3a3;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .5s}
+.envbig .seal{position:relative;width:56px;height:56px;border-radius:50%;background:var(--bad);color:#fff;display:grid;place-items:center;font-family:var(--f-display);font-size:16px;box-shadow:0 2px 0 rgba(0,0,0,.3)}
+.opened .envbig .flap{transform:rotateX(180deg)}.opened .envbig .seal{display:none}
+.secret{display:none;background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:12px;gap:8px;flex-direction:column;animation:drop .4s both}
+.opened .secret{display:flex}
+.secret p{margin:0;font-size:17px}
+/* 5 speech */
+.stand{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:var(--club);border:2px solid var(--rule);border-radius:14px;padding:10px 8px;color:var(--onclub)}
+.grp{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.face{width:40px;height:40px;border-radius:50%;background:#fff;border:2px solid var(--rule);display:grid;place-items:center;transition:transform .2s}
+.face.bump{transform:scale(1.25)}
+.say{font-family:var(--f-voice);font-style:italic;font-size:18px;margin:0}
+.opt{display:flex;flex-direction:column;gap:4px;text-align:left;width:100%;min-height:56px;padding:10px 12px;border:2px solid var(--rule);border-radius:14px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.opt b{font-size:16px}
+.opt:active{transform:scale(.98)}
+.react{font-weight:700;font-size:15px;min-height:22px}
+.prog{display:flex;gap:6px}.prog i{flex:1;height:6px;border-radius:3px;background:#cfc8b8}.prog i.on{background:var(--club)}
+/* 6 crisis */
+.trade{background:var(--card);border:2px solid var(--rule);border-radius:16px;overflow:hidden;width:100%;padding:0;text-align:left;font:inherit;color:inherit;cursor:pointer;position:relative}
+.trade .tt{display:flex;gap:8px;align-items:center;padding:9px 10px;border-bottom:1.5px solid var(--line)}
+.trade .tt b{flex:1;font-size:16px;line-height:1.15}
+.tone{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:2px 8px;border:1.5px solid currentColor}
+.tone.safe{color:var(--good);background:var(--goodbg)}.tone.bold{color:var(--warn);background:var(--warnbg)}
+.cols{display:grid;grid-template-columns:1fr 1fr}
+.col{padding:8px 10px;display:flex;flex-direction:column;gap:2px;font-size:15px;font-weight:600}
+.col i{font-style:normal;font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.give{background:var(--badbg)}.give i{color:var(--bad)}.get{background:var(--goodbg)}.get i{color:var(--good)}
+.trade .st{position:absolute;right:12px;top:8px;border:3px solid var(--good);color:var(--good);font-family:var(--f-display);font-size:20px;padding:0 6px;border-radius:6px;transform:rotate(-10deg);display:none;background:rgba(255,255,255,.85)}
+.trade.chosen .st{display:block}
+.after{display:none;font-weight:600}.done .after{display:block}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.reduced *{animation:none!important;transition:none!important}
+</style>
+
+<div class="page" id="root">
+  <header class="intro">
+    <h1>Opening templates</h1>
+    <p>The first five minutes of De Voorzitter as an adventure. Pick a club in screen 2: the signature, the envelope, the speech and the crisis follow your choice.</p>
+  </header>
+  <div class="controls">
+    <div class="seg" data-k="deck"><span>Dossiers</span><button data-v="swipe" aria-pressed="true">Swipe</button><button data-v="list" aria-pressed="false">List</button></div>
+    <div class="seg" data-k="sign"><span>Signing</span><button data-v="hold" aria-pressed="true">Hold</button><button data-v="tap" aria-pressed="false">Tap</button></div>
+    <div class="seg" data-k="motion"><span>Motion</span><button data-v="on" aria-pressed="true">On</button><button data-v="off" aria-pressed="false">Reduced</button></div>
+  </div>
+  <div class="screens" id="screens"></div>
+</div>
+
+<script>
+(function(){
+const CLUBS=[
+ {id:'crag',name:'Cragmoor Wanderers',town:'Harbour town · founded 1910',c1:'#7a1f2b',c2:'#e0b23a',c3:'#ffffff',tag:'Rescue job',stars:4,pitch:'They sold the ground and rent it back. The Docks have not forgiven anyone.',pos:'14th in the One',bank:'£113k',debt:'£80k debt',mood:2,rival:'Yarrowby',dream:'Buy back the ground',
+  secret:{good:true,ic:'⭐',t:'A 16-year-old striker, Jamie Corrigan, has Premier clubs circling.',chip:'Wonderkid in the academy'},
+  groups:[['Docks',1],['Families',3],['Business',2],['Ultras',2]],
+  crisis:{t:'A Premier club offers £60k for Corrigan',a:{t:'Sell him now',tone:'safe',give:['Corrigan','The Ultras\' trust'],get:['£60k in the bank','Debt down']},b:{t:'He stays: first-team minutes',tone:'bold',give:['£60k','A safe season'],get:['A local hero','The Docks with you']}}},
+ {id:'hadley',name:'Hadley Cross Albion',town:'Mining valley · founded 1886',c1:'#1d5c3a',c2:'#111111',c3:'#ffffff',tag:'Sleeping giant',stars:3,pitch:'Three titles in the seventies. Twenty years of nothing since.',pos:'11th in the Premier',bank:'£64k',debt:'£80k debt',mood:2,rival:'Marrow Bay',dream:'A first trophy since 1979',
+  secret:{good:false,ic:'⚠',t:'£40k owed to the taxman. Nobody told the members. Due in March.',chip:'−£40k by March'},
+  groups:[['Old Guard',1],['Volunteers',3],['The Pit',2],['Miners',2]],
+  crisis:{t:'The taxman writes: pay by March',a:{t:'Tell the members now',tone:'safe',give:['A calm summer','Your honeymoon'],get:['Trust: you hid nothing','Volunteers with you']},b:{t:'Pay it quietly from the budget',tone:'bold',give:['£40k of transfer money'],get:['Nobody panics','Time']}}},
+ {id:'salt',name:'Saltmere Athletic',town:'Mill town · founded 1902',c1:'#4f9bd9',c2:'#14213d',c3:'#14213d',tag:'Poisoned chalice',stars:5,pitch:'Rich, angry and divided. The last chairman lost a vote of no confidence.',pos:'5th in the Premier',bank:'£210k',debt:'£450k debt',mood:1,rival:'Fenwick City',dream:'Win the Northmarch Cup',
+  secret:{good:false,ic:'⚡',t:'The captain and the coach have not spoken in a year.',chip:'A split dressing room'},
+  groups:[['The Mill',1],['Old Guard',3],['Ultras',2],['Business',2]],
+  crisis:{t:'The captain wants a meeting without the coach',a:{t:'Meet him, alone',tone:'bold',give:['The coach\'s trust'],get:['The captain\'s ear','The dressing room talks']},b:{t:'Meet them together',tone:'safe',give:['A hard hour','The captain\'s patience'],get:['One message, one club']}}}];
+let pick=0,signed=false,opened=false,line=0,crisisDone=null;const moods={};
+const st={deck:'swipe',sign:'hold',motion:'on'};
+const FACES=['M8 15.5c1.5-2 6.5-2 8 0','M8.5 15.5c1.5-1 5.5-1 7 0','M9 15h6','M8 14c1.5 1.5 6.5 1.5 8 0','M7.5 13.5c2 3 7 3 9 0'];
+const FCOL=['#b3261e','#c4561c','#8a6a00','#2e7d3f','#1f7a3f'];
+const faceSVG=v=>`<svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="${FACES[v]}" fill="none" stroke="${FCOL[v]}" stroke-width="2.2" stroke-linecap="round"/><path d="M9 10h.01M15 10h.01" stroke="${FCOL[v]}" stroke-width="2.8" stroke-linecap="round"/></svg>`;
+const crest=(c,s)=>`<svg width="${s}" height="${s}" viewBox="0 0 100 100" role="img" aria-label="${c.name} crest" style="flex:none"><path d="M10 8h80v38c0 26-18 40-40 48C28 86 10 72 10 46z" fill="${c.c1}" stroke="#141417" stroke-width="4"/><path d="M10 8h80v22H10z" fill="${c.c2}"/><circle cx="50" cy="56" r="15" fill="${c.c2}" stroke="#141417" stroke-width="3"/></svg>`;
+const kit=c=>`<svg width="46" height="46" viewBox="0 0 24 24" aria-hidden="true" style="flex:none"><path d="M8 3l-4 3 2 4 2-1v12h8V9l2 1 2-4-4-3c-1 2-3 2-4 2s-3 0-4-2z" fill="${c.c2}" stroke="#141417" stroke-width="1.2"/><path d="M11 5h2v16h-2z" fill="${c.c1}"/></svg>`;
+const C=()=>CLUBS[pick];
+function cv(c){return`--club:${c.c1};--onclub:${c.c3};`}
+
+const S0=()=>`<div class="phone title"><canvas id="lights" aria-hidden="true"></canvas><div class="body"><span class="lbl" style="color:var(--gold)">The Northmarch · 32 clubs</span><h2 class="h1">The Chairman</h2><p>Thirty-two clubs. One of them is about to become yours.</p><button class="btn">Begin</button></div></div>`;
+const S1=()=>`<div class="phone"><div class="body call"><span class="lbl">Tuesday night · your phone</span><h2 class="h1" style="font-size:36px">Nobody in football knows you</h2><p style="margin:0">You made your money elsewhere. Tonight, that changes.</p>
+ <div class="field"><label class="lbl" for="nm">Your name</label><input id="nm" value="Alex Whitmore" autocomplete="off"></div>
+ <div class="call">${CLUBS.map(c=>`<div class="msg">${crest(c,36)}<span><b>${c.name}</b><i>"${c.id==='crag'?'We need someone. Anyone. Can we talk?':c.id==='hadley'?'Our town remembers better days. Do you?':'They say you are not afraid of a fight.'}"</i></span></div>`).join('')}</div>
+ <button class="btn dark" style="margin-top:auto">Open the dossiers · 3</button></div></div>`;
+const S2=()=>`<div class="phone ${st.deck==='list'?'list':''}"><div class="body"><span class="lbl">Three clubs. One answer, tonight.</span><h2 class="h1" style="font-size:34px">The dossiers</h2>
+ <div class="deck" id="deck">${CLUBS.map((c,i)=>`<article class="dos${i===pick?' on':''}" style="--c1:${c.c1};--c3:${c.c3}">
+  <div class="top">${crest(c,64)}<div><b>${c.name}</b><span style="font-size:14px">${c.town}</span><br><span class="tag">${c.tag}</span><span class="stars" aria-label="difficulty ${c.stars} of 5">${'★'.repeat(c.stars)}${'☆'.repeat(5-c.stars)}</span></div></div>
+  <div class="mid"><p class="pitch">${c.pitch}</p><div class="chips"><span class="chip i">${c.pos}</span><span class="chip g">${c.bank}</span><span class="chip r">${c.debt}</span><span class="chip w">Rival: ${c.rival}</span></div>
+   <div class="dream">${kit(c)}<span>The dream: ${c.dream}</span></div>
+   <div class="env"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="1" fill="#f3e6c4" stroke="#141417" stroke-width="1.5"/><path d="M3 7l9 6 9-6" fill="none" stroke="#141417" stroke-width="1.5"/><circle cx="12" cy="13" r="2.4" fill="#b3261e"/></svg>What they're not telling you</div></div>
+  <button class="pick" data-pick="${i}">${i===pick?'✓ This is the one':'Choose '+c.name.split(' ')[0]}</button></article>`).join('')}</div>
+ <div class="count">${CLUBS.map((c,i)=>`<i class="${i===pick?'on':''}"></i>`).join('')}</div></div></div>`;
+const S3=()=>{const c=C();return`<div class="phone ${signed?'signed':''}" style="${cv(c)}"><div class="body"><span class="lbl">The contract</span>
+ <div class="contract"><div class="head">${c.name}</div><span>Appoints <b id="nm2">${name()}</b> as chairman, to answer to the members at the AGM next June.</span><span style="color:var(--muted)">Signed at the clubhouse, Tuesday, 23:41.</span>
+  <div class="sigline"><svg viewBox="0 0 300 46" aria-hidden="true"><path d="M8 34c14-24 22-24 18 2 12-20 22-28 28-4 6 18 14-26 26-10s4 14 22 2 18-18 24 0 10 10 26-8 24 4 40 4 30-12 70-6"/></svg></div><span class="lbl" style="color:var(--muted)">Chairman</span>
+  <span class="stamp">Signed</span></div>
+ <button class="btn hold" id="holdbtn" style="margin-top:auto"><span class="fill"></span><span style="position:relative">${st.sign==='hold'?'Hold to sign':'Tap to sign'}</span></button></div>
+ <div class="flood">${crest(c,110)}<span class="lbl">Welcome to</span><h2 class="h1">${c.name}</h2><div class="paper">New chairman at ${c.name.split(' ')[0]}</div><button class="reset" data-reset="1">Sign again</button></div></div>`};
+const S4=()=>{const c=C(),s=c.secret;return`<div class="phone ${opened?'opened':''}" style="${cv(c)}"><div class="body"><span class="lbl">${c.name} · after signing</span><h2 class="h1" style="font-size:32px">What they weren't telling you</h2>
+ <div class="envbig" id="envbig" role="button" tabindex="0" aria-label="Open the envelope"><div class="flap"></div><div class="seal">OPEN</div>${opened?`<span style="position:relative;font-size:46px" aria-hidden="true">${s.ic}</span>`:''}</div>
+ <div class="secret"><span style="font-size:28px" aria-hidden="true">${s.ic}</span><p>${s.t}</p><div class="chips"><span class="chip ${s.good?'g':'r'}">${s.good?'Good news':'Bad news'}</span><span class="chip ${s.good?'g':'r'}">${s.chip}</span></div></div>
+ <p style="margin:0;color:var(--muted);font-size:15px">${opened?'It comes back in your first weeks.':'Tap the envelope.'}</p></div></div>`};
+const LINES=[{q:'"This club will…"',o:[['Stay up, whatever it takes','Near certain',[0,1,1,0]],['Finish in the top half','Likely',[1,0,1,1]],['Go up','Unlikely',[1,1,-1,2]]]},
+ {q:'"And off the pitch…"',o:[['Cheaper tickets for everyone','Yours to keep',[1,2,-1,1]],['Books that balance','Depends on you',[-1,0,2,-1]],['A women\'s team','Yours to keep',[0,2,0,0]]]},
+ {q:'"And I promise you…"',o:[['A seat for the fans on the board','Yours to keep',[2,0,-1,1]],['No outside investor, ever','Yours to keep',[1,1,-2,1]],['Nothing I cannot keep','Hands free',[0,0,0,-1]]]}];
+const S5=()=>{const c=C();const g=c.groups;const done=line>=LINES.length;const L=LINES[Math.min(line,2)];
+ return`<div class="phone" style="${cv(c)}"><div class="body"><span class="lbl">Day one · the speech</span><h2 class="h1" style="font-size:32px">${done?'They heard you':'You walk out to the terrace'}</h2>
+ <div class="stand" aria-label="The members">${g.map(([n],k)=>`<div class="grp"><span class="face" id="f${k}">${faceSVG(moods[k]??g[k][1])}</span>${n}</div>`).join('')}</div>
+ <div class="prog">${LINES.map((x,i)=>`<i class="${i<line?'on':''}"></i>`).join('')}</div>
+ <p class="react" id="react">${speechReact||'&nbsp;'}</p>
+ ${done?`<p class="say">Your three promises go into Chairman's notes. The members will judge them in June.</p><button class="reset" data-respeech="1" style="color:var(--ink)">Give the speech again</button>`:`<p class="say">${L.q}</p><div style="display:flex;flex-direction:column;gap:8px">${L.o.map((o,i)=>`<button class="opt" data-line="${i}"><b>${o[0]}</b><span class="chips"><span class="chip ${o[1]==='Unlikely'?'r':o[1]==='Likely'||o[1]==='Depends on you'?'w':'g'}">${o[1]}</span></span></button>`).join('')}</div>`}</div></div>`};
+let speechReact='';
+const S6=()=>{const c=C(),k=c.crisis;const card=(o,id)=>`<button class="trade${crisisDone===id?' chosen':''}" data-crisis="${id}"><div class="tt"><b>${o.t}</b><span class="tone ${o.tone}">${o.tone==='safe'?'Safe':'Bold'}</span></div><div class="cols"><div class="col give"><i>You give</i>${o.give.map(x=>`<span>${x}</span>`).join('')}</div><div class="col get"><i>You get</i>${o.get.map(x=>`<span>${x}</span>`).join('')}</div></div><span class="st">Agreed</span></button>`;
+ return`<div class="phone ${crisisDone?'done':''}" style="${cv(c)}"><div class="body"><span class="lbl">Day one · on your desk</span><h2 class="h1" style="font-size:30px">${k.t}</h2>
+ <div style="display:flex;flex-direction:column;gap:10px">${card(k.a,'a')}${card(k.b,'b')}</div>
+ <p class="after">${crisisDone&&k[crisisDone].tone==='bold'?'A bold start. Half the club loves it, half is waiting for you to fail.':'A careful start. Word gets round the club by Friday: the new chairman listens.'}</p>
+ <button class="btn" style="margin-top:auto">Meet your staff</button></div></div>`};
+function name(){const e=document.getElementById('nm');return(e&&e.value.trim())||'Alex Whitmore'}
+const caps=['0 · Title','1 · The call','2 · The dossiers','3 · The signature','4 · The envelope','5 · Day one: the speech','6 · Day one: the first crisis'];
+function render(keepCall){
+  const nmv=document.getElementById('nm')?.value;
+  const scr=[S0,S1,S2,S3,S4,S5,S6];
+  document.getElementById('screens').innerHTML=scr.map((f,i)=>`<section aria-label="${caps[i]}"><p class="cap">${caps[i]}</p>${f()}</section>`).join('');
+  if(nmv!=null)document.getElementById('nm').value=nmv;
+  document.getElementById('root').classList.toggle('reduced',st.motion==='off');
+  document.querySelectorAll('.seg').forEach(g=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(st[g.dataset.k]===b.dataset.v))));
+  wire();lights();
+}
+function wire(){
+  document.getElementById('nm').addEventListener('input',()=>{const e=document.getElementById('nm2');if(e)e.textContent=name()});
+  document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{pick=+b.dataset.pick;signed=false;opened=false;line=0;crisisDone=null;speechReact='';for(const k in moods)delete moods[k];render()});
+  const hb=document.getElementById('holdbtn');let tm=null;
+  const sign=()=>{signed=true;render()};
+  if(st.sign==='tap')hb.onclick=sign;
+  else{const start=e=>{e.preventDefault();hb.classList.add('go');tm=setTimeout(sign,st.motion==='off'?0:1000)};const stop=()=>{hb.classList.remove('go');clearTimeout(tm)};
+    hb.addEventListener('pointerdown',start);hb.addEventListener('pointerup',stop);hb.addEventListener('pointerleave',stop);
+    hb.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')sign()})}
+  document.querySelectorAll('[data-reset]').forEach(b=>b.onclick=()=>{signed=false;render()});
+  const env=document.getElementById('envbig');const op=()=>{opened=true;render()};env.onclick=op;env.onkeydown=e=>{if(e.key==='Enter'||e.key===' ')op()};
+  document.querySelectorAll('[data-line]').forEach(b=>b.onclick=()=>{const o=LINES[line].o[+b.dataset.line],g=C().groups,ch=[];
+    o[2].forEach((d,k)=>{const v=Math.max(0,Math.min(4,(moods[k]??g[k][1])+d));if(d)ch.push(`${g[k][0]} ${d>0?'cheer':'whistle'}`);moods[k]=v});
+    speechReact=ch.length?ch.slice(0,2).join(' · ')+'.':'A polite applause.';line++;render();o[2].forEach((d,k)=>{if(d){const f=document.getElementById('f'+k);if(f){f.classList.add('bump');setTimeout(()=>f.classList.remove('bump'),220)}}})});
+  document.querySelectorAll('[data-respeech]').forEach(b=>b.onclick=()=>{line=0;speechReact='';for(const k in moods)delete moods[k];render()});
+  document.querySelectorAll('[data-crisis]').forEach(b=>b.onclick=()=>{crisisDone=b.dataset.crisis;render()});
+  const deck=document.getElementById('deck');if(deck&&st.deck==='swipe'){const card=deck.children[pick];if(card)deck.scrollLeft=card.offsetLeft-16;deck.onscroll=()=>{const i=Math.round(deck.scrollLeft/(deck.scrollWidth/CLUBS.length));document.querySelectorAll('.count i').forEach((d,k)=>d.classList.toggle('on',k===i))}}
+}
+let raf=null;
+function lights(){const cv=document.getElementById('lights');if(!cv)return;const ctx=cv.getContext('2d');const r=()=>{cv.width=cv.clientWidth*2;cv.height=cv.clientHeight*2};r();
+  const W=cv.width,H=cv.height;const towers=[[.18,.42],[.82,.38]];cancelAnimationFrame(raf);let t=0;
+  const draw=()=>{ctx.fillStyle='#101418';ctx.fillRect(0,0,W,H);
+    for(const [x,y] of towers){const gx=x*W,gy=y*H;const pulse=st.motion==='off'?1:.85+.15*Math.sin(t/30+x*5);
+      const g=ctx.createRadialGradient(gx,gy,0,gx,gy,W*.7);g.addColorStop(0,`rgba(255,240,190,${.5*pulse})`);g.addColorStop(1,'rgba(255,240,190,0)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+      ctx.fillStyle='#2a2f36';ctx.fillRect(gx-4,gy,8,H*.6-gy+H*.1);ctx.fillStyle='#fff6d0';for(let i=0;i<3;i++)for(let j=0;j<4;j++)ctx.fillRect(gx-26+j*14,gy-18+i*10,10,6)}
+    ctx.fillStyle='#1c2229';ctx.beginPath();ctx.moveTo(0,H*.62);for(let x=0;x<=W;x+=W/12)ctx.lineTo(x,H*.62-((x/W*7)%2<1?20:44));ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();
+    ctx.fillStyle='#0b0e11';ctx.fillRect(0,H*.66,W,H*.34);t++;if(st.motion!=='off')raf=requestAnimationFrame(draw)};
+  draw()}
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{st[b.parentElement.dataset.k]=b.dataset.v;try{localStorage.setItem('open-tpl',JSON.stringify(st))}catch(e){}render()}));
+try{const s=JSON.parse(localStorage.getItem('open-tpl')||'null');if(s)Object.assign(st,s)}catch(e){}
+render();
+})();
+</script>

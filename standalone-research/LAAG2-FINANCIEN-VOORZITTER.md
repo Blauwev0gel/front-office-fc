@@ -1,6 +1,6 @@
 # Laag 2: financiën
 
-*21-11-2026, concept. Volgens het sjabloon uit `LAGENMODEL-VOORZITTER.md`. Gaat alleen over geld: wat er binnenkomt, wat eruit gaat, en wat je ermee mag.*
+*21-11-2026, goedgekeurd door de eigenaar (keuze 79: vier potjes, bankvoorwaarden met blokkades, sponsors alleen aannemen of weigeren). Volgens het sjabloon uit `LAGENMODEL-VOORZITTER.md`. Gaat alleen over geld: wat er binnenkomt, wat eruit gaat, en wat je ermee mag.*
 
 ## 1. Bezit (alleen deze laag verandert dit)
 - **De kas** en **de schuld**, met de rente en de kredietruimte bij de bank.
@@ -37,7 +37,7 @@
    - een **basisbedrag** en **bonusdoelen** (bijvoorbeeld top 8, promotie, bekerfinale).
 
    Het karakter stuurt een sponsorsignaal naar laag 5: de ene groep vindt het prima, de andere niet.
-5. **Onderhandelen met timing.** De waarde van een deal hangt af van recente resultaten en reputatie. Na een gewonnen derby vraag je meer. Je kunt een tegenbod doen, met de kans dat de sponsor afhaakt.
+5. **Aannemen of weigeren, met timing.** Je onderhandelt niet. De hoogte van een aanbod hangt af van recente resultaten en reputatie, dus na een goede reeks komen er betere aanbiedingen. Weigeren betekent wachten op een volgend aanbod, met het risico dat er geen beter komt.
 6. **Begroting in potjes** (aan het begin van het seizoen, bij te stellen):
 
    | Potje | Gaat naar |
@@ -61,7 +61,7 @@
 
 ## 4. Acties van de speler (altijd, via de agenda)
 - Kaartprijzen en de seizoenkaartprijs zetten.
-- Een sponsorgesprek openen; een aanbod aannemen, een tegenbod doen of weigeren.
+- Een sponsoraanbod aannemen of weigeren. Je kunt ook actief zoeken: dan komen er aanbiedingen via de wereld.
 - Lenen of aflossen.
 - De begroting herverdelen over de potjes.
 - Een actie voor seizoenkaarten starten (geld nu, minder later).
@@ -90,7 +90,7 @@
 | Spel | Wat we overnemen | Wat níét |
 |---|---|---|
 | **Football Manager** | Een maandoverzicht met de grootste posten; een transferbudget en een loonplafond als kaders | Pagina's vol tabellen |
-| **Motorsport Manager** | Sponsors met een looptijd en **bonusdoelen** per race | Een sponsorslot per auto-onderdeel |
+| **Motorsport Manager** | Sponsors met een looptijd en **bonusdoelen** per race | Een sponsorslot per auto-onderdeel, en onderhandelen |
 | **Two Point Hospital** | Lenen met rente, en prijzen die het bezoek bepalen | Prijzen per behandeling |
 | **Planet Coaster** | **Prijsgevoeligheid per bezoekersgroep** | Microbeheer per kraam |
 | **Tropico** | Een investeerder of macht die geld biedt voor invloed | Corruptie als systeem |
@@ -98,10 +98,10 @@
 
 ## 8. Voorbeelden (binnen de laag; signalen naar buiten tussen haakjes)
 1. **De kaartprijs.** Je verhoogt de zitprijs met £3. De opkomst bij de Families daalt met 8% (← leden), de opbrengst stijgt toch met £1k per thuisduel, en er gaat een prijssignaal *duur* naar de leden.
-2. **De sponsor.** De lokale brouwer stopt. Het gokbedrijf biedt £40k per seizoen met een bonus bij promotie; het bouwbedrijf biedt £30k plus de naam op de nieuwe tribune. Je wacht tot na de derby, en de brouwer biedt alsnog £28k. Het sponsorsignaal *lokaal* gaat naar de leden.
+2. **De sponsor.** De lokale brouwer stopt. Het gokbedrijf biedt £40k per seizoen met een bonus bij promotie; het bouwbedrijf biedt £30k plus de naam op de nieuwe tribune. Je weigert beide en wacht. Na de gewonnen derby biedt de brouwer alsnog £28k, en die neem je aan. Het sponsorsignaal *lokaal* gaat naar de leden.
 3. **De bank.** Na een dure zomer staat de schuld boven de grens. De bank eist: geen nieuwe bouw dit seizoen (→ blokkade in clubbeheer) en het loonplafond −10% (→ voetbal). Een investeerder biedt £100k voor een bestuurszetel; daarover beslissen de leden.
 
-## 9. Open vragen voor de eigenaar
-1. Is de begroting in vier potjes (transfers, lonen, faciliteiten, reserve) goed?
-2. Bankvoorwaarden die acties in andere lagen blokkeren: akkoord?
-3. Onderhandelen met sponsors via een simpel tegenbod (met kans op afhaken): akkoord, of alleen aannemen of weigeren?
+## 9. Besloten (keuze 79)
+- Een begroting in vier potjes.
+- Bankvoorwaarden mogen acties in andere lagen blokkeren.
+- Sponsors neem je aan of weiger je; je onderhandelt niet.

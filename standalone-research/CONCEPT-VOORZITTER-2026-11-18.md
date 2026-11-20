@@ -353,6 +353,10 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - laag 1 heeft 6 kavels en 6 afdelingen;
     - een budgetniveau per afdeling (krap, normaal, ruim);
     - een koerswissel heeft een seizoen nodig om in te werken.
+79. **Laag 2 financiën** (21-11-2026, zie `LAAG2-FINANCIEN-VOORZITTER.md`):
+    - een begroting in vier potjes (transfers, lonen met plafond, faciliteiten, reserve);
+    - bankvoorwaarden bij te veel schuld blokkeren acties in andere lagen;
+    - sponsors neem je aan of weiger je, zonder onderhandeling; de timing bepaalt de hoogte van een aanbod.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

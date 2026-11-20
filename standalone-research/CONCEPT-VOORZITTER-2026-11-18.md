@@ -294,6 +294,13 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - geen ordenen en geen meldingen tijdens de zomer: één doorlopende ticker met een bord In/Out;
     - daarna een zomerrapport met profielkaarten van aankomsten en vertrekken, en een analyse per linie (rating, aantal spelers, leeftijd);
     - tijdens het seizoen staat de TD onder een vijfde knop **Staff**: zijn plan, waar hij aan werkt, contracten, zijn aankopen en zijn werklog.
+69. **De opening als avontuur** (20-11-2026, zie `PROMPT-OPENING-VOORZITTER.md`):
+    - je begint als nieuwkomer met een kans, zonder de proloog van Pell;
+    - de clubkeuze bestaat uit dossiers om door te bladeren, met per club een label, een droom en een dichtgeplakte envelop met een geheim dat echte gevolgen heeft;
+    - je tekent het contract, met een stempel en het scherm dat in de clubkleuren kleurt;
+    - de eerste dag bestaat uit drie momenten: de speech op de tribune, een eerste crisis en kennismaken met je staf;
+    - de opening duurt 3–5 minuten;
+    - eerst templates, dan bouwen.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

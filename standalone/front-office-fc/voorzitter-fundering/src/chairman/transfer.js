@@ -3,7 +3,7 @@
    Then: the brief he signs -> six weeks in the transfer centre -> the summer edition -> the debrief (a strike when it
    went wrong and it was not the market). No negotiation, no calls: the chairman watches, reads and judges. */
 function sumAsk(){const s=S.cf.sum;return s?s.prios.reduce((a,x)=>a+(x.targets[0]&&x.targets[0].kind==='buy'?x.targets[0].price:0),0):0}
-function startSummer(){tdPlanRefresh();S.cf.sum.step='brief';S.screen='tsum'}
+function startSummer(){tdPlanFinalize();S.cf.sum.step='brief';S.screen='tsum'}
 function summerNext(){
   const s=S.cf.sum;
   if(s.step==='brief'){for(let i=0;i<SUM_WEEKS;i++)tdSumWeek();tdSumDeadline();s.step='live';return}

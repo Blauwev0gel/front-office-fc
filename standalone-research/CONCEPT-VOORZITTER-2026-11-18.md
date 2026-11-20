@@ -301,6 +301,11 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - de eerste dag bestaat uit drie momenten: de speech op de tribune, een eerste crisis en kennismaken met je staf;
     - de opening duurt 3–5 minuten;
     - eerst templates, dan bouwen.
+70. **De transferzomer krijgt inzet en een vonnis** (20-11-2026, zie `PROMPT-TRANSFERZOMER-VOORZITTER.md`):
+    - de invloed van de voorzitter blijft het mandaat, zonder onderhandeling en zonder telefoontjes;
+    - uit het origineel komen een getekende summer brief met afrekenpunten, een zomereditie met een cijfer van A tot E en een debrief met vijf vragen (die het oordeel Keep/Warn/Sack voedt);
+    - targets krijgen een scoutcijfer van A tot D dat kan afwijken van hun echte niveau;
+    - eerst templates.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

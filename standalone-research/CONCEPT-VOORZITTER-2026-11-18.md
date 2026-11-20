@@ -343,6 +343,11 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - families in de wereld, met vetes en verbonden over generaties;
     - elk seizoen wordt gespeeld, zonder sprongen in de tijd;
     - hooguit één familiemoment per 2–3 sessies, geen stamboom-spreadsheet en geen nieuwe meters.
+77. **De loop met een politieke dynastie** (21-11-2026, zie `LOOP-DYNASTIE-VOORZITTER.md`):
+    - drie onderdelen: clubbestuur, beslissingen en dynastie;
+    - het verschil met concurrent Hometown FC (een eigenaar en tycoon) is dat je een gekozen voorzitter bent van een club die niet van jou is;
+    - macht wordt niet geërfd maar gekozen: je erfgenaam moet de ALV winnen;
+    - geen bezit, fortuin of stadsinvesteringen.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

@@ -51,7 +51,8 @@ for(const seed of SEEDS){
   assert(experienced.maxWage.every(w=>w<=Math.round(experienced.cap*1.6)),
     'one-star targets must respect maximum permitted cap');
   if(young.current!==experienced.current)differing++;
-  assert.deepStrictEqual(scenario(seed,'own','flat'),young,'same seed and mandate must reproduce plan');
+  // compare by content: objects from different vm contexts have different prototypes, so deepStrictEqual always fails
+  assert.strictEqual(JSON.stringify(scenario(seed,'own','flat')),JSON.stringify(young),'same seed and mandate must reproduce plan');
 }
 assert(differing>0,'contrasting mandates must change at least one finalized transfer plan across 20 seeds');
 console.log('PASS: 20 seeds; mandate replan, strike lifecycle, constraints, no early deals, determinism.');

@@ -1084,13 +1084,22 @@ function sumBudgetRule(prios,verdicts){
   for(const x of prios){const [A,B]=x.targets;if(A&&B&&B.kind==='buy'&&B.price>=A.price)B.price=Math.max(1,Math.round(A.price*.5))}
   return pool;
 }
-function tdSummerStart(kind){
-  const cf=S.cf;kind=kind||'summer';if(kind==='summer'&&cf.tdStrikes>0&&cf.strikeS<S.season)cf.tdStrikes--;
+function tdSummerStart(kind,refreshOnly){
+  const cf=S.cf;kind=kind||'summer';if(kind==='summer'&&!refreshOnly&&cf.tdStrikes>0&&cf.strikeS<S.season)cf.tdStrikes--;
   cf.sum={kind};const verdicts=kind==='winter'?[]:tdReview(),{prios,pool}=tdPlanBuild(verdicts);
   const F=cf.frames,contracts=cf.squad.filter(p=>p.contract===1&&!p.loanIn&&!p.loan&&!verdicts.some(v=>v.pid===p.id&&v.v!=='keep')).map(p=>{const want=p.age<=29&&p.q>=10.5||p.academy&&p.age<=21;return{pid:p.id,name:p.name,pos:p.pos,age:p.age,plan:want?'renew':'go',why:want?(p.age<=23?'Young and improving: a new deal this season.':'Part of the plan: a new deal this season.'):(p.age>=30?'Past thirty and fading: he leaves in June.':'Not good enough for the plan: he leaves in June.')}});
   cf.sum={step:'review',week:0,verdicts,prios,pool,contracts,before:JSON.parse(JSON.stringify(cf.squad.filter(p=>!p.loan))),sales:verdicts.filter(v=>v.v==='sell').map(v=>({pid:v.pid,ask:Math.max(2,playerValue(sumP(v.pid))),bid:0,buyer:null,state:'listed'})),
     weeks:[],wk:[],deadline:[],ins:[],outs:[],startWages:sumWages(),startBudget:cf.budgetLeft,spent:0,got:0,keySold:0,kind,hijacks:0,stalls:0,lostMoney:0};
   cf.sum.brief=sumBrief();return cf.sum;
+}
+// The meeting opens with a provisional plan so the staff can argue for it.
+// Once the chairman has signed a new mandate, rebuild the entire plan against
+// the new frames, not merely its budget and brief. No deals have run yet.
+// Preserve the strike lifecycle: a second initialization is NOT a new season.
+function tdPlanFinalize(){
+  const s=S.cf.sum;
+  if(s&&s.kind==='summer'&&s.step==='review')return tdSummerStart('summer',true);
+  return tdPlanRefresh();
 }
 function tdPlanRefresh(){const s=S.cf.sum;s.startBudget=S.cf.budgetLeft;s.pool=sumBudgetRule(s.prios,s.verdicts);s.brief=sumBrief()}
 // the brief: what the director signs and is judged on
@@ -1960,7 +1969,7 @@ function matchMoments(m){
    Then: the brief he signs -> six weeks in the transfer centre -> the summer edition -> the debrief (a strike when it
    went wrong and it was not the market). No negotiation, no calls: the chairman watches, reads and judges. */
 function sumAsk(){const s=S.cf.sum;return s?s.prios.reduce((a,x)=>a+(x.targets[0]&&x.targets[0].kind==='buy'?x.targets[0].price:0),0):0}
-function startSummer(){tdPlanRefresh();S.cf.sum.step='brief';S.screen='tsum'}
+function startSummer(){tdPlanFinalize();S.cf.sum.step='brief';S.screen='tsum'}
 function summerNext(){
   const s=S.cf.sum;
   if(s.step==='brief'){for(let i=0;i<SUM_WEEKS;i++)tdSumWeek();tdSumDeadline();s.step='live';return}

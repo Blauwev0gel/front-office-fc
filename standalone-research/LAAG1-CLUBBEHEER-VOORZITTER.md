@@ -1,6 +1,6 @@
 # Laag 1: clubbeheer
 
-*21-11-2026, concept v2. Volgens het sjabloon uit `LAGENMODEL-VOORZITTER.md`. Gaat alleen over het terrein, de gebouwen en de afdelingen.*
+*21-11-2026, v2, goedgekeurd door de eigenaar (keuze 78: 6 kavels en 6 afdelingen, budgetniveaus, koerswissel met een seizoen inwerken). Volgens het sjabloon uit `LAGENMODEL-VOORZITTER.md`. Gaat alleen over het terrein, de gebouwen en de afdelingen.*
 
 ## 1. Bezit (alleen deze laag verandert dit)
 - **Het terrein:** 6 kavels. Een kavel is leeg, bebouwd of in aanbouw.

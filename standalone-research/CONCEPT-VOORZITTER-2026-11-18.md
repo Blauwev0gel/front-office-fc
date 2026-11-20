@@ -348,6 +348,11 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - het verschil met concurrent Hometown FC (een eigenaar en tycoon) is dat je een gekozen voorzitter bent van een club die niet van jou is;
     - macht wordt niet geërfd maar gekozen: je erfgenaam moet de ALV winnen;
     - geen bezit, fortuin of stadsinvesteringen.
+78. **Het lagenmodel en laag 1 clubbeheer** (21-11-2026, zie `LAGENMODEL-VOORZITTER.md` en `LAAG1-CLUBBEHEER-VOORZITTER.md`):
+    - zeven speellagen, elk met een eigen bezit, die alleen via signalen met elkaar praten;
+    - laag 1 heeft 6 kavels en 6 afdelingen;
+    - een budgetniveau per afdeling (krap, normaal, ruim);
+    - een koerswissel heeft een seizoen nodig om in te werken.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

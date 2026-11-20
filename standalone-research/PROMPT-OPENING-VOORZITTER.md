@@ -2,6 +2,9 @@
 
 *Voor Claude als game developer met voetbalkennis. Branch `voorzitter-fundering`, standalone-spoor. Opgesteld 20-11-2026.*
 
+**Stand 20-11-2026:** de templates zijn goedgekeurd en fase B is gebouwd (`chairman/opening.js`, `ui/opening.js`, `tests/opening-test.js`).
+- Open punt: de geschatte duur is ±5,3 minuten inclusief de zomervergadering, net boven de 5. De zeven mandaatkeuzes compacter maken is een keuze van de eigenaar.
+
 **Werkwijze:** eerst statische templates van de openingsschermen (zoals `templates/speels-templates.html`). Pas na akkoord van de eigenaar wordt er gebouwd.
 
 ---

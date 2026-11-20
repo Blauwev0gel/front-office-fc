@@ -6,8 +6,8 @@ const ORDER=[
   'world/identity.js','world/world.js','world/football.js','world/news.js', // de regio
   'core/words.js',
   'club/players.js','club/stories.js','club/finance.js','club/market.js','club/td.js','club/summer.js','club/club.js','club/feed.js',         // de fundering (weet niets van de voorzitter)
-  'chairman/state.js','chairman/promises.js','chairman/cards.js','chairman/situations.js','chairman/meeting.js','chairman/reactions.js','chairman/transfer.js','chairman/flow.js', // de voorzitterslaag
-  'ui/render.js','ui/transfer.js','ui/boot.js'               // schermen
+  'chairman/state.js','chairman/promises.js','chairman/cards.js','chairman/situations.js','chairman/meeting.js','chairman/reactions.js','chairman/transfer.js','chairman/opening.js','chairman/flow.js', // de voorzitterslaag
+  'ui/render.js','ui/transfer.js','ui/opening.js','ui/boot.js'               // schermen
 ];
 const js=ORDER.map(f=>`/* ---- ${f} ---- */\n`+S(f)).join('\n');
 const body=`${S('head.html')}\n<style>\n${S('style/main.css')}</style>\n\n<div id="app"></div>\n\n<script>\n${js}\n</script>\n`;

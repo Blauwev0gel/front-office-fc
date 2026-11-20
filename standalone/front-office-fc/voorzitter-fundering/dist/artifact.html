@@ -288,6 +288,86 @@ body.noNav{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .tab span{font-size:13px}
 
 .an-h{display:flex;justify-content:space-between;align-items:center;gap:8px}.an-d{display:flex;flex-wrap:wrap;gap:4px 14px;color:var(--muted)}.an-d b{color:var(--ink)}
+
+/* ===== the opening ===== */
+.big-h{font-family:var(--f-display);font-weight:400;font-size:34px;line-height:.95;text-transform:uppercase;margin:0;text-wrap:balance}
+.lbl{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+.ttl{position:relative;min-height:100vh;min-height:100dvh;background:#101418;color:#f4f1e9;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;padding:0!important;max-width:none!important}
+.ttl-sky{position:absolute;inset:0;background:radial-gradient(60% 45% at 20% 38%,rgba(255,240,190,.45),transparent 70%),radial-gradient(60% 45% at 82% 34%,rgba(255,240,190,.4),transparent 70%),#101418;animation:glow 4s ease-in-out infinite alternate}
+@keyframes glow{from{filter:brightness(.9)}to{filter:brightness(1.08)}}
+.tw{position:absolute;width:6px;background:#2a2f36;top:36%;bottom:30%}.tw.l{left:20%}.tw.r{left:82%;top:33%}
+.tw::before{content:"";position:absolute;left:-20px;top:-16px;width:46px;height:18px;background:repeating-linear-gradient(90deg,#fff6d0 0 9px,transparent 9px 12px);border-radius:2px}
+.ttl-town{position:absolute;left:0;right:0;bottom:24%;width:100%;height:120px}
+.ttl-b{position:relative;display:flex;flex-direction:column;gap:14px;padding:24px max(20px,env(safe-area-inset-left,0px)) calc(28px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,#0b0e11 30%)}
+.ttl-b h1{font-family:var(--f-display);font-weight:400;font-size:60px;line-height:.9;text-transform:uppercase;margin:0;color:#fff}
+.ttl-b p{margin:0;font-size:18px;max-width:28ch}
+.ttl-k{color:#ffd84a}
+.btn.gold{background:#ffd84a;color:#141417;border-color:#141417}
+.btn.ghost.on-dark{background:transparent;color:#f4f1e9;border-color:#f4f1e9;box-shadow:none}
+.field{display:flex;flex-direction:column;gap:4px}
+.field input{min-height:48px;border:2px solid var(--rule);border-radius:12px;padding:0 12px;font:600 18px var(--f-body);background:var(--card);color:var(--ink)}
+.msgs{display:flex;flex-direction:column;gap:10px}
+.msg{display:flex;gap:10px;align-items:center;background:var(--card);border:1.5px solid var(--rule);border-radius:4px 16px 16px 16px;padding:10px;animation:msgIn .4s cubic-bezier(.3,1.5,.6,1) both}
+.msg:nth-child(2){animation-delay:.45s}.msg:nth-child(3){animation-delay:.9s}.msg:nth-child(4){animation-delay:1.35s}
+.msg b{display:block;font-size:15px}.msg i{font-family:var(--f-voice);font-size:16px}
+@keyframes msgIn{from{opacity:0;transform:translateY(-10px) scale(.96)}to{opacity:1;transform:none}}
+.deck{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:4px 16px 12px;scrollbar-width:none}
+.dos{flex:0 0 86%;scroll-snap-align:center;border:2.5px solid var(--rule);border-radius:18px;background:var(--card);overflow:hidden;display:flex;flex-direction:column;box-shadow:4px 4px 0 var(--rule)}
+.dos-top{background:var(--club);color:var(--onclub);padding:12px;display:flex;gap:10px;align-items:center;min-height:118px}
+.dos-top b{font-family:var(--f-display);font-weight:400;font-size:25px;line-height:.95;text-transform:uppercase;display:block}
+.dos-town{display:block;font-size:14px;margin-top:2px}
+.dos-tag{display:inline-block;margin-top:6px;background:#ffd84a;color:#141417;border:2px solid #141417;border-radius:8px;padding:1px 8px;font-family:var(--f-display);font-size:14px;transform:rotate(-3deg)}
+.dos-stars{display:inline-block;margin-left:8px;font-size:14px;letter-spacing:1px}
+.dos-mid{padding:10px 12px;display:flex;flex-direction:column;gap:9px;flex:1}.dos-mid p{margin:0;font-size:16px}
+.dos-dream{display:flex;gap:8px;align-items:center;font-size:15px}
+.dos-env{display:flex;gap:10px;align-items:center;border:2px dashed var(--muted);border-radius:12px;padding:8px 10px;color:var(--muted);font-weight:600;font-size:15px}
+.env-ic{display:inline-block;font-size:20px;animation:wig 2.4s ease-in-out infinite}
+@keyframes wig{0%,85%,100%{transform:none}90%{transform:rotate(-10deg)}95%{transform:rotate(10deg)}}
+.dos-pick{min-height:52px;border:0;border-top:2px solid var(--rule);background:var(--club);color:var(--onclub);font-family:var(--f-display);font-size:19px;letter-spacing:.03em;text-transform:uppercase;cursor:pointer}
+.deck-hint{text-align:center;margin:0;font-size:14px}
+.contract{background:#fffdf6;border:1.5px solid var(--line);border-radius:6px;padding:16px;box-shadow:0 2px 0 var(--line);display:flex;flex-direction:column;gap:8px;font-family:var(--f-voice);font-size:16px}
+.contract p{margin:0}.ct-h{font-family:var(--f-display);font-size:22px;text-transform:uppercase;text-align:center}
+.sigline{border-bottom:2px solid var(--ink);height:44px}
+.hold{position:relative;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+.hold .fill{position:absolute;inset:0;background:rgba(255,255,255,.4);transform-origin:left;transform:scaleX(0);pointer-events:none}
+.hold.go .fill{transform:scaleX(1);transition:transform .95s linear}
+.hold-t{position:relative;pointer-events:none}
+.flood{position:relative;background:var(--club);color:var(--onclub);border:2px solid var(--rule);border-radius:18px;min-height:420px;display:grid;place-items:center;text-align:center;overflow:hidden;animation:flood .7s ease both}
+@keyframes flood{from{clip-path:circle(0 at 50% 60%)}to{clip-path:circle(150% at 50% 60%)}}
+.flood-in{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px}
+.flood-in svg{animation:drop .5s cubic-bezier(.3,1.6,.6,1) .5s both}
+@keyframes drop{from{transform:translateY(-40px) scale(.6);opacity:0}to{transform:none;opacity:1}}
+.paper{background:#fff;color:#141417;border:2px solid #141417;border-radius:4px;padding:8px 12px;transform:rotate(-2deg);font-family:var(--f-display);font-size:19px;text-transform:uppercase}
+.stamp-s{position:absolute;right:14px;top:16px;border:4px solid #fff;color:#fff;font-family:var(--f-display);font-size:24px;padding:0 10px;border-radius:8px;transform:rotate(-12deg);animation:stampIn .3s cubic-bezier(.3,1.6,.6,1) .9s both}
+@keyframes stampIn{from{transform:rotate(-12deg) scale(2.2);opacity:0}to{transform:rotate(-12deg) scale(1);opacity:.95}}
+.envbig{position:relative;width:100%;min-height:180px;border:2.5px solid var(--rule);border-radius:16px;background:#f3e6c4;display:grid;place-items:center;overflow:hidden;cursor:pointer;padding:0;font:inherit;color:inherit}
+.envbig .flap{position:absolute;inset:0 0 50% 0;background:#e6d3a3;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .5s}
+.envbig.opened .flap{transform:rotateX(180deg)}
+.envbig .seal{position:relative;width:60px;height:60px;border-radius:50%;background:#b3261e;color:#fff;display:grid;place-items:center;font-family:var(--f-display);font-size:16px;text-transform:uppercase;box-shadow:0 2px 0 rgba(0,0,0,.3);animation:wig 2.4s ease-in-out infinite}
+.env-sym{position:relative;font-size:52px;animation:drop .45s both}
+.secret{background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;animation:msgIn .4s both}.secret p{margin:0;font-size:17px}
+.chipr.warn{color:#7a5200;background:#fdf0cf}
+.stand{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px;background:var(--club);border:2px solid var(--rule);border-radius:14px;padding:10px 8px;color:var(--onclub)}
+.grp{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.sface{width:42px;height:42px;border-radius:50%;background:#fff;border:2px solid #141417;display:grid;place-items:center;animation:bump .35s ease both}
+@keyframes bump{0%{transform:scale(1)}50%{transform:scale(1.18)}100%{transform:scale(1)}}
+.g-m{font-family:var(--f-body);font-weight:600;font-size:13px;text-transform:none;letter-spacing:0}
+.prog{display:flex;gap:6px}.prog i{flex:1;height:6px;border-radius:3px;background:var(--line)}.prog i.on{background:var(--club)}
+.react{font-weight:700;font-size:16px;margin:0;animation:msgIn .35s both}
+.say{font-family:var(--f-voice);font-style:italic;font-size:19px;margin:0}
+.trade{display:block;background:var(--card);border:2px solid var(--rule);border-radius:16px;overflow:hidden;width:100%;padding:0;text-align:left;font:inherit;color:inherit;cursor:pointer;position:relative}
+.trade:disabled{cursor:default}.trade:disabled:not(.chosen){opacity:.55}
+.trade .tt{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1.5px solid var(--line)}.trade .tt b{flex:1;font-size:16px;line-height:1.15}
+.tone{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:2px 8px;border:1.5px solid currentColor}
+.tone.safe{color:var(--good);background:#e3f3e7}.tone.bold{color:#7a5200;background:#fdf0cf}
+.trade .cols{display:grid;grid-template-columns:1fr 1fr}
+.trade .col{padding:8px 10px;display:flex;flex-direction:column;gap:2px;font-size:15px;font-weight:600}
+.trade .col i{font-style:normal;font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.trade .give{background:#fbe5e2}.trade .give i{color:var(--bad)}.trade .get{background:#e3f3e7}.trade .get i{color:var(--good)}
+.trade .st{position:absolute;right:12px;top:8px;border:3px solid var(--good);color:var(--good);font-family:var(--f-display);font-size:20px;padding:0 6px;border-radius:6px;transform:rotate(-10deg);display:none;background:rgba(255,255,255,.9)}
+.trade.chosen .st{display:block;animation:stampIn .3s both}
+@media (prefers-reduced-motion:reduce){.ttl-sky,.msg,.env-ic,.flood,.flood-in svg,.stamp-s,.envbig .seal,.env-sym,.secret,.sface,.react,.trade.chosen .st{animation:none}}
+.flood-in .crest{width:120px;height:120px}.dos-top .crest{width:64px;height:64px}.msg .crest{width:40px;height:40px}
 </style>
 
 <div id="app"></div>
@@ -510,10 +590,11 @@ function newWorld(seed){
   // fixtures and expectations
   startSeasonWorld();
   // seats: three open chairs with spread
-  S.history.push({s:0,club:'pell',txt:'One season as chairman of Pell United. Voted out by Gareth Vance.'});
-  makeSeats();
+  // a newcomer: nobody in football knows you yet
+  for(const p of Object.values(S.P))p.mem=p.mem.filter(m=>m.s>1);S.rep=0;S.history.push({s:0,club:null,txt:'Made your money outside football. Nobody in the game knew your name.'});
+  makeSeats();if(typeof dressSeats==='function')dressSeats();
   S.news=[{pri:1,text:'Maria Esteves, sacked by Pell at Christmas, is the new coach of Corden Athletic.'},{pri:1,text:'Pat Kearney at the Pell AGM: "Say what you like about the last chairman. At least he came to the Anchor."'},{pri:2,text:'Gareth Vance renames Pell\'s North Stand after a bookmaker.'}];
-  S.phase='prologue';S.screen='prologue';
+  S.phase='seats';S.screen='call';
 }
 function castClub(c){
   const big=c.groups.slice().sort((a,b)=>b.share-a.share)[0].k;
@@ -1727,6 +1808,105 @@ function summerNext(){
   if(s.step==='report'){s.step='done';startSeasonPlay()}
 }
 
+/* ---- chairman/opening.js ---- */
+/* ================= The opening: a newcomer, three dossiers, a sealed secret, a signature =================
+   title -> the call (your name, three messages) -> the dossiers -> sign -> welcome -> the envelope (the secret,
+   with a real consequence) -> the speech (the manifest, with the terrace reacting) -> day one's crisis -> staff.
+   Every secret has one concrete effect in existing systems and its own first crisis. Half are good news. */
+const SEAT_LABELS={chalice:'Poisoned chalice',rescue:'Rescue job',giant:'Sleeping giant',quiet:'The quiet one',dark:'Dark horse'};
+const SEAT_QUOTE={chalice:'They say you are not afraid of a fight.',rescue:'We need someone. Anyone. Can we talk?',giant:'This town remembers better days. Do you?',quiet:'A steady club wants a steady hand.',dark:'Nobody rates us. That could suit you.'};
+function seatLabel(c,used){const d=clubDiff(c),order=[d>=4?'chalice':null,c.debt>=150?'rescue':null,c.tier===1&&c.founded<1900?'giant':null,d<=1?'quiet':null,'dark','giant','rescue','quiet','chalice'].filter(Boolean);return order.find(k=>!used.has(k))}
+function seatDream(c){const r=CL(c.rival);if(c.debt>=150)return'Clear the debt and own the club again';if(c.tier===1)return'Back to the Northmarch Premier';if(c.last<=6)return'A first league title in a generation';return r?`Finish above ${r.name}, at last`:'A full house every week'}
+function seatPitch(c,reason){return`${reason.charAt(0).toUpperCase()+reason.slice(1)}. ${c.scar.charAt(0).toUpperCase()+c.scar.slice(1)}.`}
+
+/* ----- the secrets ----- */
+const SECRETS={
+  wonderkid:{good:true,ic:'⭐',chip:'A wonderkid in the academy',
+    text:()=>{const p=secretKid();return`${p.name}, ${p.age}, is the best young player in the county. Premier clubs are already circling.`},
+    apply:()=>{const p=secretKid(),xi=squadQuality(S.cf.squad,0);p.pa=Math.max(p.pa+1,Math.round((xi+3.5)*10)/10);p.q=Math.max(p.q,Math.round((xi-1)*10)/10);p.wonderkid=1;S.cf.talentPid=p.id},
+    crisis:()=>{const p=secretKid();return{t:`A Premier club offers £60k for ${p.name}`,
+      a:{t:'Sell him now',tone:'safe',give:[p.name,'The Ultras\' trust'],get:['£60k in the bank'],run:()=>{S.cf.squad.splice(S.cf.squad.indexOf(p),1);cash(60,`${p.name} sold on day one`);grp(fanGroup(),-5,`You sold ${p.name} before he played`)}},
+      b:{t:'He stays and gets minutes',tone:'bold',give:['£60k'],get:['A local hero in the making'],run:()=>{grp(fanGroup(),4,`You kept ${p.name}`);p.morale=Math.min(90,(p.morale||60)+15);setTouch(p,'whose future you protected on day one')}}}}},
+  legacy:{good:true,ic:'✉',chip:'+£25k in a will',
+    text:()=>'An old member left the club £25k in her will. Nobody has spent it yet.',
+    apply:()=>cash(25,'An old member\'s will'),
+    crisis:()=>({t:'What happens to the £25k?',
+      a:{t:'Into the transfer budget',tone:'safe',give:['A gesture to the members'],get:['£25k more for the director'],run:()=>{S.cf.budgetLeft+=25;S.flags.legacyBudget=25}},
+      b:{t:'A new roof on the old stand',tone:'bold',give:['£25k'],get:['The oldest members, moved'],run:()=>{cash(-25,'A new roof on the old stand');grp(topGroup(),5,'You spent the will on the old stand')}}})},
+  homecoming:{good:true,ic:'🏠',chip:'A club legend, for free',
+    text:()=>{const p=secretHome();return`${p.name}, ${p.age}, a former hero here, wants to come home. He would play for almost nothing.`},
+    apply:()=>{const p=secretHome();if(!S.cf.squad.includes(p))S.cf.squad.push(p)},
+    crisis:()=>{const p=secretHome();return{t:`${p.name} wants the captain's armband back`,
+      a:{t:'Give it to him',tone:'bold',give:['The current captain\'s pride'],get:['The terrace on its feet'],run:()=>{grp(topGroup(),4,`${p.name} is captain again`);const c=cast('captain');if(c)loy(c,'against','You gave the armband away',{raw:-1})}},
+      b:{t:'He has to earn it',tone:'safe',give:['A headline'],get:['A calm dressing room'],run:()=>{const c=cast('captain');if(c)loy(c,'wish','You kept the armband where it was')}}}}},
+  fans:{good:true,ic:'🎟',chip:'Season tickets up',
+    text:()=>'Season-ticket sales are up fifteen percent since the news broke. They believe in you already.',
+    apply:()=>{grp(topGroup(),5,'Season tickets are up since you arrived');cash(10,'Early season-ticket money')},
+    crisis:()=>({t:'The supporters want a say in the new kit',
+      a:{t:'Let them vote',tone:'safe',give:['A month of meetings'],get:['A kit they love'],run:()=>{grp(fanGroup(),4,'The fans chose the kit')}},
+      b:{t:'Keep the traditional kit',tone:'bold',give:['The newcomers\' wish'],get:['The old guard pleased'],run:()=>{grp(topGroup(),2,'The kit stays as it always was')}}})},
+  taxman:{good:false,ic:'⚠',chip:'−£40k due by March',
+    text:()=>'£40k owed to the taxman. Nobody told the members. It is due in March.',
+    apply:()=>{C().debt+=40;S.flags.taxDue=40},
+    crisis:()=>({t:'The taxman writes: pay by March',
+      a:{t:'Tell the members now',tone:'safe',give:['A calm summer'],get:['Trust: you hid nothing'],run:()=>{for(const g of C().groups)grp(g.k,1,'You told them about the tax bill');S.rep++}},
+      b:{t:'Pay it quietly from the budget',tone:'bold',give:['£40k of transfer money'],get:['Nobody panics'],run:()=>{S.cf.budgetLeft=Math.max(0,S.cf.budgetLeft-40);C().debt-=40;cash(-40,'The tax bill, paid quietly');S.flags.taxDue=0}}})},
+  feud:{good:false,ic:'⚡',chip:'A split dressing room',
+    text:()=>`The captain and the coach have not spoken in a year.`,
+    apply:()=>{const a=cast('captain'),b=cast('coach');if(a&&b)addRel(a,b,'rivals');const sq=S.cf.squad;for(const p of sq)p.morale=Math.max(35,(p.morale||60)-6)},
+    crisis:()=>({t:'The captain wants a meeting without the coach',
+      a:{t:'Meet him, alone',tone:'bold',give:['The coach\'s trust'],get:['The captain\'s ear'],run:()=>{const a=cast('captain'),b=cast('coach');if(a)loy(a,'wish','You met them alone on day one');if(b)loy(b,'against','You met the captain behind their back')}},
+      b:{t:'Meet them together',tone:'safe',give:['The captain\'s patience'],get:['One message, one club'],run:()=>{for(const p of S.cf.squad)p.morale=Math.min(90,(p.morale||60)+4);const a=cast('captain');if(a)loy(a,'against','You would not see them alone',{raw:-.5})}}})},
+  wantsOut:{good:false,ic:'✈',chip:'Your best player wants out',
+    text:()=>{const p=secretBest();return`${p.name}, your best player, has told friends he wants to leave this summer.`},
+    apply:()=>{const p=secretBest();p.morale=40;p.contract=1;p.wantsOut=1},
+    crisis:()=>{const p=secretBest();return{t:`${p.name} asks to see you`,
+      a:{t:'Promise him a better contract',tone:'bold',give:['£200 a week more','The wage cap'],get:[`${p.name} stays happy`],run:()=>{p.wage+=200;p.morale=70;p.contract=3;p.wantsOut=0}},
+      b:{t:'Leave it to the director',tone:'safe',give:[`Maybe ${p.name}`],get:['A clear line: the director decides'],run:()=>{const t=cast('td');if(t)loy(t,'wish','You left transfers to the director')}}}}},
+  pitch:{good:false,ic:'🌧',chip:'−£25k: the pitch',
+    text:()=>'The pitch drains like a sponge. It needs relaying before the first home game: £25k.',
+    apply:()=>cash(-25,'Relaying the pitch'),
+    crisis:()=>({t:'The groundsman wants a full new drainage system',
+      a:{t:'Do it properly: £15k more',tone:'bold',give:['£15k'],get:['No more postponements'],run:()=>{cash(-15,'New drainage')}},
+      b:{t:'Patch it for now',tone:'safe',give:['The groundsman\'s respect'],get:['Money kept'],run:()=>{grp(topGroup(),-1,'A muddy pitch again')}}})},
+  sponsor:{good:false,ic:'👕',chip:'−£20k: no shirt sponsor',
+    text:()=>'The shirt sponsor pulled out last week. The shirts are printed, the money is gone: £20k.',
+    apply:()=>cash(-20,'The shirt sponsor pulled out'),
+    crisis:()=>({t:'A betting firm offers to sponsor the shirts',
+      a:{t:'Take the money',tone:'bold',give:['The families\' goodwill'],get:['£25k'],run:()=>{cash(25,'A betting firm on the shirts');grp(grpOf('families')?'families':topGroup(),-5,'A betting logo on the children\'s shirts')}},
+      b:{t:'Ask a local business instead',tone:'safe',give:['£15k less'],get:['A shirt the town is proud of'],run:()=>{cash(10,'A local sponsor on the shirts');grp(topGroup(),2,'A local name on the shirts')}}})}};
+const SECRET_GOOD=Object.keys(SECRETS).filter(k=>SECRETS[k].good),SECRET_BAD=Object.keys(SECRETS).filter(k=>!SECRETS[k].good);
+function secretKid(){const sq=S.cf.squad;return sq.find(p=>p.wonderkid)||sq.filter(p=>p.age<=19).sort((a,b)=>b.pa-a.pa)[0]||sq.slice().sort((a,b)=>a.age-b.age)[0]}
+function secretBest(){return S.cf.squad.filter(p=>!p.loanIn).sort((a,b)=>b.q-a.q)[0]}
+function secretHome(){const sq=S.cf.squad;let p=sq.find(x=>x.homecoming);if(p)return p;if(!S.secret.home){const xi=squadQuality(sq,0);const n=newPlayer(pick(['CB','CM','ST','W']),{age:ri(32,34),q:Math.round((xi+.6)*10)/10,contract:1,trait:'local hero'});n.wage=250;n.homecoming=1;n.localKid=true;n.story='Came home to finish where he started.';S.secret.home=n}return S.secret.home}
+
+/* ----- the dossiers ----- */
+function dressSeats(){
+  const used=new Set(),secrets=[pick(SECRET_GOOD),pick(SECRET_BAD)];secrets.push(pick(Object.keys(SECRETS).filter(k=>!secrets.includes(k))));
+  const order=pickN([0,1,2],3);
+  S.seats.forEach((s,i)=>{const c=CL(s.id),k=seatLabel(c,used);used.add(k);s.label=k;s.stars=Math.min(5,clubDiff(c)+1);s.dream=seatDream(c);s.pitch=seatPitch(c,s.reason);s.secret=secrets[order[i]]});
+}
+function startCall(name){S.name=(String(name||'').trim()||'Alex Whitmore').slice(0,28);S.phase='seats';S.screen='seats'}
+function pickSeat(id){S.pendingSeat=id;S.screen='sign'}
+function signContract(){
+  const s=S.seats.find(x=>x.id===S.pendingSeat)||S.seats[0];chooseSeat(s.id);S.secret={id:s.secret,club:s.id,revealed:false};S.dayOne=true;
+  newsPush(`${S.name||'A newcomer'} is the new chairman of ${C().name}.`,[],[C().id]);S.screen='signed';
+}
+function openEnvelope(){const sc=S.secret;if(!sc||sc.revealed)return;const d=SECRETS[sc.id];sc.text=d.text();d.apply();sc.revealed=true;log(`The envelope: ${d.chip}`,sc.text,null)}
+function secretCrisis(){const sc=S.secret;return sc&&SECRETS[sc.id]?SECRETS[sc.id].crisis():null}
+function answerCrisis(k){const cr=secretCrisis();if(!cr||S.crisisDone)return;const o=cr[k]||cr.a;o.run();S.crisisDone={k,t:o.t,tone:o.tone}}
+function afterCrisis(){S.dayOne=false;S.crisisDone=null;if(S.cf&&!S.cf.tdHired)startTdHire();else startMeeting()}
+// the terrace reacts to each line of the speech: the groups a promise touches cheer
+function speechReact(id){
+  if(!id||id==='none'){S.speech=(S.speech||[]).concat([{id,txt:'A polite applause.'}]);return}
+  const gs=pgroups(id);for(const g of gs)grp(g,2,`Your speech: ${pdef(id).t.toLowerCase()}`);
+  const other=C().groups.filter(g=>!gs.includes(g.k)).sort((a,b)=>a.mood-b.mood)[0];
+  S.speech=(S.speech||[]).concat([{id,txt:gs.length?`${gs.slice(0,2).map(k=>gname(C(),k)).join(' and ')} cheer${other?`. ${gname(C(),other.k)} stay quiet`:''}.`:'A polite applause.'}]);
+}
+
+function topGroup(){return C().groups.slice().sort((a,b)=>b.share-a.share)[0].k}
+function fanGroup(){return ['ultras','students','workers'].find(grpOf)||topGroup()}
+
 /* ---- chairman/flow.js ---- */
 /* ================= Flow (engine; UI calls act()) ================= */
 function momentOf(w){return w<8?1:w<15?2:w<23?3:4}
@@ -1852,7 +2032,7 @@ function endSeason(){
   S.season++;startSeasonWorld();
   if(won){S.promises=[];const keep={council:S.flags.council,coachContract:S.flags.coachContract,tdFree:S.flags.tdFree,academy:S.flags.academy,fanSeat:S.flags.fanSeat,fanName:S.flags.fanName,captainFuture:S.flags.captainFuture,oppBoard:S.flags.oppBoard,weakSeat:S.flags.weakSeat};
     S.flags={...keep,captainExpiring:!keep.captainFuture&&rnd()<.4};S.mods=[];S.cashStart=C().cash;S.oppGroup=weakest(C());S.oppMoves=0;S.step=0;S.pick={};S.chances=computeChances();S.phase='manifest';S.screen='manifest';}
-  else{S.my=null;S.cf=null;makeSeats();S.phase='seats';S.screen='summer';}
+  else{S.my=null;S.cf=null;makeSeats();dressSeats();S.phase='seats';S.screen='summer';}
 }
 
 /* ----- action dispatcher (used by the UI and by the audit bots) ----- */
@@ -1860,9 +2040,16 @@ function act(a,arg){
   switch(a){
     case'new':newWorld(arg??((Date.now()%2147483647)|0));break;
     case'toSeats':S.phase='seats';S.screen='seats';break;
-    case'seat':chooseSeat(arg);break;
+    case'call':startCall(arg);break;
+    case'seat':pickSeat(arg);break;
+    case'seatsBack':S.screen='seats';break;
+    case'sign':signContract();break;
+    case'toEnvelope':S.screen='envelope';break;
+    case'openEnv':openEnvelope();break;
+    case'crisis':answerCrisis(arg);break;
+    case'crisisDone':afterCrisis();break;
     case'arrive':S.cashStart=C().cash;S.step=0;S.pick={};S.chances=computeChances();S.phase='manifest';S.screen='manifest';break;
-    case'pick':S.pick[['sport','club','person'][S.step]]=arg;S.step++;if(S.step>=3){applyManifest();if(S.cf&&!S.cf.tdHired)startTdHire();else startMeeting()}break;
+    case'pick':S.pick[['sport','club','person'][S.step]]=arg;speechReact(arg);S.step++;if(S.step>=3){applyManifest();S.speech=[];if(S.dayOne&&secretCrisis())S.screen='crisis';else if(S.cf&&!S.cf.tdHired)startTdHire();else startMeeting()}break;
     case'sit':S.sit=+arg;S.screen='sit';break;
     case'back':S.sit=null;S.screen='week';break;
     case'card':applyCard(+arg);break;
@@ -1910,14 +2097,15 @@ function dealHTML(c,i){
 }
 function arrow(k){const g=grpOf(k);const d=g.mood-((S.prevMood||{})[k]??g.mood);return d>=6?'<span class="up">↑↑</span>':d>0?'<span class="up">↑</span>':d<=-6?'<span class="down">↓↓</span>':d<0?'<span class="down">↓</span>':''}
 function moodsPanel(title){return`<div class="panel">${title?`<p class="eyebrow">${title}</p>`:''}${C().groups.map(g=>`<div class="row"><span>${esc(gname(C(),g.k))} <span class="small muted">${g.share}%</span></span><span class="mood">${moodWord(g.mood)} ${arrow(g.k)}</span></div>`).join('')}</div>`}
-const PRIMARY=['sumNext','play','next','windowDone','mdone','meetNext','arrive','alvLobby','lobbyDone','toEnd','nextSeason','summerNext','toSeats','framesDone'];
+const PRIMARY=['call','toEnvelope','crisisDone','sumNext','play','next','windowDone','mdone','meetNext','arrive','alvLobby','lobbyDone','toEnd','nextSeason','summerNext','toSeats','framesDone'];
 let LAST_VIEW='';
 function render(){
   if(!HAS_DOM)return;const $=document.getElementById('app');
   if(location.hash==='#style'){$.setAttribute('style','');$.innerHTML=styleView();document.body.classList.add('noNav');return}
   if(!S||S.screen==='title'){$.setAttribute('style','');$.innerHTML=titleView();document.body.classList.add('noNav');return}
   if(S.my&&!C().col)assignClubColours();
-  const v={prologue:prologueView,seats:seatsView,arrival:arrivalView,manifest:manifestView,week:weekView,meeting:meetingView,sit:sitView,hire:hireView,result:resultView,frames:framesView,window:windowView,tdhire:tdHireView,tsum:tsumView,alv:alvView,summer:summerView}[S.screen];
+  if(S.screen==='prologue')S.screen='call';if(S.seats&&S.seats.length&&!S.seats[0].label)dressSeats();
+  const v={call:callView,sign:signView,signed:signedView,envelope:envelopeView,crisis:crisisView,seats:seatsView,arrival:arrivalView,manifest:manifestView,week:weekView,meeting:meetingView,sit:sitView,hire:hireView,result:resultView,frames:framesView,window:windowView,tdhire:tdHireView,tsum:tsumView,alv:alvView,summer:summerView}[S.screen];
   const nav=S.screen==='week';UI.t=UI.t||'club';
   let body=v?v():'';
   body=body.replace(/class="btn( ghost)?" data-act="([a-zA-Z]+)"/g,(m,g,a)=>PRIMARY.includes(a)?`class="btn${g||''} primary" data-act="${a}"`:m);
@@ -1932,34 +2120,7 @@ const TAB_ICON={staff:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y
  members:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 20c0-4 2.5-6 5-6s5 2 5 6M11 20c0-4 2.5-6 5-6s5 2 5 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>'};
 function tabBar(){const open=S.desk?S.desk.filter(s=>!s.done).length:0;
   return`<nav class="tabbar" aria-label="Club">${[['club','Club'],['post','In the post'],['room','Squad'],['staff','Staff'],['members','Members']].map(([k,n])=>`<button class="tab${UI.t===k?' on':''}" data-act="tab2" data-arg="${k}" aria-current="${UI.t===k?'page':'false'}">${TAB_ICON[k]}<span>${n}</span>${k==='post'&&open?`<span class="badge">${open}</span>`:''}</button>`).join('')}</nav>`}
-function titleView(){let has=false;try{has=!!localStorage.getItem(SAVE_KEY)}catch(e){}
-  return`<main style="padding-top:48px">${crest.replace('class="crest"','class="crest" style="width:64px;height:64px"')}<p class="eyebrow">A world of members' clubs</p><h1>The Northmarch Chairman</h1>
-  <p>Thirty-two clubs in one county. Every club has its own members, money, rivals and people, and every one of them remembers you. You never pick the team.</p>
-  <div class="stack"><button class="btn" data-act="new">Start a new career</button>${has?'<button class="btn ghost" data-act="continue">Continue</button>':''}</div></main>`}
 function echoBox(date,head,lines){return`<article class="echo"><div class="mast"><b>THE NORTHMARCH ECHO</b><span>${esc(date)}</span></div><div class="head">${esc(head)}</div><ul>${lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></article>`}
-function prologueView(){
-  return`${echoBox('June','Pell\'s old chairman back on the market',S.news.map(n=>n.text))}
-  <p>Last season you were chairman of Pell United. Gareth Vance beat you at the AGM. You kept your word to the Docks, and the region knows it.</p>
-  <p class="muted small">Your reputation: someone who keeps promises. People who never met you will give you a fair hearing.</p>
-  <button class="btn" data-act="toSeats">See the open seats</button>`;
-}
-function seatsView(){
-  const items=S.seats.map(({id,reason})=>{const c=CL(id),d=clubDiff(c);const big=c.groups.slice().sort((a,b)=>b.share-a.share);
-    const known=Object.values(c.cast).filter(x=>P(x)&&P(x).mem.length);
-    return`<button class="choice" data-act="seat" data-arg="${id}"><span class="row"><b>${esc(c.name)}</b><span class="dots" aria-label="difficulty ${d} of 4">${'●'.repeat(d)}${'○'.repeat(4-d)}</span></span>
-    <span class="meta">"${DIFF_LABEL[d]}." ${c.tier===0?'Northmarch Premier':'Northmarch One'} · ${TOWNS[c.town].n} · last season ${ord(c.last)}</span>
-    <span class="meta">Why the seat is open: ${esc(reason)}.</span>
-    <span class="meta">Members: ${big.map(g=>`${gname(c,g.k)} ${g.share}% (${moodWord(g.mood).toLowerCase()})`).join(', ')}.</span>
-    <span class="meta">Money: ${moneyWord(c.cash)}${c.debt?`, £${c.debt}k debt`:', no debt'}. Rival: ${esc(CL(c.rival).name)} (${esc(c.rivalWhy)}).</span>
-    ${known.length?`<span class="meta"><b>Knows you:</b> ${known.map(x=>esc(P(x).name)).join(', ')}</span>`:''}</button>`}).join('');
-  return`<p class="eyebrow">Summer · Season ${S.season}</p><h2>Three clubs want you</h2><p>Three members' clubs have asked you to take over as chairman. Choose one; the members will judge you at the AGM next June.</p><div class="stack">${items}</div>`;
-}
-function manifestView(){
-  const slot=['sport','club','person'][S.step],titles={sport:'Your sporting promise',club:'Your promise about the club',person:'Your personal promise'};
-  const items=manifestOptions(slot).map(id=>{const d=pdef(id),gs=pgroups(id).map(k=>gname(C(),k));return`<button class="choice" data-act="pick" data-arg="${id}"><b>${esc(d.t)}</b><span><span class="chance">${esc(chanceFor(id))}</span> <span class="meta">${SIZE_WORD[d.size]}${gs.length?' · '+gs.join(', '):''}</span></span></button>`}).join('');
-  const none=slot!=='sport'?`<button class="choice" data-act="pick" data-arg="none"><b>No promise here</b><span class="meta">Hands free. Nobody gets anything.</span></button>`:'';
-  return`<p class="eyebrow">Season ${S.season} manifest · ${S.step+1} of 3</p><h2>${titles[slot]}</h2><p>The members measure it at the AGM. Kept: they reward you. Broken: they punish you, whatever the size.${S.flags.trusted?' They trust you more after last year.':''}</p><div class="stack">${items}${none}</div>`;
-}
 function personLine(pid){const p=P(pid);if(!p||p.loy==null&&!p.mem.length)return'';const rel=p.rel.filter(r=>P(r.id)).slice(0,2).map(r=>`${r.type==='protégé'?'mentor of':r.type==='mentor'?'protégé of':r.type==='friends'?'friends with':r.type==='rivals'?'rivals with':'related to'} ${P(r.id).name}`).join('; ');
   return`<p class="small muted">${esc(p.name)}: ${p.traits.join(', ')}. ${band(p.loy)} with you${p.owes?', owes you a favour':''}${p.withOpp?', in the opposition camp':''}.${rel?' '+esc(rel.charAt(0).toUpperCase()+rel.slice(1))+'.':''}${p.deepKnown?` Values ${VALUE_WORD[p.value]}; wants ${esc(p.deep)}.`:''}</p>`}
 function bubbles(sc){
@@ -2211,6 +2372,61 @@ function tdHireView(){
   return`<p class="eyebrow">The director's office is empty</p><h2>Hire a director of football</h2><p>The director buys and sells; you never pick a player. Choose who you trust.</p><div class="stack">${cards}</div>`;
 }
 
+/* ---- ui/opening.js ---- */
+/* ================= Screens of the opening ================= */
+function titleView(){let has=false;try{has=!!localStorage.getItem(SAVE_KEY)}catch(e){}
+  return`<main class="ttl"><div class="ttl-sky" aria-hidden="true"><span class="tw l"></span><span class="tw r"></span><svg class="ttl-town" viewBox="0 0 390 120" preserveAspectRatio="none"><path d="M0 70l20-8 14 6 18-20 16 14 22-6 18 10 26-30 20 22 24-8 16 12 30-18 22 16 18-6 26 14 20-10 24 12 16-8 20 6v68H0z" fill="#1c2229"/><path d="M0 92h390v28H0z" fill="#0b0e11"/></svg></div>
+  <div class="ttl-b"><span class="lbl ttl-k">The Northmarch · 32 clubs</span><h1>The Chairman</h1><p>Thirty-two clubs. One of them is about to become yours.</p>
+  <button class="btn gold" data-act="new">Begin</button>${has?'<button class="btn ghost on-dark" data-act="continue">Continue your career</button>':''}</div></main>`}
+function callView(){
+  const msgs=S.seats.map(s=>{const c=CL(s.id);return`<div class="msg">${crestSVG(c,40)}<span><b>${esc(c.name)}</b><i>"${esc(SEAT_QUOTE[s.label]||SEAT_QUOTE.dark)}"</i></span></div>`}).join('');
+  return`<p class="eyebrow">Tuesday night · your phone</p><h2 class="big-h">Nobody in football knows you</h2><p>You made your money elsewhere. Tonight, that changes.</p>
+  <div class="field"><label class="lbl" for="nm">Your name</label><input id="nm" value="${esc(S.name||'Alex Whitmore')}" maxlength="28" autocomplete="off"></div>
+  <div class="msgs">${msgs}</div><button class="btn" data-act="call">Open the dossiers · ${S.seats.length}</button>`}
+function dossierCard(s,i){const c=CL(s.id),r=CL(c.rival);
+  return`<article class="dos" style="${clubVars(c)}"><div class="dos-top">${crestSVG(c,64)}<div><b>${esc(c.name)}</b><span class="dos-town">${esc(TOWNS[c.town].n)} · founded ${c.founded}</span><span class="dos-tag">${esc(SEAT_LABELS[s.label])}</span><span class="dos-stars" aria-label="difficulty ${s.stars} of 5">${'★'.repeat(s.stars)}${'☆'.repeat(5-s.stars)}</span></div></div>
+  <div class="dos-mid"><p>${esc(s.pitch)}</p>
+   <div class="chips"><span class="chipr">${ord(c.last)} in the ${c.tier===0?'Premier':'One'}</span><span class="chipr good">£${Math.round(c.cash)}k</span>${c.debt?`<span class="chipr bad">£${c.debt}k debt</span>`:'<span class="chipr good">No debt</span>'}${r?`<span class="chipr">Rival: ${esc(r.name)}</span>`:''}</div>
+   <div class="dos-dream">${kitSVG(c,40)}<span><b>The dream:</b> ${esc(s.dream)}</span></div>
+   <div class="dos-env"><span class="env-ic" aria-hidden="true">✉</span>What they're not telling you</div></div>
+  <button class="dos-pick" data-act="seat" data-arg="${s.id}">Choose ${esc(c.name.split(' ')[0])}</button></article>`}
+function seatsView(){
+  return`<p class="eyebrow">${S.seats.length} clubs · one answer, tonight</p><h2 class="big-h">The dossiers</h2><p class="muted">Each club keeps one secret until you sign.</p>
+  <div class="deck">${S.seats.map(dossierCard).join('')}</div><p class="deck-hint muted">← swipe →</p>`}
+function signView(){const s=S.seats.find(x=>x.id===S.pendingSeat)||S.seats[0],c=CL(s.id);
+  return`<div style="${clubVars(c)}" class="stack"><p class="eyebrow">The contract</p>
+  <div class="contract"><div class="ct-h">${esc(c.name)}</div><p>Appoints <b>${esc(S.name||'Alex Whitmore')}</b> as chairman, to answer to the members at the AGM next June.</p><p class="muted">Signed at the clubhouse, Tuesday, 23:41.</p>
+   <div class="sigline"></div><span class="lbl muted">Chairman</span></div>
+  <button class="btn hold" data-act="sign" data-hold="sign"><span class="fill"></span><span class="hold-t">Hold to sign</span></button>
+  <button class="btn ghost" data-act="seatsBack">Back to the dossiers</button></div>`}
+function signedView(){const c=C();
+  return`<section class="flood"><div class="flood-in">${crestSVG(c,120,true)}<span class="lbl">Welcome to</span><h2 class="big-h">${esc(c.name)}</h2><div class="paper">New chairman at ${esc(c.name.split(' ')[0])}</div><span class="stamp-s">Signed</span></div></section>
+  <button class="btn" data-act="toEnvelope">Open the envelope</button>`}
+function envelopeView(){const sc=S.secret,d=SECRETS[sc.id],c=C();
+  if(!sc.revealed)return`<p class="eyebrow">${esc(c.name)} · after signing</p><h2 class="big-h">What they weren't telling you</h2>
+   <button class="envbig" data-act="openEnv" aria-label="Open the envelope"><span class="flap"></span><span class="seal">Open</span></button><p class="muted">Tap the envelope.</p>`;
+  const fan=P(cast('fan'));
+  return`<p class="eyebrow">${esc(c.name)} · after signing</p><h2 class="big-h">What they weren't telling you</h2>
+   <div class="envbig opened" aria-hidden="true"><span class="flap"></span><span class="env-sym">${d.ic}</span></div>
+   <div class="secret"><p>${esc(sc.text)}</p><div class="chips"><span class="chipr ${d.good?'good':'bad'}">${d.good?'Good news':'Bad news'}</span><span class="chipr ${d.good?'good':'bad'}">${esc(d.chip)}</span></div></div>
+   ${fan?`<div class="bubble">${face(fan.id).replace('class="face','class="face sm')}<div class="bb"><b>${esc(fan.name)} · ${esc(ROLE_WORD[fan.role])}</b><p>The members are waiting on the terrace. Tell them who you are.</p></div></div>`:''}
+   <button class="btn" data-act="arrive">Walk out to the terrace</button>`}
+const SPEECH_Q={sport:'"This club will…"',club:'"And off the pitch…"',person:'"And I promise you…"'};
+function moodFace(m){const v=m<25?0:m<40?1:m<50?2:m<65?3:4,P=['M8 15.5c1.5-2 6.5-2 8 0','M8.5 15.5c1.5-1 5.5-1 7 0','M9 15h6','M8 14c1.5 1.5 6.5 1.5 8 0','M7.5 13.5c2 3 7 3 9 0'],col=['#b3261e','#c4561c','#8a6a00','#2e7d3f','#1f7a3f'][v];
+  return`<svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[v]}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linecap="round"/><path d="M9 10h.01M15 10h.01" stroke="${col}" stroke-width="2.8" stroke-linecap="round"/></svg>`}
+function terrace(){const c=C();return`<div class="stand" aria-label="The members">${c.groups.map(g=>`<div class="grp"><span class="sface" title="${moodWord(g.mood)}">${moodFace(g.mood)}</span>${esc(gname(c,g.k))}<span class="g-m">${moodWord(g.mood)}</span></div>`).join('')}</div>`}
+function manifestView(){
+  const slot=['sport','club','person'][S.step],last=(S.speech||[]).slice(-1)[0];
+  const items=manifestOptions(slot).map(id=>{const d=pdef(id),gs=pgroups(id).map(k=>gname(C(),k)),ch=chanceFor(id);return`<button class="choice" data-act="pick" data-arg="${id}"><b>${esc(d.t)}</b><span class="chips"><span class="chipr ${/Long|Unlikely/.test(ch)?'bad':/Coin|Likely|Depends/.test(ch)?'warn':'good'}">${esc(ch)}</span>${gs.length?`<span class="meta">${esc(gs.join(', '))}</span>`:''}</span></button>`}).join('');
+  const none=slot!=='sport'?`<button class="choice" data-act="pick" data-arg="none"><b>Nothing I cannot keep</b><span class="meta">Hands free. Nobody cheers.</span></button>`:'';
+  return`<p class="eyebrow">${S.dayOne?'Day one · the speech':`Season ${S.season} · your speech`} · ${S.step+1} of 3</p><h2 class="big-h">${S.step===0?'You walk out to the terrace':'They are listening'}</h2>
+   ${terrace()}<div class="prog">${[0,1,2].map(i=>`<i class="${i<S.step?'on':''}"></i>`).join('')}</div>${last?`<p class="react">${esc(last.txt)}</p>`:''}
+   <p class="say">${SPEECH_Q[slot]}</p><div class="stack">${items}${none}</div>${S.step===0?'<p class="muted small">Every promise is judged at the AGM in June.</p>':''}`}
+function crisisView(){const cr=secretCrisis(),d=S.crisisDone;
+  const card=(o,k)=>`<button class="trade${d&&d.k===k?' chosen':''}" data-act="crisis" data-arg="${k}"${d?' disabled':''}><span class="tt"><b>${esc(o.t)}</b><span class="tone ${o.tone}">${o.tone==='safe'?'Safe':'Bold'}</span></span><span class="cols"><span class="col give"><i>You give</i>${o.give.map(x=>`<span>${esc(x)}</span>`).join('')}</span><span class="col get"><i>You get</i>${o.get.map(x=>`<span>${esc(x)}</span>`).join('')}</span></span><span class="st">Agreed</span></button>`;
+  return`<p class="eyebrow">Day one · on your desk</p><h2 class="big-h">${esc(cr.t)}</h2><div class="stack">${card(cr.a,'a')}${card(cr.b,'b')}</div>
+   ${d?`<p class="react">${d.tone==='bold'?'A bold start. Half the club loves it, half is waiting for you to fail.':'A careful start. Word gets round by Friday: the new chairman listens.'}</p><button class="btn" data-act="crisisDone">Meet your staff</button>`:''}`}
+
 /* ---- ui/boot.js ---- */
 /* ================= Input, save, boot ================= */
 function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
@@ -2223,10 +2439,15 @@ if(HAS_DOM){
     if(a==='tab2'){UI.t=arg;render();window.scrollTo(0,0);return}
     if(a==='player'){UI.over='player';UI.pid=arg;render();return}
     if(a==='continue'){if(load())render();return}
+    if(b.dataset.hold){if(e.detail===0){act(b.dataset.hold);save();render();window.scrollTo(0,0)}return}
+    if(a==='call'){act('call',(document.getElementById('nm')||{}).value);save();render();window.scrollTo(0,0);return}
     if(a==='new'){UI.lobby={};UI.over=null;act('new');}
     else if(a==='lobbyDone'){act('lobbyDone',Object.keys(UI.lobby).filter(k=>UI.lobby[k]));UI.lobby={}}
     else act(a,arg);
     save();render();if(a!=='frame'&&a!=='react')window.scrollTo(0,0);});
+  // hold to sign: press and hold about a second
+  let holdT=null;document.addEventListener('pointerdown',e=>{const b=e.target.closest('[data-hold]');if(!b)return;e.preventDefault();b.classList.add('go');holdT=setTimeout(()=>{act(b.dataset.hold);save();render();window.scrollTo(0,0)},matchMedia('(prefers-reduced-motion: reduce)').matches?150:950)});
+  const holdStop=()=>{clearTimeout(holdT);document.querySelectorAll('[data-hold].go').forEach(x=>x.classList.remove('go'))};document.addEventListener('pointerup',holdStop);document.addEventListener('pointercancel',holdStop);
   const boot=data=>{if(data&&data.S)S=data.S;render()};
   window.addEventListener('hashchange',render);
   window.claude?.hot?.snapshot?.(()=>({S}));

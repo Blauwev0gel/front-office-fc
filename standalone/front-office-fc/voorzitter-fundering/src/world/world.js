@@ -62,10 +62,11 @@ function newWorld(seed){
   // fixtures and expectations
   startSeasonWorld();
   // seats: three open chairs with spread
-  S.history.push({s:0,club:'pell',txt:'One season as chairman of Pell United. Voted out by Gareth Vance.'});
-  makeSeats();
+  // a newcomer: nobody in football knows you yet
+  for(const p of Object.values(S.P))p.mem=p.mem.filter(m=>m.s>1);S.rep=0;S.history.push({s:0,club:null,txt:'Made your money outside football. Nobody in the game knew your name.'});
+  makeSeats();if(typeof dressSeats==='function')dressSeats();
   S.news=[{pri:1,text:'Maria Esteves, sacked by Pell at Christmas, is the new coach of Corden Athletic.'},{pri:1,text:'Pat Kearney at the Pell AGM: "Say what you like about the last chairman. At least he came to the Anchor."'},{pri:2,text:'Gareth Vance renames Pell\'s North Stand after a bookmaker.'}];
-  S.phase='prologue';S.screen='prologue';
+  S.phase='seats';S.screen='call';
 }
 function castClub(c){
   const big=c.groups.slice().sort((a,b)=>b.share-a.share)[0].k;

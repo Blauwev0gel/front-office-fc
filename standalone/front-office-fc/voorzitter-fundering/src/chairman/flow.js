@@ -122,7 +122,7 @@ function endSeason(){
   S.season++;startSeasonWorld();
   if(won){S.promises=[];const keep={council:S.flags.council,coachContract:S.flags.coachContract,tdFree:S.flags.tdFree,academy:S.flags.academy,fanSeat:S.flags.fanSeat,fanName:S.flags.fanName,captainFuture:S.flags.captainFuture,oppBoard:S.flags.oppBoard,weakSeat:S.flags.weakSeat};
     S.flags={...keep,captainExpiring:!keep.captainFuture&&rnd()<.4};S.mods=[];S.cashStart=C().cash;S.oppGroup=weakest(C());S.oppMoves=0;S.step=0;S.pick={};S.chances=computeChances();S.phase='manifest';S.screen='manifest';}
-  else{S.my=null;S.cf=null;makeSeats();S.phase='seats';S.screen='summer';}
+  else{S.my=null;S.cf=null;makeSeats();dressSeats();S.phase='seats';S.screen='summer';}
 }
 
 /* ----- action dispatcher (used by the UI and by the audit bots) ----- */
@@ -130,9 +130,16 @@ function act(a,arg){
   switch(a){
     case'new':newWorld(arg??((Date.now()%2147483647)|0));break;
     case'toSeats':S.phase='seats';S.screen='seats';break;
-    case'seat':chooseSeat(arg);break;
+    case'call':startCall(arg);break;
+    case'seat':pickSeat(arg);break;
+    case'seatsBack':S.screen='seats';break;
+    case'sign':signContract();break;
+    case'toEnvelope':S.screen='envelope';break;
+    case'openEnv':openEnvelope();break;
+    case'crisis':answerCrisis(arg);break;
+    case'crisisDone':afterCrisis();break;
     case'arrive':S.cashStart=C().cash;S.step=0;S.pick={};S.chances=computeChances();S.phase='manifest';S.screen='manifest';break;
-    case'pick':S.pick[['sport','club','person'][S.step]]=arg;S.step++;if(S.step>=3){applyManifest();if(S.cf&&!S.cf.tdHired)startTdHire();else startMeeting()}break;
+    case'pick':S.pick[['sport','club','person'][S.step]]=arg;speechReact(arg);S.step++;if(S.step>=3){applyManifest();S.speech=[];if(S.dayOne&&secretCrisis())S.screen='crisis';else if(S.cf&&!S.cf.tdHired)startTdHire();else startMeeting()}break;
     case'sit':S.sit=+arg;S.screen='sit';break;
     case'back':S.sit=null;S.screen='week';break;
     case'card':applyCard(+arg);break;

@@ -18,14 +18,15 @@ function dealHTML(c,i){
 }
 function arrow(k){const g=grpOf(k);const d=g.mood-((S.prevMood||{})[k]??g.mood);return d>=6?'<span class="up">↑↑</span>':d>0?'<span class="up">↑</span>':d<=-6?'<span class="down">↓↓</span>':d<0?'<span class="down">↓</span>':''}
 function moodsPanel(title){return`<div class="panel">${title?`<p class="eyebrow">${title}</p>`:''}${C().groups.map(g=>`<div class="row"><span>${esc(gname(C(),g.k))} <span class="small muted">${g.share}%</span></span><span class="mood">${moodWord(g.mood)} ${arrow(g.k)}</span></div>`).join('')}</div>`}
-const PRIMARY=['sumNext','play','next','windowDone','mdone','meetNext','arrive','alvLobby','lobbyDone','toEnd','nextSeason','summerNext','toSeats','framesDone'];
+const PRIMARY=['call','toEnvelope','crisisDone','sumNext','play','next','windowDone','mdone','meetNext','arrive','alvLobby','lobbyDone','toEnd','nextSeason','summerNext','toSeats','framesDone'];
 let LAST_VIEW='';
 function render(){
   if(!HAS_DOM)return;const $=document.getElementById('app');
   if(location.hash==='#style'){$.setAttribute('style','');$.innerHTML=styleView();document.body.classList.add('noNav');return}
   if(!S||S.screen==='title'){$.setAttribute('style','');$.innerHTML=titleView();document.body.classList.add('noNav');return}
   if(S.my&&!C().col)assignClubColours();
-  const v={prologue:prologueView,seats:seatsView,arrival:arrivalView,manifest:manifestView,week:weekView,meeting:meetingView,sit:sitView,hire:hireView,result:resultView,frames:framesView,window:windowView,tdhire:tdHireView,tsum:tsumView,alv:alvView,summer:summerView}[S.screen];
+  if(S.screen==='prologue')S.screen='call';if(S.seats&&S.seats.length&&!S.seats[0].label)dressSeats();
+  const v={call:callView,sign:signView,signed:signedView,envelope:envelopeView,crisis:crisisView,seats:seatsView,arrival:arrivalView,manifest:manifestView,week:weekView,meeting:meetingView,sit:sitView,hire:hireView,result:resultView,frames:framesView,window:windowView,tdhire:tdHireView,tsum:tsumView,alv:alvView,summer:summerView}[S.screen];
   const nav=S.screen==='week';UI.t=UI.t||'club';
   let body=v?v():'';
   body=body.replace(/class="btn( ghost)?" data-act="([a-zA-Z]+)"/g,(m,g,a)=>PRIMARY.includes(a)?`class="btn${g||''} primary" data-act="${a}"`:m);
@@ -40,34 +41,7 @@ const TAB_ICON={staff:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y
  members:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 20c0-4 2.5-6 5-6s5 2 5 6M11 20c0-4 2.5-6 5-6s5 2 5 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>'};
 function tabBar(){const open=S.desk?S.desk.filter(s=>!s.done).length:0;
   return`<nav class="tabbar" aria-label="Club">${[['club','Club'],['post','In the post'],['room','Squad'],['staff','Staff'],['members','Members']].map(([k,n])=>`<button class="tab${UI.t===k?' on':''}" data-act="tab2" data-arg="${k}" aria-current="${UI.t===k?'page':'false'}">${TAB_ICON[k]}<span>${n}</span>${k==='post'&&open?`<span class="badge">${open}</span>`:''}</button>`).join('')}</nav>`}
-function titleView(){let has=false;try{has=!!localStorage.getItem(SAVE_KEY)}catch(e){}
-  return`<main style="padding-top:48px">${crest.replace('class="crest"','class="crest" style="width:64px;height:64px"')}<p class="eyebrow">A world of members' clubs</p><h1>The Northmarch Chairman</h1>
-  <p>Thirty-two clubs in one county. Every club has its own members, money, rivals and people, and every one of them remembers you. You never pick the team.</p>
-  <div class="stack"><button class="btn" data-act="new">Start a new career</button>${has?'<button class="btn ghost" data-act="continue">Continue</button>':''}</div></main>`}
 function echoBox(date,head,lines){return`<article class="echo"><div class="mast"><b>THE NORTHMARCH ECHO</b><span>${esc(date)}</span></div><div class="head">${esc(head)}</div><ul>${lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></article>`}
-function prologueView(){
-  return`${echoBox('June','Pell\'s old chairman back on the market',S.news.map(n=>n.text))}
-  <p>Last season you were chairman of Pell United. Gareth Vance beat you at the AGM. You kept your word to the Docks, and the region knows it.</p>
-  <p class="muted small">Your reputation: someone who keeps promises. People who never met you will give you a fair hearing.</p>
-  <button class="btn" data-act="toSeats">See the open seats</button>`;
-}
-function seatsView(){
-  const items=S.seats.map(({id,reason})=>{const c=CL(id),d=clubDiff(c);const big=c.groups.slice().sort((a,b)=>b.share-a.share);
-    const known=Object.values(c.cast).filter(x=>P(x)&&P(x).mem.length);
-    return`<button class="choice" data-act="seat" data-arg="${id}"><span class="row"><b>${esc(c.name)}</b><span class="dots" aria-label="difficulty ${d} of 4">${'●'.repeat(d)}${'○'.repeat(4-d)}</span></span>
-    <span class="meta">"${DIFF_LABEL[d]}." ${c.tier===0?'Northmarch Premier':'Northmarch One'} · ${TOWNS[c.town].n} · last season ${ord(c.last)}</span>
-    <span class="meta">Why the seat is open: ${esc(reason)}.</span>
-    <span class="meta">Members: ${big.map(g=>`${gname(c,g.k)} ${g.share}% (${moodWord(g.mood).toLowerCase()})`).join(', ')}.</span>
-    <span class="meta">Money: ${moneyWord(c.cash)}${c.debt?`, £${c.debt}k debt`:', no debt'}. Rival: ${esc(CL(c.rival).name)} (${esc(c.rivalWhy)}).</span>
-    ${known.length?`<span class="meta"><b>Knows you:</b> ${known.map(x=>esc(P(x).name)).join(', ')}</span>`:''}</button>`}).join('');
-  return`<p class="eyebrow">Summer · Season ${S.season}</p><h2>Three clubs want you</h2><p>Three members' clubs have asked you to take over as chairman. Choose one; the members will judge you at the AGM next June.</p><div class="stack">${items}</div>`;
-}
-function manifestView(){
-  const slot=['sport','club','person'][S.step],titles={sport:'Your sporting promise',club:'Your promise about the club',person:'Your personal promise'};
-  const items=manifestOptions(slot).map(id=>{const d=pdef(id),gs=pgroups(id).map(k=>gname(C(),k));return`<button class="choice" data-act="pick" data-arg="${id}"><b>${esc(d.t)}</b><span><span class="chance">${esc(chanceFor(id))}</span> <span class="meta">${SIZE_WORD[d.size]}${gs.length?' · '+gs.join(', '):''}</span></span></button>`}).join('');
-  const none=slot!=='sport'?`<button class="choice" data-act="pick" data-arg="none"><b>No promise here</b><span class="meta">Hands free. Nobody gets anything.</span></button>`:'';
-  return`<p class="eyebrow">Season ${S.season} manifest · ${S.step+1} of 3</p><h2>${titles[slot]}</h2><p>The members measure it at the AGM. Kept: they reward you. Broken: they punish you, whatever the size.${S.flags.trusted?' They trust you more after last year.':''}</p><div class="stack">${items}${none}</div>`;
-}
 function personLine(pid){const p=P(pid);if(!p||p.loy==null&&!p.mem.length)return'';const rel=p.rel.filter(r=>P(r.id)).slice(0,2).map(r=>`${r.type==='protégé'?'mentor of':r.type==='mentor'?'protégé of':r.type==='friends'?'friends with':r.type==='rivals'?'rivals with':'related to'} ${P(r.id).name}`).join('; ');
   return`<p class="small muted">${esc(p.name)}: ${p.traits.join(', ')}. ${band(p.loy)} with you${p.owes?', owes you a favour':''}${p.withOpp?', in the opposition camp':''}.${rel?' '+esc(rel.charAt(0).toUpperCase()+rel.slice(1))+'.':''}${p.deepKnown?` Values ${VALUE_WORD[p.value]}; wants ${esc(p.deep)}.`:''}</p>`}
 function bubbles(sc){

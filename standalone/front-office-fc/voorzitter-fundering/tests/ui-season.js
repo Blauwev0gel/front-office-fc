@@ -22,9 +22,9 @@ const {chromium}=require('playwright');const path=require('path');
    if(has('toEnd')){await p.waitForTimeout(3800);await p.click('main [data-act=toEnd]');continue}
    if(has('nextSeason')){done=true;break}
    let a=null;
-   for(const k of ['toSeats','seat','arrive','pick','tdhire','react','meetNext','mchoose','mdone','sumNext','windowDone','sit','card','play','next','hire','alvLobby','lobbyDone','defend']){const m=acts.filter(x=>x.startsWith(k+'|'));if(m.length){a=m[Math.min(pick,m.length-1)];break}}
+   for(const k of ['call','seat','sign','toEnvelope','openEnv','toSeats','arrive','crisisDone','crisis','pick','tdhire','react','meetNext','mchoose','mdone','sumNext','windowDone','sit','card','play','next','hire','alvLobby','lobbyDone','defend']){const m=acts.filter(x=>x.startsWith(k+'|'));if(m.length){a=m[Math.min(pick,m.length-1)];break}}
    if(!a){errs.push('stuck '+acts.join(','));break}
-   const act=a.slice(0,a.indexOf('|')),arg=a.slice(a.indexOf('|')+1);await p.click(`main [data-act="${act}"]${arg?`[data-arg="${arg}"]`:''}`);
+   const act=a.slice(0,a.indexOf('|')),arg=a.slice(a.indexOf('|')+1);if(act==='sign'){await p.focus('main [data-hold]');await p.keyboard.press('Enter');continue}await p.click(`main [data-act="${act}"]${arg?`[data-arg="${arg}"]`:''}`);
   }
   const st=await p.evaluate(()=>({season:S.season,week:S.week,screen:S.screen,squad:S.cf&&S.cf.squad.length,history:S.history.slice(-2).map(h=>h.txt)}));
   console.log(scheme,'steps',steps,'maxWidth',maxW,JSON.stringify(st));

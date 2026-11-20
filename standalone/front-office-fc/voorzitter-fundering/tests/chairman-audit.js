@@ -19,6 +19,11 @@ function play(policy,seed,seasons=2){
     while(out.steps++<20000){const S=m.S;
       switch(S.screen){
         case'prologue':m.act('toSeats');break;
+        case'call':m.act('call','Test Chair');break;
+        case'sign':m.act('sign');break;
+        case'signed':m.act('toEnvelope');break;
+        case'envelope':out.elections.push(100);if(!S.secret.revealed)m.act('openEnv');else m.act('arrive');break;
+        case'crisis':if(!S.crisisDone)m.act('crisis',policy==='random'?(r()<.5?'a':'b'):'a');else m.act('crisisDone');break;
         case'seats':m.act('seat',policy==='random'?S.seats[ri(S.seats.length)].id:S.seats[0].id);break;
         case'arrival':out.elections.push(100);m.act('arrive');break;
         case'manifest':{const slot=['sport','club','person'][S.step];let o=m.manifestOptions(slot);if(slot!=='sport')o=o.concat(['none']);let pick;

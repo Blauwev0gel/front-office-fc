@@ -98,17 +98,62 @@ button:focus-visible{outline:3px solid var(--info);outline-offset:2px}
 /* staff */
 .sg{display:flex;gap:8px;align-items:center;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:7px 9px;font-size:15px}
 .sg .nm{flex:1}
+/* ===== the ticker, broadcast style ===== */
+.tc{background:#11151b;color:#f4f1e9;display:flex;flex-direction:column}
+.tc-top{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#0b0e12;border-bottom:3px solid var(--club)}
+.live-dot{width:10px;height:10px;border-radius:50%;background:#ff4d3d;animation:pulse 1.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,77,61,.7)}70%{box-shadow:0 0 0 8px rgba(255,77,61,0)}100%{box-shadow:0 0 0 0 rgba(255,77,61,0)}}
+.tc-top b{font-family:var(--f-display);font-weight:400;font-size:20px;letter-spacing:.03em;text-transform:uppercase}
+.clock{margin-left:auto;text-align:right;line-height:1.1}.clock b{display:block;font-family:var(--f-display);font-weight:400;font-size:18px}.clock span{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#c9c3b4}
+.crawl{background:var(--gold);color:#141417;overflow:hidden;white-space:nowrap;border-bottom:2px solid #141417;font-weight:700;font-size:15px;height:34px;display:flex;align-items:center}
+.crawl .lab{background:#141417;color:var(--gold);font-family:var(--f-display);font-size:14px;padding:0 10px;height:100%;display:flex;align-items:center;flex:none;position:relative;z-index:1}
+.crawl .run{display:inline-block;padding-left:12px;animation:crawl 30s linear infinite}
+.crawl .run span{margin-right:28px}.crawl .run span::before{content:"◆ ";color:#b3261e}
+@keyframes crawl{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tc-body{padding:12px;display:flex;flex-direction:column;gap:10px}
+.sec{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#c9c3b4}
+.trk{background:#1b2028;border:1.5px solid #2c333d;border-radius:12px;padding:9px 10px;display:flex;flex-direction:column;gap:7px}
+.trk-h{display:flex;align-items:center;gap:8px}.trk-h b{flex:1;font-size:16px;min-width:0}
+.plan{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#c9c3b4}
+.dots{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.dot{display:flex;flex-direction:column;gap:3px;align-items:center;font-family:var(--f-label);font-weight:700;font-size:13px;text-transform:uppercase;color:#7d7869}
+.dot i{width:100%;height:6px;border-radius:3px;background:#2c333d;transition:background .4s}
+.dot.on{color:#fff}.dot.on i{background:var(--gold)}.dot.done{color:#a8e6bc}.dot.done i{background:#3fbf6b}
+.trk.lost{opacity:.65}.trk.lost .trk-h b{text-decoration:line-through}
+.status{font-family:var(--f-display);font-weight:400;font-size:14px;padding:1px 8px;border-radius:6px;flex:none}
+.status.ok{background:#3fbf6b;color:#0b0e12}.status.no{background:#ff4d3d;color:#fff}.status.go{background:var(--gold);color:#141417}
+.feed{display:flex;flex-direction:column;gap:8px}
+.card{border-radius:12px;overflow:hidden;animation:cin .45s cubic-bezier(.3,1.4,.6,1) both}
+@keyframes cin{from{opacity:0;transform:translateY(-12px) scale(.97)}to{opacity:1;transform:none}}
+.card .ct{font-family:var(--f-display);font-size:15px;letter-spacing:.04em;padding:3px 10px;display:flex;justify-content:space-between;align-items:center}
+.card .ct span{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.08em}
+.card .cb{padding:9px 10px;display:flex;gap:10px;align-items:center;background:#f4f1e9;color:#141417}
+.card .txt{flex:1;min-width:0}.card .txt b{display:block;font-size:17px;line-height:1.15}.card .txt span{font-size:14px;color:#585660}
+.c-in .ct{background:#3fbf6b;color:#0b0e12}.c-out .ct{background:#e8e2d2;color:#141417}.c-hj .ct{background:#ff4d3d;color:#fff}.c-rm .ct{background:#6b7fae;color:#fff}.c-fr .ct{background:#2c333d;color:#fff}
+.c-quiet{background:#1b2028;border:1.5px dashed #3a424e;color:#d8d2c3;font-size:15px;padding:8px 10px}
+.mug{width:46px;height:46px;border-radius:50%;background:#e2d7bf;border:2px solid #141417;display:grid;place-items:center;font-family:var(--f-display);font-size:16px;flex:none;position:relative}
+.mug .pb{position:absolute;bottom:-4px;right:-8px;font-size:12px;padding:0 4px;border-radius:4px;color:#fff;background:#2f4c7a;font-family:var(--f-label);font-weight:700}
+.route{display:flex;align-items:center;gap:5px;font-family:var(--f-label);font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.03em;color:#585660;margin-top:2px;flex-wrap:wrap}
+.route i{display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid #141417}
+.fee{font-family:var(--f-display);font-size:22px;flex:none}
+.score{display:flex;align-items:center;gap:10px;width:100%;justify-content:center;font-family:var(--f-display);font-size:18px;text-transform:uppercase}
+.score .n{background:#141417;color:var(--gold);padding:0 10px;border-radius:6px;font-size:24px}
+.ctrl{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 12px 12px}
+.ctrl button{min-height:44px;border-radius:10px;border:1.5px solid #3a424e;background:#1b2028;color:#f4f1e9;font:700 15px var(--f-body);cursor:pointer}
+.ctrl button.pri{background:var(--gold);color:#141417;border-color:var(--gold)}
+@media (prefers-reduced-motion:reduce){.crawl{overflow-x:auto}.crawl .run{animation:none}.card,.live-dot{animation:none}}
+
 @media (prefers-reduced-motion:reduce){.live li{opacity:1;animation:none}}
 </style>
 
 <div class="page" id="root">
   <header class="intro">
     <h1>Transfer summer templates</h1>
-    <p>The summer of Ravensby Wanderers under director Owen Pryce: the meeting, the brief, six weeks of ticker, the summer edition and the debrief. Switch the outcome to see a good and a bad summer.</p>
+    <p>The summer of Ravensby Wanderers under director Owen Pryce: the meeting, the brief, six weeks of ticker, the summer edition and the debrief. Switch the outcome to see a good and a bad summer, and press Play in the transfer centre.</p>
   </header>
   <div class="controls">
     <div class="seg" data-k="out"><span>Outcome</span><button data-v="good" aria-pressed="true">Good summer</button><button data-v="bad" aria-pressed="false">Bad summer</button></div>
-    <div class="seg" data-k="motion"><span>Ticker</span><button data-v="live" aria-pressed="true">Running</button><button data-v="all" aria-pressed="false">Show it all</button></div>
+    
   </div>
   <div class="screens" id="screens"></div>
 </div>
@@ -145,29 +190,51 @@ const S2=()=>`<div class="phone">${hd(1)}<div class="body">
  <div class="chips"><span class="chip p">Budget £40k</span><span class="chip p">Wage cap £900/wk</span><span class="chip p">Red line: never sell to Saltmere</span></div>
  <button class="btn">Open the window</button></div></div>`;
 
+const ST=['Talks','Bid','Agreed','Medical','Signed'];
+const CL={rav:['Ravensby','#e2702f'],hol:['Hollin Vale','#2b6a3d'],eas:['Eastholm','#6b4fa0'],sal:['Saltmere','#4f9bd9'],bra:['Brackley','#8a1c2b'],ash:['Ashborough','#141417'],fen:['Fenwick','#c9a227']};
+const route=(a,b)=>`<span class="route"><i style="background:${CL[a][1]}"></i>${CL[a][0]} → <i style="background:${CL[b][1]}"></i>${CL[b][0]}</span>`;
+const mug=(ini,pos)=>`<span class="mug" aria-hidden="true">${ini}<span class="pb">${pos}</span></span>`;
+const card={
+ in:o=>`<div class="card c-in"><div class="ct">DONE DEAL<span>${o.when}</span></div><div class="cb">${mug(o.ini,o.pos)}<div class="txt"><b>${o.name}</b>${route(o.from,'rav')}<span>${o.age} · scouted as ${o.g}</span></div><span class="fee">${o.fee}</span></div></div>`,
+ out:o=>`<div class="card c-out"><div class="ct">OUT<span>${o.when}</span></div><div class="cb">${mug(o.ini,o.pos)}<div class="txt"><b>${o.name}</b>${route('rav',o.to)}</div><span class="fee">${o.fee}</span></div></div>`,
+ hj:o=>`<div class="card c-hj"><div class="ct">HIJACKED<span>${o.when}</span></div><div class="cb"><div class="txt"><b>${o.t}</b><span>${o.s}</span></div></div></div>`,
+ rm:o=>`<div class="card c-rm"><div class="ct">WORD IS<span>${o.when}</span></div><div class="cb"><div class="txt"><b>${o.t}</b><span>${o.s}</span></div></div></div>`,
+ fr:o=>`<div class="card c-fr"><div class="ct">FRIENDLY · FULL TIME<span>${o.when}</span></div><div class="cb"><div class="score">Ravensby <span class="n">${o.sc}</span> ${o.opp}</div></div><div class="cb" style="padding-top:0"><div class="txt"><span>${o.s}</span></div></div></div>`,
+ q:o=>`<div class="card c-quiet">${o.t}</div>`};
 const TICK={good:[
-  ['Week 1',[['mid','…','Talks: Callum Rees. Hollin Vale want £18k.'],['big in','✔','Sold: Femi Whitlock to Hollin Vale for £14k.'],['sm','·','Saltmere sign a winger from abroad.']]],
-  ['Week 2',[['mid','…','Bid: £13k for Danny Kerr.'],['sm','?','Rumour: a Premier club watches Waddington. Pryce chases it.'],['mid','…','Rees: no progress this week.']]],
-  ['Week 3',[['big in','✔','Signed: Danny Kerr (ST, 29) for £13k.'],['mid','…','Rees: bid accepted, medical on Thursday.']]],
-  ['Week 4',[['fr','','Friendly: Ravensby 2–1 Fenwick. Kerr scores on debut.'],['big in','✔','Signed: Callum Rees (FB, 24) for £18k.']]],
-  ['Week 5',[['fr','','Friendly: Ravensby 0–0 Ashborough.'],['sm','·','Plan: left-back done · striker done.']]],
-  ['Week 6',[['mid','…','Bid: Eastholm want Holt. Pryce says no.'],['sm','·','A quiet week.']]],
-  ['Deadline day',[['mid','10:12','Loan: Lewis Carr (W, 21) from Ashborough.'],['sm','23:00','The window shuts.']]]],
+ {d:'Mon 7 Jul',w:'Week 1',trk:{rees:0,kerr:-9,amadi:-9},m:[['out',{when:'Mon',ini:'FW',pos:'FB',name:'Femi Whitlock',to:'hol',fee:'£14k'}]],cr:['Whitlock joins Hollin Vale for £14k','Ravensby open talks for Callum Rees','Saltmere sign a winger from abroad']},
+ {d:'Mon 14 Jul',w:'Week 2',trk:{rees:0,kerr:0,amadi:-9},m:[['rm',{when:'Wed',t:'"A Premier club is watching Waddington."',s:'Pryce spends the week on it. The Rees talks stall.'}]],cr:['Premier scouts at Ravensby training, says the Echo','Ravensby ask about Eastholm striker Danny Kerr']},
+ {d:'Mon 21 Jul',w:'Week 3',trk:{rees:1,kerr:3,amadi:-9},m:[['q',{t:'Quiet week. Pryce: "Rees is close. Kerr has his medical on Friday."'}]],cr:['Kerr medical booked for Friday','Ravensby bid £18k for Rees']},
+ {d:'Mon 28 Jul',w:'Week 4',trk:{rees:3,kerr:5,amadi:-9},m:[['in',{when:'Tue',ini:'DK',pos:'ST',name:'Danny Kerr',from:'eas',age:29,g:'B',fee:'£13k'}],['fr',{when:'Sat',sc:'2–1',opp:'Fenwick',s:'Kerr scores on his debut.'}]],cr:['DONE DEAL: Kerr signs for Ravensby','Friendly: Ravensby 2–1 Fenwick']},
+ {d:'Mon 4 Aug',w:'Week 5',trk:{rees:5,kerr:5,amadi:-9},m:[['in',{when:'Thu',ini:'CR',pos:'FB',name:'Callum Rees',from:'hol',age:24,g:'A',fee:'£18k'}],['fr',{when:'Sat',sc:'0–0',opp:'Ashborough',s:'Rees solid on the left.'}]],cr:['DONE DEAL: Rees completes £18k move','Both priorities done for Ravensby']},
+ {d:'Mon 11 Aug',w:'Week 6',trk:{rees:5,kerr:5,amadi:-9},m:[['q',{t:'Eastholm ask about Holt. Pryce: "Not for sale."'}]],cr:['Eastholm told: Holt is not for sale']},
+ {d:'Fri 15 Aug',w:'Deadline day',trk:{rees:5,kerr:5,amadi:-9},m:[['in',{when:'10:12',ini:'LC',pos:'W',name:'Lewis Carr',from:'ash',age:21,g:'C',fee:'Loan'}],['q',{t:'23:00. The window shuts. Two of two.'}]],cr:['Deadline day: Carr arrives on loan','The window is shut']}],
  bad:[
-  ['Week 1',[['mid','…','Talks: Callum Rees. Hollin Vale want £18k.'],['big in','✔','Sold: Femi Whitlock to Hollin Vale for £14k.'],['sm','·','Saltmere sign a winger from abroad.']]],
-  ['Week 2',[['sm','?','Rumour: a Premier club watches Waddington. Pryce chases it.'],['mid','…','Rees: no progress this week.']]],
-  ['Week 3',[['big off','✖','Hijacked: Saltmere beat us to Callum Rees. Plan B: Josh Amadi.'],['mid','…','Bid: £13k for Danny Kerr.']]],
-  ['Week 4',[['fr','','Friendly: Ravensby 0–3 Fenwick. No left-back on the pitch.'],['mid','…','Kerr wants more money. Talks stall.']]],
-  ['Week 5',[['fr','','Friendly: Ravensby 1–1 Ashborough.'],['big off','✖','Josh Amadi signs for Brackley.']]],
-  ['Week 6',[['big in','✔','Signed: Danny Kerr (ST, 29) for £21k.'],['sm','·','Plan: striker done · left-back open.']]],
-  ['Deadline day',[['mid','17:40','No club will loan us a left-back.'],['big off','23:00','The window shuts. Left-back: missed.']]]]};
-const S3=()=>{const T=TICK[st.out],anim=st.motion==='live';let i=0;
- const board=st.out==='good'?[['Left-back','A · Rees','g','Signed'],['Striker','A · Kerr','g','Signed'],['Net spend','£17k of £40k','g','On track']]:[['Left-back','A · B · —','r','Missed'],['Striker','A · Kerr','g','Signed'],['Net spend','£7k of £40k','g','On track']];
- return`<div class="phone">${hd(2)}<div class="body"><h2 class="h">Six weeks of summer</h2>
- <div class="board">${board.map(b=>`<div class="bcell"><b>${b[0]}</b><span>${b[1]}</span><span class="chip ${b[2]}">${b[3]}</span></div>`).join('')}</div>
- ${T.map(([w,ls])=>`<p class="wk">${w}</p><ul class="tk ${anim?'live':''}">${ls.map(([k,ic,t])=>k==='fr'?`<li style="${anim?`animation-delay:${(i++*.3).toFixed(1)}s`:''}"><span class="fr"><b>FT</b>${t}</span></li>`:`<li style="${anim?`animation-delay:${(i++*.3).toFixed(1)}s`:''}"><span class="${ic.length>2?'tm':'i'}">${ic}</span><span class="${k}">${t}</span></li>`).join('')}</ul>`).join('')}
- <button class="btn small" id="replay">${anim?'Replay the summer':'Show it running'}</button><button class="btn">The summer edition</button></div></div>`};
-
+ {d:'Mon 7 Jul',w:'Week 1',trk:{rees:0,kerr:-9,amadi:-9},m:[['out',{when:'Mon',ini:'FW',pos:'FB',name:'Femi Whitlock',to:'hol',fee:'£14k'}]],cr:['Whitlock joins Hollin Vale for £14k','Ravensby open talks for Callum Rees']},
+ {d:'Mon 14 Jul',w:'Week 2',trk:{rees:0,kerr:0,amadi:-9},m:[['rm',{when:'Wed',t:'"A Premier club is watching Waddington."',s:'Pryce spends the week on it. The Rees talks stall.'}]],cr:['Premier scouts at Ravensby training, says the Echo']},
+ {d:'Mon 21 Jul',w:'Week 3',trk:{rees:-1,kerr:1,amadi:0},m:[['hj',{when:'Tue',t:'Saltmere steal Callum Rees',s:'Plan B for left-back: Josh Amadi.'}]],cr:['HIJACKED: Saltmere beat Ravensby to Rees','Ravensby turn to Josh Amadi']},
+ {d:'Mon 28 Jul',w:'Week 4',trk:{rees:-1,kerr:1,amadi:0},m:[['fr',{when:'Sat',sc:'0–3',opp:'Fenwick',s:'No left-back on the pitch. It showed.'}],['q',{t:'Kerr wants more money. Talks stall.'}]],cr:['Friendly: Ravensby 0–3 Fenwick','Kerr talks stall over wages']},
+ {d:'Mon 4 Aug',w:'Week 5',trk:{rees:-1,kerr:2,amadi:-1},m:[['hj',{when:'Wed',t:'Josh Amadi signs for Brackley',s:'Plan B is gone too. Left-back: back to the reports.'}],['fr',{when:'Sat',sc:'1–1',opp:'Ashborough',s:'A point, and a lot of questions.'}]],cr:['Amadi chooses Brackley','Ravensby still without a left-back']},
+ {d:'Mon 11 Aug',w:'Week 6',trk:{rees:-1,kerr:5,amadi:-1},m:[['in',{when:'Tue',ini:'DK',pos:'ST',name:'Danny Kerr',from:'eas',age:29,g:'B',fee:'£21k'}]],cr:['DONE DEAL: Kerr signs, £8k over the estimate']},
+ {d:'Fri 15 Aug',w:'Deadline day',trk:{rees:-1,kerr:5,amadi:-1},m:[['q',{t:'17:40. No club will loan us a left-back.'}],['hj',{when:'23:00',t:'The window shuts',s:'Left-back: missed.'}]],cr:['Deadline day: no left-back for Ravensby','The window is shut']}]};
+const TRK=[['rees','Callum Rees','A','Plan A · left-back'],['amadi','Josh Amadi','B','Plan B · left-back'],['kerr','Danny Kerr','B','Plan A · striker']];
+let wk=0,timer=null;
+function trackerHTML(t){return TRK.filter(([k])=>t[k]!==-9).map(([k,n,g,plan])=>{const v=t[k],lost=v===-1,done=v>=5;
+  return`<div class="trk${lost?' lost':''}"><div class="trk-h">${G(g)}<b>${n}</b><span class="plan">${plan}</span>${lost?'<span class="status no">Lost</span>':done?'<span class="status ok">Signed</span>':`<span class="status go">${ST[v]}</span>`}</div>
+  <div class="dots">${ST.map((s,i)=>`<span class="dot ${done||(!lost&&i<v)?'done':(i===v&&!lost?'on':'')}"><i></i>${s}</span>`).join('')}</div></div>`}).join('')}
+function tickerHTML(){const T=TICK[st.out],n=Math.min(wk,T.length-1),W=T[n],parts=[];
+  for(let i=n;i>=0;i--){if(i<n)parts.push(`<span class="sec">${T[i].w}</span>`);for(const [k,o] of T[i].m.slice().reverse())parts.push(card[k](o))}
+  const crawl=T.slice(0,n+1).flatMap(x=>x.cr).reverse();
+  return`<div class="tc-top"><span class="live-dot" aria-hidden="true"></span><b>Transfer centre</b><span class="clock"><b>${W.d}</b><span>${W.w}</span></span></div>
+  <div class="crawl" aria-label="Latest headlines"><span class="lab">LATEST</span><span class="run">${crawl.concat(crawl).map(c=>`<span>${c}</span>`).join('')}</span></div>
+  <div class="ctrl" style="padding-top:12px"><button id="tPlay" class="pri">${timer?'Pause':n>=T.length-1?'Replay':'Play'}</button><button id="tNext">Next week</button><button id="tAll">Show it all</button></div>
+  <div class="tc-body"><span class="sec">Deal tracker</span>${trackerHTML(W.trk)}<span class="sec">${W.w} · moments</span><div class="feed">${parts.join('')}</div></div>`}
+function stopT(){if(timer){clearInterval(timer);timer=null}}
+function paintTicker(){const el=document.getElementById('tick');if(!el)return;el.innerHTML=tickerHTML();const L=TICK[st.out].length-1;
+  document.getElementById('tPlay').onclick=()=>{if(timer)stopT();else{if(wk>=L)wk=0;timer=setInterval(()=>{wk++;if(wk>=L)stopT();paintTicker()},1900)}paintTicker()};
+  document.getElementById('tNext').onclick=()=>{stopT();wk=Math.min(wk+1,L);paintTicker()};
+  document.getElementById('tAll').onclick=()=>{stopT();wk=L;paintTicker()};}
+const S3=()=>`<div class="phone">${hd(2)}<div class="tc" id="tick"></div><div style="padding:12px;background:#11151b"><button class="btn">The summer edition</button></div></div>`;
 const ED={good:{g:'A',head:'A summer to remember at Ravensby',sub:'Both priorities landed, on budget.',bars:[['Defence',47,52],['Midfield',48,48],['Attack',46,51]],coach:'"I have a better squad than in May. Now it is up to me."',fans:'The forums are buzzing about Rees.',board:'"The director did what we agreed."'},
  bad:{g:'D',head:'Questions over Ravensby\'s summer business',sub:'No left-back, and Kerr cost more than planned.',bars:[['Defence',47,44],['Midfield',48,48],['Attack',46,50]],coach:'"We are weaker at the back than last season. I will say that to anyone who asks."',fans:'Supporters ask where the plan went.',board:'"We expected more from this summer."'}};
 const S4=()=>{const e=ED[st.out];return`<div class="phone">${hd(3)}<div class="body">
@@ -200,8 +267,8 @@ const S6=()=>`<div class="phone"><div class="hd"><b>Ravensby Wanderers</b><span 
 const caps=['1 · The summer meeting','2 · The summer brief','3 · The ticker','4 · The summer edition','5 · The debrief','In the season · the Staff tab'];
 function render(){document.getElementById('screens').innerHTML=[S1,S2,S3,S4,S5,S6].map((f,i)=>`<section aria-label="${caps[i]}"><p class="cap">${caps[i]}</p>${f()}</section>`).join('');
  document.querySelectorAll('.seg').forEach(g=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(st[g.dataset.k]===b.dataset.v))));
- const r=document.getElementById('replay');if(r)r.onclick=()=>{st.motion='live';render()};}
-document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{st[b.parentElement.dataset.k]=b.dataset.v;render()}));
+ paintTicker();}
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{st[b.parentElement.dataset.k]=b.dataset.v;stopT();wk=0;render()}));
 render();
 })();
 </script>

@@ -20,6 +20,7 @@ Basis voor de links: `https://github.com/blauwev0gel/front-office-fc/blob/voorzi
 ## 1. Altijd eerst (± 15 minuten lezen)
 | # | Bestand | Waarom |
 |---|---|---|
+| 0 | [`standalone-research/PROMPT-SPEL-ONTDEKKEN-VOORZITTER.md`](https://github.com/blauwev0gel/front-office-fc/blob/voorzitter-fundering/standalone-research/PROMPT-SPEL-ONTDEKKEN-VOORZITTER.md) | **De werkprompt voor de volgende fase:** lead game designer, onderzoeksdossier, vijf fasen met poorten (gevoel → kern → papieren proef → vertical slice → lagen). Begin hier. |
 | 1 | [`standalone-research/LEESWIJZER-VOORZITTER.md`](https://github.com/blauwev0gel/front-office-fc/blob/voorzitter-fundering/standalone-research/LEESWIJZER-VOORZITTER.md) | Dit bestand |
 | 2 | [`standalone-research/CONCEPT-VOORZITTER-2026-11-18.md`](https://github.com/blauwev0gel/front-office-fc/blob/voorzitter-fundering/standalone-research/CONCEPT-VOORZITTER-2026-11-18.md) | **Bron van waarheid.** §13 bevat de bindende keuzes van de eigenaar (1–70); hoe hoger het nummer, hoe recenter. Bij een conflict wint de laatste keuze. |
 | 3 | [`standalone-research/PROMPT-ECHT-SPEL-VOORZITTER.md`](https://github.com/blauwev0gel/front-office-fc/blob/voorzitter-fundering/standalone-research/PROMPT-ECHT-SPEL-VOORZITTER.md) | De kernzin, de vijf pijlers met speeltests, en de harde grenzen (een week duurt 30–60 s, een seizoen 20–30 min) |

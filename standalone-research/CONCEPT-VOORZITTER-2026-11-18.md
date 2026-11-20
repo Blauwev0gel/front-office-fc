@@ -336,6 +336,13 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - de week draait om zware beslismomenten, zonder kaartstroom;
     - mensen met karakter en geheugen dragen alles;
     - het open risico (genoeg betrokkenheid in een sessie van 5–10 minuten) wordt getoetst in de papieren proef.
+76. **Familie en dynastie** (21-11-2026, zie `FAMILIE-VOORZITTER.md`), gebaseerd op Crusader Kings:
+    - karakters met eigenschappen die kinderen erven;
+    - je eigen dynastie, met een erfgenaam die gekozen moet worden door de leden;
+    - familie in de club (nepotisme);
+    - families in de wereld, met vetes en verbonden over generaties;
+    - elk seizoen wordt gespeeld, zonder sprongen in de tijd;
+    - hooguit één familiemoment per 2–3 sessies, geen stamboom-spreadsheet en geen nieuwe meters.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

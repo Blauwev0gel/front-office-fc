@@ -54,7 +54,7 @@ function staffVoices(){
   const gaps=cfNeeds().filter(g=>g.kind==='short'||g.kind==='oop').length,ask=Math.max(20,gaps*30);
   const coPos=(cfNeeds().find(g=>g.kind==='oop'||g.kind==='short')||{pos:'CM'}).pos;
   return[
-   {pid:td.id,line:sm&&sm.prios.length?`"My list: ${sm.prios.map(x=>x.goal.toLowerCase()).join(', ')}. My first choices cost about £${sumAsk()}k."`:`"The squad is in decent shape. Give me £${ask}k and I'll make it better."`},
+   {pid:td.id,line:sm&&sm.prios.length?`"My list: ${sm.prios.map(x=>x.goal.charAt(0).toLowerCase()+x.goal.slice(1)).join(', ')}. Give me the money and I will get it done."`:`"The squad is in decent shape. Give me £${ask}k and I'll make it better."`},
    {pid:co.id,line:`"${co.traits.includes('ambitious')?'I want to go for it this year.':'I want us hard to beat.'} ${sm&&sm.prios.some(x=>x.pos===coPos)?`Good that a ${POS_ONE[coPos]} is on the list.`:`I'd have put a ${POS_ONE[coPos]} on that list.`}"`},
    {pid:fi.id,line:`"We have £${Math.round(c.cash)}k in the bank${c.debt?` and £${c.debt}k of debt`:''}. Wages are £${fin.wb}k a week against £${fin.inc}k coming in. ${fc<0?`On this course we lose about £${-fc}k by May.`:`We should end the season about £${fc}k up.`}"`}];
 }

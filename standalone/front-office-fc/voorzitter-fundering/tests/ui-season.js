@@ -8,7 +8,7 @@ const {chromium}=require('playwright');const path=require('path');
   await p.goto(f);await p.click('[data-act=new]');
   let steps=0,maxW=0,done=false;const shot={};
   while(steps<900&&!done){steps++;
-   maxW=Math.max(maxW,await p.evaluate(()=>document.documentElement.scrollWidth));
+   {const sw=await p.evaluate(()=>[document.documentElement.scrollWidth,S.screen+(S.cf&&S.cf.sum?':'+S.cf.sum.step:''),UI.t]);if(sw[0]>390&&!shot['w'+sw[1]]){shot['w'+sw[1]]=1;console.log('wide',sw.join(' '))}maxW=Math.max(maxW,sw[0])}
    const acts=await p.$$eval('main [data-act]',els=>els.map(e=>e.dataset.act+'|'+(e.dataset.arg||'')));const has=a=>acts.find(x=>x.startsWith(a+'|'));
    if(pick===0){
      if(!shot.meeting&&has('mchoose')){await p.screenshot({path:path.join(shots,'meeting.png'),fullPage:true});shot.meeting=1}

@@ -2,6 +2,9 @@
 
 *Voor Claude als voetbalexpert én game developer. Branch `voorzitter-fundering`, standalone-spoor. Opgesteld 20-11-2026.*
 
+**Stand 21-11-2026:** de templates zijn goedgekeurd, inclusief de ticker als transfer centre, en fase B is gebouwd.
+- De winter draait op dezelfde opzet, zonder eigen schermen: het resultaat staat in de feed en op de Staff-tab.
+
 **Werkwijze:** eerst templates, dan pas bouwen.
 
 ---

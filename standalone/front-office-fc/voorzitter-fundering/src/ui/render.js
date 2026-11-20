@@ -34,6 +34,7 @@ function render(){
   $.setAttribute('style',S.my&&C().col?clubVars(C()):'');
   document.body.classList.toggle('noNav',!nav);
   $.innerHTML=topBar()+`<main class="${enter.trim()}">${body}</main>`+(nav?tabBar():'')+(UI.over?overlayView():'');
+  if(S.screen==='tsum'&&S.cf&&S.cf.sum&&S.cf.sum.step==='live')tickMount();else tickStop();
 }
 const TAB_ICON={staff:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 4h6v3H9zM8 11h8M8 14h8M8 17h5" fill="none" stroke="currentColor" stroke-width="2"/></svg>',club:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v8c0 5-4 7.5-8 8.5C8 19.5 4 17 4 12z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
  post:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 7l9 6 9-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>',

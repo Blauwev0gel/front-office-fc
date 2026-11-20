@@ -48,4 +48,28 @@ check(key<=1,'at most one key sale per summer');
 check(reasons,'every priority comes from depth, weakness or a departure, with a reason');
 check(aT<tot,'the budget rule: not every priority lands its A-target');
 check(prof&&lines===4,'every arrival has a profile and the report covers all four lines');
+console.log('the verdict and the winter (20 seeds):');
+function verdictRun(seed,eye){const m=load();m.act('new',seed);return m.run(`(function(){
+  const id=Object.keys(S.clubs).find(i=>CL(i).tier===1&&i!=='pell');S.my=id;S.flags={};S.mods=[];S.youth=0;S.promises=[];
+  const c=CL(id);cfInit(id,c.str,c.cast.td,c.cast.coach,c.rival);P(c.cast.td).td={phil:'data',eye:${eye},deal:3,plan:3,bond:3};
+  tdSummerAuto();const s=S.cf.sum,v=s.verdict;
+  const out={grade:v.grade,brief:s.brief.length,weeks:s.wk.length,fr:s.wk.filter(w=>w.moments.some(m=>m.type==='fr')).map(w=>w.w),missed:s.prios.filter(x=>x.res==='fail').length,n:s.prios.length,
+    excuseOk:!(v.excuse&&v.strike),hij:s.hijacks,A:[],err:null};
+  const signed=S.cf.squad.filter(p=>p.signedS===S.season&&p.scoutGrade==='A');out.A=signed.map(p=>p.q-(p.scoutBase??p.q));
+  try{for(let w=1;w<=30;w++){S.week=w;clubWeek(w);simRound(w);S.round=w}out.winter=S.cf.sum.kind==='winter'?S.cf.sum.wk.length:0}catch(e){out.err=e.message}
+  return out})()`)}
+const VR=SEEDS.map(sd=>verdictRun(sd,3)),grades={};VR.forEach(r=>grades[r.grade]=(grades[r.grade]||0)+1);
+const mis=VR.reduce((a,r)=>a+r.missed,0)/VR.reduce((a,r)=>a+r.n,0);
+console.log(`  edition grades ${JSON.stringify(grades)} | missed ${Math.round(mis*100)}% of priorities | winter windows run: ${VR.filter(r=>r.winter).length}/20${VR.find(r=>r.err)?' | error: '+VR.find(r=>r.err).err:''}`);
+check(VR.every(r=>r.brief>=2&&r.brief<=3),'every summer has a brief with 2-3 points');
+check(Object.keys(grades).length>=3,'edition grades are spread (at least three different grades)');
+check(mis>=.1&&mis<=.25,'10-25% of priorities are missed');
+check(VR.every(r=>r.weeks===7&&r.fr.join()==='4,5'),'six weeks plus deadline day, friendlies in weeks 4 and 5');
+check(VR.every(r=>r.excuseOk),'no strike when only the market went wrong');
+check(VR.every(r=>!r.err&&r.winter===4),'the winter window runs on the same machine (three weeks plus deadline)');
+const aLow=SEEDS.map(sd=>verdictRun(sd,1)).flatMap(r=>r.A),aHigh=SEEDS.map(sd=>verdictRun(sd,5)).flatMap(r=>r.A);
+const bust=xs=>xs.length?xs.filter(d=>d<1).length/xs.length:0;
+console.log(`  grade-A signings that are not really an upgrade: eye 1 ${Math.round(bust(aLow)*100)}% (${aLow.length}) | eye 5 ${Math.round(bust(aHigh)*100)}% (${aHigh.length})`);
+check(bust(aLow)>bust(aHigh),'a weak eye hands out more false A-grades than a sharp one');
+
 console.log(fails?`${fails} check(s) failed`:'all checks passed');

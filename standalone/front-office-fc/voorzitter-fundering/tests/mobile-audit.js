@@ -27,9 +27,10 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
    await p.screenshot({path:path.join(shots,`m-${name}.png`),fullPage:false});
    console.log(name.padEnd(10),'| small targets:',r.small.length?r.small.slice(0,4).join(' '):'none','| text <13px:',r.tiny.length?r.tiny.slice(0,3).join(' '):'none','| primary at',r.primary==null?'—':r.primary+'% of screen height','| bottom bar:',r.nav?'yes':'no','| width',r.wide);
  };
- // the transfer summer: the running ticker, then the report
- await audit('sum-live');await go('sumSkip');await audit('sum-live-all');await go('sumNext');await audit('sum-report');
- await p.evaluate(()=>window.scrollTo(0,0));await p.screenshot({path:path.join(shots,'m-sum-report-full.png'),fullPage:true});await go('sumNext');
+ // the transfer summer: brief, transfer centre, edition, debrief
+ await audit('sum-brief');await go('sumNext');await p.waitForTimeout(500);await audit('sum-live');await p.click('[data-tk=all]');await p.waitForTimeout(200);await audit('sum-live-all');
+ await p.screenshot({path:path.join(shots,'m-sum-live-full.png'),fullPage:true});await go('sumNext');await audit('sum-edition');await p.screenshot({path:path.join(shots,'m-sum-edition-full.png'),fullPage:true});
+ await go('sumNext');await audit('sum-debrief');await p.screenshot({path:path.join(shots,'m-sum-debrief-full.png'),fullPage:true});await go('sumNext');
  await go('play');await go('next'); // week 2, with a result and form
  await audit('club');
  await p.evaluate(()=>window.scrollTo(0,0));await p.screenshot({path:path.join(shots,'m-club-full.png'),fullPage:true});

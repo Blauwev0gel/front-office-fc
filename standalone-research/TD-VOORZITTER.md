@@ -1,4 +1,12 @@
-# De technisch directeur: ontwerpnotitie v0.4
+# De technisch directeur: ontwerpnotitie v0.5
+
+> **v0.5 (keuze 70, gebouwd):** de zomer bestaat uit vergadering → brief → transfer centre (6 weken plus deadline day) → editie (A–E) → debrief (vijf vragen, strikes).
+> - Targets hebben een scoutcijfer.
+> - Mislukken kan echt.
+> - De winter draait op dezelfde opzet.
+> - De Staff-tab toont de brief, Hit/Miss en strikes.
+
+(Was v0.4)
 
 > **v0.4 (keuze 68):** de TD bepaalt de prioriteiten en legt ze voor in de zomervergadering. Het ordenen door de voorzitter en de meldingen in de zomer zijn geschrapt. De zomer is één doorlopende ticker met daarna een rapport (profielen en een analyse per linie). Tijdens het seizoen is er een knop Staff. Waar de tekst hieronder iets anders zegt, geldt dit.
 

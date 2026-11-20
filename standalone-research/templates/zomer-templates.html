@@ -1,0 +1,207 @@
+<title>Transfer Summer Templates</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+/* Layout: phone screens in the order of the summer on a light table; one deliberate "matchday programme" look in Ravensby's colours. */
+:root{
+  --table:#e6e2d7;--paper:#f4f1e9;--card:#ffffff;--ink:#141417;--muted:#585660;--line:#d6d0c2;--rule:#141417;--news:#f7f3e8;
+  --good:#1f7a3f;--goodbg:#e2f2e6;--bad:#b3261e;--badbg:#fbe4e1;--warn:#7a5200;--warnbg:#fcefcd;--info:#2f4c7a;--infobg:#e5ebf5;--gold:#ffd84a;
+  --club:#e2702f;--onclub:#141417;--club2:#141417;
+  --f-display:"Anton","Arial Narrow",Impact,sans-serif;--f-body:"Barlow",system-ui,sans-serif;--f-label:"Barlow Condensed","Arial Narrow",sans-serif;--f-voice:"Source Serif 4",Georgia,serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--table);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.page{max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.intro h1{font-family:var(--f-display);font-weight:400;font-size:40px;line-height:1;margin:0;text-transform:uppercase}
+.intro p{margin:6px 0 0;max-width:66ch;color:var(--muted)}
+.controls{display:flex;flex-wrap:wrap;gap:12px}
+.seg{display:flex;border:2px solid var(--rule);border-radius:999px;overflow:hidden;background:var(--card)}
+.seg span{font-family:var(--f-label);font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;padding:0 12px;display:flex;align-items:center;color:var(--muted)}
+.seg button{min-height:44px;padding:0 14px;border:0;border-left:1.5px solid var(--rule);background:transparent;font:600 15px var(--f-body);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+button:focus-visible{outline:3px solid var(--info);outline-offset:2px}
+.screens{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(370px,100%),1fr));gap:22px;align-items:start}
+.cap{font-family:var(--f-label);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:14px;color:var(--muted);text-align:center;margin:0 0 6px}
+.phone{background:var(--paper);border:2px solid var(--rule);border-radius:28px;overflow:hidden;box-shadow:0 8px 0 rgba(0,0,0,.08);display:flex;flex-direction:column}
+.hd{background:var(--club);color:var(--onclub);padding:10px 14px;border-bottom:5px solid var(--club2);display:flex;flex-direction:column;gap:6px}
+.hd b{font-family:var(--f-display);font-weight:400;font-size:20px;text-transform:uppercase;line-height:1}
+.steps{display:flex;gap:4px}.steps i{flex:1;height:5px;border-radius:3px;background:rgba(20,20,23,.25)}.steps i.on{background:var(--club2)}
+.steps-l{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.body{padding:14px;display:flex;flex-direction:column;gap:10px}
+.h{font-family:var(--f-display);font-weight:400;font-size:30px;line-height:.95;text-transform:uppercase;margin:0;text-wrap:balance}
+.lbl{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+.muted{color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:4px;font-weight:700;font-size:14px;padding:2px 8px;border-radius:999px;border:1.5px solid currentColor;white-space:nowrap}
+.chip.g{color:var(--good);background:var(--goodbg)}.chip.r{color:var(--bad);background:var(--badbg)}.chip.w{color:var(--warn);background:var(--warnbg)}.chip.i{color:var(--info);background:var(--infobg)}.chip.p{color:var(--muted);background:var(--paper)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.grade{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;border:2px solid var(--rule);font-family:var(--f-display);font-size:16px;flex:none}
+.gA{background:#1f7a3f;color:#fff}.gB{background:#8fc79d;color:var(--ink)}.gC{background:var(--gold);color:var(--ink)}.gD{background:#f1a28f;color:var(--ink)}.gE{background:var(--bad);color:#fff}
+.btn{width:100%;min-height:52px;border:2px solid var(--rule);border-radius:14px;background:var(--club);color:var(--onclub);font-family:var(--f-display);font-size:20px;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 4px 0 var(--rule);cursor:pointer}
+.btn.small{min-height:44px;font-size:16px;box-shadow:none;background:var(--card);color:var(--ink)}
+/* meeting */
+.agenda{display:flex;gap:6px;flex-wrap:wrap}
+.agenda span{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;border:1.5px solid var(--rule);background:var(--card)}
+.agenda span.on{background:var(--ink);color:#fff}.agenda span.done{color:var(--muted);border-color:var(--line);text-decoration:line-through}
+.say{display:flex;gap:8px;align-items:flex-start}
+.face{width:38px;height:38px;border-radius:50%;flex:none;border:2px solid var(--rule);display:grid;place-items:center;font-family:var(--f-display);font-size:15px;color:#fff}
+.bb{background:var(--card);border:1.5px solid var(--rule);border-radius:4px 14px 14px 14px;padding:7px 10px;min-width:0}
+.bb b{display:block;font-family:var(--f-label);font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.bb p{margin:2px 0 0;font-family:var(--f-voice);font-size:16px}
+.tg{display:flex;gap:8px;align-items:center;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:7px 9px;font-size:15px}
+.tg .ab{font-family:var(--f-display);font-size:14px;width:22px;text-align:center}
+.tg .nm{flex:1;min-width:0}.tg .nm b{display:block}
+.prio{display:flex;flex-direction:column;gap:6px}
+.prio-h{display:flex;gap:8px;align-items:center;font-weight:700}
+.num{width:26px;height:26px;border-radius:50%;background:var(--club);border:2px solid var(--rule);display:grid;place-items:center;font-family:var(--f-display);font-size:14px;flex:none}
+/* brief */
+.brief{background:#fffdf6;border:1.5px solid var(--line);border-radius:6px;padding:16px;box-shadow:0 2px 0 var(--line);display:flex;flex-direction:column;gap:10px;position:relative}
+.brief h3{font-family:var(--f-display);font-weight:400;font-size:22px;text-transform:uppercase;margin:0;text-align:center}
+.kpi{display:flex;gap:10px;align-items:flex-start;font-family:var(--f-voice);font-size:17px}
+.kpi .n{font-family:var(--f-display);font-size:18px;width:22px}
+.sig{display:flex;justify-content:space-between;align-items:flex-end;border-top:1.5px dashed var(--line);padding-top:8px}
+.sig svg path{fill:none;stroke:#1a2a6c;stroke-width:2.4;stroke-linecap:round}
+.stampB{position:absolute;right:14px;top:12px;border:3px solid var(--bad);color:var(--bad);font-family:var(--f-display);font-size:18px;padding:0 8px;border-radius:6px;transform:rotate(-10deg)}
+/* ticker */
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.bcell{background:var(--card);border:2px solid var(--rule);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:3px;font-size:14px;min-width:0}
+.bcell b{font-family:var(--f-label);font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.wk{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-top:4px;color:var(--muted)}
+.tk{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.tk li{display:flex;gap:8px;align-items:flex-start}
+.tk .i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;flex:none;background:var(--paper)}
+.tk .tm{font-family:var(--f-display);font-size:15px;min-width:44px;flex:none;padding-top:2px}
+.tk .big{background:var(--card);border:2px solid var(--rule);border-radius:12px;padding:8px 10px;font-weight:700;font-size:16px}
+.tk .big.in{border-color:var(--good);background:var(--goodbg)}.tk .big.off{border-color:var(--bad);background:var(--badbg)}
+.tk .mid{font-size:15px;padding:2px 0}
+.tk .sm{font-size:14px;color:var(--muted)}
+.tk .fr{background:var(--ink);color:#fff;border-radius:10px;padding:6px 10px;font-size:15px;display:flex;gap:8px;align-items:center}
+.fr b{font-family:var(--f-display);font-size:18px}
+.live li{opacity:0;animation:tin .35s ease forwards}
+@keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* edition */
+.news{background:var(--news);border:2px solid var(--rule);border-radius:4px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.mast{display:flex;justify-content:space-between;align-items:baseline;border-bottom:3px double var(--ink);padding-bottom:4px}
+.mast b{font-family:var(--f-display);font-size:18px;letter-spacing:.02em}.mast span{font-family:var(--f-label);font-weight:700;font-size:13px;text-transform:uppercase}
+.headline{display:flex;gap:10px;align-items:flex-start}
+.headline h3{font-family:var(--f-voice);font-weight:600;font-size:26px;line-height:1.05;margin:0}
+.bigg{width:64px;height:64px;font-size:38px;border-width:3px;border-radius:12px;transform:rotate(-4deg)}
+.quote{font-family:var(--f-voice);font-style:italic;font-size:15px;margin:0;border-left:3px solid var(--club);padding-left:8px}
+.linecmp{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;font-size:15px;align-items:center}
+.bar{height:8px;border-radius:4px;background:var(--line);position:relative}.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--club)}
+/* debrief */
+.q{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:9px 10px;font-size:15px}
+.q .m{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:700;flex:none;border:2px solid currentColor}
+.q.ok .m{color:var(--good);background:var(--goodbg)}.q.no .m{color:var(--bad);background:var(--badbg)}.q.na .m{color:var(--muted);background:var(--paper)}
+.q b{display:block;font-family:var(--f-label);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.strike{border:2px solid var(--bad);background:var(--badbg);color:var(--bad);border-radius:12px;padding:8px 10px;font-weight:700}
+.nostrike{border:2px solid var(--good);background:var(--goodbg);color:var(--good);border-radius:12px;padding:8px 10px;font-weight:700}
+/* staff */
+.sg{display:flex;gap:8px;align-items:center;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:7px 9px;font-size:15px}
+.sg .nm{flex:1}
+@media (prefers-reduced-motion:reduce){.live li{opacity:1;animation:none}}
+</style>
+
+<div class="page" id="root">
+  <header class="intro">
+    <h1>Transfer summer templates</h1>
+    <p>The summer of Ravensby Wanderers under director Owen Pryce: the meeting, the brief, six weeks of ticker, the summer edition and the debrief. Switch the outcome to see a good and a bad summer.</p>
+  </header>
+  <div class="controls">
+    <div class="seg" data-k="out"><span>Outcome</span><button data-v="good" aria-pressed="true">Good summer</button><button data-v="bad" aria-pressed="false">Bad summer</button></div>
+    <div class="seg" data-k="motion"><span>Ticker</span><button data-v="live" aria-pressed="true">Running</button><button data-v="all" aria-pressed="false">Show it all</button></div>
+  </div>
+  <div class="screens" id="screens"></div>
+</div>
+
+<script>
+(function(){
+const st={out:'good',motion:'live'};
+const STEPS=['Meeting','Brief','The summer','Edition','Debrief'];
+const hd=i=>`<div class="hd"><b>Ravensby Wanderers</b><div class="steps">${STEPS.map((s,k)=>`<i class="${k<=i?'on':''}"></i>`).join('')}</div><span class="steps-l">Summer · ${STEPS[i]}</span></div>`;
+const face=(l,c)=>`<span class="face" style="background:${c}" aria-hidden="true">${l}</span>`;
+const say=(l,c,who,t)=>`<div class="say">${face(l,c)}<div class="bb"><b>${who}</b><p>${t}</p></div></div>`;
+const G=g=>`<span class="grade g${g}" aria-label="scout grade ${g}">${g}</span>`;
+const tgt=(ab,g,nm,meta)=>`<div class="tg"><span class="ab">${ab}</span>${G(g)}<span class="nm"><b>${nm}</b><span class="muted">${meta}</span></span></div>`;
+
+const S1=()=>`<div class="phone">${hd(0)}<div class="body">
+ <h2 class="h">The summer meeting</h2>
+ <div class="agenda"><span class="done">The club</span><span class="done">The money</span><span class="on">What we need</span><span>Your mandate</span></div>
+ ${say('OP','#2f4c7a','Owen Pryce · Director','Our weakest line was the full-backs. And Whitlock is over your cap: he goes.')}
+ <div class="prio"><div class="prio-h"><span class="num">1</span>Left-back <span class="chip i">Depth</span></div>
+  ${tgt('A','A','Callum Rees','24 · Hollin Vale · £18k')}${tgt('B','B','Josh Amadi','27 · free agent')}</div>
+ <div class="prio"><div class="prio-h"><span class="num">2</span>Striker <span class="chip r">Leaving</span></div>
+  ${tgt('A','B','Danny Kerr','29 · Eastholm · £14k')}${tgt('B','C','A loan from a bigger club','')}</div>
+ ${say('MR','#6b4fa0','Moira Rowntree · Coach','Good. A left-back first, that is what I asked for.')}
+ ${say('SC','#1f7a3f','Scout','Rees I have seen four times. Kerr only on video.')}
+ <button class="btn">Set your mandate</button></div></div>`;
+
+const S2=()=>`<div class="phone">${hd(1)}<div class="body">
+ <h2 class="h">The summer brief</h2><p class="muted" style="margin:0">What Owen Pryce will be judged on in September.</p>
+ <div class="brief"><span class="stampB">Signed</span><h3>Summer brief</h3>
+  <div class="kpi"><span class="n">1</span><span>Sign a left-back and a striker.</span></div>
+  <div class="kpi"><span class="n">2</span><span>Net spend under £40k.</span></div>
+  <div class="kpi"><span class="n">3</span><span>At least one grade-A signing.</span></div>
+  <div class="sig"><span class="lbl muted">Director of football</span><svg width="150" height="36" viewBox="0 0 150 36" aria-hidden="true"><path d="M4 26c10-20 16-20 12 2 10-16 18-22 22-4s10-20 20-8 4 10 16 2 14-14 18 0 8 6 20-6 18 4 30 2"/></svg></div></div>
+ <div class="chips"><span class="chip p">Budget £40k</span><span class="chip p">Wage cap £900/wk</span><span class="chip p">Red line: never sell to Saltmere</span></div>
+ <button class="btn">Open the window</button></div></div>`;
+
+const TICK={good:[
+  ['Week 1',[['mid','…','Talks: Callum Rees. Hollin Vale want £18k.'],['big in','✔','Sold: Femi Whitlock to Hollin Vale for £14k.'],['sm','·','Saltmere sign a winger from abroad.']]],
+  ['Week 2',[['mid','…','Bid: £13k for Danny Kerr.'],['sm','?','Rumour: a Premier club watches Waddington. Pryce chases it.'],['mid','…','Rees: no progress this week.']]],
+  ['Week 3',[['big in','✔','Signed: Danny Kerr (ST, 29) for £13k.'],['mid','…','Rees: bid accepted, medical on Thursday.']]],
+  ['Week 4',[['fr','','Friendly: Ravensby 2–1 Fenwick. Kerr scores on debut.'],['big in','✔','Signed: Callum Rees (FB, 24) for £18k.']]],
+  ['Week 5',[['fr','','Friendly: Ravensby 0–0 Ashborough.'],['sm','·','Plan: left-back done · striker done.']]],
+  ['Week 6',[['mid','…','Bid: Eastholm want Holt. Pryce says no.'],['sm','·','A quiet week.']]],
+  ['Deadline day',[['mid','10:12','Loan: Lewis Carr (W, 21) from Ashborough.'],['sm','23:00','The window shuts.']]]],
+ bad:[
+  ['Week 1',[['mid','…','Talks: Callum Rees. Hollin Vale want £18k.'],['big in','✔','Sold: Femi Whitlock to Hollin Vale for £14k.'],['sm','·','Saltmere sign a winger from abroad.']]],
+  ['Week 2',[['sm','?','Rumour: a Premier club watches Waddington. Pryce chases it.'],['mid','…','Rees: no progress this week.']]],
+  ['Week 3',[['big off','✖','Hijacked: Saltmere beat us to Callum Rees. Plan B: Josh Amadi.'],['mid','…','Bid: £13k for Danny Kerr.']]],
+  ['Week 4',[['fr','','Friendly: Ravensby 0–3 Fenwick. No left-back on the pitch.'],['mid','…','Kerr wants more money. Talks stall.']]],
+  ['Week 5',[['fr','','Friendly: Ravensby 1–1 Ashborough.'],['big off','✖','Josh Amadi signs for Brackley.']]],
+  ['Week 6',[['big in','✔','Signed: Danny Kerr (ST, 29) for £21k.'],['sm','·','Plan: striker done · left-back open.']]],
+  ['Deadline day',[['mid','17:40','No club will loan us a left-back.'],['big off','23:00','The window shuts. Left-back: missed.']]]]};
+const S3=()=>{const T=TICK[st.out],anim=st.motion==='live';let i=0;
+ const board=st.out==='good'?[['Left-back','A · Rees','g','Signed'],['Striker','A · Kerr','g','Signed'],['Net spend','£17k of £40k','g','On track']]:[['Left-back','A · B · —','r','Missed'],['Striker','A · Kerr','g','Signed'],['Net spend','£7k of £40k','g','On track']];
+ return`<div class="phone">${hd(2)}<div class="body"><h2 class="h">Six weeks of summer</h2>
+ <div class="board">${board.map(b=>`<div class="bcell"><b>${b[0]}</b><span>${b[1]}</span><span class="chip ${b[2]}">${b[3]}</span></div>`).join('')}</div>
+ ${T.map(([w,ls])=>`<p class="wk">${w}</p><ul class="tk ${anim?'live':''}">${ls.map(([k,ic,t])=>k==='fr'?`<li style="${anim?`animation-delay:${(i++*.3).toFixed(1)}s`:''}"><span class="fr"><b>FT</b>${t}</span></li>`:`<li style="${anim?`animation-delay:${(i++*.3).toFixed(1)}s`:''}"><span class="${ic.length>2?'tm':'i'}">${ic}</span><span class="${k}">${t}</span></li>`).join('')}</ul>`).join('')}
+ <button class="btn small" id="replay">${anim?'Replay the summer':'Show it running'}</button><button class="btn">The summer edition</button></div></div>`};
+
+const ED={good:{g:'A',head:'A summer to remember at Ravensby',sub:'Both priorities landed, on budget.',bars:[['Defence',47,52],['Midfield',48,48],['Attack',46,51]],coach:'"I have a better squad than in May. Now it is up to me."',fans:'The forums are buzzing about Rees.',board:'"The director did what we agreed."'},
+ bad:{g:'D',head:'Questions over Ravensby\'s summer business',sub:'No left-back, and Kerr cost more than planned.',bars:[['Defence',47,44],['Midfield',48,48],['Attack',46,50]],coach:'"We are weaker at the back than last season. I will say that to anyone who asks."',fans:'Supporters ask where the plan went.',board:'"We expected more from this summer."'}};
+const S4=()=>{const e=ED[st.out];return`<div class="phone">${hd(3)}<div class="body">
+ <div class="news"><div class="mast"><b>THE NORTHMARCH ECHO</b><span>Summer edition</span></div>
+  <div class="headline"><span class="grade bigg g${e.g}" aria-label="summer grade ${e.g}">${e.g}</span><div><h3>${e.head}</h3><p class="muted" style="margin:4px 0 0">${e.sub}</p></div></div>
+  <span class="lbl">In</span><div class="chips">${st.out==='good'?'<span class="chip g">FB Rees '+G('A')+'</span><span class="chip g">ST Kerr '+G('B')+'</span><span class="chip i">W Carr · loan</span>':'<span class="chip g">ST Kerr '+G('B')+'</span>'}</div>
+  <span class="lbl">Out</span><div class="chips"><span class="chip r">FB Whitlock · £14k</span></div>
+  <span class="lbl">Line by line · rating</span>
+  <div class="linecmp">${e.bars.map(([n,b,a])=>`<span>${n}</span><span class="bar"><i style="width:${(a-30)*3}%"></i></span><span><b>${b} → ${a}</b></span>`).join('')}</div>
+  <p class="quote">Coach: ${e.coach}</p><p class="quote">Fans: ${e.fans}</p><p class="quote">Board: ${e.board}</p></div>
+ <button class="btn">The debrief</button></div></div>`};
+
+const DB={good:[['ok','✔','Plan followed','Both signings in the agreed positions.'],['ok','✔','Execution','Rees was scouted as A, Kerr as B.'],['na','–','Market','No targets lost to other clubs.'],['ok','✔','Team','Stronger than in May (rating 48 → 50).'],['ok','✔','Money','Net spend £17k against £40k agreed.']],
+ bad:[['no','✖','Plan followed','One of two priorities signed.'],['no','✖','Execution','Pryce lost a week to a rumour. Kerr cost £8k more than his own estimate.'],['na','–','Market','Rees was hijacked by Saltmere: that is not on him.'],['no','✖','Team','Weaker at the back (rating 47 → 44).'],['ok','✔','Money','Net spend £7k against £40k agreed.']]};
+const S5=()=>{const d=DB[st.out];return`<div class="phone">${hd(4)}<div class="body"><h2 class="h">The debrief</h2><p class="muted" style="margin:0">Five questions about Owen Pryce's summer.</p>
+ ${d.map(([c,m,t,x])=>`<div class="q ${c}"><span class="m">${m}</span><span><b>${t}</b>${x}</span></div>`).join('')}
+ ${say('OP','#2f4c7a','Owen Pryce',st.out==='good'?'Two for two. Give me the same money next summer.':'Losing Rees hurt. The rest is on me.')}
+ ${st.out==='good'?'<div class="nostrike">No strike. A good summer counts for June.</div>':'<div class="strike">Strike 1 of 2. It fades after a season; a second one in June makes Sack a real option.</div>'}
+ <button class="btn">Start the season</button></div></div>`};
+
+const S6=()=>`<div class="phone"><div class="hd"><b>Ravensby Wanderers</b><span class="steps-l">Staff · Week 16</span></div><div class="body"><h2 class="h">Owen Pryce</h2>
+ <span class="lbl">This summer's brief</span>
+ <div class="sg"><span class="nm">Sign a left-back and a striker</span><span class="chip ${st.out==='good'?'g':'r'}">${st.out==='good'?'Done':'1 of 2'}</span></div>
+ <div class="sg"><span class="nm">Net spend under £40k</span><span class="chip g">Done</span></div>
+ <div class="sg"><span class="nm">At least one grade-A signing</span><span class="chip ${st.out==='good'?'g':'r'}">${st.out==='good'?'Done':'Missed'}</span></div>
+ <span class="lbl">His signings · scouted as → after half a season</span>
+ ${st.out==='good'?`<div class="sg">${G('A')}<span class="nm"><b>Callum Rees</b> FB, 24</span><span class="chip r">Miss</span></div><div class="sg">${G('B')}<span class="nm"><b>Danny Kerr</b> ST, 29</span><span class="chip g">Hit</span></div>`:`<div class="sg">${G('B')}<span class="nm"><b>Danny Kerr</b> ST, 29</span><span class="chip g">Hit</span></div>`}
+ <p class="muted" style="margin:0;font-size:15px">${st.out==='good'?'Pryce graded Rees an A. He has not played like one: a sign of a weak eye.':'One signing, one hit. The missing left-back still hurts.'}</p></div></div>`;
+
+const caps=['1 · The summer meeting','2 · The summer brief','3 · The ticker','4 · The summer edition','5 · The debrief','In the season · the Staff tab'];
+function render(){document.getElementById('screens').innerHTML=[S1,S2,S3,S4,S5,S6].map((f,i)=>`<section aria-label="${caps[i]}"><p class="cap">${caps[i]}</p>${f()}</section>`).join('');
+ document.querySelectorAll('.seg').forEach(g=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(st[g.dataset.k]===b.dataset.v))));
+ const r=document.getElementById('replay');if(r)r.onclick=()=>{st.motion='live';render()};}
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{st[b.parentElement.dataset.k]=b.dataset.v;render()}));
+render();
+})();
+</script>

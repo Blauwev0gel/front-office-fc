@@ -67,3 +67,12 @@
 - Sprint 4: weekflow (verslag met positie en verwachte goals, urgent apart), seizoensreview met doelen en vooruitblik; vroege begrotingsprognose als "So far".
 - Sprint 5: strategietest (6 voorzitters), balans (leeftijd, ALV, markt, AI-risico), save-grootte, ux-test, playtest mobiel + desktop.
 - Gevonden: besluitenlog gebruikte UI-opmaak in de engine (hersteld); academies hielden alle jongeren (leeftijdsdaling); wegstemmen te frequent; markt sloot spelers van grotere clubs uit.
+
+## 2026-11-21 — Recruitment and academy visibility (ChatGPT)
+- 60b1f460: log actual director recruitment searches, with candidate snapshots and source clubs; capped at 12 searches for save size. No new scout NPCs or fabricated assignments.
+- 8f68df64: log summer academy cohorts with player identifiers; capped at 12 intakes.
+- 6683cdf1: scouting desk now shows recorded searches, signings, staff lead and reach; academy shows current graduates, loans, player growth and historical cohort status.
+- Earlier UI visibility: bf6a2051, 5ab48d2d.
+- Existing savegames: history begins only after the next recruitment search / summer intake; old history is not reconstructed.
+- Scope: existing autonomous TD and player development engines retained; no separate youth squad or individual scout entities yet.
+- Validation: source commits only; standalone HTML build and browser playtest not run in this session. Do not mark as release-ready.

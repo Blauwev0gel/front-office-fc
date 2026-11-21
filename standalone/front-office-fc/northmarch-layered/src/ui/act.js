@@ -7,6 +7,7 @@ function act(a,arg){
     case'cont':if(load()){UI.title=false;UI.review=null}break;
     case'quit':save();UI.title=true;UI.over=null;break;
     case'choose':chooseClub(arg);UI.tier=null;break;
+    case'boardjump':{const el=HAS_DOM?document.getElementById('board-'+arg):null;if(el)el.scrollIntoView({behavior:'smooth',block:'start'});return}
     case'tab':UI.tab=arg;UI.over=null;if(arg==='money')UI.mt=UI.mt||'overview';if(HAS_DOM)window.scrollTo(0,0);break;
     case'play':{const ev=advanceWeek();UI.lastEv=ev||[];if(HAS_DOM)window.scrollTo(0,0);break}
     case'close':{const mark=S.evn||0;const h=closeSeason();UI.summerEv=eventsSince(mark);UI.review=h;UI.lastEv=[];if(HAS_DOM)window.scrollTo(0,0);break}

@@ -55,8 +55,8 @@ function departmentPipeline(k){
   <div class="row small"><span>Search reach</span><b>Up to ${reach} candidates per search</b></div>
   <p class="small muted">The director runs recruitment searches automatically during transfer windows. Department staffing, facilities and the director affect search reach. Individual scouts are not yet represented as people.</p>
   <p class="eyebrow">Players considered in recent searches</p>
-  ${history.length?history.map(h=>`<div class="panel"><p class="small"><b>Season ${h.season} · week ${h.week} · ${esc(h.pos)}</b> · ${esc(h.director)}</p>
-  ${h.candidates.length?h.candidates.map(p=>`<div class="row small"><span>${esc(p.name)} · ${p.pos} · ${esc(p.from)}</span><b>${p.quality}</b></div>`).join(''):'<p class="small muted">No candidates in this search.</p>'}</div>`).join(''):'<p class="small muted">No recorded searches yet. The next recruitment window will start a search when the director needs players. Older saves cannot reconstruct past candidate lists.</p>'}
+  ${history.length?history.map(h=>`<div class="panel"><p class="small"><b>Season ${h.season} · week ${h.week} · ${esc(h.pos)}</b> · ${esc(h.director)}</p><p class="small muted">Target ${h.target??"—"} · budget £${h.budget??"—"}k</p>
+  ${h.candidates.length?h.candidates.map(p=>`<div class="row small"><span>${esc(p.name)} · ${p.pos} · ${esc(p.from)}</span><b>${esc(p.reason||"Seen")} · ${p.estimate??p.quality??"—"}</b></div>`).join('') :'<p class="small muted">No candidates in this search.</p>'}<p class="small"><b>TD decision:</b> ${esc(h.decision?.name||h.decision?.reason||'Search only — no decision recorded')}</p></div>`).join(''):'<p class="small muted">No recorded searches yet. The next recruitment window will start a search when the director needs players. Older saves cannot reconstruct past candidate lists.</p>'}
   <p class="eyebrow">Completed signings</p>${recent.length?recent.map(e=>`<p class="small">${esc(e.text)}</p>`).join(''):'<p class="small muted">No completed signings recorded yet.</p>'}
   <button class="btn ghost" data-act="ctab" data-arg="football">Review the director</button></div>`;
  }

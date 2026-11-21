@@ -76,3 +76,9 @@
 - Existing savegames: history begins only after the next recruitment search / summer intake; old history is not reconstructed.
 - Scope: existing autonomous TD and player development engines retained; no separate youth squad or individual scout entities yet.
 - Validation: source commits only; standalone HTML build and browser playtest not run in this session. Do not mark as release-ready.
+
+## 2026-11-21 — L2.5 implementation session
+- 2b790a878df4d7bcbd2e1213d3eb20ccf77b58b7 — fixed a critical malformed comment that swallowed the free-agent loop in scoutPool; added TD candidate evaluation and decision evidence in shopFor. Source updated, not built/tested.
+- c8191a103a7e24f663aa6bfe38e43c6ca811fea2 — scouting department now displays screening reasons, target, budget and TD decision. Source updated, not browser-tested.
+- f6e74dc6157a91095428273b005755220e1a59d7 — added docs/layers/L2_5_OPERATIONAL_CLUB.md with initial 11-domain gap audit, architecture and validation gates.
+- Current status: IMPLEMENTED (partial vertical slice); NOT TESTED, NOT PLAYABLE/RELEASED. Pending: standalone build, save/load, simulation, browser/mobile tests; persistent positional planning and cross-window shortlist.

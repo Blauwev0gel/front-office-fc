@@ -6,3 +6,14 @@
 | D2 | 2026-11-21 | — | Waar wordt gebouwd? | Map `standalone/front-office-fc/northmarch-layered/` op branch `claude/loving-goodall-uv00vn`; `northmarch.html` blijft onaangeroerd. | Deze sessie mag alleen naar deze branch pushen; het referentiespel blijft intact. |
 | D3 | 2026-11-21 | L1 | Competitiestructuur? | **3 divisies van 16 (48 clubs) + knock-outbeker.** | Lange carrièrebogen over decennia (diepere val, lange klim) en bekerdrama/inkomstenpieken. Gevolg: 16 nieuwe clubs voor de derde divisie, met eigen identiteit; meer balanceerwerk. |
 | D4 | 2026-11-21 | L1 | Hoe loopt de tijd? | **Elke week verplicht**: elke week is een eigen stap met wedstrijdverslag (competitie en beker), geen doorspoelen. | Maximale betrokkenheid per week. Gevolg: elke week moet iets te lezen of te beslissen bieden (uitslag, blessures, bouwvoortgang, geld); de UI moet een week snel afhandelbaar houden. |
+
+## Technische besluiten (door de developer, binnen de gekozen scope)
+
+| # | Datum | Besluit | Reden / bewijs |
+|---|---|---|---|
+| T1 | 2026-11-21 | Lonen volgen het marktniveau: `wageFor(q)` rekent met kwaliteit relatief aan `S.qref` (gemiddelde selectiekwaliteit van de wereld). | Zonder anker stortte de economie na ±8 seizoenen in (lonen 100–400% van de inkomsten). |
+| T2 | 2026-11-21 | Nieuwe vrije spelers komen van onder Northmarch Two (lager niveau); goede vrije spelers zijn spelers die clubs lieten gaan. | Gratis instroom op topniveau veroorzaakte kwaliteitsinflatie. |
+| T3 | 2026-11-21 | Noodaankopen kiezen de goedkoopste geschikte speler; buiten de zomer koopt een club alleen bij echte nood. Bij loonnood mogen ook basisspelers verkocht worden. | Lek in de loondiscipline (aankopen boven het plafond). |
+| T4 | 2026-11-21 | Medische zorg verkort blessures sterker en voorkomt lange uitval (−32% blessureweken met een medisch centrum niveau 1). | Effect op niveau 1 was −6% en verdween in de ruis; investering moet voelbaar zijn. |
+| T5 | 2026-11-21 | De selectie van de spelersclub wordt door een regelgebaseerde directeur beheerd binnen het kader van de voorzitter (`SetSquadPolicy`). De rijke TD/zomer-machine van voorzitter-fundering komt in L3. | Visie: de voorzitter stelt kaders, doet geen individuele transfers; L3 levert de persoon. |
+| T6 | 2026-11-21 | De Northmarch-verhaallaag zit nog niet in deze build; het origineel blijft apart speelbaar. Personen, groepen, rivaliteiten en statuten worden wel al gegenereerd voor L4. | Eerst een gevalideerde L1; L4 sluit later aan op events en commando's. |

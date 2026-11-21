@@ -58,12 +58,12 @@ function wageBillK(id){return r2(S.squads[id].reduce((a,p)=>a+p.wage,0)/1000)}
 /* ----- weekly: injuries (medical) and development (training). Called once per club per week ----- */
 function playersWeek(id){
   const sq=S.squads[id],sg=groundSignals(id),t=sg.training,med=sg.medical;
-  const risk=clamp(1.25-.12*med-.05*t-(sg.hasTM?.1:0),.45,1.3);
+  const risk=clamp(1.25-.15*med-.05*t-(sg.hasTM?.12:0),.45,1.3);
   const grow=(.12+.08*t)/SEASON_WEEKS,fade=(1-.06*Math.min(t,8))/SEASON_WEEKS;
   for(const p of sq){
     if(p.inj>0){p.inj--;if(p.inj===0&&id===S.my)emit('Return',id,`${p.name} is fit again.`,{pid:p.id})}
     else if(rnd()<.02*risk*(p.trait==='injury-prone'?1.8:1)){
-      let d=rnd()<.06?ri(6,16):ri(1,4);d=Math.max(1,Math.round(d*(1-.07*Math.min(med,8))));p.inj=d;
+      let d=rnd()<.06*(1-.12*Math.min(med,6))?ri(6,16):ri(1,4);d=Math.max(1,Math.round(d*(1-.12*Math.min(med,6))));p.inj=d;
       emit('Injury',id,`${p.name} is injured: out for ${d} week${d>1?'s':''}.`,{pid:p.id,weeks:d,key:p.q>=squadQuality(sq)});
     }
     p.form=clamp(p.form+ri(-5,5),35,90);

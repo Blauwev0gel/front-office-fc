@@ -43,7 +43,7 @@ function chairValue(id){const c=CL(id),p=c.cast.chair&&P(c.cast.chair);return p?
 
 function newWorld(seed){
   S={v:VERSION,seed,rs:seed|0||1,pc:1,season:1,week:0,phase:'choose',my:null,clubs:{},P:{},squads:{},grounds:{},fin:{},fa:[],
-    tbl:{},fx:{},cup:null,qref:11.7,matches:[],ev:[],hist:[],layers:{story:false,staff:false,dynasty:false},auto:false,seats:[]};
+    tbl:{},fx:{},cup:null,qref:11.7,matches:[],ev:[],evn:0,hist:[],layers:{story:false,staff:false,dynasty:false},auto:false,seats:[]};
   // the Northmarch core clubs
   mkClub('pell','Pell United','harbour',1,{support:1600,groups:[['workers',40,58],['students',25,62],['business',35,40]],statute:['No outside owner above 25%'],founded:1891,legend:"Jack 'Sailor' Garside",scar:'lost a cup final to their rivals',ground:'Dock Road'});
   mkClub('corden','Corden Athletic','mill',1,{support:1800});

@@ -5,11 +5,14 @@
    Higher layers (staff, story, dynasty) hook in through S.layers and the event log, never by moving time. */
 const WINTER_WEEK=15,RENEW_WEEK=24;
 const HOOKS={weekClosed:[],seasonClosed:[]}; // later layers subscribe here
+function onWeek(f){HOOKS.weekClosed.push(f)}
+function onSeason(f){HOOKS.seasonClosed.push(f)}
+function clearHooks(){HOOKS.weekClosed.length=0;HOOKS.seasonClosed.length=0}
 function allIds(){return Object.keys(S.clubs)}
 function advanceWeek(){
   if(S.phase!=='season'||S.week>=SEASON_WEEKS)return null;
   S.week++;const w=S.week,ids=allIds();
-  const mark=S.ev.length;
+  const mark=S.evn||0;
   const matches=playWeekMatches(w);
   for(const id of ids)playersWeek(id);
   for(const id of ids)financeWeek(id,matches.filter(m=>m.h===id||m.a===id));
@@ -18,7 +21,7 @@ function advanceWeek(){
   if(w===RENEW_WEEK)for(const id of ids)renewals(id);
   emit('WeekClosed',null,`Week ${w} played.`);
   for(const f of HOOKS.weekClosed)f(w);
-  return S.ev.slice(mark);
+  return eventsSince(mark);
 }
 function seasonOver(){return S.week>=SEASON_WEEKS}
 function closeSeason(){

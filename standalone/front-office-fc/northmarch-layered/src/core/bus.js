@@ -2,12 +2,14 @@
    Events are facts other layers may read (S.ev, newest last). Commands are the only way a player, an AI club,
    a staff member or (later) the story layer changes the world. Every command validates first, then runs inside
    the domain that owns the state. Contract: docs/ARCHITECTURE.md. */
-const EV_KEEP=900;
+const EV_KEEP=2500;
 function emit(type,club,text,data){
-  const e={t:type,c:club||null,s:S.season,w:S.week,text:text||'',...(data||{})};
+  S.evn=(S.evn||0)+1;
+  const e={n:S.evn,t:type,c:club||null,s:S.season,w:S.week,text:text||'',...(data||{})};
   S.ev.push(e);if(S.ev.length>EV_KEEP)S.ev.splice(0,S.ev.length-EV_KEEP);
   return e;
 }
+function eventsSince(n){return S.ev.filter(e=>e.n>n)}
 function eventsFor(club,o={}){return S.ev.filter(e=>(!club||e.c===club||(e.c2&&e.c2===club))&&(o.s==null||e.s===o.s)&&(o.w==null||e.w===o.w)&&(!o.types||o.types.includes(e.t)))}
 
 const COMMANDS={}; // name -> {who:[actors], check(club,args)->error|null, run(club,args)->result}

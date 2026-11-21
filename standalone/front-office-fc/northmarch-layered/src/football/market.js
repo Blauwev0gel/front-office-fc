@@ -36,7 +36,8 @@ function release(id,p,why){const sq=S.squads[id];const pay=releaseCost(p);if(pay
 /* the players a club's director can see: free agents and players at other clubs, wider with a better scouting office */
 function scoutPool(id,pos,n){
   const reach=Math.max(4,6+Math.round(2*groundSignals(id).scouting+(pq(tdOf(id))-10)/2)),out=[];
-  const fa=S.fa.filter(p=>(!pos||p.pos===pos)&&!(p.left&&p.left.club===id&&p.left.s>=S.season-1)); // a player who just left does not come backfor(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
+  const fa=S.fa.filter(p=>(!pos||p.pos===pos)&&!(p.left&&p.left.club===id&&p.left.s>=S.season-1)); // a player who just left does not come back
+  for(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
   const others=Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1);
   for(let k=0;k<reach&&others.length;k++){const o=pick(others),c=S.squads[o].filter(p=>(!pos||p.pos===pos)&&p.inj<=0&&!p.loan);if(c.length){const p=pick(c);out.push({p,from:o,premium:CL(o).rep>CL(id).rep+15&&!p.wantsOut})} /* stepping down to a smaller club costs a wage premium */}
   // Keep a compact record of candidates the director actually encountered.
@@ -63,19 +64,32 @@ function budgetFor(id){const f=F(id),reserve=wageBillK(id)*6;return Math.max(0,M
 /* buy the best affordable player for a position. Returns true if someone signed */
 function shopFor(id,pos,minQ,o={}){
   const cap=wageCapK(id),bill=wageBillK(id);let budget=o.budget??budgetFor(id);
-  let best=null,bv=-1;
-  for(const c of scoutPool(id,pos)){
-    const p=c.p,seen=p.q+(rnd()+rnd()-1)*2.5*tdNoise(id);if(seen<minQ)continue; // the director judges by eye: a weak eye is fooled more often
+  let best=null,bv=-Infinity;
+  const pool=scoutPool(id,pos),evaluated=[];
+  for(const c of pool){
+    const p=c.p,seen=p.q+(rnd()+rnd()-1)*2.5*tdNoise(id);
     const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000*(c.premium?1.3:1);
-    if(fee>budget)continue;if(bill+wage>cap&&!o.mustHave)continue;
-    if(c.from&&!sellerAgrees(p,c.from,fee))continue;
-    const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0);
-    if(v>bv){bv=v;best={...c,fee}}
+    let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':bill+wage>cap&&!o.mustHave?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
+    if(reason==='Considered'){
+      const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0);
+      if(v>bv){bv=v;best={...c,fee};}
+    }
+    if(id===S.my)evaluated.push({pid:p.id,name:p.name,pos:p.pos,age:p.age,from:c.from?CL(c.from).name:'Free agent',estimate:r1(seen),fee,reason});
   }
   if(!best&&o.mustHave){const base=11.5+(tierBaseStr(2)-50)/4+(S.qref-11.7),p=newPlayer(pos,{age:ri(19,30),q:base-2+rnd()*1.2,contract:0});
-    p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0}}
+    p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0};}
+  if(id===S.my){
+    const history=S.stats[id].scoutHistory||[];
+    const h=history[history.length-1];
+    if(h){
+      h.target=r1(minQ);h.budget=budget;
+      h.candidates=evaluated.slice(0,16);
+      h.decision=best?{pid:best.p.id,name:best.p.name,fee:best.fee,reason:o.mustHave?'Emergency cover':'Highest-rated affordable option'}:{reason:'No suitable affordable candidate'};
+      for(const c of h.candidates)if(best&&c.pid===best.p.id)c.reason='Selected';
+    }
+  }
   if(!best)return false;
-  if(!o.mustHave&&minQ>0){const st=S.stats[id];st.buys=(st.buys||0)+1;if(best.p.q<minQ)st.misbuys=(st.misbuys||0)+1;st.spent=r1((st.spent||0)+best.fee)} // a signing that is not what the director thought
+  if(!o.mustHave&&minQ>0){const st=S.stats[id];st.buys=(st.buys||0)+1;if(best.p.q<minQ)st.misbuys=(st.misbuys||0)+1;st.spent=r1((st.spent||0)+best.fee)}
   if(best.from)transfer(best.p,best.from,id,best.fee,'buy',best.premium);else signFree(best.p,id);
   return best;
 }

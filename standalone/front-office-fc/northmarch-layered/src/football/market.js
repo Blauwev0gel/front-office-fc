@@ -7,7 +7,7 @@ const FA_MAX=90;
 
 function faNew(n){
   // new faces come from below Northmarch Two (local leagues, abroad): mostly weaker; good free agents are players clubs let go
-  for(let i=0;i<n;i++){const age=ri(19,33),base=11.5+(tierBaseStr(2)-50)/4+(S.qref-11.7);
+  for(let i=0;i<n;i++){const age=ri(19,33),base=11.5+(tierBaseStr(2)-50)/4 /* fixed level: new faces from below Northmarch Two do not grow with the world (T2) */;
     const p=newPlayer(pick(POS),{age,q:base-1.8+rnd()*2+(rnd()<.1?1.2:0)-(age>=31?.5:0),contract:0});p.why=pick(['released in the summer','out of contract','back from a spell abroad','released after a long injury','left a club that went part-time']);S.fa.push(p)}
 }
 function faInit(){S.fa=[];faNew(60)}
@@ -69,14 +69,15 @@ function shopFor(id,pos,minQ,o={}){
   for(const c of pool){
     const p=c.p,seen=p.q+(rnd()+rnd()-1)*2.5*tdNoise(id);
     const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000*(c.premium?1.3:1);
-    let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':bill+wage>cap&&!o.mustHave?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
+    const coverOk=wage<=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000; // emergency cover: within the wage limit, or cheap
+    let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
     if(reason==='Considered'){
       const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0);
       if(v>bv){bv=v;best={...c,fee};}
     }
     if(id===S.my)evaluated.push({pid:p.id,name:p.name,pos:p.pos,age:p.age,from:c.from?CL(c.from).name:'Free agent',estimate:r1(seen),fee,reason});
   }
-  if(!best&&o.mustHave){const base=11.5+(tierBaseStr(2)-50)/4+(S.qref-11.7),p=newPlayer(pos,{age:ri(19,30),q:base-2+rnd()*1.2,contract:0});
+  if(!best&&o.mustHave){const base=11.5+(tierBaseStr(2)-50)/4 /* fixed level: new faces from below Northmarch Two do not grow with the world (T2) */,p=newPlayer(pos,{age:ri(19,30),q:base-2+rnd()*1.2,contract:0});
     p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0};}
   if(id===S.my){
     const history=S.stats[id].scoutHistory||[];

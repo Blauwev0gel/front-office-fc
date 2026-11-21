@@ -196,6 +196,23 @@ main.withbar{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 100px)}
 .hubtile:focus-visible{outline:3px solid var(--signal);outline-offset:2px}.hubtile:active{transform:translateY(1px)}
 .hubback{margin:12px 0 16px}.hubback button{min-height:44px}
 @media(max-width:350px){.hubtiles{gap:7px}.hubtile{padding:11px 9px}}
+
+/* Improvement map: existing board actions connected to measurable outcomes. */
+.improve{margin:18px 0 24px}.improve-intro h3{font-size:1.2rem;margin:3px 0 6px}
+.improve-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+.improve-choice{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:6px;min-height:122px;padding:13px 11px;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;cursor:pointer;overflow-wrap:anywhere}
+.improve-choice b{font-size:.9rem;line-height:1.25}.improve-choice span{font-size:.76rem;line-height:1.35;color:var(--muted)}.improve-choice small{margin-top:auto;font-size:.75rem;color:var(--navy);font-weight:700}
+.improve-choice.selected{border:2px solid var(--signal);padding:12px 10px}
+.improve-detail{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px;margin:12px 0 22px}
+.improve-detail h3{margin:0 0 7px;font-size:1.15rem}.improve-detail .eyebrow{margin:16px 0 8px}
+.improve-steps{display:flex;flex-direction:column;gap:7px}.improve-steps button{display:flex;align-items:center;gap:10px;min-height:48px;text-align:left;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:10px;cursor:pointer}
+.improve-steps button b{font-size:.86rem;flex:1}.improve-number{display:grid;place-items:center;min-width:25px;height:25px;border-radius:50%;background:var(--chip);font-weight:700;font-size:.8rem}
+.improve-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.improve-metrics>div{background:var(--paper);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px;overflow-wrap:anywhere}.improve-metrics span{font-size:.73rem;color:var(--muted)}.improve-metrics b{font-size:.94rem}
+.improve button:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+
+/* Existing scouting and academy progression, without invented reports. */
+.dept-player{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;min-height:55px;padding:10px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);margin:6px 0;cursor:pointer}
+.dept-player span:first-child{display:flex;flex-direction:column;gap:2px}.dept-player small{color:var(--muted);font-size:.76rem}.dept-player span:last-child{font-size:.76rem;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -575,6 +592,11 @@ function playersSeasonEnd(id){
   for(let i=0;i<n;i++){const q=base-3.2+.25*a+rnd()*1.2;const k=newPlayer(pick(POS.slice(1)),{age:ri(16,17),q,pa:q+1+.35*a+rnd()*2.5,academy:true,contract:2,club:id,trait:sg.academyLocal&&rnd()<.4?'local hero':null});
     k.career.push('Academy');sq.push(k);kids.push(k)}
   S.stats[id].intake=kids.length;S.stats[id].intakeBest=r1(Math.max(...kids.map(k=>k.pa)));
+  if(id===S.my){
+    const st=S.stats[id],history=st.academyHistory||(st.academyHistory=[]);
+    history.push({season:S.season,graduates:kids.map(p=>({pid:p.id,name:p.name,pos:p.pos,quality:r1(p.q)}))});
+    if(history.length>12)history.splice(0,history.length-12);
+  }
   emit('YouthIntake',id,`${kids.length} academy graduate${kids.length>1?'s':''} join the squad.`,{n:kids.length,best:Math.max(...kids.map(k=>k.pa))});
   return left;
 }
@@ -612,7 +634,7 @@ const FA_MAX=90;
 
 function faNew(n){
   // new faces come from below Northmarch Two (local leagues, abroad): mostly weaker; good free agents are players clubs let go
-  for(let i=0;i<n;i++){const age=ri(19,33),base=11.5+(tierBaseStr(2)-50)/4+(S.qref-11.7);
+  for(let i=0;i<n;i++){const age=ri(19,33),base=11.5+(tierBaseStr(2)-50)/4 /* fixed level: new faces from below Northmarch Two do not grow with the world (T2) */;
     const p=newPlayer(pick(POS),{age,q:base-1.8+rnd()*2+(rnd()<.1?1.2:0)-(age>=31?.5:0),contract:0});p.why=pick(['released in the summer','out of contract','back from a spell abroad','released after a long injury','left a club that went part-time']);S.fa.push(p)}
 }
 function faInit(){S.fa=[];faNew(60)}
@@ -641,9 +663,19 @@ function release(id,p,why){const sq=S.squads[id];const pay=releaseCost(p);if(pay
 /* the players a club's director can see: free agents and players at other clubs, wider with a better scouting office */
 function scoutPool(id,pos,n){
   const reach=Math.max(4,6+Math.round(2*groundSignals(id).scouting+(pq(tdOf(id))-10)/2)),out=[];
-  const fa=S.fa.filter(p=>(!pos||p.pos===pos)&&!(p.left&&p.left.club===id&&p.left.s>=S.season-1)); // a player who just left does not come backfor(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
+  const fa=S.fa.filter(p=>(!pos||p.pos===pos)&&!(p.left&&p.left.club===id&&p.left.s>=S.season-1)); // a player who just left does not come back
+  for(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
   const others=Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1);
   for(let k=0;k<reach&&others.length;k++){const o=pick(others),c=S.squads[o].filter(p=>(!pos||p.pos===pos)&&p.inj<=0&&!p.loan);if(c.length){const p=pick(c);out.push({p,from:o,premium:CL(o).rep>CL(id).rep+15&&!p.wantsOut})} /* stepping down to a smaller club costs a wage premium */}
+  // Keep a compact record of candidates the director actually encountered.
+  // This is evidence of a search, not a promise of a signing or a scout assignment.
+  if(id===S.my){
+    const st=S.stats[id],history=st.scoutHistory||(st.scoutHistory=[]);
+    const found=out.slice(0,n||99);
+    history.push({season:S.season,week:S.week,pos:pos||'any',director:tdOf(id).name,
+      candidates:found.slice(0,16).map(c=>({pid:c.p.id,name:c.p.name,pos:c.p.pos,age:c.p.age,from:c.from?CL(c.from).name:'Free agent',quality:r1(c.p.q)}))});
+    if(history.length>12)history.splice(0,history.length-12);
+  }
   return out.slice(0,n||99);
 }
 function askingFee(p,from){const v=playerValue(p);return Math.round(v*(isCore(from,p)&&!p.wantsOut?1.6:1)*(F(from).cash<0?.75:1)*(p.wantsOut?.85:1))}
@@ -659,19 +691,33 @@ function budgetFor(id){const f=F(id),reserve=wageBillK(id)*6;return Math.max(0,M
 /* buy the best affordable player for a position. Returns true if someone signed */
 function shopFor(id,pos,minQ,o={}){
   const cap=wageCapK(id),bill=wageBillK(id);let budget=o.budget??budgetFor(id);
-  let best=null,bv=-1;
-  for(const c of scoutPool(id,pos)){
-    const p=c.p,seen=p.q+(rnd()+rnd()-1)*2.5*tdNoise(id);if(seen<minQ)continue; // the director judges by eye: a weak eye is fooled more often
+  let best=null,bv=-Infinity;
+  const pool=scoutPool(id,pos),evaluated=[];
+  for(const c of pool){
+    const p=c.p,seen=p.q+(rnd()+rnd()-1)*2.5*tdNoise(id);
     const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000*(c.premium?1.3:1);
-    if(fee>budget)continue;if(bill+wage>cap&&!o.mustHave)continue;
-    if(c.from&&!sellerAgrees(p,c.from,fee))continue;
-    const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0);
-    if(v>bv){bv=v;best={...c,fee}}
+    const coverOk=wage<=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000; // emergency cover: within the wage limit, or cheap
+    let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
+    if(reason==='Considered'){
+      const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0);
+      if(v>bv){bv=v;best={...c,fee};}
+    }
+    if(id===S.my)evaluated.push({pid:p.id,name:p.name,pos:p.pos,age:p.age,from:c.from?CL(c.from).name:'Free agent',estimate:r1(seen),fee,reason});
   }
-  if(!best&&o.mustHave){const base=11.5+(tierBaseStr(2)-50)/4+(S.qref-11.7),p=newPlayer(pos,{age:ri(19,30),q:base-2+rnd()*1.2,contract:0});
-    p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0}}
+  if(!best&&o.mustHave){const base=11.5+(tierBaseStr(2)-50)/4 /* fixed level: new faces from below Northmarch Two do not grow with the world (T2) */,p=newPlayer(pos,{age:ri(19,30),q:base-2+rnd()*1.2,contract:0});
+    p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0};}
+  if(id===S.my){
+    const history=S.stats[id].scoutHistory||[];
+    const h=history[history.length-1];
+    if(h){
+      h.target=r1(minQ);h.budget=budget;
+      h.candidates=evaluated.slice(0,16);
+      h.decision=best?{pid:best.p.id,name:best.p.name,fee:best.fee,reason:o.mustHave?'Emergency cover':'Highest-rated affordable option'}:{reason:'No suitable affordable candidate'};
+      for(const c of h.candidates)if(best&&c.pid===best.p.id)c.reason='Selected';
+    }
+  }
   if(!best)return false;
-  if(!o.mustHave&&minQ>0){const st=S.stats[id];st.buys=(st.buys||0)+1;if(best.p.q<minQ)st.misbuys=(st.misbuys||0)+1;st.spent=r1((st.spent||0)+best.fee)} // a signing that is not what the director thought
+  if(!o.mustHave&&minQ>0){const st=S.stats[id];st.buys=(st.buys||0)+1;if(best.p.q<minQ)st.misbuys=(st.misbuys||0)+1;st.spent=r1((st.spent||0)+best.fee)}
   if(best.from)transfer(best.p,best.from,id,best.fee,'buy',best.premium);else signFree(best.p,id);
   return best;
 }
@@ -2000,13 +2046,51 @@ function deptsView(){
     <span class="small muted">${STAFF_WORD[d.staff]} · ${d.budget} budget · ${d.pending||d.course}${d.hiring?' · recruiting':''}</span>
     <span class="small next">${esc(deptNext(id,k))}</span></button>`}).join('')}</div>`;
 }
+/* Operational visibility uses only persisted game state; there is no invented shortlist or youth team. */
+function departmentPipeline(k){
+ const id=S.my,dept=G(id).depts[k],st=S.stats[id];
+ if(k==='scouting'){
+  const director=tdOf(id),recent=S.ev.filter(e=>e.c===id&&['Transfer','Signing'].includes(e.t)).slice(-6).reverse();
+  const history=(st.scoutHistory||[]).slice(-4).reverse();
+  const reach=Math.max(4,6+Math.round(2*groundSignals(id).scouting+(pq(director)-10)/2));
+  return`<div class="panel"><p class="eyebrow">Scouting desk</p>
+  <div class="row small"><span>Recruitment lead</span><b>${esc(director.name)} (director)</b></div>
+  <div class="row small"><span>Scouting team</span><b>Level ${dept.staff}/5</b></div>
+  <div class="row small"><span>Department focus</span><b>${esc(dept.pending||dept.course)}</b></div>
+  <div class="row small"><span>Search reach</span><b>Up to ${reach} candidates per search</b></div>
+  <p class="small muted">The director runs recruitment searches automatically during transfer windows. Department staffing, facilities and the director affect search reach. Individual scouts are not yet represented as people.</p>
+  <p class="eyebrow">Players considered in recent searches</p>
+  ${history.length?history.map(h=>`<div class="panel"><p class="small"><b>Season ${h.season} · week ${h.week} · ${esc(h.pos)}</b> · ${esc(h.director)}</p><p class="small muted">Target ${h.target??"—"} · budget £${h.budget??"—"}k</p>
+  ${h.candidates.length?h.candidates.map(p=>`<div class="row small"><span>${esc(p.name)} · ${p.pos} · ${esc(p.from)}</span><b>${esc(p.reason||"Seen")} · ${p.estimate??p.quality??"—"}</b></div>`).join('') :'<p class="small muted">No candidates in this search.</p>'}<p class="small"><b>TD decision:</b> ${esc(h.decision?.name||h.decision?.reason||'Search only — no decision recorded')}</p></div>`).join(''):'<p class="small muted">No recorded searches yet. The next recruitment window will start a search when the director needs players. Older saves cannot reconstruct past candidate lists.</p>'}
+  <p class="eyebrow">Completed signings</p>${recent.length?recent.map(e=>`<p class="small">${esc(e.text)}</p>`).join(''):'<p class="small muted">No completed signings recorded yet.</p>'}
+  <button class="btn ghost" data-act="ctab" data-arg="football">Review the director</button></div>`;
+ }
+ if(k==='academy'){
+  const sq=S.squads[id],graduates=sq.filter(p=>p.academy).sort((a,b)=>a.age-b.age||b.pa-a.pa);
+  const out=Object.entries(S.squads).flatMap(([cid,players])=>players.filter(p=>p.academy&&p.loan&&p.loan.from===id).map(p=>({p,cid})));
+  const history=(st.academyHistory||[]).slice(-5).reverse();
+  const intake=S.ev.filter(e=>e.c===id&&e.t==='YouthIntake').slice(-3).reverse();
+  return`<div class="panel"><p class="eyebrow">Academy pathway</p>
+  <p class="small muted">Each summer, academy graduates join the senior squad directly. There is no separate U18 or U21 competition in the current simulation.</p>
+  <div class="row small"><span>Academy staff</span><b>Level ${dept.staff}/5</b></div>
+  <div class="row small"><span>Academy graduates in squad</span><b>${graduates.length}</b></div>
+  <div class="row small"><span>Academy graduates on loan</span><b>${out.length}</b></div>
+  <p class="eyebrow">Current graduates</p>
+  ${graduates.length?graduates.map(p=>`<button class="dept-player" data-act="player" data-arg="${p.id}"><span><b>${esc(p.name)}</b><small>${p.age} · ${p.pos} · ${p.sApps} appearances · development ${p.grown>=0?'+':''}${r1(p.grown)}</small></span><span>Quality ${r1(p.q)} ›</span></button>`).join(''):'<p class="small muted">No academy graduates in the squad.</p>'}
+  ${out.length?`<p class="eyebrow">Out on loan</p>${out.map(({p,cid})=>`<p class="small">${esc(p.name)} · ${nm(cid)} · ${p.sApps} appearances</p>`).join('')}`:''}
+  <p class="eyebrow">Summer intake records</p>
+  ${history.length?history.map(h=>`<div class="panel"><p class="small"><b>Season ${h.season}</b></p>${h.graduates.map(p=>{const here=sq.find(x=>x.id===p.pid),loan=out.find(x=>x.p.id===p.pid);return`<div class="row small"><span>${esc(p.name)} · ${p.pos}</span><b>${here?'First team':loan?'On loan':'No longer at club'}</b></div>`}).join('')}</div>`).join(''):intake.length?intake.map(e=>`<p class="small">${esc(e.text)}</p>`).join(''):'<p class="small muted">No summer intake yet. Older saves may only have a summary event.</p>'}
+  <button class="btn ghost" data-act="tab" data-arg="squad">See player profiles</button></div>`;
+ }
+ return'';
+}
 function deptSheet(k){
   const id=S.my,d=G(id).depts[k],D=DEPT[k],kp=deptKpi(id,k),fac=deptFacility(id,k);
   const staffSeg=`<div class="seg seg5">${[1,2,3,4,5].map(n=>`<button class="${(d.hiring?d.hiring.to:d.staff)===n?'on':''}" data-act="dstaff" data-arg="${k}:${n}" aria-pressed="${d.staff===n}" ${d.hiring?'disabled':''}>${n} · £${n0(deptWeekCost(id,k,n)*1000)}</button>`).join('')}</div>`;
   let facHtml='';
   if(fac){const opt=fac.opt;facHtml=`<div class="panel"><p class="eyebrow">${COMPLEX[D.fac].n}</p>${fac.have?`<div class="grow"><span><b>${LV_NAME[fac.have.lv]}</b><br><span class="small muted">${COMPLEX[D.fac].sig}</span></span><span></span>${condBar(fac.have.cond)}</div>`:`<p class="small muted">Not built yet. Staff alone can only do so much.</p>`}
     ${fac.busy?'<p class="small">Building work under way.</p>':opt?(UI.gsel===opt.key?`<div class="opt on"><b>${esc(opt.label)}</b><span class="small">${opt.weeks} weeks${opt.permit?' + permit':''} · paid week by week</span><div class="offers">${Object.entries(OFFER).map(([ok,of])=>`<button class="offer" data-act="gbuild" data-arg="${opt.key}|${ok}"><b>£${Math.round(opt.cost*of.p)}k</b><span>${of.n}</span><span class="muted">${Math.round(of.over*100)}% overrun risk</span></button>`).join('')}</div><button class="tbtn" data-act="gsel" data-arg="">Cancel</button></div>`:`<button class="opt" data-act="gsel" data-arg="${opt.key}"><b>${esc(opt.label)}</b><span class="small muted">£${opt.cost}k · ${opt.weeks} weeks</span></button>`):fac.noPlot?'<p class="small muted">All six plots are in use.</p>':''}</div>`}
-  return overlayShell(D.n,`<p class="muted">${esc(D.does)}</p>
+  return overlayShell(D.n,`<p class="muted">${esc(D.does)}</p>${departmentPipeline(k)}
   <div class="panel"><p class="small">${esc(kp.label)}</p><b class="${kp.good===true?'up':kp.good===false?'down':''}">${esc(kp.text)}</b></div>
   <div class="panel"><p class="eyebrow">Staff · ${STAFF_WORD[d.staff]}</p><p class="small muted">Hiring takes ${HIRE_WEEKS} weeks and a fee of two weeks' wages. Cutting costs four weeks' severance.</p>${staffSeg}${d.hiring?`<p class="small">Recruiting to ${STAFF_WORD[d.hiring.to].toLowerCase()}: ${d.hiring.left} week${d.hiring.left>1?'s':''} to go.</p>`:''}${deptStaffImpact(id,k)}</div>
   <div class="panel"><p class="eyebrow">Budget</p><p class="small muted">Equipment, travel and upkeep. It scales the whole department.</p><div class="seg">${Object.keys(BUDGET_F).map(b=>`<button class="${d.budget===b?'on':''}" data-act="gdept" data-arg="${k}:${b}" aria-pressed="${d.budget===b}">${b[0].toUpperCase()+b.slice(1)} · £${n0(deptWeekCost(id,k,null,b)*1000)}</button>`).join('')}</div>${deptBudgetImpact(id,k)}</div>
@@ -2189,10 +2273,34 @@ function clubHubTile(item){
   else if(name==='Budget')status=k1(F(S.my).cash)+' in the bank';
   return`<button class="hubtile" data-act="${act}" data-arg="${arg}" aria-label="${esc(name)}: ${esc(sub)}"><b>${esc(name)}</b><span>${esc(sub)}</span>${status?`<small>${esc(status)}</small>`:''}</button>`;
 }
+/* Improvement routes: real decisions, actual engine signals, and direct existing screens. */
+const IMPROVEMENT_ROUTES=[
+ {id:'squad',title:'Build a stronger squad',why:'Give the director the people and spending room to improve recruitment.',steps:[['Appoint a stronger director','ctab','football'],['Set wage and transfer limits','tobudget',''],['Inspect your squad','tab','squad']],check:'Squad strength, wage bill and transfers over the next windows',when:'Transfer windows and contract renewals'},
+ {id:'results',title:'Improve match results',why:'Coaching quality, player fitness and training can influence results without choosing the team yourself.',steps:[['Review your head coach','ctab','football'],['Invest in training','dept','training'],['Reduce injuries','dept','medical']],check:'Match results, player growth and weeks lost to injury',when:'Over subsequent matches and training weeks'},
+ {id:'youth',title:'Develop your own talent',why:'Youth staff, the academy and its facilities affect the next generations of players.',steps:[['Strengthen the academy','dept','academy'],['Improve training','dept','training'],['Review youth players','tab','squad']],check:'Youth intake quality and development of young players',when:'Development during the season; new intake in summer'},
+ {id:'recruit',title:'Find better players',why:'The scouting department improves the pool of players the director can assess.',steps:[['Improve scouting','dept','scouting'],['Review your director','ctab','football'],['Set recruitment budget','tobudget','']],check:'Director search reach, signings and squad strength',when:'Scouting over time; deals in transfer windows'},
+ {id:'income',title:'Grow the money available',why:'Commercial income, attendance and sponsor deals can fund your long-term football plans.',steps:[['Improve commercial operations','dept','commercial'],['Review sponsors','hubmoney','income'],['Set ticket prices','hubmoney','income']],check:'Sponsor income, matchday receipts, cash and season budget',when:'Home matches, weekly income and sponsor contract cycles'},
+ {id:'club',title:'Build a sustainable club',why:'Members, ground improvements and disciplined borrowing support growth but have ongoing costs.',steps:[['Grow member support','ctab','members'],['Plan ground improvements','ctab','ground'],['Review financial forecast','hubmoney','overview']],check:'Member confidence, capacity, project progress and cash forecast',when:'Weeks for maintenance and building; seasons for lasting growth'}
+];
+function improvementRoutes(){
+ const id=S.my,sg=groundSignals(id),g=G(id),f=F(id);
+ const metrics={
+  squad:[['Squad strength',Math.round(teamStrength(id))],['Wage bill / week',k1(wageBillK(id))]],
+  results:[['League position',S.week?ord(posOf(id)):'Pre-season'],['Injury weeks',Math.round(S.stats[id].injWeeks||0)]],
+  youth:[['Academy staff',g.depts.academy.staff+'/5'],['Training staff',g.depts.training.staff+'/5']],
+  recruit:[['Scouting staff',g.depts.scouting.staff+'/5'],['Director',esc(P(C().cast.td).name)]],
+  income:[['Cash',k1(f.cash)],['Commercial staff',g.depts.commercial.staff+'/5']],
+  club:[['Member confidence',Math.round(M(id).conf)+'/100'],['Ground capacity',n0(sg.capacity)]]
+ };
+ return`<section class="improve" aria-label="How to improve your club"><div class="improve-intro"><p class="eyebrow">Your choices change the club</p><h3>What do you want to improve?</h3><p class="small muted">Pick a goal. Follow the decisions, then watch the numbers over the coming weeks. No choice guarantees a win.</p></div>
+ <div class="improve-grid">${IMPROVEMENT_ROUTES.map(route=>`<button class="improve-choice ${UI.improve===route.id?'selected':''}" data-act="improve" data-arg="${route.id}" aria-expanded="${UI.improve===route.id}"><b>${route.title}</b><span>${route.why}</span><small>${UI.improve===route.id?'Hide decisions':'See decisions →'}</small></button>`).join('')}</div>
+ ${IMPROVEMENT_ROUTES.filter(route=>UI.improve===route.id).map(route=>`<div class="improve-detail"><h3>${route.title}</h3><p class="small">${route.why}</p><p class="eyebrow">Your decisions</p><div class="improve-steps">${route.steps.map(([label,act,arg],i)=>`<button data-act="${act}" data-arg="${arg}"><span class="improve-number">${i+1}</span><b>${label}</b><span aria-hidden="true">›</span></button>`).join('')}</div><p class="eyebrow">Current position</p><div class="improve-metrics">${metrics[route.id].map(([label,value])=>`<div><span>${label}</span><b>${value}</b></div>`).join('')}</div><p class="small"><b>When:</b> ${route.when}</p><p class="small"><b>Track:</b> ${route.check}</p><p class="small muted">Trade-off: higher investment uses cash or adds recurring costs. Outcomes also depend on opponents, player quality and chance.</p></div>`).join('')}</section>`;
+}
 function clubHub(){
   const id=S.my,m=M(id),f=F(id),run=G(id).projects.filter(p=>p.phase!=='done').length;
   return`<div class="hubhead"><p class="eyebrow">The chairman's office</p><h2>Run your club</h2><p class="small muted">Choose a responsibility. Every department and board decision is one tap away.</p></div>
   <div class="panel hubstatus"><div class="row small"><span>League position</span><b>${S.week?ord(posOf(id)):'Pre-season'}</b></div><div class="row small"><span>Cash</span><b>${k1(f.cash)}</b></div><div class="row small"><span>Members' confidence</span><b>${Math.round(m.conf)}/100</b></div>${run?`<p class="small muted">${run} building project${run===1?'':'s'} running</p>`:''}</div>
+  ${improvementRoutes()}
   ${CLUB_HUB_GROUPS.map(([title,items])=>`<section class="hubsection"><h3>${title}</h3><div class="hubtiles">${items.map(clubHubTile).join('')}</div></section>`).join('')}
   <button class="btn ghost" data-act="ctab" data-arg="overview">Detailed board overview</button>`;
 }
@@ -2306,6 +2414,7 @@ function act(a,arg){
     case'quit':save();UI.title=true;UI.over=null;break;
     case'choose':chooseClub(arg);UI.tier=null;break;
     case'boardjump':UI.tab='club';UI.ct={members:'members',staff:'football',departments:'depts'}[arg]||'overview';UI.over=null;break; // kept for old links
+    case'improve':UI.improve=UI.improve===arg?null:arg;break;
     case'hubmoney':UI.tab='money';UI.mt=arg;UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
     case'hubprojects':UI.tab='club';UI.ct='projects';UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
     case'ctab':UI.tab='club';UI.ct=arg;UI.over=null;UI.gsel=null;UI.confirm=null;if(arg==='ground')UI.gt=UI.gt||'stadium';if(HAS_DOM)window.scrollTo(0,0);break;

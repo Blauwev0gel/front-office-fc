@@ -25,7 +25,7 @@ function finInit(id){
   const c=CL(id),t=c.tier,cash=[ri(90,260),ri(30,140),ri(10,60)][t],debt=pick([0,0,0,1,2,3])*[90,50,25][t];
   const v=chairValue(id);
   const f={cash:0,start:0,loans:[],prices:{...PRICE_DEF[t]},season:{},last:null,hist:[],od:0,admin:null,holders:0,sold:0,lastGate:null,
-    policy:{wage:v==='glory'?'ambitious':v==='money'?'tight':'normal',spend:v==='glory'?.7:v==='money'?.3:.5,loans:true}};
+    policy:{wage:v==='glory'?'ambitious':v==='money'?'tight':'normal',spend:v==='glory'?.7:v==='money'?.3:.5,loans:true,recruit:v==='money'?'value':v==='glory'?'experience':v==='community'?'youth':'balanced'}};
   S.fin[id]=f;f.cash=cash;f.start=cash;
   if(debt){f.loans.push(mkLoan(debt,10,.05,'Old club debt'))}
   return f;
@@ -147,5 +147,5 @@ defCommand('TakeLoan',{check:(id,a)=>{if(!(a.amount>0))return'Choose an amount';
   run:(id,a)=>{const rate=loanRate(id,a.amount),l=mkLoan(a.amount,a.years,rate,`Bank loan (${a.years} years)`);F(id).loans.push(l);book(id,'loanIn',a.amount);emit('LoanTaken',id,`${CL(id).name} borrow £${a.amount}k over ${a.years} years at ${Math.round(rate*1000)/10}%.`);return l}});
 defCommand('RepayLoan',{check:(id,a)=>{const l=F(id).loans[a.i];if(!l)return'No such loan';if(F(id).cash<l.left)return'Not enough cash to repay it';return null},
   run:(id,a)=>{const l=F(id).loans[a.i];book(id,'loanOut',-l.left);emit('LoanRepaid',id,`Loan repaid early: £${r1(l.left)}k.`);F(id).loans.splice(a.i,1)}});
-defCommand('SetSquadPolicy',{check:(id,a)=>(a.wage&&!WAGE_RATIO[a.wage])||(a.wageR!=null&&!(a.wageR>=.4&&a.wageR<=1.05))||(a.spend!=null&&!(a.spend>=0&&a.spend<=1))||(a.loans!=null&&typeof a.loans!=='boolean')?'Unknown policy':null,
-  run:(id,a)=>{const p=F(id).policy;if(a.wage){p.wage=a.wage;p.wageR=WAGE_RATIO[a.wage]}if(a.wageR!=null)p.wageR=r2(a.wageR);if(a.spend!=null)p.spend=a.spend;if(a.loans!=null)p.loans=a.loans}});
+defCommand('SetSquadPolicy',{check:(id,a)=>(a.wage&&!WAGE_RATIO[a.wage])||(a.wageR!=null&&!(a.wageR>=.4&&a.wageR<=1.05))||(a.spend!=null&&!(a.spend>=0&&a.spend<=1))||(a.loans!=null&&typeof a.loans!=='boolean')||(a.recruit!=null&&!RECRUIT[a.recruit])?'Unknown policy':null,
+  run:(id,a)=>{const p=F(id).policy;if(a.wage){p.wage=a.wage;p.wageR=WAGE_RATIO[a.wage]}if(a.wageR!=null)p.wageR=r2(a.wageR);if(a.spend!=null)p.spend=a.spend;if(a.loans!=null)p.loans=a.loans;if(a.recruit)p.recruit=a.recruit}});

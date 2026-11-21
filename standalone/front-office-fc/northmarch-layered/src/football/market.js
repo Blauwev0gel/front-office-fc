@@ -66,14 +66,15 @@ function shopFor(id,pos,minQ,o={}){
   const cap=wageCapK(id),bill=wageBillK(id);let budget=o.budget??budgetFor(id);
   let best=null,bv=-Infinity;
   const pool=scoutPool(id,pos),evaluated=[];
+  for(const c of shortlistCandidates(id,pos))if(!pool.some(x=>x.p===c.p))pool.unshift(c); // players the scouts have been watching come first
   for(const c of pool){
-    const p=c.p,seen=p.q+(rnd()+rnd()-1)*2.5*tdNoise(id);
+    const p=c.p,sl=c.listed?shortlistEntry(p.id):null,seen=sl&&sl.obs?sl.est:p.q+(rnd()+rnd()-1)*2.5*tdNoise(id); // watched players are judged on the scouts' refined estimate
     const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000*(c.premium?1.3:1);
     const coverOk=wage<=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000; // emergency cover: within the wage limit, or cheap
     let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
     if(reason==='Considered'){
-      const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0);
-      if(v>bv){bv=v;best={...c,fee};}
+      const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0)+recruitBias(id,p,fee)-.5*(sl&&sl.obs?scoutRange(id,sl.obs):eyeRange(id)); /* the director trusts what has been watched */
+      if(v>bv){bv=v;best={...c,fee,seen};}
     }
     if(id===S.my)evaluated.push({pid:p.id,name:p.name,pos:p.pos,age:p.age,from:c.from?CL(c.from).name:'Free agent',estimate:r1(seen),fee,reason});
   }
@@ -89,6 +90,7 @@ function shopFor(id,pos,minQ,o={}){
       for(const c of h.candidates)if(best&&c.pid===best.p.id)c.reason='Selected';
     }
   }
+  recordDecision(id,pos,best,evaluated,o.mustHave);
   if(!best)return false;
   if(!o.mustHave&&minQ>0){const st=S.stats[id];st.buys=(st.buys||0)+1;if(best.p.q<minQ)st.misbuys=(st.misbuys||0)+1;st.spent=r1((st.spent||0)+best.fee)}
   if(best.from)transfer(best.p,best.from,id,best.fee,'buy',best.premium);else signFree(best.p,id);

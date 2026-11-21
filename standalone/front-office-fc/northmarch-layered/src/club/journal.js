@@ -43,7 +43,7 @@ function journalText(name,a,id){
     case'SetPrice':return`${a.kind==='season'?'Season ticket':a.kind[0].toUpperCase()+a.kind.slice(1)} price ${a.delta>0?'up':'down'} to £${F(id).prices[a.kind]}`;case'SetDues':return`Dues ${a.delta>0?'up':'down'} to £${M(id).dues}`;
     case'SignSponsor':{const s=F(id).sponsor;return`Sponsor deal signed${s?': '+s.name:''}`}case'TakeLoan':return`Loan of £${a.amount}k over ${a.years} years`;case'RepayLoan':return'Loan repaid';case'IssueBond':return`Members' bond of £${a.amount}k`;
     case'Fundraise':return"Members' appeal";case'SellGround':return'The ground sold and leased back';case'BuyBackGround':return'The ground bought back';case'ReleasePlayer':return'Player released';
-    case'SetSquadPolicy':return a.wageR!=null?`Wage limit set to ${Math.round(a.wageR*100)}% of income`:a.spend!=null?`Transfer money: ${Math.round(a.spend*100)}% of spare cash`:a.loans!=null?(a.loans?'Young reserves may go on loan':'Young reserves stay at the club'):a.wage?`Wage frame: ${a.wage}`:'Frame changed';
+    case'SetSquadPolicy':return a.wageR!=null?`Wage limit set to ${Math.round(a.wageR*100)}% of income`:a.spend!=null?`Transfer money: ${Math.round(a.spend*100)}% of spare cash`:a.loans!=null?(a.loans?'Young reserves may go on loan':'Young reserves stay at the club'):a.recruit?`Recruitment strategy: ${RECRUIT[a.recruit].n}`:a.wage?`Wage frame: ${a.wage}`:'Frame changed';
   }
   return name;
 }

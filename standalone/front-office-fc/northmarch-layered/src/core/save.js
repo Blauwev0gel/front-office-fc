@@ -32,7 +32,7 @@ function migrate(s){
 }
 function schemaVersion(){return VERSION}
 function serialize(){return JSON.stringify(S)}
-function deserialize(txt){S=migrate(JSON.parse(txt));staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();return S}
+function deserialize(txt){S=migrate(JSON.parse(txt));staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();return S}
 function save(){if(!HAS_DOM)return false;try{localStorage.setItem(SAVE_KEY,serialize());return true}catch(e){return false}}
 function hasSave(){if(!HAS_DOM)return false;try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
 function load(){if(!HAS_DOM)return false;try{const t=localStorage.getItem(SAVE_KEY);if(!t)return false;deserialize(t);return true}catch(e){return false}}

@@ -82,3 +82,10 @@
 - c8191a103a7e24f663aa6bfe38e43c6ca811fea2 — scouting department now displays screening reasons, target, budget and TD decision. Source updated, not browser-tested.
 - f6e74dc6157a91095428273b005755220e1a59d7 — added docs/layers/L2_5_OPERATIONAL_CLUB.md with initial 11-domain gap audit, architecture and validation gates.
 - Current status: IMPLEMENTED (partial vertical slice); NOT TESTED, NOT PLAYABLE/RELEASED. Pending: standalone build, save/load, simulation, browser/mobile tests; persistent positional planning and cross-window shortlist.
+
+## 2026-11-21 — L2.5 pakket A1: wervingscyclus (Claude)
+Register (SHA · doel · systemen · gameplay · tests · grenzen · status):
+- c8d1526 · economie-ineenstorting na sync herstellen · market.js (vast niveau nieuwe vrije spelers, noodaankoop binnen loonplafond) · loonplafond weer bindend · 20-seizoenensim groen · — · TESTED
+- (deze commit) · wervingscyclus selectiebehoefte → scouting → beoordeling → TD-besluit → terugblik · nieuw `club/recruitment.js`, `ui/recruit.js`, `tests/l25-test.js`; aangepast market.js (shortlist in shopFor, recordDecision), clock.js (wekelijks scouten, plan voor vensters), finance.js (`SetSquadPolicy{recruit}`), journal.js, save.js (`opsAfterLoad`), world.js, board.js, act.js · voorzitter kiest wervingsstrategie; selectieplan met open/vervulde behoeften; scouts volgen echte spelers en schattingen worden scherper; directeur weegt gescoute spelers eerlijker; terugblik "toen gezien, nu" · build, save-test, smoke-test, l25-test, 20-seizoenensim, browsercheck 390 px licht/donker groen · shortlist bepaalt ≈17% van de aankopen; computerclubs zonder plan; `tests/playtest.js` verouderd door hub fdfb8a9 · TESTED (niet PLAYABLE: eigenaar heeft nog niet gespeeld)
+- Geen VERSION-ophoging: `S.ops` en `policy.recruit` zijn optioneel met veilige defaults; oude saves krijgen een plan bij laden.
+- Volgende: playtest.js bijwerken; pakket A2 jeugd- en ontwikkelingscyclus.

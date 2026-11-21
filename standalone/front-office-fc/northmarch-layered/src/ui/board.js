@@ -113,7 +113,7 @@ function footballBody(){
   <div class="panel"><p class="eyebrow">The squad</p><div class="row small"><span>Strength</span><b>${Math.round(teamStrength(id))} · ${strWord(id)}</b></div>
   <div class="row small"><span>Wage bill</span><b class="${bill>cap?'down':''}">£${n0(bill*1000)} of £${n0(cap*1000)} a week</b></div><div class="row small"><span>Transfer money now</span><b>${k1(budgetFor(id))}</b></div>
   <p class="small muted">The director signs, sells and renews; you set his frame. Windows: the summer and week ${WINTER_WEEK}.</p>
-  <div class="seg"><button data-act="tab" data-arg="squad">See the squad</button><button data-act="tobudget">Set the frame</button></div></div>`;
+  <div class="seg"><button data-act="tab" data-arg="squad">See the squad</button><button data-act="tobudget">Set the frame</button></div></div>${recruitPanels()}`;
 }
 function membersBody(){
   return`${membersPanel()}${targetsPanel()}<div class="panel"><p class="eyebrow">How the AGM works</p><p class="small">After week 30 every club votes on its chairman. Below 50% for, you are out and choose a new club in the same world.</p>

@@ -1,55 +1,108 @@
 # L2.5 — Functionerende cluborganisatie
-Status: IN PROGRESS. Source changes are not yet built or browser-tested.
+
+Overall status: IN PROGRESS. Package A1 (recruitment cycle) is TESTED; the other packages are PLANNED.
 
 ## Scope and principle
-L1 owns the football world; L2 owns governance; L2.5 exposes durable operational cycles, without introducing L3 staff agents. Chairman controls policy, staffing and budgets; TD executes recruitment.
+L1 owns the football world, L2 owns governance, and L2.5 makes the club's operational cycles visible and lasting.
+The chairman sets policy, staffing, budgets and the recruitment strategy; the director (TD) does the recruiting.
+L2.5 adds no individual staff agents (that is L3), no story (L4) and no dynasty (L5).
+Navigation: CLUB → DEPARTMENT → WORK → RESULTS → DECISIONS. The recruitment cycle sits under Club → Football.
 
-## Code audit and gaps
-| Domain | Existing evidence | Classification | Critical missing link |
+## Code audit (A–E)
+- **A:** complete and working.
+- **B:** working, but the cycle is not visible.
+- **C:** partial; a link in the cycle is missing.
+- **D:** only a signal or number, with no process behind it.
+- **E:** absent.
+
+| Domain | Evidence in code | Class | Critical missing link |
 |---|---|---|---|
-| Scouting | football/market.js scoutPool, shopFor; ground.js scouting signal | C | Persist search intent, shortlist decisions, cross-window tracking |
-| Squad planning | players.js squadGaps; market.js squadManager | C | Durable positional plan and explanation of needs |
-| Transfers | market.js transfer/signFree/squadManager | B/C | Link individual signings to plan and retrospective outcomes |
-| Youth | players.js playersSeasonEnd, academyHistory | C | Development history and permanent graduate outcomes |
-| Training | players.js playersWeek, staff.js coachGrowth | B | Multiweek progress and coach reporting |
-| Medical | players.js injuries, stats.injWeeks | B | Recovery schedule and medical reporting |
-| Coach/TD | staff.js roles, skills, hiring | C | Operational reports and performance review |
-| Contracts/loans | life.js, market.js renewals, loanOut | B/C | Contract-risk pipeline |
-| Commercial | commercial.js sponsor offers, sponsorWeekK | B/C | Project/activity ledger |
-| Members | members.js confidence, goals, AGM | B | Explicit member issues and progress |
-| Ground | ground.js, projects.js | B | Unified facility investment plan |
-| Finance | finance.js, commercial.js budgetRows | B | Department outcome versus investment |
+| Squad planning | `players.js squadGaps`, `market.js squadManager:100`; **new** `recruitment.js buildPlan` | C → **B** | A plan now exists, with open/filled/solved needs; there is still no multi-season age plan |
+| Scouting | `market.js scoutPool:37`, `ground.js groundSignals:65`; **new** `recruitment.js scoutWeek` | D → **B** | Weekly observation of real players, with estimates that firm up; no individual scouts (L3) |
+| Candidate assessment | `market.js shopFor:65` (ChatGPT: `scoutHistory`, evaluated reasons) | C → **B** | Shortlist candidates enter `shopFor` with their refined estimate; reasons are kept per candidate |
+| TD decision | `shopFor`, `staff.js tdNoise:25` | B | The strategy (`recruitBias`) colours the choice; the decision is linked to a need |
+| Signings review | **new** `recruitment.js recordDecision`, `signingReview` | E → **B** | "Judged then, seen now", with appearances and current club |
+| Contracts/renewals | `market.js renewals:127`, `life.js` | B | Expiring contracts appear in the plan; no contract-risk pipeline yet |
+| Loans | `life.js loanOut:37`, `returnLoans:48` | B/C | A loan leaves no trace in the player's history |
+| Youth/academy | `players.js playersSeasonEnd:79`, `S.stats.academyHistory` (ChatGPT `8f68df64`) | C | Intake snapshots exist; permanent cohort outcomes, development history and departures are missing |
+| Training | `players.js playersWeek:59`, `staff.js coachGrowth:24` | B | Only an aggregate (`youthGrowth`); no growth per player |
+| Medical | `players.js` injuries, `stats.injWeeks` | B | No recovery planning or report |
+| Coach/TD | `staff.js` profiles, hiring and sacking | B | No performance review against the plan |
+| Commercial | `commercial.js sponsorOffers:35`, `budgetRows:17` | B | No activities ledger |
+| Members | `members.js membersWeek:19`, `holdAGMs:55` | B | Explicit member issues are missing |
+| Ground/facilities | `ground.js startProject:118`, `projects.js` | B | No combined investment plan |
+| Finance | `finance.js financeSeasonEnd:120`, ledger | A/B | Department investment is not set against results |
 
-Classifications are code-review hypotheses, not validation results. See L2-CLUB-MANAGEMENT.md for existing A/B claims; these have not been rerun.
+Verification of ChatGPT's commits (`60b1f460`, `8f68df64`, `6683cdf1`, `d8538283`, `2b790a87`, `c8191a10`):
+- **Correct:** the restored free-agent loop (broken earlier by an inline `//`), `bv=-Infinity` for emergency signings, and the search snapshots with reasons.
+- **Side effect, fixed in `c8d1526`:** tying new free agents to `S.qref`, together with emergency signings outside the wage cap, collapsed the economy. New players now have a fixed level, and emergency cover must fit within the cap.
 
-## First vertical slice: recruitment
-- Source of truth remains existing squadManager/shopFor/scoutPool.
-- Candidate search snapshots and evaluated reasons persist in S.stats[club].scoutHistory for the current player club, capped at 12 searches.
-- The director records affordability and quality screening, chosen candidate and reason; no invented individual scout.
-- Search occurs during existing summer/winter transfer windows; no extra clock.
-- UI in ui/depts.js shows director, search reach, recent candidates and decision.
-- Limits: no persistent active search assignment between windows; no stable shortlist across searches; chairman can influence via staff appointment, scouting department and squad budget, but cannot yet approve a specific recruitment plan.
-- Older saves have no historical candidate detail; new data is optional and serializes with S.
+## Build order
+1. **A1 Recruitment cycle**: need → scouting → assessment → TD decision → review. *TESTED.*
+2. **A2 Youth and development cycle**: cohorts with permanent outcomes, development history per player, minutes, step-up into the plan's `ready` list, loans and departures kept in history. *PLANNED.*
+3. **A3 Integration**: the plan uses youth readiness, the coach and medical departments report against the plan, and multi-season validation. *PLANNED.*
+4. **B Club operations**: commercial activities, member issues, facility investment plan, department accountability (investment → result). *PLANNED.*
 
-## Next packages
-1. Persist positional needs and the director's season plan, linked to searches and signings.
-2. Youth cohort outcomes and development history, including loans and departures.
-3. Coach/medical reporting.
-4. Commercial/member/ground/finance operational cycles.
-5. End-to-end integration and mobile playtest.
+## A1 — Recruitment cycle (architecture)
+- **State:**
+  - `S.ops = {plan:{s,w,needs[],ready[],next}, shortlist[], signings[]}`, for the player's club only.
+  - `F(id).policy.recruit` holds balanced/youth/experience/value for every club.
+  - Old saves get `opsAfterLoad()`, and the policy default comes from `SetSquadPolicy`/`finInit`. VERSION stays at 7: the new state is optional, and old saves load with defaults.
+- **Plan (`buildPlan`):**
+  - Need kinds and priorities: hole (3); expiring contract of a good player (2); transfer request (2); starter aged 32+ (1); weakest starter well below the squad (1).
+  - Needs keep their status and history: open → filled (by whom) or solved.
+  - Runs at the start of the game, in the week before the winter window, in the renewal week and around the summer window.
+- **Scouting (`scoutWeek`, every week):**
+  - Looks per week: `1+floor(scouting/1.5)`.
+  - Positions are weighted by need kind (hole 3, upgrade/leaving 2, otherwise 1).
+  - Half the looks go back to the least-watched player on the list; the scouts only watch players who can be had and are affordable.
+  - Each look is noisy, with `scoutNoise = 1.4·clamp(.9−.08·scouting, .35, .9)`, and the estimate is the running average.
+  - The list holds at most 12 players being watched; the weakest cautious estimate drops out.
+- **Assessment and decision (`shopFor`):**
+  - Players on the shortlist join the options and are judged on the refined estimate.
+  - The director deducts half of the uncertainty (`scoutRange` for watched players, `eyeRange` for one glance), so watched players are judged more fairly.
+  - The strategy adds `recruitBias`.
+  - `recordDecision` links the signing to the need and records why each listed candidate was rejected.
+- **UI (`ui/recruit.js`, Club → Football):**
+  - Strategy choice.
+  - Squad plan: top 5 needs with timing (Urgent/Soon/Later) and "Ready to step up".
+  - Shortlist with estimate ± range, number of looks and last reason.
+  - Signings review: "judged then, seen now".
+- **Command:** `SetSquadPolicy {recruit}`, logged in the decision journal.
+
+## Test results (A1)
+- **`tests/l25-test.js` (≈7 s), green:**
+  - the plan has needs;
+  - the shortlist has ≥6 real players at ≥2 positions;
+  - better scouting gives more looks;
+  - summer signings are linked to needs;
+  - filled needs record who filled them;
+  - the youth strategy signs younger players;
+  - save and load keep `S.ops`.
+- **Measurement over 4 worlds × 2 seasons:**
+  - 41 signings, of which 7 came from the shortlist (previously 3 of 32).
+  - Average estimate error: 0.66 for scouted players and 0.72 for unscouted ones (previously 2.47, inverted).
+- **Light suite:** build, save-test, smoke-test, l25-test and a 20-season sim are green. The sim shows 2 administrations and a cash median of 245.
+- **Browser (390 px, light and dark):** the plan, shortlist and strategy toggle render with no errors and no horizontal scroll.
+- `tests/playtest.js` is outdated since ChatGPT's 16-tile hub (`fdfb8a9`) and fails on the old selectors. This is not caused by A1, and the fix is still open.
+
+## Remaining shortcomings (A1)
+- The shortlist influences a minority of signings (≈17%). The rest still come from the director's ad-hoc search in the window.
+- The plan has no age profile across multiple seasons and no budget per need.
+- Computer clubs use the strategy but have no plan or shortlist (deliberately, for speed and save size).
+- The chairman cannot yet mark a need as a priority; that is a possible A3 decision, kept within the "frame, not micromanagement" principle.
+
+## Relation to L3–L5
+- **L3 (staff as agents):** individual scouts with a region and judgement replace `scoutNoise`. The director becomes an agent who maintains the plan himself. The data structures (`plan`, `shortlist`, `signings`) stay the same.
+- **L4 (story):** a signing that disappoints, or a scouted gem, can become a story through the review. A need that stays open is a source of conflict.
+- **L5 (dynasty):** cohort outcomes (A2) and signings history become the club's long-term memory.
 
 ## Acceptance / validation
-- [ ] Run node build.js and verify generated standalone HTML.
-- [ ] Run save/load tests and verify old v7 saves.
-- [ ] Simulate summer/winter windows and verify recruitment reports and transfers.
-- [ ] Browser/mobile smoke test navigation and department overlays.
-- [ ] Multi-season progression and academy outcome test.
-No RELEASED or PLAYABLE claim until gates pass.
+- [x] `node build.js` and the generated HTML.
+- [x] Save/load, including `S.ops` (l25-test, save-test).
+- [x] Windows simulated; signings linked to needs.
+- [x] Browser smoke test at 390 px, light and dark (recruitment panels).
+- [ ] `tests/playtest.js` updated to the new hub.
+- [ ] A2 multi-season youth outcomes.
 
-## Recent commits
-- 60b1f460 — search snapshots
-- 8f68df64 — youth intake cohort snapshots
-- 6683cdf1 — UI for histories
-- d8538283 — worklog
-- 2b790a87 — restore broken free-agent scouting loop; add evaluated reasons and TD decision
-- c8191a10 — show decision and screening reasons in scouting UI
+No PLAYABLE or RELEASED claim until the playtest is green and the owner has played it.

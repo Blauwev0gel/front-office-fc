@@ -20,6 +20,7 @@ function advanceWeek(){
   recordsWeek(matches);
   for(const id of ids)membersWeek(id,matches.filter(m=>m.h===id||m.a===id));
   for(const id of ids){if(aiRuns(id)){aiBoardWeek(id);aiStaffWeek(id);aiStadium(id)}}
+  if(S.my){scoutWeek(S.my);if(w===WINTER_WEEK-1||w===RENEW_WEEK)buildPlan(S.my)} // the player's club: scouting every week, the plan before the winter window and after renewals
   if(w===WINTER_WEEK)for(const id of shuffle(ids.slice()))squadManager(id,'winter');
   if(w===RENEW_WEEK)for(const id of ids)renewals(id);
   membersOnEvents(eventsSince(mark));
@@ -49,7 +50,9 @@ function closeSeason(){
   faSummer();
   setBudgetsAll(s+1);
   const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
+  if(S.my)buildPlan(S.my);
   for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
+  if(S.my)buildPlan(S.my);
   for(const id of order)loanOut(id);
   for(const id of ids)groundSeasonEnd(id);
   staffSeasonEnd();

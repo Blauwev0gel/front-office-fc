@@ -93,6 +93,11 @@ function playersSeasonEnd(id){
   for(let i=0;i<n;i++){const q=base-3.2+.25*a+rnd()*1.2;const k=newPlayer(pick(POS.slice(1)),{age:ri(16,17),q,pa:q+1+.35*a+rnd()*2.5,academy:true,contract:2,club:id,trait:sg.academyLocal&&rnd()<.4?'local hero':null});
     k.career.push('Academy');sq.push(k);kids.push(k)}
   S.stats[id].intake=kids.length;S.stats[id].intakeBest=r1(Math.max(...kids.map(k=>k.pa)));
+  if(id===S.my){
+    const st=S.stats[id],history=st.academyHistory||(st.academyHistory=[]);
+    history.push({season:S.season,graduates:kids.map(p=>({pid:p.id,name:p.name,pos:p.pos,quality:r1(p.q)}))});
+    if(history.length>12)history.splice(0,history.length-12);
+  }
   emit('YouthIntake',id,`${kids.length} academy graduate${kids.length>1?'s':''} join the squad.`,{n:kids.length,best:Math.max(...kids.map(k=>k.pa))});
   return left;
 }

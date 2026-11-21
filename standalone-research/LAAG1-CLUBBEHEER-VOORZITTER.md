@@ -1,9 +1,9 @@
 # Laag 1: clubbeheer (v3, FM-diepte)
 
-*22-11-2026, v3, concept na keuze 80 (maatstaf Football Manager, stadion zo diep als FM, diep systeem met samenvatting en doorklik). Vervangt v2 (keuze 78). Punten met ❓ zijn open. Gaat alleen over het terrein, het stadion, de gebouwen en de afdelingen. Geld komt uit laag 2.*
+*22-11-2026, v3, concept na keuze 80 (maatstaf Football Manager, stadion zo diep als FM, diep systeem met samenvatting en doorklik). Vervangt v2 (keuze 78). Keuze 81: stadion apart van de kavels, start in de vierde divisie, licentie-eisen komen van de bond. Punten met ❓ zijn open. Gaat alleen over het terrein, het stadion, de gebouwen en de afdelingen. Geld komt uit laag 2.*
 
-## 0. Schaal van de startclub (❓ voorstel)
-- Een ledenvereniging in de **derde van vier fictieve divisies**: 6.800 plaatsen, omzet ±£2,4m per seizoen.
+## 0. Schaal van de startclub (keuze 81)
+- Een amateurachtige ledenvereniging in de **vierde en laagste fictieve divisie**: ±2.000 plaatsen (veel staan, één kleine hoofdtribune), omzet ±£600k per seizoen.
 - Alle bedragen hieronder gaan uit van die schaal en groeien mee met de divisie.
 
 ## 1. Bezit (alleen deze laag verandert dit)
@@ -65,7 +65,7 @@
 ### 3.3 Stadionvoorzieningen
 | Onderdeel | Niveau | Levert het signaal | Opmerking |
 |---|---|---|---|
-| **Verlichting** (lux) | 1–8 | `tv-geschikt`, avondduels | Divisie 2 vraagt minstens niveau 4 |
+| **Verlichting** (lux) | 1–8 | `tv-geschikt`, avondduels | Divisie 3 vraagt minstens niveau 3, divisie 2 niveau 5 |
 | **Horeca** (kiosken) | Aantal × niveau | `horecaruimte` | Wachtrijen kosten omzet als het aantal te laag is voor de opkomst |
 | **Business club** | 1–8 | `business-seats` | Alleen op de hoofdtribune |
 | **Skyboxen** | 0–20 stuks | `skyboxen` | Alleen op de hoofdtribune; grote verbouwing |
@@ -136,18 +136,18 @@ Het signaal `academieniveau` bestaat uit alle drie samen.
 7. **Ombouwen en slopen:** ombouwen kost 60% van nieuwbouw; slopen 10%, en dat laat een spoor na bij de leden.
 8. **Grote bouw** (>15% van de omzet) vraagt een ledenbesluit (laag 5).
 
-**Kosten** (schaal derde divisie, ❓ af te stemmen in stap 5):
+**Kosten** (schaal vierde divisie, af te stemmen in stap 5):
 
 | Project | Kosten | Bouwtijd |
 |---|---|---|
-| Een ring staantribune (+900) | £180k | 14 wkn |
-| Een ring zittribune (+600) | £240k | 16 wkn |
-| Overkapping van een zijde | £120k | 10 wkn |
-| Verlichting +1 | £40k | 3 wkn |
-| Skybox | £35k per stuk | 6 wkn |
-| Trainingsveld | £60k | 8 wkn |
-| Medisch centrum, niveau 1 | £150k | 20 wkn |
-| Academie, niveau 1 | £200k | 26 wkn |
+| Een ring staantribune (+400) | £45k | 14 wkn |
+| Een ring zittribune (+300) | £60k | 16 wkn |
+| Overkapping van een zijde | £30k | 10 wkn |
+| Verlichting +1 | £10k | 3 wkn |
+| Skybox | £12k per stuk | 6 wkn |
+| Trainingsveld | £15k | 8 wkn |
+| Medisch centrum, niveau 1 | £40k | 20 wkn |
+| Academie, niveau 1 | £50k | 26 wkn |
 
 Elk volgend niveau kost ×1,6.
 
@@ -185,10 +185,12 @@ Bouwen · uitbreiden · ombouwen · slopen · onderhoud plegen (los, of als een 
 - **Hub-kaart "Ground":** capaciteit, het slechtste onderdeel met een waarschuwing, en lopende projecten.
 - **Doorklik 1:** een stadionplattegrond met vier zijden en het veld, plus de terreinkaart met de 6 kavels. Elke zijde of kavel toont niveau en staat als kleurbalk.
 - **Doorklik 2:** het volledige overzicht van een onderdeel: niveau, staat, onderhoud, afschrijving en historie.
-- Elke actie toont een voorspelling, zoals: *"+900 places · £180k · 14 wks · +£2.1k per home game · Ultras +"*.
+- Elke actie toont een voorspelling, zoals: *"+400 places · £45k · 14 wks · +£900 per home game · Ultras +"*.
 
-## 11. Open vragen ❓
-1. **Stadion apart van de 6 kavels:** het stadion heeft vier zijden en het veld, de kavels zijn voor het complex. Dat wijzigt keuze 78 licht.
-2. **Startschaal:** derde divisie, 6.800 plaatsen, omzet ±£2,4m?
-3. **Kunstgras** als onomkeerbare optie?
-4. **Licentie-eisen:** de bond (laag 6) stelt die, en laag 1 meldt alleen of eraan voldaan is. Akkoord?
+## 11. Besloten (keuze 81)
+- Het stadion (vier zijden, veld, voorzieningen) staat los van de 6 kavels voor het complex.
+- De club begint in de vierde divisie, amateurachtig.
+- De bond (laag 6) stelt de licentie-eisen; laag 1 meldt alleen of eraan voldaan is.
+
+## 12. Open vraag ❓
+1. **Kunstgras** als onomkeerbare optie?

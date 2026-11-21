@@ -1,6 +1,6 @@
 # Laag 2: financiën (v3, FM-diepte)
 
-*22-11-2026, v3, concept na keuze 80 (maatstaf Football Manager; diep systeem, de speler ziet een samenvatting met doorklik). Bouwt voort op keuze 79: vier potjes, bankvoorwaarden met blokkades, sponsors alleen aannemen of weigeren. Punten met ❓ zijn open. Bedragen zijn op de schaal van de startclub: derde divisie, omzet ±£2,4m.*
+*22-11-2026, v3, concept na keuze 80 (maatstaf Football Manager; diep systeem, de speler ziet een samenvatting met doorklik). Bouwt voort op keuze 79: vier potjes, bankvoorwaarden met blokkades, sponsors alleen aannemen of weigeren. Punten met ❓ zijn open. Keuze 81: start in de vierde divisie (omzet ±£600k), alle vier financieringsgroepen erin, licentie met een loonplafond van 70% als bondsregel.*
 
 ## 1. Bezit (alleen deze laag verandert dit)
 - Kas, schulden (per lening), vorderingen en verplichtingen (termijnen).
@@ -26,7 +26,7 @@
 |---|---|---|---|
 | **Wedstrijddag** | Losse kaarten | Σ per vaktype: min(vraag(prijs), vrije plaatsen) × prijs | Per thuisduel |
 | | Seizoenkaarten | Verkocht × prijs. Verlenging = 55–90%, volgens resultaat, prijsstijging en stemming. | Zomer, vooraf |
-| | Horeca | Opkomst × besteding per hoofd (£3–6) × min(1, horecaruimte ÷ opkomst) × marge 40% | Per thuisduel |
+| | Horeca | Opkomst × besteding per hoofd (£2–4) × min(1, horecaruimte ÷ opkomst) × marge 40% | Per thuisduel |
 | | Business en skyboxen | Seats × prijs × bezetting + skyboxen × huur per seizoen | Seizoen (business deels per duel) |
 | | Programma, parkeren | Klein, vast per toeschouwer | Per thuisduel |
 | | Beker | Recette gedeeld 50/50, plus bekergeld per ronde | Per bekerduel |
@@ -88,7 +88,7 @@ Het karakter stuurt een sponsorsignaal naar laag 5. Na weigeren komt een nieuw a
 ## 6. Begroting en potjes (keuze 79)
 - **Vier potjes:** transfers, lonen (met **loonplafond** per week), faciliteiten en afdelingen, reserve.
 - Vastgesteld in de zomer en bij te stellen in januari.
-- **Loonstructuur:** een plafond per speler, en maximaal 70% van de omzet (❓ als bondsregel of als eigen grens).
+- **Loonstructuur:** een plafond per speler, en maximaal 70% van de omzet, als **bondsregel** (laag 6, keuze 81).
 - **Begroting tegenover werkelijk** per post. Een overschrijding geeft een waarschuwing van de financieel directeur.
 
 ## 7. Financiering
@@ -109,8 +109,8 @@ Het karakter stuurt een sponsorsignaal naar laag 5. Na weigeren komt een nieuw a
 
 Overtreding: een boeterente, of de lening wordt opeisbaar.
 
-## 8. De licentie van de bond (❓ fictieve regels, de bond hoort bij laag 6)
-- **Elk kwartaal** toetst de bond: eigen vermogen, de kasstroomvoorspelling, achterstallige betalingen en de faciliteitseisen (signaal van laag 1).
+## 8. De licentie van de bond (keuze 81; fictieve regels, de bond hoort bij laag 6)
+- **Elk kwartaal** toetst de bond: de loonsom (max. 70% van de omzet), eigen vermogen, de kasstroomvoorspelling, achterstallige betalingen en de faciliteitseisen (signaal van laag 1).
 - **Categorie 1** (gezond), **2** (onder toezicht: transferbeperking) en **3** (sancties: puntenaftrek, of uiteindelijk geen licentie).
 - Dit is de "FFP" van ons spel, maar passend bij een kleine vereniging.
 
@@ -163,8 +163,10 @@ Overtreding: een boeterente, of de lening wordt opeisbaar.
 - **Doorklik 2:** het volledige maandoverzicht met alle posten, de balans en de leningen.
 - **Doorklik 3:** het grootboek per week.
 
-## 14. Open vragen ❓
-1. **Loonplafond van 70% van de omzet:** een bondsregel (laag 6) of alleen een eigen grens?
-2. **Ledenobligaties en een hypotheek op het stadion** als instrumenten: akkoord?
-3. **Licentie in drie categorieën met puntenaftrek** als zwaarste sanctie: akkoord?
-4. **Contributie** als inkomstenpost die de speler zelf zet (met een signaal naar de leden): akkoord?
+## 14. Besloten (keuze 81)
+- Startschaal: vierde divisie, omzet ±£600k.
+- Alle financieringsinstrumenten uit §7 komen erin: rekening-courant en banklening, ledenobligaties, een hypotheek op het stadion, een investeerder en een weldoener.
+- De licentie heeft drie categorieën; het loonplafond van 70% van de omzet is een bondsregel.
+
+## 15. Open vraag ❓
+1. **Contributie** als inkomstenpost die de speler zelf zet (met een signaal naar de leden)?

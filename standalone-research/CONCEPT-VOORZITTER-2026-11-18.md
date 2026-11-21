@@ -358,6 +358,7 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - bankvoorwaarden bij te veel schuld blokkeren acties in andere lagen;
     - sponsors neem je aan of weiger je, zonder onderhandeling; de timing bepaalt de hoogte van een aanbod.
 80. **Diepte van de systeemlaag** (22-11-2026): maatstaf Football Manager; het stadion zo diep als FM; financiën als diep systeem waarin de speler een samenvatting ziet met doorklik. Laag 1 en 2 worden v3 (concept, open punten ❓ in de documenten).
+81. **Laag 1 en 2 v3** (22-11-2026): het stadion staat los van de 6 kavels (wijzigt 78); start in de vierde divisie, amateurachtig (±2.000 plaatsen, omzet ±£600k); financiering via rekening-courant, banklening, ledenobligaties, hypotheek op het stadion, investeerder en weldoener; een licentie van de bond met drie categorieën en een loonplafond van 70% van de omzet als bondsregel.
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

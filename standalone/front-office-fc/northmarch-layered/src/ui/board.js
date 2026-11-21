@@ -37,10 +37,34 @@ function clubHubTile(item){
   else if(name==='Budget')status=k1(F(S.my).cash)+' in the bank';
   return`<button class="hubtile" data-act="${act}" data-arg="${arg}" aria-label="${esc(name)}: ${esc(sub)}"><b>${esc(name)}</b><span>${esc(sub)}</span>${status?`<small>${esc(status)}</small>`:''}</button>`;
 }
+/* Improvement routes: real decisions, actual engine signals, and direct existing screens. */
+const IMPROVEMENT_ROUTES=[
+ {id:'squad',title:'Build a stronger squad',why:'Give the director the people and spending room to improve recruitment.',steps:[['Appoint a stronger director','ctab','football'],['Set wage and transfer limits','tobudget',''],['Inspect your squad','tab','squad']],check:'Squad strength, wage bill and transfers over the next windows',when:'Transfer windows and contract renewals'},
+ {id:'results',title:'Improve match results',why:'Coaching quality, player fitness and training can influence results without choosing the team yourself.',steps:[['Review your head coach','ctab','football'],['Invest in training','dept','training'],['Reduce injuries','dept','medical']],check:'Match results, player growth and weeks lost to injury',when:'Over subsequent matches and training weeks'},
+ {id:'youth',title:'Develop your own talent',why:'Youth staff, the academy and its facilities affect the next generations of players.',steps:[['Strengthen the academy','dept','academy'],['Improve training','dept','training'],['Review youth players','tab','squad']],check:'Youth intake quality and development of young players',when:'Development during the season; new intake in summer'},
+ {id:'recruit',title:'Find better players',why:'The scouting department improves the pool of players the director can assess.',steps:[['Improve scouting','dept','scouting'],['Review your director','ctab','football'],['Set recruitment budget','tobudget','']],check:'Director search reach, signings and squad strength',when:'Scouting over time; deals in transfer windows'},
+ {id:'income',title:'Grow the money available',why:'Commercial income, attendance and sponsor deals can fund your long-term football plans.',steps:[['Improve commercial operations','dept','commercial'],['Review sponsors','hubmoney','income'],['Set ticket prices','hubmoney','income']],check:'Sponsor income, matchday receipts, cash and season budget',when:'Home matches, weekly income and sponsor contract cycles'},
+ {id:'club',title:'Build a sustainable club',why:'Members, ground improvements and disciplined borrowing support growth but have ongoing costs.',steps:[['Grow member support','ctab','members'],['Plan ground improvements','ctab','ground'],['Review financial forecast','hubmoney','overview']],check:'Member confidence, capacity, project progress and cash forecast',when:'Weeks for maintenance and building; seasons for lasting growth'}
+];
+function improvementRoutes(){
+ const id=S.my,sg=groundSignals(id),g=G(id),f=F(id);
+ const metrics={
+  squad:[['Squad strength',Math.round(teamStrength(id))],['Wage bill / week',k1(wageBillK(id))]],
+  results:[['League position',S.week?ord(posOf(id)):'Pre-season'],['Injury weeks',Math.round(S.stats[id].injWeeks||0)]],
+  youth:[['Academy staff',g.depts.academy.staff+'/5'],['Training staff',g.depts.training.staff+'/5']],
+  recruit:[['Scouting staff',g.depts.scouting.staff+'/5'],['Director',esc(P(C().cast.td).name)]],
+  income:[['Cash',k1(f.cash)],['Commercial staff',g.depts.commercial.staff+'/5']],
+  club:[['Member confidence',Math.round(M(id).conf)+'/100'],['Ground capacity',n0(sg.capacity)]]
+ };
+ return`<section class="improve" aria-label="How to improve your club"><div class="improve-intro"><p class="eyebrow">Your choices change the club</p><h3>What do you want to improve?</h3><p class="small muted">Pick a goal. Follow the decisions, then watch the numbers over the coming weeks. No choice guarantees a win.</p></div>
+ <div class="improve-grid">${IMPROVEMENT_ROUTES.map(route=>`<button class="improve-choice ${UI.improve===route.id?'selected':''}" data-act="improve" data-arg="${route.id}" aria-expanded="${UI.improve===route.id}"><b>${route.title}</b><span>${route.why}</span><small>${UI.improve===route.id?'Hide decisions':'See decisions →'}</small></button>`).join('')}</div>
+ ${IMPROVEMENT_ROUTES.filter(route=>UI.improve===route.id).map(route=>`<div class="improve-detail"><h3>${route.title}</h3><p class="small">${route.why}</p><p class="eyebrow">Your decisions</p><div class="improve-steps">${route.steps.map(([label,act,arg],i)=>`<button data-act="${act}" data-arg="${arg}"><span class="improve-number">${i+1}</span><b>${label}</b><span aria-hidden="true">›</span></button>`).join('')}</div><p class="eyebrow">Current position</p><div class="improve-metrics">${metrics[route.id].map(([label,value])=>`<div><span>${label}</span><b>${value}</b></div>`).join('')}</div><p class="small"><b>When:</b> ${route.when}</p><p class="small"><b>Track:</b> ${route.check}</p><p class="small muted">Trade-off: higher investment uses cash or adds recurring costs. Outcomes also depend on opponents, player quality and chance.</p></div>`).join('')}</section>`;
+}
 function clubHub(){
   const id=S.my,m=M(id),f=F(id),run=G(id).projects.filter(p=>p.phase!=='done').length;
   return`<div class="hubhead"><p class="eyebrow">The chairman's office</p><h2>Run your club</h2><p class="small muted">Choose a responsibility. Every department and board decision is one tap away.</p></div>
   <div class="panel hubstatus"><div class="row small"><span>League position</span><b>${S.week?ord(posOf(id)):'Pre-season'}</b></div><div class="row small"><span>Cash</span><b>${k1(f.cash)}</b></div><div class="row small"><span>Members' confidence</span><b>${Math.round(m.conf)}/100</b></div>${run?`<p class="small muted">${run} building project${run===1?'':'s'} running</p>`:''}</div>
+  ${improvementRoutes()}
   ${CLUB_HUB_GROUPS.map(([title,items])=>`<section class="hubsection"><h3>${title}</h3><div class="hubtiles">${items.map(clubHubTile).join('')}</div></section>`).join('')}
   <button class="btn ghost" data-act="ctab" data-arg="overview">Detailed board overview</button>`;
 }

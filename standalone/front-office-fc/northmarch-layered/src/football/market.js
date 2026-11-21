@@ -39,6 +39,15 @@ function scoutPool(id,pos,n){
   const fa=S.fa.filter(p=>(!pos||p.pos===pos)&&!(p.left&&p.left.club===id&&p.left.s>=S.season-1)); // a player who just left does not come backfor(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
   const others=Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1);
   for(let k=0;k<reach&&others.length;k++){const o=pick(others),c=S.squads[o].filter(p=>(!pos||p.pos===pos)&&p.inj<=0&&!p.loan);if(c.length){const p=pick(c);out.push({p,from:o,premium:CL(o).rep>CL(id).rep+15&&!p.wantsOut})} /* stepping down to a smaller club costs a wage premium */}
+  // Keep a compact record of candidates the director actually encountered.
+  // This is evidence of a search, not a promise of a signing or a scout assignment.
+  if(id===S.my){
+    const st=S.stats[id],history=st.scoutHistory||(st.scoutHistory=[]);
+    const found=out.slice(0,n||99);
+    history.push({season:S.season,week:S.week,pos:pos||'any',director:tdOf(id).name,
+      candidates:found.slice(0,16).map(c=>({pid:c.p.id,name:c.p.name,pos:c.p.pos,age:c.p.age,from:c.from?CL(c.from).name:'Free agent',quality:r1(c.p.q)}))});
+    if(history.length>12)history.splice(0,history.length-12);
+  }
   return out.slice(0,n||99);
 }
 function askingFee(p,from){const v=playerValue(p);return Math.round(v*(isCore(from,p)&&!p.wantsOut?1.6:1)*(F(from).cash<0?.75:1)*(p.wantsOut?.85:1))}

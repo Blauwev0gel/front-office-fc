@@ -14,14 +14,14 @@ function pct(x){return Math.round(x*100)+'%'}
 function topBar(){
   const c=C();
   return`<header class="top">${crest}<div class="tg"><div class="club">${esc(c.name)}</div><div class="sub">Season ${S.season} · ${S.week?'Week '+S.week:'Pre-season'} · ${TIER_NAME[c.tier]}</div></div><span class="pill ${F(S.my).cash<0?'bad':''}">${k1(F(S.my).cash)}</span></header>
-  <nav class="nav" aria-label="Sections">${[['week','Week'],['table','Tables'],['squad','Squad'],['club','Club']].map(([k,n])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-arg="${k}" aria-current="${UI.tab===k?'page':'false'}">${n}</button>`).join('')}</nav>`;
+  <nav class="nav" aria-label="Sections">${[['week','Week'],['table','Tables'],['squad','Squad'],['club','Club'],['money','Money']].map(([k,n])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-arg="${k}" aria-current="${UI.tab===k?'page':'false'}">${n}</button>`).join('')}</nav>`;
 }
 function render(){
   if(!HAS_DOM)return;const app=document.getElementById('app');let h='';
   if(!S||UI.title)h=titleView();
   else if(S.phase==='choose')h=chooseView();
   else if(UI.review)h=reviewView();
-  else{const body=UI.tab==='table'?tableView():UI.tab==='squad'?squadView():UI.tab==='club'?clubView():weekView();h=topBar()+`<main>${body}</main>`}
+  else{const body=UI.tab==='table'?tableView():UI.tab==='squad'?squadView():UI.tab==='club'?clubView():UI.tab==='money'?moneyView():weekView();h=topBar()+`<main>${body}</main>`}
   if(S&&UI.over)h+=overlayView();
   app.innerHTML=h;
   document.body.style.overflow=UI.over?'hidden':'';

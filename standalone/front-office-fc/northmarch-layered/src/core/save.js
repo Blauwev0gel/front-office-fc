@@ -2,8 +2,13 @@
    The whole world is one JSON object S. A save carries S.v; load() runs every migration from that version up to
    VERSION, in order. Rule: no VERSION bump without a migration and a test (tests/save-test.js). */
 const MIGRATIONS={
-  // 1: first layered schema. Example of the pattern for later versions:
-  // 2: s=>{for(const id in s.fin)s.fin[id].newField??=default; s.v=2;}
+  // 1 → 2: eight departments with staff levels (medical and grounds split off), season statistics per club
+  2:s=>{for(const id in s.grounds){const d=s.grounds[id].depts,t=s.clubs[id].tier;
+      d.medical=d.medical||{budget:d.training.budget,course:'prevention',pending:null,settle:0};
+      d.grounds=d.grounds||{budget:d.matchday.budget,course:'stadium',pending:null,settle:0};
+      for(const k in d){d[k].staff=d[k].staff??[3,2,1][t];d[k].hiring=d[k].hiring??null}}
+    s.stats=s.stats||{};for(const id in s.clubs)s.stats[id]=s.stats[id]||{inj:0,injWeeks:0,youthGrowth:0,intake:0,intakeBest:0};
+    s.v=2;}
 };
 function migrate(s){
   if(!s||typeof s.v!=='number'||s.v<1)throw new Error('Not a Northmarch layered save');

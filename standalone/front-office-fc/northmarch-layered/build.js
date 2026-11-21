@@ -8,7 +8,7 @@ const ENGINE=[
   'club/ground.js','club/finance.js',                                  // club: ground and money
   'sim/ai.js','sim/clock.js','core/save.js'                            // simulation: boards, the clock; saves
 ];
-const UI=['ui/render.js','ui/club.js','ui/act.js'];
+const UI=['ui/render.js','ui/club.js','ui/depts.js','ui/act.js'];
 module.exports={ENGINE,UI};
 if(require.main===module){
   const S=p=>fs.readFileSync(path.join(__dirname,'src',p),'utf8');

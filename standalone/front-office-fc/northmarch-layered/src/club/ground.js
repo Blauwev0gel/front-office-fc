@@ -16,23 +16,28 @@ const FAC={
 };
 const COMPLEX={
   training:{n:'Training ground',c:15,w:8,dept:'training',sig:'Players develop faster and fade slower'},
-  medical:{n:'Medical centre',c:40,w:20,dept:'training',sig:'Fewer and shorter injuries'},
+  medical:{n:'Medical centre',c:40,w:20,dept:'medical',sig:'Fewer and shorter injuries'},
   academy:{n:'Academy',c:50,w:26,dept:'academy',sig:'More and better academy graduates'},
   scouting:{n:'Scouting office',c:20,w:10,dept:'scouting',sig:'The director sees more players'},
   commercial:{n:'Club shop and events hall',c:25,w:12,dept:'commercial',sig:'Merchandise and events'},
   clubhouse:{n:'Clubhouse',c:20,w:10,dept:'community',sig:'Members, dues and a growing support'},
   parking:{n:'Car park',c:12,w:6,dept:'matchday',sig:'Easier access for fans'}
 };
+/* eight departments: people (staff 1-5), money (budget) and a way of working (course). Each one drives real signals. */
 const DEPT={
-  matchday:{n:'Matchday',courses:['atmosphere','comfort']},
-  training:{n:'Training & medical',courses:['development','fitness']},
-  academy:{n:'Academy',courses:['local','broad']},
-  scouting:{n:'Scouting',courses:['domestic','abroad']},
-  commercial:{n:'Commercial',courses:['local','premium']},
-  community:{n:'Community',courses:['members','events']}
+  training:{n:'Training',fac:'training',courses:['development','fitness'],does:'Coaches and sports science. Young players grow faster, older ones fade slower.',cd:{development:'Faster growth of young players',fitness:'Fewer injuries in training'}},
+  medical:{n:'Medical',fac:'medical',courses:['prevention','recovery'],does:'Physios and doctors. Fewer injuries and quicker returns.',cd:{prevention:'Fewer injuries',recovery:'Shorter injuries'}},
+  academy:{n:'Academy',fac:'academy',courses:['local','broad'],does:'Youth coaches. More and better graduates every summer.',cd:{local:'Local kids, some become local heroes',broad:'A wider net: higher potential'}},
+  scouting:{n:'Scouting',fac:'scouting',courses:['domestic','abroad'],does:'Scouts. The director sees more players before he signs one.',cd:{domestic:'Players from nearby divisions',abroad:'More players seen, further afield'}},
+  commercial:{n:'Commercial',fac:'commercial',courses:['local','premium'],does:'Sales staff. Sponsors, merchandise and hire income.',cd:{local:'More merchandise and hire',premium:'Bigger sponsor deals'}},
+  community:{n:'Members & community',fac:'clubhouse',courses:['members','events'],does:'Membership office and volunteers. Dues, and a support that grows.',cd:{members:'More members and dues',events:'More events income'}},
+  matchday:{n:'Matchday operations',fac:null,courses:['atmosphere','comfort'],does:'Stewards, catering and ticketing. Atmosphere, comfort and matchday costs.',cd:{atmosphere:'A louder ground: a bigger home edge',comfort:'Happier seated fans'}},
+  grounds:{n:'Grounds & maintenance',fac:null,courses:['stadium','pitch'],does:'Groundstaff and maintenance. How fast the stands, facilities and pitch recover.',cd:{stadium:'Stands and facilities wear less',pitch:'The pitch recovers faster'}}
 };
+const STAFF_COST=[0,.5,.75,1,1.4,1.9],STAFF_DEF=[3,2,1],HIRE_WEEKS=3;
+const STAFF_WORD=['','Skeleton','Part-time','Full team','Strong','Elite'];
 const BUDGET_F={tight:.7,normal:1,generous:1.3};
-const DEPT_COST=[.35,.22,.12]; // £k per department per week at a normal budget, by division
+const DEPT_COST=[.3,.2,.11]; // £k per department per week at staff level 3 and a normal budget, by division
 const OFFER={cheap:{n:'Cheap builder',p:.85,over:.35,delay:.3},standard:{n:'Standard builder',p:1,over:.15,delay:.15},premium:{n:'Premium builder',p:1.2,over:.05,delay:.05}};
 const lvCost=(base,lv)=>Math.round(base*Math.pow(1.6,lv-1));
 
@@ -44,10 +49,13 @@ function groundInit(id){
   for(const k in FAC)g.fac[k]={lv:k==='business'?(am?1:pro?3:2):am?2:(k==='access'||k==='safety')?(pro?5:4):pro?4:3,cond:ri(55,85)};
   const start=am?['training','clubhouse','parking']:pro?['training','clubhouse','parking','commercial','medical']:['training','clubhouse','parking','commercial'];
   for(let i=0;i<6;i++)g.plots.push(start[i]?{kind:start[i],lv:start[i]==='training'?(pro?3:2):1,cond:ri(55,85)}:{kind:null});
-  for(const k in DEPT)g.depts[k]={budget:'normal',course:DEPT[k].courses[0],pending:null,settle:0};
+  for(const k in DEPT)g.depts[k]=deptInit(k,c.tier);
   return g;
 }
+function deptInit(k,tier){return{budget:'normal',course:DEPT[k].courses[0],pending:null,settle:0,staff:STAFF_DEF[tier],hiring:null}}
 function G(id){return S.grounds[id]}
+/* how hard a department works: people × money (1.0 = a full team on a normal budget) */
+function deptF(id,d){const x=G(id).depts[d];return BUDGET_F[x.budget]*(.55+.15*x.staff)}
 function gLog(id,t,type){emit(type||'Ground',id,t)}
 function groundCourse(id,d){const x=G(id).depts[d];return x.pending?null:x.course}
 
@@ -55,7 +63,7 @@ function groundCourse(id,d){const x=G(id).depts[d];return x.pending?null:x.cours
 function sideCap(s,closedFrac=0){return Math.round(s.rings*RING[s.type]*(s.cond<30?.5:1)*(1-closedFrac))}
 function building(id,key){return G(id).projects.find(p=>p.target===key&&p.phase!=='done')}
 function groundSignals(id){
-  const g=G(id),eff=(o,dept)=>o.lv*(.5+.5*o.cond/100)*(dept?BUDGET_F[g.depts[dept].budget]:1);
+  const g=G(id),df=d=>deptF(id,d),eff=(o,dept)=>o.lv*(.5+.5*o.cond/100)*(dept?df(dept):1),st=d=>g.depts[d].staff*.3*BUDGET_F[g.depts[d].budget];
   const cap={terrace:0,seated:0};
   for(const k in g.sides){const s=g.sides[k],pr=building(id,'side:'+k);cap[s.type]+=sideCap(s,pr&&pr.phase==='build'?.3:0)}
   const business=Math.round(40*eff(g.fac.business)+(g.sides.W.type==='seated'?0:-40));
@@ -69,14 +77,21 @@ function groundSignals(id){
     business:Math.max(0,business),limitedBy:raw>limit?(g.fac.access.lv<=g.fac.safety.lv?'access':'safety'):null,
     atmosphere:r1((cap.terrace/Math.max(1,raw)*6+roofs*.4+eff(g.fac.lights)*.15+(has('clubhouse')&&has('commercial')&&cap.terrace>0?1:0))*course('matchday','atmosphere')),
     comfort:r1((cap.seated/Math.max(1,raw)*4+roofs*.5+eff(g.fac.screen)*.3+eff(g.fac.catering)*.3)*course('matchday','comfort')),
-    pitch:r1(eff(g.pitch,'matchday')),
-    training:r1(lvOf('training')*course('training','development')),
-    medical:r1(lvOf('medical')*course('training','fitness')),
+    pitch:r1(eff(g.pitch,'grounds')),
+    training:r1((lvOf('training')+st('training'))*course('training','development')),
+    fitness:course('training','fitness')>1,
+    medical:r1(lvOf('medical')+st('medical')),
+    medPrev:r1((lvOf('medical')+st('medical'))*course('medical','prevention')),
+    medRec:r1((lvOf('medical')+st('medical'))*course('medical','recovery')),
     hasTM:!!(has('training')&&has('medical')),
-    academy:r1((lvOf('academy')+(has('academy')&&has('training')?1:0))*course('academy','local')),
-    scouting:r1(lvOf('scouting')*course('scouting','abroad')),
-    shop:r1(lvOf('commercial')*course('commercial','premium')),
-    community:r1(lvOf('clubhouse')*course('community','members')),
+    academy:r1((lvOf('academy')+st('academy')+(has('academy')&&has('training')?1:0))*course('academy','broad')),
+    academyLocal:course('academy','local')>1,
+    scouting:r1((lvOf('scouting')+st('scouting'))*course('scouting','abroad')),
+    shop:r1((lvOf('commercial')+st('commercial')*.5)*course('commercial','local')),
+    sales:r2(df('commercial')*course('commercial','premium')),
+    community:r1((lvOf('clubhouse')+st('community'))*course('community','members')),
+    events:r1((lvOf('clubhouse')+st('community'))*course('community','events')),
+    ops:r2(df('matchday')),
     access:r1(lvOf('parking')),media:r1(eff(g.fac.media)),
     catering:eff(g.fac.catering)
   };
@@ -128,11 +143,12 @@ function groundWeek(id,home){
     if(p.over&&p.left===Math.ceil((p.weeks+p.delay)/2))gLog(id,`${p.label}: the builder reports an overrun of ${p.over}%.`);
     if(--p.left<=0){if(p.paid<total){construction+=r1(total-p.paid);p.paid=total}finishProject(id,p)}
   }
-  const rec=d=>({tight:.15,normal:.42,generous:.7})[g.depts[d].budget];
-  for(const k in g.sides){const s=g.sides[k];s.cond=clamp(s.cond-.45+rec('matchday'),0,100)}
-  for(const k in g.fac){const f=g.fac[k];f.cond=clamp(f.cond-.42+rec('matchday'),0,100)}
-  for(const p of g.plots)if(p.kind)p.cond=clamp(p.cond-.42+rec(COMPLEX[p.kind].dept),0,100);
-  g.pitch.cond=clamp(g.pitch.cond+(home?-(4-g.pitch.drain*.3):0)+1.2+rec('matchday'),0,100);
+  const gr=g.depts.grounds,base=({tight:.15,normal:.42,generous:.7})[gr.budget]*(.7+.1*gr.staff),rec=()=>base*(gr.course==='stadium'&&!gr.pending?1.15:1),recP=base*(gr.course==='pitch'&&!gr.pending?1.4:1);
+  for(const k in g.depts){const d=g.depts[k];if(d.hiring&&--d.hiring.left<=0){d.staff=d.hiring.to;d.hiring=null;if(id===S.my)gLog(id,`${DEPT[k].n}: the new staff have started (${STAFF_WORD[d.staff].toLowerCase()}).`,'StaffJoined')}}
+  for(const k in g.sides){const s=g.sides[k];s.cond=clamp(s.cond-.45+rec(),0,100)}
+  for(const k in g.fac){const f=g.fac[k];f.cond=clamp(f.cond-.42+rec(),0,100)}
+  for(const p of g.plots)if(p.kind)p.cond=clamp(p.cond-.42+rec(),0,100);
+  g.pitch.cond=clamp(g.pitch.cond+(home?-(4-g.pitch.drain*.3):0)+1.2+recP,0,100);
   for(const k in g.depts){const d=g.depts[k];if(d.pending&&--d.settle<=0){d.course=d.pending;d.pending=null;gLog(id,`${DEPT[k].n} now works the new way: ${d.course}.`)}}
   return r1(construction);
 }
@@ -153,7 +169,8 @@ function repair(id,key){
   const o=kind==='side'?g.sides[a]:kind==='fac'?g.fac[a]:g.plots[+a];o.cond=100;
   g.repairBill=r1((g.repairBill||0)+r.cost);gLog(id,`Repaired: ${r.label} (£${r.cost}k).`);return r;
 }
-function deptCost(id){const g=G(id),base=DEPT_COST[CL(id).tier];let t=0;for(const k in g.depts)t+=base*BUDGET_F[g.depts[k].budget];return r2(t)}
+function deptWeekCost(id,d,staff,budget){const x=G(id).depts[d];return r2(DEPT_COST[CL(id).tier]*STAFF_COST[staff??x.staff]*BUDGET_F[budget??x.budget])}
+function deptCost(id){let t=0;for(const k in G(id).depts)t+=deptWeekCost(id,k);return r2(t)}
 function groundCondWorst(id){const g=G(id);const all=[...Object.entries(g.sides).map(([k,s])=>({n:SIDE_NAME[k],c:s.cond})),...Object.entries(g.fac).map(([k,f])=>({n:FAC[k].n,c:f.cond})),{n:'The pitch',c:g.pitch.cond},...g.plots.filter(p=>p.kind).map(p=>({n:COMPLEX[p.kind].n,c:p.cond}))];return all.sort((a,b)=>a.c-b.c)[0]}
 
 /* ----- commands (player, AI clubs, later staff and story) ----- */
@@ -161,5 +178,11 @@ defCommand('StartProject',{check:(id,a)=>{const o=projectCatalog(id).find(x=>x.k
   const cost=Math.round(o.cost*OFFER[a.offer||'standard'].p);if(F(id).cash-cost<-creditLimit(id))return'The bank will not cover this';return null},run:(id,a)=>startProject(id,a.key,a.offer)});
 defCommand('Repair',{check:(id,a)=>{const r=repairList(id).find(x=>x.key===a.key);if(!r)return'Nothing to repair';if(F(id).cash-r.cost<-creditLimit(id))return'The bank will not cover this';return null},run:(id,a)=>repair(id,a.key)});
 defCommand('SetDeptBudget',{check:(id,a)=>!G(id).depts[a.dept]||!BUDGET_F[a.level]?'Unknown department or level':null,run:(id,a)=>{G(id).depts[a.dept].budget=a.level;if(id===S.my)gLog(id,`${DEPT[a.dept].n} budget set to ${a.level}.`)}});
+/* staff: hiring takes three weeks and a recruitment fee (two weeks of the new cost); cutting staff costs four weeks' severance */
+defCommand('SetDeptStaff',{check:(id,a)=>{const x=G(id).depts[a.dept];if(!x)return'Unknown department';if(!(a.level>=1&&a.level<=5))return'Staff level runs from 1 to 5';if(x.hiring)return'Recruitment is already under way';if(a.level===x.staff)return'That is the current level';
+  const fee=a.level>x.staff?deptWeekCost(id,a.dept,a.level)*2:(deptWeekCost(id,a.dept)-deptWeekCost(id,a.dept,a.level))*4;if(F(id).cash-fee<-creditLimit(id))return'The bank will not cover this';return null},
+  run:(id,a)=>{const x=G(id).depts[a.dept];
+    if(a.level>x.staff){const fee=deptWeekCost(id,a.dept,a.level)*2;book(id,'depts',-fee);x.hiring={to:a.level,left:HIRE_WEEKS};if(id===S.my)gLog(id,`${DEPT[a.dept].n}: recruiting to "${STAFF_WORD[a.level].toLowerCase()}" (£${r1(fee)}k fee, ${HIRE_WEEKS} weeks).`,'StaffHiring')}
+    else{const fee=(deptWeekCost(id,a.dept)-deptWeekCost(id,a.dept,a.level))*4;book(id,'depts',-fee);x.staff=a.level;if(id===S.my)gLog(id,`${DEPT[a.dept].n}: staff cut to "${STAFF_WORD[a.level].toLowerCase()}" (£${r1(fee)}k severance).`,'StaffCut')}}});
 defCommand('SetDeptCourse',{check:(id,a)=>!G(id).depts[a.dept]||!DEPT[a.dept].courses.includes(a.course)?'Unknown course':null,run:(id,a)=>{const x=G(id).depts[a.dept];
   if(a.course===x.course){x.pending=null;x.settle=0;return}x.pending=a.course;x.settle=SEASON_WEEKS;gLog(id,`${DEPT[a.dept].n} switches to ${a.course}. It takes a season to settle in.`)}});

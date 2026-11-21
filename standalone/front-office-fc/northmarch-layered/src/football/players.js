@@ -57,13 +57,13 @@ function wageBillK(id){return r2(S.squads[id].reduce((a,p)=>a+p.wage,0)/1000)}
 
 /* ----- weekly: injuries (medical) and development (training). Called once per club per week ----- */
 function playersWeek(id){
-  const sq=S.squads[id],sg=groundSignals(id),t=sg.training,med=sg.medical;
-  const risk=clamp(1.25-.15*med-.05*t-(sg.hasTM?.12:0),.45,1.3);
+  const sq=S.squads[id],sg=groundSignals(id),t=sg.training,med=sg.medPrev,medR=sg.medRec,st=S.stats[id];
+  const risk=clamp(1.25-.15*med-(sg.fitness?.08:.03)*Math.min(t,4)-(sg.hasTM?.12:0),.45,1.3);
   const grow=(.12+.08*t)/SEASON_WEEKS,fade=(1-.06*Math.min(t,8))/SEASON_WEEKS;
   for(const p of sq){
     if(p.inj>0){p.inj--;if(p.inj===0&&id===S.my)emit('Return',id,`${p.name} is fit again.`,{pid:p.id})}
     else if(rnd()<.02*risk*(p.trait==='injury-prone'?1.8:1)){
-      let d=rnd()<.06*(1-.12*Math.min(med,6))?ri(6,16):ri(1,4);d=Math.max(1,Math.round(d*(1-.12*Math.min(med,6))));p.inj=d;
+      let d=rnd()<.06*(1-.12*Math.min(medR,6))?ri(6,16):ri(1,4);d=Math.max(1,Math.round(d*(1-.12*Math.min(medR,6))));p.inj=d;st.inj++;st.injWeeks+=d;
       emit('Injury',id,`${p.name} is injured: out for ${d} week${d>1?'s':''}.`,{pid:p.id,weeks:d,key:p.q>=squadQuality(sq)});
     }
     p.form=clamp(p.form+ri(-5,5),35,90);
@@ -71,7 +71,7 @@ function playersWeek(id){
     if(p.age<=23&&p.pa>p.q)p.q+=(p.pa-p.q)*grow;
     else if(p.age<=29&&p.pa>p.q)p.q+=(p.pa-p.q)*grow*.4;
     else if(p.age>=31)p.q-=.55*fade;
-    p.q=Math.round(clamp(p.q,4,19)*1000)/1000;p.grown+=p.q-before;
+    p.q=Math.round(clamp(p.q,4,19)*1000)/1000;p.grown+=p.q-before;if(p.age<=23)st.youthGrowth+=p.q-before;
   }
 }
 /* ----- season end: ageing, noise in development, contracts, retirement, academy intake ----- */
@@ -86,9 +86,11 @@ function playersSeasonEnd(id){
   // academy intake: the academy level decides how many, how good and how much potential
   const a=sg.academy,n=1+(a>=1?1:0)+(a>=3?1:0)+(a>=5?1:0),base=11.5+(tierBaseStr(c.tier)-50)/4;
   const kids=[];
-  for(let i=0;i<n;i++){const q=base-3.2+.25*a+rnd()*1.2;const k=newPlayer(pick(POS.slice(1)),{age:ri(16,17),q,pa:q+1+.35*a+rnd()*2.5,academy:true,contract:2,club:id,trait:groundCourse(id,'academy')==='local'&&rnd()<.4?'local hero':null});
+  for(let i=0;i<n;i++){const q=base-3.2+.25*a+rnd()*1.2;const k=newPlayer(pick(POS.slice(1)),{age:ri(16,17),q,pa:q+1+.35*a+rnd()*2.5,academy:true,contract:2,club:id,trait:sg.academyLocal&&rnd()<.4?'local hero':null});
     k.career.push('Academy');sq.push(k);kids.push(k)}
+  S.stats[id].intake=kids.length;S.stats[id].intakeBest=r1(Math.max(...kids.map(k=>k.pa)));
   emit('YouthIntake',id,`${kids.length} academy graduate${kids.length>1?'s':''} join the squad.`,{n:kids.length,best:Math.max(...kids.map(k=>k.pa))});
   return left;
 }
+function statsInit(){return{inj:0,injWeeks:0,youthGrowth:0,intake:0,intakeBest:0}}
 function tierBaseStr(t){const [a,b]=TIER_STR[t];return (a+b)/2}

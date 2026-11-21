@@ -7,13 +7,15 @@ function act(a,arg){
     case'cont':if(load()){UI.title=false;UI.review=null}break;
     case'quit':save();UI.title=true;UI.over=null;break;
     case'choose':chooseClub(arg);UI.tier=null;break;
-    case'tab':UI.tab=arg;UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
+    case'tab':UI.tab=arg;UI.over=null;if(arg==='money')UI.mt=UI.mt||'overview';if(HAS_DOM)window.scrollTo(0,0);break;
     case'play':{const ev=advanceWeek();UI.lastEv=ev||[];if(HAS_DOM)window.scrollTo(0,0);break}
     case'close':{const mark=S.evn||0;const h=closeSeason();UI.summerEv=eventsSince(mark);UI.review=h;UI.lastEv=[];if(HAS_DOM)window.scrollTo(0,0);break}
     case'startnext':UI.review=null;UI.tab='week';break;
     case'tier':UI.tier=arg==='cup'?'cup':+arg;break;
-    case'ov':UI.over=arg||null;UI.gsel=null;UI.confirm=null;if(arg==='ground')UI.gt='stadium';if(arg==='money')UI.mt='overview';break;
+    case'ov':UI.over=arg||null;UI.gsel=null;UI.confirm=null;if(arg==='ground')UI.gt='stadium';break;
     case'club':UI.over='club';UI.arg=arg;break;
+    case'dept':UI.over='dept';UI.arg=arg;UI.gsel=null;break;
+    case'dstaff':{const [dept,lv]=arg.split(':');say(cmd('SetDeptStaff',S.my,{dept,level:+lv}));break}
     case'player':UI.over='player';UI.arg=arg;UI.confirm=null;break;
     case'gtab':UI.gt=arg;UI.gsel=null;break;
     case'mtab':UI.mt=arg;break;

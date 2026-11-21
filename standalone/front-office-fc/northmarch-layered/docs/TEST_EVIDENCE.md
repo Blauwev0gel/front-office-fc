@@ -13,3 +13,9 @@ Menselijk speeloordeel: **nog niet uitgevoerd** (alleen geautomatiseerde browser
 | `tests/playtest.js` | browser 390×844, licht én donker: nieuw spel, club kiezen, 30 weken tikken, alle tabs en overlays, project starten, prijs, lening, kader, seizoen sluiten, review, herladen + doorgaan | willekeurig | alle groen; geen horizontaal scrollen; alle knoppen ≥ 44 px; geen scriptfouten. Screenshots: `tests/shots/` |
 
 Bekende beperkingen: webfonts worden in de test geblokkeerd (offline fallback-fonts in screenshots).
+
+## 2026-11-21 — L2 pakket 1 (afdelingen), `sh tests/run-all.sh`, exit 0
+- ab-test: alle eerdere hefbomen groen + personeel: elite medisch team 38,8 vs 51,3 blessureweken; sterk verkoopteam £59k vs £52k sponsors; afdelingskosten £50k vs £36k.
+- save-test: versie 2; een versie-1-save migreert naar acht afdelingen en speelt door.
+- sim-test 4 seeds × 20 seizoenen: groen; 37–43 clubs wisselen van divisie, 5–11 administrations, mediane kas £336–436k.
+- playtest 390 px licht/donker: afdeling openen, personeel werven, koers wisselen, faciliteit vanuit de afdeling bouwen, Money-tab: groen.

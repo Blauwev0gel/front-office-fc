@@ -11,7 +11,7 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     await page.goto(url);
     const tap=async(sel)=>{await page.click(sel)};
     const wide=async(name)=>{const w=await page.evaluate(()=>document.documentElement.scrollWidth);ok(w<=390,`${scheme}: no horizontal scroll on ${name} (${w}px)`)};
-    const shot=async(name)=>{if(scheme==='light'||['week','ground-build','money'].includes(name))await page.screenshot({path:path.join(__dirname,'shots',`${scheme}-${name}.png`),fullPage:false})};
+    const shot=async(name)=>{if(scheme==='light'||['week','ground-build','money','club','dept'].includes(name))await page.screenshot({path:path.join(__dirname,'shots',`${scheme}-${name}.png`),fullPage:false})};
     await tap('[data-act=new]');await shot('choose');await wide('choose');
     await tap('[data-act=choose] >> nth=1');
     for(let i=0;i<3;i++)await tap('[data-act=play]');
@@ -26,19 +26,29 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     await tap('.prow >> nth=0');await shot('player');await wide('player');await tap('.overlay [data-act=ov]');
     await tap('[data-act=tab][data-arg=club]');await shot('club');await wide('club');
     await tap('[data-act=ov][data-arg=ground]');await shot('ground');
-    for(const t of ['complex','depts','build','repairs']){await tap(`[data-act=gtab][data-arg=${t}]`);await wide('ground '+t)}
+    for(const t of ['complex','build','repairs']){await tap(`[data-act=gtab][data-arg=${t}]`);await wide('ground '+t)}
     await tap('[data-act=gtab][data-arg=build]');
     const cash0=await page.evaluate(()=>S.fin[S.my].cash);
     await tap('[data-act=gsel] >> nth=0');await tap('[data-act=gbuild] >> nth=1');await shot('ground-build');
     ok(await page.evaluate(()=>S.grounds[S.my].projects.some(p=>p.phase!=='done')),`${scheme}: a building project starts from the Build tab`);
     await tap('.overlay [data-act=ov]');
-    await tap('[data-act=ov][data-arg=money]');await shot('money');
+    // departments: open one, hire staff, change the course, build its facility from the sheet
+    await tap('[data-act=dept][data-arg=medical]');await shot('dept');await wide('department');
+    const lv=await page.evaluate(()=>S.grounds[S.my].depts.medical.staff);
+    await tap(`[data-act=dstaff][data-arg="medical:${Math.min(5,lv+1)}"]`);
+    ok(await page.evaluate(()=>!!S.grounds[S.my].depts.medical.hiring),`${scheme}: recruiting medical staff starts`);
+    await tap('[data-act=gcourse][data-arg="medical:recovery"]');
+    ok(await page.evaluate(()=>S.grounds[S.my].depts.medical.pending==='recovery'),`${scheme}: the medical course changes`);
+    await tap('.overlay [data-act=ov]');
+    await tap('[data-act=dept][data-arg=academy]');
+    if(await page.locator('.overlay [data-act=gsel]').count()){await tap('.overlay [data-act=gsel]');await tap('.overlay [data-act=gbuild] >> nth=1')}
+    await tap('.overlay [data-act=ov]');
+    await tap('[data-act=tab][data-arg=money]');await shot('money');await wide('money');
     for(const t of ['ledger','prices','loans']){await tap(`[data-act=mtab][data-arg=${t}]`);await wide('money '+t)}
     await tap('[data-act=mtab][data-arg=prices]');await tap('[data-act=price][data-arg="terrace:1"]');
     ok(await page.evaluate(()=>S.fin[S.my].prices.terrace===PRICE_DEF[C().tier].terrace+1),`${scheme}: a ticket price changes`);
     await tap('[data-act=mtab][data-arg=loans]');const loans=await page.locator('[data-act=loan]').count();
     if(loans){await tap('[data-act=loan] >> nth=0');ok(await page.evaluate(()=>S.fin[S.my].loans.some(l=>/Bank loan/.test(l.label))),`${scheme}: a loan is drawn`)}
-    await tap('.overlay [data-act=ov]');
     // play out the season by tapping, then close it
     await tap('[data-act=tab][data-arg=week]');
     for(let i=0;i<40;i++){if(await page.locator('[data-act=close]').count())break;await tap('[data-act=play]')}

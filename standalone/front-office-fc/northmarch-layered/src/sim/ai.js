@@ -10,6 +10,9 @@ function aiBoardWeek(id){
   if(w===1||w===WINTER_WEEK){const inc=estSeasonIncome(id),base=v==='glory'?'ambitious':v==='money'?'tight':'normal';
     const pol=f.cash<res?'tight':f.cash>inc*1.1?'allin':f.cash>inc*.5?(base==='tight'?'normal':'ambitious'):base;
     cmd('SetSquadPolicy',id,{wage:pol,spend:f.cash>inc*.5?.8:v==='money'?.3:.5},'ai')}
+  // staff: richer boards hire, poor boards cut (one department at a time, start of each quarter)
+  if(w%8===1){const inc=estSeasonIncome(id),want=clamp(STAFF_DEF[CL(id).tier]+(f.cash>inc*.5?1:0)+(f.cash>inc*1.1?1:0)-(f.cash<res*.5?1:0),1,5);
+    const ks=Object.keys(g.depts).filter(k=>!g.depts[k].hiring&&g.depts[k].staff!==want);if(ks.length){const k=pick(ks),x=g.depts[k];cmd('SetDeptStaff',id,{dept:k,level:x.staff<want?x.staff+1:x.staff-1},'ai')}}
   // department budgets follow the cash
   const want=f.cash<0?'tight':f.cash>res*3?'normal':f.cash<res*.5?'tight':'normal';
   for(const d in g.depts)if(g.depts[d].budget!==want)cmd('SetDeptBudget',id,{dept:d,level:want},'ai');

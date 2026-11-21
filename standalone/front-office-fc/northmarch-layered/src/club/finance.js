@@ -51,12 +51,12 @@ function weekLines(id,home,o={}){
   const c=CL(id),f=F(id),g=groundSignals(id),pr=f.prices,L={},t=c.tier,form=clamp(1+(ppg(id)-1.35)*.4,.6,1.5);
   if(home){const a=o.att||attendance(id,o.opp,o);const gate=(a.paying.terrace*pr.terrace+a.paying.seated*pr.seated)/1000;
     if(o.cup)L.cupgate=o.neutral?gate/2:gate;else L.gate=gate;
-    L.business=a.business*pr.business/1000;L.catering=a.total*2.5*(.6+g.catering*.1)*.4/1000;L.ops=-(.25+a.total/6000*(o.derby?1.6:1))}
+    L.business=a.business*pr.business/1000;L.catering=a.total*2.5*(.6+g.catering*.1)*.4/1000;L.ops=-(.25+a.total/6000*(o.derby?1.6:1))*(1.3-.3*g.ops)}
   else if(o.away)L.travel=-(t===0?.5:t===1?.35:.2);
   if(o.weekly!==false){
-    L.sponsors=SPONSOR[t]*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*form;
+    L.sponsors=SPONSOR[t]*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*form*(.7+.3*g.sales);
     L.merch=c.support/1000*.45*(1+g.shop*.15)*form;
-    L.events=g.shop*.08+g.community*.07;
+    L.events=g.shop*.08+g.events*.07;
     L.dues=c.support*.4*(1+g.community*.05)*40/SEASON_WEEKS/1000;
     L.tv=TV[t];
     L.wages=-wageBillK(id);L.depts=-deptCost(id);L.upkeep=-(.15+g.capacity/12000);

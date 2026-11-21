@@ -34,6 +34,7 @@ function closeSeason(){
   const moves=promoteRelegate();
   for(const m of moves){const c=CL(m.id);c.support=Math.round(c.support*(m.to<m.from?1.08:.93))}
   S.hist.push({s,tables,cup:S.cup.winner,moves:moves.map(m=>({...m}))});
+  for(const id of ids){const st=S.stats[id];st.prev={inj:st.inj,injWeeks:st.injWeeks,youthGrowth:st.youthGrowth};st.inj=0;st.injWeeks=0;st.youthGrowth=0}
   for(const id of ids)playersSeasonEnd(id);
   S.qref=r2(S.qref*.7+worldQuality()*.3);
   faSummer();

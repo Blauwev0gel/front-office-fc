@@ -21,3 +21,10 @@
 ## 2026-11-21 — L2-ontwerpvragen
 - D5 (alleen kader) en D6 (ledenvertrouwen + jaarlijkse ALV) vastgelegd. D7 (na wegstemmen een nieuwe club kiezen) vastgelegd; L2-vragen compleet.
 - **Volgende:** L2 specificeren en bouwen (ledenvertrouwen/ALV, seizoensdoelen, verdieping clubschermen).
+
+## 2026-11-21 — L2 pakket 1: afdelingen (na feedback eigenaar)
+- Feedback: "clubmanagement dun, geen afdelingen, niets om in te investeren". Oorzaak: deels verstopt (achter de Ground-kaart), deels echt dun.
+- Acht afdelingen met personeel, budget, koers, faciliteit en prestatie vs. divisie; Club-tab opent daarop; Money is een eigen tab.
+- Medisch en training gesplitst; terreinen & onderhoud stuurt herstel van stadion en veld; commercie stuurt sponsors; wedstrijdorganisatie stuurt kosten.
+- Opslag v2 met migratie (getest). Personeelsgewicht verhoogd na A/B-test (eerst −7%, ruis).
+- **Volgende:** L2 pakket 2: ledenvertrouwen, jaarlijkse ALV, wegstemmen en nieuwe club (D6/D7).

@@ -72,7 +72,27 @@ function clubView(){
   const rows=[['Reputation',i=>CL(i).rep,v=>repWord(v)+' ('+Math.round(v)+')'],['Support',i=>CL(i).support,n0],['Capacity',i=>groundSignals(i).capacity,n0],['Squad strength',i=>teamStrength(i),v=>Math.round(v)],['Wage bill /wk',i=>wageBillK(i)*1000,v=>'£'+n0(v)],['Training level',i=>groundSignals(i).training,r1],['Academy level',i=>groundSignals(i).academy,r1]];
   const hist=c.hist.slice(-8).reverse();
   const g=G(id),run=g.projects.filter(p=>p.phase!=='done');
-  return`${membersPanel()}${staffPanel()}${deptsView()}
+  const f=F(id),m=M(id),fc=cashForecast(id),pos=posOf(id),worst=groundCondWorst(id);
+  const deptWeak=Object.keys(DEPT).map(k=>({k,kpi:deptKpi(id,k)})).filter(x=>x.kpi.good===false);
+  const risk=fc.minV<0?'Cash shortfall forecast':m.conf<50?'Members may vote you out':worst.c<40?'Ground condition needs attention':deptWeak.length?'Departments below benchmark':'No immediate board warning';
+  const dashboard=`<section class="panel" aria-label="Chairman's overview"><p class="eyebrow">Chairman's overview</p>
+  <p class="small muted">Your club at a glance. Open a responsibility below to inspect it or make a decision.</p>
+  <div class="boardgrid">
+    <button class="boardtile" data-act="tab" data-arg="table"><span>League position</span><b>${ord(pos)}</b><small>${esc(TIER_NAME[t])}</small></button>
+    <button class="boardtile" data-act="tab" data-arg="money"><span>Cash</span><b class="${f.cash<0?'down':''}">${k1(f.cash)}</b><small>Forecast low ${k1(fc.minV)}</small></button>
+    <button class="boardtile" data-act="boardjump" data-arg="members"><span>Members' confidence</span><b class="${m.conf<50?'down':''}">${Math.round(m.conf)}/100</b><small>AGM forecast ${agmForecast(id)}% for</small></button>
+    <button class="boardtile" data-act="ov" data-arg="ground"><span>Ground</span><b>${n0(sg.capacity)}</b><small>${run.length} active project${run.length===1?'':'s'}</small></button>
+  </div>
+  <p class="small ${fc.minV<0||m.conf<50?'down':'muted'}"><b>Board watch:</b> ${esc(risk)}</p>
+  <div class="boardlinks">
+    <button data-act="boardjump" data-arg="staff">Coach & director <span>Appointments and contracts ›</span></button>
+    <button data-act="boardjump" data-arg="departments">Departments <span>${deptWeak.length} below division benchmark ›</span></button>
+    <button data-act="ov" data-arg="ground">Ground & projects <span>Buildings and repairs ›</span></button>
+    <button data-act="mtabgo" data-arg="budget">Budget & policy <span>Wages and transfer framework ›</span></button>
+    <button data-act="mtabgo" data-arg="sponsors">Commercial <span>Sponsor offers ›</span></button>
+    <button data-act="boardjump" data-arg="members">Members & governance <span>Dues and confidence ›</span></button>
+  </div></section>`;
+  return`${dashboard}<div id="board-members">${membersPanel()}</div><div id="board-staff">${staffPanel()}</div><div id="board-departments">${deptsView()}</div>
   <div class="panel"><div class="row"><span>The ground</span><b>${n0(sg.capacity)} places</b></div><p class="small muted">${g.plots.filter(p=>p.kind).map(p=>COMPLEX[p.kind].n+' ('+LV_NAME[p.lv].toLowerCase()+')').join(', ')}. ${6-g.plots.filter(p=>p.kind).length} free plot${6-g.plots.filter(p=>p.kind).length===1?'':'s'}.</p>${run.length?`<p class="small">Under way: ${run.map(p=>esc(p.label)).join(', ')}.</p>`:''}<button class="btn ghost" data-act="ov" data-arg="ground">Stadium, building and repairs</button></div>
   <div class="panel"><p class="eyebrow">Against the ${TIER_NAME[t]}</p><div class="cmp"><span></span><b>Us</b><b>Average</b>${rows.map(([n,fn,fm])=>`<span>${n}</span><b>${fm(fn(id))}</b><b>${fm(avg(fn))}</b>`).join('')}</div></div>
   <div class="panel"><p class="eyebrow">${esc(c.name)}</p><p class="small muted">Founded ${c.founded}. Ground: ${esc(c.ground)}. Rivals: ${nm(c.rival)} (${esc(c.rivalWhy)}). The club once ${esc(c.scar)}.</p>

@@ -1643,7 +1643,7 @@ function scoutObservations(id){return 1+Math.floor(groundSignals(id).scouting/1.
 function scoutNoise(id){return 1.4*clamp(.9-.08*groundSignals(id).scouting,.35,.9)} /* specialist scouts: sharper than one glance from the director, sharper still with a better department */
 function findPlayer(pid){for(const c in S.squads){const p=S.squads[c].find(x=>x.id===pid);if(p)return{p,club:c}}const f=S.fa.find(x=>x.id===pid);return f?{p:f,club:null}:null}
 function scoutWeek(id){
-  const ops=OPS(),needs=openNeeds(),sl=ops.shortlist;
+  const ops=OPS(),needs=openNeeds(),sl=ops.shortlist;ops.looks={s:S.season,w:S.week,list:[]}; /* this week's looks, for the weekly club report */
   // keep the shortlist true to the world: moves, signings, retirements
   for(const e of sl){if(e.status!=='watching')continue;const f=findPlayer(e.pid);if(!f){e.status='gone';e.reason='No longer in football';continue}
     if(f.club===id){e.status='signed';continue}e.from=f.club;e.age=f.p.age}
@@ -1662,8 +1662,8 @@ function scoutWeek(id){
       const c=sq.filter(p=>p.pos===pos&&!p.loan&&(spare||p.wantsOut)&&playerValue(p)<=Math.max(5,bud*1.2));if(c.length)cand={p:pick(c),club:o}}
     if(!cand)continue;
     const look=cand.p.q+(rnd()+rnd()-1)*2.5*scoutNoise(id);let e=sl.find(x=>x.pid===cand.p.id);
-    if(!e){e={pid:cand.p.id,name:cand.p.name,pos,age:cand.p.age,from:cand.club,est:look,obs:0,status:'watching',first:[S.season,S.week],need:(needs.find(x=>x.pos===pos)||{}).id||null};sl.push(e)}
-    e.est=r1((e.est*e.obs+look)/(e.obs+1));e.obs++;e.last=[S.season,S.week];if(e.status!=='watching'&&e.status!=='signed')e.status='watching';
+    const isNew=!e;if(!e){e={pid:cand.p.id,name:cand.p.name,pos,age:cand.p.age,from:cand.club,est:look,obs:0,status:'watching',first:[S.season,S.week],need:(needs.find(x=>x.pos===pos)||{}).id||null};sl.push(e)}
+    e.est=r1((e.est*e.obs+look)/(e.obs+1));e.obs++;e.last=[S.season,S.week];ops.looks.list.push({pid:e.pid,name:e.name,pos:e.pos,est:e.est,obs:e.obs,isNew,club:cand.club});if(e.status!=='watching'&&e.status!=='signed')e.status='watching';
   }
   // a full list drops the weakest prospect still being watched
   const watching=sl.filter(e=>e.status==='watching');if(watching.length>SHORTLIST_MAX){const drop=watching.sort((a,b)=>(a.est-scoutRange(id,a.obs))-(b.est-scoutRange(id,b.obs))).slice(0,watching.length-SHORTLIST_MAX); /* keep the best cautious estimates */for(const d of drop)sl.splice(sl.indexOf(d),1)}
@@ -1691,6 +1691,18 @@ function recordDecision(id,pos,best,evaluated,mustHave){
   if(ops.signings.length>20)ops.signings.shift();
 }
 function signingReview(){return(S.ops?S.ops.signings:[]).slice(-6).reverse().map(x=>{const f=findPlayer(x.pid);return{...x,now:f?r1(f.p.q):null,apps:f?f.p.apps:null,where:f?(f.club===S.my?'at the club':f.club?CL(f.club).name:'released'):'gone'}})}
+/* the transfer windows, made visible: what is coming, what the director is working on, what was done */
+function windowInfo(){
+  const id=S.my,ev=S.ev.filter(e=>(e.c===id&&(e.t==='Transfer'||e.t==='Signing'))||(e.c2===id&&e.t==='Transfer'));
+  const open=openNeeds().filter(n=>n.kind==='hole'||n.prio>=2),summerDone=S.season>1&&S.week<=5,winterDone=S.week>=WINTER_WEEK&&S.week<=WINTER_WEEK+5;
+  const report=(s,w)=>{const x=ev.filter(e=>e.s===s&&e.w===w);return{ins:x.filter(e=>e.c===id),outs:x.filter(e=>e.c2===id)}};
+  if(seasonOver())return{k:'summer-next',name:'Summer window',when:'Right after the season is closed: contracts end, the academy brings in new players and the director shops.',open};
+  if(winterDone)return{k:'done',name:'Winter window',when:`Closed in week ${WINTER_WEEK}.`,...report(S.season,WINTER_WEEK),open};
+  if(S.week===WINTER_WEEK-1)return{k:'next',name:'Winter window',when:`Opens next week (week ${WINTER_WEEK}). The director acts on this plan.`,open};
+  if(S.week<WINTER_WEEK-1)return{k:'upcoming',name:'Winter window',when:`Week ${WINTER_WEEK}, in ${WINTER_WEEK-1-S.week} week${WINTER_WEEK-1-S.week===1?'':'s'}. The scouts are preparing the list.`,open};
+  if(summerDone)return{k:'done',name:'Summer window',when:'Closed before the season.',...report(S.season-1,SEASON_WEEKS),open};
+  return{k:'none',name:'Next window',when:'The summer window follows the season; no more transfers until then.',open};
+}
 function opsAfterLoad(){if(S.my&&!S.ops){S.ops=opsInit();buildPlan(S.my)}}
 
 /* ---- club/youth.js ---- */
@@ -2014,7 +2026,7 @@ function previewView(){
 }
 function weekView(){
   const over=seasonOver();
-  return`${reportView()}${urgentPanel()}${previewView()}${lookPanel()}${targetsPanel()}
+  return`${reportView()}${urgentPanel()}${clubWeekPanel()}${windowPanel()}${previewView()}${lookPanel()}${targetsPanel()}
   <p class="note">${over?'Prize money, promotion and relegation, contracts and the summer window follow.':'Every week is played. Change prices, budgets or building first if you want them to count this week.'}</p>`;
 }
 
@@ -2578,6 +2590,23 @@ function recruitPanels(){
   <div class="panel"><p class="eyebrow">Shortlist · ${scoutObservations(id)} look${scoutObservations(id)>1?'s':''} a week</p><p class="small muted">More scouting staff and a better scouting office mean more looks and sharper estimates. Each look narrows the range.</p>
   ${watch.length?watch.map(e=>{const rg=scoutRange(id,e.obs);return`<div class="row small"><span><b>${esc(e.name)}</b> <span class="muted">${e.pos}, ${e.age} · ${e.from?esc(CL(e.from).name):'free agent'}</span>${e.reason?`<br><span class="muted">Last window: ${esc(e.reason.toLowerCase())}</span>`:''}</span><b>${e.est} ±${rg}<br><span class="small muted">${e.obs} look${e.obs>1?'s':''}</span></b></div>`}).join(''):'<p class="small muted">The scouts start watching as soon as the plan has needs.</p>'}</div>
   <div class="panel"><p class="eyebrow">Signings: judged then, seen now</p>${rev.length?rev.map(x=>`<div class="row small"><span><b>${esc(x.name)}</b> <span class="muted">${x.pos}, S${x.s} · ${x.fee?'£'+x.fee+'k':'free'} · ${esc(x.need)}${x.scouted?` · watched ${x.obs}×`:' · not scouted'}</span></span><b class="${x.now!=null&&x.now<x.est-1?'down':''}">${x.est} → ${x.now??'—'}<br><span class="small muted">${x.apps!=null?x.apps+' apps · ':''}${esc(x.where)}</span></b></div>`).join('')+'<p class="note">Left: the director\'s estimate when he signed him. Right: the player\'s level now.</p>':'<p class="small muted">No signings since you took office.</p>'}</div>`;
+}
+
+/* ----- the weekly club report and the transfer window, on the Week screen ----- */
+function windowPanel(){
+  const w=windowInfo(),active=w.k==='next'||w.k==='done';
+  return`<div class="panel"><div class="row"><p class="eyebrow">${esc(w.name)}</p><span class="pill ${w.k==='next'?'bad':w.k==='done'?'good':''}">${w.k==='next'?'Next week':w.k==='done'?'Closed':w.k==='summer-next'?'After the season':'Upcoming'}</span></div>
+  <p class="small">${esc(w.when)}</p>
+  ${w.open.length&&w.k!=='done'&&w.k!=='none'?`<p class="small muted">The director's plan: ${w.open.slice(0,3).map(n=>esc(NEED_WORD[n.kind]+' · '+POS_ONE[n.pos])).join(', ')}.</p>`:''}
+  ${w.k==='done'?(w.ins.length||w.outs.length?`${w.ins.map(e=>`<p class="small"><b>In:</b> ${esc(e.text)}</p>`).join('')}${w.outs.map(e=>`<p class="small"><b>Out:</b> ${esc(e.text)}</p>`).join('')}`:'<p class="small muted">The director did no business: nobody came in or went out.</p>')+(w.open.length?`<p class="small muted">Still open: ${w.open.slice(0,3).map(n=>esc(n.why)).join('; ')}.</p>`:''):''}
+  <button class="tbtn" data-act="tab" data-arg="club">Recruitment, shortlist and strategy ›</button></div>`;
+}
+function clubWeekPanel(){
+  if(!S.week||!S.ops)return'';const o=S.ops,lk=o.looks&&o.looks.s===S.season&&o.looks.w===S.week?o.looks.list:[],need=openNeeds()[0];
+  const rows=[];
+  if(lk.length)rows.push(['Scouting',`${lk.length} look${lk.length===1?'':'s'} this week: ${lk.slice(0,3).map(x=>`${esc(x.name)} (${x.pos}${x.club?', '+esc(CL(x.club).name):', free'}, ${x.isNew?'new on the list':x.obs+' looks'}, ${r1(x.est)})`).join('; ')}.`]);
+  if(need)rows.push(['Squad plan',esc(need.why)+'.']);
+  return rows.length?`<div class="panel"><p class="eyebrow">Behind the scenes · week ${S.week}</p>${rows.map(([k,t])=>`<div class="row small"><b>${k}</b><span style="text-align:right;max-width:75%">${t}</span></div>`).join('')}</div>`:'';
 }
 
 /* ---- ui/youth.js ---- */

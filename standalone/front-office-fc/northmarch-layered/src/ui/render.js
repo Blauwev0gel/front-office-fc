@@ -82,7 +82,7 @@ function previewView(){
 }
 function weekView(){
   const over=seasonOver();
-  return`${reportView()}${urgentPanel()}${previewView()}${lookPanel()}${targetsPanel()}
+  return`${reportView()}${urgentPanel()}${clubWeekPanel()}${windowPanel()}${previewView()}${lookPanel()}${targetsPanel()}
   <p class="note">${over?'Prize money, promotion and relegation, contracts and the summer window follow.':'Every week is played. Change prices, budgets or building first if you want them to count this week.'}</p>`;
 }
 

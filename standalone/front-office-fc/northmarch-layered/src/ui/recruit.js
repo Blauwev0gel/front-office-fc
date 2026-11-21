@@ -15,3 +15,20 @@ function recruitPanels(){
   ${watch.length?watch.map(e=>{const rg=scoutRange(id,e.obs);return`<div class="row small"><span><b>${esc(e.name)}</b> <span class="muted">${e.pos}, ${e.age} · ${e.from?esc(CL(e.from).name):'free agent'}</span>${e.reason?`<br><span class="muted">Last window: ${esc(e.reason.toLowerCase())}</span>`:''}</span><b>${e.est} ±${rg}<br><span class="small muted">${e.obs} look${e.obs>1?'s':''}</span></b></div>`}).join(''):'<p class="small muted">The scouts start watching as soon as the plan has needs.</p>'}</div>
   <div class="panel"><p class="eyebrow">Signings: judged then, seen now</p>${rev.length?rev.map(x=>`<div class="row small"><span><b>${esc(x.name)}</b> <span class="muted">${x.pos}, S${x.s} · ${x.fee?'£'+x.fee+'k':'free'} · ${esc(x.need)}${x.scouted?` · watched ${x.obs}×`:' · not scouted'}</span></span><b class="${x.now!=null&&x.now<x.est-1?'down':''}">${x.est} → ${x.now??'—'}<br><span class="small muted">${x.apps!=null?x.apps+' apps · ':''}${esc(x.where)}</span></b></div>`).join('')+'<p class="note">Left: the director\'s estimate when he signed him. Right: the player\'s level now.</p>':'<p class="small muted">No signings since you took office.</p>'}</div>`;
 }
+
+/* ----- the weekly club report and the transfer window, on the Week screen ----- */
+function windowPanel(){
+  const w=windowInfo(),active=w.k==='next'||w.k==='done';
+  return`<div class="panel"><div class="row"><p class="eyebrow">${esc(w.name)}</p><span class="pill ${w.k==='next'?'bad':w.k==='done'?'good':''}">${w.k==='next'?'Next week':w.k==='done'?'Closed':w.k==='summer-next'?'After the season':'Upcoming'}</span></div>
+  <p class="small">${esc(w.when)}</p>
+  ${w.open.length&&w.k!=='done'&&w.k!=='none'?`<p class="small muted">The director's plan: ${w.open.slice(0,3).map(n=>esc(NEED_WORD[n.kind]+' · '+POS_ONE[n.pos])).join(', ')}.</p>`:''}
+  ${w.k==='done'?(w.ins.length||w.outs.length?`${w.ins.map(e=>`<p class="small"><b>In:</b> ${esc(e.text)}</p>`).join('')}${w.outs.map(e=>`<p class="small"><b>Out:</b> ${esc(e.text)}</p>`).join('')}`:'<p class="small muted">The director did no business: nobody came in or went out.</p>')+(w.open.length?`<p class="small muted">Still open: ${w.open.slice(0,3).map(n=>esc(n.why)).join('; ')}.</p>`:''):''}
+  <button class="tbtn" data-act="tab" data-arg="club">Recruitment, shortlist and strategy ›</button></div>`;
+}
+function clubWeekPanel(){
+  if(!S.week||!S.ops)return'';const o=S.ops,lk=o.looks&&o.looks.s===S.season&&o.looks.w===S.week?o.looks.list:[],need=openNeeds()[0];
+  const rows=[];
+  if(lk.length)rows.push(['Scouting',`${lk.length} look${lk.length===1?'':'s'} this week: ${lk.slice(0,3).map(x=>`${esc(x.name)} (${x.pos}${x.club?', '+esc(CL(x.club).name):', free'}, ${x.isNew?'new on the list':x.obs+' looks'}, ${r1(x.est)})`).join('; ')}.`]);
+  if(need)rows.push(['Squad plan',esc(need.why)+'.']);
+  return rows.length?`<div class="panel"><p class="eyebrow">Behind the scenes · week ${S.week}</p>${rows.map(([k,t])=>`<div class="row small"><b>${k}</b><span style="text-align:right;max-width:75%">${t}</span></div>`).join('')}</div>`:'';
+}

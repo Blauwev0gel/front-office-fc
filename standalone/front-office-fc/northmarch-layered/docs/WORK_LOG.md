@@ -19,5 +19,5 @@
 - **Volgende:** L2-ontwerpvragen (max. 3), daarna L2 verdiepen; daarna L3 (TD als agent op dezelfde commando's).
 
 ## 2026-11-21 — L2-ontwerpvragen
-- D5 (alleen kader) en D6 (ledenvertrouwen + jaarlijkse ALV) vastgelegd. Nog maximaal één L2-vraag open.
-- **Volgende:** L2-vraag 3, daarna L2 specificeren en bouwen (ledenvertrouwen/ALV, seizoensdoelen, verdieping clubschermen).
+- D5 (alleen kader) en D6 (ledenvertrouwen + jaarlijkse ALV) vastgelegd. D7 (na wegstemmen een nieuwe club kiezen) vastgelegd; L2-vragen compleet.
+- **Volgende:** L2 specificeren en bouwen (ledenvertrouwen/ALV, seizoensdoelen, verdieping clubschermen).

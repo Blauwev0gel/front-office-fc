@@ -1,0 +1,34 @@
+/* ================= Screens: signals, major projects, club history and the world archive ================= */
+function signalsPanel(){
+  const sg=signals(S.my).slice(0,5);if(!sg.length)return'';
+  return`<div class="panel"><p class="eyebrow">Needs attention</p><div class="stack">${sg.map(x=>`<button class="sig lv${x.lv}" data-act="${x.act}"${x.arg!=null?` data-arg="${x.arg}"`:''}><span>${esc(x.text)}</span><span aria-hidden="true">›</span></button>`).join('')}</div></div>`;
+}
+function majorProjectsPanel(){
+  const id=S.my,g=G(id),sp=stadiumProject(id),price=plotPrice(id);
+  const land=g.plots.length<PLOT_MAX?(UI.confirm==='plot'?`<div class="opt on"><b>Buy a plot for £${price}k?</b><div class="seg"><button data-act="buyplot">Buy the land</button><button data-act="confirm" data-arg="">Cancel</button></div></div>`
+    :`<button class="opt" data-act="confirm" data-arg="plot"><b>Buy land next to the ground</b><span class="small muted">£${price}k · plot ${g.plots.length+1} of ${PLOT_MAX} for the complex</span></button>`):'<p class="small muted">There is no more land to buy.</p>';
+  const stad=sp?`<div class="opt dim"><b>${esc(sp.label)}</b><span class="small">${sp.phase==='permit'?'Waiting for planning permission':`${sp.left} weeks of building left`} · paid ${k1(sp.paid)} of ${k1(sp.cost)}</span></div>`
+    :Object.keys(STADIUM_SIZE).map(k=>{const pl=stadiumPlan(id,k);return UI.confirm==='st:'+k?`<div class="opt on"><b>Build a ${esc(pl.label.toLowerCase())}?</b><span class="small">£${pl.deposit}k deposit now, the rest week by week over about ${Math.ceil(pl.weeks/SEASON_WEEKS)} seasons. The old ground is sold when you move.</span><div class="seg"><button data-act="stadium" data-arg="${k}">Start (£${pl.deposit}k now)</button><button data-act="confirm" data-arg="">Cancel</button></div></div>`
+      :`<button class="opt" data-act="confirm" data-arg="st:${k}"><b>${esc(pl.label)}: ${n0(pl.cap)} places</b><span class="small muted">£${pl.cost}k · ${pl.weeks} weeks after the permit · deposit £${pl.deposit}k</span></button>`}).join('');
+  return`<div class="panel"><p class="eyebrow">Major projects</p><p class="small muted">Decisions for a decade. Borrow first: the money goes out every week.</p><div class="stack">${land}${stad}</div></div>`;
+}
+function finChartSVG(hist){
+  if(hist.length<2)return'<p class="small muted">The chart fills in after two seasons.</p>';
+  const W=300,H=110,vals=hist.map(h=>operatingResult(h.lines)),cash=hist.map(h=>h.cash),mx=Math.max(1,...vals.map(Math.abs),...cash.map(Math.abs)),bw=W/hist.length;
+  const y=v=>Math.round(H/2-v/mx*(H/2-6));
+  return`<svg class="fcast" viewBox="0 0 ${W} ${H}" role="img" aria-label="Operating result and cash per season"><line x1="0" x2="${W}" y1="${H/2}" y2="${H/2}" class="zero"/>
+  ${vals.map((v,i)=>`<rect x="${Math.round(i*bw+bw*.2)}" width="${Math.round(bw*.6)}" y="${Math.min(y(v),H/2)}" height="${Math.max(1,Math.abs(y(v)-H/2))}" class="${v<0?'barneg':'barpos'}"/>`).join('')}
+  <polyline class="mid" points="${cash.map((v,i)=>`${Math.round(i*bw+bw/2)},${y(v)}`).join(' ')}"/></svg><p class="note">Bars: operating result per season. Line: cash at the end of each season.</p>`;
+}
+function historySheet(){
+  const id=S.my,c=C(),h=c.hist.slice().reverse(),r=S.records[id]||{},hon=honours(id),fh=F(id).hist.filter(x=>c.hist.some(y=>y.s===x.s));
+  return overlayShell(`${c.name}: history`,`<div class="panel"><p class="eyebrow">Honours</p>${hon.titles.length?hon.titles.map(t=>`<p class="small"><b>${TIER_NAME[t.tier]} champions</b>, season ${t.s}</p>`).join(''):'<p class="small muted">No titles yet.</p>'}${hon.cups.length?`<p class="small"><b>${CUP_NAME}</b>: ${hon.cups.map(s=>'season '+s).join(', ')}</p>`:''}</div>
+  <div class="panel"><p class="eyebrow">Records</p><div class="row small"><span>Biggest win</span><b>${r.bigWin?`${r.bigWin.gf}–${r.bigWin.ga} v ${nm(r.bigWin.opp)} (S${r.bigWin.s})`:'—'}</b></div><div class="row small"><span>Record crowd</span><b>${r.crowd?`${n0(r.crowd.n)} v ${nm(r.crowd.opp)} (S${r.crowd.s})`:'—'}</b></div></div>
+  <div class="panel"><p class="eyebrow">Money over the seasons</p>${finChartSVG(fh.slice(-12))}</div>
+  <div class="panel"><p class="eyebrow">Season by season</p>${h.length?h.map(x=>`<div class="row small"><span><b>S${x.s}</b> ${TIER_NAME[x.tier]}, ${ord(x.pos)} · ${x.pts} pts${x.cup?`<br><span class="muted">Cup: ${esc(x.cup)}${x.top?` · top scorer ${esc(x.top.name)} (${x.top.goals})`:''}</span>`:x.top?`<br><span class="muted">Top scorer ${esc(x.top.name)} (${x.top.goals})</span>`:''}</span><b>${x.you?'You':''}</b></div>`).join(''):'<p class="small muted">The first season is under way.</p>'}</div>
+  <div class="panel"><p class="eyebrow">Your career</p>${S.career.map(cr=>`<div class="row small"><span>${nm(cr.club)}<br><span class="muted">${cr.why?esc(cr.why):'In office'}</span></span><b>S${cr.from}${cr.to?'–'+cr.to:'–'}</b></div>`).join('')}</div>`);
+}
+function archiveView(){
+  const h=S.hist.slice().reverse();
+  return h.length?`<div class="panel"><p class="eyebrow">Roll of honour</p>${h.map(x=>`<div class="row small"><span><b>Season ${x.s}</b><br><span class="muted">${TIERS.map(t=>`${tierShort(t)}: ${esc(CL(x.tables[t][0]).name)}`).join(' · ')}</span></span><b>${x.cup?esc(CL(x.cup).name.split(' ')[0])+' (cup)':''}</b></div>`).join('')}</div>`:'<p class="muted">The first season is under way.</p>';
+}

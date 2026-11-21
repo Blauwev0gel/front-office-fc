@@ -40,4 +40,7 @@ threw=false;try{E.deserialize('{"foo":1}')}catch(e){threw=true}ok(threw,'a forei
  E.deserialize(JSON.stringify(v4));const S=E.__get();
  ok(S.v===V&&Object.values(S.fin).every(f=>f.sponsor&&f.budget&&f.fundLast!=null),'a version 4 save gets a sponsor, a season budget and funding fields');
  let err=null;try{E.playSeason()}catch(e){err=e.message}ok(!err,'and plays on '+(err||''));}
+// migration 6 → 7: records and history fields
+{const v6=JSON.parse(snap);v6.v=6;delete v6.records;E.deserialize(JSON.stringify(v6));const S=E.__get();
+ ok(S.v===V&&Object.keys(S.records).length===48,'a version 6 save gets club records');let err=null;try{E.playSeason()}catch(e){err=e.message}ok(!err,'and plays on '+(err||''));}
 console.log(fails?`${fails} check(s) failed`:'save-test: all checks passed');process.exit(fails?1:0);

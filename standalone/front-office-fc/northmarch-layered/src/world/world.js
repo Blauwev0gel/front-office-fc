@@ -2,7 +2,7 @@
    Owns S.clubs (identity, tier, support, rivals) and S.P (people). mkPerson/castClub/addRel/weakest are the
    Northmarch functions (northmarch.html @7a2d5d3), kept so the story layer (L4) can attach later.
    Squads (football), grounds (club) and money (finance) are created here but owned by their own domains. */
-const VERSION=6;
+const VERSION=7;
 const SAVE_KEY='northmarch-layered-v1';
 const TIERS=[0,1,2];
 const TIER_STR=[[51,59],[44,53],[37,46]];
@@ -43,7 +43,7 @@ function chairValue(id){const c=CL(id),p=c.cast.chair&&P(c.cast.chair);return p?
 
 function newWorld(seed){
   S={v:VERSION,seed,rs:seed|0||1,pc:1,season:1,week:0,phase:'choose',my:null,clubs:{},P:{},squads:{},grounds:{},fin:{},fa:[],
-    tbl:{},fx:{},cup:null,qref:11.7,matches:[],ev:[],evn:0,stats:{},members:{},career:[],rep:0,votedOut:null,staffPool:[],hist:[],layers:{story:false,staff:false,dynasty:false},auto:false,seats:[]};
+    tbl:{},fx:{},cup:null,qref:11.7,matches:[],ev:[],evn:0,stats:{},members:{},career:[],rep:0,votedOut:null,staffPool:[],records:{},hist:[],layers:{story:false,staff:false,dynasty:false},auto:false,seats:[]};
   // the Northmarch core clubs
   mkClub('pell','Pell United','harbour',1,{support:1600,groups:[['workers',40,58],['students',25,62],['business',35,40]],statute:['No outside owner above 25%'],founded:1891,legend:"Jack 'Sailor' Garside",scar:'lost a cup final to their rivals',ground:'Dock Road'});
   mkClub('corden','Corden Athletic','mill',1,{support:1800});
@@ -62,7 +62,7 @@ function newWorld(seed){
   // the domains: squads, grounds, money
   for(const id of ids){const c=CL(id),[a,b]=TIER_STR[c.tier];
     const str=id==='pell'?48:id==='harrow'?57:ri(a,b)+Math.round((c.support-(TIER_SUPPORT[c.tier][0]+TIER_SUPPORT[c.tier][1])/2)/600);
-    S.squads[id]=genSquad(str,id);S.grounds[id]=groundInit(id);S.fin[id]=finInit(id);S.stats[id]=statsInit();S.members[id]=membersInit(id);giveProfile(CL(id).cast.coach,'coach',CL(id).tier);giveProfile(CL(id).cast.td,'td',CL(id).tier);}
+    S.squads[id]=genSquad(str,id);S.grounds[id]=groundInit(id);S.fin[id]=finInit(id);S.stats[id]=statsInit();S.members[id]=membersInit(id);S.records[id]=recordsInit();giveProfile(CL(id).cast.coach,'coach',CL(id).tier);giveProfile(CL(id).cast.td,'td',CL(id).tier);}
   staffPoolInit();
   for(const id of ids)commercialInit(id);
   S.qref=worldQuality();

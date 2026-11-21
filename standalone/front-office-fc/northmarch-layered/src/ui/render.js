@@ -69,7 +69,7 @@ function previewView(){
     const mine=m.home?p.w:p.l,theirs=m.home?p.l:p.w;
     out.push(`<div class="panel"><p class="eyebrow">${comp==='cup'?`${CUP_NAME} · ${CUP_ROUND[S.cup.round]}`:`Week ${w} · ${TIER_NAME[C().tier]}`}</p>
     <div class="fix"><b>${nm(m.h)}</b><span class="muted">v</span><b>${nm(m.a)}</b></div>
-    <div class="cmp"><span>Position</span><b>${comp==='league'?ord(posOf(m.h)):tierShort(CL(m.h).tier)}</b><b>${comp==='league'?ord(posOf(m.a)):tierShort(CL(m.a).tier)}</b>
+    <div class="cmp"><span>Position</span><b>${comp==='league'?(S.week?ord(posOf(m.h)):'—'):tierShort(CL(m.h).tier)}</b><b>${comp==='league'?(S.week?ord(posOf(m.a)):'—'):tierShort(CL(m.a).tier)}</b>
     <span>Squad strength</span><b>${Math.round(teamStrength(m.h))}</b><b>${Math.round(teamStrength(m.a))}</b>
     <span>Form</span><b>${(S.tbl[m.h].form||[]).join('')||'—'}</b><b>${(S.tbl[m.a].form||[]).join('')||'—'}</b></div>
     <p class="small muted">The bookmakers: ${pct(mine)} we win, ${pct(p.d)} a draw, ${pct(theirs)} we lose.</p></div>`)}
@@ -78,7 +78,7 @@ function previewView(){
 }
 function weekView(){
   const over=seasonOver();
-  return`${reportView()}${previewView()}${targetsPanel()}${hubCards()}
+  return`${reportView()}${signalsPanel()}${previewView()}${targetsPanel()}${hubCards()}
   <button class="btn" data-act="${over?'close':'play'}">${over?'Close the season':`Play week ${S.week+1}`}</button>
   <p class="note">${over?'Prize money, promotion and relegation, contracts and the summer window follow.':'Every week is played. Change prices, budgets or building first if you want them to count this week.'}</p>`;
 }
@@ -86,8 +86,9 @@ function weekView(){
 /* ----- tables ----- */
 function tableView(){
   const t=UI.tier??C().tier;
-  const tabs=`<div class="tabs" role="tablist">${TIERS.map(x=>`<button class="${t===x?'on':''}" data-act="tier" data-arg="${x}" aria-pressed="${t===x}">${tierShort(x)}</button>`).join('')}<button class="${t==='cup'?'on':''}" data-act="tier" data-arg="cup" aria-pressed="${t==='cup'}">Cup</button><button class="${t==='market'?'on':''}" data-act="tier" data-arg="market" aria-pressed="${t==='market'}">Market</button></div>`;
+  const tabs=`<div class="tabs" role="tablist">${TIERS.map(x=>`<button class="${t===x?'on':''}" data-act="tier" data-arg="${x}" aria-pressed="${t===x}">${tierShort(x)}</button>`).join('')}<button class="${t==='cup'?'on':''}" data-act="tier" data-arg="cup" aria-pressed="${t==='cup'}">Cup</button><button class="${t==='market'?'on':''}" data-act="tier" data-arg="market" aria-pressed="${t==='market'}">Market</button><button class="${t==='archive'?'on':''}" data-act="tier" data-arg="archive" aria-pressed="${t==='archive'}">History</button></div>`;
   if(t==='market')return tabs+marketView();
+  if(t==='archive')return tabs+archiveView();
   if(t==='cup')return tabs+cupView();
   const st=standings(t);
   return`${tabs}<div class="panel"><p class="eyebrow">${TIER_NAME[t]}</p><div class="tbl" role="table" aria-label="${TIER_NAME[t]} table">

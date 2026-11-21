@@ -53,3 +53,8 @@
 - Nieuw: `src/football/life.js`, `tests/life-test.js`; schema v6 (migratie). Squad: moraal en badges; Tables → Market; verhuurkeuze in het kader.
 - Gevonden: vermoeidheid markeerde de verkeerde spelers; testmeting van verhuur selecteerde al verhuurde spelers; weigeraars werden door dezelfde club teruggehaald; een `//`-commentaar midden in een regel brak de build.
 - **Volgende:** pakket 5, grote projecten, historie en signalen.
+
+## 2026-11-21 — Pakket 5: grote projecten, historie en signalen
+- Nieuw: `src/club/projects.js`, `src/ui/history.js`, `tests/projects-test.js`; schema v7 (migratie). Major projects in Build; clubhistorie; Tables → History; Needs attention in Week.
+- Gevonden: playtest kon toevallig in een weggestemde voorzitter eindigen (willekeurige wereld); doelen en posities toonden in week 0 al een stand.
+- **Volgende:** pakket 6, validatie (strategietest, balans AI-risico en leeftijd, prestatie, jouw speeltest).

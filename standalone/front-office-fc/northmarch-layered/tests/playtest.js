@@ -20,6 +20,7 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     await tap('[data-act=tab][data-arg=table]');await shot('table');await wide('table');
     await tap('[data-act=tier][data-arg=cup]');await wide('cup');
     await tap('[data-act=tier][data-arg=market]');await wide('market');
+    await tap('[data-act=tier][data-arg=archive]');await wide('archive');
     await tap('[data-act=tier][data-arg="0"]');await tap('.trow[data-act=club] >> nth=0');await shot('club-sheet');await wide('club sheet');await tap('.overlay [data-act=ov]');
     await tap('[data-act=tab][data-arg=squad]');await shot('squad');await wide('squad');
     await tap('[data-act=tobudget]');
@@ -31,6 +32,7 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     for(const t of ['complex','build','repairs']){await tap(`[data-act=gtab][data-arg=${t}]`);await wide('ground '+t)}
     await tap('[data-act=gtab][data-arg=build]');
     const cash0=await page.evaluate(()=>S.fin[S.my].cash);
+    await tap('[data-act=confirm][data-arg=plot]');await tap('[data-act=buyplot]');ok(await page.evaluate(()=>G(S.my).plots.length===7),`${scheme}: land is bought`);
     await tap('[data-act=gsel] >> nth=0');await tap('[data-act=gbuild] >> nth=1');await shot('ground-build');
     ok(await page.evaluate(()=>S.grounds[S.my].projects.some(p=>p.phase!=='done')),`${scheme}: a building project starts from the Build tab`);
     await tap('.overlay [data-act=ov]');
@@ -63,11 +65,14 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     for(let i=0;i<40;i++){if(await page.locator('[data-act=close]').count())break;await tap('[data-act=play]')}
     ok(await page.evaluate(()=>S.week===30),`${scheme}: thirty weeks played by tapping`);
     const paid=await page.evaluate(()=>S.fin[S.my].season.build||0);ok(paid<0,`${scheme}: the project was paid for in the ledger (${paid})`);
+    await page.evaluate(()=>{M(S.my).conf=90});            // keep the first AGM out of the way: this run tests the screens, not the vote
     await tap('[data-act=close]');await shot('review');await wide('review');
     ok(await page.locator('[data-act=startnext]').count()===1,`${scheme}: the season review appears`);
     await tap('[data-act=startnext]');
     ok(await page.evaluate(()=>S.season===2&&S.week===0),`${scheme}: season two begins`);
     ok(await page.locator('.panel:has-text("Season targets")').count()===1,`${scheme}: the week shows the season targets`);
+    await tap('[data-act=tab][data-arg=club]');await tap('[data-act=history]');await shot('history');await wide('history');ok(await page.locator('.overlay:has-text("Season by season")').count()===1,`${scheme}: the club history opens`);await tap('.overlay [data-act=ov]');
+    await tap('[data-act=tab][data-arg=week]');await shot('signals');
     await tap('[data-act=tab][data-arg=club]');const d0=await page.evaluate(()=>M(S.my).dues);await tap('[data-act=dues][data-arg="1"]');
     ok(await page.evaluate(d=>M(S.my).dues===d+5,d0),`${scheme}: membership dues change`);await shot('members');await wide('members');
     // a season so bad the members vote the chairman out: the review shows the AGM, then three new chairs

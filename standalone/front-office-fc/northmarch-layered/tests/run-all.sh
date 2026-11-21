@@ -10,5 +10,6 @@ node tests/members-test.js
 node tests/staff-test.js
 node tests/commercial-test.js
 node tests/life-test.js
+node tests/projects-test.js
 for s in 20261121 1 77 4242; do node tests/sim-test.js $s 20 | tail -4; done
 node tests/playtest.js

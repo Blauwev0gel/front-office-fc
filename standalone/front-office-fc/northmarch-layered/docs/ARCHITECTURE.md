@@ -29,7 +29,7 @@ closeSeason():  ALV's (holdAGMs/afterAGMs) → prijzengeld + archief → sponsor
 ## Commando's
 `cmd(name, clubId, args, actor)` met actor `player | ai | td | story`. Validatie (`check`) vóór uitvoering (`run`);
 de speler kan alleen de eigen club aansturen. Gedefinieerd: `StartProject`, `Repair`, `SetDeptBudget`,
-`SetDeptCourse` (ground.js) · `SetPrice`, `TakeLoan`, `RepayLoan`, `SetSquadPolicy` (finance.js) · `ReleasePlayer` (market.js) · `SetDeptStaff` (ground.js) · `SetDues` (members.js) · `HireStaff`, `SackStaff`, `RenewStaff` (staff.js) · `SignSponsor`, `IssueBond`, `Fundraise`, `SellGround`, `BuyBackGround` (commercial.js).
+`SetDeptCourse` (ground.js) · `SetPrice`, `TakeLoan`, `RepayLoan`, `SetSquadPolicy` (finance.js) · `ReleasePlayer` (market.js) · `SetDeptStaff` (ground.js) · `SetDues` (members.js) · `HireStaff`, `SackStaff`, `RenewStaff` (staff.js) · `BuyPlot`, `StartStadium` (projects.js) · `SignSponsor`, `IssueBond`, `Fundraise`, `SellGround`, `BuyBackGround` (commercial.js).
 Hogere lagen (staff, verhalen) krijgen géén eigen mutatiepad: zij roepen dezelfde commando's aan.
 
 ## Events
@@ -37,7 +37,7 @@ Hogere lagen (staff, verhalen) krijgen géén eigen mutatiepad: zij roepen dezel
 Lijst: `docs/layers/L1-SIMULATION.md` §6.
 
 ## Saves
-`SAVE_KEY='northmarch-layered-v1'`, schemaversie `S.v` (= `VERSION` 6; 5→6 moraal/kaarten/verhuur/reputatie; migraties 1→2 afdelingen, 2→3 leden, 3→4 trainers/directeuren, 4→5 begroting/sponsors/financiering). `migrate()` loopt `MIGRATIONS[v+1]` in volgorde;
+`SAVE_KEY='northmarch-layered-v1'`, schemaversie `S.v` (= `VERSION` 7; 6→7 records/historie; 5→6 moraal/kaarten/verhuur/reputatie; migraties 1→2 afdelingen, 2→3 leden, 3→4 trainers/directeuren, 4→5 begroting/sponsors/financiering). `migrate()` loopt `MIGRATIONS[v+1]` in volgorde;
 een nieuwere of vreemde save wordt geweigerd. Regel: geen `VERSION`-ophoging zonder migratie én test.
 Het referentiespel (`northmarch-chairman-v1`) gebruikt een andere sleutel en blijft onaangetast.
 

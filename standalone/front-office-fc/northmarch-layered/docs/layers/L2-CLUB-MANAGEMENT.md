@@ -1,6 +1,6 @@
 # L2 — Volwaardig clubmanagement
 
-**Status:** Speelbaar. Uitvoering volgens `docs/PROMPT_L1_L2_AFRONDEN.md`: afdelingen ✓, pakket 1 (leden, ALV) ✓, pakket 2 (trainer en directeur) ✓, pakket 3 (begroting, commercie, financiering) ✓, pakket 4 (voetbaldiepte) ✓; pakket 5–6 open.
+**Status:** Speelbaar. Uitvoering volgens `docs/PROMPT_L1_L2_AFRONDEN.md`: afdelingen ✓, pakket 1 (leden, ALV) ✓, pakket 2 (trainer en directeur) ✓, pakket 3 (begroting, commercie, financiering) ✓, pakket 4 (voetbaldiepte) ✓, pakket 5 (projecten, historie, signalen) ✓; pakket 6 (validatie) open.
 
 ## 1. Spelbelofte
 De voorzitter bestuurt de club proactief: onderzoeken, vergelijken, bouwen, financieren, onderhouden en bijsturen,
@@ -32,6 +32,9 @@ Geen eigen spelstaat: L2 is UI plus speleracties op L1-commando's (`src/ui/*.js`
 | Hoofdtrainer en directeur benoemen, ontslaan, verlengen | Club-tab → Coach and director | `HireStaff`, `SackStaff`, `RenewStaff` | trainer: wedstrijdsterkte, spelstijl, groei (getest: topcoach +6,9 punten, ontwikkeltrainer +27% groei); directeur: miskopen 2% vs 27%, scoutingbereik, onderhandelen |
 | Verhuurbeleid in het kader | Money → Budget | `SetSquadPolicy` (loans) | verhuurde reserves 21 vs 4 wedstrijden, groei +0,93 vs +0,70 |
 | Moraal, schorsingen, verzoeken volgen | Squad, speler | — | badges en moraal per speler; transfermarkt per window onder Tables → Market |
+| Grond kopen, nieuw stadion bouwen | Club → Ground → Build → Major projects | `BuyPlot`, `StartStadium` | extra kavel; stadion standaard: capaciteit 2.350 → 5.067, kaartinkomsten +£66k/seizoen, schuld +£254k; oude grond verkocht of huur beëindigd; statuut kan blokkeren |
+| Clubhistorie, records, loopbaan | Club → Club history; Tables → History | — | seizoenen met topscorer en bekerloop, records, financiële grafiek, erelijst wereld |
+| Signalen | Week → Needs attention | — | gesorteerd op urgentie, elk met link naar het scherm om te handelen |
 | Inspecteren en vergelijken | Tables → club, Club-tab | — | stand, sterkte, aanhang, faciliteiten van elke club |
 | Prognose | Money-tab → Overview | — | 26-wekenprognose met bandbreedte |
 
@@ -70,6 +73,13 @@ inzameling (leden × £25 × vertrouwen; binnen 2 seizoenen 45% en −3 vertrouw
 −15 vertrouwen; terugkopen 110%, +10). Statuten: 'Members approve any sale above £50k' (verkoop/naamrecht alleen bij voldoende vertrouwen),
 'Ticket prices are set by the members' (max. 15% boven de norm). AI: sponsorkeuze naar waarde voorzitter; bij geldnood eerst obligatie, dan inzameling.
 Ook: inkomstenschatting telde seizoenkaarthouders dubbel (hersteld, loonverhoudingen evenredig herschaald); speelschema had reeksen van 15 uitwedstrijden (hersteld: max. 3).
+
+### Pakket 5 — grote projecten, historie en signalen (ontwerpnotitie)
+Extra kavels (max. 9, prijs ×1,3 per extra kavel). Nieuw stadion compact/standaard/groots (capaciteit ×1,4/×2/×3, minimaal +1.500/+2.500/+4.000;
+£160/120/90 per plaats naar divisie; 40/55/70 weken na een vergunning van 8–16 weken; 15% aanbetaling, rest wekelijks via 'build'). Oplevering: nieuwe
+tribunes (55% zit), toegang/veiligheid op de nieuwe capaciteit, voorzieningen +2, oude grond verkocht (of huur beëindigd), aanhang +10%, vertrouwen +8.
+AI: een structureel uitverkochte club in de bovenste twee divisies bouwt soms. Historie: club-`hist` met topscorer en bekerloop, `S.records` (grootste
+zege, recordpubliek), `S.career`. Signalen: contracten, transferverzoeken, interim, staat van de grond, kasdip, begroting, sponsors, vertrouwen, opening stadion.
 
 ### Afdelingsmodel
 Signaal = faciliteit × (budget × (0,55 + 0,15 × personeel)) + 0,3 × personeel × budget, × koers (1,15).

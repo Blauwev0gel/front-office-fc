@@ -4,7 +4,7 @@ function agmForecast(id){return clamp(Math.round(20+.75*M(id).conf),3,97)}
 function reasonRows(list){return list.map(([why,d])=>`<div class="row small"><span>${esc(why)}</span><b class="${d<0?'down':'up'}">${d>0?'+':''}${r1(d)}</b></div>`).join('')}
 function targetsPanel(){
   const id=S.my,m=M(id),f=agmForecast(id);
-  return`<div class="panel"><p class="eyebrow">Season targets</p>${m.goals.map(g=>{const p=goalProgress(id,g);return`<div class="row small"><span>${esc(g.text)}<br><span class="muted">${esc(p.text)}</span></span><span class="pill ${p.met?'good':'bad'}">${p.met?'On track':'Behind'}</span></div>`}).join('')}
+  return`<div class="panel"><p class="eyebrow">Season targets</p>${m.goals.map(g=>{const p=goalProgress(id,g);return`<div class="row small"><span>${esc(g.text)}<br><span class="muted">${S.week?esc(p.text):'The season has not started'}</span></span>${S.week?`<span class="pill ${p.met?'good':'bad'}">${p.met?'On track':'Behind'}</span>`:'<span class="pill">To play</span>'}</div>`}).join('')}
   <div class="row small"><span>Members' confidence</span><b>${Math.round(m.conf)}</b></div>${confBar(m.conf)}
   <p class="small ${f<50?'down':'muted'}">An AGM today: about ${f}% for you. Below 50% you are out.</p></div>`;
 }

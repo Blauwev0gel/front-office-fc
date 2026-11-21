@@ -146,3 +146,7 @@ hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
 .conf{display:block;position:relative;height:10px;border-radius:5px;background:var(--chip);overflow:visible}.conf i{display:block;height:100%;border-radius:5px;background:var(--good)}.conf.mid i{background:#b7791f}.conf.lo i{background:var(--bad)}
 .conf b{position:absolute;top:-3px;width:2px;height:16px;background:var(--ink);opacity:.5}
 .vote{height:18px;border-radius:9px;background:var(--bad);overflow:hidden}.vote i{display:block;height:100%;background:var(--good)}
+.sig{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);border-left:4px solid var(--muted);background:var(--card);color:var(--ink);font:14px var(--f-body);text-align:left;cursor:pointer}
+.sig.lv3{border-left-color:var(--bad)}.sig.lv2{border-left-color:#b7791f}.sig.lv1{border-left-color:var(--good)}
+.sig:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.fcast .barpos{fill:var(--good)}.fcast .barneg{fill:var(--bad)}

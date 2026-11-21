@@ -124,6 +124,7 @@ function startProject(id,key,offer){
   return p;
 }
 function finishProject(id,p){
+  if(p.key.startsWith('stadium:')){finishStadium(id,p);return}
   const g=G(id),[kind,a,b]=p.key.split(':');
   if(kind==='side'){const s=g.sides[a];if(b==='ring')s.rings++;else if(b==='roof')s.roof++;else{s.type=s.type==='terrace'?'seated':'terrace';s.rings=Math.max(1,Math.round(s.rings*(s.type==='seated'?RING.terrace/RING.seated:RING.seated/RING.terrace)*.75))}s.cond=100}
   else if(kind==='pitch'){if(a==='lv'){g.pitch.lv++;g.pitch.cond=100}else if(a==='drain')g.pitch.drain++}

@@ -5,8 +5,11 @@
 
 ## Begin hier
 
-1. `NORTHMARCH_ARCHITECTUUR_EN_BOUWAANPAK_V1.md` — spelvisie, architectuur, lagen, ontwikkeling en hergebruik.
-2. `NORTHMARCH_MASTERPROMPT_GELAAGDE_FOOTBALMANAGER_V1.md` — concrete opdracht aan een LLM: hergebruik bestaande code, stel alleen doorslaggevende ontwerpvragen en bouw een nieuwe volledig speelbare versie.
+1. `NORTHMARCH_ARCHITECTUUR_EN_BOUWAANPAK_V1.md` — de vaste spelvisie: een echte simulatie met daarboven clubmanagement, staff, verhalen en dynastie.
+2. **`NORTHMARCH_LAGEN_PROTOCOL_EN_UITVOERPROMPT_V1.md` — de actuele leidende werkwijzeprompt.** Verplicht per laag: inventarisatie → gerichte ontwerpvragen → laagcontract → implementatie → bewijs → speelbare release.
+3. `NORTHMARCH_MASTERPROMPT_GELAAGDE_FOOTBALMANAGER_V1.md` — oudere brede uitvoerprompt, historisch/aanvullend. Gebruik het nieuwe lagenprotocol voor de werkvolgorde.
+
+**LET OP:** vijf product-/gameplaylagen, zeven gescheiden domein-speellagen en tijdslagen zijn verschillende classificaties. Het nieuwe lagenprotocol legt het onderscheid uit en voorkomt een nieuwe rewrite of vrijblijvende audit.
 
 De kern: **een zelfstandig functionerende voetbal- en clubmanagementgame (ook met verhalen uitgeschakeld), met daarboven staff/autonomie, de bestaande Northmarch-verhaalengine en later dynastieën**. De bestaande spelcode is de basis; geen herstart of weggooien van werkende onderdelen.
 

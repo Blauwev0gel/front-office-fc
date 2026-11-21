@@ -23,7 +23,8 @@ function cmd(name,club,args,actor){
   if(!CL(club))return{ok:false,err:'No such club'};
   const err=d.check?d.check(club,args):null;
   if(err)return{ok:false,err};
+  const pre=actor==='player'&&typeof journalBefore==='function'?journalBefore(name,args,club):null;
   const res=d.run(club,args);
-  if(actor==='player')emit('Command',club,'',{cmd:name,args,actor});
+  if(actor==='player'){emit('Command',club,'',{cmd:name,args,actor});if(typeof journalAdd==='function')journalAdd(name,args,club,pre)}
   return{ok:true,res};
 }

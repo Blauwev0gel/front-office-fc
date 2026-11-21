@@ -130,7 +130,7 @@ hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
 .pill{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:10px;background:var(--chip);color:var(--ink)}
 .pill.good{background:var(--good);color:var(--onnavy)}.pill.bad{background:var(--bad);color:var(--onnavy)}
 .fix{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center}
-.fix b{font-family:var(--f-display);font-weight:800;font-size:18px;text-transform:uppercase;line-height:1.05;overflow-wrap:break-word;hyphens:auto;min-width:0}
+.fix b{font-family:var(--f-display);font-weight:800;font-size:clamp(14px,4.3vw,18px);text-transform:uppercase;line-height:1.05;overflow-wrap:break-word;hyphens:auto;min-width:0}
 .fix .score{font-family:var(--f-display);font-weight:800;font-size:40px;line-height:1}
 .cmp{display:grid;grid-template-columns:1fr auto auto;gap:4px 12px;font-size:14px;font-variant-numeric:tabular-nums}
 .cmp span:first-child{color:var(--muted)}.cmp b{text-align:right}
@@ -155,6 +155,32 @@ hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
 .sig.lv3{border-left-color:var(--bad)}.sig.lv2{border-left-color:#b7791f}.sig.lv1{border-left-color:var(--good)}
 .sig:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
 .fcast .barpos{fill:var(--good)}.fcast .barneg{fill:var(--bad)}
+
+/* L1/L2 chairman overview: navigable, touch-sized decision entry points. */
+.boardgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.boardtile{display:flex;flex-direction:column;gap:3px;text-align:left;min-width:0;min-height:92px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font:inherit;cursor:pointer}
+.boardtile>span{font-size:12px;color:var(--muted)}
+.boardtile>b{font-size:21px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.boardtile>small{font-size:12px;color:var(--muted)}
+.boardlinks{display:flex;flex-direction:column;gap:6px}
+.boardlinks button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;min-height:48px;padding:10px 12px;text-align:left;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);font:600 14px var(--f-body);cursor:pointer}
+.boardlinks button span{font-size:12px;font-weight:400;color:var(--muted)}
+.boardtile:focus-visible,.boardlinks button:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+[id^="board-"]{scroll-margin-top:145px}
+.subnav{margin-top:-4px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.subnav button{padding:0 6px}
+main.withbar{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 100px)}
+.actbar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--paper);border-top:1px solid var(--line);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px calc(env(safe-area-inset-bottom,0px) + 10px)}
+.actbar .ab-in{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:6px}.actbar .small{color:var(--muted);text-align:center}
+.deptgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.dmini{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:52px;padding:8px;border-radius:8px;border:1px solid var(--line);border-top:3px solid var(--muted);background:var(--paper);color:var(--ink);font:12px var(--f-body);cursor:pointer;min-width:0}
+.dmini b{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}.dmini span{color:var(--signal);letter-spacing:1px}
+.dmini.ok{border-top-color:var(--good)}.dmini.bad{border-top-color:var(--bad)}.dmini:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.proj{display:flex;flex-direction:column;gap:4px}
+.onboard{border:2px solid var(--navy)}
+.impact{display:grid;grid-template-columns:92px 1fr;gap:4px 10px;margin:0;padding:10px 12px;border-radius:10px;background:var(--chip);font-size:13px}
+.impact dt{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:1px}.impact dd{margin:0;min-width:0}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.grid4 button{padding:0 4px;font-size:13px}
+.urgent{border:2px solid var(--bad)}
 </style>
 <div id="app"></div>
 <script>
@@ -252,8 +278,9 @@ function cmd(name,club,args,actor){
   if(!CL(club))return{ok:false,err:'No such club'};
   const err=d.check?d.check(club,args):null;
   if(err)return{ok:false,err};
+  const pre=actor==='player'&&typeof journalBefore==='function'?journalBefore(name,args,club):null;
   const res=d.run(club,args);
-  if(actor==='player')emit('Command',club,'',{cmd:name,args,actor});
+  if(actor==='player'){emit('Command',club,'',{cmd:name,args,actor});if(typeof journalAdd==='function')journalAdd(name,args,club,pre)}
   return{ok:true,res};
 }
 
@@ -1140,10 +1167,10 @@ function k1v(v){return(v<0?'−':'')+'£'+Math.abs(Math.round(v))+'k'}
 function holdAGMs(){
   const out=[];
   for(const id in S.clubs){const m=M(id),c=CL(id);
-    for(const gl of m.goals){const pr=goalProgress(id,gl);confLog(id,pr.met?gl.w*.8:-gl.w*.8,pr.met?'Season targets met':'Season targets missed')}
+    const goals=[];for(const gl of m.goals){const pr=goalProgress(id,gl);goals.push({text:gl.text,met:pr.met,now:pr.text});confLog(id,pr.met?gl.w*.8:-gl.w*.8,pr.met?'Season targets met':'Season targets missed')}
     const pos=posOf(id);if(c.tier>0&&pos<=2)confLog(id,12,'Promotion');if(c.tier<2&&pos>=15)confLog(id,-15,'Relegation');
     const forPct=clamp(Math.round(20+.75*m.conf+(rnd()-.5)*10),3,97);
-    m.agm={s:S.season,for:forPct,against:100-forPct,out:forPct<50&&!(S.agmOff&&id===S.my),conf:m.conf,reasons:seasonReasons(id)};
+    m.agm={s:S.season,goals,for:forPct,against:100-forPct,out:forPct<50&&!(S.agmOff&&id===S.my),conf:m.conf,reasons:seasonReasons(id)};
     if(m.agm.out)out.push(id);
   }
   return out;
@@ -1423,22 +1450,80 @@ function signals(id){
   if(S.week>=18){const end=sq.filter(p=>p.contract===1&&!p.loan&&p.q>=squadQuality(sq)-.5);if(end.length)out.push({lv:2,text:`${end.length} key player${end.length>1?'s':''} out of contract this summer`,act:'tab',arg:'squad'})}
   const ref=sq.filter(p=>p.wantsOut);if(ref.length)out.push({lv:2,text:`${ref[0].name}${ref.length>1?` and ${ref.length-1} more`:''} want${ref.length>1?'':'s'} to leave`,act:'tab',arg:'squad'});
   for(const role of ['coach','td']){const p=P(CL(id).cast[role]);if(p&&p.pro){if(p.pro.caretaker)out.push({lv:3,text:`A caretaker is in charge as ${role==='coach'?'head coach':'director'}`,act:'staff',arg:role});else if(p.pro.contract<=1&&S.week>=15)out.push({lv:1,text:`The ${role==='coach'?'head coach':'director'}'s contract ends this season`,act:'staff',arg:role})}}
-  const w=groundCondWorst(id);if(w.c<40)out.push({lv:w.c<30?3:2,text:`${w.n} is at ${Math.round(w.c)}%: repair before inspectors close it`,act:'ov',arg:'ground'});
+  const w=groundCondWorst(id);if(w.c<40)out.push({lv:w.c<30?3:2,text:`${w.n} is at ${Math.round(w.c)}%: repair before inspectors close it`,act:'ctab',arg:'ground'});
   const fc=cashForecast(id);if(fc.minV<-creditLimit(id)*.5)out.push({lv:3,text:`The cash forecast dips to ${k1v(fc.minV)} in ${fc.minW} weeks`,act:'tab',arg:'money'});
   for(const t of budgetWarnings(id))out.push({lv:2,text:t,act:'tobudget'});
   if((f.offers||[]).length)out.push({lv:2,text:`${f.offers.length} sponsor offer${f.offers.length>1?'s':''} waiting`,act:'mtabgo',arg:'sponsors'});
   if(!f.sponsor||f.sponsor.until<S.season)out.push({lv:2,text:'No main sponsor: sign one',act:'mtabgo',arg:'sponsors'});
-  if(m.conf<45)out.push({lv:3,text:`Members' confidence is ${Math.round(m.conf)}: an AGM today would be close`,act:'tab',arg:'club'});
-  const sp=stadiumProject(id);if(sp&&sp.phase==='build'&&sp.left<=5)out.push({lv:1,text:`The new stadium opens in ${sp.left} weeks`,act:'ov',arg:'ground'});
+  if(m.conf<45)out.push({lv:3,text:`Members' confidence is ${Math.round(m.conf)}: an AGM today would be close`,act:'ctab',arg:'members'});
+  const sp=stadiumProject(id);if(sp&&sp.phase==='build'&&sp.left<=5)out.push({lv:1,text:`The new stadium opens in ${sp.left} weeks`,act:'ctab',arg:'ground'});
   return out.sort((a,b)=>b.lv-a.lv);
 }
-function projectsAfterLoad(){S.records=S.records||{};for(const id in S.clubs)S.records[id]=S.records[id]||recordsInit()}
+function projectsAfterLoad(){S.journal=S.journal||[];S.records=S.records||{};for(const id in S.clubs)S.records[id]=S.records[id]||recordsInit()}
 
 defCommand('BuyPlot',{check:id=>{const g=G(id);if(g.plots.length>=PLOT_MAX)return'There is no more land next to the ground';if(F(id).cash-plotPrice(id)<-creditLimit(id))return'The bank will not cover this';return null},
   run:id=>{const price=plotPrice(id);book(id,'build',-price);G(id).plots.push({kind:null});emit('PlotBought',id,`${CL(id).name} buy a plot of land next to the ground (£${price}k).`);return price}});
 defCommand('StartStadium',{check:(id,a)=>{if(!STADIUM_SIZE[a.size])return'Unknown size';if(stadiumProject(id))return'A new stadium is already being built';const pl=stadiumPlan(id,a.size);
   if(F(id).cash-pl.deposit<-creditLimit(id))return`The deposit of £${pl.deposit}k is more than the bank will cover`;if(hasStatute(id,STATUTE_SALE)&&M(id).conf<50)return'Selling the old ground needs the members\' approval, and they would refuse';return null},
   run:(id,a)=>startStadium(id,a.size)});
+
+/* ---- club/journal.js ---- */
+/* ================= Club: the decision journal =================
+   Every command the player gives is noted with one measure that the decision is meant to move, taken at that moment.
+   Later the chairman sees "then → now". It is a pointer, not proof: other things change too, and the screen says so.
+   Owns S.journal (last 30 entries). */
+const JOURNAL_MAX=30;
+const jn0=v=>Math.round(v).toLocaleString('en-GB'),jk1=v=>(v<0?'−':'')+'£'+Math.abs(r1(v)).toLocaleString('en-GB')+'k'; // engine-side formatting (no UI dependency)
+function metric(key,id){
+  const st=S.stats[id],f=F(id),g=G(id),sg=groundSignals(id),wk=Math.max(1,S.week);
+  switch(key){
+    case'dept:training':{const n=S.squads[id].filter(p=>p.age<=23).length;return{label:'Growth per young player per 10 weeks',v:st.youthGrowth/Math.max(1,n)/wk*10,fmt:v=>'+'+v.toFixed(2),hi:true}}
+    case'dept:medical':return{label:'Weeks lost to injury per 10 weeks',v:st.injWeeks/wk*10,fmt:v=>v.toFixed(1),hi:false};
+    case'dept:academy':return{label:'Academy level',v:sg.academy,fmt:v=>v.toFixed(1),hi:true};
+    case'dept:scouting':return{label:'Players seen per search',v:6+2*sg.scouting,fmt:v=>v.toFixed(0),hi:true};
+    case'dept:commercial':return{label:'Local partners per week',v:partnersWeekK(id,1)*1000,fmt:v=>'£'+jn0(v),hi:true};
+    case'dept:community':return{label:'Members',v:M(id).count,fmt:jn0,hi:true};
+    case'dept:matchday':return{label:'Atmosphere',v:sg.atmosphere,fmt:v=>v.toFixed(1),hi:true};
+    case'dept:grounds':{const all=[...Object.values(g.sides),...Object.values(g.fac),...g.plots.filter(p=>p.kind),g.pitch];return{label:'Average condition of the ground',v:all.reduce((a,o)=>a+o.cond,0)/all.length,fmt:v=>Math.round(v)+'%',hi:true}}
+    case'capacity':return{label:'Capacity',v:sg.capacity,fmt:jn0,hi:true};
+    case'ppg':return{label:'Points per game this season',v:ppg(id),fmt:v=>v.toFixed(2),hi:true};
+    case'strength':return{label:'Squad strength',v:teamStrength(id),fmt:v=>v.toFixed(1),hi:true};
+    case'att':return{label:'Last home crowd',v:f.lastGate?f.lastGate.total:attendance(id,null,{}).total,fmt:jn0,hi:true};
+    case'members':return{label:'Members',v:M(id).count,fmt:jn0,hi:true};
+    case'conf':return{label:"Members' confidence",v:M(id).conf,fmt:v=>Math.round(v)+'',hi:true};
+    case'sponsorwk':return{label:'Main sponsor per week',v:sponsorWeekK(id)*1000+namingWeekK(id)*1000,fmt:v=>'£'+jn0(v),hi:true};
+    case'debt':return{label:'Debt',v:debt(id),fmt:v=>jk1(v),hi:false};
+    case'wagebill':return{label:'Wage bill per week',v:wageBillK(id)*1000,fmt:v=>'£'+jn0(v),hi:null};
+    case'cash':return{label:'Cash',v:f.cash,fmt:v=>jk1(v),hi:true};
+  }
+  return null;
+}
+function journalKey(name,a){
+  if(['SetDeptStaff','SetDeptBudget','SetDeptCourse'].includes(name))return'dept:'+a.dept;
+  if(name==='StartProject'){const k=(a.key||'').split(':');if(k[0]==='plot'){const kind=k[2]==='up'?(G(S.my).plots[+k[1]]||{}).kind:k[2];const map={training:'dept:training',medical:'dept:medical',academy:'dept:academy',scouting:'dept:scouting',commercial:'dept:commercial',clubhouse:'dept:community'};return map[kind]||'capacity'}return'capacity'}
+  return{StartStadium:'capacity',BuyPlot:null,HireStaff:a.role==='coach'?'ppg':'strength',SackStaff:a.role==='coach'?'ppg':'strength',RenewStaff:null,SetPrice:'att',SetDues:'members',SignSponsor:'sponsorwk',
+    TakeLoan:'debt',RepayLoan:'debt',IssueBond:'debt',Fundraise:'cash',SellGround:'cash',BuyBackGround:'cash',SetSquadPolicy:a.loans!=null?null:'wagebill',ReleasePlayer:'wagebill',Repair:'dept:grounds'}[name]??null;
+}
+function journalText(name,a,id){
+  const D=a.dept&&DEPT[a.dept]?DEPT[a.dept].n:'';
+  switch(name){
+    case'SetDeptStaff':return`${D}: staff to ${STAFF_WORD[a.level].toLowerCase()}`;case'SetDeptBudget':return`${D}: ${a.level} budget`;case'SetDeptCourse':return`${D}: new way of working, ${a.course}`;
+    case'StartProject':{const o=G(id).projects.slice(-1)[0];return`Building: ${o?o.label:a.key}`}case'StartStadium':return`New stadium started (${a.size})`;case'BuyPlot':return'Land bought for the complex';case'Repair':return'Repair ordered';
+    case'HireStaff':return`New ${a.role==='coach'?'head coach':'director'}: ${P(CL(id).cast[a.role]).name}`;case'SackStaff':return`${a.role==='coach'?'Head coach':'Director'} sacked`;case'RenewStaff':return`${a.role==='coach'?'Head coach':'Director'} renewed`;
+    case'SetPrice':return`${a.kind==='season'?'Season ticket':a.kind[0].toUpperCase()+a.kind.slice(1)} price ${a.delta>0?'up':'down'} to £${F(id).prices[a.kind]}`;case'SetDues':return`Dues ${a.delta>0?'up':'down'} to £${M(id).dues}`;
+    case'SignSponsor':{const s=F(id).sponsor;return`Sponsor deal signed${s?': '+s.name:''}`}case'TakeLoan':return`Loan of £${a.amount}k over ${a.years} years`;case'RepayLoan':return'Loan repaid';case'IssueBond':return`Members' bond of £${a.amount}k`;
+    case'Fundraise':return"Members' appeal";case'SellGround':return'The ground sold and leased back';case'BuyBackGround':return'The ground bought back';case'ReleasePlayer':return'Player released';
+    case'SetSquadPolicy':return a.wageR!=null?`Wage limit set to ${Math.round(a.wageR*100)}% of income`:a.spend!=null?`Transfer money: ${Math.round(a.spend*100)}% of spare cash`:a.loans!=null?(a.loans?'Young reserves may go on loan':'Young reserves stay at the club'):a.wage?`Wage frame: ${a.wage}`:'Frame changed';
+  }
+  return name;
+}
+function journalBefore(name,a,id){const key=journalKey(name,a);const m=key&&metric(key,id);return m?{key,v:m.v}:null}
+function journalAdd(name,a,id,pre){
+  S.journal=S.journal||[];const last=S.journal[S.journal.length-1],text=journalText(name,a,id);
+  if(last&&last.cmd===name&&last.s===S.season&&last.w===S.week&&(last.key===(pre&&pre.key))&&['SetPrice','SetDues','SetSquadPolicy'].includes(name)){last.text=text;return} // repeated steps of one decision merge
+  S.journal.push({s:S.season,w:S.week,cmd:name,text,club:id,key:pre?pre.key:null,before:pre?pre.v:null});if(S.journal.length>JOURNAL_MAX)S.journal.shift();
+}
+function journalRows(n){return(S.journal||[]).filter(j=>j.club===S.my).slice(-n).reverse().map(j=>{const m=j.key?metric(j.key,S.my):null;return{...j,m}})}
 
 /* ---- sim/ai.js ---- */
 /* ================= Simulation: rule-based club boards =================
@@ -1616,14 +1701,14 @@ function pct(x){return Math.round(x*100)+'%'}
 function topBar(){
   const c=C();
   return`<header class="top">${crest}<div class="tg"><div class="club">${esc(c.name)}</div><div class="sub">Season ${S.season} · ${S.week?'Week '+S.week:'Pre-season'} · ${TIER_NAME[c.tier]}</div></div><span class="pill ${F(S.my).cash<0?'bad':''}">${k1(F(S.my).cash)}</span></header>
-  <nav class="nav" aria-label="Sections">${[['week','Week'],['table','Tables'],['squad','Squad'],['club','Club'],['money','Money']].map(([k,n])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-arg="${k}" aria-current="${UI.tab===k?'page':'false'}">${n}</button>`).join('')}</nav>`;
+  <nav class="nav" aria-label="Sections">${[['week','Week'],['club','Club'],['squad','Squad'],['money','Money'],['table','League']].map(([k,n])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-arg="${k}" aria-current="${UI.tab===k?'page':'false'}">${n}</button>`).join('')}</nav>`;
 }
 function render(){
   if(!HAS_DOM)return;const app=document.getElementById('app');let h='';
   if(!S||UI.title)h=titleView();
   else if(UI.review)h=reviewView();
   else if(S.phase==='choose')h=chooseView();
-  else{const body=UI.tab==='table'?tableView():UI.tab==='squad'?squadView():UI.tab==='club'?clubView():UI.tab==='money'?moneyView():weekView();h=topBar()+`<main>${body}</main>`}
+  else{const body=UI.tab==='table'?tableView():UI.tab==='squad'?squadView():UI.tab==='club'?clubView():UI.tab==='money'?moneyView():weekView();h=topBar()+`<main class="withbar">${body}</main>`+actionBar()}
   if(S&&UI.over)h+=overlayView();
   app.innerHTML=h;
   document.body.style.overflow=UI.over?'hidden':'';
@@ -1647,6 +1732,8 @@ function chooseView(){
 }
 
 /* ----- the week ----- */
+/* what the chances said, from the match engine's own expected goals: no invented events */
+function xgWord(m){const home=m.h===S.my,xf=home?m.lh:m.la,xa=home?m.la:m.lh,gf=home?m.gh:m.ga,ga=home?m.ga:m.gh,d=(gf-ga)-(xf-xa);return Math.abs(xf-xa)<.25?'an even game on chances':d>1.2?'we got more than the chances suggested':d<-1.2?'we deserved more than we got':xf>xa?'we created more':'they created more'}
 function myMatches(){return(S.matches||[]).filter(m=>m.h===S.my||m.a===S.my)}
 function headline(m){const home=m.h===S.my,gf=home?m.gh:m.ga,ga=home?m.ga:m.gh,opp=home?m.a:m.h,won=m.pens?m.pens===S.my:gf>ga;
   const cup=m.comp==='cup'?' in the cup':'';
@@ -1660,7 +1747,9 @@ function reportView(){
   <div class="head">${esc(headline(m))}</div>
   ${ms.map(m=>`<div class="fix"><b>${nm(m.h)}</b><span class="score">${m.gh}–${m.ga}</span><b>${nm(m.a)}</b></div>
   <p class="small muted" style="text-align:center">${m.comp==='cup'?esc(CUP_ROUND[m.round])+' · ':''}${m.att?n0(m.att)+' watching':''}${m.pens?` · ${nm(m.pens)} win on penalties`:''}</p>
+  <p class="small muted" style="text-align:center">Expected goals ${m.lh.toFixed(1)}–${m.la.toFixed(1)}: ${xgWord(m)}</p>
   ${m.scorers.length?`<p class="small">${m.scorers.map(s=>esc(s.name.split(' ').slice(-1)[0])+(s.side==='h'?' ('+esc(CL(m.h).name.split(' ')[0])+')':' ('+esc(CL(m.a).name.split(' ')[0])+')')).join(', ')}</p>`:''}`).join('<hr>')}
+  ${ms.some(x=>x.comp==='league')?`<p class="small"><b>${TIER_NAME[C().tier]}: ${ord(posOf(S.my))}</b>${UI.prevPos&&UI.prevPos!==posOf(S.my)?` <span class="${UI.prevPos>posOf(S.my)?'up':'down'}">(${UI.prevPos>posOf(S.my)?'▲':'▼'}${Math.abs(UI.prevPos-posOf(S.my))})</span>`:''} · ${S.tbl[S.my].pts} point${S.tbl[S.my].pts===1?'':'s'}</p>`:''}
   <ul>${evs.slice(0,6).map(e=>`<li>${esc(e.text)}</li>`).join('')}${f?`<li>The week's books: ${k1(f.net)}${f.lines.gate?` (gate ${k1(f.lines.gate)})`:''}.</li>`:''}</ul></section>`;
 }
 function previewView(){
@@ -1680,8 +1769,7 @@ function previewView(){
 }
 function weekView(){
   const over=seasonOver();
-  return`${reportView()}${signalsPanel()}${previewView()}${targetsPanel()}${hubCards()}
-  <button class="btn" data-act="${over?'close':'play'}">${over?'Close the season':`Play week ${S.week+1}`}</button>
+  return`${reportView()}${urgentPanel()}${previewView()}${lookPanel()}${targetsPanel()}
   <p class="note">${over?'Prize money, promotion and relegation, contracts and the summer window follow.':'Every week is played. Change prices, budgets or building first if you want them to count this week.'}</p>`;
 }
 
@@ -1738,19 +1826,20 @@ function condBar(c){const v=Math.round(c);return`<span class="cbar ${v<30?'lo':v
 function hubCards(){
   const id=S.my,g=G(id),sg=groundSignals(id),w=groundCondWorst(id),run=g.projects.filter(p=>p.phase!=='done'),f=F(id),fc=cashForecast(id),h=finHealth(id);
   return`<div class="hub">
-  <button class="hubc" data-act="ov" data-arg="ground"><span class="eyebrow">Ground</span><b>${n0(sg.capacity)} places</b><span class="small ${w.c<40?'down':'muted'}">${w.c<40?'⚠ ':''}${esc(w.n)} ${Math.round(w.c)}%</span><span class="small muted">${run.length?`${run.length} project${run.length>1?'s':''} running`:'No building work'}</span></button>
+  <button class="hubc" data-act="ctab" data-arg="ground"><span class="eyebrow">Ground</span><b>${n0(sg.capacity)} places</b><span class="small ${w.c<40?'down':'muted'}">${w.c<40?'⚠ ':''}${esc(w.n)} ${Math.round(w.c)}%</span><span class="small muted">${run.length?`${run.length} project${run.length>1?'s':''} running`:'No building work'}</span></button>
   <button class="hubc" data-act="tab" data-arg="money"><span class="eyebrow">Money</span><b class="${f.cash<0?'down':''}">${k1(f.cash)}</b><span class="small ${f.last&&f.last.net<0?'down':'up'}">${f.last?'Last week '+k1(f.last.net):'No weeks played'}</span><span class="small ${h==='healthy'?'muted':'down'}">${h==='healthy'?'Healthy':h==='tight'?'Tight':'In the red'} · low ${k1(fc.minV)}</span></button></div>`;
 }
-function gTabs(cur,list,act){return`<div class="tabs" role="tablist">${list.map(([k,n])=>`<button class="${cur===k?'on':''}" data-act="${act}" data-arg="${k}" aria-pressed="${cur===k}">${n}</button>`).join('')}</div>`}
+function gTabs(cur,list,act,cls){return`<div class="tabs ${cls||''}" role="tablist">${list.map(([k,n])=>`<button class="${cur===k?'on':''}" data-act="${act}" data-arg="${k}" aria-pressed="${cur===k}">${n}</button>`).join('')}</div>`}
 function msgLine(){return UI.msg?`<p class="${UI.msg.err?'err':'small up'}" role="status">${esc(UI.msg.text)}</p>`:''}
 function overlayShell(title,body){return`<div class="overlay" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="inner"><div class="row"><h2>${esc(title)}</h2><button class="tbtn" data-act="ov">Close</button></div>${msgLine()}${body}</div></div>`}
 function overlayView(){
-  if(UI.over==='ground')return groundOverlay();if(UI.over==='dept')return deptSheet(UI.arg);if(UI.over==='staff')return staffSheet(UI.arg);if(UI.over==='history')return historySheet();
+  if(UI.over==='ground')return groundOverlay();if(UI.over==='dept')return deptSheet(UI.arg);if(UI.over==='staff')return staffSheet(UI.arg);if(UI.over==='history')return historySheet();if(UI.over==='journal')return journalSheet();
   if(UI.over==='club')return clubSheet(UI.arg);if(UI.over==='player')return playerSheet(UI.arg);return'';
 }
 
 /* ----- the ground ----- */
-function groundOverlay(){
+function groundOverlay(){return overlayShell(CL(S.my).ground||'The ground',groundBody())}
+function groundBody(){
   const id=S.my,g=G(id),sg=groundSignals(id),t=UI.gt,gate=F(id).lastGate;let body='';
   if(t==='stadium'){
     body=`<div class="panel"><div class="row"><span>Licensed capacity</span><b>${n0(sg.capacity)}</b></div>${sg.limitedBy?`<p class="small down">Limited by ${sg.limitedBy==='access'?'the turnstiles':'safety'}: the stands hold more.</p>`:''}${gate?`<p class="small muted">Last home game: ${n0(gate.total)} (${n0(gate.terrace)} standing, ${n0(gate.seated)} seated, ${gate.business} business).</p>`:''}
@@ -1763,10 +1852,10 @@ function groundOverlay(){
   if(t==='build'){const cat=projectCatalog(id),run=g.projects.filter(p=>p.phase!=='done'),groups=[...new Set(cat.map(o=>o.group))];
     body=`${majorProjectsPanel()}${run.length?`<div class="panel"><p class="eyebrow">Under way</p>${run.map(p=>`<div class="row small"><span><b>${esc(p.label)}</b><br><span class="muted">${p.phase==='permit'?'Waiting for the permit':`${p.left} weeks left`} · £${p.cost}k${p.over?` (+${p.over}%)`:''} · paid ${k1(p.paid)}</span></span></div>`).join('')}</div>`:''}
     <p class="small muted">Building is paid week by week. The cash forecast in Money shows what it does to the bank.</p>
-    ${groups.map(gr=>`<div class="panel"><p class="eyebrow">${esc(gr)}</p><div class="stack">${cat.filter(o=>o.group===gr).map(o=>o.busy?`<div class="opt dim"><b>${esc(o.label)}</b><span class="small muted">Work under way here</span></div>`:UI.gsel===o.key?`<div class="opt on"><b>${esc(o.label)}</b><span class="small">${esc(o.effect)} · ${o.weeks} weeks${o.permit?' + permit':''}</span><div class="offers">${Object.entries(OFFER).map(([ok,of])=>`<button class="offer" data-act="gbuild" data-arg="${o.key}|${ok}"><b>£${Math.round(o.cost*of.p)}k</b><span>${of.n}</span><span class="muted">${Math.round(of.over*100)}% overrun risk</span></button>`).join('')}</div><button class="tbtn" data-act="gsel" data-arg="">Cancel</button></div>`:`<button class="opt" data-act="gsel" data-arg="${o.key}"><b>${esc(o.label)}</b><span class="small muted">£${o.cost}k · ${esc(o.effect)}</span></button>`).join('')}</div></div>`).join('')}`}
+    ${groups.map(gr=>`<div class="panel"><p class="eyebrow">${esc(gr)}</p><div class="stack">${cat.filter(o=>o.group===gr).map(o=>o.busy?`<div class="opt dim"><b>${esc(o.label)}</b><span class="small muted">Work under way here</span></div>`:UI.gsel===o.key?`<div class="opt on"><b>${esc(o.label)}</b><span class="small">${esc(o.effect)} · ${o.weeks} weeks${o.permit?' + permit':''} · paid at about £${n0(o.cost/o.weeks*1000)} a week</span><div class="offers">${Object.entries(OFFER).map(([ok,of])=>`<button class="offer" data-act="gbuild" data-arg="${o.key}|${ok}"><b>£${Math.round(o.cost*of.p)}k</b><span>${of.n}</span><span class="muted">${Math.round(of.over*100)}% overrun risk</span></button>`).join('')}</div><button class="tbtn" data-act="gsel" data-arg="">Cancel</button></div>`:`<button class="opt" data-act="gsel" data-arg="${o.key}"><b>${esc(o.label)}</b><span class="small muted">£${o.cost}k · ${esc(o.effect)}</span></button>`).join('')}</div></div>`).join('')}`}
   if(t==='repairs'){const rl=repairList(id);body=rl.length?`<p class="small muted">Below 30% a safety inspection can close half a stand.</p><div class="panel">${rl.map(r=>`<div class="grow"><span><b>${esc(r.label)}</b><br>${condBar(r.cond)}</span><span></span><button class="tbtn" data-act="grepair" data-arg="${r.key}">Repair £${r.cost}k</button></div>`).join('')}</div>`:'<p class="muted">Everything is in good shape.</p>'}
   const log=eventsFor(id,{types:['Ground','ProjectStarted','ProjectCompleted','SafetyClosure']}).slice(-5).reverse();
-  return overlayShell(CL(id).ground||'The ground',`${gTabs(t,[['stadium','Stadium'],['complex','Complex'],['build','Build'],['repairs','Repairs']],'gtab')}${body}${log.length?`<div class="panel"><p class="eyebrow">Ground log</p><ul class="log">${log.map(l=>`<li><span class="num">S${l.s} W${l.w}</span> ${esc(l.text)}</li>`).join('')}</ul></div>`:''}`);
+  return`${gTabs(t,[['stadium','Stadium'],['complex','Complex'],['build','Build'],['repairs','Repairs']],'gtab','grid4')}${body}${log.length?`<div class="panel"><p class="eyebrow">Ground log</p><ul class="log">${log.map(l=>`<li><span class="num">S${l.s} W${l.w}</span> ${esc(l.text)}</li>`).join('')}</ul></div>`:''}`;
 }
 
 /* ----- money ----- */
@@ -1785,37 +1874,24 @@ function moneyView(){
     <p class="small muted">Over 3 weeks above the overdraft limit means administration: six points and a rescue loan.</p>`}
   if(t==='ledger')body=`<div class="panel"><p class="eyebrow">Last week</p>${f.last?linesTable(f.last.lines)+`<div class="row"><span>Net</span><b class="${f.last.net<0?'down':'up'}">${k1(f.last.net)}</b></div>`:'<p class="small muted">No week played yet.</p>'}</div><div class="panel"><p class="eyebrow">Season ${S.season} so far</p>${linesTable(sl.lines)}</div>
     ${f.hist.slice(-3).reverse().map(hh=>`<div class="panel"><div class="row"><b>Season ${hh.s}</b><span class="small muted">${TIER_NAME[hh.tier]}, ${ord(hh.pos)}</span></div><div class="row small"><span>Operating result</span><b class="${operatingResult(hh.lines)<0?'down':''}">${k1(operatingResult(hh.lines))}</b></div><div class="row small"><span>Cash at the end</span><b>${k1(hh.cash)}</b></div></div>`).join('')}`;
-  if(t==='prices'){const pr=f.prices,gate=f.lastGate,ref=PRICE_DEF[C().tier];const st=(k,n,note)=>`<div class="grow"><span><b>${n}</b><br><span class="small muted">${note} · usual £${ref[k]}</span></span><span></span><span class="stepper"><button data-act="price" data-arg="${k}:-1" aria-label="Lower ${n}">−</button><b>£${pr[k]}</b><button data-act="price" data-arg="${k}:1" aria-label="Raise ${n}">+</button></span></div>`;
-    const a=attendance(id,null,{});
-    body=`<p class="small muted">Families walk away first when prices rise; the terrace comes anyway; business pays for comfort.</p><div class="panel">${st('terrace','Terrace ticket','Price-tolerant')}${st('seated','Seat ticket','Price-sensitive')}${st('business','Business seat','Pays for comfort')}${st('season','Season ticket','Sold in week 1')}</div>
-    <div class="panel"><div class="row small"><span>Expected crowd at these prices</span><b>${n0(a.total)} of ${n0(a.cap)}</b></div>${gate?`<div class="row small"><span>Last home game</span><b>${n0(gate.total)}</b></div>`:''}<div class="row small"><span>Expected gate per home game</span><b>${k1((a.terrace*pr.terrace+a.seated*pr.seated)/1000)}</b></div></div>`}
   if(t==='budget')body=budgetBody();
-  if(t==='sponsors')body=sponsorsBody();
+  if(t==='income'||t==='sponsors'||t==='prices'){const pb=pricesBody();body=`<p class="eyebrow">Tickets</p>${pb}<p class="eyebrow">Sponsors</p>${sponsorsBody()}`}
   if(t==='funding'){const max=maxNewLoan(id);
     body=`<div class="panel"><p class="eyebrow">Loans</p>${f.loans.length?f.loans.map((l,i)=>`<div class="grow"><span><b>${esc(l.label)}</b><br><span class="small muted">${k1(l.left)} left · ${Math.round(l.rate*1000)/10}% · ${k1(l.pay)} a week</span></span><span></span>${f.cash>=l.left?`<button class="tbtn" data-act="repay" data-arg="${i}">Repay</button>`:''}</div>`).join(''):'<p class="small muted">No loans.</p>'}</div>
     <div class="panel"><p class="eyebrow">Borrow</p><p class="small muted">The bank lends up to 80% of a season's income in total. The more you owe, the higher the rate.</p>
     <div class="seg">${[3,5,10].map(y=>`<button class="${UI.ly===y?'on':''}" data-act="ly" data-arg="${y}" aria-pressed="${UI.ly===y}">${y} years</button>`).join('')}</div>
-    <div class="seg">${[25,50,100,200].filter(a=>a<=max).map(a=>`<button data-act="loan" data-arg="${a}">£${a}k at ${Math.round(loanRate(id,a)*1000)/10}%</button>`).join('')||'<p class="small down">The bank will not lend more.</p>'}</div><p class="note">Room to borrow: ${k1(max)}.</p></div>`}
+    <div class="seg">${[25,50,100,200].filter(a=>a<=max).map(a=>`<button data-act="loan" data-arg="${a}">£${a}k at ${Math.round(loanRate(id,a)*1000)/10}%</button>`).join('')||'<p class="small down">The bank will not lend more.</p>'}</div><p class="note">${[25,50,100,200].filter(a=>a<=max).map(a=>`£${a}k: ${loanImpact(id,a,UI.ly)}`).join('<br>')}</p><p class="note">Room to borrow: ${k1(max)}.</p></div>`}
   if(t==='funding')body+=fundingExtra();
-  return`${msgLine()}${gTabs(t,[['overview','Overview'],['budget','Budget'],['ledger','Ledger'],['prices','Prices'],['sponsors','Sponsors'],['funding','Funding']],'mtab')}${body}`;
+  return`${msgLine()}${gTabs(t,[['overview','Overview'],['budget','Budget'],['income','Income'],['funding','Funding']],'mtab','grid4')}${body}`;
 }
 
-/* ----- the club tab: compare, history, layers ----- */
-function clubView(){
-  const id=S.my,c=C(),t=c.tier,ids=tierIds(t),avg=fn=>ids.reduce((a,i)=>a+fn(i),0)/ids.length,sg=groundSignals(id);
-  const rows=[['Reputation',i=>CL(i).rep,v=>repWord(v)+' ('+Math.round(v)+')'],['Support',i=>CL(i).support,n0],['Capacity',i=>groundSignals(i).capacity,n0],['Squad strength',i=>teamStrength(i),v=>Math.round(v)],['Wage bill /wk',i=>wageBillK(i)*1000,v=>'£'+n0(v)],['Training level',i=>groundSignals(i).training,r1],['Academy level',i=>groundSignals(i).academy,r1]];
-  const hist=c.hist.slice(-8).reverse();
-  const g=G(id),run=g.projects.filter(p=>p.phase!=='done');
-  return`${membersPanel()}${staffPanel()}${deptsView()}
-  <div class="panel"><div class="row"><span>The ground</span><b>${n0(sg.capacity)} places</b></div><p class="small muted">${g.plots.filter(p=>p.kind).map(p=>COMPLEX[p.kind].n+' ('+LV_NAME[p.lv].toLowerCase()+')').join(', ')}. ${6-g.plots.filter(p=>p.kind).length} free plot${6-g.plots.filter(p=>p.kind).length===1?'':'s'}.</p>${run.length?`<p class="small">Under way: ${run.map(p=>esc(p.label)).join(', ')}.</p>`:''}<button class="btn ghost" data-act="ov" data-arg="ground">Stadium, building and repairs</button></div>
-  <div class="panel"><p class="eyebrow">Against the ${TIER_NAME[t]}</p><div class="cmp"><span></span><b>Us</b><b>Average</b>${rows.map(([n,fn,fm])=>`<span>${n}</span><b>${fm(fn(id))}</b><b>${fm(avg(fn))}</b>`).join('')}</div></div>
-  <div class="panel"><p class="eyebrow">${esc(c.name)}</p><p class="small muted">Founded ${c.founded}. Ground: ${esc(c.ground)}. Rivals: ${nm(c.rival)} (${esc(c.rivalWhy)}). The club once ${esc(c.scar)}.</p>
-  ${hist.length?hist.map(h=>`<div class="row small"><span>Season ${h.s}</span><b>${TIER_NAME[h.tier]}, ${ord(h.pos)}</b></div>`).join(''):'<p class="small muted">Your first season.</p>'}</div>
-  <div class="panel"><p class="eyebrow">Game layers</p><div class="row small"><span>1 · The living world</span><b class="up">On</b></div><div class="row small"><span>2 · Club management</span><b class="up">On</b></div><div class="row small"><span>3 · Staff with their own minds</span><b class="muted">Later</b></div><div class="row small"><span>4 · Stories, members and politics</span><b class="muted">Later</b></div><div class="row small"><span>5 · Dynasty</span><b class="muted">Later</b></div>
-  <p class="note">The original Northmarch story game stays playable as its own file.</p></div>
-  <button class="btn ghost" data-act="history">Club history and records</button>
-  <button class="btn ghost" data-act="quit">Save and back to the title</button>`;
-}
+function pricesBody(){const id=S.my,f=F(id);let body='';
+const pr=f.prices,gate=f.lastGate,ref=PRICE_DEF[C().tier];const st=(k,n,note)=>`<div class="grow"><span><b>${n}</b><br><span class="small muted">${note} · usual £${ref[k]}</span></span><span></span><span class="stepper"><button data-act="price" data-arg="${k}:-1" aria-label="Lower ${n}">−</button><b>£${pr[k]}</b><button data-act="price" data-arg="${k}:1" aria-label="Raise ${n}">+</button></span></div>`;
+    const a=attendance(id,null,{});
+    body=`<p class="small muted">Families walk away first when prices rise; the terrace comes anyway; business pays for comfort.</p><div class="panel">${st('terrace','Terrace ticket','Price-tolerant')}${st('seated','Seat ticket','Price-sensitive')}${st('business','Business seat','Pays for comfort')}${st('season','Season ticket','Sold in week 1')}</div>
+    <div class="panel"><div class="row small"><span>Expected crowd at these prices</span><b>${n0(a.total)} of ${n0(a.cap)}</b></div>${gate?`<div class="row small"><span>Last home game</span><b>${n0(gate.total)}</b></div>`:''}<div class="row small"><span>Expected gate per home game</span><b>${k1((a.terrace*pr.terrace+a.seated*pr.seated)/1000)}</b></div></div>`
+  body+=priceImpact(id);
+  return body}
 function clubSheet(id){
   const c=CL(id),sg=groundSignals(id),sq=S.squads[id].slice().sort((a,b)=>b.q-a.q),r=S.tbl[id],ev=eventsFor(id).filter(e=>e.t!=='Match'&&e.t!=='Command').slice(-5).reverse();
   return overlayShell(c.name,`<div class="panel"><div class="row"><span>${TIER_NAME[c.tier]}</span><b>${ord(posOf(id))} · ${r.pts} pts</b></div><div class="row small"><span>Form</span><b>${r.form.join('')||'—'}</b></div><div class="row small"><span>Squad</span><b>${Math.round(teamStrength(id))} · ${strWord(id)}</b></div>
@@ -1834,6 +1910,11 @@ function playerSheet(pid){
 }
 
 /* ----- the season review ----- */
+function seasonAheadPanel(){
+  const id=S.my,m=M(id),b=F(id).budget,run=G(id).projects.filter(p=>p.phase!=='done'),sp=signals(id).filter(x=>x.lv>=2).slice(0,3);
+  return`<div class="panel"><p class="eyebrow">Season ${S.season} ahead</p>${m.goals.map(g=>`<p class="small">· ${esc(g.text)}</p>`).join('')}
+  ${b?`<div class="row small"><span>Planned income</span><b>${k1(b.income)}</b></div><div class="row small"><span>Wage limit for the season</span><b>${k1(b.wages)}</b></div>`:''}
+  ${run.length?`<p class="small">Still being built: ${run.map(p=>esc(p.label)).join(', ')}.</p>`:''}${sp.length?`<p class="small muted">Waiting for you: ${sp.map(x=>esc(x.text)).join('; ')}.</p>`:''}</div>`}
 function reviewView(){
   const h=UI.review,s=h.s,id=h.agm?h.agm.club:S.my,last=CL(id).hist[CL(id).hist.length-1],mv=h.moves.find(m=>m.id===id),fh=F(id).hist[F(id).hist.length-1],out=h.agm&&h.agm.out;
   const sev=UI.summerEv||[],ins=sev.filter(e=>(e.t==='Transfer'||e.t==='Signing')&&e.c===id),outs=sev.filter(e=>e.t==='Transfer'&&e.c2===id);
@@ -1843,6 +1924,8 @@ function reviewView(){
   <div class="panel"><div class="row small"><span>Points</span><b>${last.pts}</b></div><div class="row small"><span>Operating result</span><b class="${operatingResult(fh.lines)<0?'down':'up'}">${k1(operatingResult(fh.lines))}</b></div><div class="row small"><span>Cash</span><b>${k1(F(id).cash)}</b></div><div class="row small"><span>Cup winners</span><b>${nm(h.cup)}</b></div></div>
   <div class="panel"><p class="eyebrow">Around the Northmarch</p>${TIERS.map(t=>`<div class="row small"><span>${TIER_NAME[t]} champions</span><b>${nm(h.tables[t][0])}</b></div>`).join('')}${h.moves.filter(m=>m.to<m.from).map(m=>`<p class="small up">${nm(m.id)} go up to ${TIER_NAME[m.to]}.</p>`).join('')}</div>
   <div class="panel"><p class="eyebrow">The summer</p>${kids?`<p class="small">${esc(kids.text)}</p>`:''}${ins.map(e=>`<p class="small">In: ${esc(e.text)}</p>`).join('')}${outs.map(e=>`<p class="small">Out: ${esc(e.text)}</p>`).join('')}${!ins.length&&!outs.length?'<p class="small muted">A quiet window.</p>':''}</div>
+  ${h.agm&&h.agm.goals?`<div class="panel"><p class="eyebrow">Season targets</p>${h.agm.goals.map(g=>`<div class="row small"><span>${esc(g.text)}<br><span class="muted">${esc(g.now)}</span></span><span class="pill ${g.met?'good':'bad'}">${g.met?'Met':'Missed'}</span></div>`).join('')}</div>`:''}
+  ${!out&&S.my?seasonAheadPanel():''}
   ${h.chairsOut&&h.chairsOut.length?`<div class="panel"><p class="eyebrow">Other AGMs</p>${h.chairsOut.slice(0,6).map(c=>`<p class="small">${nm(c)} vote their chairman out.</p>`).join('')}</div>`:''}
   <button class="btn" data-act="startnext">${out?'Choose a new club':`Start season ${S.season}`}</button></main>`;
 }
@@ -1899,9 +1982,9 @@ function deptSheet(k){
     ${fac.busy?'<p class="small">Building work under way.</p>':opt?(UI.gsel===opt.key?`<div class="opt on"><b>${esc(opt.label)}</b><span class="small">${opt.weeks} weeks${opt.permit?' + permit':''} · paid week by week</span><div class="offers">${Object.entries(OFFER).map(([ok,of])=>`<button class="offer" data-act="gbuild" data-arg="${opt.key}|${ok}"><b>£${Math.round(opt.cost*of.p)}k</b><span>${of.n}</span><span class="muted">${Math.round(of.over*100)}% overrun risk</span></button>`).join('')}</div><button class="tbtn" data-act="gsel" data-arg="">Cancel</button></div>`:`<button class="opt" data-act="gsel" data-arg="${opt.key}"><b>${esc(opt.label)}</b><span class="small muted">£${opt.cost}k · ${opt.weeks} weeks</span></button>`):fac.noPlot?'<p class="small muted">All six plots are in use.</p>':''}</div>`}
   return overlayShell(D.n,`<p class="muted">${esc(D.does)}</p>
   <div class="panel"><p class="small">${esc(kp.label)}</p><b class="${kp.good===true?'up':kp.good===false?'down':''}">${esc(kp.text)}</b></div>
-  <div class="panel"><p class="eyebrow">Staff · ${STAFF_WORD[d.staff]}</p><p class="small muted">Hiring takes ${HIRE_WEEKS} weeks and a fee of two weeks' wages. Cutting costs four weeks' severance.</p>${staffSeg}${d.hiring?`<p class="small">Recruiting to ${STAFF_WORD[d.hiring.to].toLowerCase()}: ${d.hiring.left} week${d.hiring.left>1?'s':''} to go.</p>`:''}</div>
-  <div class="panel"><p class="eyebrow">Budget</p><p class="small muted">Equipment, travel and upkeep. It scales the whole department.</p><div class="seg">${Object.keys(BUDGET_F).map(b=>`<button class="${d.budget===b?'on':''}" data-act="gdept" data-arg="${k}:${b}" aria-pressed="${d.budget===b}">${b[0].toUpperCase()+b.slice(1)} · £${n0(deptWeekCost(id,k,null,b)*1000)}</button>`).join('')}</div></div>
-  <div class="panel"><p class="eyebrow">Way of working</p><p class="small muted">A new course takes a season to settle in.</p><div class="stack">${D.courses.map(c=>`<button class="opt ${(d.pending||d.course)===c?'on':''}" data-act="gcourse" data-arg="${k}:${c}" aria-pressed="${(d.pending||d.course)===c}"><b>${c[0].toUpperCase()+c.slice(1)}</b><span class="small muted">${esc(D.cd[c])}</span></button>`).join('')}</div>${d.pending?`<p class="small muted">Switching to ${d.pending}: ${d.settle} weeks to settle.</p>`:''}</div>
+  <div class="panel"><p class="eyebrow">Staff · ${STAFF_WORD[d.staff]}</p><p class="small muted">Hiring takes ${HIRE_WEEKS} weeks and a fee of two weeks' wages. Cutting costs four weeks' severance.</p>${staffSeg}${d.hiring?`<p class="small">Recruiting to ${STAFF_WORD[d.hiring.to].toLowerCase()}: ${d.hiring.left} week${d.hiring.left>1?'s':''} to go.</p>`:''}${deptStaffImpact(id,k)}</div>
+  <div class="panel"><p class="eyebrow">Budget</p><p class="small muted">Equipment, travel and upkeep. It scales the whole department.</p><div class="seg">${Object.keys(BUDGET_F).map(b=>`<button class="${d.budget===b?'on':''}" data-act="gdept" data-arg="${k}:${b}" aria-pressed="${d.budget===b}">${b[0].toUpperCase()+b.slice(1)} · £${n0(deptWeekCost(id,k,null,b)*1000)}</button>`).join('')}</div>${deptBudgetImpact(id,k)}</div>
+  <div class="panel"><p class="eyebrow">Way of working</p><p class="small muted">A new course takes a season to settle in.</p><div class="stack">${D.courses.map(c=>`<button class="opt ${(d.pending||d.course)===c?'on':''}" data-act="gcourse" data-arg="${k}:${c}" aria-pressed="${(d.pending||d.course)===c}"><b>${c[0].toUpperCase()+c.slice(1)}</b><span class="small muted">${esc(D.cd[c])}</span></button>`).join('')}</div>${d.pending?`<p class="small muted">Switching to ${d.pending}: ${d.settle} weeks to settle.</p>`:''}${deptCourseImpact()}</div>
   ${facHtml}`);
 }
 
@@ -1921,6 +2004,7 @@ function membersPanel(){
   return`<div class="panel"><p class="eyebrow">Members</p><div class="row"><span>Members</span><b>${n0(m.count)}</b></div>
   <div class="row small"><span>Confidence in the board</span><b>${Math.round(m.conf)} / 100</b></div>${confBar(m.conf)}
   <div class="grow"><span><b>Membership dues</b><br><span class="small muted">A year · usual £${ref} · £${n0(m.count*m.dues)} a year in total</span></span><span></span><span class="stepper"><button data-act="dues" data-arg="-1" aria-label="Lower dues">−</button><b>£${m.dues}</b><button data-act="dues" data-arg="1" aria-label="Raise dues">+</button></span></div>
+  ${duesImpact(id)}
   ${recent.length?`<p class="small muted">What moved the members this season</p>${reasonRows(recent)}`:''}
   <p class="note">Every club holds its AGM after week 30. Lose the vote and you are out.</p></div>`;
 }
@@ -1950,8 +2034,11 @@ function staffSheet(role){
   const curHtml=`<div class="panel"><div class="row"><b>${esc(cur.name)}</b>${starsHtml(staffEstimate(cur.id))}</div><p class="small">${cur.pro.caretaker?'Caretaker: holds the fort until you appoint someone.':esc(STAFF_SPEC[role][cur.pro.spec])}</p>
     <p class="small muted">Age ${cur.age} · ${cur.pro.caretaker?'interim':cur.pro.contract+' season'+(cur.pro.contract===1?'':'s')+' left'} · £${cur.pro.wage} a week · ${esc(recordLine(cur))}</p>
     ${cur.pro.caretaker?'':`<div class="seg">${cur.pro.contract<=1?`<button data-act="srenew" data-arg="${role}">Renew 2 seasons (+10%)</button>`:''}<button data-act="ssack" data-arg="${role}">Sack (£${set}k)</button></div>`}</div>`;
-  const list=cands.map(c=>{const p=P(c.pid),pr=p.pro,cost=c.comp+set;return UI.confirm===c.pid?`<div class="opt on"><b>Appoint ${esc(p.name)}?</b><span class="small">${c.comp?`£${c.comp}k compensation to ${nm(c.from)}. `:''}${set?`£${set}k settlement for ${esc(cur.name)}. `:''}£${Math.max(pr.wage,staffWage(role,pr.q))} a week.</span><div class="seg"><button data-act="shire" data-arg="${role}|${c.pid}">Appoint (£${r1(cost)}k now)</button><button data-act="confirm" data-arg="">Cancel</button></div></div>`
-    :`<button class="opt" data-act="confirm" data-arg="${c.pid}"><span class="row"><b>${esc(p.name)}</b>${starsHtml(staffEstimate(c.pid))}</span><span class="small">${esc(STAFF_SPEC[role][pr.spec])} · age ${p.age}</span><span class="small muted">${c.from?`At ${nm(c.from)} · £${c.comp}k compensation`:'Free to start'} · £${pr.wage}/wk · ${esc(recordLine(p))}</span></button>`}).join('');
+  const list=cands.map(c=>{const p=P(c.pid),pr=p.pro,cost=c.comp+set;
+    const wage=Math.max(pr.wage,staffWage(role,pr.q)),delta=wage-cur.pro.wage;
+    const comparison=`<span class="small muted">Compared with ${esc(cur.name)}: ${staffStars(staffEstimate(p.id))>staffStars(staffEstimate(cur.id))?'higher':staffStars(staffEstimate(p.id))<staffStars(staffEstimate(cur.id))?'lower':'similar'} estimated rating · ${delta>=0?'+':'−'}£${n0(Math.abs(delta))}/week · ${cost?('£'+r1(cost)+'k upfront'):'no upfront cost'}</span>`;
+    return UI.confirm===c.pid?`<div class="opt on"><b>Appoint ${esc(p.name)}?</b><span class="small">${c.comp?`£${c.comp}k compensation to ${nm(c.from)}. `:''}${set?`£${set}k settlement for ${esc(cur.name)}. `:''}£${wage} a week.</span>${comparison}<div class="seg"><button data-act="shire" data-arg="${role}|${c.pid}">Appoint (£${r1(cost)}k now)</button><button data-act="confirm" data-arg="">Cancel</button></div></div>`
+    :`<button class="opt" data-act="confirm" data-arg="${c.pid}"><span class="row"><b>${esc(p.name)}</b>${starsHtml(staffEstimate(c.pid))}</span><span class="small">${esc(STAFF_SPEC[role][pr.spec])} · age ${p.age}</span><span class="small muted">${c.from?`At ${nm(c.from)} · £${c.comp}k compensation`:'Free to start'} · £${wage}/wk · ${esc(recordLine(p))}</span>${comparison}</button>`}).join('');
   return overlayShell(ROLE_N[role],`<p class="muted">${role==='coach'?'The coach decides how good the team plays: results, style and how fast young players grow.':'The director signs and sells within your frame. A sharp eye wastes less money on players who disappoint.'}</p>
   ${curHtml}<p class="eyebrow">Candidates</p><p class="small muted">Ratings are your scouts' estimate. People at your own club are judged more sharply.</p><div class="stack">${list||'<p class="small muted">Nobody available.</p>'}</div>`);
 }
@@ -1966,6 +2053,7 @@ function budgetBody(){
   <p class="note">The plan is set in the summer. "On course for" scales the season so far to thirty weeks.</p></div>
   <div class="panel"><p class="eyebrow">The frame for your director</p><p class="small muted">He signs, sells and renews within these limits. You set the frame; he does the deals.</p>
   <div class="grow"><span><b>Wage limit</b><br><span class="small muted">${Math.round(wageRatio(id)*100)}% of income expected on current form (£${n0(inc)}k) · bill now £${n0(wageBillK(id)*1000)}</span></span><span></span><span class="stepper"><button data-act="wager" data-arg="-1" aria-label="Lower the wage limit">−</button><b>£${n0(cap*1000)}</b><button data-act="wager" data-arg="1" aria-label="Raise the wage limit">+</button></span></div>
+  ${wageImpact(id)}
   <p class="small"><b>Transfer money</b>: share of spare cash he may spend</p><div class="seg">${[[.2,'Keep cash'],[.5,'Balanced'],[.8,'Back him']].map(([v,n])=>`<button class="${Math.abs(f.policy.spend-v)<.05?'on':''}" data-act="spend" data-arg="${v}" aria-pressed="${Math.abs(f.policy.spend-v)<.05}">${n}</button>`).join('')}</div>
   <p class="small"><b>Loans</b>: send young reserves to smaller clubs to play</p><div class="seg">${[[true,'Loan them out'],[false,'Keep them']].map(([v,n])=>`<button class="${(f.policy.loans!==false)===v?'on':''}" data-act="loans" data-arg="${v}" aria-pressed="${(f.policy.loans!==false)===v}">${n}</button>`).join('')}</div>
   <p class="note">Spending power now: ${k1(budgetFor(id))}. Windows: the summer and week ${WINTER_WEEK}. Renewals in week ${RENEW_WEEK}.</p></div>`;
@@ -1976,12 +2064,12 @@ function sponsorsBody(){
   return`<div class="panel"><p class="eyebrow">Main sponsor</p>${s&&s.until>=S.season?`<div class="row"><b>${esc(s.name)}</b><span class="small muted">until season ${s.until}</span></div><p class="small">${dealLine(s)}</p>`:'<p class="small down">No main sponsor: local backers pay a fraction.</p>'}
   ${n&&n.until>=S.season?`<div class="row"><b>${esc(n.name)} Stadium</b><span class="small muted">until season ${n.until}</span></div><p class="small">${dealLine(n)} · members dislike it</p>`:''}
   <div class="row small"><span>Local partners this season</span><b>${k1(f.season.partners||0)}</b></div><p class="note">The commercial department and media facilities raise local partners now and the size of future deals.</p></div>
-  ${of.length?`<p class="eyebrow">Offers on the table</p><div class="stack">${of.map((o,i)=>`<div class="opt"><b>${esc(o.name)}${o.kind==='naming'?' (naming rights)':''}</b><span class="small">${dealLine(o)} · ${o.years} season${o.years>1?'s':''}</span>
+  ${of.length?`<p class="eyebrow">Offers on the table</p><div class="stack">${of.map((o,i)=>`<div class="opt"><b>${esc(o.name)}${o.kind==='naming'?' (naming rights)':''}</b><span class="small">${dealLine(o)} · ${o.years} season${o.years>1?'s':''}</span><span class="small"><b>${sponsorValue(o)}</b></span>
     <span class="small muted">${o.kind==='bonus'?'A good season pays more than a fixed deal; a bad one pays less.':o.kind==='naming'?'Big money, but members dislike a renamed ground.':o.years>=3?'Security for three seasons.':'More now, renegotiate next summer.'}</span><button class="tbtn" data-act="sponsor" data-arg="${i}">Sign</button></div>`).join('')}</div>`:'<p class="small muted">New offers arrive in the summer when a deal ends.</p>'}`;
 }
 function fundingExtra(){
   const id=S.my,f=F(id),cap=bondCap(id),y=fundraiseYield(id),g=f.groundSold,gv=groundValue(id),stat=hasStatute(id,STATUTE_SALE);
-  return`<div class="panel"><p class="eyebrow">Members' bond</p><p class="small muted">Members lend to their club for five years, cheaper than the bank. Confident members lend more.</p>
+  return`<div class="panel"><p class="eyebrow">Members' bond</p><p class="small muted">Members lend to their club for five years, cheaper than the bank. Confident members lend more.</p>${cap>=5&&f.bondSeason!==S.season?`<p class="note">£${Math.round(cap)}k at ${Math.round(bondRate(id)*1000)/10}% costs ${wk(mkLoan(cap,5,bondRate(id),'').pay)} for five seasons; the bank charges ${Math.round(loanRate(id,cap)*1000)/10}%.</p>`:''}
   ${f.bondSeason===S.season?'<p class="small">One bond a season: this season\'s is issued.</p>':cap>=5?`<div class="seg">${[.5,1].map(x=>Math.max(5,Math.round(cap*x))).map(a=>`<button data-act="bond" data-arg="${a}">£${a}k at ${Math.round(bondRate(id)*1000)/10}%</button>`).join('')}</div>`:'<p class="small down">Members have too little confidence to lend.</p>'}</div>
   <div class="panel"><p class="eyebrow">Members' appeal</p><p class="small muted">A one-off collection. Ask too often and members give less and grumble.</p>
   ${f.fundLast===S.season?'<p class="small">This season\'s appeal is done.</p>':`<button class="btn ghost" data-act="appeal">Launch an appeal (about £${y}k)</button>`}</div>
@@ -1991,6 +2079,9 @@ function fundingExtra(){
 
 /* ---- ui/history.js ---- */
 /* ================= Screens: signals, major projects, club history and the world archive ================= */
+function sigButtons(sg){return`<div class="stack">${sg.map(x=>`<button class="sig lv${x.lv}" data-act="${x.act}"${x.arg!=null?` data-arg="${x.arg}"`:''}><span>${esc(x.text)}</span><span aria-hidden="true">›</span></button>`).join('')}</div>`}
+function urgentPanel(){const sg=signals(S.my).filter(x=>x.lv>=3);return sg.length?`<div class="panel urgent"><p class="eyebrow">Needs attention now</p>${sigButtons(sg)}</div>`:''}
+function lookPanel(){const sg=signals(S.my).filter(x=>x.lv<3).slice(0,4);return sg.length?`<div class="panel"><p class="eyebrow">Worth a look</p>${sigButtons(sg)}</div>`:''}
 function signalsPanel(){
   const sg=signals(S.my).slice(0,5);if(!sg.length)return'';
   return`<div class="panel"><p class="eyebrow">Needs attention</p><div class="stack">${sg.map(x=>`<button class="sig lv${x.lv}" data-act="${x.act}"${x.arg!=null?` data-arg="${x.arg}"`:''}><span>${esc(x.text)}</span><span aria-hidden="true">›</span></button>`).join('')}</div></div>`;
@@ -2000,7 +2091,7 @@ function majorProjectsPanel(){
   const land=g.plots.length<PLOT_MAX?(UI.confirm==='plot'?`<div class="opt on"><b>Buy a plot for £${price}k?</b><div class="seg"><button data-act="buyplot">Buy the land</button><button data-act="confirm" data-arg="">Cancel</button></div></div>`
     :`<button class="opt" data-act="confirm" data-arg="plot"><b>Buy land next to the ground</b><span class="small muted">£${price}k · plot ${g.plots.length+1} of ${PLOT_MAX} for the complex</span></button>`):'<p class="small muted">There is no more land to buy.</p>';
   const stad=sp?`<div class="opt dim"><b>${esc(sp.label)}</b><span class="small">${sp.phase==='permit'?'Waiting for planning permission':`${sp.left} weeks of building left`} · paid ${k1(sp.paid)} of ${k1(sp.cost)}</span></div>`
-    :Object.keys(STADIUM_SIZE).map(k=>{const pl=stadiumPlan(id,k);return UI.confirm==='st:'+k?`<div class="opt on"><b>Build a ${esc(pl.label.toLowerCase())}?</b><span class="small">£${pl.deposit}k deposit now, the rest week by week over about ${Math.ceil(pl.weeks/SEASON_WEEKS)} seasons. The old ground is sold when you move.</span><div class="seg"><button data-act="stadium" data-arg="${k}">Start (£${pl.deposit}k now)</button><button data-act="confirm" data-arg="">Cancel</button></div></div>`
+    :Object.keys(STADIUM_SIZE).map(k=>{const pl=stadiumPlan(id,k);return UI.confirm==='st:'+k?`<div class="opt on"><b>Build a ${esc(pl.label.toLowerCase())}?</b><span class="small">£${pl.deposit}k deposit now, the rest week by week over about ${Math.ceil(pl.weeks/SEASON_WEEKS)} seasons. The old ground is sold when you move.</span>${stadiumImpact(id,pl)}<div class="seg"><button data-act="stadium" data-arg="${k}">Start (£${pl.deposit}k now)</button><button data-act="confirm" data-arg="">Cancel</button></div></div>`
       :`<button class="opt" data-act="confirm" data-arg="st:${k}"><b>${esc(pl.label)}: ${n0(pl.cap)} places</b><span class="small muted">£${pl.cost}k · ${pl.weeks} weeks after the permit · deposit £${pl.deposit}k</span></button>`}).join('');
   return`<div class="panel"><p class="eyebrow">Major projects</p><p class="small muted">Decisions for a decade. Borrow first: the money goes out every week.</p><div class="stack">${land}${stad}</div></div>`;
 }
@@ -2024,6 +2115,113 @@ function archiveView(){
   const h=S.hist.slice().reverse();
   return h.length?`<div class="panel"><p class="eyebrow">Roll of honour</p>${h.map(x=>`<div class="row small"><span><b>Season ${x.s}</b><br><span class="muted">${TIERS.map(t=>`${tierShort(t)}: ${esc(CL(x.tables[t][0]).name)}`).join(' · ')}</span></span><b>${x.cup?esc(CL(x.cup).name.split(' ')[0])+' (cup)':''}</b></div>`).join('')}</div>`:'<p class="muted">The first season is under way.</p>';
 }
+function journalPanel(n){
+  const rows=journalRows(n);if(!rows.length)return`<div class="panel"><p class="eyebrow">Your decisions</p><p class="small muted">Decisions you take are noted here with a measure, so you can see later what changed.</p></div>`;
+  return`<div class="panel"><div class="row"><p class="eyebrow">Your decisions</p>${n<30?'<button class="tbtn" data-act="journal">All</button>':''}</div>${rows.map(j=>{const m=j.m;let ch='';
+    if(m&&j.before!=null){const d=m.v-j.before,good=m.hi==null||Math.abs(d)<1e-6?null:(d>0)===m.hi;ch=`<br><span class="small muted">${esc(m.label)}: ${m.fmt(j.before)} then → <b class="${good===true?'up':good===false?'down':''}">${m.fmt(m.v)}</b> now</span>`}
+    return`<p class="small"><span class="num">S${j.s} W${j.w}</span> ${esc(j.text)}${ch}</p>`}).join('')}<p class="note">Other things change too: read the measures as pointers, not proof.</p></div>`;
+}
+function journalSheet(){return overlayShell('Your decisions',journalPanel(30))}
+
+/* ---- ui/board.js ---- */
+/* ================= Screens: the chairman's club — overview and sub-sections, the action bar, orientation =================
+   The Club tab is the board room: an overview first, then one sub-section per responsibility
+   (football, departments, ground, members). Builds on the parallel overview tiles (commit 590c93b). */
+const CLUB_TABS=[['overview','Overview'],['football','Football'],['depts','Departments'],['ground','Ground'],['members','Members']];
+function clubView(){
+  const t=UI.ct||'overview';
+  const nav=`<div class="tabs subnav" role="tablist" aria-label="Club sections">${CLUB_TABS.map(([k,n])=>`<button class="${t===k?'on':''}" data-act="ctab" data-arg="${k}" aria-pressed="${t===k}">${n}</button>`).join('')}</div>`;
+  const body=t==='football'?footballBody():t==='depts'?deptsView():t==='ground'?`${msgLine()}${groundBody()}`:t==='members'?membersBody():overviewBody();
+  return nav+body;
+}
+function tile(act,arg,label,value,sub,cls){return`<button class="boardtile" data-act="${act}" data-arg="${arg}"><span>${label}</span><b class="${cls||''}">${value}</b><small>${sub}</small></button>`}
+function overviewBody(){
+  const id=S.my,c=C(),f=F(id),m=M(id),fc=cashForecast(id),sg=groundSignals(id),g=G(id),run=g.projects.filter(p=>p.phase!=='done');
+  const goal=m.goals.find(x=>x.k==='league'),coach=P(c.cast.coach),td=P(c.cast.td),risks=signals(id).filter(x=>x.lv>=2).slice(0,3);
+  const op=operatingResult(f.season),deptRows=Object.keys(DEPT).map(k=>({k,kp:deptKpi(id,k),d:G(id).depts[k]}));
+  const ids=tierIds(c.tier),avg=fn=>ids.reduce((a,i)=>a+fn(i),0)/ids.length;
+  const rows=[['Reputation',i=>CL(i).rep,v=>repWord(v)],['Support',i=>CL(i).support,n0],['Capacity',i=>groundSignals(i).capacity,n0],['Squad strength',i=>teamStrength(i),v=>Math.round(v)],['Wage bill /wk',i=>wageBillK(i)*1000,v=>'£'+n0(v)]];
+  return`${S.season===1&&S.week<4&&!S.help?onboardCard():''}
+  <section class="panel" aria-label="Chairman's overview"><p class="eyebrow">Chairman's overview</p>
+  <div class="boardgrid">
+    ${tile('tab','table','League',S.week?ord(posOf(id)):'—',goal?`Target: ${goal.target<=2&&c.tier>0?'promotion':ord(goal.target)+' or better'}`:TIER_NAME[c.tier])}
+    ${tile('tab','money','Cash',k1(f.cash),`Forecast low ${k1(fc.minV)} · result ${k1(op)}`,f.cash<0||fc.minV<0?'down':'')}
+    ${tile('ctab','members',"Members' confidence",`${Math.round(m.conf)}/100`,`AGM today: about ${agmForecast(id)}% for`,m.conf<45?'down':'')}
+    ${tile('ctab','football','Football',`${staffStars(staffEstimate(coach.id))}★ coach`,`${esc(coach.name.split(' ').slice(-1)[0])} · director ${staffStars(staffEstimate(td.id))}★`,coach.pro.caretaker?'down':'')}
+  </div></section>
+  ${risks.length?`<div class="panel"><p class="eyebrow">Board watch</p><div class="stack">${risks.map(x=>`<button class="sig lv${x.lv}" data-act="${x.act}"${x.arg!=null?` data-arg="${x.arg}"`:''}><span>${esc(x.text)}</span><span aria-hidden="true">›</span></button>`).join('')}</div></div>`:'<div class="panel"><p class="eyebrow">Board watch</p><p class="small muted">Nothing urgent. A good week to plan ahead.</p></div>'}
+  <div class="panel"><div class="row"><p class="eyebrow">Departments</p><button class="tbtn" data-act="ctab" data-arg="depts">Manage</button></div>
+  <div class="deptgrid">${deptRows.map(({k,kp,d})=>`<button class="dmini ${kp.good===true?'ok':kp.good===false?'bad':''}" data-act="dept" data-arg="${k}"><b>${DEPT[k].n.split(' ')[0]}</b><span>${'●'.repeat(d.staff)}${d.hiring?' ↑':''}</span></button>`).join('')}</div>
+  <p class="note">Green: ahead of the division. Red: behind. Dots: staff level.</p></div>
+  <div class="panel"><div class="row"><p class="eyebrow">Ground and projects</p><button class="tbtn" data-act="ctab" data-arg="ground">Manage</button></div>
+  <div class="row small"><span>Capacity</span><b>${n0(sg.capacity)}</b></div><div class="row small"><span>Worst condition</span><b class="${groundCondWorst(id).c<40?'down':''}">${esc(groundCondWorst(id).n)} ${Math.round(groundCondWorst(id).c)}%</b></div>
+  ${run.length?run.map(p=>{const tot=p.phase==='permit'?0:Math.round((1-p.left/Math.max(1,p.weeks+p.delay))*100);return`<div class="proj"><span class="small"><b>${esc(p.label)}</b> · ${p.phase==='permit'?'awaiting permit':`${p.left} weeks left`}</span><span class="bar" role="img" aria-label="${tot}% built"><i style="width:${tot}%"></i></span></div>`}).join(''):'<p class="small muted">No building work under way.</p>'}</div>
+  ${journalPanel(4)}
+  <div class="panel"><p class="eyebrow">Against the ${TIER_NAME[c.tier]}</p><div class="cmp"><span></span><b>Us</b><b>Average</b>${rows.map(([n,fn,fm])=>`<span>${n}</span><b>${fm(fn(id))}</b><b>${fm(avg(fn))}</b>`).join('')}</div></div>
+  <div class="panel"><p class="eyebrow">${esc(c.name)}</p><p class="small muted">Founded ${c.founded}. Ground: ${esc(c.ground)}. Rivals: ${nm(c.rival)} (${esc(c.rivalWhy)}). The club once ${esc(c.scar)}.</p>
+  <button class="btn ghost" data-act="history">Club history and records</button></div>
+  <div class="panel"><p class="eyebrow">Game layers</p><p class="small muted">1 The living world and 2 Club management are on. Staff with their own minds, stories and dynasties come later; the original Northmarch story game stays playable as its own file.</p></div>
+  <button class="btn ghost" data-act="quit">Save and back to the title</button>`;
+}
+function footballBody(){
+  const id=S.my,bill=wageBillK(id),cap=wageCapK(id);
+  return`${staffPanel()}
+  <div class="panel"><p class="eyebrow">The squad</p><div class="row small"><span>Strength</span><b>${Math.round(teamStrength(id))} · ${strWord(id)}</b></div>
+  <div class="row small"><span>Wage bill</span><b class="${bill>cap?'down':''}">£${n0(bill*1000)} of £${n0(cap*1000)} a week</b></div><div class="row small"><span>Transfer money now</span><b>${k1(budgetFor(id))}</b></div>
+  <p class="small muted">The director signs, sells and renews; you set his frame. Windows: the summer and week ${WINTER_WEEK}.</p>
+  <div class="seg"><button data-act="tab" data-arg="squad">See the squad</button><button data-act="tobudget">Set the frame</button></div></div>`;
+}
+function membersBody(){
+  return`${membersPanel()}${targetsPanel()}<div class="panel"><p class="eyebrow">How the AGM works</p><p class="small">After week 30 every club votes on its chairman. Below 50% for, you are out and choose a new club in the same world.</p>
+  <p class="small muted">Results against expectation, the season targets, prices, dues, debt, facilities and cup runs all move the members.</p><button class="btn ghost" data-act="history">Your history at the club</button></div>`;
+}
+/* orientation for a new chairman: what you do, where to find it */
+function onboardCard(){
+  return`<section class="panel onboard" aria-label="Your job"><p class="eyebrow">Your job as chairman</p><p class="small">You run the club, not the team. The coach picks the side; the director does the deals.</p>
+  <div class="boardlinks"><button data-act="ctab" data-arg="football">Appoint the coach and director <span>Football ›</span></button><button data-act="tobudget">Set the budget and the director's frame <span>Money ›</span></button>
+  <button data-act="ctab" data-arg="depts">Staff and fund eight departments <span>Departments ›</span></button><button data-act="ctab" data-arg="ground">Build and maintain the ground <span>Ground ›</span></button>
+  <button data-act="ctab" data-arg="members">Keep the members behind you <span>Members ›</span></button></div>
+  <button class="tbtn" data-act="helpok">Got it</button></section>`;
+}
+/* the action bar: playing the week is always one tap away */
+function actionBar(){
+  if(!S||S.phase!=='season'||UI.review||UI.title)return'';
+  const over=seasonOver(),w=S.week+1,fx=over?null:fixtureOf(S.my,w),cup=!over&&CUP_WEEKS[S.cup.round]===w&&cupTieOf(S.my);
+  const next=over?'All thirty weeks played':fx?`Next: ${fx.home?'v':'at'} ${CL(fx.opp).name}${cup?' + cup tie':''}`:'No league game';
+  return`<div class="actbar"><div class="ab-in"><span class="small">${esc(next)}</span><button class="btn" data-act="${over?'close':'play'}">${over?'Close the season':`Play week ${w}`}</button></div></div>`;
+}
+
+/* ---- ui/decide.js ---- */
+/* ================= Screens: the decision block =================
+   One consistent block for every board decision: what it costs now, what it costs each week, when it takes effect,
+   what it can bring, the risk, and where to check it later. Only numbers the simulation really uses are shown;
+   where the outcome is uncertain the block says so instead of predicting. */
+function impact(o){
+  const rows=[['Now',o.now],['Each week',o.week],['Takes effect',o.when],['Can bring',o.gain],['Risk',o.risk],['Check it',o.check]].filter(r=>r[1]);
+  return`<dl class="impact">${rows.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
+}
+const wk=v=>`£${n0(v*1000)} a week`,once=v=>`£${n0(v*1000)}`;
+function deptStaffImpact(id,k){
+  const d=G(id).depts[k];if(d.hiring||d.staff>=5)return'';const nx=d.staff+1,fee=deptWeekCost(id,k,nx)*2,dw=deptWeekCost(id,k,nx)-deptWeekCost(id,k);
+  return`<p class="small"><b>Next step: staff level ${nx} (${STAFF_WORD[nx].toLowerCase()})</b></p>${impact({now:once(fee)+' recruitment fee',week:'+'+wk(dw),when:`after ${HIRE_WEEKS} weeks of recruiting`,gain:`A stronger ${DEPT[k].n.toLowerCase()} department: ${esc(DEPT[k].does.split('. ').slice(1).join('. ')||DEPT[k].does)}`,risk:'Cost is certain; the gain shows over weeks, not at once',check:'The measure at the top of this page, and Your decisions on the club overview'})}`;
+}
+function deptBudgetImpact(id,k){const d=G(id).depts[k];return`<p class="note">Budget changes work at once. ${d.budget==='normal'?`Generous: +${wk(deptWeekCost(id,k,null,'generous')-deptWeekCost(id,k))}; tight saves ${wk(deptWeekCost(id,k)-deptWeekCost(id,k,null,'tight'))}.`:'Back to normal changes the weekly cost straight away.'}</p>`}
+function deptCourseImpact(){return`<p class="note">A new way of working costs nothing but takes a full season (30 weeks) to settle; until then neither way gets the bonus.</p>`}
+function loanImpact(id,amount,years){const r=loanRate(id,amount),l=mkLoan(amount,years,r,''),tot=l.pay*l.weeks-amount;return`${wk(l.pay)} for ${years} seasons · about £${n0(tot)}k interest`}
+function sponsorValue(o){if(o.kind==='bonus'){const lo=o.perWeek*SEASON_WEEKS+o.perPoint*30,hi=o.perWeek*SEASON_WEEKS+o.perPoint*60;return`£${n0(lo)}k–£${n0(hi)}k a season (30–60 points)`}return`£${n0(o.perWeek*SEASON_WEEKS)}k a season, £${n0(o.perWeek*SEASON_WEEKS*o.years)}k over ${o.years} season${o.years>1?'s':''}`}
+function priceImpact(id){
+  const pi=priceIndex(id),a=attendance(id,null,{}),pr=F(id).prices;
+  const conf=pi>1.2?`<b class="down">Members lose confidence every week at these prices</b> (${Math.round(pi*100)}% of the usual).`:pi<.9?'Members like cheap tickets: a little confidence each week.':`Prices are ${Math.round(pi*100)}% of the usual: members accept them.`;
+  return impact({now:`Expected crowd ${n0(a.total)} of ${n0(a.cap)}`,week:`About £${n0((a.terrace*pr.terrace+a.seated*pr.seated)/1000)}k gate per home game`,when:'From the next home game; season tickets are sold in week 1',risk:conf,check:'Last home crowd in Money and in Your decisions'});
+}
+function duesImpact(id){
+  const m=M(id),c=C(),ref=DUES_REF[c.tier],target=Math.round(c.support*.4*(1+groundSignals(id).community*.05)*Math.pow(ref/m.dues,.5));
+  return impact({now:`${n0(m.count)} members paying £${m.dues} a year`,week:`About £${n0(m.count*m.dues/SEASON_WEEKS)} in dues`,when:`Membership moves towards about ${n0(target)} over the coming weeks`,risk:m.dues>ref*1.3?'<b class="down">Dues this high cost confidence every week</b>':'Higher dues: more money per member, fewer members',check:'Members, here and in Your decisions'});
+}
+function wageImpact(id){const room=(wageCapK(id)-wageBillK(id))*1000;return impact({now:room>=0?`Room for about £${n0(room)} a week of new wages`:`<b class="down">£${n0(-room)} a week over the limit</b>: the director will sell or release`,when:`In the next window (summer, week ${WINTER_WEEK}) and at renewals (week ${RENEW_WEEK})`,gain:'More room buys better players and keeps the good ones',risk:'Wages are paid every week, whatever the results',check:'Wage bill and squad strength in Your decisions'})}
+function stadiumImpact(id,pl){const sg=groundSignals(id),a=attendance(id,null,{}),f=F(id),pr=f.prices;const extra=Math.max(0,pl.cap-sg.capacity);
+  return impact({now:once(pl.deposit)+' deposit',week:`About ${wk((pl.cost-pl.deposit)/pl.weeks)} while it is built`,when:`Permit 8–16 weeks, then ${pl.weeks} weeks of building (about ${Math.ceil((pl.weeks+12)/SEASON_WEEKS)} seasons)`,
+    gain:`${n0(extra)} more places. Today ${a.full?'the ground is full: demand is there':`${Math.round(a.fill*100)}% of places are taken: crowds grow only with support`}`,risk:'Overruns and delays happen; the money goes out every week. Borrow first.',check:'Capacity and gate in Your decisions and the club history'})}
 
 /* ---- ui/act.js ---- */
 /* ================= Taps: one handler for every data-act, then save and redraw ================= */
@@ -2035,8 +2233,12 @@ function act(a,arg){
     case'cont':if(load()){UI.title=false;UI.review=null}break;
     case'quit':save();UI.title=true;UI.over=null;break;
     case'choose':chooseClub(arg);UI.tier=null;break;
+    case'boardjump':UI.tab='club';UI.ct={members:'members',staff:'football',departments:'depts'}[arg]||'overview';UI.over=null;break; // kept for old links
+    case'ctab':UI.tab='club';UI.ct=arg;UI.over=null;UI.gsel=null;UI.confirm=null;if(arg==='ground')UI.gt=UI.gt||'stadium';if(HAS_DOM)window.scrollTo(0,0);break;
+    case'helpok':S.help=true;break;
+    case'journal':UI.over='journal';break;
     case'tab':UI.tab=arg;UI.over=null;if(arg==='money')UI.mt=UI.mt||'overview';if(HAS_DOM)window.scrollTo(0,0);break;
-    case'play':{const ev=advanceWeek();UI.lastEv=ev||[];if(HAS_DOM)window.scrollTo(0,0);break}
+    case'play':{UI.prevPos=S.week?posOf(S.my):null;const ev=advanceWeek();UI.lastEv=ev||[];if(HAS_DOM)window.scrollTo(0,0);break}
     case'close':{const mark=S.evn||0;const h=closeSeason();UI.summerEv=eventsSince(mark);UI.review=h;UI.lastEv=[];if(HAS_DOM)window.scrollTo(0,0);break}
     case'startnext':UI.review=null;UI.tab='week';break;
     case'tier':UI.tier=['cup','market','archive'].includes(arg)?arg:+arg;break;
@@ -2063,7 +2265,7 @@ function act(a,arg){
     case'history':UI.over='history';break;
     case'buyplot':say(cmd('BuyPlot',S.my,{}),'Land bought.');UI.confirm=null;break;
     case'stadium':say(cmd('StartStadium',S.my,{size:arg}),'Work on the new stadium has started.');UI.confirm=null;break;
-    case'mtabgo':UI.tab='money';UI.mt=arg;UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
+    case'mtabgo':UI.tab='money';UI.mt=arg==='sponsors'||arg==='prices'?'income':arg;UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
     case'tobudget':UI.tab='money';UI.mt='budget';UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
     case'wager':say(cmd('SetSquadPolicy',S.my,{wageR:clamp(r2(wageRatio(S.my)+.02*(+arg)),.4,1.05)}));break;
     case'sponsor':say(cmd('SignSponsor',S.my,{i:+arg}),'Deal signed.');break;

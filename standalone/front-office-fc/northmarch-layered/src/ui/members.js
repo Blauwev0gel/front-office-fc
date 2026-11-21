@@ -13,6 +13,7 @@ function membersPanel(){
   return`<div class="panel"><p class="eyebrow">Members</p><div class="row"><span>Members</span><b>${n0(m.count)}</b></div>
   <div class="row small"><span>Confidence in the board</span><b>${Math.round(m.conf)} / 100</b></div>${confBar(m.conf)}
   <div class="grow"><span><b>Membership dues</b><br><span class="small muted">A year · usual £${ref} · £${n0(m.count*m.dues)} a year in total</span></span><span></span><span class="stepper"><button data-act="dues" data-arg="-1" aria-label="Lower dues">−</button><b>£${m.dues}</b><button data-act="dues" data-arg="1" aria-label="Raise dues">+</button></span></div>
+  ${duesImpact(id)}
   ${recent.length?`<p class="small muted">What moved the members this season</p>${reasonRows(recent)}`:''}
   <p class="note">Every club holds its AGM after week 30. Lose the vote and you are out.</p></div>`;
 }

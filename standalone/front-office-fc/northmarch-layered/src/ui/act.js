@@ -7,9 +7,12 @@ function act(a,arg){
     case'cont':if(load()){UI.title=false;UI.review=null}break;
     case'quit':save();UI.title=true;UI.over=null;break;
     case'choose':chooseClub(arg);UI.tier=null;break;
-    case'boardjump':{const el=HAS_DOM?document.getElementById('board-'+arg):null;if(el)el.scrollIntoView({behavior:'smooth',block:'start'});return}
+    case'boardjump':UI.tab='club';UI.ct={members:'members',staff:'football',departments:'depts'}[arg]||'overview';UI.over=null;break; // kept for old links
+    case'ctab':UI.tab='club';UI.ct=arg;UI.over=null;UI.gsel=null;UI.confirm=null;if(arg==='ground')UI.gt=UI.gt||'stadium';if(HAS_DOM)window.scrollTo(0,0);break;
+    case'helpok':S.help=true;break;
+    case'journal':UI.over='journal';break;
     case'tab':UI.tab=arg;UI.over=null;if(arg==='money')UI.mt=UI.mt||'overview';if(HAS_DOM)window.scrollTo(0,0);break;
-    case'play':{const ev=advanceWeek();UI.lastEv=ev||[];if(HAS_DOM)window.scrollTo(0,0);break}
+    case'play':{UI.prevPos=S.week?posOf(S.my):null;const ev=advanceWeek();UI.lastEv=ev||[];if(HAS_DOM)window.scrollTo(0,0);break}
     case'close':{const mark=S.evn||0;const h=closeSeason();UI.summerEv=eventsSince(mark);UI.review=h;UI.lastEv=[];if(HAS_DOM)window.scrollTo(0,0);break}
     case'startnext':UI.review=null;UI.tab='week';break;
     case'tier':UI.tier=['cup','market','archive'].includes(arg)?arg:+arg;break;
@@ -36,7 +39,7 @@ function act(a,arg){
     case'history':UI.over='history';break;
     case'buyplot':say(cmd('BuyPlot',S.my,{}),'Land bought.');UI.confirm=null;break;
     case'stadium':say(cmd('StartStadium',S.my,{size:arg}),'Work on the new stadium has started.');UI.confirm=null;break;
-    case'mtabgo':UI.tab='money';UI.mt=arg;UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
+    case'mtabgo':UI.tab='money';UI.mt=arg==='sponsors'||arg==='prices'?'income':arg;UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
     case'tobudget':UI.tab='money';UI.mt='budget';UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
     case'wager':say(cmd('SetSquadPolicy',S.my,{wageR:clamp(r2(wageRatio(S.my)+.02*(+arg)),.4,1.05)}));break;
     case'sponsor':say(cmd('SignSponsor',S.my,{i:+arg}),'Deal signed.');break;

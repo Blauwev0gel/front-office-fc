@@ -52,16 +52,16 @@ function signals(id){
   if(S.week>=18){const end=sq.filter(p=>p.contract===1&&!p.loan&&p.q>=squadQuality(sq)-.5);if(end.length)out.push({lv:2,text:`${end.length} key player${end.length>1?'s':''} out of contract this summer`,act:'tab',arg:'squad'})}
   const ref=sq.filter(p=>p.wantsOut);if(ref.length)out.push({lv:2,text:`${ref[0].name}${ref.length>1?` and ${ref.length-1} more`:''} want${ref.length>1?'':'s'} to leave`,act:'tab',arg:'squad'});
   for(const role of ['coach','td']){const p=P(CL(id).cast[role]);if(p&&p.pro){if(p.pro.caretaker)out.push({lv:3,text:`A caretaker is in charge as ${role==='coach'?'head coach':'director'}`,act:'staff',arg:role});else if(p.pro.contract<=1&&S.week>=15)out.push({lv:1,text:`The ${role==='coach'?'head coach':'director'}'s contract ends this season`,act:'staff',arg:role})}}
-  const w=groundCondWorst(id);if(w.c<40)out.push({lv:w.c<30?3:2,text:`${w.n} is at ${Math.round(w.c)}%: repair before inspectors close it`,act:'ov',arg:'ground'});
+  const w=groundCondWorst(id);if(w.c<40)out.push({lv:w.c<30?3:2,text:`${w.n} is at ${Math.round(w.c)}%: repair before inspectors close it`,act:'ctab',arg:'ground'});
   const fc=cashForecast(id);if(fc.minV<-creditLimit(id)*.5)out.push({lv:3,text:`The cash forecast dips to ${k1v(fc.minV)} in ${fc.minW} weeks`,act:'tab',arg:'money'});
   for(const t of budgetWarnings(id))out.push({lv:2,text:t,act:'tobudget'});
   if((f.offers||[]).length)out.push({lv:2,text:`${f.offers.length} sponsor offer${f.offers.length>1?'s':''} waiting`,act:'mtabgo',arg:'sponsors'});
   if(!f.sponsor||f.sponsor.until<S.season)out.push({lv:2,text:'No main sponsor: sign one',act:'mtabgo',arg:'sponsors'});
-  if(m.conf<45)out.push({lv:3,text:`Members' confidence is ${Math.round(m.conf)}: an AGM today would be close`,act:'tab',arg:'club'});
-  const sp=stadiumProject(id);if(sp&&sp.phase==='build'&&sp.left<=5)out.push({lv:1,text:`The new stadium opens in ${sp.left} weeks`,act:'ov',arg:'ground'});
+  if(m.conf<45)out.push({lv:3,text:`Members' confidence is ${Math.round(m.conf)}: an AGM today would be close`,act:'ctab',arg:'members'});
+  const sp=stadiumProject(id);if(sp&&sp.phase==='build'&&sp.left<=5)out.push({lv:1,text:`The new stadium opens in ${sp.left} weeks`,act:'ctab',arg:'ground'});
   return out.sort((a,b)=>b.lv-a.lv);
 }
-function projectsAfterLoad(){S.records=S.records||{};for(const id in S.clubs)S.records[id]=S.records[id]||recordsInit()}
+function projectsAfterLoad(){S.journal=S.journal||[];S.records=S.records||{};for(const id in S.clubs)S.records[id]=S.records[id]||recordsInit()}
 
 defCommand('BuyPlot',{check:id=>{const g=G(id);if(g.plots.length>=PLOT_MAX)return'There is no more land next to the ground';if(F(id).cash-plotPrice(id)<-creditLimit(id))return'The bank will not cover this';return null},
   run:id=>{const price=plotPrice(id);book(id,'build',-price);G(id).plots.push({kind:null});emit('PlotBought',id,`${CL(id).name} buy a plot of land next to the ground (£${price}k).`);return price}});

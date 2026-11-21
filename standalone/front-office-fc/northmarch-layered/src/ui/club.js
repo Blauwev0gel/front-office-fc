@@ -4,19 +4,20 @@ function condBar(c){const v=Math.round(c);return`<span class="cbar ${v<30?'lo':v
 function hubCards(){
   const id=S.my,g=G(id),sg=groundSignals(id),w=groundCondWorst(id),run=g.projects.filter(p=>p.phase!=='done'),f=F(id),fc=cashForecast(id),h=finHealth(id);
   return`<div class="hub">
-  <button class="hubc" data-act="ov" data-arg="ground"><span class="eyebrow">Ground</span><b>${n0(sg.capacity)} places</b><span class="small ${w.c<40?'down':'muted'}">${w.c<40?'⚠ ':''}${esc(w.n)} ${Math.round(w.c)}%</span><span class="small muted">${run.length?`${run.length} project${run.length>1?'s':''} running`:'No building work'}</span></button>
+  <button class="hubc" data-act="ctab" data-arg="ground"><span class="eyebrow">Ground</span><b>${n0(sg.capacity)} places</b><span class="small ${w.c<40?'down':'muted'}">${w.c<40?'⚠ ':''}${esc(w.n)} ${Math.round(w.c)}%</span><span class="small muted">${run.length?`${run.length} project${run.length>1?'s':''} running`:'No building work'}</span></button>
   <button class="hubc" data-act="tab" data-arg="money"><span class="eyebrow">Money</span><b class="${f.cash<0?'down':''}">${k1(f.cash)}</b><span class="small ${f.last&&f.last.net<0?'down':'up'}">${f.last?'Last week '+k1(f.last.net):'No weeks played'}</span><span class="small ${h==='healthy'?'muted':'down'}">${h==='healthy'?'Healthy':h==='tight'?'Tight':'In the red'} · low ${k1(fc.minV)}</span></button></div>`;
 }
-function gTabs(cur,list,act){return`<div class="tabs" role="tablist">${list.map(([k,n])=>`<button class="${cur===k?'on':''}" data-act="${act}" data-arg="${k}" aria-pressed="${cur===k}">${n}</button>`).join('')}</div>`}
+function gTabs(cur,list,act,cls){return`<div class="tabs ${cls||''}" role="tablist">${list.map(([k,n])=>`<button class="${cur===k?'on':''}" data-act="${act}" data-arg="${k}" aria-pressed="${cur===k}">${n}</button>`).join('')}</div>`}
 function msgLine(){return UI.msg?`<p class="${UI.msg.err?'err':'small up'}" role="status">${esc(UI.msg.text)}</p>`:''}
 function overlayShell(title,body){return`<div class="overlay" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="inner"><div class="row"><h2>${esc(title)}</h2><button class="tbtn" data-act="ov">Close</button></div>${msgLine()}${body}</div></div>`}
 function overlayView(){
-  if(UI.over==='ground')return groundOverlay();if(UI.over==='dept')return deptSheet(UI.arg);if(UI.over==='staff')return staffSheet(UI.arg);if(UI.over==='history')return historySheet();
+  if(UI.over==='ground')return groundOverlay();if(UI.over==='dept')return deptSheet(UI.arg);if(UI.over==='staff')return staffSheet(UI.arg);if(UI.over==='history')return historySheet();if(UI.over==='journal')return journalSheet();
   if(UI.over==='club')return clubSheet(UI.arg);if(UI.over==='player')return playerSheet(UI.arg);return'';
 }
 
 /* ----- the ground ----- */
-function groundOverlay(){
+function groundOverlay(){return overlayShell(CL(S.my).ground||'The ground',groundBody())}
+function groundBody(){
   const id=S.my,g=G(id),sg=groundSignals(id),t=UI.gt,gate=F(id).lastGate;let body='';
   if(t==='stadium'){
     body=`<div class="panel"><div class="row"><span>Licensed capacity</span><b>${n0(sg.capacity)}</b></div>${sg.limitedBy?`<p class="small down">Limited by ${sg.limitedBy==='access'?'the turnstiles':'safety'}: the stands hold more.</p>`:''}${gate?`<p class="small muted">Last home game: ${n0(gate.total)} (${n0(gate.terrace)} standing, ${n0(gate.seated)} seated, ${gate.business} business).</p>`:''}
@@ -29,10 +30,10 @@ function groundOverlay(){
   if(t==='build'){const cat=projectCatalog(id),run=g.projects.filter(p=>p.phase!=='done'),groups=[...new Set(cat.map(o=>o.group))];
     body=`${majorProjectsPanel()}${run.length?`<div class="panel"><p class="eyebrow">Under way</p>${run.map(p=>`<div class="row small"><span><b>${esc(p.label)}</b><br><span class="muted">${p.phase==='permit'?'Waiting for the permit':`${p.left} weeks left`} · £${p.cost}k${p.over?` (+${p.over}%)`:''} · paid ${k1(p.paid)}</span></span></div>`).join('')}</div>`:''}
     <p class="small muted">Building is paid week by week. The cash forecast in Money shows what it does to the bank.</p>
-    ${groups.map(gr=>`<div class="panel"><p class="eyebrow">${esc(gr)}</p><div class="stack">${cat.filter(o=>o.group===gr).map(o=>o.busy?`<div class="opt dim"><b>${esc(o.label)}</b><span class="small muted">Work under way here</span></div>`:UI.gsel===o.key?`<div class="opt on"><b>${esc(o.label)}</b><span class="small">${esc(o.effect)} · ${o.weeks} weeks${o.permit?' + permit':''}</span><div class="offers">${Object.entries(OFFER).map(([ok,of])=>`<button class="offer" data-act="gbuild" data-arg="${o.key}|${ok}"><b>£${Math.round(o.cost*of.p)}k</b><span>${of.n}</span><span class="muted">${Math.round(of.over*100)}% overrun risk</span></button>`).join('')}</div><button class="tbtn" data-act="gsel" data-arg="">Cancel</button></div>`:`<button class="opt" data-act="gsel" data-arg="${o.key}"><b>${esc(o.label)}</b><span class="small muted">£${o.cost}k · ${esc(o.effect)}</span></button>`).join('')}</div></div>`).join('')}`}
+    ${groups.map(gr=>`<div class="panel"><p class="eyebrow">${esc(gr)}</p><div class="stack">${cat.filter(o=>o.group===gr).map(o=>o.busy?`<div class="opt dim"><b>${esc(o.label)}</b><span class="small muted">Work under way here</span></div>`:UI.gsel===o.key?`<div class="opt on"><b>${esc(o.label)}</b><span class="small">${esc(o.effect)} · ${o.weeks} weeks${o.permit?' + permit':''} · paid at about £${n0(o.cost/o.weeks*1000)} a week</span><div class="offers">${Object.entries(OFFER).map(([ok,of])=>`<button class="offer" data-act="gbuild" data-arg="${o.key}|${ok}"><b>£${Math.round(o.cost*of.p)}k</b><span>${of.n}</span><span class="muted">${Math.round(of.over*100)}% overrun risk</span></button>`).join('')}</div><button class="tbtn" data-act="gsel" data-arg="">Cancel</button></div>`:`<button class="opt" data-act="gsel" data-arg="${o.key}"><b>${esc(o.label)}</b><span class="small muted">£${o.cost}k · ${esc(o.effect)}</span></button>`).join('')}</div></div>`).join('')}`}
   if(t==='repairs'){const rl=repairList(id);body=rl.length?`<p class="small muted">Below 30% a safety inspection can close half a stand.</p><div class="panel">${rl.map(r=>`<div class="grow"><span><b>${esc(r.label)}</b><br>${condBar(r.cond)}</span><span></span><button class="tbtn" data-act="grepair" data-arg="${r.key}">Repair £${r.cost}k</button></div>`).join('')}</div>`:'<p class="muted">Everything is in good shape.</p>'}
   const log=eventsFor(id,{types:['Ground','ProjectStarted','ProjectCompleted','SafetyClosure']}).slice(-5).reverse();
-  return overlayShell(CL(id).ground||'The ground',`${gTabs(t,[['stadium','Stadium'],['complex','Complex'],['build','Build'],['repairs','Repairs']],'gtab')}${body}${log.length?`<div class="panel"><p class="eyebrow">Ground log</p><ul class="log">${log.map(l=>`<li><span class="num">S${l.s} W${l.w}</span> ${esc(l.text)}</li>`).join('')}</ul></div>`:''}`);
+  return`${gTabs(t,[['stadium','Stadium'],['complex','Complex'],['build','Build'],['repairs','Repairs']],'gtab','grid4')}${body}${log.length?`<div class="panel"><p class="eyebrow">Ground log</p><ul class="log">${log.map(l=>`<li><span class="num">S${l.s} W${l.w}</span> ${esc(l.text)}</li>`).join('')}</ul></div>`:''}`;
 }
 
 /* ----- money ----- */
@@ -51,57 +52,24 @@ function moneyView(){
     <p class="small muted">Over 3 weeks above the overdraft limit means administration: six points and a rescue loan.</p>`}
   if(t==='ledger')body=`<div class="panel"><p class="eyebrow">Last week</p>${f.last?linesTable(f.last.lines)+`<div class="row"><span>Net</span><b class="${f.last.net<0?'down':'up'}">${k1(f.last.net)}</b></div>`:'<p class="small muted">No week played yet.</p>'}</div><div class="panel"><p class="eyebrow">Season ${S.season} so far</p>${linesTable(sl.lines)}</div>
     ${f.hist.slice(-3).reverse().map(hh=>`<div class="panel"><div class="row"><b>Season ${hh.s}</b><span class="small muted">${TIER_NAME[hh.tier]}, ${ord(hh.pos)}</span></div><div class="row small"><span>Operating result</span><b class="${operatingResult(hh.lines)<0?'down':''}">${k1(operatingResult(hh.lines))}</b></div><div class="row small"><span>Cash at the end</span><b>${k1(hh.cash)}</b></div></div>`).join('')}`;
-  if(t==='prices'){const pr=f.prices,gate=f.lastGate,ref=PRICE_DEF[C().tier];const st=(k,n,note)=>`<div class="grow"><span><b>${n}</b><br><span class="small muted">${note} · usual £${ref[k]}</span></span><span></span><span class="stepper"><button data-act="price" data-arg="${k}:-1" aria-label="Lower ${n}">−</button><b>£${pr[k]}</b><button data-act="price" data-arg="${k}:1" aria-label="Raise ${n}">+</button></span></div>`;
-    const a=attendance(id,null,{});
-    body=`<p class="small muted">Families walk away first when prices rise; the terrace comes anyway; business pays for comfort.</p><div class="panel">${st('terrace','Terrace ticket','Price-tolerant')}${st('seated','Seat ticket','Price-sensitive')}${st('business','Business seat','Pays for comfort')}${st('season','Season ticket','Sold in week 1')}</div>
-    <div class="panel"><div class="row small"><span>Expected crowd at these prices</span><b>${n0(a.total)} of ${n0(a.cap)}</b></div>${gate?`<div class="row small"><span>Last home game</span><b>${n0(gate.total)}</b></div>`:''}<div class="row small"><span>Expected gate per home game</span><b>${k1((a.terrace*pr.terrace+a.seated*pr.seated)/1000)}</b></div></div>`}
   if(t==='budget')body=budgetBody();
-  if(t==='sponsors')body=sponsorsBody();
+  if(t==='income'||t==='sponsors'||t==='prices'){const pb=pricesBody();body=`<p class="eyebrow">Tickets</p>${pb}<p class="eyebrow">Sponsors</p>${sponsorsBody()}`}
   if(t==='funding'){const max=maxNewLoan(id);
     body=`<div class="panel"><p class="eyebrow">Loans</p>${f.loans.length?f.loans.map((l,i)=>`<div class="grow"><span><b>${esc(l.label)}</b><br><span class="small muted">${k1(l.left)} left · ${Math.round(l.rate*1000)/10}% · ${k1(l.pay)} a week</span></span><span></span>${f.cash>=l.left?`<button class="tbtn" data-act="repay" data-arg="${i}">Repay</button>`:''}</div>`).join(''):'<p class="small muted">No loans.</p>'}</div>
     <div class="panel"><p class="eyebrow">Borrow</p><p class="small muted">The bank lends up to 80% of a season's income in total. The more you owe, the higher the rate.</p>
     <div class="seg">${[3,5,10].map(y=>`<button class="${UI.ly===y?'on':''}" data-act="ly" data-arg="${y}" aria-pressed="${UI.ly===y}">${y} years</button>`).join('')}</div>
-    <div class="seg">${[25,50,100,200].filter(a=>a<=max).map(a=>`<button data-act="loan" data-arg="${a}">£${a}k at ${Math.round(loanRate(id,a)*1000)/10}%</button>`).join('')||'<p class="small down">The bank will not lend more.</p>'}</div><p class="note">Room to borrow: ${k1(max)}.</p></div>`}
+    <div class="seg">${[25,50,100,200].filter(a=>a<=max).map(a=>`<button data-act="loan" data-arg="${a}">£${a}k at ${Math.round(loanRate(id,a)*1000)/10}%</button>`).join('')||'<p class="small down">The bank will not lend more.</p>'}</div><p class="note">${[25,50,100,200].filter(a=>a<=max).map(a=>`£${a}k: ${loanImpact(id,a,UI.ly)}`).join('<br>')}</p><p class="note">Room to borrow: ${k1(max)}.</p></div>`}
   if(t==='funding')body+=fundingExtra();
-  return`${msgLine()}${gTabs(t,[['overview','Overview'],['budget','Budget'],['ledger','Ledger'],['prices','Prices'],['sponsors','Sponsors'],['funding','Funding']],'mtab')}${body}`;
+  return`${msgLine()}${gTabs(t,[['overview','Overview'],['budget','Budget'],['income','Income'],['funding','Funding']],'mtab','grid4')}${body}`;
 }
 
-/* ----- the club tab: compare, history, layers ----- */
-function clubView(){
-  const id=S.my,c=C(),t=c.tier,ids=tierIds(t),avg=fn=>ids.reduce((a,i)=>a+fn(i),0)/ids.length,sg=groundSignals(id);
-  const rows=[['Reputation',i=>CL(i).rep,v=>repWord(v)+' ('+Math.round(v)+')'],['Support',i=>CL(i).support,n0],['Capacity',i=>groundSignals(i).capacity,n0],['Squad strength',i=>teamStrength(i),v=>Math.round(v)],['Wage bill /wk',i=>wageBillK(i)*1000,v=>'£'+n0(v)],['Training level',i=>groundSignals(i).training,r1],['Academy level',i=>groundSignals(i).academy,r1]];
-  const hist=c.hist.slice(-8).reverse();
-  const g=G(id),run=g.projects.filter(p=>p.phase!=='done');
-  const f=F(id),m=M(id),fc=cashForecast(id),pos=posOf(id),worst=groundCondWorst(id);
-  const deptWeak=Object.keys(DEPT).map(k=>({k,kpi:deptKpi(id,k)})).filter(x=>x.kpi.good===false);
-  const risk=fc.minV<0?'Cash shortfall forecast':m.conf<50?'Members may vote you out':worst.c<40?'Ground condition needs attention':deptWeak.length?'Departments below benchmark':'No immediate board warning';
-  const dashboard=`<section class="panel" aria-label="Chairman's overview"><p class="eyebrow">Chairman's overview</p>
-  <p class="small muted">Your club at a glance. Open a responsibility below to inspect it or make a decision.</p>
-  <div class="boardgrid">
-    <button class="boardtile" data-act="tab" data-arg="table"><span>League position</span><b>${ord(pos)}</b><small>${esc(TIER_NAME[t])}</small></button>
-    <button class="boardtile" data-act="tab" data-arg="money"><span>Cash</span><b class="${f.cash<0?'down':''}">${k1(f.cash)}</b><small>Forecast low ${k1(fc.minV)}</small></button>
-    <button class="boardtile" data-act="boardjump" data-arg="members"><span>Members' confidence</span><b class="${m.conf<50?'down':''}">${Math.round(m.conf)}/100</b><small>AGM forecast ${agmForecast(id)}% for</small></button>
-    <button class="boardtile" data-act="ov" data-arg="ground"><span>Ground</span><b>${n0(sg.capacity)}</b><small>${run.length} active project${run.length===1?'':'s'}</small></button>
-  </div>
-  <p class="small ${fc.minV<0||m.conf<50?'down':'muted'}"><b>Board watch:</b> ${esc(risk)}</p>
-  <div class="boardlinks">
-    <button data-act="boardjump" data-arg="staff">Coach & director <span>Appointments and contracts ›</span></button>
-    <button data-act="boardjump" data-arg="departments">Departments <span>${deptWeak.length} below division benchmark ›</span></button>
-    <button data-act="ov" data-arg="ground">Ground & projects <span>Buildings and repairs ›</span></button>
-    <button data-act="mtabgo" data-arg="budget">Budget & policy <span>Wages and transfer framework ›</span></button>
-    <button data-act="mtabgo" data-arg="sponsors">Commercial <span>Sponsor offers ›</span></button>
-    <button data-act="boardjump" data-arg="members">Members & governance <span>Dues and confidence ›</span></button>
-  </div></section>`;
-  return`${dashboard}<div id="board-members">${membersPanel()}</div><div id="board-staff">${staffPanel()}</div><div id="board-departments">${deptsView()}</div>
-  <div class="panel"><div class="row"><span>The ground</span><b>${n0(sg.capacity)} places</b></div><p class="small muted">${g.plots.filter(p=>p.kind).map(p=>COMPLEX[p.kind].n+' ('+LV_NAME[p.lv].toLowerCase()+')').join(', ')}. ${6-g.plots.filter(p=>p.kind).length} free plot${6-g.plots.filter(p=>p.kind).length===1?'':'s'}.</p>${run.length?`<p class="small">Under way: ${run.map(p=>esc(p.label)).join(', ')}.</p>`:''}<button class="btn ghost" data-act="ov" data-arg="ground">Stadium, building and repairs</button></div>
-  <div class="panel"><p class="eyebrow">Against the ${TIER_NAME[t]}</p><div class="cmp"><span></span><b>Us</b><b>Average</b>${rows.map(([n,fn,fm])=>`<span>${n}</span><b>${fm(fn(id))}</b><b>${fm(avg(fn))}</b>`).join('')}</div></div>
-  <div class="panel"><p class="eyebrow">${esc(c.name)}</p><p class="small muted">Founded ${c.founded}. Ground: ${esc(c.ground)}. Rivals: ${nm(c.rival)} (${esc(c.rivalWhy)}). The club once ${esc(c.scar)}.</p>
-  ${hist.length?hist.map(h=>`<div class="row small"><span>Season ${h.s}</span><b>${TIER_NAME[h.tier]}, ${ord(h.pos)}</b></div>`).join(''):'<p class="small muted">Your first season.</p>'}</div>
-  <div class="panel"><p class="eyebrow">Game layers</p><div class="row small"><span>1 · The living world</span><b class="up">On</b></div><div class="row small"><span>2 · Club management</span><b class="up">On</b></div><div class="row small"><span>3 · Staff with their own minds</span><b class="muted">Later</b></div><div class="row small"><span>4 · Stories, members and politics</span><b class="muted">Later</b></div><div class="row small"><span>5 · Dynasty</span><b class="muted">Later</b></div>
-  <p class="note">The original Northmarch story game stays playable as its own file.</p></div>
-  <button class="btn ghost" data-act="history">Club history and records</button>
-  <button class="btn ghost" data-act="quit">Save and back to the title</button>`;
-}
+function pricesBody(){const id=S.my,f=F(id);let body='';
+const pr=f.prices,gate=f.lastGate,ref=PRICE_DEF[C().tier];const st=(k,n,note)=>`<div class="grow"><span><b>${n}</b><br><span class="small muted">${note} · usual £${ref[k]}</span></span><span></span><span class="stepper"><button data-act="price" data-arg="${k}:-1" aria-label="Lower ${n}">−</button><b>£${pr[k]}</b><button data-act="price" data-arg="${k}:1" aria-label="Raise ${n}">+</button></span></div>`;
+    const a=attendance(id,null,{});
+    body=`<p class="small muted">Families walk away first when prices rise; the terrace comes anyway; business pays for comfort.</p><div class="panel">${st('terrace','Terrace ticket','Price-tolerant')}${st('seated','Seat ticket','Price-sensitive')}${st('business','Business seat','Pays for comfort')}${st('season','Season ticket','Sold in week 1')}</div>
+    <div class="panel"><div class="row small"><span>Expected crowd at these prices</span><b>${n0(a.total)} of ${n0(a.cap)}</b></div>${gate?`<div class="row small"><span>Last home game</span><b>${n0(gate.total)}</b></div>`:''}<div class="row small"><span>Expected gate per home game</span><b>${k1((a.terrace*pr.terrace+a.seated*pr.seated)/1000)}</b></div></div>`
+  body+=priceImpact(id);
+  return body}
 function clubSheet(id){
   const c=CL(id),sg=groundSignals(id),sq=S.squads[id].slice().sort((a,b)=>b.q-a.q),r=S.tbl[id],ev=eventsFor(id).filter(e=>e.t!=='Match'&&e.t!=='Command').slice(-5).reverse();
   return overlayShell(c.name,`<div class="panel"><div class="row"><span>${TIER_NAME[c.tier]}</span><b>${ord(posOf(id))} · ${r.pts} pts</b></div><div class="row small"><span>Form</span><b>${r.form.join('')||'—'}</b></div><div class="row small"><span>Squad</span><b>${Math.round(teamStrength(id))} · ${strWord(id)}</b></div>
@@ -120,6 +88,11 @@ function playerSheet(pid){
 }
 
 /* ----- the season review ----- */
+function seasonAheadPanel(){
+  const id=S.my,m=M(id),b=F(id).budget,run=G(id).projects.filter(p=>p.phase!=='done'),sp=signals(id).filter(x=>x.lv>=2).slice(0,3);
+  return`<div class="panel"><p class="eyebrow">Season ${S.season} ahead</p>${m.goals.map(g=>`<p class="small">· ${esc(g.text)}</p>`).join('')}
+  ${b?`<div class="row small"><span>Planned income</span><b>${k1(b.income)}</b></div><div class="row small"><span>Wage limit for the season</span><b>${k1(b.wages)}</b></div>`:''}
+  ${run.length?`<p class="small">Still being built: ${run.map(p=>esc(p.label)).join(', ')}.</p>`:''}${sp.length?`<p class="small muted">Waiting for you: ${sp.map(x=>esc(x.text)).join('; ')}.</p>`:''}</div>`}
 function reviewView(){
   const h=UI.review,s=h.s,id=h.agm?h.agm.club:S.my,last=CL(id).hist[CL(id).hist.length-1],mv=h.moves.find(m=>m.id===id),fh=F(id).hist[F(id).hist.length-1],out=h.agm&&h.agm.out;
   const sev=UI.summerEv||[],ins=sev.filter(e=>(e.t==='Transfer'||e.t==='Signing')&&e.c===id),outs=sev.filter(e=>e.t==='Transfer'&&e.c2===id);
@@ -129,6 +102,8 @@ function reviewView(){
   <div class="panel"><div class="row small"><span>Points</span><b>${last.pts}</b></div><div class="row small"><span>Operating result</span><b class="${operatingResult(fh.lines)<0?'down':'up'}">${k1(operatingResult(fh.lines))}</b></div><div class="row small"><span>Cash</span><b>${k1(F(id).cash)}</b></div><div class="row small"><span>Cup winners</span><b>${nm(h.cup)}</b></div></div>
   <div class="panel"><p class="eyebrow">Around the Northmarch</p>${TIERS.map(t=>`<div class="row small"><span>${TIER_NAME[t]} champions</span><b>${nm(h.tables[t][0])}</b></div>`).join('')}${h.moves.filter(m=>m.to<m.from).map(m=>`<p class="small up">${nm(m.id)} go up to ${TIER_NAME[m.to]}.</p>`).join('')}</div>
   <div class="panel"><p class="eyebrow">The summer</p>${kids?`<p class="small">${esc(kids.text)}</p>`:''}${ins.map(e=>`<p class="small">In: ${esc(e.text)}</p>`).join('')}${outs.map(e=>`<p class="small">Out: ${esc(e.text)}</p>`).join('')}${!ins.length&&!outs.length?'<p class="small muted">A quiet window.</p>':''}</div>
+  ${h.agm&&h.agm.goals?`<div class="panel"><p class="eyebrow">Season targets</p>${h.agm.goals.map(g=>`<div class="row small"><span>${esc(g.text)}<br><span class="muted">${esc(g.now)}</span></span><span class="pill ${g.met?'good':'bad'}">${g.met?'Met':'Missed'}</span></div>`).join('')}</div>`:''}
+  ${!out&&S.my?seasonAheadPanel():''}
   ${h.chairsOut&&h.chairsOut.length?`<div class="panel"><p class="eyebrow">Other AGMs</p>${h.chairsOut.slice(0,6).map(c=>`<p class="small">${nm(c)} vote their chairman out.</p>`).join('')}</div>`:''}
   <button class="btn" data-act="startnext">${out?'Choose a new club':`Start season ${S.season}`}</button></main>`;
 }

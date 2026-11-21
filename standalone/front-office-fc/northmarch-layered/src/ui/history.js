@@ -1,4 +1,7 @@
 /* ================= Screens: signals, major projects, club history and the world archive ================= */
+function sigButtons(sg){return`<div class="stack">${sg.map(x=>`<button class="sig lv${x.lv}" data-act="${x.act}"${x.arg!=null?` data-arg="${x.arg}"`:''}><span>${esc(x.text)}</span><span aria-hidden="true">›</span></button>`).join('')}</div>`}
+function urgentPanel(){const sg=signals(S.my).filter(x=>x.lv>=3);return sg.length?`<div class="panel urgent"><p class="eyebrow">Needs attention now</p>${sigButtons(sg)}</div>`:''}
+function lookPanel(){const sg=signals(S.my).filter(x=>x.lv<3).slice(0,4);return sg.length?`<div class="panel"><p class="eyebrow">Worth a look</p>${sigButtons(sg)}</div>`:''}
 function signalsPanel(){
   const sg=signals(S.my).slice(0,5);if(!sg.length)return'';
   return`<div class="panel"><p class="eyebrow">Needs attention</p><div class="stack">${sg.map(x=>`<button class="sig lv${x.lv}" data-act="${x.act}"${x.arg!=null?` data-arg="${x.arg}"`:''}><span>${esc(x.text)}</span><span aria-hidden="true">›</span></button>`).join('')}</div></div>`;
@@ -8,7 +11,7 @@ function majorProjectsPanel(){
   const land=g.plots.length<PLOT_MAX?(UI.confirm==='plot'?`<div class="opt on"><b>Buy a plot for £${price}k?</b><div class="seg"><button data-act="buyplot">Buy the land</button><button data-act="confirm" data-arg="">Cancel</button></div></div>`
     :`<button class="opt" data-act="confirm" data-arg="plot"><b>Buy land next to the ground</b><span class="small muted">£${price}k · plot ${g.plots.length+1} of ${PLOT_MAX} for the complex</span></button>`):'<p class="small muted">There is no more land to buy.</p>';
   const stad=sp?`<div class="opt dim"><b>${esc(sp.label)}</b><span class="small">${sp.phase==='permit'?'Waiting for planning permission':`${sp.left} weeks of building left`} · paid ${k1(sp.paid)} of ${k1(sp.cost)}</span></div>`
-    :Object.keys(STADIUM_SIZE).map(k=>{const pl=stadiumPlan(id,k);return UI.confirm==='st:'+k?`<div class="opt on"><b>Build a ${esc(pl.label.toLowerCase())}?</b><span class="small">£${pl.deposit}k deposit now, the rest week by week over about ${Math.ceil(pl.weeks/SEASON_WEEKS)} seasons. The old ground is sold when you move.</span><div class="seg"><button data-act="stadium" data-arg="${k}">Start (£${pl.deposit}k now)</button><button data-act="confirm" data-arg="">Cancel</button></div></div>`
+    :Object.keys(STADIUM_SIZE).map(k=>{const pl=stadiumPlan(id,k);return UI.confirm==='st:'+k?`<div class="opt on"><b>Build a ${esc(pl.label.toLowerCase())}?</b><span class="small">£${pl.deposit}k deposit now, the rest week by week over about ${Math.ceil(pl.weeks/SEASON_WEEKS)} seasons. The old ground is sold when you move.</span>${stadiumImpact(id,pl)}<div class="seg"><button data-act="stadium" data-arg="${k}">Start (£${pl.deposit}k now)</button><button data-act="confirm" data-arg="">Cancel</button></div></div>`
       :`<button class="opt" data-act="confirm" data-arg="st:${k}"><b>${esc(pl.label)}: ${n0(pl.cap)} places</b><span class="small muted">£${pl.cost}k · ${pl.weeks} weeks after the permit · deposit £${pl.deposit}k</span></button>`}).join('');
   return`<div class="panel"><p class="eyebrow">Major projects</p><p class="small muted">Decisions for a decade. Borrow first: the money goes out every week.</p><div class="stack">${land}${stad}</div></div>`;
 }
@@ -32,3 +35,10 @@ function archiveView(){
   const h=S.hist.slice().reverse();
   return h.length?`<div class="panel"><p class="eyebrow">Roll of honour</p>${h.map(x=>`<div class="row small"><span><b>Season ${x.s}</b><br><span class="muted">${TIERS.map(t=>`${tierShort(t)}: ${esc(CL(x.tables[t][0]).name)}`).join(' · ')}</span></span><b>${x.cup?esc(CL(x.cup).name.split(' ')[0])+' (cup)':''}</b></div>`).join('')}</div>`:'<p class="muted">The first season is under way.</p>';
 }
+function journalPanel(n){
+  const rows=journalRows(n);if(!rows.length)return`<div class="panel"><p class="eyebrow">Your decisions</p><p class="small muted">Decisions you take are noted here with a measure, so you can see later what changed.</p></div>`;
+  return`<div class="panel"><div class="row"><p class="eyebrow">Your decisions</p>${n<30?'<button class="tbtn" data-act="journal">All</button>':''}</div>${rows.map(j=>{const m=j.m;let ch='';
+    if(m&&j.before!=null){const d=m.v-j.before,good=m.hi==null||Math.abs(d)<1e-6?null:(d>0)===m.hi;ch=`<br><span class="small muted">${esc(m.label)}: ${m.fmt(j.before)} then → <b class="${good===true?'up':good===false?'down':''}">${m.fmt(m.v)}</b> now</span>`}
+    return`<p class="small"><span class="num">S${j.s} W${j.w}</span> ${esc(j.text)}${ch}</p>`}).join('')}<p class="note">Other things change too: read the measures as pointers, not proof.</p></div>`;
+}
+function journalSheet(){return overlayShell('Your decisions',journalPanel(30))}

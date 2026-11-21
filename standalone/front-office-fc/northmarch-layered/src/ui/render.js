@@ -14,14 +14,14 @@ function pct(x){return Math.round(x*100)+'%'}
 function topBar(){
   const c=C();
   return`<header class="top">${crest}<div class="tg"><div class="club">${esc(c.name)}</div><div class="sub">Season ${S.season} · ${S.week?'Week '+S.week:'Pre-season'} · ${TIER_NAME[c.tier]}</div></div><span class="pill ${F(S.my).cash<0?'bad':''}">${k1(F(S.my).cash)}</span></header>
-  <nav class="nav" aria-label="Sections">${[['week','Week'],['table','Tables'],['squad','Squad'],['club','Club'],['money','Money']].map(([k,n])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-arg="${k}" aria-current="${UI.tab===k?'page':'false'}">${n}</button>`).join('')}</nav>`;
+  <nav class="nav" aria-label="Sections">${[['week','Week'],['club','Club'],['squad','Squad'],['money','Money'],['table','League']].map(([k,n])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-arg="${k}" aria-current="${UI.tab===k?'page':'false'}">${n}</button>`).join('')}</nav>`;
 }
 function render(){
   if(!HAS_DOM)return;const app=document.getElementById('app');let h='';
   if(!S||UI.title)h=titleView();
   else if(UI.review)h=reviewView();
   else if(S.phase==='choose')h=chooseView();
-  else{const body=UI.tab==='table'?tableView():UI.tab==='squad'?squadView():UI.tab==='club'?clubView():UI.tab==='money'?moneyView():weekView();h=topBar()+`<main>${body}</main>`}
+  else{const body=UI.tab==='table'?tableView():UI.tab==='squad'?squadView():UI.tab==='club'?clubView():UI.tab==='money'?moneyView():weekView();h=topBar()+`<main class="withbar">${body}</main>`+actionBar()}
   if(S&&UI.over)h+=overlayView();
   app.innerHTML=h;
   document.body.style.overflow=UI.over?'hidden':'';
@@ -45,6 +45,8 @@ function chooseView(){
 }
 
 /* ----- the week ----- */
+/* what the chances said, from the match engine's own expected goals: no invented events */
+function xgWord(m){const home=m.h===S.my,xf=home?m.lh:m.la,xa=home?m.la:m.lh,gf=home?m.gh:m.ga,ga=home?m.ga:m.gh,d=(gf-ga)-(xf-xa);return Math.abs(xf-xa)<.25?'an even game on chances':d>1.2?'we got more than the chances suggested':d<-1.2?'we deserved more than we got':xf>xa?'we created more':'they created more'}
 function myMatches(){return(S.matches||[]).filter(m=>m.h===S.my||m.a===S.my)}
 function headline(m){const home=m.h===S.my,gf=home?m.gh:m.ga,ga=home?m.ga:m.gh,opp=home?m.a:m.h,won=m.pens?m.pens===S.my:gf>ga;
   const cup=m.comp==='cup'?' in the cup':'';
@@ -58,7 +60,9 @@ function reportView(){
   <div class="head">${esc(headline(m))}</div>
   ${ms.map(m=>`<div class="fix"><b>${nm(m.h)}</b><span class="score">${m.gh}–${m.ga}</span><b>${nm(m.a)}</b></div>
   <p class="small muted" style="text-align:center">${m.comp==='cup'?esc(CUP_ROUND[m.round])+' · ':''}${m.att?n0(m.att)+' watching':''}${m.pens?` · ${nm(m.pens)} win on penalties`:''}</p>
+  <p class="small muted" style="text-align:center">Expected goals ${m.lh.toFixed(1)}–${m.la.toFixed(1)}: ${xgWord(m)}</p>
   ${m.scorers.length?`<p class="small">${m.scorers.map(s=>esc(s.name.split(' ').slice(-1)[0])+(s.side==='h'?' ('+esc(CL(m.h).name.split(' ')[0])+')':' ('+esc(CL(m.a).name.split(' ')[0])+')')).join(', ')}</p>`:''}`).join('<hr>')}
+  ${ms.some(x=>x.comp==='league')?`<p class="small"><b>${TIER_NAME[C().tier]}: ${ord(posOf(S.my))}</b>${UI.prevPos&&UI.prevPos!==posOf(S.my)?` <span class="${UI.prevPos>posOf(S.my)?'up':'down'}">(${UI.prevPos>posOf(S.my)?'▲':'▼'}${Math.abs(UI.prevPos-posOf(S.my))})</span>`:''} · ${S.tbl[S.my].pts} point${S.tbl[S.my].pts===1?'':'s'}</p>`:''}
   <ul>${evs.slice(0,6).map(e=>`<li>${esc(e.text)}</li>`).join('')}${f?`<li>The week's books: ${k1(f.net)}${f.lines.gate?` (gate ${k1(f.lines.gate)})`:''}.</li>`:''}</ul></section>`;
 }
 function previewView(){
@@ -78,8 +82,7 @@ function previewView(){
 }
 function weekView(){
   const over=seasonOver();
-  return`${reportView()}${signalsPanel()}${previewView()}${targetsPanel()}${hubCards()}
-  <button class="btn" data-act="${over?'close':'play'}">${over?'Close the season':`Play week ${S.week+1}`}</button>
+  return`${reportView()}${urgentPanel()}${previewView()}${lookPanel()}${targetsPanel()}
   <p class="note">${over?'Prize money, promotion and relegation, contracts and the summer window follow.':'Every week is played. Change prices, budgets or building first if you want them to count this week.'}</p>`;
 }
 

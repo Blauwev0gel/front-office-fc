@@ -55,10 +55,10 @@ function k1v(v){return(v<0?'−':'')+'£'+Math.abs(Math.round(v))+'k'}
 function holdAGMs(){
   const out=[];
   for(const id in S.clubs){const m=M(id),c=CL(id);
-    for(const gl of m.goals){const pr=goalProgress(id,gl);confLog(id,pr.met?gl.w*.8:-gl.w*.8,pr.met?'Season targets met':'Season targets missed')}
+    const goals=[];for(const gl of m.goals){const pr=goalProgress(id,gl);goals.push({text:gl.text,met:pr.met,now:pr.text});confLog(id,pr.met?gl.w*.8:-gl.w*.8,pr.met?'Season targets met':'Season targets missed')}
     const pos=posOf(id);if(c.tier>0&&pos<=2)confLog(id,12,'Promotion');if(c.tier<2&&pos>=15)confLog(id,-15,'Relegation');
     const forPct=clamp(Math.round(20+.75*m.conf+(rnd()-.5)*10),3,97);
-    m.agm={s:S.season,for:forPct,against:100-forPct,out:forPct<50&&!(S.agmOff&&id===S.my),conf:m.conf,reasons:seasonReasons(id)};
+    m.agm={s:S.season,goals,for:forPct,against:100-forPct,out:forPct<50&&!(S.agmOff&&id===S.my),conf:m.conf,reasons:seasonReasons(id)};
     if(m.agm.out)out.push(id);
   }
   return out;

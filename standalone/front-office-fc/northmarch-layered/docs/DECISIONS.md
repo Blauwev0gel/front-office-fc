@@ -6,6 +6,7 @@
 | D2 | 2026-11-21 | — | Waar wordt gebouwd? | Map `standalone/front-office-fc/northmarch-layered/` op branch `claude/loving-goodall-uv00vn`; `northmarch.html` blijft onaangeroerd. | Deze sessie mag alleen naar deze branch pushen; het referentiespel blijft intact. |
 | D3 | 2026-11-21 | L1 | Competitiestructuur? | **3 divisies van 16 (48 clubs) + knock-outbeker.** | Lange carrièrebogen over decennia (diepere val, lange klim) en bekerdrama/inkomstenpieken. Gevolg: 16 nieuwe clubs voor de derde divisie, met eigen identiteit; meer balanceerwerk. |
 | D4 | 2026-11-21 | L1 | Hoe loopt de tijd? | **Elke week verplicht**: elke week is een eigen stap met wedstrijdverslag (competitie en beker), geen doorspoelen. | Maximale betrokkenheid per week. Gevolg: elke week moet iets te lezen of te beslissen bieden (uitslag, blessures, bouwvoortgang, geld); de UI moet een week snel afhandelbaar houden. |
+| D5 | 2026-11-21 | L2 | Zeggenschap van de voorzitter over transfers? | **Alleen kader**: de voorzitter stelt loon- en transferkaders in; de directeur beslist alle deals zelf. Geen veto, geen eigen opdrachten. | Zuivere voorzittersrol. Gevolg: invloed op de selectie loopt via kaders, faciliteiten (training, academie, scouting) en geld; L3 maakt de directeur tot persoon die je benoemt en beoordeelt. |
 
 ## Technische besluiten (door de developer, binnen de gekozen scope)
 

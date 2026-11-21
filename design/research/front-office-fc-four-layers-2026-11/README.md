@@ -1,3 +1,8 @@
+> **BELANGRIJKE RECTIFICATIE — 21 november 2026**  
+> Deze oudere leeswijzer is **niet meer leidend voor de actuele spelcode**. Lees eerst [ACTUELE_GAME_ENGINE_EN_SPELLAGEN_AUDIT.md](ACTUELE_GAME_ENGINE_EN_SPELLAGEN_AUDIT.md) en [CLAUDE_ACTUELE_GAME_REVIEW.md](CLAUDE_ACTUELE_GAME_REVIEW.md). De actueel onderzochte spelversie staat op branch **voorzitter-fundering** (SHA b8ae2efec93c2070992ed8a246917d463f5b3d41). Het spel kent daar zeven speellagen, drie engine-niveaus en vijf tijdslagen. Eerdere adviezen om op basis van claude-game te integreren zijn niet gevalideerd. De acht oorspronkelijke documenten hieronder blijven als historische onderzoeksbron bewaard.  
+
+---
+
 # Front Office FC — onderzoeksdossier voor Claude en ChatGPT
 
 **Laatst vastgelegde ontwikkelbesluit:** 21 november 2026  

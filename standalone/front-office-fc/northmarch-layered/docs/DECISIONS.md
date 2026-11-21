@@ -1,0 +1,6 @@
+# Besluiten
+
+| # | Datum | Laag | Vraag | Besluit | Reden |
+|---|---|---|---|---|---|
+| D1 | 2026-11-21 | L1 | Hoe diep simuleren we de andere clubs? | **A. Alle 32 clubs volledig**: selecties, contracten, stadion en grootboek; AI-clubs beslissen via regels en dezelfde commando's als de speler. | Echte transfermarkt, clubs die opkomen en wegzakken, geen verborgen tweede economie; legt de basis voor L3 (agenten op dezelfde commando's). |
+| D2 | 2026-11-21 | — | Waar wordt gebouwd? | Map `standalone/front-office-fc/northmarch-layered/` op branch `claude/loving-goodall-uv00vn`; `northmarch.html` blijft onaangeroerd. | Deze sessie mag alleen naar deze branch pushen; het referentiespel blijft intact. |

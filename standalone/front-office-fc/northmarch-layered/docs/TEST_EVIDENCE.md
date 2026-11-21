@@ -42,3 +42,8 @@ Bekende beperkingen: webfonts worden in de test geblokkeerd (offline fallback-fo
 - life-test (24 seeds): moraal 20 vs 90 → 10,1 vs 11,5 punten na 8 weken · geschorste speler zit uit, schorsing loopt af; 11 schorsingen in 2 seizoenen · bekerweek: 6,6 van 11 spelers starten beide duels · verhuur (zelfde 15 reserves): 20,6 vs 3,9 wedstrijden, groei +0,93 vs +0,70 · zonder loonruimte weigeren 20 spelers een contract en vertrekken · ontevreden speler vraagt transfer en vertrekt · reputatie per divisie 68/49/30, hogere reputatie → hogere sponsorbasis.
 - sim-test 4 seeds × 20 seizoenen: groen; 0–1 administrations; gemiddelde leeftijd ±22 (balanspunt pakket 6).
 - save-test (schema v6), ab-test, idle-test, members-test, staff-test, commercial-test, playtest 390 px licht/donker (incl. Market-tab, verhuurkeuze): groen.
+
+## 2026-11-21 — Pakket 5 (projecten, historie, signalen), `sh tests/run-all.sh`, exit 0
+- projects-test: kavel gekocht (£60k) en bebouwbaar · nieuw stadion (12 seeds): opent in 12/12 binnen drie seizoenen; capaciteit 2.350 vs 5.067; kaartinkomsten seizoen 4 £254k vs £320k; schuld £27k vs £281k · statuut blokkeert bij laag vertrouwen · historie per seizoen met topscorer en bekerloop, records, wereldarchief · signalen gesorteerd op urgentie, met links.
+- sim-test 4 seeds × 20 seizoenen: groen; 0–1 administrations.
+- save-test (schema v7), alle pakkettests en playtest 390 px licht/donker (grond kopen, clubhistorie, signalen): groen.

@@ -28,6 +28,10 @@ function act(a,arg){
     case'ly':UI.ly=+arg;break;
     case'loan':say(cmd('TakeLoan',S.my,{amount:+arg,years:UI.ly}),`£${arg}k borrowed.`);break;
     case'repay':say(cmd('RepayLoan',S.my,{i:+arg}),'Loan repaid.');break;
+    case'staff':UI.over='staff';UI.arg=arg;UI.confirm=null;break;
+    case'shire':{const [role,pid]=arg.split('|');const r=cmd('HireStaff',S.my,{role,pid});say(r,'Appointed.');if(r.ok)UI.confirm=null;break}
+    case'ssack':say(cmd('SackStaff',S.my,{role:arg}),'Sacked. A caretaker takes over.');break;
+    case'srenew':say(cmd('RenewStaff',S.my,{role:arg}),'Contract renewed.');break;
     case'dues':say(cmd('SetDues',S.my,{delta:+arg}));break;
     case'pol':say(cmd('SetSquadPolicy',S.my,{wage:arg}));break;
     case'spend':say(cmd('SetSquadPolicy',S.my,{spend:+arg}));break;

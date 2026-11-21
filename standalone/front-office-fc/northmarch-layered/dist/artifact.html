@@ -258,7 +258,7 @@ function cmd(name,club,args,actor){
    Owns S.clubs (identity, tier, support, rivals) and S.P (people). mkPerson/castClub/addRel/weakest are the
    Northmarch functions (northmarch.html @7a2d5d3), kept so the story layer (L4) can attach later.
    Squads (football), grounds (club) and money (finance) are created here but owned by their own domains. */
-const VERSION=3;
+const VERSION=4;
 const SAVE_KEY='northmarch-layered-v1';
 const TIERS=[0,1,2];
 const TIER_STR=[[51,59],[44,53],[37,46]];
@@ -299,7 +299,7 @@ function chairValue(id){const c=CL(id),p=c.cast.chair&&P(c.cast.chair);return p?
 
 function newWorld(seed){
   S={v:VERSION,seed,rs:seed|0||1,pc:1,season:1,week:0,phase:'choose',my:null,clubs:{},P:{},squads:{},grounds:{},fin:{},fa:[],
-    tbl:{},fx:{},cup:null,qref:11.7,matches:[],ev:[],evn:0,stats:{},members:{},career:[],rep:0,votedOut:null,hist:[],layers:{story:false,staff:false,dynasty:false},auto:false,seats:[]};
+    tbl:{},fx:{},cup:null,qref:11.7,matches:[],ev:[],evn:0,stats:{},members:{},career:[],rep:0,votedOut:null,staffPool:[],hist:[],layers:{story:false,staff:false,dynasty:false},auto:false,seats:[]};
   // the Northmarch core clubs
   mkClub('pell','Pell United','harbour',1,{support:1600,groups:[['workers',40,58],['students',25,62],['business',35,40]],statute:['No outside owner above 25%'],founded:1891,legend:"Jack 'Sailor' Garside",scar:'lost a cup final to their rivals',ground:'Dock Road'});
   mkClub('corden','Corden Athletic','mill',1,{support:1800});
@@ -318,7 +318,8 @@ function newWorld(seed){
   // the domains: squads, grounds, money
   for(const id of ids){const c=CL(id),[a,b]=TIER_STR[c.tier];
     const str=id==='pell'?48:id==='harrow'?57:ri(a,b)+Math.round((c.support-(TIER_SUPPORT[c.tier][0]+TIER_SUPPORT[c.tier][1])/2)/600);
-    S.squads[id]=genSquad(str,id);S.grounds[id]=groundInit(id);S.fin[id]=finInit(id);S.stats[id]=statsInit();S.members[id]=membersInit(id);}
+    S.squads[id]=genSquad(str,id);S.grounds[id]=groundInit(id);S.fin[id]=finInit(id);S.stats[id]=statsInit();S.members[id]=membersInit(id);giveProfile(CL(id).cast.coach,'coach',CL(id).tier);giveProfile(CL(id).cast.td,'td',CL(id).tier);}
+  staffPoolInit();
   S.qref=worldQuality();
   faInit();
   startSeason();
@@ -486,7 +487,7 @@ function wageBillK(id){return r2(S.squads[id].reduce((a,p)=>a+p.wage,0)/1000)}
 function playersWeek(id){
   const sq=S.squads[id],sg=groundSignals(id),t=sg.training,med=sg.medPrev,medR=sg.medRec,st=S.stats[id];
   const risk=clamp(1.25-.15*med-(sg.fitness?.08:.03)*Math.min(t,4)-(sg.hasTM?.12:0),.45,1.3);
-  const grow=(.12+.08*t)/SEASON_WEEKS,fade=(1-.06*Math.min(t,8))/SEASON_WEEKS;
+  const grow=(.12+.08*t)*coachGrowth(id)/SEASON_WEEKS,fade=(1-.06*Math.min(t,8))/SEASON_WEEKS;
   for(const p of sq){
     if(p.inj>0){p.inj--;if(p.inj===0&&id===S.my)emit('Return',id,`${p.name} is fit again.`,{pid:p.id})}
     else if(rnd()<.02*risk*(p.trait==='injury-prone'?1.8:1)){
@@ -519,7 +520,7 @@ function playersSeasonEnd(id){
   emit('YouthIntake',id,`${kids.length} academy graduate${kids.length>1?'s':''} join the squad.`,{n:kids.length,best:Math.max(...kids.map(k=>k.pa))});
   return left;
 }
-function statsInit(){return{inj:0,injWeeks:0,youthGrowth:0,intake:0,intakeBest:0}}
+function statsInit(){return{inj:0,injWeeks:0,youthGrowth:0,intake:0,intakeBest:0,buys:0,misbuys:0,spent:0}}
 function tierBaseStr(t){const [a,b]=TIER_STR[t];return (a+b)/2}
 
 /* ---- football/match.js ---- */
@@ -535,8 +536,8 @@ const SCORE_W={GK:0,CB:.5,FB:.5,DM:.6,CM:1.4,AM:2.6,W:2.8,ST:5};
 function scorerFrom(xi){const tot=xi.reduce((a,x)=>a+SCORE_W[x.slot]*x.p.q,0);let r=rnd()*tot;for(const x of xi){r-=SCORE_W[x.slot]*x.p.q;if(r<=0)return x.p}return xi[xi.length-1].p}
 function playMatch(h,a,o={}){
   const xh=pickXI(S.squads[h]),xa=pickXI(S.squads[a]);
-  const sh=teamStrength(h)+(o.neutral?0:homeEdge(h)),sa=teamStrength(a);
-  const [lh,la]=lambdas(sh,sa,!o.neutral);
+  const sh=teamStrength(h)+coachEdge(h)+(o.neutral?0:homeEdge(h)),sa=teamStrength(a)+coachEdge(a);
+  const [lh0,la0]=lambdas(sh,sa,!o.neutral),ch=coachLambda(h),ca=coachLambda(a),lh=lh0*ch[0]*ca[1],la=la0*ca[0]*ch[1];
   const gh=pois(lh,rnd),ga=pois(la,rnd),scorers=[];
   for(const [xi,n,side] of [[xh,gh,'h'],[xa,ga,'a']]){for(const x of xi){x.p.apps++;x.p.sApps++}
     for(let i=0;i<n&&xi.length;i++){const p=scorerFrom(xi);p.goals++;p.sGoals++;scorers.push({side,pid:p.id,name:p.name})}}
@@ -581,7 +582,7 @@ function release(id,p,why){const sq=S.squads[id];const pay=releaseCost(p);if(pay
 
 /* the players a club's director can see: free agents and players at other clubs, wider with a better scouting office */
 function scoutPool(id,pos,n){
-  const reach=6+Math.round(2*groundSignals(id).scouting),out=[];
+  const reach=Math.max(4,6+Math.round(2*groundSignals(id).scouting+(pq(tdOf(id))-10)/2)),out=[];
   const fa=S.fa.filter(p=>!pos||p.pos===pos);for(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
   const others=Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1);
   for(let k=0;k<reach&&others.length;k++){const o=pick(others),c=S.squads[o].filter(p=>(!pos||p.pos===pos)&&p.inj<=0);if(c.length)out.push({p:pick(c),from:o})}
@@ -593,7 +594,7 @@ function sellerAgrees(p,from,fee){
   const need=S.squads[from].filter(x=>x.pos===p.pos).length<=REQ[p.pos];
   if(need&&F(from).cash>=0)return false;
   if(from===S.my&&!S.auto)return fee>=playerValue(p)*1.5&&!isCore(from,p); // the player's director only sells surplus at a premium
-  return fee>=askingFee(p,from);
+  return fee>=askingFee(p,from)*.85;
 }
 function budgetFor(id){const f=F(id),reserve=wageBillK(id)*6;return Math.max(0,Math.round((f.cash-reserve)*f.policy.spend))}
 
@@ -602,16 +603,17 @@ function shopFor(id,pos,minQ,o={}){
   const cap=wageCapK(id),bill=wageBillK(id);let budget=o.budget??budgetFor(id);
   let best=null,bv=-1;
   for(const c of scoutPool(id,pos)){
-    const p=c.p;if(p.q<minQ)continue;
-    const fee=c.from?askingFee(p,c.from):0,wage=wageFor(p.q)/1000;
+    const p=c.p,seen=p.q+(rnd()+rnd()-1)*2.5*tdNoise(id);if(seen<minQ)continue; // the director judges by eye: a weak eye is fooled more often
+    const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000;
     if(fee>budget)continue;if(bill+wage>cap&&!o.mustHave)continue;
     if(c.from&&!sellerAgrees(p,c.from,fee))continue;
-    const v=o.mustHave?-wage*1000-fee:p.q+(p.age<=24?(p.pa-p.q)*.3:0)-(p.age>=31?.6:0)-fee/200;
+    const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.3:0)-(p.age>=31?.6:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0);
     if(v>bv){bv=v;best={...c,fee}}
   }
   if(!best&&o.mustHave){const base=11.5+(tierBaseStr(2)-50)/4+(S.qref-11.7),p=newPlayer(pos,{age:ri(19,30),q:base-2+rnd()*1.2,contract:0});
     p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0}}
   if(!best)return false;
+  if(!o.mustHave&&minQ>0){const st=S.stats[id];st.buys=(st.buys||0)+1;if(best.p.q<minQ)st.misbuys=(st.misbuys||0)+1;st.spent=r1((st.spent||0)+best.fee)} // a signing that is not what the director thought
   if(best.from)transfer(best.p,best.from,id,best.fee,'buy');else signFree(best.p,id);
   return best;
 }
@@ -862,6 +864,7 @@ const LINE={
   feesIn:['Transfer fees received','transfers'],feesOut:['Transfer fees paid','transfers'],
   wages:['Player wages','wages'],
   depts:['Department budgets','costs'],upkeep:['Ground upkeep','costs'],ops:['Matchday stewards and police','costs'],travel:['Away travel','costs'],
+  staff:['Head coach and director','wages'],staffpay:['Staff compensation','costs'],
   build:['Construction','costs'],repairs:['Repairs','costs'],interest:['Interest','costs'],
   loanIn:['Loans drawn','financing'],loanOut:['Loan repayments','financing']
 };
@@ -911,7 +914,7 @@ function weekLines(id,home,o={}){
     L.events=g.shop*.08+g.events*.07;
     L.dues=S.members&&S.members[id]?S.members[id].count*S.members[id].dues/SEASON_WEEKS/1000:c.support*.4*40/SEASON_WEEKS/1000;
     L.tv=TV[t];
-    L.wages=-wageBillK(id);L.depts=-deptCost(id);L.upkeep=-(.15+g.capacity/12000);
+    L.wages=-wageBillK(id);L.staff=-staffWeekK(id);L.depts=-deptCost(id);L.upkeep=-(.15+g.capacity/12000);
   }
   for(const k in L){L[k]=r2(L[k]);if(!L[k])delete L[k]}
   return L;
@@ -1086,6 +1089,110 @@ function membersAfterLoad(){if(S.members&&Object.values(S.members).some(m=>m.goa
 defCommand('SetDues',{check:(id,a)=>!(a.delta===1||a.delta===-1)?'Change dues one step at a time':null,run:(id,a)=>{const m=M(id),ref=DUES_REF[CL(id).tier];
   m.dues=clamp(m.dues+a.delta*5,Math.round(ref*.4/5)*5,Math.round(ref*2.5/5)*5);if(id===S.my)emit('Members',id,`Membership dues set to £${m.dues} a year.`)}});
 
+/* ---- club/staff.js ---- */
+/* ================= Club: the head coach and the director of football =================
+   Owns the professional profile of coaches and directors (P(id).pro) and the pool of free ones (S.staffPool).
+   Layer 2: they have quality, a speciality, a wage, a contract and a record, and they change the simulation.
+   They have no will of their own yet (mandates and initiative are layer 3). Director skills echo
+   voorzitter-fundering club/td.js (eye, deal), reduced to quality plus speciality. */
+const STAFF_SPEC={
+  coach:{development:'Develops young players',results:'Gets results now',attacking:'Attacking football',defensive:'Hard to beat'},
+  td:{eye:'A sharp eye for a player',negotiator:'A hard bargainer',youth:'Builds on young players'}
+};
+const STAFF_Q=[[10,16],[7,13],[4,10]];
+const POOL_SIZE={coach:9,td:7};
+function staffWage(role,q){return Math.max(60,Math.round((role==='coach'?120:95)*Math.pow(1.27,q-8)/5)*5)}
+function giveProfile(pid,role,tier,o={}){
+  const p=P(pid),[a,b]=STAFF_Q[tier];const q=o.q??ri(a,b);
+  p.pro={q,spec:o.spec||pick(Object.keys(STAFF_SPEC[role])),wage:staffWage(role,q),contract:o.contract??ri(1,3),since:S.season,record:[],off:ri(-3,3),caretaker:!!o.caretaker};
+  return p;
+}
+function coachOf(id){return P(CL(id).cast.coach)}
+function tdOf(id){return P(CL(id).cast.td)}
+const pq=p=>p&&p.pro?p.pro.q:6;
+/* ----- what they do in the simulation ----- */
+function coachEdge(id){const c=coachOf(id);if(!c||!c.pro)return 0;return(c.pro.q-10)*.45*(c.pro.spec==='results'?1.35:1)}
+function coachLambda(id){const s=coachOf(id)?.pro?.spec;return s==='attacking'?[1.07,1.03]:s==='defensive'?[.97,.91]:[1,1]}
+function coachGrowth(id){const c=coachOf(id);if(!c||!c.pro)return 1;return 1+(c.pro.q-10)*.025+(c.pro.spec==='development'?.18:0)}
+function tdNoise(id){const t=tdOf(id),eye=pq(t)+(t?.pro?.spec==='eye'?3:0);return clamp((20-eye)/7,.2,2.6)}
+function tdBuyF(id){const t=tdOf(id),d=pq(t)+(t?.pro?.spec==='negotiator'?3:0);return clamp(1.18-d*.018,.82,1.15)}
+function tdYouth(id){return tdOf(id)?.pro?.spec==='youth'}
+/* what the player sees: an estimate, sharper for people at his own club */
+function staffEstimate(pid){const p=P(pid);if(!p||!p.pro)return null;const off=p.club===S.my?Math.round(p.pro.off/2):p.pro.off;return clamp(p.pro.q+off,1,20)}
+function staffStars(q){return Math.max(1,Math.min(5,Math.round(q/4)))}
+function staffWeekK(id){return r2(((coachOf(id)?.pro?.wage)||0)/1000+((tdOf(id)?.pro?.wage)||0)/1000)}
+
+/* ----- the pool of free coaches and directors ----- */
+function staffPoolInit(){S.staffPool=[];staffPoolTopUp()}
+function staffPoolTopUp(){
+  for(const role of ['coach','td']){let n=S.staffPool.filter(i=>P(i).role===role).length;
+    while(n++<POOL_SIZE[role]){const id=mkPerson(role,null,{age:ri(36,60)});giveProfile(id,role,pick([0,1,1,2,2]),{contract:0});S.staffPool.push(id)}}
+}
+function toPool(pid){const p=P(pid);if(!p)return;p.club=null;p.pro.contract=0;if(!p.pro.caretaker&&!S.staffPool.includes(pid))S.staffPool.push(pid)}
+function caretaker(id,role){const pid=mkPerson(role,id,{age:ri(40,58)});giveProfile(pid,role,2,{q:ri(4,7),contract:0,caretaker:true,spec:role==='coach'?'results':'eye'});P(pid).pro.wage=60;return pid}
+/* compensation to the club that loses its man; settlement for the man who is sacked */
+function compensation(pid){const p=P(pid);if(!p||!p.club||p.pro.caretaker)return 0;return r1(p.pro.wage*SEASON_WEEKS*Math.max(1,p.pro.contract)/1000*.5)}
+function settlement(pid){const p=P(pid);if(!p||p.pro.caretaker)return 0;return r1(p.pro.wage*SEASON_WEEKS*Math.max(0,p.pro.contract)/1000*.5)}
+function appoint(id,role,pid,why){
+  const c=CL(id),old=c.cast[role],p=P(pid),from=p.club&&p.club!==id?p.club:null;
+  const comp=from?compensation(pid):0;if(comp){book(id,'staffpay',-comp);book(from,'staffpay',comp)}
+  if(old&&old!==pid){const set=settlement(old);if(set)book(id,'staffpay',-set);toPool(old);P(old).career.push(id)}
+  S.staffPool=S.staffPool.filter(x=>x!==pid);
+  if(from){CL(from).cast[role]=caretaker(from,role);emit('StaffPoached',from,`${p.name} leaves ${CL(from).name} for ${c.name}. A caretaker steps in.`,{c2:id});if(aiRuns(from))aiHire(from,role,true)}
+  p.club=id;p.role=role;p.career.push(id);p.pro.since=S.season;p.pro.caretaker=false;if(!p.pro.contract)p.pro.contract=2;p.pro.wage=Math.max(p.pro.wage,staffWage(role,p.pro.q));
+  c.cast[role]=pid;
+  emit('StaffHired',id,`${c.name} appoint ${p.name} as ${role==='coach'?'head coach':'director of football'}${why?` (${why})`:''}.`,{pid,role,comp});
+}
+function sackStaff(id,role,why){
+  const c=CL(id),old=c.cast[role],p=P(old),set=settlement(old);if(set)book(id,'staffpay',-set);
+  emit('StaffSacked',id,`${c.name} sack ${role==='coach'?'head coach':'director'} ${p.name}${why?` ${why}`:''}${set?` (£${set}k settlement)`:''}.`,{pid:old,role});
+  toPool(old);c.cast[role]=caretaker(id,role);
+}
+/* candidates for a club: the free pool, plus people at clubs in the same or a lower division */
+/* ambitious people do not join a club below their level: the ceiling is the division's best plus three */
+function willJoin(id,pid){return P(pid).pro.q<=STAFF_Q[CL(id).tier][1]+3}
+function staffCandidates(id,role){
+  const out=S.staffPool.filter(i=>P(i).role===role&&willJoin(id,i)).map(pid=>({pid,from:null,comp:0}));
+  for(const o of Object.keys(S.clubs)){if(o===id||CL(o).tier<CL(id).tier)continue;const pid=CL(o).cast[role];const p=P(pid);if(p&&p.pro&&!p.pro.caretaker&&willJoin(id,pid)&&p.pro.q>=pq(P(CL(id).cast[role]))-1)out.push({pid,from:o,comp:compensation(pid)})}
+  return out.sort((a,b)=>staffEstimate(b.pid)-staffEstimate(a.pid)).slice(0,12);
+}
+/* ----- computer boards: sack after failure, hire the best they can pay ----- */
+function aiStaffWeek(id){
+  const w=S.week;if(w!==10&&w!==20)return;const c=CL(id),gap=posOf(id)-(c.expect||8);
+  if(gap>=4&&chance(.3)){sackStaff(id,'coach','after a poor run');aiHire(id,'coach')}
+}
+/* computer boards prefer the free pool; they only poach from a lower division when that man is clearly better */
+function aiHire(id,role,poolOnly){
+  const inc=estSeasonIncome(id),cap=inc*.03/SEASON_WEEKS*1000*(role==='coach'?1:.8),f=F(id);
+  const ok=x=>P(x.pid).pro.wage<=cap&&x.comp<=Math.max(0,f.cash-reserveK(id))*.3;
+  const all=staffCandidates(id,role).filter(ok),pool=all.filter(x=>!x.from),best=pool[0];
+  const poach=poolOnly?null:all.find(x=>x.from&&CL(x.from).tier>CL(id).tier&&(!best||staffEstimate(x.pid)>=staffEstimate(best.pid)+3));
+  const pickC=poach||best;if(pickC)appoint(id,role,pickC.pid,null);
+}
+function staffSeasonEnd(){
+  for(const id in S.clubs){const c=CL(id),pos=posOf(id);
+    for(const role of ['coach','td']){const p=P(c.cast[role]);if(!p||!p.pro)continue;
+      p.pro.record.push({club:id,s:S.season,tier:c.tier,pos});if(p.pro.record.length>12)p.pro.record.shift();p.pro.contract--;
+      if(id===S.my&&!S.auto){if(p.pro.contract<=0&&!p.pro.caretaker){emit('StaffLeft',id,`${p.name} leaves at the end of his contract.`,{pid:p.id,role});toPool(p.id);c.cast[role]=caretaker(id,role)}continue}
+      const gap=pos-(c.expect||8);
+      if(p.pro.caretaker||(role==='coach'&&gap>=3&&chance(.45))||(role==='td'&&gap>=5&&chance(.3))){if(!p.pro.caretaker)sackStaff(id,role,'in the summer');aiHire(id,role)}
+      else if(p.pro.contract<=0){p.pro.contract=ri(1,3);p.pro.wage=Math.round(p.pro.wage*1.08/5)*5}
+    }}
+  for(const pid of S.staffPool.slice()){const p=P(pid);p.age++;if(p.age>68){S.staffPool=S.staffPool.filter(x=>x!==pid)}}
+  staffPoolTopUp();
+}
+function staffAfterLoad(){
+  if(!S.staffPool||!S.staffPool.length){S.staffPool=S.staffPool||[];staffPoolTopUp()}
+  for(const id in S.clubs)for(const role of ['coach','td']){const pid=CL(id).cast[role];if(pid&&P(pid)&&!P(pid).pro)giveProfile(pid,role,CL(id).tier)}
+}
+
+defCommand('HireStaff',{check:(id,a)=>{if(!['coach','td'].includes(a.role))return'Unknown role';const c=staffCandidates(id,a.role).find(x=>x.pid===a.pid);if(!c)return'Not available';
+  const cost=c.comp+settlement(CL(id).cast[a.role]);if(F(id).cash-cost<-creditLimit(id))return'The bank will not cover this';return null},
+  run:(id,a)=>appoint(id,a.role,a.pid)});
+defCommand('SackStaff',{check:(id,a)=>{const p=P(CL(id).cast[a.role]);if(!p)return'Nobody to sack';if(p.pro.caretaker)return'A caretaker cannot be sacked; appoint someone';return null},run:(id,a)=>sackStaff(id,a.role)});
+defCommand('RenewStaff',{check:(id,a)=>{const p=P(CL(id).cast[a.role]);if(!p||p.pro.caretaker)return'Nobody to renew';if(p.pro.contract>1)return'The contract runs for more than a season';return null},
+  run:(id,a)=>{const p=P(CL(id).cast[a.role]);p.pro.contract=2;p.pro.wage=Math.round(p.pro.wage*1.1/5)*5;emit('StaffRenewed',id,`${p.name} signs for two more seasons (£${p.pro.wage} a week).`,{pid:p.id})}});
+
 /* ---- sim/ai.js ---- */
 /* ================= Simulation: rule-based club boards =================
    Every computer-run club decides through the same commands as the player (cmd(..., 'ai')): repairs, building,
@@ -1154,7 +1261,7 @@ function advanceWeek(){
   for(const id of ids)playersWeek(id);
   for(const id of ids)financeWeek(id,matches.filter(m=>m.h===id||m.a===id));
   for(const id of ids)membersWeek(id,matches.filter(m=>m.h===id||m.a===id));
-  for(const id of ids){if(aiRuns(id))aiBoardWeek(id)}
+  for(const id of ids){if(aiRuns(id)){aiBoardWeek(id);aiStaffWeek(id)}}
   if(w===WINTER_WEEK)for(const id of shuffle(ids.slice()))squadManager(id,'winter');
   if(w===RENEW_WEEK)for(const id of ids)renewals(id);
   membersOnEvents(eventsSince(mark));
@@ -1182,6 +1289,7 @@ function closeSeason(){
   const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
   for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
   for(const id of ids)groundSeasonEnd(id);
+  staffSeasonEnd();
   emit('SeasonClosed',null,`Season ${s} is over.`,{season:s});
   for(const f of HOOKS.seasonClosed)f(s);
   S.season++;startSeason();S.phase='season';
@@ -1207,7 +1315,9 @@ const MIGRATIONS={
     s.v=2;},
   // 2 → 3: members, dues, confidence and season targets per club; the chairman's career
   3:s=>{s.members=s.members||{};for(const id in s.clubs){const c=s.clubs[id];s.members[id]=s.members[id]||{count:Math.round(c.support*.4),dues:[50,40,30][c.tier],conf:55,log:[],goals:[],goalsSeason:0,agm:null}}
-    s.career=s.career||(s.my?[{club:s.my,from:1,to:null,why:null}]:[]);s.rep=s.rep||0;s.votedOut=s.votedOut||null;s.v=3;}
+    s.career=s.career||(s.my?[{club:s.my,from:1,to:null,why:null}]:[]);s.rep=s.rep||0;s.votedOut=s.votedOut||null;s.v=3;},
+  // 3 → 4: head coaches and directors get a professional profile; the free pool is filled after loading (staffAfterLoad)
+  4:s=>{s.staffPool=s.staffPool||[];s.v=4;}
 };
 function migrate(s){
   if(!s||typeof s.v!=='number'||s.v<1)throw new Error('Not a Northmarch layered save');
@@ -1216,7 +1326,7 @@ function migrate(s){
   return s;
 }
 function serialize(){return JSON.stringify(S)}
-function deserialize(txt){S=migrate(JSON.parse(txt));membersAfterLoad();return S}
+function deserialize(txt){S=migrate(JSON.parse(txt));staffAfterLoad();membersAfterLoad();return S}
 function save(){if(!HAS_DOM)return false;try{localStorage.setItem(SAVE_KEY,serialize());return true}catch(e){return false}}
 function hasSave(){if(!HAS_DOM)return false;try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
 function load(){if(!HAS_DOM)return false;try{const t=localStorage.getItem(SAVE_KEY);if(!t)return false;deserialize(t);return true}catch(e){return false}}
@@ -1358,7 +1468,7 @@ function gTabs(cur,list,act){return`<div class="tabs" role="tablist">${list.map(
 function msgLine(){return UI.msg?`<p class="${UI.msg.err?'err':'small up'}" role="status">${esc(UI.msg.text)}</p>`:''}
 function overlayShell(title,body){return`<div class="overlay" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="inner"><div class="row"><h2>${esc(title)}</h2><button class="tbtn" data-act="ov">Close</button></div>${msgLine()}${body}</div></div>`}
 function overlayView(){
-  if(UI.over==='ground')return groundOverlay();if(UI.over==='dept')return deptSheet(UI.arg);
+  if(UI.over==='ground')return groundOverlay();if(UI.over==='dept')return deptSheet(UI.arg);if(UI.over==='staff')return staffSheet(UI.arg);
   if(UI.over==='club')return clubSheet(UI.arg);if(UI.over==='player')return playerSheet(UI.arg);return'';
 }
 
@@ -1416,7 +1526,7 @@ function clubView(){
   const rows=[['Support',i=>CL(i).support,n0],['Capacity',i=>groundSignals(i).capacity,n0],['Squad strength',i=>teamStrength(i),v=>Math.round(v)],['Wage bill /wk',i=>wageBillK(i)*1000,v=>'£'+n0(v)],['Training level',i=>groundSignals(i).training,r1],['Academy level',i=>groundSignals(i).academy,r1]];
   const hist=c.hist.slice(-8).reverse();
   const g=G(id),run=g.projects.filter(p=>p.phase!=='done');
-  return`${membersPanel()}${deptsView()}
+  return`${membersPanel()}${staffPanel()}${deptsView()}
   <div class="panel"><div class="row"><span>The ground</span><b>${n0(sg.capacity)} places</b></div><p class="small muted">${g.plots.filter(p=>p.kind).map(p=>COMPLEX[p.kind].n+' ('+LV_NAME[p.lv].toLowerCase()+')').join(', ')}. ${6-g.plots.filter(p=>p.kind).length} free plot${6-g.plots.filter(p=>p.kind).length===1?'':'s'}.</p>${run.length?`<p class="small">Under way: ${run.map(p=>esc(p.label)).join(', ')}.</p>`:''}<button class="btn ghost" data-act="ov" data-arg="ground">Stadium, building and repairs</button></div>
   <div class="panel"><p class="eyebrow">Against the ${TIER_NAME[t]}</p><div class="cmp"><span></span><b>Us</b><b>Average</b>${rows.map(([n,fn,fm])=>`<span>${n}</span><b>${fm(fn(id))}</b><b>${fm(avg(fn))}</b>`).join('')}</div></div>
   <div class="panel"><p class="eyebrow">${esc(c.name)}</p><p class="small muted">Founded ${c.founded}. Ground: ${esc(c.ground)}. Rivals: ${nm(c.rival)} (${esc(c.rivalWhy)}). The club once ${esc(c.scar)}.</p>
@@ -1541,6 +1651,30 @@ function agmPanel(a,club){
   ${a.reasons&&a.reasons.length?`<p class="small muted">What the members weighed</p>${reasonRows(a.reasons)}`:''}</div>`;
 }
 
+/* ---- ui/staff.js ---- */
+/* ================= Screens: the head coach and the director of football ================= */
+const ROLE_N={coach:'Head coach',td:'Director of football'};
+function starsHtml(q){const n=staffStars(q);return`<span class="dots" aria-label="rated about ${n} of 5">${'★'.repeat(n)}<span class="muted">${'☆'.repeat(5-n)}</span></span>`}
+function recordLine(p){const r=p.pro.record.slice(-3).reverse();return r.length?r.map(x=>`${tierShort(x.tier)} ${ord(x.pos)} (${esc(CL(x.club).name.split(' ')[0])})`).join(', '):'No record yet'}
+function staffPanel(){
+  const id=S.my;
+  return`<div class="panel"><p class="eyebrow">Coach and director</p><p class="small muted">The two people who run the football. You appoint them; they do the work.</p>
+  <div class="stack">${['coach','td'].map(role=>{const p=P(CL(id).cast[role]),pr=p.pro;return`<button class="dept" data-act="staff" data-arg="${role}">
+    <span class="dh"><b>${ROLE_N[role]}</b>${starsHtml(staffEstimate(p.id))}</span>
+    <span class="small"><b>${esc(p.name)}</b>${pr.caretaker?' · <span class="down">caretaker</span>':` · ${esc(STAFF_SPEC[role][pr.spec])}`}</span>
+    <span class="small muted">${pr.caretaker?'Appoint someone: a caretaker is weak':`${pr.contract<=1?'<b class="down">contract ends this season</b>':pr.contract+' seasons left'} · £${pr.wage} a week`}</span></button>`}).join('')}</div></div>`;
+}
+function staffSheet(role){
+  const id=S.my,cur=P(CL(id).cast[role]),cands=staffCandidates(id,role),set=settlement(cur.id);
+  const curHtml=`<div class="panel"><div class="row"><b>${esc(cur.name)}</b>${starsHtml(staffEstimate(cur.id))}</div><p class="small">${cur.pro.caretaker?'Caretaker: holds the fort until you appoint someone.':esc(STAFF_SPEC[role][cur.pro.spec])}</p>
+    <p class="small muted">Age ${cur.age} · ${cur.pro.caretaker?'interim':cur.pro.contract+' season'+(cur.pro.contract===1?'':'s')+' left'} · £${cur.pro.wage} a week · ${esc(recordLine(cur))}</p>
+    ${cur.pro.caretaker?'':`<div class="seg">${cur.pro.contract<=1?`<button data-act="srenew" data-arg="${role}">Renew 2 seasons (+10%)</button>`:''}<button data-act="ssack" data-arg="${role}">Sack (£${set}k)</button></div>`}</div>`;
+  const list=cands.map(c=>{const p=P(c.pid),pr=p.pro,cost=c.comp+set;return UI.confirm===c.pid?`<div class="opt on"><b>Appoint ${esc(p.name)}?</b><span class="small">${c.comp?`£${c.comp}k compensation to ${nm(c.from)}. `:''}${set?`£${set}k settlement for ${esc(cur.name)}. `:''}£${Math.max(pr.wage,staffWage(role,pr.q))} a week.</span><div class="seg"><button data-act="shire" data-arg="${role}|${c.pid}">Appoint (£${r1(cost)}k now)</button><button data-act="confirm" data-arg="">Cancel</button></div></div>`
+    :`<button class="opt" data-act="confirm" data-arg="${c.pid}"><span class="row"><b>${esc(p.name)}</b>${starsHtml(staffEstimate(c.pid))}</span><span class="small">${esc(STAFF_SPEC[role][pr.spec])} · age ${p.age}</span><span class="small muted">${c.from?`At ${nm(c.from)} · £${c.comp}k compensation`:'Free to start'} · £${pr.wage}/wk · ${esc(recordLine(p))}</span></button>`}).join('');
+  return overlayShell(ROLE_N[role],`<p class="muted">${role==='coach'?'The coach decides how good the team plays: results, style and how fast young players grow.':'The director signs and sells within your frame. A sharp eye wastes less money on players who disappoint.'}</p>
+  ${curHtml}<p class="eyebrow">Candidates</p><p class="small muted">Ratings are your scouts' estimate. People at your own club are judged more sharply.</p><div class="stack">${list||'<p class="small muted">Nobody available.</p>'}</div>`);
+}
+
 /* ---- ui/act.js ---- */
 /* ================= Taps: one handler for every data-act, then save and redraw ================= */
 function say(r,okText){UI.msg=r&&r.ok===false?{err:true,text:r.err}:okText?{text:okText}:null}
@@ -1572,6 +1706,10 @@ function act(a,arg){
     case'ly':UI.ly=+arg;break;
     case'loan':say(cmd('TakeLoan',S.my,{amount:+arg,years:UI.ly}),`£${arg}k borrowed.`);break;
     case'repay':say(cmd('RepayLoan',S.my,{i:+arg}),'Loan repaid.');break;
+    case'staff':UI.over='staff';UI.arg=arg;UI.confirm=null;break;
+    case'shire':{const [role,pid]=arg.split('|');const r=cmd('HireStaff',S.my,{role,pid});say(r,'Appointed.');if(r.ok)UI.confirm=null;break}
+    case'ssack':say(cmd('SackStaff',S.my,{role:arg}),'Sacked. A caretaker takes over.');break;
+    case'srenew':say(cmd('RenewStaff',S.my,{role:arg}),'Contract renewed.');break;
     case'dues':say(cmd('SetDues',S.my,{delta:+arg}));break;
     case'pol':say(cmd('SetSquadPolicy',S.my,{wage:arg}));break;
     case'spend':say(cmd('SetSquadPolicy',S.my,{spend:+arg}));break;

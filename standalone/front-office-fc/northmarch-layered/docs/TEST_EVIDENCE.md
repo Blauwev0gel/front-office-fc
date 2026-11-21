@@ -25,3 +25,9 @@ Bekende beperkingen: webfonts worden in de test geblokkeerd (offline fallback-fo
 - sim-test 4 seeds × 20 seizoenen: groen; 46–59 AI-voorzitters weggestemd; de automatisch gespeelde speler 0–4 keer; 5–8 administrations.
 - save-test: schema v3; migraties 1→2→3 laden en spelen door tot en met een ALV.
 - ab-test, idle-test (met `S.agmOff`), playtest 390 px licht/donker (doelen, contributie, ALV-wegstemmen, nieuwe club, herladen): groen.
+
+## 2026-11-21 — Pakket 2 (trainer en directeur), `sh tests/run-all.sh`, exit 0
+- staff-test (20 seeds): trainer 'results' q16 vs q7: 45,3 vs 38,4 punten (14/20) · ontwikkeltrainer q15: groei +0,71 vs +0,56 per jonge speler · directeur 'eye' q16 vs q7: miskopen 2% vs 27% · ontslag (vergoeding, interim, vrije markt), verlenging, aflopend contract, ambitieplafond: groen · zes seizoenen: 98 ontslagen, 107 benoemingen, 13 weggekocht.
+- save-test: schema v4; migraties 1→2→3→4 laden en spelen door.
+- sim-test 4 seeds × 20 seizoenen: groen; 49–69 AI-voorzitters weggestemd; 6–9 administrations; mediane kas £298–395k.
+- ab-test, idle-test, members-test, playtest 390 px licht/donker (incl. trainer benoemen): groen.

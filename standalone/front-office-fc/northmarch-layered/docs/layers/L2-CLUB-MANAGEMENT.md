@@ -1,6 +1,6 @@
 # L2 — Volwaardig clubmanagement
 
-**Status:** Speelbaar. Uitvoering volgens `docs/PROMPT_L1_L2_AFRONDEN.md`: afdelingen ✓, pakket 1 (leden, ALV) ✓; pakket 2–6 open.
+**Status:** Speelbaar. Uitvoering volgens `docs/PROMPT_L1_L2_AFRONDEN.md`: afdelingen ✓, pakket 1 (leden, ALV) ✓, pakket 2 (trainer en directeur) ✓; pakket 3–6 open.
 
 ## 1. Spelbelofte
 De voorzitter bestuurt de club proactief: onderzoeken, vergelijken, bouwen, financieren, onderhouden en bijsturen,
@@ -27,6 +27,7 @@ Geen eigen spelstaat: L2 is UI plus speleracties op L1-commando's (`src/ui/*.js`
 | Contributie instellen | Club-tab → Members | `SetDues` | ledental ↔ contributie-inkomsten ↔ vertrouwen (getest: +£25 → −16% leden, +48% contributie, −15 vertrouwen) |
 | Seizoensdoelen volgen | Week-tab | — | drie doelen (positie, financiën, academie) met voortgang; beoordeeld op de ALV |
 | ALV overleven | na week 30 | — (`holdAGMs`) | stemming uit vertrouwen; verloren = weggestemd, drie nieuwe stoelen (D7) |
+| Hoofdtrainer en directeur benoemen, ontslaan, verlengen | Club-tab → Coach and director | `HireStaff`, `SackStaff`, `RenewStaff` | trainer: wedstrijdsterkte, spelstijl, groei (getest: topcoach +6,9 punten, ontwikkeltrainer +27% groei); directeur: miskopen 2% vs 27%, scoutingbereik, onderhandelen |
 | Inspecteren en vergelijken | Tables → club, Club-tab | — | stand, sterkte, aanhang, faciliteiten van elke club |
 | Prognose | Money-tab → Overview | — | 26-wekenprognose met bandbreedte |
 
@@ -46,6 +47,14 @@ Vertrouwen (0–100) beweegt met oorzaak: uitslagen tegen verwachting (derby ×1
 administration (−20), geldnood, sluiting van een tribune, nieuwe faciliteiten, beker (+8); op de ALV: doelen (±0,8×gewicht), promotie (+12),
 degradatie (−15); daarna 15% terug naar 55. Stemming: voor = 20 + 0,75 × vertrouwen ± 5; onder 50% = weggestemd.
 AI-clubs: zelfde meter; een weggestemde AI-voorzitter wordt vervangen door de oppositiekandidaat (andere waarde → ander beleid); bij laag vertrouwen verlaagt een AI-bestuur prijzen.
+
+### Pakket 2 — trainer en directeur (ontwerpnotitie)
+Personen in `S.P` met `pro` {q 1–20, spec, wage, contract, record, off (schattingsfout)}; vrije markt `S.staffPool`; schema v4.
+Trainer: sterkte +0,45×(q−10) (×1,35 bij 'results'); 'attacking' ×1,07 eigen/×1,03 tegen goals; 'defensive' ×0,97/×0,91; groei ×(1+0,025×(q−10)), +0,18 bij 'development'.
+Directeur: inschattingsruis (20−oog)/7, bereik +(q−10)/2, prijs ×(1,18−0,018×onderhandelen), 'youth' voorkeur voor ≤21.
+Salaris 120 (trainer) / 95 (directeur) × 1,27^(q−8) per week. Wil niet onder zijn niveau werken (q ≤ divisieplafond + 3).
+Ontslag: halve restwaarde contract, interim (q 4–7). Wegkopen: halve restwaarde als vergoeding. AI: ontslag bij achterstand ≥4 plaatsen (week 10/20, 30%) of ≥3 in de zomer (45%); vervangers primair uit de vrije markt.
+De speler ziet een schatting in sterren; bij de eigen club halveert de fout. Eigen wil (mandaten, initiatief) volgt in laag 3.
 
 ### Afdelingsmodel
 Signaal = faciliteit × (budget × (0,55 + 0,15 × personeel)) + 0,3 × personeel × budget, × koers (1,15).

@@ -35,7 +35,7 @@ function release(id,p,why){const sq=S.squads[id];const pay=releaseCost(p);if(pay
 
 /* the players a club's director can see: free agents and players at other clubs, wider with a better scouting office */
 function scoutPool(id,pos,n){
-  const reach=6+Math.round(2*groundSignals(id).scouting),out=[];
+  const reach=Math.max(4,6+Math.round(2*groundSignals(id).scouting+(pq(tdOf(id))-10)/2)),out=[];
   const fa=S.fa.filter(p=>!pos||p.pos===pos);for(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
   const others=Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1);
   for(let k=0;k<reach&&others.length;k++){const o=pick(others),c=S.squads[o].filter(p=>(!pos||p.pos===pos)&&p.inj<=0);if(c.length)out.push({p:pick(c),from:o})}
@@ -47,7 +47,7 @@ function sellerAgrees(p,from,fee){
   const need=S.squads[from].filter(x=>x.pos===p.pos).length<=REQ[p.pos];
   if(need&&F(from).cash>=0)return false;
   if(from===S.my&&!S.auto)return fee>=playerValue(p)*1.5&&!isCore(from,p); // the player's director only sells surplus at a premium
-  return fee>=askingFee(p,from);
+  return fee>=askingFee(p,from)*.85;
 }
 function budgetFor(id){const f=F(id),reserve=wageBillK(id)*6;return Math.max(0,Math.round((f.cash-reserve)*f.policy.spend))}
 
@@ -56,16 +56,17 @@ function shopFor(id,pos,minQ,o={}){
   const cap=wageCapK(id),bill=wageBillK(id);let budget=o.budget??budgetFor(id);
   let best=null,bv=-1;
   for(const c of scoutPool(id,pos)){
-    const p=c.p;if(p.q<minQ)continue;
-    const fee=c.from?askingFee(p,c.from):0,wage=wageFor(p.q)/1000;
+    const p=c.p,seen=p.q+(rnd()+rnd()-1)*2.5*tdNoise(id);if(seen<minQ)continue; // the director judges by eye: a weak eye is fooled more often
+    const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000;
     if(fee>budget)continue;if(bill+wage>cap&&!o.mustHave)continue;
     if(c.from&&!sellerAgrees(p,c.from,fee))continue;
-    const v=o.mustHave?-wage*1000-fee:p.q+(p.age<=24?(p.pa-p.q)*.3:0)-(p.age>=31?.6:0)-fee/200;
+    const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.3:0)-(p.age>=31?.6:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0);
     if(v>bv){bv=v;best={...c,fee}}
   }
   if(!best&&o.mustHave){const base=11.5+(tierBaseStr(2)-50)/4+(S.qref-11.7),p=newPlayer(pos,{age:ri(19,30),q:base-2+rnd()*1.2,contract:0});
     p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0}}
   if(!best)return false;
+  if(!o.mustHave&&minQ>0){const st=S.stats[id];st.buys=(st.buys||0)+1;if(best.p.q<minQ)st.misbuys=(st.misbuys||0)+1;st.spent=r1((st.spent||0)+best.fee)} // a signing that is not what the director thought
   if(best.from)transfer(best.p,best.from,id,best.fee,'buy');else signFree(best.p,id);
   return best;
 }

@@ -10,6 +10,7 @@ const LINE={
   feesIn:['Transfer fees received','transfers'],feesOut:['Transfer fees paid','transfers'],
   wages:['Player wages','wages'],
   depts:['Department budgets','costs'],upkeep:['Ground upkeep','costs'],ops:['Matchday stewards and police','costs'],travel:['Away travel','costs'],
+  staff:['Head coach and director','wages'],staffpay:['Staff compensation','costs'],
   build:['Construction','costs'],repairs:['Repairs','costs'],interest:['Interest','costs'],
   loanIn:['Loans drawn','financing'],loanOut:['Loan repayments','financing']
 };
@@ -59,7 +60,7 @@ function weekLines(id,home,o={}){
     L.events=g.shop*.08+g.events*.07;
     L.dues=S.members&&S.members[id]?S.members[id].count*S.members[id].dues/SEASON_WEEKS/1000:c.support*.4*40/SEASON_WEEKS/1000;
     L.tv=TV[t];
-    L.wages=-wageBillK(id);L.depts=-deptCost(id);L.upkeep=-(.15+g.capacity/12000);
+    L.wages=-wageBillK(id);L.staff=-staffWeekK(id);L.depts=-deptCost(id);L.upkeep=-(.15+g.capacity/12000);
   }
   for(const k in L){L[k]=r2(L[k]);if(!L[k])delete L[k]}
   return L;

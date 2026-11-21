@@ -34,3 +34,10 @@
 - Gevonden: tests bleven hangen zodra de speler werd weggestemd (oneindige weeklus) → `playSeason()` en `seasonOver()` per fase; review moet vóór het keuzescherm renderen.
 - Afgestemd: weggestemde AI-voorzitters van 75 naar ±50 per 20 seizoenen.
 - **Volgende:** pakket 2, hoofdtrainer en technisch directeur benoemen.
+
+## 2026-11-21 — Pakket 2: hoofdtrainer en technisch directeur
+- Nieuw: `src/club/staff.js`, `src/ui/staff.js`, `tests/staff-test.js`; schema v4 (migratie getest).
+- Trainer telt mee in wedstrijden (sterkte, stijl) en groei; directeur in inschatting, bereik en prijs. Salarispost in het grootboek.
+- Bijgesteld na tests: trainereffect ×1,5; wegkoopketens gestopt (vrije markt eerst); minder ontslagen; ambitieplafond en steilere salarissen.
+- Meting toegevoegd: miskopen per club (`S.stats.buys/misbuys/spent`).
+- **Volgende:** pakket 3, seizoensbegroting en commercie.

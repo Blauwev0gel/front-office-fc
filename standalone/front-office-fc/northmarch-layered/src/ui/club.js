@@ -11,7 +11,7 @@ function gTabs(cur,list,act){return`<div class="tabs" role="tablist">${list.map(
 function msgLine(){return UI.msg?`<p class="${UI.msg.err?'err':'small up'}" role="status">${esc(UI.msg.text)}</p>`:''}
 function overlayShell(title,body){return`<div class="overlay" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="inner"><div class="row"><h2>${esc(title)}</h2><button class="tbtn" data-act="ov">Close</button></div>${msgLine()}${body}</div></div>`}
 function overlayView(){
-  if(UI.over==='ground')return groundOverlay();if(UI.over==='dept')return deptSheet(UI.arg);
+  if(UI.over==='ground')return groundOverlay();if(UI.over==='dept')return deptSheet(UI.arg);if(UI.over==='staff')return staffSheet(UI.arg);
   if(UI.over==='club')return clubSheet(UI.arg);if(UI.over==='player')return playerSheet(UI.arg);return'';
 }
 
@@ -69,7 +69,7 @@ function clubView(){
   const rows=[['Support',i=>CL(i).support,n0],['Capacity',i=>groundSignals(i).capacity,n0],['Squad strength',i=>teamStrength(i),v=>Math.round(v)],['Wage bill /wk',i=>wageBillK(i)*1000,v=>'£'+n0(v)],['Training level',i=>groundSignals(i).training,r1],['Academy level',i=>groundSignals(i).academy,r1]];
   const hist=c.hist.slice(-8).reverse();
   const g=G(id),run=g.projects.filter(p=>p.phase!=='done');
-  return`${membersPanel()}${deptsView()}
+  return`${membersPanel()}${staffPanel()}${deptsView()}
   <div class="panel"><div class="row"><span>The ground</span><b>${n0(sg.capacity)} places</b></div><p class="small muted">${g.plots.filter(p=>p.kind).map(p=>COMPLEX[p.kind].n+' ('+LV_NAME[p.lv].toLowerCase()+')').join(', ')}. ${6-g.plots.filter(p=>p.kind).length} free plot${6-g.plots.filter(p=>p.kind).length===1?'':'s'}.</p>${run.length?`<p class="small">Under way: ${run.map(p=>esc(p.label)).join(', ')}.</p>`:''}<button class="btn ghost" data-act="ov" data-arg="ground">Stadium, building and repairs</button></div>
   <div class="panel"><p class="eyebrow">Against the ${TIER_NAME[t]}</p><div class="cmp"><span></span><b>Us</b><b>Average</b>${rows.map(([n,fn,fm])=>`<span>${n}</span><b>${fm(fn(id))}</b><b>${fm(avg(fn))}</b>`).join('')}</div></div>
   <div class="panel"><p class="eyebrow">${esc(c.name)}</p><p class="small muted">Founded ${c.founded}. Ground: ${esc(c.ground)}. Rivals: ${nm(c.rival)} (${esc(c.rivalWhy)}). The club once ${esc(c.scar)}.</p>

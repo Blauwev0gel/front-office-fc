@@ -32,6 +32,10 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     await tap('[data-act=gsel] >> nth=0');await tap('[data-act=gbuild] >> nth=1');await shot('ground-build');
     ok(await page.evaluate(()=>S.grounds[S.my].projects.some(p=>p.phase!=='done')),`${scheme}: a building project starts from the Build tab`);
     await tap('.overlay [data-act=ov]');
+    // the coach: open the sheet, appoint the first candidate
+    await tap('[data-act=staff][data-arg=coach]');await shot('staff');await wide('coach sheet');
+    const c0=await page.evaluate(()=>C().cast.coach);await tap('.overlay [data-act=confirm] >> nth=0');await tap('.overlay [data-act=shire]');
+    ok(await page.evaluate(c=>C().cast.coach!==c,c0),`${scheme}: a new head coach is appointed`);await tap('.overlay [data-act=ov]');
     // departments: open one, hire staff, change the course, build its facility from the sheet
     await tap('[data-act=dept][data-arg=medical]');await shot('dept');await wide('department');
     const lv=await page.evaluate(()=>S.grounds[S.my].depts.medical.staff);

@@ -17,7 +17,7 @@ function advanceWeek(){
   for(const id of ids)playersWeek(id);
   for(const id of ids)financeWeek(id,matches.filter(m=>m.h===id||m.a===id));
   for(const id of ids)membersWeek(id,matches.filter(m=>m.h===id||m.a===id));
-  for(const id of ids){if(aiRuns(id))aiBoardWeek(id)}
+  for(const id of ids){if(aiRuns(id)){aiBoardWeek(id);aiStaffWeek(id)}}
   if(w===WINTER_WEEK)for(const id of shuffle(ids.slice()))squadManager(id,'winter');
   if(w===RENEW_WEEK)for(const id of ids)renewals(id);
   membersOnEvents(eventsSince(mark));
@@ -45,6 +45,7 @@ function closeSeason(){
   const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
   for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
   for(const id of ids)groundSeasonEnd(id);
+  staffSeasonEnd();
   emit('SeasonClosed',null,`Season ${s} is over.`,{season:s});
   for(const f of HOOKS.seasonClosed)f(s);
   S.season++;startSeason();S.phase='season';

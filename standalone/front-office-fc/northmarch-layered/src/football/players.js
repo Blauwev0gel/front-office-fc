@@ -59,7 +59,7 @@ function wageBillK(id){return r2(S.squads[id].reduce((a,p)=>a+p.wage,0)/1000)}
 function playersWeek(id){
   const sq=S.squads[id],sg=groundSignals(id),t=sg.training,med=sg.medPrev,medR=sg.medRec,st=S.stats[id];
   const risk=clamp(1.25-.15*med-(sg.fitness?.08:.03)*Math.min(t,4)-(sg.hasTM?.12:0),.45,1.3);
-  const grow=(.12+.08*t)/SEASON_WEEKS,fade=(1-.06*Math.min(t,8))/SEASON_WEEKS;
+  const grow=(.12+.08*t)*coachGrowth(id)/SEASON_WEEKS,fade=(1-.06*Math.min(t,8))/SEASON_WEEKS;
   for(const p of sq){
     if(p.inj>0){p.inj--;if(p.inj===0&&id===S.my)emit('Return',id,`${p.name} is fit again.`,{pid:p.id})}
     else if(rnd()<.02*risk*(p.trait==='injury-prone'?1.8:1)){
@@ -92,5 +92,5 @@ function playersSeasonEnd(id){
   emit('YouthIntake',id,`${kids.length} academy graduate${kids.length>1?'s':''} join the squad.`,{n:kids.length,best:Math.max(...kids.map(k=>k.pa))});
   return left;
 }
-function statsInit(){return{inj:0,injWeeks:0,youthGrowth:0,intake:0,intakeBest:0}}
+function statsInit(){return{inj:0,injWeeks:0,youthGrowth:0,intake:0,intakeBest:0,buys:0,misbuys:0,spent:0}}
 function tierBaseStr(t){const [a,b]=TIER_STR[t];return (a+b)/2}

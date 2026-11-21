@@ -357,6 +357,7 @@ Uitwerking: `ALV-VOORZITTER.md`.
     - een begroting in vier potjes (transfers, lonen met plafond, faciliteiten, reserve);
     - bankvoorwaarden bij te veel schuld blokkeren acties in andere lagen;
     - sponsors neem je aan of weiger je, zonder onderhandeling; de timing bepaalt de hoogte van een aanbod.
+80. **Diepte van de systeemlaag** (22-11-2026): maatstaf Football Manager; het stadion zo diep als FM; financiën als diep systeem waarin de speler een samenvatting ziet met doorklik. Laag 1 en 2 worden v3 (concept, open punten ❓ in de documenten).
 
 ## 14. Open en volgende stappen
 1. **De integrale test:** seizoen 2 van Pell United op papier, met de afspraken, de nieuwe ALV, woorden in plaats van getallen en de beperkingen van vorig jaar (statuut, kaartprijs, Okon's veto).

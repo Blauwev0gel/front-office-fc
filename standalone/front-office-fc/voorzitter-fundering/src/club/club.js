@@ -106,7 +106,7 @@ function clubSeasonEnd(){
   }
   // two academy graduates every summer
   for(let i=0;i<2;i++)cf.squad.push(newPlayer(pick(POS.slice(1)),{age:17,q:Math.round((squadQuality(cf.squad,0)-3+rnd()*1.2)*10)/10,academy:true,contract:2}));
-  cf.budgetLeft=cf.frames.budget;cf.keySold=null;faSummer();
+  groundSeasonEnd();cf.budgetLeft=cf.frames.budget;cf.keySold=null;faSummer();
 }
 /* ----- API for the chairman layer ----- */
 function myBaseStr(){return S.cf?qualityToStr(squadQuality(S.cf.squad,0)):50}

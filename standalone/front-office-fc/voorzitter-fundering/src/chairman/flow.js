@@ -163,5 +163,13 @@ function act(a,arg){
     case'toEnd':S.alv.step='end';break;
     case'nextSeason':endSeason();break;
     case'summerNext':S.screen='seats';break;
+    case'gtab':UI.gt=arg;UI.gsel=null;break;
+    case'gsel':UI.gsel=arg||null;break;
+    case'gbuild':{const [k,o]=String(arg).split('|');startProject(k,o);UI.gsel=null;break}
+    case'grepair':{const r=repair(arg);if(r)C().cash=Math.round((C().cash-r.cost)*10)/10;G().repairBill=0;break}
+    case'gdept':{const [d,l]=String(arg).split(':');setDeptBudget(d,l);break}
+    case'gcourse':{const [d,c]=String(arg).split(':');setDeptCourse(d,c);break}
+    case'mtab':UI.mt=arg;break;
+    case'price':{const [k,d]=String(arg).split(':');setPrice(k,+d);break}
   }
 }

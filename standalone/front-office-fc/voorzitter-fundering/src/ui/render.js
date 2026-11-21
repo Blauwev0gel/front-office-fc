@@ -96,6 +96,8 @@ function summerView(){
 function membersBody(){const c=C();const pr=S.promises.map(p=>`<div class="row small"><span>${esc(pdef(p.id).t)}</span><span class="mood">${p.st!=='open'?p.st:behind(p.id)?'Behind':'On track'}</span></div>`).join('')||'<p class="small muted">No promises.</p>';
   const st=standings(c.tier);return`<p class="eyebrow">Members' corner</p>${moodsPanel('The members')}<div class="panel"><p class="eyebrow">Chairman's notes</p>${pr}</div>${S.cf?moneyPanel()+mandatePanel():''}<div class="panel"><p class="eyebrow">The table</p>${st.map((id,i)=>`<div class="row small" style="font-variant-numeric:tabular-nums${id===S.my?';font-weight:700':''}${i===1?';border-bottom:2px solid var(--good)':''}${i===13?';border-bottom:2px solid var(--bad)':''}"><span style="display:flex;gap:8px;align-items:center">${i+1}. ${crestSVG(CL(id),20)} ${esc(CL(id).name)}</span><span>${S.tbl[id].pts}</span></div>`).join('')}</div><button class="btn ghost" data-act="ov" data-arg="region">The region, people and free agents</button>`}
 function overlayView(){
+  if(UI.over==='ground')return groundOverlay();
+  if(UI.over==='money')return moneyOverlay();
   if(UI.over==='player')return playerOverlay();
   if(UI.over==='squad')return squadOverlay();
   if(UI.over==='table'){const c=C();
@@ -125,7 +127,7 @@ function weekView(){
   if(UI.t==='room')return squadBody()+playBtn;
   if(UI.t==='members')return membersBody()+playBtn;
   if(UI.t==='staff')return staffBody()+playBtn;
-  return`${coverView()}<p class="eyebrow">Club news</p>${feedView()}${fx?fixtureCard(fx):''}${playBtn}`;
+  return`${coverView()}${hubCards()}<p class="eyebrow">Club news</p>${feedView()}${fx?fixtureCard(fx):''}${playBtn}`;
 }
 function myForm(){return(S.myRes||[]).slice(-5).map(r=>`<span class="${r}">${r}</span>`).join('')}
 function coverView(){const c=C(),t=S.tbl[S.my],f=S.cf&&S.cf.fin;

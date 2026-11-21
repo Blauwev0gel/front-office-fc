@@ -446,3 +446,19 @@ body.noNav{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .brief{overflow:hidden}.stampB{right:18px;top:16px}
 
 .trk-lost{font-size:14px;color:#c9c3b4;text-decoration:line-through}
+
+/* system layer: hub cards, ground and money overlays */
+.hub{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hubc{display:flex;flex-direction:column;gap:4px;text-align:left;min-height:44px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.hubc b{font-size:20px;font-variant-numeric:tabular-nums}
+.grow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;min-height:44px}
+.cbar{display:inline-block;width:64px;height:8px;border-radius:4px;background:var(--chip);overflow:hidden;vertical-align:middle}.cbar i{display:block;height:100%;background:var(--good)}
+.cbar.mid i{background:#b7791f}.cbar.lo i{background:var(--bad)}.cnum{min-width:34px;text-align:right;font-variant-numeric:tabular-nums}
+.opt{display:flex;flex-direction:column;gap:3px;text-align:left;min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.opt.on{border-color:var(--navy);border-width:2px}.opt.dim{opacity:.6;cursor:default}
+.offers{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.offer{display:flex;flex-direction:column;gap:2px;min-height:44px;padding:8px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:12px var(--f-body);cursor:pointer;text-align:left}.offer b{font-size:15px}
+.stepper{display:flex;align-items:center;gap:6px}.stepper button{width:44px;height:44px;border-radius:22px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:600 20px var(--f-body);cursor:pointer}.stepper b{min-width:44px;text-align:center;font-variant-numeric:tabular-nums}
+.hline{display:grid;grid-template-columns:96px 1fr 64px;gap:8px;align-items:center;font-size:14px}.hline b{text-align:right;font-variant-numeric:tabular-nums}
+.hbar{height:10px;border-radius:5px;background:var(--chip);overflow:hidden}.hbar i{display:block;height:100%;background:var(--good)}.hbar i.neg{background:var(--bad)}
+.fcast{width:100%;height:auto}.fcast .band{fill:var(--chip)}.fcast .zero{stroke:var(--bad);stroke-dasharray:4 3;stroke-width:1}.fcast .mid{fill:none;stroke:var(--ink);stroke-width:2}

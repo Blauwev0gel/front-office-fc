@@ -57,7 +57,7 @@ function weekLines(id,home,o={}){
     L.sponsors=SPONSOR[t]*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*form*(.7+.3*g.sales);
     L.merch=c.support/1000*.45*(1+g.shop*.15)*form;
     L.events=g.shop*.08+g.events*.07;
-    L.dues=c.support*.4*(1+g.community*.05)*40/SEASON_WEEKS/1000;
+    L.dues=S.members&&S.members[id]?S.members[id].count*S.members[id].dues/SEASON_WEEKS/1000:c.support*.4*40/SEASON_WEEKS/1000;
     L.tv=TV[t];
     L.wages=-wageBillK(id);L.depts=-deptCost(id);L.upkeep=-(.15+g.capacity/12000);
   }

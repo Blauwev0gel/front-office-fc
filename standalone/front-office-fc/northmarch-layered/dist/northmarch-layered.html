@@ -153,6 +153,9 @@ hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
 .dept:focus-visible,.dept:hover{border-color:var(--navy)}
 .seg button[disabled]{opacity:.55;cursor:default}
 .seg5{grid-template-columns:repeat(5,1fr)}.seg5 button{font-size:12px;padding:2px}
+.conf{display:block;position:relative;height:10px;border-radius:5px;background:var(--chip);overflow:visible}.conf i{display:block;height:100%;border-radius:5px;background:var(--good)}.conf.mid i{background:#b7791f}.conf.lo i{background:var(--bad)}
+.conf b{position:absolute;top:-3px;width:2px;height:16px;background:var(--ink);opacity:.5}
+.vote{height:18px;border-radius:9px;background:var(--bad);overflow:hidden}.vote i{display:block;height:100%;background:var(--good)}
 </style>
 </head>
 <body>
@@ -262,7 +265,7 @@ function cmd(name,club,args,actor){
    Owns S.clubs (identity, tier, support, rivals) and S.P (people). mkPerson/castClub/addRel/weakest are the
    Northmarch functions (northmarch.html @7a2d5d3), kept so the story layer (L4) can attach later.
    Squads (football), grounds (club) and money (finance) are created here but owned by their own domains. */
-const VERSION=2;
+const VERSION=3;
 const SAVE_KEY='northmarch-layered-v1';
 const TIERS=[0,1,2];
 const TIER_STR=[[51,59],[44,53],[37,46]];
@@ -303,7 +306,7 @@ function chairValue(id){const c=CL(id),p=c.cast.chair&&P(c.cast.chair);return p?
 
 function newWorld(seed){
   S={v:VERSION,seed,rs:seed|0||1,pc:1,season:1,week:0,phase:'choose',my:null,clubs:{},P:{},squads:{},grounds:{},fin:{},fa:[],
-    tbl:{},fx:{},cup:null,qref:11.7,matches:[],ev:[],evn:0,stats:{},hist:[],layers:{story:false,staff:false,dynasty:false},auto:false,seats:[]};
+    tbl:{},fx:{},cup:null,qref:11.7,matches:[],ev:[],evn:0,stats:{},members:{},career:[],rep:0,votedOut:null,hist:[],layers:{story:false,staff:false,dynasty:false},auto:false,seats:[]};
   // the Northmarch core clubs
   mkClub('pell','Pell United','harbour',1,{support:1600,groups:[['workers',40,58],['students',25,62],['business',35,40]],statute:['No outside owner above 25%'],founded:1891,legend:"Jack 'Sailor' Garside",scar:'lost a cup final to their rivals',ground:'Dock Road'});
   mkClub('corden','Corden Athletic','mill',1,{support:1800});
@@ -322,7 +325,7 @@ function newWorld(seed){
   // the domains: squads, grounds, money
   for(const id of ids){const c=CL(id),[a,b]=TIER_STR[c.tier];
     const str=id==='pell'?48:id==='harrow'?57:ri(a,b)+Math.round((c.support-(TIER_SUPPORT[c.tier][0]+TIER_SUPPORT[c.tier][1])/2)/600);
-    S.squads[id]=genSquad(str,id);S.grounds[id]=groundInit(id);S.fin[id]=finInit(id);S.stats[id]=statsInit();}
+    S.squads[id]=genSquad(str,id);S.grounds[id]=groundInit(id);S.fin[id]=finInit(id);S.stats[id]=statsInit();S.members[id]=membersInit(id);}
   S.qref=worldQuality();
   faInit();
   startSeason();
@@ -340,7 +343,9 @@ function makeSeats(){
 }
 function chooseClub(id){
   if(!S.seats.includes(id))return false;
-  S.my=id;S.phase='season';
+  S.my=id;S.phase='season';S.votedOut=null;
+  S.career.push({club:id,from:S.season,to:null,why:null});
+  const m=M(id);m.conf=r1(clamp(62+S.rep*2,40,80));m.log.push({s:S.season,w:S.week,d:0,why:'A new chairman: the members give you a chance'});
   emit('ChairmanElected',id,`You are elected chairman of ${CL(id).name}.`);
   return true;
 }
@@ -370,6 +375,7 @@ function startSeason(){
   S.week=0;S.matches=[];
   S.cup={round:0,alive:tierIds(1).concat(tierIds(2)),ties:[],winner:null,log:[]};
   cupDraw();
+  setGoalsAll();
 }
 function standings(tier){return Object.keys(S.tbl).filter(i=>CL(i).tier===tier).sort((x,y)=>{const a=S.tbl[x],b=S.tbl[y];return b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||(x<y?-1:1)})}
 function posOf(id){return standings(CL(id).tier).indexOf(id)+1}
@@ -910,7 +916,7 @@ function weekLines(id,home,o={}){
     L.sponsors=SPONSOR[t]*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*form*(.7+.3*g.sales);
     L.merch=c.support/1000*.45*(1+g.shop*.15)*form;
     L.events=g.shop*.08+g.events*.07;
-    L.dues=c.support*.4*(1+g.community*.05)*40/SEASON_WEEKS/1000;
+    L.dues=S.members&&S.members[id]?S.members[id].count*S.members[id].dues/SEASON_WEEKS/1000:c.support*.4*40/SEASON_WEEKS/1000;
     L.tv=TV[t];
     L.wages=-wageBillK(id);L.depts=-deptCost(id);L.upkeep=-(.15+g.capacity/12000);
   }
@@ -997,6 +1003,96 @@ defCommand('RepayLoan',{check:(id,a)=>{const l=F(id).loans[a.i];if(!l)return'No 
 defCommand('SetSquadPolicy',{check:(id,a)=>(a.wage&&!WAGE_RATIO[a.wage])||(a.spend!=null&&!(a.spend>=0&&a.spend<=1))?'Unknown policy':null,
   run:(id,a)=>{const p=F(id).policy;if(a.wage)p.wage=a.wage;if(a.spend!=null)p.spend=a.spend}});
 
+/* ---- club/members.js ---- */
+/* ================= Club: members, confidence, season targets and the AGM =================
+   Owns S.members[id] (members, dues, confidence, its log, the season's targets) and the chairman's career
+   (S.career, S.rep). Decisions D6 and D7: confidence moves with real causes, every club holds an AGM after week 30,
+   and a chairman who loses the vote is out. The player then picks one of three open chairs in the same world. */
+const DUES_REF=[50,40,30]; // £ a year per member, by division
+const CONF_BASE=55;
+function M(id){return S.members[id]}
+function membersInit(id,o={}){
+  const c=CL(id);return{count:Math.round(c.support*.4),dues:DUES_REF[c.tier],conf:o.conf??ri(48,62),log:[],goals:[],goalsSeason:0,agm:null};
+}
+function confLog(id,d,why){
+  const m=M(id);if(!d)return;const before=m.conf;m.conf=r1(clamp(m.conf+d,0,100));
+  const last=m.log[m.log.length-1];
+  if(last&&last.why===why&&last.s===S.season){last.d=r1(last.d+(m.conf-before));last.w=S.week}else m.log.push({s:S.season,w:S.week,d:r1(m.conf-before),why});
+  if(m.log.length>40)m.log.shift();
+}
+function priceIndex(id){const pr=F(id).prices,ref=PRICE_DEF[CL(id).tier];return(pr.terrace/ref.terrace*.6+pr.seated/ref.seated*.4)}
+/* weekly: members follow support, dues and the clubhouse; confidence follows results, prices and the club's state */
+function membersWeek(id,matches){
+  const m=M(id),c=CL(id),g=groundSignals(id),ref=DUES_REF[c.tier];
+  const target=c.support*.4*(1+g.community*.05)*Math.pow(ref/m.dues,.5);
+  m.count=Math.max(50,Math.round(m.count+(target-m.count)*.04));
+  for(const x of matches){
+    const home=x.h===id,gf=home?x.gh:x.ga,ga=home?x.ga:x.gh,pts=gf>ga?3:gf===ga?1:0;
+    if(x.comp==='league'){const xp=home?x.xh:x.xa,derby=CL(x.h).rival===x.a;confLog(id,(pts-xp)*(derby?1.6:.9),derby?'Derby results':'Results against expectation')}
+    else if(x.winner===id&&x.round>=3)confLog(id,1.5,'A cup run');
+  }
+  const pi=priceIndex(id);if(pi>1.2)confLog(id,-(pi-1.2)*2.5,'Ticket prices');else if(pi<.9)confLog(id,.15,'Ticket prices');
+  if(m.dues>ref*1.3)confLog(id,-(m.dues/ref-1.3)*1.5,'Membership dues');else if(m.dues<ref*.8)confLog(id,.1,'Membership dues');
+}
+/* events that members react to (called once per event from the clock) */
+const CONF_EVENT={Administration:[-20,'Administration'],CashCrisis:[-6,'Money trouble'],ForcedSale:[-3,'Forced player sales'],SafetyClosure:[-4,'A stand closed for safety'],ProjectCompleted:[2,'New facilities'],CupWon:[8,'Winning the cup']};
+function membersOnEvents(evs){for(const e of evs){const r=CONF_EVENT[e.t];if(r&&e.c&&S.members[e.c])confLog(e.c,r[0],r[1])}}
+
+/* ----- season targets: league position, money and the academy ----- */
+function academyApps(id){return S.squads[id].filter(p=>p.academy).reduce((a,p)=>a+p.sApps,0)}
+function setGoals(id){
+  const c=CL(id),m=M(id),exp=c.expect||8,f=F(id),inc=estSeasonIncome(id);
+  const pos=c.tier>0&&exp<=3?2:clamp(exp+2,1,14);
+  m.goals=[
+    {k:'league',target:pos,text:c.tier>0&&pos<=2?`Promotion: finish in the top two of ${TIER_NAME[c.tier]}`:`Finish ${ord(pos)} or higher in ${TIER_NAME[c.tier]}`,w:10},
+    f.cash<inc*.3?{k:'money',target:0,text:'No operating loss this season',w:6}:{k:'money',target:-Math.round(inc*.1),text:`Keep any operating loss under £${Math.round(inc*.1)}k`,w:6},
+    {k:'youth',target:[30,45,60][c.tier],text:`Academy players make ${[30,45,60][c.tier]} appearances between them`,w:5}
+  ];m.goalsSeason=S.season;
+}
+function setGoalsAll(){for(const id in S.clubs)if(S.members[id])setGoals(id)}
+function goalProgress(id,gl){
+  if(gl.k==='league'){const p=posOf(id);return{now:p,met:p<=gl.target,text:`${ord(p)} now`}}
+  if(gl.k==='money'){const r=operatingResult(F(id).season);return{now:r,met:r>=gl.target,text:`${k1v(r)} so far`}}
+  const a=academyApps(id);return{now:a,met:a>=gl.target,text:`${a} so far`};
+}
+function k1v(v){return(v<0?'−':'')+'£'+Math.abs(Math.round(v))+'k'}
+/* ----- the AGM: held for every club after week 30, before the season closes ----- */
+function holdAGMs(){
+  const out=[];
+  for(const id in S.clubs){const m=M(id),c=CL(id);
+    for(const gl of m.goals){const pr=goalProgress(id,gl);confLog(id,pr.met?gl.w*.8:-gl.w*.8,pr.met?'Season targets met':'Season targets missed')}
+    const pos=posOf(id);if(c.tier>0&&pos<=2)confLog(id,12,'Promotion');if(c.tier<2&&pos>=15)confLog(id,-15,'Relegation');
+    const forPct=clamp(Math.round(20+.75*m.conf+(rnd()-.5)*10),3,97);
+    m.agm={s:S.season,for:forPct,against:100-forPct,out:forPct<50&&!(S.agmOff&&id===S.my),conf:m.conf,reasons:seasonReasons(id)};
+    if(m.agm.out)out.push(id);
+  }
+  return out;
+}
+function seasonReasons(id){const by={};for(const l of M(id).log.filter(x=>x.s===S.season))by[l.why]=r1((by[l.why]||0)+l.d);return Object.entries(by).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,5)}
+/* after the vote: computer chairmen who lost are replaced (a new chairman has his own values); the player is out */
+function afterAGMs(outIds){
+  for(const id of outIds){const c=CL(id),m=M(id);
+    if(id===S.my){const st=S.career[S.career.length-1];if(st){st.to=S.season;st.why=`Voted out at the AGM (${m.agm.for}% for)`}
+      S.rep=r1(S.rep-1);emit('ChairmanOut',id,`You are voted out as chairman of ${c.name}: ${m.agm.for}% for, ${m.agm.against}% against.`,{player:true});S.votedOut=id;continue}
+    const old=P(c.cast.chair),nu=c.cast.opp;c.cast.chair=nu;P(nu).role='chair';c.cast.opp=mkPerson('opp',id,{infl:weakest(c)});if(old)old.club=null;
+    emit('ChairmanOut',id,`${c.name}: chairman ${old?old.name:''} is voted out at the AGM. ${P(nu).name} takes the chair.`);
+    m.conf=58;
+    const v=chairValue(id),f=F(id);f.policy.wage=v==='glory'?'ambitious':v==='money'?'tight':'normal';
+  }
+  for(const id in S.clubs)M(id).conf=r1(M(id).conf+(CONF_BASE-M(id).conf)*.15);
+}
+/* the player's seats after being voted out: one per division, better clubs for a better reputation */
+function seatsAfterOut(){
+  const ex=new Set([S.votedOut,...S.career.map(x=>x.club)]),out=[];
+  for(const t of TIERS){const ids=tierIds(t).filter(i=>!ex.has(i)).sort((a,b)=>teamStrength(a)-teamStrength(b));
+    const k=clamp(Math.round(ids.length*(.35+.06*S.rep))+ri(-2,2),0,ids.length-1);out.push(ids[k])}
+  return out;
+}
+function membersAfterLoad(){if(S.members&&Object.values(S.members).some(m=>m.goalsSeason!==S.season))setGoalsAll()}
+
+defCommand('SetDues',{check:(id,a)=>!(a.delta===1||a.delta===-1)?'Change dues one step at a time':null,run:(id,a)=>{const m=M(id),ref=DUES_REF[CL(id).tier];
+  m.dues=clamp(m.dues+a.delta*5,Math.round(ref*.4/5)*5,Math.round(ref*2.5/5)*5);if(id===S.my)emit('Members',id,`Membership dues set to £${m.dues} a year.`)}});
+
 /* ---- sim/ai.js ---- */
 /* ================= Simulation: rule-based club boards =================
    Every computer-run club decides through the same commands as the player (cmd(..., 'ai')): repairs, building,
@@ -1019,7 +1115,7 @@ function aiBoardWeek(id){
   // ticket prices: raise when full, lower when half empty
   if(w===2||w===12||w===22){const a=f.lastGate;if(a){const pr=f.prices,ref=PRICE_DEF[CL(id).tier];
     if(a.fill>.95&&pr.terrace<ref.terrace*1.6){cmd('SetPrice',id,{kind:'terrace',delta:1},'ai');cmd('SetPrice',id,{kind:'seated',delta:1},'ai')}
-    else if(a.fill<.55&&pr.terrace>ref.terrace*.7){cmd('SetPrice',id,{kind:'terrace',delta:-1},'ai');cmd('SetPrice',id,{kind:'seated',delta:-1},'ai')}}}
+    else if((a.fill<.55||M(id).conf<40)&&pr.terrace>ref.terrace*.7){cmd('SetPrice',id,{kind:'terrace',delta:-1},'ai');cmd('SetPrice',id,{kind:'seated',delta:-1},'ai')}}}
   // repairs before anything falls apart
   if(w%5===3){for(const r of repairList(id).filter(x=>x.cond<45))if(f.cash-r.cost>res)cmd('Repair',id,{key:r.key},'ai')}
   // one building project at a time, only with money to spare
@@ -1064,24 +1160,28 @@ function advanceWeek(){
   const matches=playWeekMatches(w);
   for(const id of ids)playersWeek(id);
   for(const id of ids)financeWeek(id,matches.filter(m=>m.h===id||m.a===id));
+  for(const id of ids)membersWeek(id,matches.filter(m=>m.h===id||m.a===id));
   for(const id of ids){if(aiRuns(id))aiBoardWeek(id)}
   if(w===WINTER_WEEK)for(const id of shuffle(ids.slice()))squadManager(id,'winter');
   if(w===RENEW_WEEK)for(const id of ids)renewals(id);
+  membersOnEvents(eventsSince(mark));
   emit('WeekClosed',null,`Week ${w} played.`);
   for(const f of HOOKS.weekClosed)f(w);
   return eventsSince(mark);
 }
-function seasonOver(){return S.week>=SEASON_WEEKS}
+function seasonOver(){return S.phase!=='season'||S.week>=SEASON_WEEKS}
 function closeSeason(){
-  if(!seasonOver())return null;
+  if(S.phase!=='season'||S.week<SEASON_WEEKS)return null;
   const ids=allIds(),s=S.season,tables={};
+  // the AGM comes first: targets, promotion and relegation are judged on the final table
+  const outIds=holdAGMs(),agm=S.my?{...M(S.my).agm,club:S.my}:null;afterAGMs(outIds);
   for(const t of TIERS){tables[t]=standings(t);tables[t].forEach((id,i)=>{financeSeasonEnd(id,i+1,t);CL(id).hist.push({s,tier:t,pos:i+1,pts:S.tbl[id].pts})})}
   // support grows with success, promotion and the clubhouse; shrinks with failure
   for(const id of ids){const c=CL(id),pos=posOf(id),exp=c.expect||8,sg=groundSignals(id);
     c.support=Math.round(clamp(c.support*(1+.025*(exp-pos)/8+.004*sg.community),250,9000))}
   const moves=promoteRelegate();
   for(const m of moves){const c=CL(m.id);c.support=Math.round(c.support*(m.to<m.from?1.08:.93))}
-  S.hist.push({s,tables,cup:S.cup.winner,moves:moves.map(m=>({...m}))});
+  S.hist.push({s,tables,cup:S.cup.winner,moves:moves.map(m=>({...m})),agm,chairsOut:outIds.filter(i=>i!==S.my)});
   for(const id of ids){const st=S.stats[id];st.prev={inj:st.inj,injWeeks:st.injWeeks,youthGrowth:st.youthGrowth};st.inj=0;st.injWeeks=0;st.youthGrowth=0}
   for(const id of ids)playersSeasonEnd(id);
   S.qref=r2(S.qref*.7+worldQuality()*.3);
@@ -1092,10 +1192,13 @@ function closeSeason(){
   emit('SeasonClosed',null,`Season ${s} is over.`,{season:s});
   for(const f of HOOKS.seasonClosed)f(s);
   S.season++;startSeason();S.phase='season';
+  if(S.votedOut){S.my=null;S.seats=seatsAfterOut();S.phase='choose'}
   return S.hist[S.hist.length-1];
 }
 /* run the world without a human: the test harness and the 'simulate' tool */
-function simulateSeasons(n){for(let i=0;i<n;i++){while(!seasonOver())advanceWeek();closeSeason()}}
+/* one full season; a chairman who was voted out takes the first open chair (test harness and simulations) */
+function playSeason(){if(S.phase==='choose')chooseClub(S.seats[0]);while(!seasonOver())advanceWeek();return closeSeason()}
+function simulateSeasons(n){for(let i=0;i<n;i++)playSeason()}
 
 /* ---- core/save.js ---- */
 /* ================= Core: savegames with a schema version and migrations =================
@@ -1108,7 +1211,10 @@ const MIGRATIONS={
       d.grounds=d.grounds||{budget:d.matchday.budget,course:'stadium',pending:null,settle:0};
       for(const k in d){d[k].staff=d[k].staff??[3,2,1][t];d[k].hiring=d[k].hiring??null}}
     s.stats=s.stats||{};for(const id in s.clubs)s.stats[id]=s.stats[id]||{inj:0,injWeeks:0,youthGrowth:0,intake:0,intakeBest:0};
-    s.v=2;}
+    s.v=2;},
+  // 2 → 3: members, dues, confidence and season targets per club; the chairman's career
+  3:s=>{s.members=s.members||{};for(const id in s.clubs){const c=s.clubs[id];s.members[id]=s.members[id]||{count:Math.round(c.support*.4),dues:[50,40,30][c.tier],conf:55,log:[],goals:[],goalsSeason:0,agm:null}}
+    s.career=s.career||(s.my?[{club:s.my,from:1,to:null,why:null}]:[]);s.rep=s.rep||0;s.votedOut=s.votedOut||null;s.v=3;}
 };
 function migrate(s){
   if(!s||typeof s.v!=='number'||s.v<1)throw new Error('Not a Northmarch layered save');
@@ -1117,7 +1223,7 @@ function migrate(s){
   return s;
 }
 function serialize(){return JSON.stringify(S)}
-function deserialize(txt){S=migrate(JSON.parse(txt));return S}
+function deserialize(txt){S=migrate(JSON.parse(txt));membersAfterLoad();return S}
 function save(){if(!HAS_DOM)return false;try{localStorage.setItem(SAVE_KEY,serialize());return true}catch(e){return false}}
 function hasSave(){if(!HAS_DOM)return false;try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
 function load(){if(!HAS_DOM)return false;try{const t=localStorage.getItem(SAVE_KEY);if(!t)return false;deserialize(t);return true}catch(e){return false}}
@@ -1144,8 +1250,8 @@ function topBar(){
 function render(){
   if(!HAS_DOM)return;const app=document.getElementById('app');let h='';
   if(!S||UI.title)h=titleView();
-  else if(S.phase==='choose')h=chooseView();
   else if(UI.review)h=reviewView();
+  else if(S.phase==='choose')h=chooseView();
   else{const body=UI.tab==='table'?tableView():UI.tab==='squad'?squadView():UI.tab==='club'?clubView():UI.tab==='money'?moneyView():weekView();h=topBar()+`<main>${body}</main>`}
   if(S&&UI.over)h+=overlayView();
   app.innerHTML=h;
@@ -1161,9 +1267,10 @@ function titleView(){
   <p class="note">Layer 1–2 build: the living world and club management. Stories, staff and dynasties are switched off in this version.</p></main>`;
 }
 function chooseView(){
-  const probs=['A big club that has fallen behind its rivals.','The harbour club: proud, broke enough to matter.','A small club with a big crowd for its size.'];
-  return`<main class="scene" style="padding-top:28px"><p class="eyebrow">Three open chairs</p><h2>Where do you stand for election?</h2>
-  <p class="muted">Each club is a real club in the same world. Pick the one whose problem you want.</p>
+  const again=S.career.length>0,last=again?S.career[S.career.length-1]:null;
+  const probs=again?S.seats.map(id=>`${strWord(id)} in ${TIER_NAME[CL(id).tier]}; ${moneyWord(id).toLowerCase()} finances.`):['A big club that has fallen behind its rivals.','The harbour club: proud, broke enough to matter.','A small club with a big crowd for its size.'];
+  return`<main class="scene" style="padding-top:28px"><p class="eyebrow">${again?`Season ${S.season} · after ${esc(CL(last.club).name)}`:'Three open chairs'}</p><h2>${again?'Three clubs want you':'Where do you stand for election?'}</h2>
+  <p class="muted">${again?`${esc(last.why||'Your term ended')}. The world kept turning; pick your next club.`:'Each club is a real club in the same world. Pick the one whose problem you want.'}</p>
   <div class="stack">${S.seats.map((id,i)=>{const c=CL(id),sg=groundSignals(id),f=F(id);return`<button class="deal" data-act="choose" data-arg="${id}"><span class="dt">${esc(c.name)}</span><span class="small muted">${probs[i]}</span>
     <dl><dt>Division</dt><dd>${TIER_NAME[c.tier]}</dd><dt>Squad</dt><dd>${strWord(id)}</dd><dt>Support</dt><dd>${n0(c.support)} · ground holds ${n0(sg.capacity)}</dd><dt>Money</dt><dd>${k1(f.cash)} in the bank${debt(id)?` · ${k1(debt(id))} debt`:''}</dd></dl></button>`}).join('')}</div></main>`;
 }
@@ -1202,7 +1309,7 @@ function previewView(){
 }
 function weekView(){
   const over=seasonOver();
-  return`${reportView()}${previewView()}${hubCards()}
+  return`${reportView()}${previewView()}${targetsPanel()}${hubCards()}
   <button class="btn" data-act="${over?'close':'play'}">${over?'Close the season':`Play week ${S.week+1}`}</button>
   <p class="note">${over?'Prize money, promotion and relegation, contracts and the summer window follow.':'Every week is played. Change prices, budgets or building first if you want them to count this week.'}</p>`;
 }
@@ -1316,7 +1423,7 @@ function clubView(){
   const rows=[['Support',i=>CL(i).support,n0],['Capacity',i=>groundSignals(i).capacity,n0],['Squad strength',i=>teamStrength(i),v=>Math.round(v)],['Wage bill /wk',i=>wageBillK(i)*1000,v=>'£'+n0(v)],['Training level',i=>groundSignals(i).training,r1],['Academy level',i=>groundSignals(i).academy,r1]];
   const hist=c.hist.slice(-8).reverse();
   const g=G(id),run=g.projects.filter(p=>p.phase!=='done');
-  return`${deptsView()}
+  return`${membersPanel()}${deptsView()}
   <div class="panel"><div class="row"><span>The ground</span><b>${n0(sg.capacity)} places</b></div><p class="small muted">${g.plots.filter(p=>p.kind).map(p=>COMPLEX[p.kind].n+' ('+LV_NAME[p.lv].toLowerCase()+')').join(', ')}. ${6-g.plots.filter(p=>p.kind).length} free plot${6-g.plots.filter(p=>p.kind).length===1?'':'s'}.</p>${run.length?`<p class="small">Under way: ${run.map(p=>esc(p.label)).join(', ')}.</p>`:''}<button class="btn ghost" data-act="ov" data-arg="ground">Stadium, building and repairs</button></div>
   <div class="panel"><p class="eyebrow">Against the ${TIER_NAME[t]}</p><div class="cmp"><span></span><b>Us</b><b>Average</b>${rows.map(([n,fn,fm])=>`<span>${n}</span><b>${fm(fn(id))}</b><b>${fm(avg(fn))}</b>`).join('')}</div></div>
   <div class="panel"><p class="eyebrow">${esc(c.name)}</p><p class="small muted">Founded ${c.founded}. Ground: ${esc(c.ground)}. Rivals: ${nm(c.rival)} (${esc(c.rivalWhy)}). The club once ${esc(c.scar)}.</p>
@@ -1344,15 +1451,16 @@ function playerSheet(pid){
 
 /* ----- the season review ----- */
 function reviewView(){
-  const h=UI.review,s=h.s,id=S.my,last=CL(id).hist[CL(id).hist.length-1],mv=h.moves.find(m=>m.id===id),fh=F(id).hist[F(id).hist.length-1];
+  const h=UI.review,s=h.s,id=h.agm?h.agm.club:S.my,last=CL(id).hist[CL(id).hist.length-1],mv=h.moves.find(m=>m.id===id),fh=F(id).hist[F(id).hist.length-1],out=h.agm&&h.agm.out;
   const sev=UI.summerEv||[],ins=sev.filter(e=>(e.t==='Transfer'||e.t==='Signing')&&e.c===id),outs=sev.filter(e=>e.t==='Transfer'&&e.c2===id);
   const kids=sev.filter(e=>e.t==='YouthIntake'&&e.c===id).pop();
-  return`<main class="scene" style="padding-top:28px"><p class="eyebrow">Season ${s} · the verdict</p><h1>${ord(last.pos)}</h1>
+  return`<main class="scene" style="padding-top:28px"><p class="eyebrow">Season ${s} · ${esc(CL(id).name)}</p><h1>${out?'Voted out':ord(last.pos)}</h1>${h.agm?agmPanel(h.agm,id):''}
   <p class="voice">${mv?(mv.to<mv.from?`Promoted to ${TIER_NAME[mv.to]}.`:`Relegated to ${TIER_NAME[mv.to]}.`):`Another season in ${TIER_NAME[last.tier]}.`}${h.cup===id?' And the cup is ours.':''}</p>
   <div class="panel"><div class="row small"><span>Points</span><b>${last.pts}</b></div><div class="row small"><span>Operating result</span><b class="${operatingResult(fh.lines)<0?'down':'up'}">${k1(operatingResult(fh.lines))}</b></div><div class="row small"><span>Cash</span><b>${k1(F(id).cash)}</b></div><div class="row small"><span>Cup winners</span><b>${nm(h.cup)}</b></div></div>
   <div class="panel"><p class="eyebrow">Around the Northmarch</p>${TIERS.map(t=>`<div class="row small"><span>${TIER_NAME[t]} champions</span><b>${nm(h.tables[t][0])}</b></div>`).join('')}${h.moves.filter(m=>m.to<m.from).map(m=>`<p class="small up">${nm(m.id)} go up to ${TIER_NAME[m.to]}.</p>`).join('')}</div>
   <div class="panel"><p class="eyebrow">The summer</p>${kids?`<p class="small">${esc(kids.text)}</p>`:''}${ins.map(e=>`<p class="small">In: ${esc(e.text)}</p>`).join('')}${outs.map(e=>`<p class="small">Out: ${esc(e.text)}</p>`).join('')}${!ins.length&&!outs.length?'<p class="small muted">A quiet window.</p>':''}</div>
-  <button class="btn" data-act="startnext">Start season ${S.season}</button></main>`;
+  ${h.chairsOut&&h.chairsOut.length?`<div class="panel"><p class="eyebrow">Other AGMs</p>${h.chairsOut.slice(0,6).map(c=>`<p class="small">${nm(c)} vote their chairman out.</p>`).join('')}</div>`:''}
+  <button class="btn" data-act="startnext">${out?'Choose a new club':`Start season ${S.season}`}</button></main>`;
 }
 
 /* ---- ui/depts.js ---- */
@@ -1413,6 +1521,33 @@ function deptSheet(k){
   ${facHtml}`);
 }
 
+/* ---- ui/members.js ---- */
+/* ================= Screens: members, confidence, season targets and the AGM ================= */
+function confBar(v){const c=v<40?'lo':v<55?'mid':'';return`<span class="conf ${c}" role="img" aria-label="members' confidence ${Math.round(v)} of 100"><i style="width:${Math.round(v)}%"></i><b style="left:40%"></b></span>`}
+function agmForecast(id){return clamp(Math.round(20+.75*M(id).conf),3,97)}
+function reasonRows(list){return list.map(([why,d])=>`<div class="row small"><span>${esc(why)}</span><b class="${d<0?'down':'up'}">${d>0?'+':''}${r1(d)}</b></div>`).join('')}
+function targetsPanel(){
+  const id=S.my,m=M(id),f=agmForecast(id);
+  return`<div class="panel"><p class="eyebrow">Season targets</p>${m.goals.map(g=>{const p=goalProgress(id,g);return`<div class="row small"><span>${esc(g.text)}<br><span class="muted">${esc(p.text)}</span></span><span class="pill ${p.met?'good':'bad'}">${p.met?'On track':'Behind'}</span></div>`}).join('')}
+  <div class="row small"><span>Members' confidence</span><b>${Math.round(m.conf)}</b></div>${confBar(m.conf)}
+  <p class="small ${f<50?'down':'muted'}">An AGM today: about ${f}% for you. Below 50% you are out.</p></div>`;
+}
+function membersPanel(){
+  const id=S.my,m=M(id),ref=DUES_REF[C().tier],recent=seasonReasons(id);
+  return`<div class="panel"><p class="eyebrow">Members</p><div class="row"><span>Members</span><b>${n0(m.count)}</b></div>
+  <div class="row small"><span>Confidence in the board</span><b>${Math.round(m.conf)} / 100</b></div>${confBar(m.conf)}
+  <div class="grow"><span><b>Membership dues</b><br><span class="small muted">A year · usual £${ref} · £${n0(m.count*m.dues)} a year in total</span></span><span></span><span class="stepper"><button data-act="dues" data-arg="-1" aria-label="Lower dues">−</button><b>£${m.dues}</b><button data-act="dues" data-arg="1" aria-label="Raise dues">+</button></span></div>
+  ${recent.length?`<p class="small muted">What moved the members this season</p>${reasonRows(recent)}`:''}
+  <p class="note">Every club holds its AGM after week 30. Lose the vote and you are out.</p></div>`;
+}
+function agmPanel(a,club){
+  return`<div class="panel"><p class="eyebrow">The AGM · ${esc(CL(club).name)}</p><p class="small">Motion: confidence in the chairman.</p>
+  <div class="vote" role="img" aria-label="${a.for}% for, ${a.against}% against"><i style="width:${a.for}%"></i></div>
+  <div class="row"><b class="up">${a.for}% for</b><b class="down">${a.against}% against</b></div>
+  <p class="voice">${a.out?'The members have voted you out.':a.for>=70?'A clear mandate.':a.for>=55?'Carried, not loved.':'Carried, by a whisker.'}</p>
+  ${a.reasons&&a.reasons.length?`<p class="small muted">What the members weighed</p>${reasonRows(a.reasons)}`:''}</div>`;
+}
+
 /* ---- ui/act.js ---- */
 /* ================= Taps: one handler for every data-act, then save and redraw ================= */
 function say(r,okText){UI.msg=r&&r.ok===false?{err:true,text:r.err}:okText?{text:okText}:null}
@@ -1444,12 +1579,13 @@ function act(a,arg){
     case'ly':UI.ly=+arg;break;
     case'loan':say(cmd('TakeLoan',S.my,{amount:+arg,years:UI.ly}),`£${arg}k borrowed.`);break;
     case'repay':say(cmd('RepayLoan',S.my,{i:+arg}),'Loan repaid.');break;
+    case'dues':say(cmd('SetDues',S.my,{delta:+arg}));break;
     case'pol':say(cmd('SetSquadPolicy',S.my,{wage:arg}));break;
     case'spend':say(cmd('SetSquadPolicy',S.my,{spend:+arg}));break;
     case'confirm':UI.confirm=arg||null;break;
     case'release':{const r=cmd('ReleasePlayer',S.my,{pid:arg});say(r);if(r.ok){UI.over=null;UI.confirm=null}break}
   }
-  if(S&&!UI.title&&S.phase!=='choose')save();
+  if(S&&!UI.title&&(S.phase!=='choose'||S.career.length))save();
   render();
 }
 if(HAS_DOM){

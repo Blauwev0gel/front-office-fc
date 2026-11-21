@@ -19,3 +19,9 @@ Bekende beperkingen: webfonts worden in de test geblokkeerd (offline fallback-fo
 - save-test: versie 2; een versie-1-save migreert naar acht afdelingen en speelt door.
 - sim-test 4 seeds × 20 seizoenen: groen; 37–43 clubs wisselen van divisie, 5–11 administrations, mediane kas £336–436k.
 - playtest 390 px licht/donker: afdeling openen, personeel werven, koers wisselen, faciliteit vanuit de afdeling bouwen, Money-tab: groen.
+
+## 2026-11-21 — Pakket 1 (leden, vertrouwen, doelen, ALV), `sh tests/run-all.sh`, exit 0
+- members-test (16 seeds): prijzen +£5 → vertrouwen 40,8 vs 62,2 · contributie +£25 → leden 571 vs 677, contributie £39,0k vs £26,4k, vertrouwen 49,5 vs 64,7 · elke club 3 doelen en een ALV · wegstemmen → keuzescherm, 3 stoelen (één per divisie), oude club speelt door · AI-voorzitters vervangen.
+- sim-test 4 seeds × 20 seizoenen: groen; 46–59 AI-voorzitters weggestemd; de automatisch gespeelde speler 0–4 keer; 5–8 administrations.
+- save-test: schema v3; migraties 1→2→3 laden en spelen door tot en met een ALV.
+- ab-test, idle-test (met `S.agmOff`), playtest 390 px licht/donker (doelen, contributie, ALV-wegstemmen, nieuwe club, herladen): groen.

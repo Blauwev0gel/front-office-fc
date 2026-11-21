@@ -19,8 +19,8 @@ function topBar(){
 function render(){
   if(!HAS_DOM)return;const app=document.getElementById('app');let h='';
   if(!S||UI.title)h=titleView();
-  else if(S.phase==='choose')h=chooseView();
   else if(UI.review)h=reviewView();
+  else if(S.phase==='choose')h=chooseView();
   else{const body=UI.tab==='table'?tableView():UI.tab==='squad'?squadView():UI.tab==='club'?clubView():UI.tab==='money'?moneyView():weekView();h=topBar()+`<main>${body}</main>`}
   if(S&&UI.over)h+=overlayView();
   app.innerHTML=h;
@@ -36,9 +36,10 @@ function titleView(){
   <p class="note">Layer 1–2 build: the living world and club management. Stories, staff and dynasties are switched off in this version.</p></main>`;
 }
 function chooseView(){
-  const probs=['A big club that has fallen behind its rivals.','The harbour club: proud, broke enough to matter.','A small club with a big crowd for its size.'];
-  return`<main class="scene" style="padding-top:28px"><p class="eyebrow">Three open chairs</p><h2>Where do you stand for election?</h2>
-  <p class="muted">Each club is a real club in the same world. Pick the one whose problem you want.</p>
+  const again=S.career.length>0,last=again?S.career[S.career.length-1]:null;
+  const probs=again?S.seats.map(id=>`${strWord(id)} in ${TIER_NAME[CL(id).tier]}; ${moneyWord(id).toLowerCase()} finances.`):['A big club that has fallen behind its rivals.','The harbour club: proud, broke enough to matter.','A small club with a big crowd for its size.'];
+  return`<main class="scene" style="padding-top:28px"><p class="eyebrow">${again?`Season ${S.season} · after ${esc(CL(last.club).name)}`:'Three open chairs'}</p><h2>${again?'Three clubs want you':'Where do you stand for election?'}</h2>
+  <p class="muted">${again?`${esc(last.why||'Your term ended')}. The world kept turning; pick your next club.`:'Each club is a real club in the same world. Pick the one whose problem you want.'}</p>
   <div class="stack">${S.seats.map((id,i)=>{const c=CL(id),sg=groundSignals(id),f=F(id);return`<button class="deal" data-act="choose" data-arg="${id}"><span class="dt">${esc(c.name)}</span><span class="small muted">${probs[i]}</span>
     <dl><dt>Division</dt><dd>${TIER_NAME[c.tier]}</dd><dt>Squad</dt><dd>${strWord(id)}</dd><dt>Support</dt><dd>${n0(c.support)} · ground holds ${n0(sg.capacity)}</dd><dt>Money</dt><dd>${k1(f.cash)} in the bank${debt(id)?` · ${k1(debt(id))} debt`:''}</dd></dl></button>`}).join('')}</div></main>`;
 }
@@ -77,7 +78,7 @@ function previewView(){
 }
 function weekView(){
   const over=seasonOver();
-  return`${reportView()}${previewView()}${hubCards()}
+  return`${reportView()}${previewView()}${targetsPanel()}${hubCards()}
   <button class="btn" data-act="${over?'close':'play'}">${over?'Close the season':`Play week ${S.week+1}`}</button>
   <p class="note">${over?'Prize money, promotion and relegation, contracts and the summer window follow.':'Every week is played. Change prices, budgets or building first if you want them to count this week.'}</p>`;
 }

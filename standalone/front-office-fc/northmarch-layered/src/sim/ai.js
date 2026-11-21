@@ -19,7 +19,7 @@ function aiBoardWeek(id){
   // ticket prices: raise when full, lower when half empty
   if(w===2||w===12||w===22){const a=f.lastGate;if(a){const pr=f.prices,ref=PRICE_DEF[CL(id).tier];
     if(a.fill>.95&&pr.terrace<ref.terrace*1.6){cmd('SetPrice',id,{kind:'terrace',delta:1},'ai');cmd('SetPrice',id,{kind:'seated',delta:1},'ai')}
-    else if(a.fill<.55&&pr.terrace>ref.terrace*.7){cmd('SetPrice',id,{kind:'terrace',delta:-1},'ai');cmd('SetPrice',id,{kind:'seated',delta:-1},'ai')}}}
+    else if((a.fill<.55||M(id).conf<40)&&pr.terrace>ref.terrace*.7){cmd('SetPrice',id,{kind:'terrace',delta:-1},'ai');cmd('SetPrice',id,{kind:'seated',delta:-1},'ai')}}}
   // repairs before anything falls apart
   if(w%5===3){for(const r of repairList(id).filter(x=>x.cond<45))if(f.cash-r.cost>res)cmd('Repair',id,{key:r.key},'ai')}
   // one building project at a time, only with money to spare

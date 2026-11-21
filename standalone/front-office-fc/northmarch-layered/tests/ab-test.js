@@ -6,7 +6,7 @@ const N=+(process.argv[2]||16);
 const E=loadEngine();
 let fails=0;const ok=(c,m)=>{console.log((c?'ok   ':'FAIL ')+m);if(!c)fails++};
 const avg=a=>a.reduce((x,y)=>x+y,0)/Math.max(1,a.length);
-function world(seed){E.newWorld(seed);const S=E.__get();E.chooseClub('pell');return E.serialize()}
+function world(seed){E.newWorld(seed);const S=E.__get();E.chooseClub('pell');S.agmOff=true;return E.serialize()} // the AGM is tested on its own
 function branch(snap,decide,seasons,measure){
   E.deserialize(snap);const S=E.__get(),id=S.my;decide(S,id);
   const m0=measure.start?measure.start(S,id):null;

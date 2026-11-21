@@ -1,6 +1,6 @@
 # L2 — Volwaardig clubmanagement
 
-**Status:** Speelbaar (pakket 1 van 2: afdelingen). Ontwerpvragen beantwoord: D5, D6, D7. Nog te bouwen: ledenvertrouwen en ALV (D6/D7).
+**Status:** Speelbaar. Uitvoering volgens `docs/PROMPT_L1_L2_AFRONDEN.md`: afdelingen ✓, pakket 1 (leden, ALV) ✓; pakket 2–6 open.
 
 ## 1. Spelbelofte
 De voorzitter bestuurt de club proactief: onderzoeken, vergelijken, bouwen, financieren, onderhouden en bijsturen,
@@ -24,6 +24,9 @@ Geen eigen spelstaat: L2 is UI plus speleracties op L1-commando's (`src/ui/*.js`
 | Lenen en aflossen | Money-tab → Loans | `TakeLoan`, `RepayLoan` | kas nu, rente en aflossing later |
 | Kader voor de directeur | Squad | `SetSquadPolicy` | loonplafond en transferruimte van de directeur |
 | Speler laten gaan | Squad → speler | `ReleasePlayer` | afkoopsom, lagere loonsom |
+| Contributie instellen | Club-tab → Members | `SetDues` | ledental ↔ contributie-inkomsten ↔ vertrouwen (getest: +£25 → −16% leden, +48% contributie, −15 vertrouwen) |
+| Seizoensdoelen volgen | Week-tab | — | drie doelen (positie, financiën, academie) met voortgang; beoordeeld op de ALV |
+| ALV overleven | na week 30 | — (`holdAGMs`) | stemming uit vertrouwen; verloren = weggestemd, drie nieuwe stoelen (D7) |
 | Inspecteren en vergelijken | Tables → club, Club-tab | — | stand, sterkte, aanhang, faciliteiten van elke club |
 | Prognose | Money-tab → Overview | — | 26-wekenprognose met bandbreedte |
 
@@ -37,7 +40,14 @@ Zie L1. Strategieën die nu al uiteenlopen: sparen (veel kas, achterstand in fac
 ## 10. Besluiten
 D5 alleen kader voor transfers · D6 ledenvertrouwen + jaarlijkse ALV · D7 na wegstemmen een nieuwe club kiezen.
 
-### Afdelingsmodel (pakket 1)
+### Pakket 1 — leden, vertrouwen, doelen en ALV (ontwerpnotitie)
+Doel: verliesconditie en seizoensmaatstaf (D6/D7). Toestand `S.members[id]` {count, dues, conf, log, goals, agm}, `S.career`, `S.rep`; schema v3 met migratie.
+Vertrouwen (0–100) beweegt met oorzaak: uitslagen tegen verwachting (derby ×1,6), bekerloop, prijzen en contributie boven de norm,
+administration (−20), geldnood, sluiting van een tribune, nieuwe faciliteiten, beker (+8); op de ALV: doelen (±0,8×gewicht), promotie (+12),
+degradatie (−15); daarna 15% terug naar 55. Stemming: voor = 20 + 0,75 × vertrouwen ± 5; onder 50% = weggestemd.
+AI-clubs: zelfde meter; een weggestemde AI-voorzitter wordt vervangen door de oppositiekandidaat (andere waarde → ander beleid); bij laag vertrouwen verlaagt een AI-bestuur prijzen.
+
+### Afdelingsmodel
 Signaal = faciliteit × (budget × (0,55 + 0,15 × personeel)) + 0,3 × personeel × budget, × koers (1,15).
 Kosten per week = divisiebasis × [0,5 · 0,75 · 1 · 1,4 · 1,9][personeel] × budget. AI-clubs nemen aan of snijden per kwartaal naar hun geld.
 

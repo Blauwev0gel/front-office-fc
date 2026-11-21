@@ -28,3 +28,9 @@
 - Medisch en training gesplitst; terreinen & onderhoud stuurt herstel van stadion en veld; commercie stuurt sponsors; wedstrijdorganisatie stuurt kosten.
 - Opslag v2 met migratie (getest). Personeelsgewicht verhoogd na A/B-test (eerst −7%, ruis).
 - **Volgende:** L2 pakket 2: ledenvertrouwen, jaarlijkse ALV, wegstemmen en nieuwe club (D6/D7).
+
+## 2026-11-21 — Pakket 1: leden, vertrouwen, seizoensdoelen en ALV
+- Nieuw: `src/club/members.js`, `src/ui/members.js`; schema v3 (migratie getest). Contributie als speleractie; doelen in de Week-tab; ALV in de seizoensreview; wegstemmen → drie nieuwe stoelen.
+- Gevonden: tests bleven hangen zodra de speler werd weggestemd (oneindige weeklus) → `playSeason()` en `seasonOver()` per fase; review moet vóór het keuzescherm renderen.
+- Afgestemd: weggestemde AI-voorzitters van 75 naar ±50 per 20 seizoenen.
+- **Volgende:** pakket 2, hoofdtrainer en technisch directeur benoemen.

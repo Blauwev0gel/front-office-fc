@@ -8,7 +8,10 @@ const MIGRATIONS={
       d.grounds=d.grounds||{budget:d.matchday.budget,course:'stadium',pending:null,settle:0};
       for(const k in d){d[k].staff=d[k].staff??[3,2,1][t];d[k].hiring=d[k].hiring??null}}
     s.stats=s.stats||{};for(const id in s.clubs)s.stats[id]=s.stats[id]||{inj:0,injWeeks:0,youthGrowth:0,intake:0,intakeBest:0};
-    s.v=2;}
+    s.v=2;},
+  // 2 → 3: members, dues, confidence and season targets per club; the chairman's career
+  3:s=>{s.members=s.members||{};for(const id in s.clubs){const c=s.clubs[id];s.members[id]=s.members[id]||{count:Math.round(c.support*.4),dues:[50,40,30][c.tier],conf:55,log:[],goals:[],goalsSeason:0,agm:null}}
+    s.career=s.career||(s.my?[{club:s.my,from:1,to:null,why:null}]:[]);s.rep=s.rep||0;s.votedOut=s.votedOut||null;s.v=3;}
 };
 function migrate(s){
   if(!s||typeof s.v!=='number'||s.v<1)throw new Error('Not a Northmarch layered save');
@@ -17,7 +20,7 @@ function migrate(s){
   return s;
 }
 function serialize(){return JSON.stringify(S)}
-function deserialize(txt){S=migrate(JSON.parse(txt));return S}
+function deserialize(txt){S=migrate(JSON.parse(txt));membersAfterLoad();return S}
 function save(){if(!HAS_DOM)return false;try{localStorage.setItem(SAVE_KEY,serialize());return true}catch(e){return false}}
 function hasSave(){if(!HAS_DOM)return false;try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
 function load(){if(!HAS_DOM)return false;try{const t=localStorage.getItem(SAVE_KEY);if(!t)return false;deserialize(t);return true}catch(e){return false}}

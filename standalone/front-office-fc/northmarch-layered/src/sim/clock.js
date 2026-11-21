@@ -16,24 +16,28 @@ function advanceWeek(){
   const matches=playWeekMatches(w);
   for(const id of ids)playersWeek(id);
   for(const id of ids)financeWeek(id,matches.filter(m=>m.h===id||m.a===id));
+  for(const id of ids)membersWeek(id,matches.filter(m=>m.h===id||m.a===id));
   for(const id of ids){if(aiRuns(id))aiBoardWeek(id)}
   if(w===WINTER_WEEK)for(const id of shuffle(ids.slice()))squadManager(id,'winter');
   if(w===RENEW_WEEK)for(const id of ids)renewals(id);
+  membersOnEvents(eventsSince(mark));
   emit('WeekClosed',null,`Week ${w} played.`);
   for(const f of HOOKS.weekClosed)f(w);
   return eventsSince(mark);
 }
-function seasonOver(){return S.week>=SEASON_WEEKS}
+function seasonOver(){return S.phase!=='season'||S.week>=SEASON_WEEKS}
 function closeSeason(){
-  if(!seasonOver())return null;
+  if(S.phase!=='season'||S.week<SEASON_WEEKS)return null;
   const ids=allIds(),s=S.season,tables={};
+  // the AGM comes first: targets, promotion and relegation are judged on the final table
+  const outIds=holdAGMs(),agm=S.my?{...M(S.my).agm,club:S.my}:null;afterAGMs(outIds);
   for(const t of TIERS){tables[t]=standings(t);tables[t].forEach((id,i)=>{financeSeasonEnd(id,i+1,t);CL(id).hist.push({s,tier:t,pos:i+1,pts:S.tbl[id].pts})})}
   // support grows with success, promotion and the clubhouse; shrinks with failure
   for(const id of ids){const c=CL(id),pos=posOf(id),exp=c.expect||8,sg=groundSignals(id);
     c.support=Math.round(clamp(c.support*(1+.025*(exp-pos)/8+.004*sg.community),250,9000))}
   const moves=promoteRelegate();
   for(const m of moves){const c=CL(m.id);c.support=Math.round(c.support*(m.to<m.from?1.08:.93))}
-  S.hist.push({s,tables,cup:S.cup.winner,moves:moves.map(m=>({...m}))});
+  S.hist.push({s,tables,cup:S.cup.winner,moves:moves.map(m=>({...m})),agm,chairsOut:outIds.filter(i=>i!==S.my)});
   for(const id of ids){const st=S.stats[id];st.prev={inj:st.inj,injWeeks:st.injWeeks,youthGrowth:st.youthGrowth};st.inj=0;st.injWeeks=0;st.youthGrowth=0}
   for(const id of ids)playersSeasonEnd(id);
   S.qref=r2(S.qref*.7+worldQuality()*.3);
@@ -44,7 +48,10 @@ function closeSeason(){
   emit('SeasonClosed',null,`Season ${s} is over.`,{season:s});
   for(const f of HOOKS.seasonClosed)f(s);
   S.season++;startSeason();S.phase='season';
+  if(S.votedOut){S.my=null;S.seats=seatsAfterOut();S.phase='choose'}
   return S.hist[S.hist.length-1];
 }
 /* run the world without a human: the test harness and the 'simulate' tool */
-function simulateSeasons(n){for(let i=0;i<n;i++){while(!seasonOver())advanceWeek();closeSeason()}}
+/* one full season; a chairman who was voted out takes the first open chair (test harness and simulations) */
+function playSeason(){if(S.phase==='choose')chooseClub(S.seats[0]);while(!seasonOver())advanceWeek();return closeSeason()}
+function simulateSeasons(n){for(let i=0;i<n;i++)playSeason()}

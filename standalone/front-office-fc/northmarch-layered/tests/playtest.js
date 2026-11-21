@@ -58,9 +58,19 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     ok(await page.locator('[data-act=startnext]').count()===1,`${scheme}: the season review appears`);
     await tap('[data-act=startnext]');
     ok(await page.evaluate(()=>S.season===2&&S.week===0),`${scheme}: season two begins`);
+    ok(await page.locator('.panel:has-text("Season targets")').count()===1,`${scheme}: the week shows the season targets`);
+    await tap('[data-act=tab][data-arg=club]');const d0=await page.evaluate(()=>M(S.my).dues);await tap('[data-act=dues][data-arg="1"]');
+    ok(await page.evaluate(d=>M(S.my).dues===d+5,d0),`${scheme}: membership dues change`);await shot('members');await wide('members');
+    // a season so bad the members vote the chairman out: the review shows the AGM, then three new chairs
+    const old=await page.evaluate(()=>{const id=S.my;while(!seasonOver())advanceWeek();M(id).conf=2;UI.tab='week';render();return id});
+    await tap('[data-act=close]');await shot('agm-out');await wide('AGM');
+    ok(await page.locator('h1:has-text("Voted out")').count()===1,`${scheme}: the AGM votes the chairman out`);
+    await tap('[data-act=startnext]');
+    ok(await page.evaluate(o=>S.phase==='choose'&&!S.seats.includes(o),old),`${scheme}: three new chairs are offered`);await wide('choose again');
+    await tap('[data-act=choose] >> nth=0');ok(await page.evaluate(()=>S.phase==='season'&&S.career.length===2),`${scheme}: a new club in the same world`);
     // reload: continue from the save
     await page.reload();ok(await page.locator('[data-act=cont]').count()===1,`${scheme}: Continue is offered after a reload`);
-    await tap('[data-act=cont]');ok(await page.evaluate(()=>S&&S.season===2),`${scheme}: the save continues in season two`);
+    await tap('[data-act=cont]');ok(await page.evaluate(()=>S&&S.season===3&&S.career.length===2),`${scheme}: the save continues at the new club in season three`);
     // tap targets: every button at least 44px high
     const small=await page.evaluate(()=>[...document.querySelectorAll('button')].filter(b=>b.offsetParent&&b.getBoundingClientRect().height<43.5).map(b=>b.textContent.trim().slice(0,20)));
     ok(small.length===0,`${scheme}: all visible buttons are at least 44px (${small.join(', ')})`);

@@ -28,12 +28,13 @@ function act(a,arg){
     case'ly':UI.ly=+arg;break;
     case'loan':say(cmd('TakeLoan',S.my,{amount:+arg,years:UI.ly}),`£${arg}k borrowed.`);break;
     case'repay':say(cmd('RepayLoan',S.my,{i:+arg}),'Loan repaid.');break;
+    case'dues':say(cmd('SetDues',S.my,{delta:+arg}));break;
     case'pol':say(cmd('SetSquadPolicy',S.my,{wage:arg}));break;
     case'spend':say(cmd('SetSquadPolicy',S.my,{spend:+arg}));break;
     case'confirm':UI.confirm=arg||null;break;
     case'release':{const r=cmd('ReleasePlayer',S.my,{pid:arg});say(r);if(r.ok){UI.over=null;UI.confirm=null}break}
   }
-  if(S&&!UI.title&&S.phase!=='choose')save();
+  if(S&&!UI.title&&(S.phase!=='choose'||S.career.length))save();
   render();
 }
 if(HAS_DOM){

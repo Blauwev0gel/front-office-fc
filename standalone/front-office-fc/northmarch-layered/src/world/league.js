@@ -22,6 +22,7 @@ function startSeason(){
   S.week=0;S.matches=[];
   S.cup={round:0,alive:tierIds(1).concat(tierIds(2)),ties:[],winner:null,log:[]};
   cupDraw();
+  setGoalsAll();
 }
 function standings(tier){return Object.keys(S.tbl).filter(i=>CL(i).tier===tier).sort((x,y)=>{const a=S.tbl[x],b=S.tbl[y];return b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||(x<y?-1:1)})}
 function posOf(id){return standings(CL(id).tier).indexOf(id)+1}

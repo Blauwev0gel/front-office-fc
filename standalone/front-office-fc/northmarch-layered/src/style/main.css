@@ -143,3 +143,6 @@ hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
 .dept:focus-visible,.dept:hover{border-color:var(--navy)}
 .seg button[disabled]{opacity:.55;cursor:default}
 .seg5{grid-template-columns:repeat(5,1fr)}.seg5 button{font-size:12px;padding:2px}
+.conf{display:block;position:relative;height:10px;border-radius:5px;background:var(--chip);overflow:visible}.conf i{display:block;height:100%;border-radius:5px;background:var(--good)}.conf.mid i{background:#b7791f}.conf.lo i{background:var(--bad)}
+.conf b{position:absolute;top:-3px;width:2px;height:16px;background:var(--ink);opacity:.5}
+.vote{height:18px;border-radius:9px;background:var(--bad);overflow:hidden}.vote i{display:block;height:100%;background:var(--good)}

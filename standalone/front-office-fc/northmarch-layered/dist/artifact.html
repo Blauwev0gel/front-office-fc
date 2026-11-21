@@ -1,0 +1,1355 @@
+<title>Northmarch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=Literata:ital,opsz,wght@1,7..72,400;1,7..72,500&display=swap">
+<style>
+/* Northmarch house style (northmarch.html @7a2d5d3), plus the system-layer styles of voorzitter-fundering, plus layered-game additions. */
+
+:root{
+  --paper:#eef0f1; --card:#fbfcfc; --ink:#151d24; --muted:#56616b; --line:#cfd6dc;
+  --navy:#1d3b4f; --signal:#bf4f17; --good:#2b7346; --bad:#b03628; --onnavy:#ffffff; --chip:#e1e7eb;
+  --f-display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-voice:"Literata",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0f161c; --card:#17212a; --ink:#e6ecf0; --muted:#9aa8b2; --line:#2b3a46;
+  --navy:#8bbad8; --signal:#f08a4b; --good:#7bc896; --bad:#ef8a7a; --onnavy:#0f161c; --chip:#22303a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f161c; --card:#17212a; --ink:#e6ecf0; --muted:#9aa8b2; --line:#2b3a46;
+  --navy:#8bbad8; --signal:#f08a4b; --good:#7bc896; --bad:#ef8a7a; --onnavy:#0f161c; --chip:#22303a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+#app{max-width:460px;margin:0 auto}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);display:flex;align-items:center;gap:10px;padding-block:10px;border-bottom:1px solid var(--line)}
+.crest{width:34px;height:34px;flex:none}
+.top .club{font-family:var(--f-display);font-weight:800;font-size:21px;letter-spacing:.02em;line-height:1;text-transform:uppercase;overflow-wrap:anywhere}
+.top .sub{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.top .grow{flex:1;min-width:0}
+.tbtn{min-height:44px;padding:0 12px;border-radius:22px;border:1.5px solid var(--navy);background:transparent;color:var(--navy);font:600 13px var(--f-body);cursor:pointer;flex:none}
+main{display:flex;flex-direction:column;gap:16px;padding-top:18px}
+h1,h2{font-family:var(--f-display);font-weight:800;text-transform:uppercase;letter-spacing:.01em;line-height:1;text-wrap:balance;margin:0}
+h1{font-size:40px} h2{font-size:26px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--signal)}
+p{margin:0}
+.muted{color:var(--muted)} .small{font-size:13px}
+.voice{font-family:var(--f-voice);font-style:italic;font-size:19px;line-height:1.45}
+.scene{display:flex;flex-direction:column;gap:12px}
+.where{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.who{display:flex;align-items:center;gap:12px}
+.face{width:48px;height:48px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:19px;color:var(--onnavy);background:var(--navy)}
+.face.opp{background:var(--signal)}
+.who b{display:block;font-weight:600} .who span{font-size:13px;color:var(--muted)}
+.btn{display:block;width:100%;min-height:52px;padding:12px 16px;border:0;border-radius:10px;background:var(--navy);color:var(--onnavy);font:600 16px var(--f-body);cursor:pointer;text-align:center}
+.btn.ghost{background:transparent;color:var(--navy);border:1.5px solid var(--navy)}
+.btn:focus-visible,.choice:focus-visible,.tbtn:focus-visible,.deal:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.stack{display:flex;flex-direction:column;gap:10px}
+.choice{display:flex;flex-direction:column;gap:4px;width:100%;text-align:left;min-height:56px;padding:14px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.choice b{font-weight:600} .choice .meta{font-size:13px;color:var(--muted)}
+.chance{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:12px;background:var(--chip);color:var(--ink)}
+.dots{letter-spacing:.1em;color:var(--signal);font-size:15px}
+.deal{width:100%;text-align:left;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:14px 16px;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:8px}
+.deal .dt{font-weight:600;font-size:17px}
+.deal dl{display:grid;grid-template-columns:84px 1fr;gap:4px 10px;margin:0;font-size:14px}
+.deal dt{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.deal dd{margin:0;min-width:0}
+.deal .warn{font-size:13px;color:var(--bad);font-weight:600}
+.deal .hit{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--good)}
+.deal.none{border-style:dashed}
+.echo{background:var(--card);border:2px solid var(--ink);border-radius:4px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.echo .mast{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:2px solid var(--ink);padding-bottom:6px}
+.echo .mast b{font-family:var(--f-display);font-weight:800;font-size:20px;letter-spacing:.05em}
+.echo .mast span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;flex:none}
+.echo .head{font-family:var(--f-display);font-weight:800;font-size:32px;line-height:.95;text-transform:uppercase;text-wrap:balance}
+.echo ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.row>span:first-child{min-width:0}
+.mood{font-weight:600;text-align:right}
+.up{color:var(--good)} .down{color:var(--bad)}
+.res{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;font-size:15px;font-variant-numeric:tabular-nums}
+.wdl{width:28px;height:28px;border-radius:6px;display:grid;place-items:center;font-weight:700;font-size:13px;color:var(--onnavy)}
+.wdl.W{background:var(--good)} .wdl.D{background:var(--muted)} .wdl.L{background:var(--bad)}
+.tag{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--signal)}
+.log{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px} .log li{font-size:14px}
+.log .why{display:block;color:var(--muted);font-size:13px}
+.num{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.count{display:flex;flex-direction:column;gap:12px}
+.cg{animation:reveal .5s ease both}
+.cg:nth-child(2){animation-delay:.9s}.cg:nth-child(3){animation-delay:1.8s}.cg:nth-child(4){animation-delay:2.7s}
+.verdict{animation:reveal .6s ease both;animation-delay:3.4s}
+@keyframes reveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.cg,.verdict{animation:none}}
+.bar{height:10px;border-radius:5px;background:var(--chip);overflow:hidden} .bar i{display:block;height:100%;background:var(--navy)}
+.big{font-family:var(--f-display);font-weight:800;font-size:46px;line-height:.9;text-transform:uppercase}
+.overlay{position:fixed;inset:0;z-index:20;background:var(--paper);overflow-y:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(env(safe-area-inset-top,0px) + 12px) calc(env(safe-area-inset-bottom,0px) + 24px)}
+.overlay .inner{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.check{display:flex;gap:12px;align-items:flex-start;min-height:56px;padding:14px 16px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);cursor:pointer}
+.check input{width:22px;height:22px;margin-top:2px;flex:none;accent-color:var(--navy)}
+.check.on{border-color:var(--navy)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tabs button{min-height:44px;padding:0 14px;border-radius:22px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:600 14px var(--f-body);cursor:pointer}
+/* system layer: hub cards, ground and money overlays */
+.hub{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hubc{display:flex;flex-direction:column;gap:4px;text-align:left;min-height:44px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.hubc b{font-size:20px;font-variant-numeric:tabular-nums}
+.grow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;min-height:44px}
+.cbar{display:inline-block;width:64px;height:8px;border-radius:4px;background:var(--chip);overflow:hidden;vertical-align:middle}.cbar i{display:block;height:100%;background:var(--good)}
+.cbar.mid i{background:#b7791f}.cbar.lo i{background:var(--bad)}.cnum{min-width:34px;text-align:right;font-variant-numeric:tabular-nums}
+.opt{display:flex;flex-direction:column;gap:3px;text-align:left;min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.opt.on{border-color:var(--navy);border-width:2px}.opt.dim{opacity:.6;cursor:default}
+.offers{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.offer{display:flex;flex-direction:column;gap:2px;min-height:44px;padding:8px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:12px var(--f-body);cursor:pointer;text-align:left}.offer b{font-size:15px}
+.stepper{display:flex;align-items:center;gap:6px}.stepper button{width:44px;height:44px;border-radius:22px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:600 20px var(--f-body);cursor:pointer}.stepper b{min-width:44px;text-align:center;font-variant-numeric:tabular-nums}
+.hline{display:grid;grid-template-columns:96px 1fr 64px;gap:8px;align-items:center;font-size:14px}.hline b{text-align:right;font-variant-numeric:tabular-nums}
+.tabs button.on{border-color:var(--navy);color:var(--navy)}
+hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
+.hbar{height:10px;border-radius:5px;background:var(--chip);overflow:hidden}.hbar i{display:block;height:100%;background:var(--good)}.hbar i.neg{background:var(--bad)}
+.fcast{width:100%;height:auto}.fcast .band{fill:var(--chip)}.fcast .zero{stroke:var(--bad);stroke-dasharray:4 3;stroke-width:1}.fcast .mid{fill:none;stroke:var(--ink);stroke-width:2}
+
+/* layered game additions */
+.nav{position:sticky;top:calc(env(safe-area-inset-top,0px) + 55px);z-index:4;background:var(--paper);display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:8px 0;border-bottom:1px solid var(--line)}
+.nav button{min-height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:600 14px var(--f-body);cursor:pointer}
+.nav button.on{background:var(--navy);border-color:var(--navy);color:var(--onnavy)}
+.nav button:focus-visible,.tabs button:focus-visible,.opt:focus-visible,.hubc:focus-visible,.prow:focus-visible,.trow:focus-visible,.offer:focus-visible,.stepper button:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.tbl{display:flex;flex-direction:column}
+.trow{display:grid;grid-template-columns:26px 1fr 30px 40px 38px;gap:6px;align-items:center;min-height:44px;padding:0 6px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font:14px var(--f-body);text-align:left;cursor:pointer;font-variant-numeric:tabular-nums;width:100%}
+.trow.head{min-height:32px;cursor:default;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.trow.me{background:var(--chip);font-weight:600}
+.trow .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trow.zone-up{box-shadow:inset 3px 0 0 var(--good)}.trow.zone-down{box-shadow:inset 3px 0 0 var(--bad)}
+.trow b{text-align:right}
+.prow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;min-height:52px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;text-align:left;cursor:pointer;width:100%}
+.prow .pn{font-weight:600}.prow .pm{font-size:13px;color:var(--muted)}
+.qbar{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;font-weight:600}
+.qbar i{display:inline-block;width:40px;height:6px;border-radius:3px;background:var(--chip);position:relative;overflow:hidden}
+.qbar i b{position:absolute;inset:0 auto 0 0;background:var(--navy)}
+.inj{color:var(--bad);font-weight:600}
+.pill{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:10px;background:var(--chip);color:var(--ink)}
+.pill.good{background:var(--good);color:var(--onnavy)}.pill.bad{background:var(--bad);color:var(--onnavy)}
+.fix{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center}
+.fix b{font-family:var(--f-display);font-weight:800;font-size:18px;text-transform:uppercase;line-height:1.05;overflow-wrap:break-word;hyphens:auto;min-width:0}
+.fix .score{font-family:var(--f-display);font-weight:800;font-size:40px;line-height:1}
+.cmp{display:grid;grid-template-columns:1fr auto auto;gap:4px 12px;font-size:14px;font-variant-numeric:tabular-nums}
+.cmp span:first-child{color:var(--muted)}.cmp b{text-align:right}
+.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px}
+.seg button{min-height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:600 13px var(--f-body);cursor:pointer;padding:4px}
+.seg button.on{border-color:var(--navy);background:var(--navy);color:var(--onnavy)}
+.note{font-size:13px;color:var(--muted)}
+.err{font-size:13px;color:var(--bad);font-weight:600}
+.tabs{overflow-x:auto}
+
+.top .tg{flex:1;min-width:0}
+</style>
+<div id="app"></div>
+<script>
+/* ---- core/content.js ---- */
+/* ================= Content (verbatim from Northmarch @7a2d5d3; story data kept for layer 4) ================= */
+const FIRST=['Alan','Bev','Carl','Dawn','Eddie','Fiona','Gary','Helen','Ian','Jackie','Karen','Lee','Mandy','Neil','Pam','Rob','Sue','Terry','Una','Vic','Wendy','Yusuf','Zara','Priya','Tomasz','Kwame','Siobhan','Declan','Aisha','Rhys','Moira','Glen','Nadia','Owen','Bernie','Hamid','Lorna','Stuart','Ingrid','Dev'];
+const LAST=['Ashby','Brook','Crane','Dowd','Ellery','Finch','Garside','Holt','Ince','Jessop','Kerr','Lund','Marsh','Nuttall','Oakes','Pryce','Quinlan','Rudd','Sowerby','Thwaite','Usher','Vasey','Wragg','Yates','Banerjee','Kowalski','Mensah','Doyle','Haddad','Ollerton','Pickles','Rowntree','Sefton','Tranter','Whitlock','Agyeman','Bairstow','Corrigan','Dunleavy','Fairclough'];
+const TRAITS=['stubborn','proud','sly','honest','vain','loyal','ambitious','cautious','warm','resentful','impulsive','patient','principled','greedy'];
+const VALUES=['money','glory','loyalty','recognition','control','community'];
+const VALUE_WORD={money:'money',glory:'glory',loyalty:'loyalty',recognition:'recognition',control:'control',community:'community'};
+const TOWNS={
+ harbour:{n:'Harbour town',wk:'The Docks',bar:'The Anchor',w:{workers:5,business:3,students:2,families:2,ultras:2}},
+ mill:{n:'Mill town',wk:'The Mill',bar:'The Weavers Arms',w:{workers:5,oldguard:4,families:3,ultras:2}},
+ cathedral:{n:'Cathedral city',wk:'The Works',bar:'The Bishop\'s Head',w:{oldguard:4,students:4,business:3,retirees:3}},
+ resort:{n:'Seaside resort',wk:'The Works',bar:'The Pier Bar',w:{traders:5,retirees:4,families:3,newcomers:2}},
+ newtown:{n:'New town',wk:'The Works',bar:'The Social Club',w:{newcomers:5,families:4,business:3,volunteers:2}},
+ mining:{n:'Mining valley',wk:'The Pit',bar:'Miners\' Welfare',w:{workers:5,oldguard:4,volunteers:3,ultras:2}}};
+const ARCH={
+ workers:{n:null,wants:'Beat the rival. No outside investor.',motion:{t:'No outside owner above 25%, ever',against:'business'}},
+ oldguard:{n:'Old Guard',wants:'Results and tradition. No adventures.',motion:{t:'A chairman may serve two terms at most',against:null,anti:true}},
+ families:{n:'Families',wants:'Affordable tickets. Our own youngsters.',motion:{t:'Freeze ticket prices for three seasons',against:'business',cost:30}},
+ ultras:{n:'Ultras',wants:'A standing terrace. Keep the icons.',motion:{t:'Bring back a standing terrace',against:'retirees',cost:15}},
+ students:{n:'Students',wants:'Attacking football. Cheap tickets.',motion:{t:'Half-price student season tickets',against:'business',cost:15}},
+ business:{n:'Business',wants:'Healthy books. A new stadium.',motion:{t:'Allow outside investment up to 49%',against:'workers',gain:100}},
+ retirees:{n:'Retirees',wants:'Seats and peace. Honour the old names.',motion:{t:'Seats in every stand, no standing',against:'ultras'}},
+ traders:{n:'Traders',wants:'Busy matchdays. Parking.',motion:{t:'A matchday parking scheme',against:null,cost:10}},
+ newcomers:{n:'Newcomers',wants:'A modern club. A women\'s team.',motion:{t:'Start a women\'s team',against:'oldguard',cost:20}},
+ volunteers:{n:'Volunteers',wants:'A say. It\'s the volunteers\' club.',motion:{t:'A members\' council with a veto on big spending',against:null,anti:true}}};
+const STATUTE=['Two-thirds majority to change anything at the AGM','No outside owner above 25%','Members approve any sale above £50k','Ticket prices are set by the members'];
+const SCAR=['relegated three times in ten years','went into administration in 2009','lost a cup final to their rivals','sold the ground and rent it back','a match-fixing scandal in the eighties'];
+const RIVALRY=['the 1984 strike','a captain sold to them on deadline day','a shared ground they were thrown out of','a cup semi-final nobody has forgiven','the bus company that served one town and not the other'];
+const SUFFIX=['United','Town','Athletic','Rovers','Albion','City','Vale','Wanderers'];
+const TOWNNAMES=['Saltmere','Kestle','Brackwater','Dunmore','Fenwick','Holbeck','Ilsworth','Marrow Bay','Northcliffe','Ottery','Ravensby','Selcombe','Tarn Valley','Wexmoor','Yarrowby','Ashcombe','Blackridge','Cragmoor','Downholme','Eastwick','Farleigh','Gorsedale','Hadley Cross','Irwell','Kilnsey','Longthwaite','Mardale','Netherby','Penhallow','Rothmere','Skelwith','Ullsby','Varley'];
+const ROLE_WORD={coach:'Head coach',td:'Director of football',captain:'Captain',fan:'Supporters\' leader',opp:'Opposition candidate',chair:'Chairman',journalist:'Chief reporter, The Echo'};
+const DEEP={
+ coach:{money:'a contract that finally pays like a real job',glory:'a promotion with their name on it',loyalty:'a chairman who stands by them through a bad run',recognition:'to stop being called a stopgap',control:'the final say on who plays',community:'a team built on local players'},
+ td:{money:'a budget they do not have to beg for',glory:'one signing the whole region talks about',loyalty:'to stay at the club that gave them their start',recognition:'public credit for the players they find',control:'nobody interfering in recruitment',community:'an academy for the town\'s kids'},
+ captain:{money:'one last contract that looks after the family',glory:'to lift something before they retire',loyalty:'to finish their career here',recognition:'to be remembered as a club great',control:'a say in how the dressing room is run',community:'to coach the kids when the legs go'},
+ fan:{money:'cheaper tickets for the regulars',glory:'to see the club go up in their lifetime',loyalty:'that the club never forgets its old supporters',recognition:'the supporters\' name on something permanent',control:'a vote on the big decisions',community:'the ground open to the town on weekdays'},
+ opp:{money:'a stake in the club\'s future',glory:'to be the one who saved the club',loyalty:'revenge for how the last board treated their friends',recognition:'a seat at the table their family never got',control:'to run the club like their own business',community:'to hand the club back to the members'},
+ chair:{money:'a club that pays its own way',glory:'to beat their rival to promotion',loyalty:'friends they can count on at the league meeting',recognition:'respect from the bigger clubs',control:'to run their club without the league meddling',community:'a region where small clubs survive'},
+ talent:{money:'a first professional contract',glory:'a debut in front of a full house',loyalty:'to play for the club they grew up watching',recognition:'to be picked on merit',control:'a say in their own future',community:'to make the town proud'},
+ journalist:{money:'a story that sells papers',glory:'a scoop the nationals pick up',loyalty:'sources who stay with them',recognition:'their byline on the big story',control:'to set the agenda, not follow it',community:'clubs that answer to their towns'}};
+const DEEPQ={money:'"I\'ve given years to this. I\'d like to be paid like I matter."',glory:'"I want one thing people remember. Just one."',loyalty:'"Stand by me when it goes wrong. That\'s all I ask."',recognition:'"Everyone gets the credit but me. Once, I\'d like it said out loud."',control:'"Let me do my job without someone looking over my shoulder."',community:'"This club belongs to the town. I want the town to feel it."'};
+const TONE=[['"Say it and go."','"I\'ve nothing to say to you."','"You\'ve got a nerve."'],['"{opp} returns my calls, chairman. You don\'t."','"I hear you\'ve been busy. Not with me."','"Funny. {opp} asked after you yesterday."'],['"Chairman."','"Keep it short?"','"What can I do for you?"'],['"Good to see you."','"Pull up a chair."','"Come in, come in."'],['"For you, always."','"Sit down, I\'ll get them in."','"There they are! The lads were asking after you."']];
+const FLAVOUR={stubborn:'"If this is about changing my mind, save your breath."',proud:'"I don\'t usually wait for people."',sly:'"Funny, I was just talking about you."',honest:'"I\'ll be straight with you."',vain:'"Did you see the paper? They spelled my name right for once."',loyal:'"Whatever the club needs."',ambitious:'"I\'ve plans, chairman. Big ones."',cautious:'"Let\'s not rush anything."',warm:'"How are you holding up?"',resentful:'"I remember the last person who sat in that chair."',impulsive:'"Go on then, spit it out."',patient:'"Take your time."',principled:'"As long as this is above board."',greedy:'"Is this about money? I hope it\'s about money."'};
+const STRONG={money:['money'],glory:['name','role'],loyalty:['security'],recognition:['name','role'],control:['power'],community:['role']};
+const WEAK={money:['name'],glory:['security'],loyalty:['money'],recognition:['money'],control:['ask'],community:['money']};
+const TIER_NAME=['Northmarch Premier','Northmarch One','Northmarch Two'];
+const CUP_NAME='The Northmarch Cup';
+const TOWNNAMES2=['Brackenholt','Cauldmoor','Dunstrow','Elmscar','Fellbeck','Grimsett','Hollinwick','Kettlemere','Lowmarsh','Mossby','Oxenthwaite','Pendlecross','Quarrymoor','Redscar','Stonegill','Tallowfield','Wetherscar','Whinsby'];
+
+/* ---- core/rng.js ---- */
+/* ================= Core: seeded RNG and helpers (from Northmarch / voorzitter-fundering core/rng.js) =================
+   All randomness in the simulation goes through rnd(), which advances S.rs. Never use Math.random. */
+"use strict";
+const HAS_DOM=typeof document!=='undefined';
+let S=null;
+function rnd(){let t=(S.rs=(S.rs+0x6D2B79F5)|0);t=Math.imul(t^(t>>>15),1|t);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}
+function mkRng(seed){let s=seed|0;return()=>{let t=(s=(s+0x6D2B79F5)|0);t=Math.imul(t^(t>>>15),1|t);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}}
+const pick=a=>a[Math.floor(rnd()*a.length)],ri=(a,b)=>a+Math.floor(rnd()*(b-a+1)),chance=p=>rnd()<p;
+function pickN(a,n){const c=a.slice(),o=[];while(o.length<n&&c.length)o.push(c.splice(Math.floor(rnd()*c.length),1)[0]);return o}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function pois(l,r){const L=Math.exp(-l);let k=0,p=1;do{k++;p*=r()}while(p>L);return k-1}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const r1=x=>Math.round(x*10)/10,r2=x=>Math.round(x*100)/100;
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function ord(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++)h=Math.imul(h^s.charCodeAt(i),16777619);return h>>>0}
+const P=id=>S.P[id],CL=id=>S.clubs[id],C=()=>S.clubs[S.my];
+
+/* ---- core/bus.js ---- */
+/* ================= Core: events and commands =================
+   Events are facts other layers may read (S.ev, newest last). Commands are the only way a player, an AI club,
+   a staff member or (later) the story layer changes the world. Every command validates first, then runs inside
+   the domain that owns the state. Contract: docs/ARCHITECTURE.md. */
+const EV_KEEP=2500;
+function emit(type,club,text,data){
+  S.evn=(S.evn||0)+1;
+  const e={n:S.evn,t:type,c:club||null,s:S.season,w:S.week,text:text||'',...(data||{})};
+  S.ev.push(e);if(S.ev.length>EV_KEEP)S.ev.splice(0,S.ev.length-EV_KEEP);
+  return e;
+}
+function eventsSince(n){return S.ev.filter(e=>e.n>n)}
+function eventsFor(club,o={}){return S.ev.filter(e=>(!club||e.c===club||(e.c2&&e.c2===club))&&(o.s==null||e.s===o.s)&&(o.w==null||e.w===o.w)&&(!o.types||o.types.includes(e.t)))}
+
+const COMMANDS={}; // name -> {who:[actors], check(club,args)->error|null, run(club,args)->result}
+function defCommand(name,def){COMMANDS[name]=def}
+/* actor: 'player' | 'ai' | 'td' | 'story'. The player may only command their own club. */
+function cmd(name,club,args,actor){
+  const d=COMMANDS[name];if(!d)return{ok:false,err:'Unknown command '+name};
+  actor=actor||'player';args=args||{};
+  if(d.who&&!d.who.includes(actor))return{ok:false,err:`${actor} may not ${name}`};
+  if(actor==='player'&&club!==S.my)return{ok:false,err:'Not your club'};
+  if(!CL(club))return{ok:false,err:'No such club'};
+  const err=d.check?d.check(club,args):null;
+  if(err)return{ok:false,err};
+  const res=d.run(club,args);
+  if(actor==='player')emit('Command',club,'',{cmd:name,args,actor});
+  return{ok:true,res};
+}
+
+/* ---- world/world.js ---- */
+/* ================= World: clubs, people and the start of a new game =================
+   Owns S.clubs (identity, tier, support, rivals) and S.P (people). mkPerson/castClub/addRel/weakest are the
+   Northmarch functions (northmarch.html @7a2d5d3), kept so the story layer (L4) can attach later.
+   Squads (football), grounds (club) and money (finance) are created here but owned by their own domains. */
+const VERSION=1;
+const SAVE_KEY='northmarch-layered-v1';
+const TIERS=[0,1,2];
+const TIER_STR=[[51,59],[44,53],[37,46]];
+const TIER_SUPPORT=[[1900,4300],[1000,2500],[450,1300]];
+
+function mkPerson(role,club,o={}){
+  const id='p'+(S.pc++);
+  const p={id,name:o.name||`${pick(FIRST)} ${pick(LAST)}`,age:o.age||(role==='fan'?ri(38,70):role==='captain'?ri(27,33):ri(34,62)),role,club,
+    traits:o.traits||pickN(TRAITS,2),value:o.value||pick(VALUES),infl:o.infl??null,loy:o.loy??null,mem:o.mem||[],rel:[],career:club?[club]:[],
+    owes:false,withOpp:false,deepKnown:false,shown:0};
+  p.deep=DEEP[role][p.value];S.P[id]=p;return id;
+}
+function weakest(c){return c.groups.slice().sort((a,b)=>a.mood-b.mood)[0].k}
+function addRel(a,b,type){if(!a||!b||a===b)return;P(a).rel.push({id:b,type});P(b).rel.push({id:a,type:type==='mentor'?'protégé':type})}
+function castClub(c){
+  const big=c.groups.slice().sort((a,b)=>b.share-a.share)[0].k;
+  c.cast.chair=mkPerson('chair',c.id);
+  c.cast.coach=mkPerson('coach',c.id,{infl:c.groups.find(g=>['students','ultras','newcomers'].includes(g.k))?.k||null});
+  c.cast.td=mkPerson('td',c.id);
+  c.cast.captain=mkPerson('captain',c.id,{infl:big});
+  c.cast.fan=mkPerson('fan',c.id,{infl:big});
+  c.cast.opp=mkPerson('opp',c.id,{infl:weakest(c)});
+  c.cast.talent=mkPerson('talent',c.id,{age:ri(17,19)});
+}
+function mkClub(id,name,town,tier,o={}){
+  const t=TOWNS[town],keys=Object.keys(t.w),n=rnd()<.5?3:4,groups=[];
+  if(o.groups)o.groups.forEach(([k,sh,m])=>groups.push({k,share:sh,mood:m}));
+  else{const pool=keys.slice();while(groups.length<n&&pool.length){const tot=pool.reduce((a,k)=>a+t.w[k],0);let x=rnd()*tot,k=pool[0];for(const kk of pool){x-=t.w[kk];if(x<=0){k=kk;break}}pool.splice(pool.indexOf(k),1);groups.push({k,share:ri(15,40),mood:ri(34,62)})}
+    const sum=groups.reduce((a,g)=>a+g.share,0);groups.forEach(g=>g.share=Math.round(g.share/sum*100));}
+  const [s0,s1]=TIER_SUPPORT[tier];
+  const c={id,name,town,tier,support:o.support??ri(s0,s1),statute:o.statute||pickN(STATUTE,rnd()<.5?1:2),founded:o.founded||ri(1874,1925),scar:o.scar||pick(SCAR),
+    legend:o.legend||`${pick(FIRST)} '${pick(['Big','Wee','Iron','Doc','Sailor'])}' ${pick(LAST)}`,rival:null,rivalWhy:pick(RIVALRY),groups,cast:{},hist:[],binding:[],
+    ground:o.ground||pick(['Park','Road','Lane','Meadow','Moor','Fields'])};
+  c.ground=`${name.split(' ')[0]} ${c.ground}`;
+  S.clubs[id]=c;return c;
+}
+function chairValue(id){const c=CL(id),p=c.cast.chair&&P(c.cast.chair);return p?p.value:'money'}
+
+function newWorld(seed){
+  S={v:VERSION,seed,rs:seed|0||1,pc:1,season:1,week:0,phase:'choose',my:null,clubs:{},P:{},squads:{},grounds:{},fin:{},fa:[],
+    tbl:{},fx:{},cup:null,qref:11.7,matches:[],ev:[],evn:0,hist:[],layers:{story:false,staff:false,dynasty:false},auto:false,seats:[]};
+  // the Northmarch core clubs
+  mkClub('pell','Pell United','harbour',1,{support:1600,groups:[['workers',40,58],['students',25,62],['business',35,40]],statute:['No outside owner above 25%'],founded:1891,legend:"Jack 'Sailor' Garside",scar:'lost a cup final to their rivals',ground:'Dock Road'});
+  mkClub('corden','Corden Athletic','mill',1,{support:1800});
+  mkClub('harrow','Harrowgate Town','cathedral',0,{support:3600});
+  CL('pell').rival='corden';CL('pell').rivalWhy='a captain sold to them on deadline day';CL('corden').rival='pell';CL('corden').rivalWhy=CL('pell').rivalWhy;
+  CL('pell').ground='Dock Road';
+  // 45 more clubs, sized by a hidden potential, then cut into three divisions of 16
+  const names=pickN(TOWNNAMES.concat(TOWNNAMES2),45),towns=Object.keys(TOWNS);
+  const pot=names.map((tn,i)=>({tn,i,v:rnd()}));pot.sort((a,b)=>b.v-a.v);
+  const need=[15,14,16]; // harrow fills tier 0; pell and corden tier 1
+  let k=0;for(const tier of TIERS)for(let j=0;j<need[tier];j++){const x=pot[k++];mkClub('c'+x.i,x.tn+(rnd()<.85?' '+pick(SUFFIX):''),pick(towns),tier)}
+  const ids=Object.keys(S.clubs);
+  ids.forEach(i=>{const c=CL(i);if(c.rival)return;const cands=ids.filter(j=>j!==i&&CL(j).tier===c.tier&&!CL(j).rival);const r=cands.length?pick(cands):pick(ids.filter(j=>j!==i));c.rival=r;if(!CL(r).rival){CL(r).rival=i;CL(r).rivalWhy=c.rivalWhy}});
+  ids.forEach(i=>castClub(CL(i)));
+  ids.forEach(i=>{const cs=Object.values(CL(i).cast).filter(x=>P(x).role!=='talent');cs.forEach(a=>{if(rnd()<.6){const b=pick(cs.filter(x=>x!==a));addRel(a,b,pick(['friends','rivals','mentor']))}})});
+  // the domains: squads, grounds, money
+  for(const id of ids){const c=CL(id),[a,b]=TIER_STR[c.tier];
+    const str=id==='pell'?48:id==='harrow'?57:ri(a,b)+Math.round((c.support-(TIER_SUPPORT[c.tier][0]+TIER_SUPPORT[c.tier][1])/2)/600);
+    S.squads[id]=genSquad(str,id);S.grounds[id]=groundInit(id);S.fin[id]=finInit(id);}
+  S.qref=worldQuality();
+  faInit();
+  startSeason();
+  makeSeats();
+  emit('WorldCreated',null,`${ids.length} clubs in three divisions.`);
+  return S;
+}
+/* three chairs to choose from: one per division, each with its own problem */
+function makeSeats(){
+  const ids=Object.keys(S.clubs),out=[];
+  const t0=ids.filter(i=>CL(i).tier===0).sort((a,b)=>teamStrength(a)-teamStrength(b));
+  out.push(t0[ri(0,4)]);out.push('pell');
+  const t2=ids.filter(i=>CL(i).tier===2).sort((a,b)=>CL(b).support-CL(a).support);out.push(t2[ri(0,5)]);
+  S.seats=out;
+}
+function chooseClub(id){
+  if(!S.seats.includes(id))return false;
+  S.my=id;S.phase='season';
+  emit('ChairmanElected',id,`You are elected chairman of ${CL(id).name}.`);
+  return true;
+}
+
+/* ---- world/league.js ---- */
+/* ================= World: divisions, fixtures, tables, promotion and the cup =================
+   Owns S.fx, S.tbl, S.cup and S.matches (this week's results). Three divisions of 16 (decision D3):
+   30 league weeks, two up and two down between each pair of divisions, and a knock-out cup in six rounds.
+   makeFixtures/standings are the Northmarch functions. */
+const SEASON_WEEKS=30;
+const CUP_WEEKS=[4,9,14,19,24,28];
+const CUP_ROUND=['First round','Second round','Third round','Quarter-final','Semi-final','Final'];
+const CUP_PRIZE=[1.5,3,6,10,16,30];
+
+function makeFixtures(ids){
+  const a=shuffle(ids.slice());
+  const n=a.length;let arr=a.slice();const first=[];
+  for(let k=0;k<n-1;k++){const m=[];for(let i=0;i<n/2;i++){const x=arr[i],y=arr[n-1-i];m.push((k+i)%2?[y,x]:[x,y])}first.push(m);arr=[arr[0],arr[n-1],...arr.slice(1,n-1)]}
+  return first.concat(first.map(rd=>rd.map(([x,y])=>[y,x])));
+}
+function tierIds(tier){return Object.keys(S.clubs).filter(i=>CL(i).tier===tier)}
+function startSeason(){
+  S.tbl={};S.fx={};
+  for(const tier of TIERS){const ids=tierIds(tier);S.fx[tier]=makeFixtures(ids);
+    const byStr=ids.slice().sort((x,y)=>teamStrength(y)-teamStrength(x));byStr.forEach((id,i)=>CL(id).expect=i+1);
+    ids.forEach(id=>S.tbl[id]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,ded:0,form:[]});}
+  S.week=0;S.matches=[];
+  S.cup={round:0,alive:tierIds(1).concat(tierIds(2)),ties:[],winner:null,log:[]};
+  cupDraw();
+}
+function standings(tier){return Object.keys(S.tbl).filter(i=>CL(i).tier===tier).sort((x,y)=>{const a=S.tbl[x],b=S.tbl[y];return b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||(x<y?-1:1)})}
+function posOf(id){return standings(CL(id).tier).indexOf(id)+1}
+function ppg(id){const t=S.tbl[id];return t&&t.p?t.pts/t.p:1.35}
+function rec(id,f,a){const t=S.tbl[id];t.p++;t.gf+=f;t.ga+=a;const r=f>a?'W':f===a?'D':'L';if(r==='W'){t.w++;t.pts+=3}else if(r==='D'){t.d++;t.pts++}else t.l++;t.form.push(r);if(t.form.length>5)t.form.shift()}
+function fixtureOf(id,w){const tier=CL(id).tier,rd=S.fx[tier]&&S.fx[tier][w-1];if(!rd)return null;const m=rd.find(([h,a])=>h===id||a===id);return m?{h:m[0],a:m[1],home:m[0]===id,opp:m[0]===id?m[1]:m[0]}:null}
+function cupTieOf(id){if(!S.cup||S.cup.round>=CUP_WEEKS.length)return null;const t=S.cup.ties.find(x=>x.h===id||x.a===id);return t||null}
+function nextCupWeek(){return CUP_WEEKS[S.cup.round]}
+
+/* ----- this week's games: league round + cup round. Strength comes from the squads (football/match.js) ----- */
+function playWeekMatches(w){
+  const out=[];
+  for(const tier of TIERS)for(const [h,a] of S.fx[tier][w-1]){const m=playMatch(h,a,{comp:'league',tier});rec(h,m.gh,m.ga);rec(a,m.ga,m.gh);out.push(m)}
+  if(CUP_WEEKS[S.cup.round]===w)out.push(...playCupRound());
+  S.matches=out;
+  for(const m of out){
+    const nm=`${CL(m.h).name} ${m.gh}–${m.ga} ${CL(m.a).name}${m.pens?` (${CL(m.pens).name} win on penalties)`:''}`;
+    emit('Match',m.h,nm,{c2:m.a,comp:m.comp,gh:m.gh,ga:m.ga,scorers:m.scorers,round:m.round});
+  }
+  return out;
+}
+function cupDraw(){
+  const cup=S.cup;if(cup.round===1)cup.alive=cup.alive.concat(tierIds(0));
+  const a=shuffle(cup.alive.slice());cup.ties=[];
+  for(let i=0;i+1<a.length;i+=2)cup.ties.push({h:a[i],a:a[i+1]});
+}
+function playCupRound(){
+  const cup=S.cup,r=cup.round,out=[],won=[];
+  for(const t of cup.ties){
+    const final=r===CUP_WEEKS.length-1;
+    const m=playMatch(t.h,t.a,{comp:'cup',round:r,neutral:final});
+    let w=m.gh>m.ga?t.h:m.ga>m.gh?t.a:null;
+    if(!w){const p=.5+(m.sh-m.sa)*.01;w=rnd()<p?t.h:t.a;m.pens=w}
+    m.winner=w;won.push(w);out.push(m);
+    const lose=w===t.h?t.a:t.h;
+    bookCupPrize(w,CUP_PRIZE[r],r);if(final)bookCupPrize(lose,CUP_PRIZE[r]/2,r);
+    cup.log.push({r,h:t.h,a:t.a,gh:m.gh,ga:m.ga,w});
+  }
+  cup.round++;cup.alive=won;
+  if(cup.round>=CUP_WEEKS.length){cup.winner=won[0];emit('CupWon',won[0],`${CL(won[0]).name} win ${CUP_NAME}.`)}
+  else cupDraw();
+  return out;
+}
+
+/* ----- end of the league: two up, two down between each pair of divisions ----- */
+function promoteRelegate(){
+  const tables=TIERS.map(t=>standings(t)),moves=[];
+  for(let t=0;t<TIERS.length-1;t++){
+    const down=tables[t].slice(-2),up=tables[t+1].slice(0,2);
+    down.forEach(i=>{CL(i).tier=t+1;moves.push({id:i,from:t,to:t+1});emit('Relegated',i,`${CL(i).name} are relegated to ${TIER_NAME[t+1]}.`)});
+    up.forEach(i=>{CL(i).tier=t;moves.push({id:i,from:t+1,to:t});emit('Promoted',i,`${CL(i).name} are promoted to ${TIER_NAME[t]}.`)});
+  }
+  return moves;
+}
+
+/* ---- football/players.js ---- */
+/* ================= Football: players and squads =================
+   Owns S.squads[clubId] (and S.fa, the free agents, in market.js). Positions, NEAR, REQ, XI_SLOTS, pickXI and
+   squadQuality come from voorzitter-fundering club/players.js (which took them from claude-game). Adapted so every
+   club has a squad (decision D1), with weekly development and injuries driven by the club's facilities. */
+const POS=['GK','CB','FB','DM','CM','AM','W','ST'];
+const POS_L={GK:'Goalkeepers',CB:'Centre-backs',FB:'Full-backs',DM:'Holding midfield',CM:'Central midfield',AM:'Attacking midfield',W:'Wingers',ST:'Strikers'};
+const POS_ONE={GK:'goalkeeper',CB:'centre-back',FB:'full-back',DM:'holding midfielder',CM:'central midfielder',AM:'attacking midfielder',W:'winger',ST:'striker'};
+const NEAR={GK:[],CB:['FB','DM'],FB:['CB','W'],DM:['CM','CB'],CM:['DM','AM'],AM:['CM','W','ST'],W:['AM','FB','ST'],ST:['W','AM']};
+const REQ={GK:2,CB:4,FB:3,DM:2,CM:3,AM:2,W:3,ST:3};
+const XI_SLOTS=['GK','FB','CB','CB','FB','DM','CM','AM','W','ST','W'];
+const PTRAITS=['leader','professional','temperamental','injury-prone','local hero','quiet'];
+const PFIRST=['Kyle','Bradley','Ryan','Nathan','Mo','Femi','Josh','Connor','Jamie','Callum','Kieran','Liam','Marcus','Jordan','Sam','Tyler','Ellis','Dean','Reece','Harvey','Aaron','Lewis','Theo','Ollie','Kofi','Jakub','Matty','Ethan','Joe','Danny','Brandon','Cian','Ruben','Isaac','Noah','Alfie','Zach','Billy','Jay','Ashley'];
+const PLAST=['Agyeman','Rowntree','Whitlock','Dunleavy','Corrigan','Sefton','Pickles','Fairclough','Ashworth','Barraclough','Cawthorne','Dearden','Entwistle','Fenton','Greenhalgh','Hepworth','Illingworth','Jowett','Kershaw','Lockwood','Midgley','Nolan','Ormerod','Priestley','Ramsden','Sutcliffe','Thackeray','Uttley','Varley','Waddington','Yeadon','Okonjo','Mensah','Kowalczyk','Brannigan','Hussain','Achterberg','Doherty','Lomax','Tetley'];
+const SQUAD_MIN=20,SQUAD_MAX=27;
+
+function pname(){return `${pick(PFIRST)} ${pick(PLAST)}`}
+/* weekly wage in £ for a player of quality q: semi-professional at the bottom, full-time at the top */
+/* wages follow the market: quality relative to the world's level (S.qref), so a richer, better world does not inflate wages forever */
+function wageFor(q){return Math.max(30,Math.round(150*Math.pow(1.65,q-((S&&S.qref)||11.7)+2.2)/5)*5)}
+function worldQuality(){const ids=Object.keys(S.squads);return r2(ids.reduce((a,i)=>a+squadQuality(S.squads[i]),0)/ids.length)}
+function newPlayer(pos,o={}){
+  const age=o.age??ri(18,33),q=r1(o.q??(9+rnd()*5));
+  const head=o.pa!=null?0:age<=19?1.5+rnd()*4:age<=22?rnd()*2.5:age<=24?rnd():0;
+  const p={id:'pl'+(S.pc++),name:o.name||pname(),pos,age,q,pa:r1(o.pa??(q+head)),contract:o.contract??ri(1,3),
+    wage:Math.round(wageFor(q)*(0.85+rnd()*.3)/5)*5,form:ri(55,75),inj:0,trait:o.trait||pick(PTRAITS),academy:!!o.academy,
+    apps:0,goals:0,sApps:0,sGoals:0,joined:S.season,club:o.club||null,career:[],grown:0};
+  return p;
+}
+function playerValue(p){const af=p.age<=21?1.6:p.age<=25?1.3:p.age<=29?1:p.age<=31?.6:.3;return Math.max(1,Math.round(wageFor(p.q)*.09*af*(1+Math.max(0,p.pa-p.q)*.15)))}
+function qWord(q){return q<8.5?'Poor':q<10?'Squad player':q<11.5?'Solid':q<13?'Key player':q<14.5?'Star':'Elite'}
+function genSquad(clubStr,clubId){
+  const base=11.5+(clubStr-50)/4,sq=[];
+  for(const pos of POS)for(let i=0;i<REQ[pos];i++)sq.push(newPlayer(pos,{q:base-1.2+rnd()*2.6,club:clubId}));
+  const short=pick(['FB','CB','W','DM']);sq.splice(sq.findIndex(p=>p.pos===short),1);
+  sq.push(newPlayer(pick(['CM','ST','W']),{q:base-.8+rnd()*1.6,club:clubId}));
+  sq.push(newPlayer(pick(['ST','W','CM']),{age:ri(17,18),q:base-3+rnd(),academy:true,contract:2,club:clubId}));
+  sq.push(newPlayer(pick(['CB','FB','AM']),{age:ri(17,18),q:base-3+rnd(),academy:true,contract:2,club:clubId}));
+  return sq;
+}
+function fitFor(p,slot){return p.pos===slot?1:NEAR[p.pos].includes(slot)?.85:(slot==='GK'||p.pos==='GK')?.3:.6}
+function available(sq){return sq.filter(p=>p.inj<=0)}
+function pickXI(sq){
+  const av=available(sq),xi=[];
+  const score=p=>p.q+(p.form-65)/40;
+  for(const slot of XI_SLOTS){let b=null,bv=-99;for(const p of av){if(xi.some(x=>x.p===p))continue;const v=score(p)*fitFor(p,slot);if(v>bv){bv=v;b=p}}if(b)xi.push({p:b,slot})}
+  return xi;
+}
+function squadQuality(sq){const xi=pickXI(sq);if(!xi.length)return 6;return xi.reduce((a,x)=>a+x.p.q*fitFor(x.p,x.slot),0)/11-(11-xi.length)*.6}
+function qualityToStr(q){return 50+(q-11.5)*4}
+function squadGaps(sq){
+  const out=[];
+  for(const pos of POS){const n=available(sq).filter(p=>p.pos===pos).length;if(n<REQ[pos])out.push({pos,kind:'short',text:`${n?'Only '+n:'No'} fit ${POS_ONE[pos]}${n===1?'':'s'}; the squad needs ${REQ[pos]}`})}
+  const xi=pickXI(sq);for(const x of xi)if(x.p.pos!==x.slot)out.push({pos:x.slot,kind:'oop',text:`${x.p.name} plays ${POS_ONE[x.slot]} out of position`});
+  return out;
+}
+function wageBillK(id){return r2(S.squads[id].reduce((a,p)=>a+p.wage,0)/1000)}
+
+/* ----- weekly: injuries (medical) and development (training). Called once per club per week ----- */
+function playersWeek(id){
+  const sq=S.squads[id],sg=groundSignals(id),t=sg.training,med=sg.medical;
+  const risk=clamp(1.25-.15*med-.05*t-(sg.hasTM?.12:0),.45,1.3);
+  const grow=(.12+.08*t)/SEASON_WEEKS,fade=(1-.06*Math.min(t,8))/SEASON_WEEKS;
+  for(const p of sq){
+    if(p.inj>0){p.inj--;if(p.inj===0&&id===S.my)emit('Return',id,`${p.name} is fit again.`,{pid:p.id})}
+    else if(rnd()<.02*risk*(p.trait==='injury-prone'?1.8:1)){
+      let d=rnd()<.06*(1-.12*Math.min(med,6))?ri(6,16):ri(1,4);d=Math.max(1,Math.round(d*(1-.12*Math.min(med,6))));p.inj=d;
+      emit('Injury',id,`${p.name} is injured: out for ${d} week${d>1?'s':''}.`,{pid:p.id,weeks:d,key:p.q>=squadQuality(sq)});
+    }
+    p.form=clamp(p.form+ri(-5,5),35,90);
+    const before=p.q;
+    if(p.age<=23&&p.pa>p.q)p.q+=(p.pa-p.q)*grow;
+    else if(p.age<=29&&p.pa>p.q)p.q+=(p.pa-p.q)*grow*.4;
+    else if(p.age>=31)p.q-=.55*fade;
+    p.q=Math.round(clamp(p.q,4,19)*1000)/1000;p.grown+=p.q-before;
+  }
+}
+/* ----- season end: ageing, noise in development, contracts, retirement, academy intake ----- */
+function playersSeasonEnd(id){
+  const sq=S.squads[id],c=CL(id),sg=groundSignals(id),left=[];
+  for(const p of sq.slice()){
+    p.age++;p.contract--;p.career.push(`${c.name} ${S.season}: ${p.sApps} apps, ${p.sGoals} goals`);p.sApps=0;p.sGoals=0;p.grown=0;
+    p.q=r1(clamp(p.q+(rnd()-.5)*.4,4,19));
+    if(p.age>=34&&rnd()<(p.age-32)*.25){sq.splice(sq.indexOf(p),1);left.push(p);emit('Retired',id,`${p.name} retires at ${p.age}.`,{pid:p.id})}
+    else if(p.contract<=0){sq.splice(sq.indexOf(p),1);left.push(p);faAdd(p,'out of contract');if(id===S.my)emit('PlayerLeft',id,`${p.name} leaves at the end of his contract.`,{pid:p.id})}
+  }
+  // academy intake: the academy level decides how many, how good and how much potential
+  const a=sg.academy,n=1+(a>=1?1:0)+(a>=3?1:0)+(a>=5?1:0),base=11.5+(tierBaseStr(c.tier)-50)/4;
+  const kids=[];
+  for(let i=0;i<n;i++){const q=base-3.2+.25*a+rnd()*1.2;const k=newPlayer(pick(POS.slice(1)),{age:ri(16,17),q,pa:q+1+.35*a+rnd()*2.5,academy:true,contract:2,club:id,trait:groundCourse(id,'academy')==='local'&&rnd()<.4?'local hero':null});
+    k.career.push('Academy');sq.push(k);kids.push(k)}
+  emit('YouthIntake',id,`${kids.length} academy graduate${kids.length>1?'s':''} join the squad.`,{n:kids.length,best:Math.max(...kids.map(k=>k.pa))});
+  return left;
+}
+function tierBaseStr(t){const [a,b]=TIER_STR[t];return (a+b)/2}
+
+/* ---- football/match.js ---- */
+/* ================= Football: the match =================
+   lambdas/pmf/xpts are the Northmarch match engine (Poisson goals). Strength now comes from each club's own
+   squad (fit players, positions, form) plus a home edge from the ground (atmosphere, pitch). */
+function lambdas(sa,sb,home){const d=(sa-sb)/20+(home?.15:-.15);return[Math.max(.4,1.35+.6*d),Math.max(.4,1.35-.6*d)]}
+function pmf(l,k){let p=Math.exp(-l);for(let i=1;i<=k;i++)p*=l/i;return p}
+function xpts(la,lb){let w=0,d=0;for(let i=0;i<=9;i++){const a=pmf(la,i);for(let j=0;j<=9;j++){const b=pmf(lb,j);if(i>j)w+=a*b;else if(i===j)d+=a*b}}return 3*w+d}
+function teamStrength(id){return qualityToStr(squadQuality(S.squads[id]))}
+function homeEdge(id){const sg=groundSignals(id);return sg.atmosphere*.12+(sg.pitch<1.5?-.6:0)}
+const SCORE_W={GK:0,CB:.5,FB:.5,DM:.6,CM:1.4,AM:2.6,W:2.8,ST:5};
+function scorerFrom(xi){const tot=xi.reduce((a,x)=>a+SCORE_W[x.slot]*x.p.q,0);let r=rnd()*tot;for(const x of xi){r-=SCORE_W[x.slot]*x.p.q;if(r<=0)return x.p}return xi[xi.length-1].p}
+function playMatch(h,a,o={}){
+  const xh=pickXI(S.squads[h]),xa=pickXI(S.squads[a]);
+  const sh=teamStrength(h)+(o.neutral?0:homeEdge(h)),sa=teamStrength(a);
+  const [lh,la]=lambdas(sh,sa,!o.neutral);
+  const gh=pois(lh,rnd),ga=pois(la,rnd),scorers=[];
+  for(const [xi,n,side] of [[xh,gh,'h'],[xa,ga,'a']]){for(const x of xi){x.p.apps++;x.p.sApps++}
+    for(let i=0;i<n&&xi.length;i++){const p=scorerFrom(xi);p.goals++;p.sGoals++;scorers.push({side,pid:p.id,name:p.name})}}
+  return{comp:o.comp||'league',tier:o.tier,round:o.round,h,a,gh,ga,sh:r1(sh),sa:r1(sa),lh:r2(lh),la:r2(la),xh:r2(xpts(lh,la)),xa:r2(xpts(la,lh)),scorers,neutral:!!o.neutral};
+}
+
+/* ---- football/market.js ---- */
+/* ================= Football: the market =================
+   Free agents (S.fa, idea from voorzitter-fundering club/market.js), renewals, transfers between clubs and forced
+   sales. squadManager() is the rule-based director of football that runs every club's squad within the club's
+   policy (wage ratio, share of spare cash). It is the standard executor for the player's club too, until staff
+   agents arrive in layer 3 (voorzitter-fundering td.js/summer.js are the candidates for that). */
+const FA_MAX=90;
+
+function faNew(n){
+  // new faces come from below Northmarch Two (local leagues, abroad): mostly weaker; good free agents are players clubs let go
+  for(let i=0;i<n;i++){const age=ri(19,33),base=11.5+(tierBaseStr(2)-50)/4+(S.qref-11.7);
+    const p=newPlayer(pick(POS),{age,q:base-1.8+rnd()*2+(rnd()<.1?1.2:0)-(age>=31?.5:0),contract:0});p.why=pick(['released in the summer','out of contract','back from a spell abroad','released after a long injury','left a club that went part-time']);S.fa.push(p)}
+}
+function faInit(){S.fa=[];faNew(60)}
+function faAdd(p,why){p.club=null;p.why=why;p.contract=0;p.inj=0;S.fa.push(p)}
+function faSummer(){
+  S.fa=S.fa.filter(p=>p.age<35);for(const p of S.fa)p.age++;
+  S.fa.sort((a,b)=>b.q-a.q);if(S.fa.length>FA_MAX)S.fa.length=FA_MAX;
+  faNew(Math.max(10,70-S.fa.length));
+}
+
+/* the value a club puts on a player it owns: its best eleven are not for sale cheaply */
+function isCore(id,p){const xi=pickXI(S.squads[id]);return xi.some(x=>x.p===p)}
+function moveWage(p,toId){return Math.round(wageFor(p.q)*(0.95+rnd()*.25)/5)*5}
+function transfer(p,from,to,fee,why){
+  const sq=S.squads[from];sq.splice(sq.indexOf(p),1);
+  if(fee){book(to,'feesOut',-fee);book(from,'feesIn',fee)}
+  p.wage=moveWage(p,to);p.contract=ri(2,3);p.club=to;p.joined=S.season;S.squads[to].push(p);
+  emit('Transfer',to,`${p.name} joins ${CL(to).name} from ${CL(from).name}${fee?` for £${fee}k`:''}.`,{c2:from,pid:p.id,fee,why});
+}
+function signFree(p,to){S.fa.splice(S.fa.indexOf(p),1);p.wage=moveWage(p,to);p.contract=ri(1,2);p.club=to;p.joined=S.season;S.squads[to].push(p);
+  emit('Signing',to,`${CL(to).name} sign free agent ${p.name} (${POS_ONE[p.pos]}).`,{pid:p.id})}
+/* releasing a player costs a quarter of what is left on his contract */
+function releaseCost(p){return r1(p.wage*SEASON_WEEKS*Math.max(0,p.contract)/1000*.25)}
+function release(id,p,why){const sq=S.squads[id];const pay=releaseCost(p);if(pay)book(id,'wages',-pay);sq.splice(sq.indexOf(p),1);faAdd(p,why||'released');if(id===S.my)emit('Released',id,`${p.name} is released.`,{pid:p.id})}
+
+/* the players a club's director can see: free agents and players at other clubs, wider with a better scouting office */
+function scoutPool(id,pos,n){
+  const reach=6+Math.round(2*groundSignals(id).scouting),out=[];
+  const fa=S.fa.filter(p=>!pos||p.pos===pos);for(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
+  const others=Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1);
+  for(let k=0;k<reach&&others.length;k++){const o=pick(others),c=S.squads[o].filter(p=>(!pos||p.pos===pos)&&p.inj<=0);if(c.length)out.push({p:pick(c),from:o})}
+  return out.slice(0,n||99);
+}
+function askingFee(p,from){const v=playerValue(p);return Math.round(v*(isCore(from,p)?1.6:1)*(F(from).cash<0?.75:1))}
+function sellerAgrees(p,from,fee){
+  if(S.squads[from].length<=SQUAD_MIN)return false;
+  const need=S.squads[from].filter(x=>x.pos===p.pos).length<=REQ[p.pos];
+  if(need&&F(from).cash>=0)return false;
+  if(from===S.my&&!S.auto)return fee>=playerValue(p)*1.5&&!isCore(from,p); // the player's director only sells surplus at a premium
+  return fee>=askingFee(p,from);
+}
+function budgetFor(id){const f=F(id),reserve=wageBillK(id)*6;return Math.max(0,Math.round((f.cash-reserve)*f.policy.spend))}
+
+/* buy the best affordable player for a position. Returns true if someone signed */
+function shopFor(id,pos,minQ,o={}){
+  const cap=wageCapK(id),bill=wageBillK(id);let budget=o.budget??budgetFor(id);
+  let best=null,bv=-1;
+  for(const c of scoutPool(id,pos)){
+    const p=c.p;if(p.q<minQ)continue;
+    const fee=c.from?askingFee(p,c.from):0,wage=wageFor(p.q)/1000;
+    if(fee>budget)continue;if(bill+wage>cap&&!o.mustHave)continue;
+    if(c.from&&!sellerAgrees(p,c.from,fee))continue;
+    const v=o.mustHave?-wage*1000-fee:p.q+(p.age<=24?(p.pa-p.q)*.3:0)-(p.age>=31?.6:0)-fee/200;
+    if(v>bv){bv=v;best={...c,fee}}
+  }
+  if(!best&&o.mustHave){const base=11.5+(tierBaseStr(2)-50)/4+(S.qref-11.7),p=newPlayer(pos,{age:ri(19,30),q:base-2+rnd()*1.2,contract:0});
+    p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0}}
+  if(!best)return false;
+  if(best.from)transfer(best.p,best.from,id,best.fee,'buy');else signFree(best.p,id);
+  return best;
+}
+/* the director's work in a window: fill holes, upgrade the weakest starter, trim the squad to the wage cap */
+function squadManager(id,phase){
+  const sq=S.squads[id];
+  // over the wage cap or too big: let the least useful players go
+  const trim=()=>{const cap=wageCapK(id);let guard=14;
+    while(guard-->0){const bill=wageBillK(id),crisis=bill>cap*1.15;
+      if(!(sq.length>SQUAD_MAX||(bill>cap*1.05&&sq.length>SQUAD_MIN)))break;
+      const xi=pickXI(sq).map(x=>x.p);
+      const pool=sq.filter(p=>(crisis||!xi.includes(p))&&!(p.age<=20&&p.pa>p.q+1.5));
+      const p=pool.sort((a,b)=>crisis?(b.wage/Math.max(1,b.q)-a.wage/Math.max(1,a.q)):(a.q-a.wage/400)-(b.q-b.wage/400))[0];if(!p)break;
+      const fee=playerValue(p),buyers=Object.keys(S.clubs).filter(i=>i!==id&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX);
+      if(buyers.length)transfer(p,id,pick(buyers),fee,'surplus');
+      else if(!xi.includes(p)||sq.length>SQUAD_MIN+3)release(id,p,'released to cut the wage bill');else break}};
+  trim();
+  // holes: below the minimum per position (in winter only real emergencies: injuries leave the position bare)
+  for(const pos of POS){let guard=3;const have=()=>phase==='winter'?available(sq).filter(p=>p.pos===pos).length+1:sq.filter(p=>p.pos===pos).length;
+    while(guard-->0&&have()<REQ[pos]){const base=squadQuality(sq);if(!shopFor(id,pos,base-2.5)&&!shopFor(id,pos,0,{mustHave:true,budget:0}))break}}
+  // upgrades: replace the weakest starter if a clearly better player is within reach
+  if(phase==='summer'){for(let k=0;k<3;k++){const xi=pickXI(sq);if(!xi.length)break;const worst=xi.slice().sort((a,b)=>a.p.q-b.p.q)[0];
+    const got=shopFor(id,worst.slot,worst.p.q+.8);if(!got)break}}
+  while(sq.length<SQUAD_MIN){if(!shopFor(id,pick(POS),0,{mustHave:true,budget:0}))break}
+  trim();
+}
+/* renewals in the spring: keep the players worth keeping within the wage cap */
+function renewals(id){
+  const sq=S.squads[id],med=sq.map(p=>p.q).sort((a,b)=>a-b)[Math.floor(sq.length/2)];
+  for(const p of sq.filter(x=>x.contract===1).sort((a,b)=>b.q-a.q)){
+    const short=sq.filter(x=>x.contract>1).length<22;
+    const want=(p.q>=med-.3||(p.age<=22&&p.pa>med)||short)&&p.age<34;
+    const newWage=Math.round(wageFor(p.q)*(1+rnd()*.15)/5)*5,bill=wageBillK(id)-p.wage/1000+newWage/1000;
+    if(want&&bill<=wageCapK(id)*1.05){p.wage=newWage;p.contract=ri(2,3);if(id===S.my)emit('Renewed',id,`${p.name} signs a new ${p.contract}-year contract (£${p.wage} a week).`,{pid:p.id})}
+  }
+}
+/* the bank wants cash: sell the most valuable player who fetches a fee */
+function forcedSale(id){
+  const sq=S.squads[id];if(sq.length<=SQUAD_MIN)return;
+  const p=sq.slice().sort((a,b)=>playerValue(b)-playerValue(a))[0];
+  const fee=Math.round(playerValue(p)*.8);
+  const buyers=Object.keys(S.clubs).filter(i=>i!==id&&F(i).cash>fee+wageBillK(i)*4&&S.squads[i].length<SQUAD_MAX).sort((a,b)=>F(b).cash-F(a).cash);
+  if(buyers.length){transfer(p,id,buyers[0],fee,'forced');emit('ForcedSale',id,`${CL(id).name} must sell ${p.name} to ${CL(buyers[0]).name} for £${fee}k.`,{pid:p.id})}
+}
+defCommand('ReleasePlayer',{who:['player','td'],check:(id,a)=>{const p=S.squads[id].find(x=>x.id===a.pid);if(!p)return'Not in the squad';if(S.squads[id].length<=SQUAD_MIN)return`The squad needs at least ${SQUAD_MIN} players`;return null},
+  run:(id,a)=>{const p=S.squads[id].find(x=>x.id===a.pid);const pay=releaseCost(p);release(id,p,'released by the club');return pay}});
+
+/* ---- club/ground.js ---- */
+/* ================= Club: the ground, the complex, departments and building projects =================
+   From voorzitter-fundering club/ground.js (tested there: ground-test). Adapted from one club (S.cf.ground) to
+   every club (S.grounds[id]). Owns only S.grounds. Payments are booked by finance.js; football reads the signals
+   (training, medical, academy, scouting, atmosphere, pitch), so building here changes results on the pitch. */
+const LV_NAME=['—','Bare','Basic','Fair','Solid','Good','Strong','Elite','Landmark'];
+const SIDE_NAME={N:'North End',E:'East Stand',S:'South End',W:'Main Stand'};
+const RING={terrace:400,seated:300};
+const FAC={
+  lights:{n:'Floodlights',c:10,w:3,sig:'Evening games and atmosphere'},
+  catering:{n:'Catering kiosks',c:8,w:4,sig:'Food and drink per fan'},
+  business:{n:'Business club',c:20,w:8,sig:'Business seats'},
+  media:{n:'Press and media',c:6,w:3,sig:'Sponsor appeal'},
+  safety:{n:'Safety and control room',c:10,w:4,sig:'Licensed capacity'},
+  access:{n:'Turnstiles and access',c:8,w:4,sig:'Licensed capacity'},
+  screen:{n:'Scoreboard and screens',c:6,w:3,sig:'Comfort'}
+};
+const COMPLEX={
+  training:{n:'Training ground',c:15,w:8,dept:'training',sig:'Players develop faster and fade slower'},
+  medical:{n:'Medical centre',c:40,w:20,dept:'training',sig:'Fewer and shorter injuries'},
+  academy:{n:'Academy',c:50,w:26,dept:'academy',sig:'More and better academy graduates'},
+  scouting:{n:'Scouting office',c:20,w:10,dept:'scouting',sig:'The director sees more players'},
+  commercial:{n:'Club shop and events hall',c:25,w:12,dept:'commercial',sig:'Merchandise and events'},
+  clubhouse:{n:'Clubhouse',c:20,w:10,dept:'community',sig:'Members, dues and a growing support'},
+  parking:{n:'Car park',c:12,w:6,dept:'matchday',sig:'Easier access for fans'}
+};
+const DEPT={
+  matchday:{n:'Matchday',courses:['atmosphere','comfort']},
+  training:{n:'Training & medical',courses:['development','fitness']},
+  academy:{n:'Academy',courses:['local','broad']},
+  scouting:{n:'Scouting',courses:['domestic','abroad']},
+  commercial:{n:'Commercial',courses:['local','premium']},
+  community:{n:'Community',courses:['members','events']}
+};
+const BUDGET_F={tight:.7,normal:1,generous:1.3};
+const DEPT_COST=[.35,.22,.12]; // £k per department per week at a normal budget, by division
+const OFFER={cheap:{n:'Cheap builder',p:.85,over:.35,delay:.3},standard:{n:'Standard builder',p:1,over:.15,delay:.15},premium:{n:'Premium builder',p:1.2,over:.05,delay:.05}};
+const lvCost=(base,lv)=>Math.round(base*Math.pow(1.6,lv-1));
+
+function groundInit(id){
+  const c=CL(id),cap=Math.round(c.support*(1.15+rnd()*.4)/100)*100,am=c.tier===2,pro=c.tier===0;
+  const side=(type,share)=>({type,rings:Math.max(1,Math.round(cap*share/RING[type])),roof:type==='seated'?2:am?0:1,cond:ri(55,85)});
+  const g={sides:{N:side('terrace',.3),E:side(am?'terrace':'seated',.25),S:side('terrace',.25),W:side('seated',.2)},
+    pitch:{lv:am?2:pro?4:3,cond:ri(60,85),drain:am?1:2,heat:false},fac:{},plots:[],depts:{},projects:[],next:1,repairBill:0};
+  for(const k in FAC)g.fac[k]={lv:k==='business'?(am?1:pro?3:2):am?2:(k==='access'||k==='safety')?(pro?5:4):pro?4:3,cond:ri(55,85)};
+  const start=am?['training','clubhouse','parking']:pro?['training','clubhouse','parking','commercial','medical']:['training','clubhouse','parking','commercial'];
+  for(let i=0;i<6;i++)g.plots.push(start[i]?{kind:start[i],lv:start[i]==='training'?(pro?3:2):1,cond:ri(55,85)}:{kind:null});
+  for(const k in DEPT)g.depts[k]={budget:'normal',course:DEPT[k].courses[0],pending:null,settle:0};
+  return g;
+}
+function G(id){return S.grounds[id]}
+function gLog(id,t,type){emit(type||'Ground',id,t)}
+function groundCourse(id,d){const x=G(id).depts[d];return x.pending?null:x.course}
+
+/* ----- signals (what football and finance read) ----- */
+function sideCap(s,closedFrac=0){return Math.round(s.rings*RING[s.type]*(s.cond<30?.5:1)*(1-closedFrac))}
+function building(id,key){return G(id).projects.find(p=>p.target===key&&p.phase!=='done')}
+function groundSignals(id){
+  const g=G(id),eff=(o,dept)=>o.lv*(.5+.5*o.cond/100)*(dept?BUDGET_F[g.depts[dept].budget]:1);
+  const cap={terrace:0,seated:0};
+  for(const k in g.sides){const s=g.sides[k],pr=building(id,'side:'+k);cap[s.type]+=sideCap(s,pr&&pr.phase==='build'?.3:0)}
+  const business=Math.round(40*eff(g.fac.business)+(g.sides.W.type==='seated'?0:-40));
+  const raw=cap.terrace+cap.seated,limit=1400+g.fac.access.lv*700+g.fac.safety.lv*500;
+  const licensed=Math.min(raw,limit);
+  const has=k=>g.plots.find(p=>p.kind===k);const lvOf=k=>{const p=has(k);return p?eff(p,COMPLEX[k].dept):0};
+  const course=(d,c)=>g.depts[d].course===c&&!g.depts[d].pending?1.15:1;
+  const roofs=Object.values(g.sides).reduce((a,s)=>a+s.roof,0);
+  return{
+    capacity:licensed,capTerrace:Math.round(cap.terrace*licensed/Math.max(1,raw)),capSeated:Math.round(cap.seated*licensed/Math.max(1,raw)),
+    business:Math.max(0,business),limitedBy:raw>limit?(g.fac.access.lv<=g.fac.safety.lv?'access':'safety'):null,
+    atmosphere:r1((cap.terrace/Math.max(1,raw)*6+roofs*.4+eff(g.fac.lights)*.15+(has('clubhouse')&&has('commercial')&&cap.terrace>0?1:0))*course('matchday','atmosphere')),
+    comfort:r1((cap.seated/Math.max(1,raw)*4+roofs*.5+eff(g.fac.screen)*.3+eff(g.fac.catering)*.3)*course('matchday','comfort')),
+    pitch:r1(eff(g.pitch,'matchday')),
+    training:r1(lvOf('training')*course('training','development')),
+    medical:r1(lvOf('medical')*course('training','fitness')),
+    hasTM:!!(has('training')&&has('medical')),
+    academy:r1((lvOf('academy')+(has('academy')&&has('training')?1:0))*course('academy','local')),
+    scouting:r1(lvOf('scouting')*course('scouting','abroad')),
+    shop:r1(lvOf('commercial')*course('commercial','premium')),
+    community:r1(lvOf('clubhouse')*course('community','members')),
+    access:r1(lvOf('parking')),media:r1(eff(g.fac.media)),
+    catering:eff(g.fac.catering)
+  };
+}
+
+/* ----- what can be built ----- */
+function projectCatalog(id){
+  const g=G(id),out=[],sg=groundSignals(id),raw=Object.values(g.sides).reduce((a,s)=>a+sideCap(s),0),capped=raw>=1400+g.fac.access.lv*700+g.fac.safety.lv*500;
+  for(const k in g.sides){const s=g.sides[k];
+    out.push({key:'side:'+k+':ring',target:'side:'+k,group:'Stadium',label:`${SIDE_NAME[k]}: add a ring`,cost:s.type==='terrace'?45:60,weeks:s.type==='terrace'?14:16,permit:true,effect:`+${RING[s.type]} ${s.type==='terrace'?'standing places':'seats'}`+(capped?` · licence stays at ${sg.capacity} until turnstiles or safety improve`:'')});
+    if(s.roof<2)out.push({key:'side:'+k+':roof',target:'side:'+k,group:'Stadium',label:`${SIDE_NAME[k]}: ${s.roof?'full':'part'} roof`,cost:30,weeks:10,permit:true,effect:'More comfort and atmosphere'});
+    out.push({key:'side:'+k+':convert',target:'side:'+k,group:'Stadium',label:`${SIDE_NAME[k]}: convert to ${s.type==='terrace'?'seats':'terrace'}`,cost:Math.round(s.rings*(s.type==='terrace'?60:45)*.6),weeks:12,permit:true,effect:s.type==='terrace'?`${s.rings*RING.seated} seats instead of ${s.rings*RING.terrace} standing; more comfort, less noise`:`${s.rings*RING.terrace} standing instead of ${s.rings*RING.seated} seats; more noise`});
+  }
+  if(g.pitch.lv<8)out.push({key:'pitch:lv',target:'pitch',group:'Pitch',label:`Relay the pitch (to ${LV_NAME[g.pitch.lv+1]})`,cost:lvCost(8,g.pitch.lv),weeks:4,effect:'A better surface for the home side'});
+  if(g.pitch.drain<8)out.push({key:'pitch:drain',target:'pitch',group:'Pitch',label:`Drainage (to ${LV_NAME[g.pitch.drain+1]})`,cost:lvCost(6,g.pitch.drain),weeks:3,effect:'The pitch wears less after home games'});
+  for(const k in FAC){const f=g.fac[k];if(f.lv<8)out.push({key:'fac:'+k,target:'fac:'+k,group:'Facilities',label:`${FAC[k].n} (to ${LV_NAME[f.lv+1]})`,cost:lvCost(FAC[k].c,f.lv),weeks:FAC[k].w,effect:FAC[k].sig})}
+  g.plots.forEach((p,i)=>{
+    if(!p.kind){for(const k in COMPLEX)if(!g.plots.some(q=>q.kind===k))out.push({key:'plot:'+i+':'+k,target:'plot:'+i,group:`Plot ${i+1} (empty)`,label:`Build: ${COMPLEX[k].n}`,cost:COMPLEX[k].c,weeks:COMPLEX[k].w,permit:true,effect:COMPLEX[k].sig})}
+    else if(p.lv<8)out.push({key:'plot:'+i+':up',target:'plot:'+i,group:'Club complex',label:`${COMPLEX[p.kind].n} (to ${LV_NAME[p.lv+1]})`,cost:lvCost(COMPLEX[p.kind].c,p.lv+1),weeks:Math.round(COMPLEX[p.kind].w*.7),effect:COMPLEX[p.kind].sig});
+  });
+  for(const o of out)o.busy=!!building(id,o.target);
+  return out;
+}
+function startProject(id,key,offer){
+  const o=projectCatalog(id).find(x=>x.key===key),of=OFFER[offer||'standard'];if(!o||o.busy)return null;
+  const g=G(id),over=chance(of.over)?ri(10,30):0,delay=chance(of.delay)?ri(2,6):0;
+  const p={id:g.next++,key,target:o.target,label:o.label,offer:offer||'standard',cost:Math.round(o.cost*of.p),over,delay,
+    phase:o.permit?'permit':'build',left:o.permit?ri(2,5):o.weeks,weeks:o.weeks,paid:0,started:[S.season,S.week]};
+  g.projects.push(p);gLog(id,`Started: ${o.label} with the ${of.n.toLowerCase()} (£${p.cost}k, ${o.weeks} weeks${o.permit?' after the permit':''}).`,'ProjectStarted');
+  return p;
+}
+function finishProject(id,p){
+  const g=G(id),[kind,a,b]=p.key.split(':');
+  if(kind==='side'){const s=g.sides[a];if(b==='ring')s.rings++;else if(b==='roof')s.roof++;else{s.type=s.type==='terrace'?'seated':'terrace';s.rings=Math.max(1,Math.round(s.rings*(s.type==='seated'?RING.terrace/RING.seated:RING.seated/RING.terrace)*.75))}s.cond=100}
+  else if(kind==='pitch'){if(a==='lv'){g.pitch.lv++;g.pitch.cond=100}else if(a==='drain')g.pitch.drain++}
+  else if(kind==='fac'){g.fac[a].lv++;g.fac[a].cond=100}
+  else if(kind==='plot'){const pl=g.plots[+a];if(b==='up')pl.lv++;else{pl.kind=b;pl.lv=1}pl.cond=100}
+  p.phase='done';p.done=[S.season,S.week];
+  gLog(id,`Finished: ${p.label}.${p.over?` It ran ${p.over}% over budget.`:''}${p.delay?` ${p.delay} weeks late.`:''}`,'ProjectCompleted');
+  g.projects=g.projects.filter(x=>x.phase!=='done'||x===p).slice(-12);
+}
+/* weekly: building progress (returns this week's construction bill) and wear against the department budget */
+function groundWeek(id,home){
+  const g=G(id);let construction=0;
+  for(const p of g.projects.filter(x=>x.phase!=='done')){
+    if(p.phase==='permit'){if(--p.left<=0){if(chance(.12)){p.left=ri(2,4);gLog(id,`Neighbours object to ${p.label.toLowerCase()}. The permit takes longer.`)}else{p.phase='build';p.left=p.weeks+p.delay;gLog(id,`Permit granted: ${p.label}. Building starts.`)}}continue}
+    const total=Math.round(p.cost*(1+p.over/100)),pay=r1(Math.min(total-p.paid,total/(p.weeks+p.delay)));
+    construction+=pay;p.paid=r1(p.paid+pay);
+    if(p.over&&p.left===Math.ceil((p.weeks+p.delay)/2))gLog(id,`${p.label}: the builder reports an overrun of ${p.over}%.`);
+    if(--p.left<=0){if(p.paid<total){construction+=r1(total-p.paid);p.paid=total}finishProject(id,p)}
+  }
+  const rec=d=>({tight:.15,normal:.42,generous:.7})[g.depts[d].budget];
+  for(const k in g.sides){const s=g.sides[k];s.cond=clamp(s.cond-.45+rec('matchday'),0,100)}
+  for(const k in g.fac){const f=g.fac[k];f.cond=clamp(f.cond-.42+rec('matchday'),0,100)}
+  for(const p of g.plots)if(p.kind)p.cond=clamp(p.cond-.42+rec(COMPLEX[p.kind].dept),0,100);
+  g.pitch.cond=clamp(g.pitch.cond+(home?-(4-g.pitch.drain*.3):0)+1.2+rec('matchday'),0,100);
+  for(const k in g.depts){const d=g.depts[k];if(d.pending&&--d.settle<=0){d.course=d.pending;d.pending=null;gLog(id,`${DEPT[k].n} now works the new way: ${d.course}.`)}}
+  return r1(construction);
+}
+function groundSeasonEnd(id){
+  const g=G(id);
+  for(const k in g.sides){const s=g.sides[k];if(s.cond<30)gLog(id,`Safety inspection: the ${SIDE_NAME[k]} is in poor shape (${Math.round(s.cond)}%). Half of it stays closed until repaired.`,'SafetyClosure')}
+}
+function repairCost(o,base){return Math.max(1,Math.round(base*(100-o.cond)/100*.6))}
+function repairList(id){
+  const g=G(id),out=[];
+  for(const k in g.sides){const s=g.sides[k];if(s.cond<90)out.push({key:'side:'+k,label:SIDE_NAME[k],cond:s.cond,cost:repairCost(s,s.rings*(s.type==='terrace'?45:60))})}
+  for(const k in g.fac){const f=g.fac[k];if(f.cond<90)out.push({key:'fac:'+k,label:FAC[k].n,cond:f.cond,cost:repairCost(f,lvCost(FAC[k].c,f.lv)*2)})}
+  g.plots.forEach((p,i)=>{if(p.kind&&p.cond<90)out.push({key:'plot:'+i,label:COMPLEX[p.kind].n,cond:p.cond,cost:repairCost(p,lvCost(COMPLEX[p.kind].c,p.lv)*2)})});
+  return out.sort((a,b)=>a.cond-b.cond);
+}
+function repair(id,key){
+  const r=repairList(id).find(x=>x.key===key);if(!r)return null;const g=G(id),[kind,a]=key.split(':');
+  const o=kind==='side'?g.sides[a]:kind==='fac'?g.fac[a]:g.plots[+a];o.cond=100;
+  g.repairBill=r1((g.repairBill||0)+r.cost);gLog(id,`Repaired: ${r.label} (£${r.cost}k).`);return r;
+}
+function deptCost(id){const g=G(id),base=DEPT_COST[CL(id).tier];let t=0;for(const k in g.depts)t+=base*BUDGET_F[g.depts[k].budget];return r2(t)}
+function groundCondWorst(id){const g=G(id);const all=[...Object.entries(g.sides).map(([k,s])=>({n:SIDE_NAME[k],c:s.cond})),...Object.entries(g.fac).map(([k,f])=>({n:FAC[k].n,c:f.cond})),{n:'The pitch',c:g.pitch.cond},...g.plots.filter(p=>p.kind).map(p=>({n:COMPLEX[p.kind].n,c:p.cond}))];return all.sort((a,b)=>a.c-b.c)[0]}
+
+/* ----- commands (player, AI clubs, later staff and story) ----- */
+defCommand('StartProject',{check:(id,a)=>{const o=projectCatalog(id).find(x=>x.key===a.key);if(!o)return'Nothing to build there';if(o.busy)return'Work is already under way there';if(!OFFER[a.offer||'standard'])return'Unknown builder';
+  const cost=Math.round(o.cost*OFFER[a.offer||'standard'].p);if(F(id).cash-cost<-creditLimit(id))return'The bank will not cover this';return null},run:(id,a)=>startProject(id,a.key,a.offer)});
+defCommand('Repair',{check:(id,a)=>{const r=repairList(id).find(x=>x.key===a.key);if(!r)return'Nothing to repair';if(F(id).cash-r.cost<-creditLimit(id))return'The bank will not cover this';return null},run:(id,a)=>repair(id,a.key)});
+defCommand('SetDeptBudget',{check:(id,a)=>!G(id).depts[a.dept]||!BUDGET_F[a.level]?'Unknown department or level':null,run:(id,a)=>{G(id).depts[a.dept].budget=a.level;if(id===S.my)gLog(id,`${DEPT[a.dept].n} budget set to ${a.level}.`)}});
+defCommand('SetDeptCourse',{check:(id,a)=>!G(id).depts[a.dept]||!DEPT[a.dept].courses.includes(a.course)?'Unknown course':null,run:(id,a)=>{const x=G(id).depts[a.dept];
+  if(a.course===x.course){x.pending=null;x.settle=0;return}x.pending=a.course;x.settle=SEASON_WEEKS;gLog(id,`${DEPT[a.dept].n} switches to ${a.course}. It takes a season to settle in.`)}});
+
+/* ---- club/finance.js ---- */
+/* ================= Club: money =================
+   From voorzitter-fundering club/finance.js (weekly ledger with named lines, price elasticity, attendance,
+   season tickets, forecast). Adapted to every club (S.fin[id]) and extended with prize money, cup gates,
+   transfer fees, loans, an overdraft and administration. book() is the ONLY function that changes cash, so the
+   ledger always reconciles: cash = start + every booked line. Amounts in £k. */
+const LINE={
+  gate:['Tickets: terraces and seats','matchday'],business:['Business seats','matchday'],catering:['Catering','matchday'],seasontix:['Season tickets','matchday'],cupgate:['Cup gate','matchday'],
+  sponsors:['Sponsors','commercial'],merch:['Merchandise','commercial'],events:['Events and hire','commercial'],dues:['Membership dues','commercial'],
+  tv:['League and TV money','media'],prize:['League prize money','media'],cupprize:['Cup prize money','media'],
+  feesIn:['Transfer fees received','transfers'],feesOut:['Transfer fees paid','transfers'],
+  wages:['Player wages','wages'],
+  depts:['Department budgets','costs'],upkeep:['Ground upkeep','costs'],ops:['Matchday stewards and police','costs'],travel:['Away travel','costs'],
+  build:['Construction','costs'],repairs:['Repairs','costs'],interest:['Interest','costs'],
+  loanIn:['Loans drawn','financing'],loanOut:['Loan repayments','financing']
+};
+const HEAD={matchday:'Matchday',commercial:'Commercial',media:'League & cup',transfers:'Transfers',wages:'Wages',costs:'Other costs',financing:'Loans'};
+const PRICE_DEF=[{terrace:11,seated:16,business:35,season:140},{terrace:9,seated:13,business:30,season:110},{terrace:7,seated:10,business:22,season:85}];
+const TV=[4.6,2.2,.8],SPONSOR=[3.4,1.9,.9],PRIZE=[[80,4],[40,2],[15,.6]];
+const WAGE_RATIO={tight:.55,normal:.65,ambitious:.75,allin:.86};
+
+function F(id){return S.fin[id]}
+function finInit(id){
+  const c=CL(id),t=c.tier,cash=[ri(90,260),ri(30,140),ri(10,60)][t],debt=pick([0,0,0,1,2,3])*[90,50,25][t];
+  const v=chairValue(id);
+  const f={cash:0,start:0,loans:[],prices:{...PRICE_DEF[t]},season:{},last:null,hist:[],od:0,admin:null,holders:0,sold:0,lastGate:null,
+    policy:{wage:v==='glory'?'ambitious':v==='money'?'tight':'normal',spend:v==='glory'?.7:v==='money'?.3:.5}};
+  S.fin[id]=f;f.cash=cash;f.start=cash;
+  if(debt){f.loans.push(mkLoan(debt,10,.05,'Old club debt'))}
+  return f;
+}
+function book(id,line,amt){
+  amt=r2(amt);if(!amt)return;const f=F(id);
+  f.cash=r2(f.cash+amt);f.season[line]=r2((f.season[line]||0)+amt);
+  if(f.week)f.week[line]=r2((f.week[line]||0)+amt);
+}
+function debt(id){return r1(F(id).loans.reduce((a,l)=>a+l.left,0))}
+
+/* ----- demand: who comes to a home game ----- */
+function attendance(id,opp,o={}){
+  const c=CL(id),f=F(id),g=groundSignals(id),pr=f.prices,ref=PRICE_DEF[c.tier];
+  const form=clamp(1+(ppg(id)-1.35)*.35,.6,1.6),pull=opp?Math.pow(CL(opp).support/1500,.15):1;
+  const base=c.support*form*pull*(o.derby?1.35:1)*(o.cup?1+.1*(o.round||0):1)*(1+g.access*.03)*(1+g.atmosphere*.01);
+  const t=Math.min(g.capTerrace,Math.round(base*.62*Math.pow(ref.terrace/pr.terrace,.6)));
+  const s=Math.min(g.capSeated,Math.round(base*.38*(1+g.comfort*.02)*Math.pow(ref.seated/pr.seated,1.2)));
+  const b=Math.min(g.business,Math.round(g.business*.7*Math.pow(ref.business/pr.business,.4)));
+  const hold=o.cup?0:f.holders,holdT=Math.min(t,Math.round(hold*.62)),holdS=Math.min(s,hold-holdT);
+  return{terrace:t,seated:s,business:b,total:t+s+b,paying:{terrace:t-holdT,seated:s-holdS},cap:g.capacity,fill:(t+s)/Math.max(1,g.capTerrace+g.capSeated),full:t>=g.capTerrace||s>=g.capSeated};
+}
+/* the regular weekly lines (no transfers, prizes or loans; those are booked where they happen) */
+function weekLines(id,home,o={}){
+  const c=CL(id),f=F(id),g=groundSignals(id),pr=f.prices,L={},t=c.tier,form=clamp(1+(ppg(id)-1.35)*.4,.6,1.5);
+  if(home){const a=o.att||attendance(id,o.opp,o);const gate=(a.paying.terrace*pr.terrace+a.paying.seated*pr.seated)/1000;
+    if(o.cup)L.cupgate=o.neutral?gate/2:gate;else L.gate=gate;
+    L.business=a.business*pr.business/1000;L.catering=a.total*2.5*(.6+g.catering*.1)*.4/1000;L.ops=-(.25+a.total/6000*(o.derby?1.6:1))}
+  else if(o.away)L.travel=-(t===0?.5:t===1?.35:.2);
+  if(o.weekly!==false){
+    L.sponsors=SPONSOR[t]*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*form;
+    L.merch=c.support/1000*.45*(1+g.shop*.15)*form;
+    L.events=g.shop*.08+g.community*.07;
+    L.dues=c.support*.4*(1+g.community*.05)*40/SEASON_WEEKS/1000;
+    L.tv=TV[t];
+    L.wages=-wageBillK(id);L.depts=-deptCost(id);L.upkeep=-(.15+g.capacity/12000);
+  }
+  for(const k in L){L[k]=r2(L[k]);if(!L[k])delete L[k]}
+  return L;
+}
+function sumLines(L,sign){let t=0;for(const k in L)if(!sign||(sign>0?L[k]>0:L[k]<0))t+=L[k];return r2(t)}
+
+/* ----- loans: an annuity paid over 30 weeks a season ----- */
+function mkLoan(amount,years,rate,label){const n=years*SEASON_WEEKS,r=rate/SEASON_WEEKS,pay=amount*r/(1-Math.pow(1+r,-n));return{label,amount,left:amount,rate,weeks:n,pay:r2(pay)}}
+function loanRate(id,extra){return r2(.05+.04*clamp((debt(id)+(extra||0))/Math.max(50,estSeasonIncome(id)),0,1.5))}
+function maxNewLoan(id){return Math.max(0,Math.floor(estSeasonIncome(id)*.8-debt(id)))}
+function creditLimit(id){return Math.max(10,Math.round(estSeasonIncome(id)*.12))}
+/* expected operating income over a full season (used by AI wage policy, credit and forecasts) */
+function estSeasonIncome(id){
+  const c=CL(id),opp=null,h=sumLines(weekLines(id,true,{opp,weekly:false}),1),wk=weekLines(id,false,{});
+  const reg=(wk.sponsors||0)+(wk.merch||0)+(wk.events||0)+(wk.dues||0)+(wk.tv||0);
+  const hold=c.support*.28*F(id).prices.season/1000;
+  return Math.round(h*SEASON_WEEKS/2+reg*SEASON_WEEKS+hold+PRIZE[c.tier][0]*.6);
+}
+function wageCapK(id){return r2(estSeasonIncome(id)*WAGE_RATIO[F(id).policy.wage]/SEASON_WEEKS)}
+
+/* ----- the week for one club. matches: this week's games involving the club ----- */
+function financeWeek(id,matches){
+  const f=F(id),c=CL(id);f.week={};
+  if(S.week===1&&f.sold!==S.season){const hold=Math.round(c.support*.28*clamp(1+(ppg(id)-1.35)*.3,.6,1.4)*Math.pow(PRICE_DEF[c.tier].season/f.prices.season,.8));
+    f.holders=hold;f.sold=S.season;book(id,'seasontix',hold*f.prices.season/1000)}
+  let away=false;
+  for(const m of matches){const home=m.h===id,derby=CL(m.h).rival===m.a;
+    if(home||(m.neutral&&m.a===id)){const att=attendance(m.h,m.a,{derby,cup:m.comp==='cup',round:m.round});m.att=att.total;if(home&&m.comp==='league')f.lastGate=att;
+      const L=weekLines(id,true,{att,derby,cup:m.comp==='cup',neutral:m.neutral,weekly:false});for(const k in L)book(id,k,L[k])}
+    else away=true}
+  const L=weekLines(id,false,{away});for(const k in L)book(id,k,L[k]);
+  const b=groundWeek(id,matches.some(m=>m.h===id&&!m.neutral));if(b)book(id,'build',-b);
+  const g=G(id);if(g.repairBill){book(id,'repairs',-g.repairBill);g.repairBill=0}
+  for(const l of f.loans){const int=l.left*l.rate/SEASON_WEEKS,prin=Math.min(l.left,l.pay-int);book(id,'interest',-int);book(id,'loanOut',-prin);l.left=r2(l.left-prin);l.weeks--}
+  f.loans=f.loans.filter(l=>l.left>.05);
+  if(f.cash<0)book(id,'interest',f.cash*.12/SEASON_WEEKS);
+  solvency(id);
+  f.last={lines:f.week,net:sumLines(f.week),cash:f.cash,w:S.week};f.week=null;
+  return f.last;
+}
+/* overdraft beyond the credit limit: the club must sell; three weeks on, administration (once a season) */
+function solvency(id){
+  const f=F(id),lim=creditLimit(id);
+  if(f.cash<-lim){f.od++;
+    if(f.od===1)emit('CashCrisis',id,`${CL(id).name} are over their overdraft limit. The bank wants players sold.`);
+    forcedSale(id);
+    if(f.od>=3&&(!f.admin||f.admin<S.season)){f.admin=S.season;S.tbl[id].pts-=6;S.tbl[id].ded+=6;
+      const amt=Math.ceil(-f.cash+lim*.5);f.loans.push(mkLoan(amt,5,.09,'Administration loan'));book(id,'loanIn',amt);f.policy.wage='tight';
+      emit('Administration',id,`${CL(id).name} go into administration: six points deducted and a £${amt}k rescue loan at 9%.`)}
+  }else f.od=0;
+}
+/* close the books for the season: league prize money, archive the lines */
+function financeSeasonEnd(id,pos,tier){
+  const [top,step]=PRIZE[tier];book(id,'prize',top-(pos-1)*step);
+  const f=F(id);f.hist.push({s:S.season,tier,pos,lines:f.season,cash:f.cash,debt:debt(id)});if(f.hist.length>40)f.hist.shift();
+  f.season={};f.holders=0;
+}
+function seasonTotals(id,s){const f=F(id),lines=s==null||s===S.season?f.season:(f.hist.find(h=>h.s===s)||{lines:{}}).lines,head={};
+  for(const k in lines){const h=LINE[k][1];head[h]=r1((head[h]||0)+lines[k])}return{lines,head}}
+function operatingResult(lines){let t=0;for(const k in lines)if(!['loanIn','loanOut'].includes(k))t+=lines[k];return r1(t)}
+/* 26-week forecast with a band */
+function cashForecast(id,weeks=26){
+  const f=F(id),avg=(sumLines(weekLines(id,true,{}))+sumLines(weekLines(id,false,{away:true})))/2;
+  const loanPay=f.loans.reduce((a,l)=>a+l.pay,0),build=G(id).projects.filter(p=>p.phase!=='done').reduce((a,p)=>a+Math.max(0,p.cost*(1+p.over/100)-p.paid),0);
+  const per=Math.max(1,G(id).projects.filter(p=>p.phase!=='done').reduce((a,p)=>Math.max(a,p.left+(p.phase==='permit'?p.weeks:0)),1));
+  const pts=[];let mid=f.cash;const left=SEASON_WEEKS-S.week;
+  for(let i=1;i<=weeks;i++){mid+=(i<=left?avg-loanPay:-loanPay*.2)-(i<=per?build/per:0);pts.push(Math.round(mid))}
+  const low=pts.map((v,i)=>Math.round(v-(i+1)*Math.abs(avg)*.12-(i+1)*.4)),high=pts.map((v,i)=>Math.round(v+(i+1)*Math.abs(avg)*.1+(i+1)*.4));
+  const minV=Math.min(...pts),minW=pts.indexOf(minV)+1;
+  return{mid:pts,low,high,minV,minW};
+}
+function bookCupPrize(id,amt,r){book(id,'cupprize',amt)}
+function finHealth(id){const f=F(id),fc=cashForecast(id);return f.cash<0?'red':fc.minV<0||debt(id)>estSeasonIncome(id)*.6?'tight':'healthy'}
+
+/* ----- commands ----- */
+defCommand('SetPrice',{check:(id,a)=>!(a.kind in F(id).prices)?'Unknown price':null,run:(id,a)=>{const pr=F(id).prices,k=a.kind,step=k==='season'?5:k==='business'?5:1,ref=PRICE_DEF[CL(id).tier][k];
+  pr[k]=clamp(pr[k]+a.delta*step,Math.round(ref*.4),Math.round(ref*2.5));if(id===S.my)emit('Finance',id,`Price change: ${k==='season'?'season ticket':k} now £${pr[k]}.`)}});
+defCommand('TakeLoan',{check:(id,a)=>{if(!(a.amount>0))return'Choose an amount';if(a.amount>maxNewLoan(id))return`The bank lends at most £${maxNewLoan(id)}k more`;if(![3,5,10].includes(a.years))return'Choose 3, 5 or 10 years';return null},
+  run:(id,a)=>{const rate=loanRate(id,a.amount),l=mkLoan(a.amount,a.years,rate,`Bank loan (${a.years} years)`);F(id).loans.push(l);book(id,'loanIn',a.amount);emit('LoanTaken',id,`${CL(id).name} borrow £${a.amount}k over ${a.years} years at ${Math.round(rate*1000)/10}%.`);return l}});
+defCommand('RepayLoan',{check:(id,a)=>{const l=F(id).loans[a.i];if(!l)return'No such loan';if(F(id).cash<l.left)return'Not enough cash to repay it';return null},
+  run:(id,a)=>{const l=F(id).loans[a.i];book(id,'loanOut',-l.left);emit('LoanRepaid',id,`Loan repaid early: £${r1(l.left)}k.`);F(id).loans.splice(a.i,1)}});
+defCommand('SetSquadPolicy',{check:(id,a)=>(a.wage&&!WAGE_RATIO[a.wage])||(a.spend!=null&&!(a.spend>=0&&a.spend<=1))?'Unknown policy':null,
+  run:(id,a)=>{const p=F(id).policy;if(a.wage)p.wage=a.wage;if(a.spend!=null)p.spend=a.spend}});
+
+/* ---- sim/ai.js ---- */
+/* ================= Simulation: rule-based club boards =================
+   Every computer-run club decides through the same commands as the player (cmd(..., 'ai')): repairs, building,
+   ticket prices and department budgets. The chairman's value colours the choices (money: careful, glory: bold).
+   With S.auto the player's club is run by these rules too (used by the long simulation tests). */
+function aiRuns(id){return id!==S.my||S.auto}
+function reserveK(id){return wageBillK(id)*6+10}
+function aiBoardWeek(id){
+  const f=F(id),g=G(id),w=S.week,v=chairValue(id),res=reserveK(id);
+  // the squad policy follows the money: rich boards spend, poor boards cut
+  if(w===1||w===WINTER_WEEK){const inc=estSeasonIncome(id),base=v==='glory'?'ambitious':v==='money'?'tight':'normal';
+    const pol=f.cash<res?'tight':f.cash>inc*1.1?'allin':f.cash>inc*.5?(base==='tight'?'normal':'ambitious'):base;
+    cmd('SetSquadPolicy',id,{wage:pol,spend:f.cash>inc*.5?.8:v==='money'?.3:.5},'ai')}
+  // department budgets follow the cash
+  const want=f.cash<0?'tight':f.cash>res*3?'normal':f.cash<res*.5?'tight':'normal';
+  for(const d in g.depts)if(g.depts[d].budget!==want)cmd('SetDeptBudget',id,{dept:d,level:want},'ai');
+  // ticket prices: raise when full, lower when half empty
+  if(w===2||w===12||w===22){const a=f.lastGate;if(a){const pr=f.prices,ref=PRICE_DEF[CL(id).tier];
+    if(a.fill>.95&&pr.terrace<ref.terrace*1.6){cmd('SetPrice',id,{kind:'terrace',delta:1},'ai');cmd('SetPrice',id,{kind:'seated',delta:1},'ai')}
+    else if(a.fill<.55&&pr.terrace>ref.terrace*.7){cmd('SetPrice',id,{kind:'terrace',delta:-1},'ai');cmd('SetPrice',id,{kind:'seated',delta:-1},'ai')}}}
+  // repairs before anything falls apart
+  if(w%5===3){for(const r of repairList(id).filter(x=>x.cond<45))if(f.cash-r.cost>res)cmd('Repair',id,{key:r.key},'ai')}
+  // one building project at a time, only with money to spare
+  const running=g.projects.filter(p=>p.phase!=='done').length;
+  if((w===4||w===14||w===24)&&(running===0||(running<3&&f.cash>estSeasonIncome(id)*.6))){
+    const o=aiPickProject(id);
+    if(o){const offer=v==='money'?'cheap':v==='glory'?'premium':'standard',cost=o.cost*OFFER[offer].p;
+      if(f.cash-cost>res*(v==='glory'?.8:1.3))cmd('StartProject',id,{key:o.key,offer},'ai')}}
+}
+function aiPickProject(id){
+  const cat=projectCatalog(id).filter(o=>!o.busy),f=F(id),sg=groundSignals(id),g=G(id),has=k=>g.plots.some(p=>p.kind===k);
+  const by=k=>cat.find(o=>o.key===k)||cat.find(o=>o.key.startsWith(k));
+  const lvl=k=>{const p=g.plots.find(x=>x.kind===k);return p?p.lv:0};
+  const free=g.plots.findIndex(p=>!p.kind);
+  if(f.lastGate&&f.lastGate.fill>.9){if(sg.limitedBy)return by('fac:'+sg.limitedBy);const s=Object.keys(g.sides).find(k=>g.sides[k].type==='terrace')||'N';return by('side:'+s+':ring')}
+  if(sg.limitedBy&&f.lastGate&&f.lastGate.total>sg.capacity*.85)return by('fac:'+sg.limitedBy);
+  if(lvl('training')<(CL(id).tier===0?3:2)){const i=g.plots.findIndex(p=>p.kind==='training');return i>=0?by('plot:'+i+':up'):free>=0?by('plot:'+free+':training'):null}
+  if(!has('medical')&&free>=0&&CL(id).tier<=1)return by('plot:'+free+':medical');
+  if(!has('academy')&&free>=0)return by('plot:'+free+':academy');
+  if(!has('commercial')&&free>=0)return by('plot:'+free+':commercial');
+  if(!has('scouting')&&free>=0)return by('plot:'+free+':scouting');
+  const ups=['training','medical','academy'].map(k=>{const i=g.plots.findIndex(p=>p.kind===k);return i>=0?by('plot:'+i+':up'):null}).filter(Boolean).sort((a,b)=>a.cost-b.cost);
+  return ups[0]||null;
+}
+
+/* ---- sim/clock.js ---- */
+/* ================= Simulation: the one clock =================
+   advanceWeek() is the only way time moves. The order is fixed and documented in docs/ARCHITECTURE.md:
+   1 injuries and recovery → 2 matches (league + cup) → 3 development → 4 money and building (per club)
+   → 5 boards and directors (windows, renewals) → 6 week closed. closeSeason() runs once after week 30.
+   Higher layers (staff, story, dynasty) hook in through S.layers and the event log, never by moving time. */
+const WINTER_WEEK=15,RENEW_WEEK=24;
+const HOOKS={weekClosed:[],seasonClosed:[]}; // later layers subscribe here
+function onWeek(f){HOOKS.weekClosed.push(f)}
+function onSeason(f){HOOKS.seasonClosed.push(f)}
+function clearHooks(){HOOKS.weekClosed.length=0;HOOKS.seasonClosed.length=0}
+function allIds(){return Object.keys(S.clubs)}
+function advanceWeek(){
+  if(S.phase!=='season'||S.week>=SEASON_WEEKS)return null;
+  S.week++;const w=S.week,ids=allIds();
+  const mark=S.evn||0;
+  const matches=playWeekMatches(w);
+  for(const id of ids)playersWeek(id);
+  for(const id of ids)financeWeek(id,matches.filter(m=>m.h===id||m.a===id));
+  for(const id of ids){if(aiRuns(id))aiBoardWeek(id)}
+  if(w===WINTER_WEEK)for(const id of shuffle(ids.slice()))squadManager(id,'winter');
+  if(w===RENEW_WEEK)for(const id of ids)renewals(id);
+  emit('WeekClosed',null,`Week ${w} played.`);
+  for(const f of HOOKS.weekClosed)f(w);
+  return eventsSince(mark);
+}
+function seasonOver(){return S.week>=SEASON_WEEKS}
+function closeSeason(){
+  if(!seasonOver())return null;
+  const ids=allIds(),s=S.season,tables={};
+  for(const t of TIERS){tables[t]=standings(t);tables[t].forEach((id,i)=>{financeSeasonEnd(id,i+1,t);CL(id).hist.push({s,tier:t,pos:i+1,pts:S.tbl[id].pts})})}
+  // support grows with success, promotion and the clubhouse; shrinks with failure
+  for(const id of ids){const c=CL(id),pos=posOf(id),exp=c.expect||8,sg=groundSignals(id);
+    c.support=Math.round(clamp(c.support*(1+.025*(exp-pos)/8+.004*sg.community),250,9000))}
+  const moves=promoteRelegate();
+  for(const m of moves){const c=CL(m.id);c.support=Math.round(c.support*(m.to<m.from?1.08:.93))}
+  S.hist.push({s,tables,cup:S.cup.winner,moves:moves.map(m=>({...m}))});
+  for(const id of ids)playersSeasonEnd(id);
+  S.qref=r2(S.qref*.7+worldQuality()*.3);
+  faSummer();
+  const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
+  for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
+  for(const id of ids)groundSeasonEnd(id);
+  emit('SeasonClosed',null,`Season ${s} is over.`,{season:s});
+  for(const f of HOOKS.seasonClosed)f(s);
+  S.season++;startSeason();S.phase='season';
+  return S.hist[S.hist.length-1];
+}
+/* run the world without a human: the test harness and the 'simulate' tool */
+function simulateSeasons(n){for(let i=0;i<n;i++){while(!seasonOver())advanceWeek();closeSeason()}}
+
+/* ---- core/save.js ---- */
+/* ================= Core: savegames with a schema version and migrations =================
+   The whole world is one JSON object S. A save carries S.v; load() runs every migration from that version up to
+   VERSION, in order. Rule: no VERSION bump without a migration and a test (tests/save-test.js). */
+const MIGRATIONS={
+  // 1: first layered schema. Example of the pattern for later versions:
+  // 2: s=>{for(const id in s.fin)s.fin[id].newField??=default; s.v=2;}
+};
+function migrate(s){
+  if(!s||typeof s.v!=='number'||s.v<1)throw new Error('Not a Northmarch layered save');
+  if(s.v>VERSION)throw new Error('This save comes from a newer version of the game');
+  while(s.v<VERSION){const m=MIGRATIONS[s.v+1];if(!m)throw new Error('No migration to version '+(s.v+1));m(s);}
+  return s;
+}
+function serialize(){return JSON.stringify(S)}
+function deserialize(txt){S=migrate(JSON.parse(txt));return S}
+function save(){if(!HAS_DOM)return false;try{localStorage.setItem(SAVE_KEY,serialize());return true}catch(e){return false}}
+function hasSave(){if(!HAS_DOM)return false;try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
+function load(){if(!HAS_DOM)return false;try{const t=localStorage.getItem(SAVE_KEY);if(!t)return false;deserialize(t);return true}catch(e){return false}}
+
+/* ---- ui/render.js ---- */
+/* ================= Screens: title, choice of club, the week, tables and squad =================
+   The UI only reads state and sends commands (cmd) or advanceWeek/closeSeason. No game rules live here. */
+const UI={tab:'week',over:null,arg:null,gt:'stadium',mt:'overview',tier:null,msg:null,review:null,lastEv:[],gsel:null,ly:5,confirm:null,title:true};
+const n0=v=>Math.round(v).toLocaleString('en-GB');
+const k1=v=>(v<0?'−':'')+'£'+Math.abs(r1(v)).toLocaleString('en-GB')+'k';
+const crest=`<svg class="crest" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 L31 7 V17 C31 25 24 30 17 32 C10 30 3 25 3 17 V7 Z" fill="var(--navy)"/><path d="M8 22 L14 12 L18 18 L21 14 L26 22" stroke="var(--signal)" stroke-width="2.6" fill="none" stroke-linejoin="round"/></svg>`;
+function nm(id){return esc(CL(id).name)}
+function tierShort(t){return['Premier','One','Two'][t]}
+function strWord(id){const t=CL(id).tier,ids=tierIds(t).sort((a,b)=>teamStrength(b)-teamStrength(a)),r=ids.indexOf(id)+1;return r<=3?'Among the best':r<=7?'Upper half':r<=11?'Lower half':'Among the weakest'}
+function moneyWord(id){const f=F(id),inc=estSeasonIncome(id);return f.cash<0?'In the red':f.cash<inc*.1?'Stretched':f.cash<inc*.4?'Steady':'Comfortable'}
+function wdlProb(lh,la){let w=0,d=0;for(let i=0;i<=9;i++){const a=pmf(lh,i);for(let j=0;j<=9;j++){const b=pmf(la,j);if(i>j)w+=a*b;else if(i===j)d+=a*b}}return{w,d,l:1-w-d}}
+function pct(x){return Math.round(x*100)+'%'}
+
+function topBar(){
+  const c=C();
+  return`<header class="top">${crest}<div class="tg"><div class="club">${esc(c.name)}</div><div class="sub">Season ${S.season} · ${S.week?'Week '+S.week:'Pre-season'} · ${TIER_NAME[c.tier]}</div></div><span class="pill ${F(S.my).cash<0?'bad':''}">${k1(F(S.my).cash)}</span></header>
+  <nav class="nav" aria-label="Sections">${[['week','Week'],['table','Tables'],['squad','Squad'],['club','Club']].map(([k,n])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-arg="${k}" aria-current="${UI.tab===k?'page':'false'}">${n}</button>`).join('')}</nav>`;
+}
+function render(){
+  if(!HAS_DOM)return;const app=document.getElementById('app');let h='';
+  if(!S||UI.title)h=titleView();
+  else if(S.phase==='choose')h=chooseView();
+  else if(UI.review)h=reviewView();
+  else{const body=UI.tab==='table'?tableView():UI.tab==='squad'?squadView():UI.tab==='club'?clubView():weekView();h=topBar()+`<main>${body}</main>`}
+  if(S&&UI.over)h+=overlayView();
+  app.innerHTML=h;
+  document.body.style.overflow=UI.over?'hidden':'';
+}
+
+/* ----- title and the choice of club ----- */
+function titleView(){
+  return`<main class="scene" style="padding-top:48px"><p class="eyebrow">The Northmarch</p><h1>Chairman</h1>
+  <p class="voice">Forty-eight members' clubs, three divisions, one cup. The world runs whether you act or not.</p>
+  <p class="muted">You are the elected chairman. Build the ground, keep the books, set the frame for your director of football, and live with what follows.</p>
+  <div class="stack">${hasSave()?`<button class="btn" data-act="cont">Continue</button>`:''}<button class="btn ${hasSave()?'ghost':''}" data-act="new">New game</button></div>
+  <p class="note">Layer 1–2 build: the living world and club management. Stories, staff and dynasties are switched off in this version.</p></main>`;
+}
+function chooseView(){
+  const probs=['A big club that has fallen behind its rivals.','The harbour club: proud, broke enough to matter.','A small club with a big crowd for its size.'];
+  return`<main class="scene" style="padding-top:28px"><p class="eyebrow">Three open chairs</p><h2>Where do you stand for election?</h2>
+  <p class="muted">Each club is a real club in the same world. Pick the one whose problem you want.</p>
+  <div class="stack">${S.seats.map((id,i)=>{const c=CL(id),sg=groundSignals(id),f=F(id);return`<button class="deal" data-act="choose" data-arg="${id}"><span class="dt">${esc(c.name)}</span><span class="small muted">${probs[i]}</span>
+    <dl><dt>Division</dt><dd>${TIER_NAME[c.tier]}</dd><dt>Squad</dt><dd>${strWord(id)}</dd><dt>Support</dt><dd>${n0(c.support)} · ground holds ${n0(sg.capacity)}</dd><dt>Money</dt><dd>${k1(f.cash)} in the bank${debt(id)?` · ${k1(debt(id))} debt`:''}</dd></dl></button>`}).join('')}</div></main>`;
+}
+
+/* ----- the week ----- */
+function myMatches(){return(S.matches||[]).filter(m=>m.h===S.my||m.a===S.my)}
+function headline(m){const home=m.h===S.my,gf=home?m.gh:m.ga,ga=home?m.ga:m.gh,opp=home?m.a:m.h,won=m.pens?m.pens===S.my:gf>ga;
+  const cup=m.comp==='cup'?' in the cup':'';
+  if(gf===ga&&!m.pens)return`Honours even with ${CL(opp).name}${cup}`;
+  return won?(gf-ga>=3?`${C().name} run riot${cup}`:`${C().name} beat ${CL(opp).name}${cup}`):(ga-gf>=3?`Humbled by ${CL(opp).name}${cup}`:`${CL(opp).name} too strong${cup}`)}
+function reportView(){
+  const ms=myMatches();if(!S.week||!ms.length)return'';
+  const evs=UI.lastEv.filter(e=>e.c===S.my&&['Injury','Return','ProjectCompleted','ProjectStarted','SafetyClosure','CashCrisis','ForcedSale','Administration','Renewed','Transfer','Signing','Released','Ground','LoanTaken','CupWon'].includes(e.t));
+  const m=ms[0],f=F(S.my).last;
+  return`<section class="echo" aria-label="The Northmarch Echo"><div class="mast"><b>THE NORTHMARCH ECHO</b><span>Week ${S.week}</span></div>
+  <div class="head">${esc(headline(m))}</div>
+  ${ms.map(m=>`<div class="fix"><b>${nm(m.h)}</b><span class="score">${m.gh}–${m.ga}</span><b>${nm(m.a)}</b></div>
+  <p class="small muted" style="text-align:center">${m.comp==='cup'?esc(CUP_ROUND[m.round])+' · ':''}${m.att?n0(m.att)+' watching':''}${m.pens?` · ${nm(m.pens)} win on penalties`:''}</p>
+  ${m.scorers.length?`<p class="small">${m.scorers.map(s=>esc(s.name.split(' ').slice(-1)[0])+(s.side==='h'?' ('+esc(CL(m.h).name.split(' ')[0])+')':' ('+esc(CL(m.a).name.split(' ')[0])+')')).join(', ')}</p>`:''}`).join('<hr>')}
+  <ul>${evs.slice(0,6).map(e=>`<li>${esc(e.text)}</li>`).join('')}${f?`<li>The week's books: ${k1(f.net)}${f.lines.gate?` (gate ${k1(f.lines.gate)})`:''}.</li>`:''}</ul></section>`;
+}
+function previewView(){
+  if(seasonOver())return`<div class="panel"><p class="eyebrow">The season is over</p><p>${TIER_NAME[C().tier]}: you finish ${ord(posOf(S.my))}.</p></div>`;
+  const w=S.week+1,fx=fixtureOf(S.my,w),cup=CUP_WEEKS[S.cup.round]===w?cupTieOf(S.my):null,out=[];
+  for(const [m,comp] of [[fx,'league'],[cup?{h:cup.h,a:cup.a,home:cup.h===S.my,opp:cup.h===S.my?cup.a:cup.h}:null,'cup']]){if(!m)continue;
+    const neutral=comp==='cup'&&S.cup.round===CUP_WEEKS.length-1,sh=teamStrength(m.h)+(neutral?0:homeEdge(m.h)),sa=teamStrength(m.a),[lh,la]=lambdas(sh,sa,!neutral),p=wdlProb(lh,la);
+    const mine=m.home?p.w:p.l,theirs=m.home?p.l:p.w;
+    out.push(`<div class="panel"><p class="eyebrow">${comp==='cup'?`${CUP_NAME} · ${CUP_ROUND[S.cup.round]}`:`Week ${w} · ${TIER_NAME[C().tier]}`}</p>
+    <div class="fix"><b>${nm(m.h)}</b><span class="muted">v</span><b>${nm(m.a)}</b></div>
+    <div class="cmp"><span>Position</span><b>${comp==='league'?ord(posOf(m.h)):tierShort(CL(m.h).tier)}</b><b>${comp==='league'?ord(posOf(m.a)):tierShort(CL(m.a).tier)}</b>
+    <span>Squad strength</span><b>${Math.round(teamStrength(m.h))}</b><b>${Math.round(teamStrength(m.a))}</b>
+    <span>Form</span><b>${(S.tbl[m.h].form||[]).join('')||'—'}</b><b>${(S.tbl[m.a].form||[]).join('')||'—'}</b></div>
+    <p class="small muted">The bookmakers: ${pct(mine)} we win, ${pct(p.d)} a draw, ${pct(theirs)} we lose.</p></div>`)}
+  if(!out.length)out.push(`<div class="panel"><p class="eyebrow">Week ${w}</p><p class="muted">No game for us this week.</p></div>`);
+  return out.join('');
+}
+function weekView(){
+  const over=seasonOver();
+  return`${reportView()}${previewView()}${hubCards()}
+  <button class="btn" data-act="${over?'close':'play'}">${over?'Close the season':`Play week ${S.week+1}`}</button>
+  <p class="note">${over?'Prize money, promotion and relegation, contracts and the summer window follow.':'Every week is played. Change prices, budgets or building first if you want them to count this week.'}</p>`;
+}
+
+/* ----- tables ----- */
+function tableView(){
+  const t=UI.tier??C().tier;
+  const tabs=`<div class="tabs" role="tablist">${TIERS.map(x=>`<button class="${t===x?'on':''}" data-act="tier" data-arg="${x}" aria-pressed="${t===x}">${tierShort(x)}</button>`).join('')}<button class="${t==='cup'?'on':''}" data-act="tier" data-arg="cup" aria-pressed="${t==='cup'}">Cup</button></div>`;
+  if(t==='cup')return tabs+cupView();
+  const st=standings(t);
+  return`${tabs}<div class="panel"><p class="eyebrow">${TIER_NAME[t]}</p><div class="tbl" role="table" aria-label="${TIER_NAME[t]} table">
+  <div class="trow head" role="row"><span>#</span><span>Club</span><span>P</span><span>GD</span><b>Pts</b></div>
+  ${st.map((id,i)=>{const r=S.tbl[id],zone=(t>0&&i<2)?'zone-up':(t<2&&i>=14)?'zone-down':'';return`<button class="trow ${id===S.my?'me':''} ${zone}" role="row" data-act="club" data-arg="${id}"><span>${i+1}</span><span class="nm">${nm(id)}${r.ded?` <span class="inj">−${r.ded}</span>`:''}</span><span>${r.p}</span><span>${r.gf-r.ga>0?'+':''}${r.gf-r.ga}</span><b>${r.pts}</b></button>`}).join('')}</div>
+  <p class="note">${t>0?'Top two go up. ':''}${t<2?'Bottom two go down. ':''}Tap a club to inspect it.</p></div>`;
+}
+function cupView(){
+  const cup=S.cup,rounds={};for(const l of cup.log)(rounds[l.r]=rounds[l.r]||[]).push(l);
+  const next=cup.round<CUP_WEEKS.length?`<div class="panel"><p class="eyebrow">${CUP_ROUND[cup.round]} · week ${CUP_WEEKS[cup.round]}</p>${cup.ties.map(t=>`<div class="row small ${t.h===S.my||t.a===S.my?'':''}"><span>${t.h===S.my||t.a===S.my?'<b>':''}${nm(t.h)} v ${nm(t.a)}${t.h===S.my||t.a===S.my?'</b>':''}</span></div>`).join('')}</div>`:`<div class="panel"><p class="eyebrow">Winners</p><p><b>${nm(cup.winner)}</b></p></div>`;
+  const mine=cup.alive.includes(S.my)||cup.winner===S.my;
+  return`<p class="small ${mine?'up':'muted'}">${cup.winner===S.my?'You won the cup.':mine?'Still in the cup.':cup.round===0&&C().tier===0?'Premier clubs enter in the second round.':'Out of the cup.'} Prize money grows every round.</p>${next}
+  ${Object.keys(rounds).reverse().map(r=>`<div class="panel"><p class="eyebrow">${CUP_ROUND[r]}</p>${rounds[r].map(l=>`<div class="row small"><span>${l.h===S.my||l.a===S.my?'<b>':''}${nm(l.h)} ${l.gh}–${l.ga} ${nm(l.a)}${l.h===S.my||l.a===S.my?'</b>':''}</span></div>`).join('')}</div>`).join('')}`;
+}
+
+/* ----- squad ----- */
+function qbar(q){return`<span class="qbar">${r1(q)}<i aria-hidden="true"><b style="width:${clamp((q-5)/12*100,4,100)}%"></b></i></span>`}
+function potWord(p){const d=p.pa-p.q;return p.age>=29?'At their level':d>2.5?'Big potential':d>1?'Room to grow':'Close to their best'}
+function squadView(){
+  const id=S.my,sq=S.squads[id].slice().sort((a,b)=>POS.indexOf(a.pos)-POS.indexOf(b.pos)||b.q-a.q),gaps=squadGaps(S.squads[id]),f=F(id);
+  const bill=wageBillK(id),cap=wageCapK(id),xi=pickXI(S.squads[id]).map(x=>x.p.id);
+  return`<div class="panel"><div class="row"><span>Squad strength</span><b>${Math.round(teamStrength(id))} · ${strWord(id)}</b></div>
+  <div class="row small"><span>Players</span><b>${sq.length} · average age ${r1(sq.reduce((a,p)=>a+p.age,0)/sq.length)}</b></div>
+  <div class="row small"><span>Wage bill</span><b class="${bill>cap?'down':''}">£${n0(bill*1000)} a week · limit £${n0(cap*1000)}</b></div>
+  ${gaps.slice(0,3).map(g=>`<p class="small down">${esc(g.text)}</p>`).join('')}</div>
+  <div class="panel"><p class="eyebrow">The frame for your director</p><p class="small muted">The director signs, sells and renews within these limits. You set the frame; he does the deals.</p>
+  <p class="small"><b>Wages</b> as a share of expected income</p><div class="seg">${Object.keys(WAGE_RATIO).map(k=>`<button class="${f.policy.wage===k?'on':''}" data-act="pol" data-arg="${k}" aria-pressed="${f.policy.wage===k}">${{tight:'Tight',normal:'Normal',ambitious:'Bold',allin:'All in'}[k]} ${Math.round(WAGE_RATIO[k]*100)}%</button>`).join('')}</div>
+  <p class="small"><b>Transfer money</b>: share of spare cash he may spend</p><div class="seg">${[[.2,'Keep cash'],[.5,'Balanced'],[.8,'Back him']].map(([v,n])=>`<button class="${Math.abs(f.policy.spend-v)<.05?'on':''}" data-act="spend" data-arg="${v}" aria-pressed="${Math.abs(f.policy.spend-v)<.05}">${n}</button>`).join('')}</div>
+  <p class="note">Spending power now: ${k1(budgetFor(id))}. Windows: the summer and week ${WINTER_WEEK}. Renewals in week ${RENEW_WEEK}.</p></div>
+  ${POS.map(pos=>{const ps=sq.filter(p=>p.pos===pos);if(!ps.length)return'';return`<p class="eyebrow">${POS_L[pos]}</p><div class="stack">${ps.map(p=>`<button class="prow" data-act="player" data-arg="${p.id}"><span><span class="pn">${esc(p.name)}${xi.includes(p.id)?' <span class="pill">XI</span>':''}</span><br><span class="pm">${p.age} · ${p.contract<=1?'<b>contract ends</b>':p.contract+' yrs'} · £${p.wage}/wk${p.inj?` · <span class="inj">out ${p.inj} wk</span>`:''}</span></span>
+    <span>${qbar(p.q)}${Math.abs(p.grown)>=.1?`<span class="small ${p.grown>0?'up':'down'}"> ${p.grown>0?'▲':'▼'}</span>`:''}</span></button>`).join('')}</div>`}).join('')}`;
+}
+
+/* ---- ui/club.js ---- */
+/* ================= Screens: the club (ground, money, comparison, history), overlays and the season review =================
+   Ground and money overlays are adapted from voorzitter-fundering ui/system.js; every change goes through cmd(). */
+function condBar(c){const v=Math.round(c);return`<span class="cbar ${v<30?'lo':v<60?'mid':''}" role="img" aria-label="condition ${v}%"><i style="width:${v}%"></i></span><span class="small muted cnum">${v}%</span>`}
+function hubCards(){
+  const id=S.my,g=G(id),sg=groundSignals(id),w=groundCondWorst(id),run=g.projects.filter(p=>p.phase!=='done'),f=F(id),fc=cashForecast(id),h=finHealth(id);
+  return`<div class="hub">
+  <button class="hubc" data-act="ov" data-arg="ground"><span class="eyebrow">Ground</span><b>${n0(sg.capacity)} places</b><span class="small ${w.c<40?'down':'muted'}">${w.c<40?'⚠ ':''}${esc(w.n)} ${Math.round(w.c)}%</span><span class="small muted">${run.length?`${run.length} project${run.length>1?'s':''} running`:'No building work'}</span></button>
+  <button class="hubc" data-act="ov" data-arg="money"><span class="eyebrow">Money</span><b class="${f.cash<0?'down':''}">${k1(f.cash)}</b><span class="small ${f.last&&f.last.net<0?'down':'up'}">${f.last?'Last week '+k1(f.last.net):'No weeks played'}</span><span class="small ${h==='healthy'?'muted':'down'}">${h==='healthy'?'Healthy':h==='tight'?'Tight':'In the red'} · low ${k1(fc.minV)}</span></button></div>`;
+}
+function gTabs(cur,list,act){return`<div class="tabs" role="tablist">${list.map(([k,n])=>`<button class="${cur===k?'on':''}" data-act="${act}" data-arg="${k}" aria-pressed="${cur===k}">${n}</button>`).join('')}</div>`}
+function msgLine(){return UI.msg?`<p class="${UI.msg.err?'err':'small up'}" role="status">${esc(UI.msg.text)}</p>`:''}
+function overlayShell(title,body){return`<div class="overlay" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="inner"><div class="row"><h2>${esc(title)}</h2><button class="tbtn" data-act="ov">Close</button></div>${msgLine()}${body}</div></div>`}
+function overlayView(){
+  if(UI.over==='ground')return groundOverlay();if(UI.over==='money')return moneyOverlay();
+  if(UI.over==='club')return clubSheet(UI.arg);if(UI.over==='player')return playerSheet(UI.arg);return'';
+}
+
+/* ----- the ground ----- */
+function groundOverlay(){
+  const id=S.my,g=G(id),sg=groundSignals(id),t=UI.gt,gate=F(id).lastGate;let body='';
+  if(t==='stadium'){
+    body=`<div class="panel"><div class="row"><span>Licensed capacity</span><b>${n0(sg.capacity)}</b></div>${sg.limitedBy?`<p class="small down">Limited by ${sg.limitedBy==='access'?'the turnstiles':'safety'}: the stands hold more.</p>`:''}${gate?`<p class="small muted">Last home game: ${n0(gate.total)} (${n0(gate.terrace)} standing, ${n0(gate.seated)} seated, ${gate.business} business).</p>`:''}
+    <div class="row small"><span>Atmosphere (home edge)</span><b>${sg.atmosphere}</b></div><div class="row small"><span>Comfort</span><b>${sg.comfort}</b></div></div>
+    <div class="panel"><p class="eyebrow">The four sides</p>${Object.entries(g.sides).map(([k,s])=>`<div class="grow"><span><b>${SIDE_NAME[k]}</b><br><span class="small muted">${s.type==='terrace'?'Terrace':'Seated'} · ${s.rings} ring${s.rings>1?'s':''} · ${n0(s.rings*RING[s.type])} · ${['no roof','part roof','full roof'][s.roof]}${building(id,'side:'+k)?' · building':''}</span></span>${condBar(s.cond)}</div>`).join('')}</div>
+    <div class="panel"><p class="eyebrow">The pitch</p><div class="grow"><span><b>${LV_NAME[g.pitch.lv]} grass</b><br><span class="small muted">Drainage ${LV_NAME[g.pitch.drain]}</span></span>${condBar(g.pitch.cond)}</div></div>
+    <div class="panel"><p class="eyebrow">Facilities</p>${Object.entries(g.fac).map(([k,f])=>`<div class="grow"><span><b>${FAC[k].n}</b><br><span class="small muted">${LV_NAME[f.lv]} · ${FAC[k].sig}</span></span>${condBar(f.cond)}</div>`).join('')}</div>`}
+  if(t==='complex')body=`<p class="small muted">Six plots. You can never build everything: what stands here decides what kind of club you are.</p><div class="panel">${g.plots.map((p,i)=>p.kind?`<div class="grow"><span><b>${i+1}. ${COMPLEX[p.kind].n}</b><br><span class="small muted">${LV_NAME[p.lv]} · ${COMPLEX[p.kind].sig}</span></span>${condBar(p.cond)}</div>`:`<div class="grow"><span><b>${i+1}. Empty plot</b><br><span class="small muted">${building(id,'plot:'+i)?'Building work under way':'Free to build on'}</span></span></div>`).join('')}</div>
+    <div class="panel"><p class="eyebrow">What the complex does on the pitch</p>${[['Training level','Young players grow faster, old ones fade slower',sg.training],['Medical level','Fewer and shorter injuries',sg.medical],['Academy level','How many graduates, and how good',sg.academy],['Scouting reach','How many players the director sees',sg.scouting],['Shop and events','Merchandise and hire income',sg.shop],['Community','Dues, and support that grows',sg.community]].map(([n,d,v])=>`<div class="row small"><span>${n}<br><span class="muted">${d}</span></span><b>${v}</b></div>`).join('')}</div>`;
+  if(t==='depts')body=`<p class="small muted">The budget pays staff and upkeep and decides how fast things recover. A new course takes a season to settle.</p>${Object.entries(g.depts).map(([k,d])=>`<div class="panel"><div class="row"><b>${DEPT[k].n}</b><span class="small muted">£${Math.round(DEPT_COST[C().tier]*BUDGET_F[d.budget]*1000)}/wk</span></div>
+    <div class="seg">${Object.keys(BUDGET_F).map(b=>`<button class="${d.budget===b?'on':''}" data-act="gdept" data-arg="${k}:${b}" aria-pressed="${d.budget===b}">${b[0].toUpperCase()+b.slice(1)}</button>`).join('')}</div>
+    <div class="seg">${DEPT[k].courses.map(c=>`<button class="${(d.pending||d.course)===c?'on':''}" data-act="gcourse" data-arg="${k}:${c}" aria-pressed="${(d.pending||d.course)===c}">${c[0].toUpperCase()+c.slice(1)}</button>`).join('')}</div>${d.pending?`<p class="small muted">Switching to ${d.pending}: ${d.settle} weeks to settle.</p>`:''}</div>`).join('')}<p class="small muted">All departments: £${n0(deptCost(id)*1000)} a week.</p>`;
+  if(t==='build'){const cat=projectCatalog(id),run=g.projects.filter(p=>p.phase!=='done'),groups=[...new Set(cat.map(o=>o.group))];
+    body=`${run.length?`<div class="panel"><p class="eyebrow">Under way</p>${run.map(p=>`<div class="row small"><span><b>${esc(p.label)}</b><br><span class="muted">${p.phase==='permit'?'Waiting for the permit':`${p.left} weeks left`} · £${p.cost}k${p.over?` (+${p.over}%)`:''} · paid ${k1(p.paid)}</span></span></div>`).join('')}</div>`:''}
+    <p class="small muted">Building is paid week by week. The cash forecast in Money shows what it does to the bank.</p>
+    ${groups.map(gr=>`<div class="panel"><p class="eyebrow">${esc(gr)}</p><div class="stack">${cat.filter(o=>o.group===gr).map(o=>o.busy?`<div class="opt dim"><b>${esc(o.label)}</b><span class="small muted">Work under way here</span></div>`:UI.gsel===o.key?`<div class="opt on"><b>${esc(o.label)}</b><span class="small">${esc(o.effect)} · ${o.weeks} weeks${o.permit?' + permit':''}</span><div class="offers">${Object.entries(OFFER).map(([ok,of])=>`<button class="offer" data-act="gbuild" data-arg="${o.key}|${ok}"><b>£${Math.round(o.cost*of.p)}k</b><span>${of.n}</span><span class="muted">${Math.round(of.over*100)}% overrun risk</span></button>`).join('')}</div><button class="tbtn" data-act="gsel" data-arg="">Cancel</button></div>`:`<button class="opt" data-act="gsel" data-arg="${o.key}"><b>${esc(o.label)}</b><span class="small muted">£${o.cost}k · ${esc(o.effect)}</span></button>`).join('')}</div></div>`).join('')}`}
+  if(t==='repairs'){const rl=repairList(id);body=rl.length?`<p class="small muted">Below 30% a safety inspection can close half a stand.</p><div class="panel">${rl.map(r=>`<div class="grow"><span><b>${esc(r.label)}</b><br>${condBar(r.cond)}</span><span></span><button class="tbtn" data-act="grepair" data-arg="${r.key}">Repair £${r.cost}k</button></div>`).join('')}</div>`:'<p class="muted">Everything is in good shape.</p>'}
+  const log=eventsFor(id,{types:['Ground','ProjectStarted','ProjectCompleted','SafetyClosure']}).slice(-5).reverse();
+  return overlayShell(CL(id).ground||'The ground',`${gTabs(t,[['stadium','Stadium'],['complex','Complex'],['depts','Departments'],['build','Build'],['repairs','Repairs']],'gtab')}${body}${log.length?`<div class="panel"><p class="eyebrow">Ground log</p><ul class="log">${log.map(l=>`<li><span class="num">S${l.s} W${l.w}</span> ${esc(l.text)}</li>`).join('')}</ul></div>`:''}`);
+}
+
+/* ----- money ----- */
+function forecastSVG(fc){
+  const all=[...fc.low,...fc.high,0],mn=Math.min(...all),mx=Math.max(...all),W=300,H=90,x=i=>Math.round(i/(fc.mid.length-1)*W),y=v=>Math.round(H-4-(v-mn)/(mx-mn||1)*(H-8));
+  const band=fc.high.map((v,i)=>`${x(i)},${y(v)}`).join(' ')+' '+fc.low.map((v,i)=>`${x(i)},${y(v)}`).reverse().join(' ');
+  return`<svg class="fcast" viewBox="0 0 ${W} ${H}" role="img" aria-label="Cash forecast: lowest £${fc.minV}k in ${fc.minW} weeks"><polygon points="${band}" class="band"/><line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" class="zero"/><polyline points="${fc.mid.map((v,i)=>`${x(i)},${y(v)}`).join(' ')}" class="mid"/></svg>`;
+}
+function linesTable(L){return Object.keys(LINE).filter(k=>L[k]).map(k=>`<div class="row small"><span>${LINE[k][0]}</span><b class="${L[k]<0?'down':''}">${k1(L[k])}</b></div>`).join('')||'<p class="small muted">Nothing yet.</p>'}
+function moneyOverlay(){
+  const id=S.my,f=F(id),t=UI.mt,fc=cashForecast(id),sl=seasonTotals(id),h=finHealth(id);let body='';
+  if(t==='overview'){const heads=Object.keys(HEAD).map(k=>[k,sl.head[k]||0]).filter(x=>x[1]),mx=Math.max(1,...heads.map(x=>Math.abs(x[1])));
+    body=`<div class="panel"><div class="row"><span>In the bank</span><b class="${f.cash<0?'down':''}">${k1(f.cash)}</b></div><div class="row small"><span>Debt</span><b>${k1(debt(id))}</b></div><div class="row small"><span>Overdraft limit</span><b>${k1(-creditLimit(id))}</b></div><div class="row small"><span>Health</span><b class="${h==='healthy'?'up':'down'}">${h==='healthy'?'Healthy':h==='tight'?'Tight':'In the red'}</b></div></div>
+    <div class="panel"><p class="eyebrow">Next 26 weeks</p>${forecastSVG(fc)}<p class="small ${fc.minV<0?'down':'muted'}">${fc.minV>=f.cash-1?'No dip ahead on current form.':`Lowest point: ${k1(fc.minV)} in ${fc.minW} week${fc.minW>1?'s':''}.`} The band shows bad and good results.</p></div>
+    <div class="panel"><p class="eyebrow">Season ${S.season} so far</p>${heads.map(([k,v])=>`<div class="hline"><span>${HEAD[k]}</span><span class="hbar"><i class="${v<0?'neg':''}" style="width:${Math.round(Math.abs(v)/mx*100)}%"></i></span><b class="${v<0?'down':''}">${k1(v)}</b></div>`).join('')||'<p class="small muted">No weeks played yet.</p>'}<div class="row small"><span>Operating result</span><b class="${operatingResult(sl.lines)<0?'down':'up'}">${k1(operatingResult(sl.lines))}</b></div></div>
+    <p class="small muted">Over 3 weeks above the overdraft limit means administration: six points and a rescue loan.</p>`}
+  if(t==='ledger')body=`<div class="panel"><p class="eyebrow">Last week</p>${f.last?linesTable(f.last.lines)+`<div class="row"><span>Net</span><b class="${f.last.net<0?'down':'up'}">${k1(f.last.net)}</b></div>`:'<p class="small muted">No week played yet.</p>'}</div><div class="panel"><p class="eyebrow">Season ${S.season} so far</p>${linesTable(sl.lines)}</div>
+    ${f.hist.slice(-3).reverse().map(hh=>`<div class="panel"><div class="row"><b>Season ${hh.s}</b><span class="small muted">${TIER_NAME[hh.tier]}, ${ord(hh.pos)}</span></div><div class="row small"><span>Operating result</span><b class="${operatingResult(hh.lines)<0?'down':''}">${k1(operatingResult(hh.lines))}</b></div><div class="row small"><span>Cash at the end</span><b>${k1(hh.cash)}</b></div></div>`).join('')}`;
+  if(t==='prices'){const pr=f.prices,gate=f.lastGate,ref=PRICE_DEF[C().tier];const st=(k,n,note)=>`<div class="grow"><span><b>${n}</b><br><span class="small muted">${note} · usual £${ref[k]}</span></span><span></span><span class="stepper"><button data-act="price" data-arg="${k}:-1" aria-label="Lower ${n}">−</button><b>£${pr[k]}</b><button data-act="price" data-arg="${k}:1" aria-label="Raise ${n}">+</button></span></div>`;
+    const a=attendance(id,null,{});
+    body=`<p class="small muted">Families walk away first when prices rise; the terrace comes anyway; business pays for comfort.</p><div class="panel">${st('terrace','Terrace ticket','Price-tolerant')}${st('seated','Seat ticket','Price-sensitive')}${st('business','Business seat','Pays for comfort')}${st('season','Season ticket','Sold in week 1')}</div>
+    <div class="panel"><div class="row small"><span>Expected crowd at these prices</span><b>${n0(a.total)} of ${n0(a.cap)}</b></div>${gate?`<div class="row small"><span>Last home game</span><b>${n0(gate.total)}</b></div>`:''}<div class="row small"><span>Expected gate per home game</span><b>${k1((a.terrace*pr.terrace+a.seated*pr.seated)/1000)}</b></div></div>`}
+  if(t==='loans'){const max=maxNewLoan(id);
+    body=`<div class="panel"><p class="eyebrow">Loans</p>${f.loans.length?f.loans.map((l,i)=>`<div class="grow"><span><b>${esc(l.label)}</b><br><span class="small muted">${k1(l.left)} left · ${Math.round(l.rate*1000)/10}% · ${k1(l.pay)} a week</span></span><span></span>${f.cash>=l.left?`<button class="tbtn" data-act="repay" data-arg="${i}">Repay</button>`:''}</div>`).join(''):'<p class="small muted">No loans.</p>'}</div>
+    <div class="panel"><p class="eyebrow">Borrow</p><p class="small muted">The bank lends up to 80% of a season's income in total. The more you owe, the higher the rate.</p>
+    <div class="seg">${[3,5,10].map(y=>`<button class="${UI.ly===y?'on':''}" data-act="ly" data-arg="${y}" aria-pressed="${UI.ly===y}">${y} years</button>`).join('')}</div>
+    <div class="seg">${[25,50,100,200].filter(a=>a<=max).map(a=>`<button data-act="loan" data-arg="${a}">£${a}k at ${Math.round(loanRate(id,a)*1000)/10}%</button>`).join('')||'<p class="small down">The bank will not lend more.</p>'}</div><p class="note">Room to borrow: ${k1(max)}.</p></div>`}
+  return overlayShell('Money',`${gTabs(t,[['overview','Overview'],['ledger','Ledger'],['prices','Prices'],['loans','Loans']],'mtab')}${body}`);
+}
+
+/* ----- the club tab: compare, history, layers ----- */
+function clubView(){
+  const id=S.my,c=C(),t=c.tier,ids=tierIds(t),avg=fn=>ids.reduce((a,i)=>a+fn(i),0)/ids.length,sg=groundSignals(id);
+  const rows=[['Support',i=>CL(i).support,n0],['Capacity',i=>groundSignals(i).capacity,n0],['Squad strength',i=>teamStrength(i),v=>Math.round(v)],['Wage bill /wk',i=>wageBillK(i)*1000,v=>'£'+n0(v)],['Training level',i=>groundSignals(i).training,r1],['Academy level',i=>groundSignals(i).academy,r1]];
+  const hist=c.hist.slice(-8).reverse();
+  return`${hubCards()}
+  <div class="panel"><p class="eyebrow">Against the ${TIER_NAME[t]}</p><div class="cmp"><span></span><b>Us</b><b>Average</b>${rows.map(([n,fn,fm])=>`<span>${n}</span><b>${fm(fn(id))}</b><b>${fm(avg(fn))}</b>`).join('')}</div></div>
+  <div class="panel"><p class="eyebrow">${esc(c.name)}</p><p class="small muted">Founded ${c.founded}. Ground: ${esc(c.ground)}. Rivals: ${nm(c.rival)} (${esc(c.rivalWhy)}). The club once ${esc(c.scar)}.</p>
+  ${hist.length?hist.map(h=>`<div class="row small"><span>Season ${h.s}</span><b>${TIER_NAME[h.tier]}, ${ord(h.pos)}</b></div>`).join(''):'<p class="small muted">Your first season.</p>'}</div>
+  <div class="panel"><p class="eyebrow">Game layers</p><div class="row small"><span>1 · The living world</span><b class="up">On</b></div><div class="row small"><span>2 · Club management</span><b class="up">On</b></div><div class="row small"><span>3 · Staff with their own minds</span><b class="muted">Later</b></div><div class="row small"><span>4 · Stories, members and politics</span><b class="muted">Later</b></div><div class="row small"><span>5 · Dynasty</span><b class="muted">Later</b></div>
+  <p class="note">The original Northmarch story game stays playable as its own file.</p></div>
+  <button class="btn ghost" data-act="quit">Save and back to the title</button>`;
+}
+function clubSheet(id){
+  const c=CL(id),sg=groundSignals(id),sq=S.squads[id].slice().sort((a,b)=>b.q-a.q),r=S.tbl[id],ev=eventsFor(id).filter(e=>e.t!=='Match'&&e.t!=='Command').slice(-5).reverse();
+  return overlayShell(c.name,`<div class="panel"><div class="row"><span>${TIER_NAME[c.tier]}</span><b>${ord(posOf(id))} · ${r.pts} pts</b></div><div class="row small"><span>Form</span><b>${r.form.join('')||'—'}</b></div><div class="row small"><span>Squad</span><b>${Math.round(teamStrength(id))} · ${strWord(id)}</b></div>
+  <div class="row small"><span>Support · capacity</span><b>${n0(c.support)} · ${n0(sg.capacity)}</b></div><div class="row small"><span>Money (from the papers)</span><b>${moneyWord(id)}</b></div><div class="row small"><span>Training · academy</span><b>${sg.training} · ${sg.academy}</b></div></div>
+  <div class="panel"><p class="eyebrow">Best players</p>${sq.slice(0,4).map(p=>`<div class="row small"><span>${esc(p.name)} <span class="muted">${p.pos}, ${p.age}</span></span>${qbar(p.q)}</div>`).join('')}</div>
+  ${ev.length?`<div class="panel"><p class="eyebrow">Lately</p><ul class="log">${ev.map(e=>`<li><span class="num">S${e.s} W${e.w}</span> ${esc(e.text)}</li>`).join('')}</ul></div>`:''}
+  <p class="small muted">Rivals: ${nm(c.rival)}. Founded ${c.founded}.</p>`);
+}
+function playerSheet(pid){
+  const p=S.squads[S.my].find(x=>x.id===pid);if(!p)return overlayShell('Player','<p class="muted">No longer at the club.</p>');
+  const cost=releaseCost(p);
+  return overlayShell(p.name,`<div class="panel"><div class="row"><span>${POS_ONE[p.pos]}, ${p.age}</span>${qbar(p.q)}</div><div class="row small"><span>Level</span><b>${qWord(p.q-(S.qref-11.7))}</b></div><div class="row small"><span>Outlook</span><b>${potWord(p)}</b></div>
+  <div class="row small"><span>This season</span><b>${p.sApps} apps · ${p.sGoals} goals${Math.abs(p.grown)>=.05?` · ${p.grown>0?'+':''}${r1(p.grown)} quality`:''}</b></div><div class="row small"><span>Contract</span><b>${p.contract} yr${p.contract===1?'':'s'} · £${p.wage} a week</b></div><div class="row small"><span>Market value</span><b>${k1(playerValue(p))}</b></div>${p.inj?`<p class="inj">Injured: out for ${p.inj} week${p.inj>1?'s':''}.</p>`:''}<p class="small muted">${p.trait}${p.academy?' · academy graduate':''}</p></div>
+  ${p.career.length?`<div class="panel"><p class="eyebrow">Career</p>${p.career.slice(-4).map(x=>`<p class="small">${esc(x)}</p>`).join('')}</div>`:''}
+  ${UI.confirm===pid?`<div class="panel"><p>Release ${esc(p.name)}? It costs ${k1(cost)} in compensation.</p><button class="btn" data-act="release" data-arg="${pid}">Release him</button><button class="btn ghost" data-act="confirm" data-arg="">Keep him</button></div>`:`<button class="btn ghost" data-act="confirm" data-arg="${pid}">Release (${k1(cost)})</button>`}`);
+}
+
+/* ----- the season review ----- */
+function reviewView(){
+  const h=UI.review,s=h.s,id=S.my,last=CL(id).hist[CL(id).hist.length-1],mv=h.moves.find(m=>m.id===id),fh=F(id).hist[F(id).hist.length-1];
+  const sev=UI.summerEv||[],ins=sev.filter(e=>(e.t==='Transfer'||e.t==='Signing')&&e.c===id),outs=sev.filter(e=>e.t==='Transfer'&&e.c2===id);
+  const kids=sev.filter(e=>e.t==='YouthIntake'&&e.c===id).pop();
+  return`<main class="scene" style="padding-top:28px"><p class="eyebrow">Season ${s} · the verdict</p><h1>${ord(last.pos)}</h1>
+  <p class="voice">${mv?(mv.to<mv.from?`Promoted to ${TIER_NAME[mv.to]}.`:`Relegated to ${TIER_NAME[mv.to]}.`):`Another season in ${TIER_NAME[last.tier]}.`}${h.cup===id?' And the cup is ours.':''}</p>
+  <div class="panel"><div class="row small"><span>Points</span><b>${last.pts}</b></div><div class="row small"><span>Operating result</span><b class="${operatingResult(fh.lines)<0?'down':'up'}">${k1(operatingResult(fh.lines))}</b></div><div class="row small"><span>Cash</span><b>${k1(F(id).cash)}</b></div><div class="row small"><span>Cup winners</span><b>${nm(h.cup)}</b></div></div>
+  <div class="panel"><p class="eyebrow">Around the Northmarch</p>${TIERS.map(t=>`<div class="row small"><span>${TIER_NAME[t]} champions</span><b>${nm(h.tables[t][0])}</b></div>`).join('')}${h.moves.filter(m=>m.to<m.from).map(m=>`<p class="small up">${nm(m.id)} go up to ${TIER_NAME[m.to]}.</p>`).join('')}</div>
+  <div class="panel"><p class="eyebrow">The summer</p>${kids?`<p class="small">${esc(kids.text)}</p>`:''}${ins.map(e=>`<p class="small">In: ${esc(e.text)}</p>`).join('')}${outs.map(e=>`<p class="small">Out: ${esc(e.text)}</p>`).join('')}${!ins.length&&!outs.length?'<p class="small muted">A quiet window.</p>':''}</div>
+  <button class="btn" data-act="startnext">Start season ${S.season}</button></main>`;
+}
+
+/* ---- ui/act.js ---- */
+/* ================= Taps: one handler for every data-act, then save and redraw ================= */
+function say(r,okText){UI.msg=r&&r.ok===false?{err:true,text:r.err}:okText?{text:okText}:null}
+function act(a,arg){
+  UI.msg=null;
+  switch(a){
+    case'new':newWorld((Date.now()%2147483647)|0);UI.title=false;UI.tab='week';UI.review=null;break;
+    case'cont':if(load()){UI.title=false;UI.review=null}break;
+    case'quit':save();UI.title=true;UI.over=null;break;
+    case'choose':chooseClub(arg);UI.tier=null;break;
+    case'tab':UI.tab=arg;UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
+    case'play':{const ev=advanceWeek();UI.lastEv=ev||[];if(HAS_DOM)window.scrollTo(0,0);break}
+    case'close':{const mark=S.evn||0;const h=closeSeason();UI.summerEv=eventsSince(mark);UI.review=h;UI.lastEv=[];if(HAS_DOM)window.scrollTo(0,0);break}
+    case'startnext':UI.review=null;UI.tab='week';break;
+    case'tier':UI.tier=arg==='cup'?'cup':+arg;break;
+    case'ov':UI.over=arg||null;UI.gsel=null;UI.confirm=null;if(arg==='ground')UI.gt='stadium';if(arg==='money')UI.mt='overview';break;
+    case'club':UI.over='club';UI.arg=arg;break;
+    case'player':UI.over='player';UI.arg=arg;UI.confirm=null;break;
+    case'gtab':UI.gt=arg;UI.gsel=null;break;
+    case'mtab':UI.mt=arg;break;
+    case'gsel':UI.gsel=arg||null;break;
+    case'gbuild':{const [key,offer]=arg.split('|');const r=cmd('StartProject',S.my,{key,offer});say(r,'Building work ordered.');if(r.ok)UI.gsel=null;break}
+    case'grepair':say(cmd('Repair',S.my,{key:arg}),'Repaired.');break;
+    case'gdept':{const [dept,level]=arg.split(':');say(cmd('SetDeptBudget',S.my,{dept,level}));break}
+    case'gcourse':{const [dept,course]=arg.split(':');say(cmd('SetDeptCourse',S.my,{dept,course}));break}
+    case'price':{const [kind,d]=arg.split(':');say(cmd('SetPrice',S.my,{kind,delta:+d}));break}
+    case'ly':UI.ly=+arg;break;
+    case'loan':say(cmd('TakeLoan',S.my,{amount:+arg,years:UI.ly}),`£${arg}k borrowed.`);break;
+    case'repay':say(cmd('RepayLoan',S.my,{i:+arg}),'Loan repaid.');break;
+    case'pol':say(cmd('SetSquadPolicy',S.my,{wage:arg}));break;
+    case'spend':say(cmd('SetSquadPolicy',S.my,{spend:+arg}));break;
+    case'confirm':UI.confirm=arg||null;break;
+    case'release':{const r=cmd('ReleasePlayer',S.my,{pid:arg});say(r);if(r.ok){UI.over=null;UI.confirm=null}break}
+  }
+  if(S&&!UI.title&&S.phase!=='choose')save();
+  render();
+}
+if(HAS_DOM){
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;act(b.dataset.act,b.dataset.arg)});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&UI.over){UI.over=null;render()}});
+  render();
+}
+
+</script>

@@ -16,5 +16,7 @@ if(require.main===module){
   const html=`<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n${S('head.html')}<style>\n${S('style/main.css')}</style>\n</head>\n<body>\n<div id="app"></div>\n<script>\n${js}\n</script>\n</body>\n</html>\n`;
   fs.mkdirSync(path.join(__dirname,'dist'),{recursive:true});
   fs.writeFileSync(path.join(__dirname,'dist/northmarch-layered.html'),html);
+  // artifact.html: the same game without document skeleton, for a private claude.ai page
+  fs.writeFileSync(path.join(__dirname,'dist/artifact.html'),`${S('head.html')}<style>\n${S('style/main.css')}</style>\n<div id="app"></div>\n<script>\n${js}\n</script>\n`);
   console.log('built',ENGINE.length+UI.length,'modules,',Math.round(html.length/1024),'KB');
 }

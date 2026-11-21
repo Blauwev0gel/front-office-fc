@@ -4,7 +4,8 @@ const {chromium}=require('playwright'),path=require('path');
 const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
 (async()=>{
   const browser=await chromium.launch();let fails=0;const ok=(c,m)=>{console.log((c?'ok   ':'FAIL ')+m);if(!c)fails++};
-  for(const scheme of ['light','dark']){
+  const schemes=process.argv[2]?[process.argv[2]]:['light','dark']; // node tests/playtest.js light  → one pass for the fast suite
+  for(const scheme of schemes){
     const ctx=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,colorScheme:scheme});
     const page=await ctx.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&!/fonts\.g|ERR_FAILED/.test(m.text()))errors.push(m.text())});
     await page.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());

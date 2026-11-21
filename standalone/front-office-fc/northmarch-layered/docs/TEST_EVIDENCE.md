@@ -47,3 +47,9 @@ Bekende beperkingen: webfonts worden in de test geblokkeerd (offline fallback-fo
 - projects-test: kavel gekocht (£60k) en bebouwbaar · nieuw stadion (12 seeds): opent in 12/12 binnen drie seizoenen; capaciteit 2.350 vs 5.067; kaartinkomsten seizoen 4 £254k vs £320k; schuld £27k vs £281k · statuut blokkeert bij laag vertrouwen · historie per seizoen met topscorer en bekerloop, records, wereldarchief · signalen gesorteerd op urgentie, met links.
 - sim-test 4 seeds × 20 seizoenen: groen; 0–1 administrations.
 - save-test (schema v7), alle pakkettests en playtest 390 px licht/donker (grond kopen, clubhistorie, signalen): groen.
+
+## 2026-11-21 — L1/L2 UX completion
+- Nieuw: snelle reeks `sh tests/run-fast.sh` (38 s): build, save (migraties 1→7), ux-test, smoke-test, 20-seizoenssimulatie, browser licht — **alles groen** op de opgeleverde code.
+- Diepe reeks: save, ab (academie nu met jeugdtrainers: 2,0 vs 1,0 talenten, potentieel 13,3 vs 11,5), idle, members, staff groen; commercial/life/projects groen op `9fed92a`.
+- Strategietest en beoordeling: zie `docs/L1_L2_PLAYTEST_REPORT.md`.
+- Gevonden en hersteld: `| tail` maskeerde exitcodes in de scripts; ingekorte AI-historie brak de grootboekcontrole (gearchiveerde seizoenen schuiven nu door naar het beginsaldo).

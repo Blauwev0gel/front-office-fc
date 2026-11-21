@@ -1082,7 +1082,7 @@ function solvency(id){
 /* close the books for the season: league prize money, archive the lines */
 function financeSeasonEnd(id,pos,tier){
   const [top,step]=PRIZE[tier];book(id,'prize',top-(pos-1)*step);
-  const f=F(id);f.hist.push({s:S.season,tier,pos,lines:f.season,cash:f.cash,debt:debt(id)});while(f.hist.length>(id===S.my?40:12))f.hist.shift(); // keep the save small: twelve seasons for computer clubs
+  const f=F(id);f.hist.push({s:S.season,tier,pos,lines:f.season,cash:f.cash,debt:debt(id)});while(f.hist.length>(id===S.my?40:12)){const old=f.hist.shift();for(const k in old.lines)f.start=r2(f.start+old.lines[k])} // keep the save small: an archived season is carried into the opening balance, so the ledger still reconciles
   f.season={};f.holders=0;
 }
 function seasonTotals(id,s){const f=F(id),lines=s==null||s===S.season?f.season:(f.hist.find(h=>h.s===s)||{lines:{}}).lines,head={};

@@ -42,6 +42,7 @@ console.log(`\nclubs that changed division: ${movers}/48 · three or more moves:
 console.log(`administrations: ${admins.length} (${[...new Set(admins)].length} clubs) · cash spread: min ${cash[0].toFixed(0)} median ${cash[24].toFixed(0)} max ${cash[47].toFixed(0)}`);
 console.log(`chairmen voted out at AGMs: ${chairsOut} (computer clubs) · the auto-run player: ${playerOut}`);
 console.log(`cup winners: ${[...new Set(S.hist.map(h=>h.cup))].length} different · ${((Date.now()-start)/1000).toFixed(1)}s`);
+if(N>=20){ // long-horizon criteria only make sense over twenty seasons
 ok(movers>=16,'too few clubs change division');
 ok(yoyo>=15,`the world stays mobile: ${yoyo} clubs change division three times or more`); // full Two↔Premier journeys are rare (0-3 per seed) and reported above
 ok(chairsOut>=5&&chairsOut<=80,`chairmen voted out: ${chairsOut} (expected 5-80 in ${N} seasons)`);
@@ -50,5 +51,6 @@ ok(cash[47]<20000,'a club hoards unlimited money');
 ok(cash[24]>-200,'the median club is deep in the red: the economy does not close');
 const inc0=Object.keys(S.clubs).map(i=>E.estSeasonIncome(i));
 ok(Object.values(S.squads).every((sq,j)=>true),'');
+}
 console.log(fails?`${fails} check(s) failed`:'sim-test: all checks passed');
 process.exit(fails?1:0);

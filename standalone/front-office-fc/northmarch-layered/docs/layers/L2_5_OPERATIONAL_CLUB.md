@@ -102,7 +102,7 @@ Verification of ChatGPT's commits (`60b1f460`, `8f68df64`, `6683cdf1`, `d8538283
 - [x] Save/load, including `S.ops` (l25-test, save-test).
 - [x] Windows simulated; signings linked to needs.
 - [x] Browser smoke test at 390 px, light and dark (recruitment panels).
-- [ ] `tests/playtest.js` updated to the new hub.
+- [x] `tests/playtest.js` updated to the new hub (club opens on the office; sections via the hub).
 - [ ] A2 multi-season youth outcomes.
 
 No PLAYABLE or RELEASED claim until the playtest is green and the owner has played it.

@@ -7,6 +7,7 @@ run node build.js
 run node tests/save-test.js
 run node tests/ux-test.js
 run node tests/smoke-test.js
+run node tests/l25-test.js
 run node tests/sim-test.js 20261121 20
 run node tests/playtest.js light
 echo "fast suite: all passed"

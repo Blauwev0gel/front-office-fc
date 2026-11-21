@@ -17,3 +17,7 @@
   Squad (kader voor de directeur, spelers), Club (Ground, Money, vergelijking, historie, lagen).
 - Browserfouten gevonden en hersteld: clubnaam verticaal (CSS-klasse-botsing `.grow`), teamnamen braken midden in een woord.
 - **Volgende:** L2-ontwerpvragen (max. 3), daarna L2 verdiepen; daarna L3 (TD als agent op dezelfde commando's).
+
+## 2026-11-21 — L2-ontwerpvragen
+- D5 (alleen kader) en D6 (ledenvertrouwen + jaarlijkse ALV) vastgelegd. Nog maximaal één L2-vraag open.
+- **Volgende:** L2-vraag 3, daarna L2 specificeren en bouwen (ledenvertrouwen/ALV, seizoensdoelen, verdieping clubschermen).

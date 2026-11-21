@@ -11,7 +11,7 @@ function faNew(n){
     const p=newPlayer(pick(POS),{age,q:base-1.8+rnd()*2+(rnd()<.1?1.2:0)-(age>=31?.5:0),contract:0});p.why=pick(['released in the summer','out of contract','back from a spell abroad','released after a long injury','left a club that went part-time']);S.fa.push(p)}
 }
 function faInit(){S.fa=[];faNew(60)}
-function faAdd(p,why){p.club=null;p.why=why;p.contract=0;p.inj=0;S.fa.push(p)}
+function faAdd(p,why,from){p.left={club:from||p.club,s:S.season};p.club=null;p.why=why;p.contract=0;p.inj=0;S.fa.push(p)}
 function faSummer(){
   S.fa=S.fa.filter(p=>p.age<35);for(const p of S.fa)p.age++;
   S.fa.sort((a,b)=>b.q-a.q);if(S.fa.length>FA_MAX)S.fa.length=FA_MAX;
@@ -31,21 +31,21 @@ function signFree(p,to){S.fa.splice(S.fa.indexOf(p),1);p.wage=moveWage(p,to);p.c
   emit('Signing',to,`${CL(to).name} sign free agent ${p.name} (${POS_ONE[p.pos]}).`,{pid:p.id})}
 /* releasing a player costs a quarter of what is left on his contract */
 function releaseCost(p){return r1(p.wage*SEASON_WEEKS*Math.max(0,p.contract)/1000*.25)}
-function release(id,p,why){const sq=S.squads[id];const pay=releaseCost(p);if(pay)book(id,'wages',-pay);sq.splice(sq.indexOf(p),1);faAdd(p,why||'released');if(id===S.my)emit('Released',id,`${p.name} is released.`,{pid:p.id})}
+function release(id,p,why){const sq=S.squads[id];const pay=releaseCost(p);if(pay)book(id,'wages',-pay);sq.splice(sq.indexOf(p),1);faAdd(p,why||'released',id);if(id===S.my)emit('Released',id,`${p.name} is released.`,{pid:p.id})}
 
 /* the players a club's director can see: free agents and players at other clubs, wider with a better scouting office */
 function scoutPool(id,pos,n){
   const reach=Math.max(4,6+Math.round(2*groundSignals(id).scouting+(pq(tdOf(id))-10)/2)),out=[];
-  const fa=S.fa.filter(p=>!pos||p.pos===pos);for(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
+  const fa=S.fa.filter(p=>(!pos||p.pos===pos)&&!(p.left&&p.left.club===id&&p.left.s>=S.season-1)); // a player who just left does not come backfor(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
   const others=Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1);
-  for(let k=0;k<reach&&others.length;k++){const o=pick(others),c=S.squads[o].filter(p=>(!pos||p.pos===pos)&&p.inj<=0);if(c.length)out.push({p:pick(c),from:o})}
+  for(let k=0;k<reach&&others.length;k++){const o=pick(others),c=S.squads[o].filter(p=>(!pos||p.pos===pos)&&p.inj<=0&&!p.loan&&!(CL(o).rep>CL(id).rep+15&&!p.wantsOut)); /* good players rarely step down to a smaller club */if(c.length)out.push({p:pick(c),from:o})}
   return out.slice(0,n||99);
 }
-function askingFee(p,from){const v=playerValue(p);return Math.round(v*(isCore(from,p)?1.6:1)*(F(from).cash<0?.75:1))}
+function askingFee(p,from){const v=playerValue(p);return Math.round(v*(isCore(from,p)&&!p.wantsOut?1.6:1)*(F(from).cash<0?.75:1)*(p.wantsOut?.85:1))}
 function sellerAgrees(p,from,fee){
   if(S.squads[from].length<=SQUAD_MIN)return false;
   const need=S.squads[from].filter(x=>x.pos===p.pos).length<=REQ[p.pos];
-  if(need&&F(from).cash>=0)return false;
+  if(need&&F(from).cash>=0&&!p.wantsOut)return false;
   if(from===S.my&&!S.auto)return fee>=playerValue(p)*1.5&&!isCore(from,p); // the player's director only sells surplus at a premium
   return fee>=askingFee(p,from)*.85;
 }
@@ -78,12 +78,15 @@ function squadManager(id,phase){
     while(guard-->0){const bill=wageBillK(id),crisis=bill>cap*1.15;
       if(!(sq.length>SQUAD_MAX||(bill>cap*1.05&&sq.length>SQUAD_MIN)))break;
       const xi=pickXI(sq).map(x=>x.p);
-      const pool=sq.filter(p=>(crisis||!xi.includes(p))&&!(p.age<=20&&p.pa>p.q+1.5));
+      const pool=sq.filter(p=>!p.loan&&(crisis||!xi.includes(p))&&!(p.age<=20&&p.pa>p.q+1.5));
       const p=pool.sort((a,b)=>crisis?(b.wage/Math.max(1,b.q)-a.wage/Math.max(1,a.q)):(a.q-a.wage/400)-(b.q-b.wage/400))[0];if(!p)break;
       const fee=playerValue(p),buyers=Object.keys(S.clubs).filter(i=>i!==id&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX);
       if(buyers.length)transfer(p,id,pick(buyers),fee,'surplus');
       else if(!xi.includes(p)||sq.length>SQUAD_MIN+3)release(id,p,'released to cut the wage bill');else break}};
   trim();
+  // players who asked to leave are sold if someone pays a fair price
+  for(const p of sq.filter(x=>x.wantsOut&&!x.loan)){const fee=Math.round(playerValue(p)*.9),buyers=Object.keys(S.clubs).filter(i=>i!==id&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX&&CL(i).rep>=CL(id).rep-10);
+    if(buyers.length&&sq.length>SQUAD_MIN){p.wantsOut=false;p.morale=70;transfer(p,id,pick(buyers),fee,'request')}}
   // holes: below the minimum per position (in winter only real emergencies: injuries leave the position bare)
   for(const pos of POS){let guard=3;const have=()=>phase==='winter'?available(sq).filter(p=>p.pos===pos).length+1:sq.filter(p=>p.pos===pos).length;
     while(guard-->0&&have()<REQ[pos]){const base=squadQuality(sq);if(!shopFor(id,pos,base-2.5)&&!shopFor(id,pos,0,{mustHave:true,budget:0}))break}}
@@ -99,17 +102,20 @@ function renewals(id){
   for(const p of sq.filter(x=>x.contract===1).sort((a,b)=>b.q-a.q)){
     const short=sq.filter(x=>x.contract>1).length<22;
     const want=(p.q>=med-.3||(p.age<=22&&p.pa>med)||short)&&p.age<34;
-    const newWage=Math.round(wageFor(p.q)*(1+rnd()*.15)/5)*5,bill=wageBillK(id)-p.wage/1000+newWage/1000;
-    if(want&&bill<=wageCapK(id)*1.05){p.wage=newWage;p.contract=ri(2,3);if(id===S.my)emit('Renewed',id,`${p.name} signs a new ${p.contract}-year contract (£${p.wage} a week).`,{pid:p.id})}
+    if(!want||p.loan)continue;
+    // contract talks: the player names his price; the director offers what the wage limit allows
+    const demand=wageDemand(p,med),room=(wageCapK(id)*1.05-wageBillK(id))*1000+p.wage,offer=Math.min(demand,Math.round(room/5)*5);
+    if(p.wantsOut||offer<demand*.9){p.morale=clamp(p.morale-10,0,100);if(id===S.my)emit('RefusedContract',id,`${p.name} turns down a new contract${p.wantsOut?': he wants to leave':` (he asked £${demand} a week, the wage limit allows £${Math.max(0,offer)})`}. He can leave in the summer.`,{pid:p.id,demand});continue}
+    p.wage=offer;p.contract=ri(2,3);p.morale=clamp(p.morale+8,0,100);if(id===S.my)emit('Renewed',id,`${p.name} signs a new ${p.contract}-year contract (£${p.wage} a week).`,{pid:p.id})
   }
 }
 /* the bank wants cash: sell the most valuable player who fetches a fee */
 function forcedSale(id){
   const sq=S.squads[id];if(sq.length<=SQUAD_MIN)return;
-  const p=sq.slice().sort((a,b)=>playerValue(b)-playerValue(a))[0];
+  const p=sq.filter(x=>!x.loan).sort((a,b)=>playerValue(b)-playerValue(a))[0];if(!p)return;
   const fee=Math.round(playerValue(p)*.8);
   const buyers=Object.keys(S.clubs).filter(i=>i!==id&&F(i).cash>fee+wageBillK(i)*4&&S.squads[i].length<SQUAD_MAX).sort((a,b)=>F(b).cash-F(a).cash);
   if(buyers.length){transfer(p,id,buyers[0],fee,'forced');emit('ForcedSale',id,`${CL(id).name} must sell ${p.name} to ${CL(buyers[0]).name} for £${fee}k.`,{pid:p.id})}
 }
-defCommand('ReleasePlayer',{who:['player','td'],check:(id,a)=>{const p=S.squads[id].find(x=>x.id===a.pid);if(!p)return'Not in the squad';if(S.squads[id].length<=SQUAD_MIN)return`The squad needs at least ${SQUAD_MIN} players`;return null},
+defCommand('ReleasePlayer',{who:['player','td'],check:(id,a)=>{const p=S.squads[id].find(x=>x.id===a.pid);if(!p)return'Not in the squad';if(p.loan)return'He is here on loan';if(S.squads[id].length<=SQUAD_MIN)return`The squad needs at least ${SQUAD_MIN} players`;return null},
   run:(id,a)=>{const p=S.squads[id].find(x=>x.id===a.pid);const pay=releaseCost(p);release(id,p,'released by the club');return pay}});

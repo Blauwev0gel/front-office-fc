@@ -15,6 +15,7 @@ function advanceWeek(){
   const mark=S.evn||0;
   const matches=playWeekMatches(w);
   for(const id of ids)playersWeek(id);
+  for(const id of ids)lifeWeek(id);
   for(const id of ids)financeWeek(id,matches.filter(m=>m.h===id||m.a===id));
   for(const id of ids)membersWeek(id,matches.filter(m=>m.h===id||m.a===id));
   for(const id of ids){if(aiRuns(id)){aiBoardWeek(id);aiStaffWeek(id)}}
@@ -35,17 +36,20 @@ function closeSeason(){
   // support grows with success, promotion and the clubhouse; shrinks with failure
   for(const id of ids){const c=CL(id),pos=posOf(id),exp=c.expect||8,sg=groundSignals(id);
     c.support=Math.round(clamp(c.support*(1+.025*(exp-pos)/8+.004*sg.community),250,9000))}
+  repSeasonEnd();
   const moves=promoteRelegate();
   for(const m of moves){const c=CL(m.id);c.support=Math.round(c.support*(m.to<m.from?1.08:.93))}
   S.hist.push({s,tables,cup:S.cup.winner,moves:moves.map(m=>({...m})),agm,chairsOut:outIds.filter(i=>i!==S.my)});
   for(const id of ids){const st=S.stats[id];st.prev={inj:st.inj,injWeeks:st.injWeeks,youthGrowth:st.youthGrowth};st.inj=0;st.injWeeks=0;st.youthGrowth=0}
   commercialSeasonEnd();
+  returnLoans();
   for(const id of ids)playersSeasonEnd(id);
   S.qref=r2(S.qref*.7+worldQuality()*.3);
   faSummer();
   setBudgetsAll(s+1);
   const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
   for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
+  for(const id of order)loanOut(id);
   for(const id of ids)groundSeasonEnd(id);
   staffSeasonEnd();
   emit('SeasonClosed',null,`Season ${s} is over.`,{season:s});

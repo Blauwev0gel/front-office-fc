@@ -147,6 +147,8 @@ Stop en meld het als een test structureel faalt en je de oorzaak niet binnen het
   in geldnood (0 administrations en 0 kastekorten in 4 × 20 seizoenen; eerdere faillissementen kwamen deels door de schemabug).
   Stem af zodat ambitie met schuld bij AI-clubs soms misgaat (doel: enkele kastekorten per seizoen, 2–8 administrations per 20 seizoenen),
   zonder dat de economie weer instort.
+- **Leeftijdsopbouw (open punt uit pakket 4):** de gemiddelde leeftijd zakt over 20 seizoenen naar ±22 jaar (realistisch ±26).
+  Stem verouderingscurve, verlengingsbeleid voor ervaren spelers en de jeugdbonus in de aankoopkeuze af.
 - **Prestatie en opslag:** 30 seizoenen simuleren onder ±60 s; een save onder 2 MB.
 - **Menselijke speeltest:** vraag de eigenaar om 2–3 seizoenen te spelen via de privélink. Verwerk de feedback
   en markeer laag 1–2 pas daarna in `LAYER_INDEX.md` als "Gevalideerd".

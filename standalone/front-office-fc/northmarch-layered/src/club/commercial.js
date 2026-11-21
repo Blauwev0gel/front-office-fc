@@ -31,7 +31,7 @@ function budgetWarnings(id){
   return out;
 }
 /* ----- sponsors: one main deal, local partners, and sometimes naming rights for the ground ----- */
-function sponsorBase(id){const c=CL(id),t=c.tier,g=groundSignals(id);return SPONSOR[t]*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*(.7+.3*g.sales)}
+function sponsorBase(id){const c=CL(id),t=c.tier,g=groundSignals(id);return SPONSOR[t]*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*(.7+.3*g.sales)*(.85+.3*(c.rep??50)/100)}
 function sponsorOffers(id){
   const b=sponsorBase(id)*.65,names=pickN(SPONSOR_NAMES,3),exp=Math.max(30,(CL(id).expect?(17-CL(id).expect)*3+20:45));
   const offers=[{name:names[0],kind:'fixed',years:3,perWeek:r2(b*.95)},{name:names[1],kind:'fixed',years:1,perWeek:r2(b*1.08)},{name:names[2],kind:'bonus',years:2,perWeek:r2(b*.42),perPoint:r2(b*.56*SEASON_WEEKS/exp)}];

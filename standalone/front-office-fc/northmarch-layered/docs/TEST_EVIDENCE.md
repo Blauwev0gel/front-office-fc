@@ -37,3 +37,8 @@ Bekende beperkingen: webfonts worden in de test geblokkeerd (offline fallback-fo
 - staff-test: trainer 'results' q16 vs q7 nu op 32 seeds: 43,3 vs 38,8 punten (23/32); wegkopen alleen nog in de zomer.
 - sim-test 4 seeds × 20 seizoenen: groen; 0–1 administrations (zie open punt pakket 6), 38–54 AI-voorzitters weggestemd.
 - save-test (schema v5), ab-test, idle-test, members-test, playtest 390 px licht/donker (budget, loonlimiet, sponsors, funding, inzameling): groen.
+
+## 2026-11-21 — Pakket 4 (voetbaldiepte), `sh tests/run-all.sh`, exit 0
+- life-test (24 seeds): moraal 20 vs 90 → 10,1 vs 11,5 punten na 8 weken · geschorste speler zit uit, schorsing loopt af; 11 schorsingen in 2 seizoenen · bekerweek: 6,6 van 11 spelers starten beide duels · verhuur (zelfde 15 reserves): 20,6 vs 3,9 wedstrijden, groei +0,93 vs +0,70 · zonder loonruimte weigeren 20 spelers een contract en vertrekken · ontevreden speler vraagt transfer en vertrekt · reputatie per divisie 68/49/30, hogere reputatie → hogere sponsorbasis.
+- sim-test 4 seeds × 20 seizoenen: groen; 0–1 administrations; gemiddelde leeftijd ±22 (balanspunt pakket 6).
+- save-test (schema v6), ab-test, idle-test, members-test, staff-test, commercial-test, playtest 390 px licht/donker (incl. Market-tab, verhuurkeuze): groen.

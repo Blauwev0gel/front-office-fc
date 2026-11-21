@@ -11,7 +11,7 @@ function act(a,arg){
     case'play':{const ev=advanceWeek();UI.lastEv=ev||[];if(HAS_DOM)window.scrollTo(0,0);break}
     case'close':{const mark=S.evn||0;const h=closeSeason();UI.summerEv=eventsSince(mark);UI.review=h;UI.lastEv=[];if(HAS_DOM)window.scrollTo(0,0);break}
     case'startnext':UI.review=null;UI.tab='week';break;
-    case'tier':UI.tier=arg==='cup'?'cup':+arg;break;
+    case'tier':UI.tier=arg==='cup'||arg==='market'?arg:+arg;break;
     case'ov':UI.over=arg||null;UI.gsel=null;UI.confirm=null;if(arg==='ground')UI.gt='stadium';break;
     case'club':UI.over='club';UI.arg=arg;break;
     case'dept':UI.over='dept';UI.arg=arg;UI.gsel=null;break;
@@ -41,6 +41,7 @@ function act(a,arg){
     case'buyback':say(cmd('BuyBackGround',S.my,{}),'The ground is ours again.');break;
     case'dues':say(cmd('SetDues',S.my,{delta:+arg}));break;
     case'pol':say(cmd('SetSquadPolicy',S.my,{wage:arg}));break;
+    case'loans':say(cmd('SetSquadPolicy',S.my,{loans:arg==='true'}));break;
     case'spend':say(cmd('SetSquadPolicy',S.my,{spend:+arg}));break;
     case'confirm':UI.confirm=arg||null;break;
     case'release':{const r=cmd('ReleasePlayer',S.my,{pid:arg});say(r);if(r.ok){UI.over=null;UI.confirm=null}break}

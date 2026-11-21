@@ -69,7 +69,7 @@ function moneyView(){
 /* ----- the club tab: compare, history, layers ----- */
 function clubView(){
   const id=S.my,c=C(),t=c.tier,ids=tierIds(t),avg=fn=>ids.reduce((a,i)=>a+fn(i),0)/ids.length,sg=groundSignals(id);
-  const rows=[['Support',i=>CL(i).support,n0],['Capacity',i=>groundSignals(i).capacity,n0],['Squad strength',i=>teamStrength(i),v=>Math.round(v)],['Wage bill /wk',i=>wageBillK(i)*1000,v=>'£'+n0(v)],['Training level',i=>groundSignals(i).training,r1],['Academy level',i=>groundSignals(i).academy,r1]];
+  const rows=[['Reputation',i=>CL(i).rep,v=>repWord(v)+' ('+Math.round(v)+')'],['Support',i=>CL(i).support,n0],['Capacity',i=>groundSignals(i).capacity,n0],['Squad strength',i=>teamStrength(i),v=>Math.round(v)],['Wage bill /wk',i=>wageBillK(i)*1000,v=>'£'+n0(v)],['Training level',i=>groundSignals(i).training,r1],['Academy level',i=>groundSignals(i).academy,r1]];
   const hist=c.hist.slice(-8).reverse();
   const g=G(id),run=g.projects.filter(p=>p.phase!=='done');
   return`${membersPanel()}${staffPanel()}${deptsView()}
@@ -84,7 +84,7 @@ function clubView(){
 function clubSheet(id){
   const c=CL(id),sg=groundSignals(id),sq=S.squads[id].slice().sort((a,b)=>b.q-a.q),r=S.tbl[id],ev=eventsFor(id).filter(e=>e.t!=='Match'&&e.t!=='Command').slice(-5).reverse();
   return overlayShell(c.name,`<div class="panel"><div class="row"><span>${TIER_NAME[c.tier]}</span><b>${ord(posOf(id))} · ${r.pts} pts</b></div><div class="row small"><span>Form</span><b>${r.form.join('')||'—'}</b></div><div class="row small"><span>Squad</span><b>${Math.round(teamStrength(id))} · ${strWord(id)}</b></div>
-  <div class="row small"><span>Support · capacity</span><b>${n0(c.support)} · ${n0(sg.capacity)}</b></div><div class="row small"><span>Money (from the papers)</span><b>${moneyWord(id)}</b></div><div class="row small"><span>Training · academy</span><b>${sg.training} · ${sg.academy}</b></div></div>
+  <div class="row small"><span>Reputation</span><b>${repWord(c.rep)}</b></div><div class="row small"><span>Support · capacity</span><b>${n0(c.support)} · ${n0(sg.capacity)}</b></div><div class="row small"><span>Money (from the papers)</span><b>${moneyWord(id)}</b></div><div class="row small"><span>Training · academy</span><b>${sg.training} · ${sg.academy}</b></div></div>
   <div class="panel"><p class="eyebrow">Best players</p>${sq.slice(0,4).map(p=>`<div class="row small"><span>${esc(p.name)} <span class="muted">${p.pos}, ${p.age}</span></span>${qbar(p.q)}</div>`).join('')}</div>
   ${ev.length?`<div class="panel"><p class="eyebrow">Lately</p><ul class="log">${ev.map(e=>`<li><span class="num">S${e.s} W${e.w}</span> ${esc(e.text)}</li>`).join('')}</ul></div>`:''}
   <p class="small muted">Rivals: ${nm(c.rival)}. Founded ${c.founded}.</p>`);
@@ -92,7 +92,7 @@ function clubSheet(id){
 function playerSheet(pid){
   const p=S.squads[S.my].find(x=>x.id===pid);if(!p)return overlayShell('Player','<p class="muted">No longer at the club.</p>');
   const cost=releaseCost(p);
-  return overlayShell(p.name,`<div class="panel"><div class="row"><span>${POS_ONE[p.pos]}, ${p.age}</span>${qbar(p.q)}</div><div class="row small"><span>Level</span><b>${qWord(p.q-(S.qref-11.7))}</b></div><div class="row small"><span>Outlook</span><b>${potWord(p)}</b></div>
+  return overlayShell(p.name,`<div class="panel"><div class="row"><span>${POS_ONE[p.pos]}, ${p.age}</span>${qbar(p.q)}</div><div class="row small"><span>Level</span><b>${qWord(p.q-(S.qref-11.7))}</b></div><div class="row small"><span>Morale</span><b>${MORALE_WORD(p.morale)}</b></div>${p.susp>0?`<p class="inj">Banned for ${p.susp} match${p.susp>1?'es':''}.</p>`:''}${p.wantsOut?'<p class="inj">Has asked to leave. The director will sell if a fair offer comes.</p>':''}${p.loan?`<p class="small">On loan from ${nm(p.loan.from)}.</p>`:''}<div class="row small"><span>Bookings this season</span><b>${p.yel}</b></div><div class="row small"><span>Outlook</span><b>${potWord(p)}</b></div>
   <div class="row small"><span>This season</span><b>${p.sApps} apps · ${p.sGoals} goals${Math.abs(p.grown)>=.05?` · ${p.grown>0?'+':''}${r1(p.grown)} quality`:''}</b></div><div class="row small"><span>Contract</span><b>${p.contract} yr${p.contract===1?'':'s'} · £${p.wage} a week</b></div><div class="row small"><span>Market value</span><b>${k1(playerValue(p))}</b></div>${p.inj?`<p class="inj">Injured: out for ${p.inj} week${p.inj>1?'s':''}.</p>`:''}<p class="small muted">${p.trait}${p.academy?' · academy graduate':''}</p></div>
   ${p.career.length?`<div class="panel"><p class="eyebrow">Career</p>${p.career.slice(-4).map(x=>`<p class="small">${esc(x)}</p>`).join('')}</div>`:''}
   ${UI.confirm===pid?`<div class="panel"><p>Release ${esc(p.name)}? It costs ${k1(cost)} in compensation.</p><button class="btn" data-act="release" data-arg="${pid}">Release him</button><button class="btn ghost" data-act="confirm" data-arg="">Keep him</button></div>`:`<button class="btn ghost" data-act="confirm" data-arg="${pid}">Release (${k1(cost)})</button>`}`);

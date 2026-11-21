@@ -31,6 +31,10 @@ spelers, stadion en financiën uit `voorzitter-fundering @b8ae2ef`, omgezet van 
   blessurekans en -duur uit medische zorg; jeugdinstroom (aantal, kwaliteit, potentieel) uit de academie.
 - **Markt:** vrije spelers (nieuwe instroom op lager niveau), transfers tussen clubs met prijs en akkoord van de
   verkoper, verlengingen, gedwongen verkoop bij geldnood. Scoutingbereik bepaalt hoeveel spelers een club ziet.
+- **Leven van een selectie (pakket 4):** moraal per speler (speeltijd, resultaten, contract; telt ±6% mee in prestaties), gele en rode kaarten
+  met schorsingen, vermoeidheid in bekerweken (rotatie), groei afhankelijk van speeltijd (×1,4 gespeeld, ×0,7 niet, t/m 23 jaar), verhuur van jonge
+  reserves aan clubs in lagere divisies (terug in de zomer), contractgesprekken met looneisen (weigeren → vertrek), transferverzoeken bij langdurige
+  onvrede (verkocht tegen 90% van de waarde), clubreputatie (volgt divisie en prestaties; sponsors en spelers die willen komen).
 - **Lonen** volgen het marktniveau (`S.qref`): kwaliteit relatief aan de wereld, zodat de economie niet inflateert.
 - **Financiën:** wekelijkse regels (wedstrijddag, commercie, TV, lonen, afdelingen, onderhoud, bouw, rente, aflossing),
   prijzengeld, bekerinkomsten, transfersommen, leningen (annuïteit), rekening-courant met limiet;
@@ -43,7 +47,7 @@ L1 zelf heeft geen speleracties. Het levert de commando's (`StartProject`, `Repa
 
 ## 6. Input/Output
 - **Commando's in:** zie §5; validatie in `check`, uitvoering alleen in de eigenaarmodule.
-- **Events uit:** `Match`, `Injury`, `Return`, `Transfer`, `Signing`, `Renewed`, `Released`, `Retired`, `PlayerLeft`,
+- **Events uit:** `Match`, `Injury`, `Return`, `Suspended`, `WantsOut`, `RefusedContract`, `Loan`, `LoanBack`, `Transfer`, `Signing`, `Renewed`, `Released`, `Retired`, `PlayerLeft`,
   `YouthIntake`, `ProjectStarted`, `ProjectCompleted`, `SafetyClosure`, `LoanTaken`, `LoanRepaid`, `CashCrisis`,
   `ForcedSale`, `Administration`, `Promoted`, `Relegated`, `CupWon`, `WeekClosed`, `SeasonClosed`.
 - **Hooks:** `onWeek(f)`, `onSeason(f)` voor hogere lagen; zij verzetten nooit zelf de tijd.

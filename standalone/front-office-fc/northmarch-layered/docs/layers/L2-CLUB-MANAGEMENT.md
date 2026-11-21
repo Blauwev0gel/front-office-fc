@@ -1,6 +1,6 @@
 # L2 — Volwaardig clubmanagement
 
-**Status:** Speelbaar. Uitvoering volgens `docs/PROMPT_L1_L2_AFRONDEN.md`: afdelingen ✓, pakket 1 (leden, ALV) ✓, pakket 2 (trainer en directeur) ✓, pakket 3 (begroting, commercie, financiering) ✓; pakket 4–6 open.
+**Status:** Speelbaar. Uitvoering volgens `docs/PROMPT_L1_L2_AFRONDEN.md`: afdelingen ✓, pakket 1 (leden, ALV) ✓, pakket 2 (trainer en directeur) ✓, pakket 3 (begroting, commercie, financiering) ✓, pakket 4 (voetbaldiepte) ✓; pakket 5–6 open.
 
 ## 1. Spelbelofte
 De voorzitter bestuurt de club proactief: onderzoeken, vergelijken, bouwen, financieren, onderhouden en bijsturen,
@@ -30,6 +30,8 @@ Geen eigen spelstaat: L2 is UI plus speleracties op L1-commando's (`src/ui/*.js`
 | Seizoensdoelen volgen | Week-tab | — | drie doelen (positie, financiën, academie) met voortgang; beoordeeld op de ALV |
 | ALV overleven | na week 30 | — (`holdAGMs`) | stemming uit vertrouwen; verloren = weggestemd, drie nieuwe stoelen (D7) |
 | Hoofdtrainer en directeur benoemen, ontslaan, verlengen | Club-tab → Coach and director | `HireStaff`, `SackStaff`, `RenewStaff` | trainer: wedstrijdsterkte, spelstijl, groei (getest: topcoach +6,9 punten, ontwikkeltrainer +27% groei); directeur: miskopen 2% vs 27%, scoutingbereik, onderhandelen |
+| Verhuurbeleid in het kader | Money → Budget | `SetSquadPolicy` (loans) | verhuurde reserves 21 vs 4 wedstrijden, groei +0,93 vs +0,70 |
+| Moraal, schorsingen, verzoeken volgen | Squad, speler | — | badges en moraal per speler; transfermarkt per window onder Tables → Market |
 | Inspecteren en vergelijken | Tables → club, Club-tab | — | stand, sterkte, aanhang, faciliteiten van elke club |
 | Prognose | Money-tab → Overview | — | 26-wekenprognose met bandbreedte |
 

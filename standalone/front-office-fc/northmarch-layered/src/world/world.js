@@ -2,7 +2,7 @@
    Owns S.clubs (identity, tier, support, rivals) and S.P (people). mkPerson/castClub/addRel/weakest are the
    Northmarch functions (northmarch.html @7a2d5d3), kept so the story layer (L4) can attach later.
    Squads (football), grounds (club) and money (finance) are created here but owned by their own domains. */
-const VERSION=5;
+const VERSION=6;
 const SAVE_KEY='northmarch-layered-v1';
 const TIERS=[0,1,2];
 const TIER_STR=[[51,59],[44,53],[37,46]];
@@ -36,7 +36,7 @@ function mkClub(id,name,town,tier,o={}){
   const c={id,name,town,tier,support:o.support??ri(s0,s1),statute:o.statute||pickN(STATUTE,rnd()<.5?1:2),founded:o.founded||ri(1874,1925),scar:o.scar||pick(SCAR),
     legend:o.legend||`${pick(FIRST)} '${pick(['Big','Wee','Iron','Doc','Sailor'])}' ${pick(LAST)}`,rival:null,rivalWhy:pick(RIVALRY),groups,cast:{},hist:[],binding:[],
     ground:o.ground||pick(['Park','Road','Lane','Meadow','Moor','Fields'])};
-  c.ground=`${name.split(' ')[0]} ${c.ground}`;
+  c.ground=`${name.split(' ')[0]} ${c.ground}`;c.rep=repInit(c);
   S.clubs[id]=c;return c;
 }
 function chairValue(id){const c=CL(id),p=c.cast.chair&&P(c.cast.chair);return p?p.value:'money'}

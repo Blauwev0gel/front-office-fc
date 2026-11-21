@@ -48,3 +48,8 @@
 - Prestatiesponsor eerst altijd beter dan vast; verwachte waarde gelijkgetrokken.
 - **Volgende:** pakket 4, voetbaldiepte.
 - Na de schemafix bleek AI-financieel risico bijna nul; ambitieuze AI-leningen toegevoegd, verdere afstemming vastgelegd voor pakket 6. Wegkopen van trainers midden in het seizoen bleek te agressief (9/20 seizoenen) → alleen nog in de zomer.
+
+## 2026-11-21 — Pakket 4: voetbaldiepte
+- Nieuw: `src/football/life.js`, `tests/life-test.js`; schema v6 (migratie). Squad: moraal en badges; Tables → Market; verhuurkeuze in het kader.
+- Gevonden: vermoeidheid markeerde de verkeerde spelers; testmeting van verhuur selecteerde al verhuurde spelers; weigeraars werden door dezelfde club teruggehaald; een `//`-commentaar midden in een regel brak de build.
+- **Volgende:** pakket 5, grote projecten, historie en signalen.

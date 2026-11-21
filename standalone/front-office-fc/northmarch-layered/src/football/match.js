@@ -15,5 +15,5 @@ function playMatch(h,a,o={}){
   const gh=pois(lh,rnd),ga=pois(la,rnd),scorers=[];
   for(const [xi,n,side] of [[xh,gh,'h'],[xa,ga,'a']]){for(const x of xi){x.p.apps++;x.p.sApps++}
     for(let i=0;i<n&&xi.length;i++){const p=scorerFrom(xi);p.goals++;p.sGoals++;scorers.push({side,pid:p.id,name:p.name})}}
-  return{comp:o.comp||'league',tier:o.tier,round:o.round,h,a,gh,ga,sh:r1(sh),sa:r1(sa),lh:r2(lh),la:r2(la),xh:r2(xpts(lh,la)),xa:r2(xpts(la,lh)),scorers,neutral:!!o.neutral};
+  return{xiH:xh.map(x=>x.p.id),xiA:xa.map(x=>x.p.id),comp:o.comp||'league',tier:o.tier,round:o.round,h,a,gh,ga,sh:r1(sh),sa:r1(sa),lh:r2(lh),la:r2(la),xh:r2(xpts(lh,la)),xa:r2(xpts(la,lh)),scorers,neutral:!!o.neutral};
 }

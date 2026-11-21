@@ -15,7 +15,12 @@ const MIGRATIONS={
   // 3 → 4: head coaches and directors get a professional profile; the free pool is filled after loading (staffAfterLoad)
   4:s=>{s.staffPool=s.staffPool||[];s.v=4;},
   // 4 → 5: season budget, sponsor deals, members' financing (filled after loading: commercialAfterLoad)
-  5:s=>{s.v=5;}
+  5:s=>{s.v=5;},
+  // 5 → 6: player morale, cards, loans and transfer requests; club reputation
+  6:s=>{const d=p=>{p.morale??=60;p.yel??=0;p.susp??=0;p.tired??=0;p.played??=0;p.loan??=null;p.wantsOut??=false;p.lowWeeks??=0};
+    for(const id in s.squads)s.squads[id].forEach(d);(s.fa||[]).forEach(d);
+    for(const id in s.clubs){const c=s.clubs[id];c.rep??=Math.round(Math.max(10,Math.min(95,[68,48,28][c.tier]+(c.support-[3000,1700,850][c.tier])/120)))}
+    for(const id in s.fin)s.fin[id].policy.loans??=true;s.v=6;}
 };
 function migrate(s){
   if(!s||typeof s.v!=='number'||s.v<1)throw new Error('Not a Northmarch layered save');

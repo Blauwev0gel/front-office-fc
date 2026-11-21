@@ -19,6 +19,7 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     ok(await page.locator('.echo').count()===1,`${scheme}: the week report is shown`);
     await tap('[data-act=tab][data-arg=table]');await shot('table');await wide('table');
     await tap('[data-act=tier][data-arg=cup]');await wide('cup');
+    await tap('[data-act=tier][data-arg=market]');await wide('market');
     await tap('[data-act=tier][data-arg="0"]');await tap('.trow[data-act=club] >> nth=0');await shot('club-sheet');await wide('club sheet');await tap('.overlay [data-act=ov]');
     await tap('[data-act=tab][data-arg=squad]');await shot('squad');await wide('squad');
     await tap('[data-act=tobudget]');
@@ -52,7 +53,7 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     for(const t of ['budget','ledger','prices','sponsors','funding']){await tap(`[data-act=mtab][data-arg=${t}]`);await wide('money '+t)}
     await tap('[data-act=mtab][data-arg=prices]');await tap('[data-act=price][data-arg="terrace:1"]');
     ok(await page.evaluate(()=>S.fin[S.my].prices.terrace===PRICE_DEF[C().tier].terrace+1),`${scheme}: a ticket price changes`);
-    await tap('[data-act=mtab][data-arg=budget]');await shot('budget');const w0=await page.evaluate(()=>wageCapK(S.my));await tap('[data-act=wager][data-arg="1"]');
+    await tap('[data-act=mtab][data-arg=budget]');await shot('budget');const w0=await page.evaluate(()=>wageCapK(S.my));await tap('[data-act=wager][data-arg="1"]');await tap('[data-act=loans][data-arg="false"]');ok(await page.evaluate(()=>F(S.my).policy.loans===false),`${scheme}: the loan policy changes`);
     ok(await page.evaluate(w=>wageCapK(S.my)>w,w0),`${scheme}: the wage limit rises from the budget`);
     await tap('[data-act=mtab][data-arg=funding]');await shot('funding');if(await page.locator('[data-act=appeal]').count()){await tap('[data-act=appeal]');ok(await page.evaluate(()=>F(S.my).fundLast===S.season),`${scheme}: a members' appeal is launched`)}
     await tap('[data-act=mtab][data-arg=funding]');const loans=await page.locator('[data-act=loan]').count();

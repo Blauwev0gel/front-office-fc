@@ -24,7 +24,7 @@ function newPlayer(pos,o={}){
   const p={id:'pl'+(S.pc++),name:o.name||pname(),pos,age,q,pa:r1(o.pa??(q+head)),contract:o.contract??ri(1,3),
     wage:Math.round(wageFor(q)*(0.85+rnd()*.3)/5)*5,form:ri(55,75),inj:0,trait:o.trait||pick(PTRAITS),academy:!!o.academy,
     apps:0,goals:0,sApps:0,sGoals:0,joined:S.season,club:o.club||null,career:[],grown:0};
-  return p;
+  return lifeDefaults(p);
 }
 function playerValue(p){const af=p.age<=21?1.6:p.age<=25?1.3:p.age<=29?1:p.age<=31?.6:.3;return Math.max(1,Math.round(wageFor(p.q)*.09*af*(1+Math.max(0,p.pa-p.q)*.15)))}
 function qWord(q){return q<8.5?'Poor':q<10?'Squad player':q<11.5?'Solid':q<13?'Key player':q<14.5?'Star':'Elite'}
@@ -38,14 +38,14 @@ function genSquad(clubStr,clubId){
   return sq;
 }
 function fitFor(p,slot){return p.pos===slot?1:NEAR[p.pos].includes(slot)?.85:(slot==='GK'||p.pos==='GK')?.3:.6}
-function available(sq){return sq.filter(p=>p.inj<=0)}
+function available(sq){return sq.filter(p=>p.inj<=0&&!(p.susp>0))}
 function pickXI(sq){
   const av=available(sq),xi=[];
-  const score=p=>p.q+(p.form-65)/40;
+  const score=p=>p.q+(p.form-65)/40+((p.morale??60)-60)/60-(p.tired?1:0);
   for(const slot of XI_SLOTS){let b=null,bv=-99;for(const p of av){if(xi.some(x=>x.p===p))continue;const v=score(p)*fitFor(p,slot);if(v>bv){bv=v;b=p}}if(b)xi.push({p:b,slot})}
   return xi;
 }
-function squadQuality(sq){const xi=pickXI(sq);if(!xi.length)return 6;return xi.reduce((a,x)=>a+x.p.q*fitFor(x.p,x.slot),0)/11-(11-xi.length)*.6}
+function squadQuality(sq){const xi=pickXI(sq);if(!xi.length)return 6;return xi.reduce((a,x)=>a+x.p.q*fitFor(x.p,x.slot)*moraleF(x.p)*(x.p.tired?.96:1),0)/11-(11-xi.length)*.6}
 function qualityToStr(q){return 50+(q-11.5)*4}
 function squadGaps(sq){
   const out=[];
@@ -68,7 +68,8 @@ function playersWeek(id){
     }
     p.form=clamp(p.form+ri(-5,5),35,90);
     const before=p.q;
-    if(p.age<=23&&p.pa>p.q)p.q+=(p.pa-p.q)*grow;
+    const pt=p.age<=23?(p.played?1.4:.7):1; // young players grow by playing
+    if(p.age<=23&&p.pa>p.q)p.q+=(p.pa-p.q)*grow*pt;
     else if(p.age<=29&&p.pa>p.q)p.q+=(p.pa-p.q)*grow*.4;
     else if(p.age>=31)p.q-=.55*fade;
     p.q=Math.round(clamp(p.q,4,19)*1000)/1000;p.grown+=p.q-before;if(p.age<=23)st.youthGrowth+=p.q-before;
@@ -78,10 +79,10 @@ function playersWeek(id){
 function playersSeasonEnd(id){
   const sq=S.squads[id],c=CL(id),sg=groundSignals(id),left=[];
   for(const p of sq.slice()){
-    p.age++;p.contract--;p.career.push(`${c.name} ${S.season}: ${p.sApps} apps, ${p.sGoals} goals`);p.sApps=0;p.sGoals=0;p.grown=0;
+    p.age++;p.contract--;p.yel=0;p.susp=0;p.career.push(`${c.name} ${S.season}: ${p.sApps} apps, ${p.sGoals} goals`);p.sApps=0;p.sGoals=0;p.grown=0;
     p.q=r1(clamp(p.q+(rnd()-.5)*.4,4,19));
     if(p.age>=34&&rnd()<(p.age-32)*.25){sq.splice(sq.indexOf(p),1);left.push(p);emit('Retired',id,`${p.name} retires at ${p.age}.`,{pid:p.id})}
-    else if(p.contract<=0){sq.splice(sq.indexOf(p),1);left.push(p);faAdd(p,'out of contract');if(id===S.my)emit('PlayerLeft',id,`${p.name} leaves at the end of his contract.`,{pid:p.id})}
+    else if(p.contract<=0){sq.splice(sq.indexOf(p),1);left.push(p);faAdd(p,'out of contract',id);if(id===S.my)emit('PlayerLeft',id,`${p.name} leaves at the end of his contract.`,{pid:p.id})}
   }
   // academy intake: the academy level decides how many, how good and how much potential
   const a=sg.academy,n=1+(a>=1?1:0)+(a>=3?1:0)+(a>=5?1:0),base=11.5+(tierBaseStr(c.tier)-50)/4;

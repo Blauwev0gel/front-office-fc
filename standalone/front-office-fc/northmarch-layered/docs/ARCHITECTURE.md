@@ -15,14 +15,14 @@ Alleen `book(id,line,amount)` wijzigt kas; alleen `advanceWeek()`/`closeSeason()
 ## Tijd (één klok)
 ```
 advanceWeek():  week++ → playWeekMatches (competitie 3×16 + beker)
-                → playersWeek(id) voor alle clubs (blessures ← medisch, groei ← training)
+                → playersWeek(id) voor alle clubs (blessures ← medisch, groei ← training × speeltijd) → lifeWeek(id) (schorsingen, moraal, verzoeken)
                 → financeWeek(id) voor alle clubs (opkomst, regels, bouw ← groundWeek, leningen, solvabiliteit)
                 → membersWeek(id) voor alle clubs (leden, vertrouwen)
                 → aiBoardWeek(id) voor AI-clubs (personeel, budgetten, prijzen, reparaties, projecten, loonbeleid)
                 → week 15: squadManager(winter) · week 24: renewals · membersOnEvents (reactie op events van de week)
                 → event WeekClosed → HOOKS.weekClosed
 closeSeason():  ALV's (holdAGMs/afterAGMs) → prijzengeld + archief → sponsors (commercialSeasonEnd) → begroting volgend seizoen (setBudgetsAll) → aanhang → promotie/degradatie → spelers (leeftijd, contracten,
-                pensioen, academie) → qref → vrije spelers → zomerwindow (2 rondes, rijkste clubs eerst)
+                pensioen, academie) → qref → vrije spelers → zomerwindow (2 rondes, rijkste clubs eerst) → verhuur (loanOut)
                 → veiligheidsinspectie → staffSeasonEnd (contracten, AI-ontslagen, vrije markt) → event SeasonClosed → HOOKS.seasonClosed → nieuw seizoen
 ```
 
@@ -37,7 +37,7 @@ Hogere lagen (staff, verhalen) krijgen géén eigen mutatiepad: zij roepen dezel
 Lijst: `docs/layers/L1-SIMULATION.md` §6.
 
 ## Saves
-`SAVE_KEY='northmarch-layered-v1'`, schemaversie `S.v` (= `VERSION` 5; migraties 1→2 afdelingen, 2→3 leden, 3→4 trainers/directeuren, 4→5 begroting/sponsors/financiering). `migrate()` loopt `MIGRATIONS[v+1]` in volgorde;
+`SAVE_KEY='northmarch-layered-v1'`, schemaversie `S.v` (= `VERSION` 6; 5→6 moraal/kaarten/verhuur/reputatie; migraties 1→2 afdelingen, 2→3 leden, 3→4 trainers/directeuren, 4→5 begroting/sponsors/financiering). `migrate()` loopt `MIGRATIONS[v+1]` in volgorde;
 een nieuwere of vreemde save wordt geweigerd. Regel: geen `VERSION`-ophoging zonder migratie én test.
 Het referentiespel (`northmarch-chairman-v1`) gebruikt een andere sleutel en blijft onaangetast.
 

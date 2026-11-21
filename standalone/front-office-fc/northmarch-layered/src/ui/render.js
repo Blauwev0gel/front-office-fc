@@ -86,7 +86,8 @@ function weekView(){
 /* ----- tables ----- */
 function tableView(){
   const t=UI.tier??C().tier;
-  const tabs=`<div class="tabs" role="tablist">${TIERS.map(x=>`<button class="${t===x?'on':''}" data-act="tier" data-arg="${x}" aria-pressed="${t===x}">${tierShort(x)}</button>`).join('')}<button class="${t==='cup'?'on':''}" data-act="tier" data-arg="cup" aria-pressed="${t==='cup'}">Cup</button></div>`;
+  const tabs=`<div class="tabs" role="tablist">${TIERS.map(x=>`<button class="${t===x?'on':''}" data-act="tier" data-arg="${x}" aria-pressed="${t===x}">${tierShort(x)}</button>`).join('')}<button class="${t==='cup'?'on':''}" data-act="tier" data-arg="cup" aria-pressed="${t==='cup'}">Cup</button><button class="${t==='market'?'on':''}" data-act="tier" data-arg="market" aria-pressed="${t==='market'}">Market</button></div>`;
+  if(t==='market')return tabs+marketView();
   if(t==='cup')return tabs+cupView();
   const st=standings(t);
   return`${tabs}<div class="panel"><p class="eyebrow">${TIER_NAME[t]}</p><div class="tbl" role="table" aria-label="${TIER_NAME[t]} table">
@@ -105,6 +106,15 @@ function cupView(){
 /* ----- squad ----- */
 function qbar(q){return`<span class="qbar">${r1(q)}<i aria-hidden="true"><b style="width:${clamp((q-5)/12*100,4,100)}%"></b></i></span>`}
 function potWord(p){const d=p.pa-p.q;return p.age>=29?'At their level':d>2.5?'Big potential':d>1?'Room to grow':'Close to their best'}
+function loanedOutPanel(){const out=Object.entries(S.squads).flatMap(([cid,sq])=>sq.filter(p=>p.loan&&p.loan.from===S.my).map(p=>({p,cid})));
+  return out.length?`<div class="panel"><p class="eyebrow">Out on loan</p>${out.map(({p,cid})=>`<div class="row small"><span>${esc(p.name)} <span class="muted">at ${nm(cid)}</span></span><b>${p.sApps} apps</b></div>`).join('')}</div>`:''}
+function marketView(){
+  const ev=S.ev.filter(e=>['Transfer','Signing','Loan'].includes(e.t)).slice(-200),wins={};
+  for(const e of ev){const k=e.w>=SEASON_WEEKS||e.w===0?`Summer ${e.w===0?e.s-1:e.s}`:e.w>=WINTER_WEEK&&e.w<=WINTER_WEEK+1?`Winter, season ${e.s}`:`Season ${e.s}`;(wins[k]=wins[k]||[]).push(e)}
+  const keys=Object.keys(wins).reverse().slice(0,3);
+  return keys.length?keys.map(k=>{const list=wins[k],fees=list.filter(e=>e.fee).sort((a,b)=>b.fee-a.fee).slice(0,5),mine=list.filter(e=>e.c===S.my||e.c2===S.my);
+    return`<div class="panel"><p class="eyebrow">${esc(k)} · ${list.length} moves</p>${fees.length?`<p class="small muted">Biggest fees</p>${fees.map(e=>`<p class="small">${esc(e.text)}</p>`).join('')}`:''}${mine.length?`<p class="small muted">Your club</p>${mine.map(e=>`<p class="small"><b>${esc(e.text)}</b></p>`).join('')}`:''}</div>`}).join(''):'<p class="muted">No transfers yet. Windows: the summer and week '+WINTER_WEEK+'.</p>';
+}
 function squadView(){
   const id=S.my,sq=S.squads[id].slice().sort((a,b)=>POS.indexOf(a.pos)-POS.indexOf(b.pos)||b.q-a.q),gaps=squadGaps(S.squads[id]),f=F(id);
   const bill=wageBillK(id),cap=wageCapK(id),xi=pickXI(S.squads[id]).map(x=>x.p.id);
@@ -113,6 +123,7 @@ function squadView(){
   <div class="row small"><span>Wage bill</span><b class="${bill>cap?'down':''}">£${n0(bill*1000)} a week · limit £${n0(cap*1000)}</b></div>
   ${gaps.slice(0,3).map(g=>`<p class="small down">${esc(g.text)}</p>`).join('')}</div>
   <div class="panel"><p class="eyebrow">The frame for your director</p><div class="row small"><span>Wage limit</span><b>£${n0(cap*1000)} a week</b></div><div class="row small"><span>Spending power now</span><b>${k1(budgetFor(id))}</b></div><p class="small muted">The director signs and sells within the frame you set in the budget.</p><button class="btn ghost" data-act="tobudget">Set the frame in Money → Budget</button></div>
-  ${POS.map(pos=>{const ps=sq.filter(p=>p.pos===pos);if(!ps.length)return'';return`<p class="eyebrow">${POS_L[pos]}</p><div class="stack">${ps.map(p=>`<button class="prow" data-act="player" data-arg="${p.id}"><span><span class="pn">${esc(p.name)}${xi.includes(p.id)?' <span class="pill">XI</span>':''}</span><br><span class="pm">${p.age} · ${p.contract<=1?'<b>contract ends</b>':p.contract+' yrs'} · £${p.wage}/wk${p.inj?` · <span class="inj">out ${p.inj} wk</span>`:''}</span></span>
+  ${loanedOutPanel()}
+  ${POS.map(pos=>{const ps=sq.filter(p=>p.pos===pos);if(!ps.length)return'';return`<p class="eyebrow">${POS_L[pos]}</p><div class="stack">${ps.map(p=>`<button class="prow" data-act="player" data-arg="${p.id}"><span><span class="pn">${esc(p.name)}${xi.includes(p.id)?' <span class="pill">XI</span>':''}${p.susp>0?' <span class="pill bad">Banned</span>':''}${p.wantsOut?' <span class="pill bad">Wants out</span>':''}${p.loan?' <span class="pill">On loan</span>':''}</span><br><span class="pm">${p.age} · ${p.contract<=1?'<b>contract ends</b>':p.contract+' yrs'} · ${MORALE_WORD(p.morale)} · £${p.wage}/wk${p.inj?` · <span class="inj">out ${p.inj} wk</span>`:''}</span></span>
     <span>${qbar(p.q)}${Math.abs(p.grown)>=.1?`<span class="small ${p.grown>0?'up':'down'}"> ${p.grown>0?'▲':'▼'}</span>`:''}</span></button>`).join('')}</div>`}).join('')}`;
 }

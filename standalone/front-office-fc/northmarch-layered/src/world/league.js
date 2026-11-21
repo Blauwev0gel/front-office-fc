@@ -39,7 +39,7 @@ function nextCupWeek(){return CUP_WEEKS[S.cup.round]}
 /* ----- this week's games: league round + cup round. Strength comes from the squads (football/match.js) ----- */
 function playWeekMatches(w){
   const out=[];
-  for(const tier of TIERS)for(const [h,a] of S.fx[tier][w-1]){const m=playMatch(h,a,{comp:'league',tier});rec(h,m.gh,m.ga);rec(a,m.ga,m.gh);out.push(m)}
+  for(const tier of TIERS)for(const [h,a] of S.fx[tier][w-1]){const m=playMatch(h,a,{comp:'league',tier});rec(h,m.gh,m.ga);rec(a,m.ga,m.gh);matchAftermath(m);out.push(m)}
   if(CUP_WEEKS[S.cup.round]===w)out.push(...playCupRound());
   S.matches=out;
   for(const m of out){
@@ -57,7 +57,7 @@ function playCupRound(){
   const cup=S.cup,r=cup.round,out=[],won=[];
   for(const t of cup.ties){
     const final=r===CUP_WEEKS.length-1;
-    const m=playMatch(t.h,t.a,{comp:'cup',round:r,neutral:final});
+    const m=playMatch(t.h,t.a,{comp:'cup',round:r,neutral:final});matchAftermath(m);
     let w=m.gh>m.ga?t.h:m.ga>m.gh?t.a:null;
     if(!w){const p=.5+(m.sh-m.sa)*.01;w=rnd()<p?t.h:t.a;m.pens=w}
     m.winner=w;won.push(w);out.push(m);

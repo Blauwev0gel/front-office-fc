@@ -5,10 +5,10 @@ const ENGINE=[
   'core/content.js','core/rng.js','core/bus.js',                       // core: content, rng, events and commands
   'world/world.js','world/league.js',                                  // world: clubs, people, divisions, cup
   'football/players.js','football/match.js','football/market.js','football/life.js',      // football: squads, matches, market
-  'club/ground.js','club/finance.js','club/members.js','club/staff.js','club/commercial.js','club/projects.js','club/journal.js','club/recruitment.js',                                  // club: ground and money
+  'club/ground.js','club/finance.js','club/members.js','club/staff.js','club/commercial.js','club/projects.js','club/journal.js','club/recruitment.js','club/youth.js',                                  // club: ground and money
   'sim/ai.js','sim/clock.js','core/save.js'                            // simulation: boards, the clock; saves
 ];
-const UI=['ui/render.js','ui/club.js','ui/depts.js','ui/members.js','ui/staff.js','ui/commercial.js','ui/history.js','ui/board.js','ui/decide.js','ui/recruit.js','ui/act.js'];
+const UI=['ui/render.js','ui/club.js','ui/depts.js','ui/members.js','ui/staff.js','ui/commercial.js','ui/history.js','ui/board.js','ui/decide.js','ui/recruit.js','ui/youth.js','ui/act.js'];
 module.exports={ENGINE,UI};
 if(require.main===module){
   const S=p=>fs.readFileSync(path.join(__dirname,'src',p),'utf8');

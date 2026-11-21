@@ -213,6 +213,7 @@ main.withbar{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 100px)}
 /* Existing scouting and academy progression, without invented reports. */
 .dept-player{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;min-height:55px;padding:10px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);margin:6px 0;cursor:pointer}
 .dept-player span:first-child{display:flex;flex-direction:column;gap:2px}.dept-player small{color:var(--muted);font-size:.76rem}.dept-player span:last-child{font-size:.76rem;white-space:nowrap}
+div.dept-player{cursor:default;font-size:13.333px} /* a row that is not a button (player away on loan) looks the same, without the tap cursor */
 </style>
 </head>
 <body>
@@ -406,7 +407,7 @@ function chooseClub(id){
   if(!S.seats.includes(id))return false;
   S.my=id;S.phase='season';S.votedOut=null;
   S.career.push({club:id,from:S.season,to:null,why:null});
-  S.ops=opsInit();buildPlan(id);
+  S.ops=opsInit();S.youth=youthInit();buildPlan(id);
   const m=M(id);m.conf=r1(clamp(62+S.rep*2,40,80));m.log.push({s:S.season,w:S.week,d:0,why:'A new chairman: the members give you a chance'});
   emit('ChairmanElected',id,`You are elected chairman of ${CL(id).name}.`);
   return true;
@@ -578,20 +579,22 @@ function playersWeek(id){
 /* ----- season end: ageing, noise in development, contracts, retirement, academy intake ----- */
 function playersSeasonEnd(id){
   const sq=S.squads[id],c=CL(id),sg=groundSignals(id),left=[];
+  youthDevRecord(id);
   for(const p of sq.slice()){
     p.age++;p.contract--;p.yel=0;p.susp=0;p.career.push(`${c.name} ${S.season}: ${p.sApps} apps, ${p.sGoals} goals`);if(p.career.length>8)p.career.splice(0,p.career.length-8);p.sApps=0;p.sGoals=0;p.grown=0;
     p.q=r1(clamp(p.q+(rnd()-.5)*.4,4,19));
-    if(p.age>=34&&rnd()<(p.age-33)*.22){sq.splice(sq.indexOf(p),1);left.push(p);emit('Retired',id,`${p.name} retires at ${p.age}.`,{pid:p.id})}
-    else if(p.contract<=0){sq.splice(sq.indexOf(p),1);left.push(p);faAdd(p,'out of contract',id);if(id===S.my)emit('PlayerLeft',id,`${p.name} leaves at the end of his contract.`,{pid:p.id})}
+    if(p.age>=34&&rnd()<(p.age-33)*.22){sq.splice(sq.indexOf(p),1);left.push(p);youthLeft(p,'retired');emit('Retired',id,`${p.name} retires at ${p.age}.`,{pid:p.id})}
+    else if(p.contract<=0){sq.splice(sq.indexOf(p),1);left.push(p);youthLeft(p,'released');faAdd(p,'out of contract',id);if(id===S.my)emit('PlayerLeft',id,`${p.name} leaves at the end of his contract.`,{pid:p.id})}
   }
   // academy intake: the academy level decides how many, how good and how much potential
   // youngsters who will not make it are let go at 19-21, as real academies do
   const sqq=squadQuality(sq),keep=sq.filter(p=>p.age<=21).sort((x,y)=>y.pa-x.pa).slice(0,3);
-  for(const p of sq.slice())if(p.age>=18&&p.age<=21&&!p.loan&&!keep.includes(p)&&p.pa<sqq-.3&&sq.length>SQUAD_MIN){sq.splice(sq.indexOf(p),1);left.push(p);faAdd(p,'released by the academy',id);if(id===S.my)emit('PlayerLeft',id,`${p.name} is released: he will not make the grade.`,{pid:p.id})}
+  for(const p of sq.slice())if(p.age>=18&&p.age<=21&&!p.loan&&!keep.includes(p)&&p.pa<sqq-.3&&sq.length>SQUAD_MIN){sq.splice(sq.indexOf(p),1);left.push(p);youthLeft(p,'released');faAdd(p,'released by the academy',id);if(id===S.my)emit('PlayerLeft',id,`${p.name} is released: he will not make the grade.`,{pid:p.id})}
   const a=sg.academy,n=1+(a>=3?1:0)+(a>=6?1:0),base=11.5+(tierBaseStr(c.tier)-50)/4;
   const kids=[];
   for(let i=0;i<n;i++){const q=base-3.2+.25*a+rnd()*1.2;const k=newPlayer(pick(POS.slice(1)),{age:ri(16,17),q,pa:q+1+.35*a+rnd()*2.5,academy:true,contract:2,club:id,trait:sg.academyLocal&&rnd()<.4?'local hero':null});
     k.career.push('Academy');sq.push(k);kids.push(k)}
+  youthIntake(id,kids);
   S.stats[id].intake=kids.length;S.stats[id].intakeBest=r1(Math.max(...kids.map(k=>k.pa)));
   if(id===S.my){
     const st=S.stats[id],history=st.academyHistory||(st.academyHistory=[]);
@@ -650,7 +653,7 @@ function faSummer(){
 function isCore(id,p){const xi=pickXI(S.squads[id]);return xi.some(x=>x.p===p)}
 function moveWage(p,toId){return Math.round(wageFor(p.q)*(0.95+rnd()*.25)/5)*5}
 function transfer(p,from,to,fee,why,premium){
-  const sq=S.squads[from];sq.splice(sq.indexOf(p),1);
+  const sq=S.squads[from];sq.splice(sq.indexOf(p),1);if(from===S.my)youthLeft(p,'sold',to,fee);
   if(fee){book(to,'feesOut',-fee);book(from,'feesIn',fee)}
   p.wage=Math.round(moveWage(p,to)*(premium?1.3:1)/5)*5;p.contract=ri(2,3);p.club=to;p.joined=S.season;S.squads[to].push(p);
   emit('Transfer',to,`${p.name} joins ${CL(to).name} from ${CL(from).name}${fee?` for £${fee}k`:''}.`,{c2:from,pid:p.id,fee,why});
@@ -659,7 +662,7 @@ function signFree(p,to){S.fa.splice(S.fa.indexOf(p),1);p.wage=moveWage(p,to);p.c
   emit('Signing',to,`${CL(to).name} sign free agent ${p.name} (${POS_ONE[p.pos]}).`,{pid:p.id})}
 /* releasing a player costs a quarter of what is left on his contract */
 function releaseCost(p){return r1(p.wage*SEASON_WEEKS*Math.max(0,p.contract)/1000*.25)}
-function release(id,p,why){const sq=S.squads[id];const pay=releaseCost(p);if(pay)book(id,'wages',-pay);sq.splice(sq.indexOf(p),1);faAdd(p,why||'released',id);if(id===S.my)emit('Released',id,`${p.name} is released.`,{pid:p.id})}
+function release(id,p,why){const sq=S.squads[id];const pay=releaseCost(p);if(pay)book(id,'wages',-pay);sq.splice(sq.indexOf(p),1);youthLeft(p,'released');faAdd(p,why||'released',id);if(id===S.my)emit('Released',id,`${p.name} is released.`,{pid:p.id})}
 
 /* the players a club's director can see: free agents and players at other clubs, wider with a better scouting office */
 function scoutPool(id,pos,n){
@@ -824,7 +827,7 @@ function loanOut(id){
   }
 }
 function returnLoans(){
-  for(const id in S.squads){const sq=S.squads[id];for(const p of sq.slice())if(p.loan&&p.loan.from!==id){sq.splice(sq.indexOf(p),1);const from=p.loan.from;p.loan=null;S.squads[from].push(p);
+  for(const id in S.squads){const sq=S.squads[id];for(const p of sq.slice())if(p.loan&&p.loan.from!==id){sq.splice(sq.indexOf(p),1);const from=p.loan.from;p.loan=null;if(from===S.my)p.wasLoan=id;S.squads[from].push(p);
     if(from===S.my)emit('LoanBack',from,`${p.name} returns from his loan (${p.sApps} appearances).`,{pid:p.id})}}
 }
 /* contract demands: what a player asks for at renewal (more if he is good, wanted, or unhappy) */
@@ -1690,6 +1693,79 @@ function recordDecision(id,pos,best,evaluated,mustHave){
 function signingReview(){return(S.ops?S.ops.signings:[]).slice(-6).reverse().map(x=>{const f=findPlayer(x.pid);return{...x,now:f?r1(f.p.q):null,apps:f?f.p.apps:null,where:f?(f.club===S.my?'at the club':f.club?CL(f.club).name:'released'):'gone'}})}
 function opsAfterLoad(){if(S.my&&!S.ops){S.ops=opsInit();buildPlan(S.my)}}
 
+/* ---- club/youth.js ---- */
+/* ================= L2.5: the youth development cycle =================
+   INTAKE → DEVELOPMENT (minutes, growth) → PATHWAY (ready to step up, loan) → OUTCOME → ACADEMY YIELD.
+   Owns S.youth (the player's club only): every academy cohort and what became of each graduate, kept after he leaves.
+   Owns p.dev on the player's own young players: one line per season (quality, appearances, where he played).
+   It records what the engine does; growth itself stays in football/players.js. */
+const YOUTH_GRADS_MAX=80,DEV_MAX=10;
+function youthInit(){return{cohorts:[],grads:{}}}
+function YOUTH(){if(!S.youth)S.youth=youthInit();return S.youth}
+/* how far the academy staff can see a youngster's ceiling: a fixed per-player error, smaller with better staff */
+function pidHash(pid){let h=7;for(const ch of String(pid))h=(h*31+ch.charCodeAt(0))%9973;return h/9973*2-1}
+function potentialSeen(id,p){const st=G(id).depts.academy.staff;return r1(p.pa+pidHash(p.id)*clamp(1.6-.25*st,.3,1.6))}
+function potentialBand(id,p){const d=potentialSeen(id,p)-squadQuality(S.squads[id]);return d>=1?'Future starter':d>=-.4?'First-team player':d>=-1.5?'Squad player':'Unlikely to make it'}
+
+/* season end, before ageing (called from playersSeasonEnd): one development line per young player of the player's club */
+function youthDevRecord(id){
+  if(id!==S.my)return;const Y=YOUTH();
+  for(const p of S.squads[id]){if(p.age>23&&!Y.grads[p.id])continue;
+    const line={s:S.season,age:p.age,q:r1(p.q),apps:p.sApps,where:p.wasLoan?CL(p.wasLoan).name:null};p.wasLoan=null;
+    if(p.age<=23){p.dev=p.dev||[];p.dev.push(line);if(p.dev.length>DEV_MAX)p.dev.shift()}
+    const g=Y.grads[p.id];if(g){g.dev.push(line);if(g.dev.length>DEV_MAX)g.dev.shift();g.peak=Math.max(g.peak,line.q);if(!line.where&&line.apps>=10)g.regular=true}
+  }
+}
+/* season end, after the intake: a new cohort */
+function youthIntake(id,kids){
+  if(id!==S.my)return;const Y=YOUTH();
+  Y.cohorts.push({s:S.season,ids:kids.map(k=>k.id),level:groundSignals(id).academy});
+  for(const k of kids)Y.grads[k.id]={pid:k.id,name:k.name,pos:k.pos,s:S.season,q0:r1(k.q),pot0:potentialSeen(id,k),peak:r1(k.q),dev:[],status:'academy',fate:null,regular:false};
+  if(Y.cohorts.length>15)Y.cohorts.shift();
+  const keep=new Set(Y.cohorts.flatMap(c=>c.ids));for(const pid in Y.grads)if(!keep.has(pid))delete Y.grads[pid];
+}
+/* a graduate leaves: the record stays, with how and where he went */
+function youthLeft(p,how,to,fee){
+  const g=S.youth&&S.youth.grads[p.id];if(!g||g.fate)return;
+  g.fate={s:S.season,w:S.week,how,to:to||null,fee:fee||0,q:r1(p.q),age:p.age};g.status=how;
+}
+/* keep every graduate's status true to the world (end of each season and after the winter window) */
+function youthReconcile(){
+  if(!S.my||!S.youth)return;
+  for(const g of Object.values(S.youth.grads)){if(g.fate)continue;const f=findPlayer(g.pid);
+    if(!f){youthLeft({id:g.pid,q:g.peak,age:null},'retired');continue}
+    if(f.club===S.my){g.status=f.p.age<=18&&!f.p.sApps?'academy':'squad';continue}
+    if(f.club&&f.p.loan&&f.p.loan.from===S.my){g.status='loan';continue}
+    youthLeft(f.p,f.club?'sold':'released',f.club);
+  }
+}
+/* what an academy has given the club: per cohort and over the last five */
+function cohortYield(c){
+  const gs=c.ids.map(pid=>S.youth.grads[pid]).filter(Boolean);
+  return{s:c.s,n:gs.length,regulars:gs.filter(g=>g.regular).length,here:gs.filter(g=>!g.fate).length,fees:gs.reduce((a,g)=>a+(g.fate&&g.fate.how==='sold'?g.fate.fee:0),0),
+    apps:gs.reduce((a,g)=>a+g.dev.filter(d=>!d.where).reduce((x,d)=>x+d.apps,0),0),best:gs.slice().sort((a,b)=>b.peak-a.peak)[0]||null,gs};
+}
+function academyYield(n=5){
+  const cs=(S.youth?S.youth.cohorts:[]).slice(-n).map(cohortYield);
+  return{cohorts:cs,n:cs.reduce((a,c)=>a+c.n,0),regulars:cs.reduce((a,c)=>a+c.regulars,0),fees:cs.reduce((a,c)=>a+c.fees,0),apps:cs.reduce((a,c)=>a+c.apps,0)};
+}
+/* the pathway of a young player at the club now */
+function pathwayOf(id,p){
+  const xi=pickXI(S.squads[id]).map(x=>x.p),wk=Math.max(1,S.week),ready=S.ops&&S.ops.plan.ready.some(r=>r.pid===p.id);
+  if(p.loan&&p.loan.from===id)return{k:'loan',t:'On loan'};
+  if(xi.includes(p))return{k:'starter',t:'Starting'};
+  if(ready)return{k:'ready',t:'Ready to step up'};
+  if(p.sApps<wk*.25&&p.pa>p.q+1&&p.age<=21)return{k:'games',t:'Needs games'};
+  return{k:'dev',t:'Developing'};
+}
+/* old saves: rebuild cohorts from the intake records the academy already kept */
+function youthAfterLoad(){
+  if(!S.my||S.youth)return;S.youth=youthInit();const hist=(S.stats[S.my]&&S.stats[S.my].academyHistory)||[];
+  for(const h of hist){S.youth.cohorts.push({s:h.season,ids:h.graduates.map(g=>g.pid),level:null});
+    for(const g of h.graduates)S.youth.grads[g.pid]={pid:g.pid,name:g.name,pos:g.pos,s:h.season,q0:g.quality,pot0:null,peak:g.quality,dev:[],status:'academy',fate:null,regular:false}}
+  youthReconcile();
+}
+
 /* ---- sim/ai.js ---- */
 /* ================= Simulation: rule-based club boards =================
    Every computer-run club decides through the same commands as the player (cmd(..., 'ai')): repairs, building,
@@ -1766,7 +1842,7 @@ function advanceWeek(){
   for(const id of ids)membersWeek(id,matches.filter(m=>m.h===id||m.a===id));
   for(const id of ids){if(aiRuns(id)){aiBoardWeek(id);aiStaffWeek(id);aiStadium(id)}}
   if(S.my){scoutWeek(S.my);if(w===WINTER_WEEK-1||w===RENEW_WEEK)buildPlan(S.my)} // the player's club: scouting every week, the plan before the winter window and after renewals
-  if(w===WINTER_WEEK)for(const id of shuffle(ids.slice()))squadManager(id,'winter');
+  if(w===WINTER_WEEK){for(const id of shuffle(ids.slice()))squadManager(id,'winter');youthReconcile()}
   if(w===RENEW_WEEK)for(const id of ids)renewals(id);
   membersOnEvents(eventsSince(mark));
   emit('WeekClosed',null,`Week ${w} played.`);
@@ -1799,6 +1875,7 @@ function closeSeason(){
   for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
   if(S.my)buildPlan(S.my);
   for(const id of order)loanOut(id);
+  youthReconcile();
   for(const id of ids)groundSeasonEnd(id);
   staffSeasonEnd();
   emit('SeasonClosed',null,`Season ${s} is over.`,{season:s});
@@ -1847,7 +1924,7 @@ function migrate(s){
 }
 function schemaVersion(){return VERSION}
 function serialize(){return JSON.stringify(S)}
-function deserialize(txt){S=migrate(JSON.parse(txt));staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();return S}
+function deserialize(txt){S=migrate(JSON.parse(txt));staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();youthAfterLoad();return S}
 function save(){if(!HAS_DOM)return false;try{localStorage.setItem(SAVE_KEY,serialize());return true}catch(e){return false}}
 function hasSave(){if(!HAS_DOM)return false;try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
 function load(){if(!HAS_DOM)return false;try{const t=localStorage.getItem(SAVE_KEY);if(!t)return false;deserialize(t);return true}catch(e){return false}}
@@ -2073,6 +2150,7 @@ function playerSheet(pid){
   const cost=releaseCost(p);
   return overlayShell(p.name,`<div class="panel"><div class="row"><span>${POS_ONE[p.pos]}, ${p.age}</span>${qbar(p.q)}</div><div class="row small"><span>Level</span><b>${qWord(p.q-(S.qref-11.7))}</b></div><div class="row small"><span>Morale</span><b>${MORALE_WORD(p.morale)}</b></div>${p.susp>0?`<p class="inj">Banned for ${p.susp} match${p.susp>1?'es':''}.</p>`:''}${p.wantsOut?'<p class="inj">Has asked to leave. The director will sell if a fair offer comes.</p>':''}${p.loan?`<p class="small">On loan from ${nm(p.loan.from)}.</p>`:''}<div class="row small"><span>Bookings this season</span><b>${p.yel}</b></div><div class="row small"><span>Outlook</span><b>${potWord(p)}</b></div>
   <div class="row small"><span>This season</span><b>${p.sApps} apps · ${p.sGoals} goals${Math.abs(p.grown)>=.05?` · ${p.grown>0?'+':''}${r1(p.grown)} quality`:''}</b></div><div class="row small"><span>Contract</span><b>${p.contract} yr${p.contract===1?'':'s'} · £${p.wage} a week</b></div><div class="row small"><span>Market value</span><b>${k1(playerValue(p))}</b></div>${p.inj?`<p class="inj">Injured: out for ${p.inj} week${p.inj>1?'s':''}.</p>`:''}<p class="small muted">${p.trait}${p.academy?' · academy graduate':''}</p></div>
+  ${p.dev&&p.dev.length?`<div class="panel"><p class="eyebrow">Development · end of each season</p>${devLines(p)}</div>`:''}
   ${p.career.length?`<div class="panel"><p class="eyebrow">Career</p>${p.career.slice(-4).map(x=>`<p class="small">${esc(x)}</p>`).join('')}</div>`:''}
   ${UI.confirm===pid?`<div class="panel"><p>Release ${esc(p.name)}? It costs ${k1(cost)} in compensation.</p><button class="btn" data-act="release" data-arg="${pid}">Release him</button><button class="btn ghost" data-act="confirm" data-arg="">Keep him</button></div>`:`<button class="btn ghost" data-act="confirm" data-arg="${pid}">Release (${k1(cost)})</button>`}`);
 }
@@ -2161,23 +2239,7 @@ function departmentPipeline(k){
   <p class="eyebrow">Completed signings</p>${recent.length?recent.map(e=>`<p class="small">${esc(e.text)}</p>`).join(''):'<p class="small muted">No completed signings recorded yet.</p>'}
   <button class="btn ghost" data-act="ctab" data-arg="football">Review the director</button></div>`;
  }
- if(k==='academy'){
-  const sq=S.squads[id],graduates=sq.filter(p=>p.academy).sort((a,b)=>a.age-b.age||b.pa-a.pa);
-  const out=Object.entries(S.squads).flatMap(([cid,players])=>players.filter(p=>p.academy&&p.loan&&p.loan.from===id).map(p=>({p,cid})));
-  const history=(st.academyHistory||[]).slice(-5).reverse();
-  const intake=S.ev.filter(e=>e.c===id&&e.t==='YouthIntake').slice(-3).reverse();
-  return`<div class="panel"><p class="eyebrow">Academy pathway</p>
-  <p class="small muted">Each summer, academy graduates join the senior squad directly. There is no separate U18 or U21 competition in the current simulation.</p>
-  <div class="row small"><span>Academy staff</span><b>Level ${dept.staff}/5</b></div>
-  <div class="row small"><span>Academy graduates in squad</span><b>${graduates.length}</b></div>
-  <div class="row small"><span>Academy graduates on loan</span><b>${out.length}</b></div>
-  <p class="eyebrow">Current graduates</p>
-  ${graduates.length?graduates.map(p=>`<button class="dept-player" data-act="player" data-arg="${p.id}"><span><b>${esc(p.name)}</b><small>${p.age} · ${p.pos} · ${p.sApps} appearances · development ${p.grown>=0?'+':''}${r1(p.grown)}</small></span><span>Quality ${r1(p.q)} ›</span></button>`).join(''):'<p class="small muted">No academy graduates in the squad.</p>'}
-  ${out.length?`<p class="eyebrow">Out on loan</p>${out.map(({p,cid})=>`<p class="small">${esc(p.name)} · ${nm(cid)} · ${p.sApps} appearances</p>`).join('')}`:''}
-  <p class="eyebrow">Summer intake records</p>
-  ${history.length?history.map(h=>`<div class="panel"><p class="small"><b>Season ${h.season}</b></p>${h.graduates.map(p=>{const here=sq.find(x=>x.id===p.pid),loan=out.find(x=>x.p.id===p.pid);return`<div class="row small"><span>${esc(p.name)} · ${p.pos}</span><b>${here?'First team':loan?'On loan':'No longer at club'}</b></div>`}).join('')}</div>`).join(''):intake.length?intake.map(e=>`<p class="small">${esc(e.text)}</p>`).join(''):'<p class="small muted">No summer intake yet. Older saves may only have a summary event.</p>'}
-  <button class="btn ghost" data-act="tab" data-arg="squad">See player profiles</button></div>`;
- }
+ if(k==='academy')return youthPanels();
  return'';
 }
 function deptSheet(k){
@@ -2517,6 +2579,41 @@ function recruitPanels(){
   ${watch.length?watch.map(e=>{const rg=scoutRange(id,e.obs);return`<div class="row small"><span><b>${esc(e.name)}</b> <span class="muted">${e.pos}, ${e.age} · ${e.from?esc(CL(e.from).name):'free agent'}</span>${e.reason?`<br><span class="muted">Last window: ${esc(e.reason.toLowerCase())}</span>`:''}</span><b>${e.est} ±${rg}<br><span class="small muted">${e.obs} look${e.obs>1?'s':''}</span></b></div>`}).join(''):'<p class="small muted">The scouts start watching as soon as the plan has needs.</p>'}</div>
   <div class="panel"><p class="eyebrow">Signings: judged then, seen now</p>${rev.length?rev.map(x=>`<div class="row small"><span><b>${esc(x.name)}</b> <span class="muted">${x.pos}, S${x.s} · ${x.fee?'£'+x.fee+'k':'free'} · ${esc(x.need)}${x.scouted?` · watched ${x.obs}×`:' · not scouted'}</span></span><b class="${x.now!=null&&x.now<x.est-1?'down':''}">${x.est} → ${x.now??'—'}<br><span class="small muted">${x.apps!=null?x.apps+' apps · ':''}${esc(x.where)}</span></b></div>`).join('')+'<p class="note">Left: the director\'s estimate when he signed him. Right: the player\'s level now.</p>':'<p class="small muted">No signings since you took office.</p>'}</div>`;
 }
+
+/* ---- ui/youth.js ---- */
+/* ================= Screens: the youth development cycle (Club → Departments → Academy) =================
+   Responsible → current young players and their pathway → what each cohort became → the chairman's choices.
+   Everything shown comes from S.youth, p.dev and the squad. */
+function fateText(g){
+  const f=g.fate,now=findPlayer(g.pid),at=now&&now.club?CL(now.club).name:null;
+  if(!f)return g.status==='loan'?`On loan${at?' at '+esc(at):''}`:g.status==='academy'?'In the academy':'In the first team';
+  const then=`S${f.s}`;
+  if(f.how==='sold')return`Sold to ${esc(f.to?CL(f.to).name:'another club')}${f.fee?` for £${f.fee}k`:''} (${then})`;
+  if(f.how==='released')return`Released (${then})${at?`, now at ${esc(at)}`:''}`;
+  return`Retired or left football (${then})`;
+}
+function youthPanels(){
+  const id=S.my,Y=YOUTH(),d=G(id).depts.academy,sq=S.squads[id];
+  const young=[...sq.filter(p=>p.age<=21),...Object.values(S.squads).flat().filter(p=>p.loan&&p.loan.from===id)].sort((a,b)=>a.age-b.age||b.q-a.q);
+  const ay=academyYield(5),last=Y.cohorts[Y.cohorts.length-1],loans=F(id).policy.loans!==false;
+  return`<div class="panel"><p class="eyebrow">Academy pathway</p>
+  <p class="small muted">Each summer the academy sends its graduates into the senior squad. Young players grow fastest when they play.</p>
+  <div class="row small"><span>Academy staff</span><b>${STAFF_WORD[d.staff]} · sees potential ${d.staff>=4?'clearly':d.staff>=2?'roughly':'vaguely'}</b></div>
+  <div class="row small"><span>Last intake</span><b>${last?`${last.ids.length} in season ${last.s}`:'First intake this summer'}</b></div>
+  <p class="small"><b>Young reserves who would not play</b></p>
+  <div class="seg"><button class="${loans?'on':''}" data-act="loans" data-arg="true" aria-pressed="${loans}">Go on loan</button><button class="${!loans?'on':''}" data-act="loans" data-arg="false" aria-pressed="${!loans}">Stay here</button></div></div>
+  <div class="panel"><p class="eyebrow">Young players now · 21 and under</p>
+  ${young.length?young.map(p=>{const pw=pathwayOf(id,p),here=p.club===id&&!(p.loan&&p.loan.from===id);
+    const body=`<span><b>${esc(p.name)}</b><small>${p.age} · ${p.pos} · quality ${r1(p.q)} · ${esc(potentialBand(id,p))} · ${p.sApps} apps</small></span><span class="pill ${pw.k==='ready'||pw.k==='starter'?'good':pw.k==='games'?'bad':''}">${pw.t}</span>`;
+    return here?`<button class="dept-player" data-act="player" data-arg="${p.id}">${body}</button>`:`<div class="dept-player">${body}</div>`}).join(''):'<p class="small muted">No players of 21 or under at the club.</p>'}
+  <p class="note">Potential is the academy's judgement, not a fact. "Needs games": he plays too little to grow.</p></div>
+  <div class="panel"><p class="eyebrow">Academy yield · last ${ay.cohorts.length||5} intakes</p>
+  ${ay.cohorts.length?`<div class="row small"><span>Became first-team regulars</span><b>${ay.regulars} of ${ay.n}</b></div><div class="row small"><span>First-team appearances</span><b>${ay.apps}</b></div><div class="row small"><span>Transfer fees earned</span><b>£${n0(ay.fees)}k</b></div>
+  ${ay.cohorts.slice().reverse().map(c=>`<p class="small" style="margin-top:10px"><b>Intake of season ${c.s}</b> · ${c.n} graduate${c.n===1?'':'s'}</p>${c.gs.map(g=>`<div class="row small"><span>${esc(g.name)} · ${g.pos}${g.regular?' · regular':''}</span><b>${fateText(g)}</b></div>`).join('')}`).join('')}`
+  :'<p class="small muted">The first cohort arrives this summer. From then on every graduate is followed, also after he leaves.</p>'}
+  <p class="note">A regular played ten or more games in a season for the first team.</p></div>`;
+}
+function devLines(p){return(p.dev||[]).slice(-5).map(d=>`<div class="row small"><span>Season ${d.s} · age ${d.age}${d.where?` · on loan at ${esc(d.where)}`:''}</span><b>${d.q} · ${d.apps} apps</b></div>`).join('')}
 
 /* ---- ui/act.js ---- */
 /* ================= Taps: one handler for every data-act, then save and redraw ================= */

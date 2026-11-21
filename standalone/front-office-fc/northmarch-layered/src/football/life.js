@@ -46,7 +46,7 @@ function loanOut(id){
   }
 }
 function returnLoans(){
-  for(const id in S.squads){const sq=S.squads[id];for(const p of sq.slice())if(p.loan&&p.loan.from!==id){sq.splice(sq.indexOf(p),1);const from=p.loan.from;p.loan=null;S.squads[from].push(p);
+  for(const id in S.squads){const sq=S.squads[id];for(const p of sq.slice())if(p.loan&&p.loan.from!==id){sq.splice(sq.indexOf(p),1);const from=p.loan.from;p.loan=null;if(from===S.my)p.wasLoan=id;S.squads[from].push(p);
     if(from===S.my)emit('LoanBack',from,`${p.name} returns from his loan (${p.sApps} appearances).`,{pid:p.id})}}
 }
 /* contract demands: what a player asks for at renewal (more if he is good, wanted, or unhappy) */

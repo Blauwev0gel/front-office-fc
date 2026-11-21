@@ -203,3 +203,4 @@ main.withbar{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 100px)}
 /* Existing scouting and academy progression, without invented reports. */
 .dept-player{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;min-height:55px;padding:10px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);margin:6px 0;cursor:pointer}
 .dept-player span:first-child{display:flex;flex-direction:column;gap:2px}.dept-player small{color:var(--muted);font-size:.76rem}.dept-player span:last-child{font-size:.76rem;white-space:nowrap}
+div.dept-player{cursor:default;font-size:13.333px} /* a row that is not a button (player away on loan) looks the same, without the tap cursor */

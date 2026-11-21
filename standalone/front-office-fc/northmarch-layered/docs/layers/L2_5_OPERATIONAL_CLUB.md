@@ -1,6 +1,6 @@
 # L2.5 — Functionerende cluborganisatie
 
-Overall status: IN PROGRESS. Package A1 (recruitment cycle) is TESTED; the other packages are PLANNED.
+Overall status: IN PROGRESS. A1 (recruitment cycle) and A2 (youth cycle) are TESTED; A3 and B are PLANNED.
 
 ## Scope and principle
 L1 owns the football world, L2 owns governance, and L2.5 makes the club's operational cycles visible and lasting.
@@ -24,7 +24,7 @@ Navigation: CLUB → DEPARTMENT → WORK → RESULTS → DECISIONS. The recruitm
 | Signings review | **new** `recruitment.js recordDecision`, `signingReview` | E → **B** | "Judged then, seen now", with appearances and current club |
 | Contracts/renewals | `market.js renewals:127`, `life.js` | B | Expiring contracts appear in the plan; no contract-risk pipeline yet |
 | Loans | `life.js loanOut:37`, `returnLoans:48` | B/C | A loan leaves no trace in the player's history |
-| Youth/academy | `players.js playersSeasonEnd:79`, `S.stats.academyHistory` (ChatGPT `8f68df64`) | C | Intake snapshots exist; permanent cohort outcomes, development history and departures are missing |
+| Youth/academy | `players.js playersSeasonEnd:79`, `S.stats.academyHistory` (ChatGPT `8f68df64`); **new** `club/youth.js` | C → **B** | Cohorts with permanent outcomes, development lines and academy yield now exist; no separate youth competition (deliberate) |
 | Training | `players.js playersWeek:59`, `staff.js coachGrowth:24` | B | Only an aggregate (`youthGrowth`); no growth per player |
 | Medical | `players.js` injuries, `stats.injWeeks` | B | No recovery planning or report |
 | Coach/TD | `staff.js` profiles, hiring and sacking | B | No performance review against the plan |
@@ -39,7 +39,7 @@ Verification of ChatGPT's commits (`60b1f460`, `8f68df64`, `6683cdf1`, `d8538283
 
 ## Build order
 1. **A1 Recruitment cycle**: need → scouting → assessment → TD decision → review. *TESTED.*
-2. **A2 Youth and development cycle**: cohorts with permanent outcomes, development history per player, minutes, step-up into the plan's `ready` list, loans and departures kept in history. *PLANNED.*
+2. **A2 Youth and development cycle**: cohorts with permanent outcomes, development history per player, minutes, step-up into the plan's `ready` list, loans and departures kept in history. *TESTED.*
 3. **A3 Integration**: the plan uses youth readiness, the coach and medical departments report against the plan, and multi-season validation. *PLANNED.*
 4. **B Club operations**: commercial activities, member issues, facility investment plan, department accountability (investment → result). *PLANNED.*
 
@@ -69,6 +69,37 @@ Verification of ChatGPT's commits (`60b1f460`, `8f68df64`, `6683cdf1`, `d8538283
   - Shortlist with estimate ± range, number of looks and last reason.
   - Signings review: "judged then, seen now".
 - **Command:** `SetSquadPolicy {recruit}`, logged in the decision journal.
+
+## A2 — Youth development cycle (architecture)
+- **State:**
+  - `S.youth = {cohorts:[{s, ids, level}], grads:{pid:{name, pos, s, q0, pot0, peak, dev[], status, fate, regular}}}`, for the player's club only. At most 15 cohorts are kept; records of older cohorts are removed with them.
+  - `p.dev` holds one line per season for the player's own players aged ≤23: `{s, age, q, apps, where}`, where `where` is the loan club.
+- **Recording:**
+  - `youthDevRecord` runs at season end, before ageing.
+  - `youthIntake` runs after the summer intake.
+  - `youthLeft` is called on every departure route: transfer (with fee and buying club), release, end of contract, academy release, retirement.
+  - `youthReconcile` runs after the winter window and at the end of the season, and catches everything else. A record stays after the player leaves.
+- **Potential vs quality:**
+  - `potentialSeen` = true potential plus a fixed error per player, which gets smaller with better academy staff.
+  - `potentialBand` compares it with the squad: Future starter / First-team player / Squad player / Unlikely to make it.
+- **Pathway (`pathwayOf`):** On loan / Starting / Ready to step up (from the A1 plan `ready`) / Needs games (fewer than 25% of matches while still able to grow) / Developing.
+- **Academy yield (`academyYield`):** over the last 5 cohorts, the regulars (≥10 apps in a season for the first team), first-team appearances and transfer fees, with the outcome per graduate.
+- **UI (`ui/youth.js`):**
+  - Club → Academy shows the pathway, the loan decision in context (`SetSquadPolicy {loans}`), young players now and the academy yield.
+  - The player sheet shows "Development · end of each season".
+- **Old saves:** `youthAfterLoad` rebuilds cohorts from `S.stats.academyHistory`. Development lines start from the next season. VERSION stays at 7.
+
+## Test results (A2)
+- **`tests/youth-test.js` (≈7 s), green:**
+  - one cohort per summer, and every graduate has a record;
+  - graduates who leave keep how and when they left;
+  - graduates without an outcome really are at the club or on loan from it;
+  - sold graduates name the buying club;
+  - development lines exist;
+  - the academy yield adds up;
+  - save and load keep the records, an old save rebuilds them, and recording continues afterwards.
+- **Browser (390 px, light and dark):** the academy sheet renders and the loan toggle works, with no errors and no horizontal scroll.
+- **Limitation:** small clubs produce one graduate per summer, so the yield there is thin. That is a balance question for phase 5, not something to solve here.
 
 ## Test results (A1)
 - **`tests/l25-test.js` (≈7 s), green:**
@@ -103,6 +134,7 @@ Verification of ChatGPT's commits (`60b1f460`, `8f68df64`, `6683cdf1`, `d8538283
 - [x] Windows simulated; signings linked to needs.
 - [x] Browser smoke test at 390 px, light and dark (recruitment panels).
 - [x] `tests/playtest.js` updated to the new hub (club opens on the office; sections via the hub).
-- [ ] A2 multi-season youth outcomes.
+- [x] A2 multi-season youth outcomes (youth-test, 5–6 seasons).
+- [ ] A3 integration and the owner's playtest.
 
 No PLAYABLE or RELEASED claim until the playtest is green and the owner has played it.

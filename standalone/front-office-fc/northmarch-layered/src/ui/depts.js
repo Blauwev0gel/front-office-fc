@@ -43,34 +43,39 @@ function deptsView(){
 }
 /* Operational visibility uses only persisted game state; there is no invented shortlist or youth team. */
 function departmentPipeline(k){
- const id=S.my,dept=G(id).depts[k];
+ const id=S.my,dept=G(id).depts[k],st=S.stats[id];
  if(k==='scouting'){
-  const director=tdOf(id),recent=eventsFor(id).filter(e=>e.t==='Transfer'||e.t==='Signing').slice(-6).reverse();
+  const director=tdOf(id),recent=S.ev.filter(e=>e.c===id&&['Transfer','Signing'].includes(e.t)).slice(-6).reverse();
+  const history=(st.scoutHistory||[]).slice(-4).reverse();
   const reach=Math.max(4,6+Math.round(2*groundSignals(id).scouting+(pq(director)-10)/2));
-  return`<div class="panel"><p class="eyebrow">How scouting works today</p>
+  return`<div class="panel"><p class="eyebrow">Scouting desk</p>
   <div class="row small"><span>Recruitment lead</span><b>${esc(director.name)} (director)</b></div>
-  <div class="row small"><span>Scouting staff</span><b>Level ${dept.staff}/5</b></div>
-  <div class="row small"><span>Scouting focus</span><b>${esc(dept.pending||dept.course)}</b></div>
+  <div class="row small"><span>Scouting team</span><b>Level ${dept.staff}/5</b></div>
+  <div class="row small"><span>Department focus</span><b>${esc(dept.pending||dept.course)}</b></div>
   <div class="row small"><span>Search reach</span><b>Up to ${reach} candidates per search</b></div>
-  <p class="small muted">The director searches free agents and players at other clubs when he needs to strengthen the squad. The engine does not currently save named scout assignments, visited locations, scouting reports or rejected candidates. So there is no real shortlist to show yet.</p>
-  <p class="eyebrow">Completed recruitment</p>${recent.length?recent.map(e=>`<p class="small">${esc(e.text)}</p>`).join(''):'<p class="small muted">No completed signings recorded yet.</p>'}
-  <button class="btn ghost" data-act="ctab" data-arg="football">Review director and recruitment policy</button></div>`;
+  <p class="small muted">The director runs recruitment searches automatically during transfer windows. Department staffing, facilities and the director affect search reach. Individual scouts are not yet represented as people.</p>
+  <p class="eyebrow">Players considered in recent searches</p>
+  ${history.length?history.map(h=>`<div class="panel"><p class="small"><b>Season ${h.season} · week ${h.week} · ${esc(h.pos)}</b> · ${esc(h.director)}</p>
+  ${h.candidates.length?h.candidates.map(p=>`<div class="row small"><span>${esc(p.name)} · ${p.pos} · ${esc(p.from)}</span><b>${p.quality}</b></div>`).join(''):'<p class="small muted">No candidates in this search.</p>'}</div>`).join(''):'<p class="small muted">No recorded searches yet. The next recruitment window will start a search when the director needs players. Older saves cannot reconstruct past candidate lists.</p>'}
+  <p class="eyebrow">Completed signings</p>${recent.length?recent.map(e=>`<p class="small">${esc(e.text)}</p>`).join(''):'<p class="small muted">No completed signings recorded yet.</p>'}
+  <button class="btn ghost" data-act="ctab" data-arg="football">Review the director</button></div>`;
  }
  if(k==='academy'){
   const sq=S.squads[id],graduates=sq.filter(p=>p.academy).sort((a,b)=>a.age-b.age||b.pa-a.pa);
   const out=Object.entries(S.squads).flatMap(([cid,players])=>players.filter(p=>p.academy&&p.loan&&p.loan.from===id).map(p=>({p,cid})));
-  const intake=eventsFor(id).filter(e=>e.t==='YouthIntake').slice(-3).reverse();
-  return`<div class="panel"><p class="eyebrow">Youth pathway</p>
-  <p class="small muted">The simulation creates academy graduates at the summer intake directly into the first-team squad. There is no separate U18 or U21 team yet.</p>
+  const history=(st.academyHistory||[]).slice(-5).reverse();
+  const intake=S.ev.filter(e=>e.c===id&&e.t==='YouthIntake').slice(-3).reverse();
+  return`<div class="panel"><p class="eyebrow">Academy pathway</p>
+  <p class="small muted">Each summer, academy graduates join the senior squad directly. There is no separate U18 or U21 competition in the current simulation.</p>
   <div class="row small"><span>Academy staff</span><b>Level ${dept.staff}/5</b></div>
   <div class="row small"><span>Academy graduates in squad</span><b>${graduates.length}</b></div>
   <div class="row small"><span>Academy graduates on loan</span><b>${out.length}</b></div>
-  <p class="eyebrow">Academy graduates at the club</p>
-  ${graduates.length?graduates.map(p=>`<button class="dept-player" data-act="player" data-arg="${p.id}"><span><b>${esc(p.name)}</b><small>${p.age} · ${p.pos} · ${p.sApps} apps this season</small></span><span>Quality ${r1(p.q)} ›</span></button>`).join(''):'<p class="small muted">No academy graduates currently in the squad.</p>'}
+  <p class="eyebrow">Current graduates</p>
+  ${graduates.length?graduates.map(p=>`<button class="dept-player" data-act="player" data-arg="${p.id}"><span><b>${esc(p.name)}</b><small>${p.age} · ${p.pos} · ${p.sApps} appearances · development ${p.grown>=0?'+':''}${r1(p.grown)}</small></span><span>Quality ${r1(p.q)} ›</span></button>`).join(''):'<p class="small muted">No academy graduates in the squad.</p>'}
   ${out.length?`<p class="eyebrow">Out on loan</p>${out.map(({p,cid})=>`<p class="small">${esc(p.name)} · ${nm(cid)} · ${p.sApps} appearances</p>`).join('')}`:''}
-  <p class="eyebrow">Recent summer intakes</p>${intake.length?intake.map(e=>`<p class="small">${esc(e.text)}</p>`).join(''):'<p class="small muted">No summer intake recorded yet.</p>'}
-  <p class="small muted">Released graduates are not maintained in a dedicated academy alumni register; the event journal may contain their departures.</p>
-  <button class="btn ghost" data-act="tab" data-arg="squad">See full squad and player profiles</button></div>`;
+  <p class="eyebrow">Summer intake records</p>
+  ${history.length?history.map(h=>`<div class="panel"><p class="small"><b>Season ${h.season}</b></p>${h.graduates.map(p=>{const here=sq.find(x=>x.id===p.pid),loan=out.find(x=>x.p.id===p.pid);return`<div class="row small"><span>${esc(p.name)} · ${p.pos}</span><b>${here?'First team':loan?'On loan':'No longer at club'}</b></div>`}).join('')}</div>`).join(''):intake.length?intake.map(e=>`<p class="small">${esc(e.text)}</p>`).join(''):'<p class="small muted">No summer intake yet. Older saves may only have a summary event.</p>'}
+  <button class="btn ghost" data-act="tab" data-arg="squad">See player profiles</button></div>`;
  }
  return'';
 }

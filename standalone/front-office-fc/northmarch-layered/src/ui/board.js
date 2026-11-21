@@ -2,11 +2,57 @@
    The Club tab is the board room: an overview first, then one sub-section per responsibility
    (football, departments, ground, members). Builds on the parallel overview tiles (commit 590c93b). */
 const CLUB_TABS=[['overview','Overview'],['football','Football'],['depts','Departments'],['ground','Ground'],['members','Members']];
+/* Club-hub V2: direct access to existing L1/L2 responsibilities. */
+const CLUB_HUB_GROUPS=[
+  ['Football organisation',[
+    ['Trainer & director','Appoint and review','staff','coach'],
+    ['Training','Player development','dept','training'],
+    ['Medical','Injuries and recovery','dept','medical'],
+    ['Academy','Youth development','dept','academy'],
+    ['Scouting','Recruitment intelligence','dept','scouting'],
+    ['Squad policy','Wages and transfer frame','tobudget','']
+  ]],
+  ['Club organisation',[
+    ['Commercial','Sponsors and sales','dept','commercial'],
+    ['Members','Community and AGM','ctab','members'],
+    ['Matchday','Operations and atmosphere','dept','matchday'],
+    ['Maintenance','Ground and facilities','dept','grounds'],
+    ['Stadium','Stands and building','ctab','ground'],
+    ['Ticket policy','Prices and attendance','hubmoney','income']
+  ]],
+  ['Board and finance',[
+    ['Budget','Income and spending','hubmoney','budget'],
+    ['Funding','Loans and members bonds','hubmoney','funding'],
+    ['Projects','Building and progress','hubprojects',''],
+    ['Club history','Seasons and records','history','']
+  ]]
+];
+function clubHubTile(item){
+  const [name,sub,act,arg]=item;
+  let status='';
+  if(act==='dept'){const kp=deptKpi(S.my,arg),d=G(S.my).depts[arg];status=(kp.good===true?'Ahead of division':kp.good===false?'Behind division':'Near division average')+' · '+STAFF_WORD[d.staff]+' staff';}
+  else if(name==='Members')status=Math.round(M(S.my).conf)+'/100 confidence';
+  else if(name==='Stadium')status=n0(groundSignals(S.my).capacity)+' places';
+  else if(name==='Projects')status=G(S.my).projects.filter(p=>p.phase!=='done').length+' active';
+  else if(name==='Budget')status=k1(F(S.my).cash)+' in the bank';
+  return`<button class="hubtile" data-act="${act}" data-arg="${arg}" aria-label="${esc(name)}: ${esc(sub)}"><b>${esc(name)}</b><span>${esc(sub)}</span>${status?`<small>${esc(status)}</small>`:''}</button>`;
+}
+function clubHub(){
+  const id=S.my,m=M(id),f=F(id),run=G(id).projects.filter(p=>p.phase!=='done').length;
+  return`<div class="hubhead"><p class="eyebrow">The chairman's office</p><h2>Run your club</h2><p class="small muted">Choose a responsibility. Every department and board decision is one tap away.</p></div>
+  <div class="panel hubstatus"><div class="row small"><span>League position</span><b>${S.week?ord(posOf(id)):'Pre-season'}</b></div><div class="row small"><span>Cash</span><b>${k1(f.cash)}</b></div><div class="row small"><span>Members' confidence</span><b>${Math.round(m.conf)}/100</b></div>${run?`<p class="small muted">${run} building project${run===1?'':'s'} running</p>`:''}</div>
+  ${CLUB_HUB_GROUPS.map(([title,items])=>`<section class="hubsection"><h3>${title}</h3><div class="hubtiles">${items.map(clubHubTile).join('')}</div></section>`).join('')}
+  <button class="btn ghost" data-act="ctab" data-arg="overview">Detailed board overview</button>`;
+}
 function clubView(){
-  const t=UI.ct||'overview';
-  const nav=`<div class="tabs subnav" role="tablist" aria-label="Club sections">${CLUB_TABS.map(([k,n])=>`<button class="${t===k?'on':''}" data-act="ctab" data-arg="${k}" aria-pressed="${t===k}">${n}</button>`).join('')}</div>`;
-  const body=t==='football'?footballBody():t==='depts'?deptsView():t==='ground'?`${msgLine()}${groundBody()}`:t==='members'?membersBody():overviewBody();
-  return nav+body;
+  const t=UI.ct||'hub';
+  if(t==='hub')return clubHub();
+  const body=t==='football'?footballBody():t==='depts'?deptsView():t==='ground'?`${msgLine()}${groundBody()}`:t==='members'?membersBody():t==='projects'?hubProjectsBody():overviewBody();
+  return`<div class="hubback"><button class="tbtn" data-act="ctab" data-arg="hub">← Club management</button></div>${body}`;
+}
+function hubProjectsBody(){
+ const run=G(S.my).projects.filter(p=>p.phase!=='done');
+ return`<div class="panel"><p class="eyebrow">Building projects</p>${run.length?run.map(p=>`<div class="row small"><span>${esc(p.label)}</span><b>${p.phase==='permit'?'Permit pending':p.left+' weeks left'}</b></div>`).join(''):'<p class="small muted">No active projects.</p>'}<button class="btn ghost" data-act="ctab" data-arg="ground">Open stadium and building options</button></div>`;
 }
 function tile(act,arg,label,value,sub,cls){return`<button class="boardtile" data-act="${act}" data-arg="${arg}"><span>${label}</span><b class="${cls||''}">${value}</b><small>${sub}</small></button>`}
 function overviewBody(){

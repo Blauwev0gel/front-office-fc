@@ -7,10 +7,14 @@ const CUP_WEEKS=[4,9,14,19,24,28];
 const CUP_ROUND=['First round','Second round','Third round','Quarter-final','Semi-final','Final'];
 const CUP_PRIZE=[1.5,3,6,10,16,30];
 
+/* circle method (from Northmarch), with home and away balanced per club: whoever has been away longest, or at home least, plays at home.
+   The Northmarch original alternated by position, which gave clubs runs of up to fifteen away games. Max run now 3. */
 function makeFixtures(ids){
-  const a=shuffle(ids.slice());
-  const n=a.length;let arr=a.slice();const first=[];
-  for(let k=0;k<n-1;k++){const m=[];for(let i=0;i<n/2;i++){const x=arr[i],y=arr[n-1-i];m.push((k+i)%2?[y,x]:[x,y])}first.push(m);arr=[arr[0],arr[n-1],...arr.slice(1,n-1)]}
+  const a=shuffle(ids.slice()),n=a.length,first=[],h={},st={};let arr=a.slice();for(const t of a){h[t]=0;st[t]=0}
+  for(let r=0;r<n-1;r++){const m=[];for(let i=0;i<n/2;i++){const x=arr[i],y=arr[n-1-i];
+      const homeX=st[x]!==st[y]?st[x]<st[y]:h[x]!==h[y]?h[x]<h[y]:(r+i)%2===0;
+      const [hh,aa]=homeX?[x,y]:[y,x];m.push([hh,aa]);h[hh]++;st[hh]=st[hh]>0?st[hh]+1:1;st[aa]=st[aa]<0?st[aa]-1:-1}
+    first.push(m);arr=[arr[0],arr[n-1],...arr.slice(1,n-1)]}
   return first.concat(first.map(rd=>rd.map(([x,y])=>[y,x])));
 }
 function tierIds(tier){return Object.keys(S.clubs).filter(i=>CL(i).tier===tier)}

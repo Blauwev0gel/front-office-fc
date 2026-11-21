@@ -13,7 +13,9 @@ const MIGRATIONS={
   3:s=>{s.members=s.members||{};for(const id in s.clubs){const c=s.clubs[id];s.members[id]=s.members[id]||{count:Math.round(c.support*.4),dues:[50,40,30][c.tier],conf:55,log:[],goals:[],goalsSeason:0,agm:null}}
     s.career=s.career||(s.my?[{club:s.my,from:1,to:null,why:null}]:[]);s.rep=s.rep||0;s.votedOut=s.votedOut||null;s.v=3;},
   // 3 → 4: head coaches and directors get a professional profile; the free pool is filled after loading (staffAfterLoad)
-  4:s=>{s.staffPool=s.staffPool||[];s.v=4;}
+  4:s=>{s.staffPool=s.staffPool||[];s.v=4;},
+  // 4 → 5: season budget, sponsor deals, members' financing (filled after loading: commercialAfterLoad)
+  5:s=>{s.v=5;}
 };
 function migrate(s){
   if(!s||typeof s.v!=='number'||s.v<1)throw new Error('Not a Northmarch layered save');
@@ -21,8 +23,9 @@ function migrate(s){
   while(s.v<VERSION){const m=MIGRATIONS[s.v+1];if(!m)throw new Error('No migration to version '+(s.v+1));m(s);}
   return s;
 }
+function schemaVersion(){return VERSION}
 function serialize(){return JSON.stringify(S)}
-function deserialize(txt){S=migrate(JSON.parse(txt));staffAfterLoad();membersAfterLoad();return S}
+function deserialize(txt){S=migrate(JSON.parse(txt));staffAfterLoad();commercialAfterLoad();membersAfterLoad();return S}
 function save(){if(!HAS_DOM)return false;try{localStorage.setItem(SAVE_KEY,serialize());return true}catch(e){return false}}
 function hasSave(){if(!HAS_DOM)return false;try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
 function load(){if(!HAS_DOM)return false;try{const t=localStorage.getItem(SAVE_KEY);if(!t)return false;deserialize(t);return true}catch(e){return false}}

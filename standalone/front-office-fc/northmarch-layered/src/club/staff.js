@@ -67,7 +67,7 @@ function staffCandidates(id,role){
 /* ----- computer boards: sack after failure, hire the best they can pay ----- */
 function aiStaffWeek(id){
   const w=S.week;if(w!==10&&w!==20)return;const c=CL(id),gap=posOf(id)-(c.expect||8);
-  if(gap>=4&&chance(.3)){sackStaff(id,'coach','after a poor run');aiHire(id,'coach')}
+  if(gap>=4&&chance(.3)){sackStaff(id,'coach','after a poor run');aiHire(id,'coach',true)} // mid-season: from the free pool only; poaching waits for the summer
 }
 /* computer boards prefer the free pool; they only poach from a lower division when that man is clearly better */
 function aiHire(id,role,poolOnly){

@@ -31,3 +31,9 @@ Bekende beperkingen: webfonts worden in de test geblokkeerd (offline fallback-fo
 - save-test: schema v4; migraties 1→2→3→4 laden en spelen door.
 - sim-test 4 seeds × 20 seizoenen: groen; 49–69 AI-voorzitters weggestemd; 6–9 administrations; mediane kas £298–395k.
 - ab-test, idle-test, members-test, playtest 390 px licht/donker (incl. trainer benoemen): groen.
+
+## 2026-11-21 — Pakket 3 (begroting, commercie, financiering), `sh tests/run-all.sh`, exit 0
+- commercial-test (16 seeds): loonlimiet 88% vs 50% → loonsom £11,8k vs £8,9k/week, selectie 11,83 vs 11,58 · begroting met plan/koers en loonwaarschuwing · prestatiesponsor t.o.v. vast: zwakke helft −£2,5k, sterke helft +£5,0k · ledenobligatie £77k bij vertrouwen 80 vs £24k bij 25, goedkoper dan de bank, één per seizoen · inzameling £18k → £9k en minder vertrouwen · grond verkopen: kas nu, huur per week, −15 vertrouwen; statuut blokkeert bij laag vertrouwen · prijsstatuut · speelschema: langste reeks 3, 15 thuisduels.
+- staff-test: trainer 'results' q16 vs q7 nu op 32 seeds: 43,3 vs 38,8 punten (23/32); wegkopen alleen nog in de zomer.
+- sim-test 4 seeds × 20 seizoenen: groen; 0–1 administrations (zie open punt pakket 6), 38–54 AI-voorzitters weggestemd.
+- save-test (schema v5), ab-test, idle-test, members-test, playtest 390 px licht/donker (budget, loonlimiet, sponsors, funding, inzameling): groen.

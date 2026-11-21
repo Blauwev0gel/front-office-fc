@@ -258,7 +258,7 @@ function cmd(name,club,args,actor){
    Owns S.clubs (identity, tier, support, rivals) and S.P (people). mkPerson/castClub/addRel/weakest are the
    Northmarch functions (northmarch.html @7a2d5d3), kept so the story layer (L4) can attach later.
    Squads (football), grounds (club) and money (finance) are created here but owned by their own domains. */
-const VERSION=4;
+const VERSION=5;
 const SAVE_KEY='northmarch-layered-v1';
 const TIERS=[0,1,2];
 const TIER_STR=[[51,59],[44,53],[37,46]];
@@ -320,9 +320,11 @@ function newWorld(seed){
     const str=id==='pell'?48:id==='harrow'?57:ri(a,b)+Math.round((c.support-(TIER_SUPPORT[c.tier][0]+TIER_SUPPORT[c.tier][1])/2)/600);
     S.squads[id]=genSquad(str,id);S.grounds[id]=groundInit(id);S.fin[id]=finInit(id);S.stats[id]=statsInit();S.members[id]=membersInit(id);giveProfile(CL(id).cast.coach,'coach',CL(id).tier);giveProfile(CL(id).cast.td,'td',CL(id).tier);}
   staffPoolInit();
+  for(const id of ids)commercialInit(id);
   S.qref=worldQuality();
   faInit();
   startSeason();
+  setBudgetsAll(1);
   makeSeats();
   emit('WorldCreated',null,`${ids.length} clubs in three divisions.`);
   return S;
@@ -354,10 +356,14 @@ const CUP_WEEKS=[4,9,14,19,24,28];
 const CUP_ROUND=['First round','Second round','Third round','Quarter-final','Semi-final','Final'];
 const CUP_PRIZE=[1.5,3,6,10,16,30];
 
+/* circle method (from Northmarch), with home and away balanced per club: whoever has been away longest, or at home least, plays at home.
+   The Northmarch original alternated by position, which gave clubs runs of up to fifteen away games. Max run now 3. */
 function makeFixtures(ids){
-  const a=shuffle(ids.slice());
-  const n=a.length;let arr=a.slice();const first=[];
-  for(let k=0;k<n-1;k++){const m=[];for(let i=0;i<n/2;i++){const x=arr[i],y=arr[n-1-i];m.push((k+i)%2?[y,x]:[x,y])}first.push(m);arr=[arr[0],arr[n-1],...arr.slice(1,n-1)]}
+  const a=shuffle(ids.slice()),n=a.length,first=[],h={},st={};let arr=a.slice();for(const t of a){h[t]=0;st[t]=0}
+  for(let r=0;r<n-1;r++){const m=[];for(let i=0;i<n/2;i++){const x=arr[i],y=arr[n-1-i];
+      const homeX=st[x]!==st[y]?st[x]<st[y]:h[x]!==h[y]?h[x]<h[y]:(r+i)%2===0;
+      const [hh,aa]=homeX?[x,y]:[y,x];m.push([hh,aa]);h[hh]++;st[hh]=st[hh]>0?st[hh]+1:1;st[aa]=st[aa]<0?st[aa]-1:-1}
+    first.push(m);arr=[arr[0],arr[n-1],...arr.slice(1,n-1)]}
   return first.concat(first.map(rd=>rd.map(([x,y])=>[y,x])));
 }
 function tierIds(tier){return Object.keys(S.clubs).filter(i=>CL(i).tier===tier)}
@@ -859,19 +865,20 @@ defCommand('SetDeptCourse',{check:(id,a)=>!G(id).depts[a.dept]||!DEPT[a.dept].co
    ledger always reconciles: cash = start + every booked line. Amounts in £k. */
 const LINE={
   gate:['Tickets: terraces and seats','matchday'],business:['Business seats','matchday'],catering:['Catering','matchday'],seasontix:['Season tickets','matchday'],cupgate:['Cup gate','matchday'],
-  sponsors:['Sponsors','commercial'],merch:['Merchandise','commercial'],events:['Events and hire','commercial'],dues:['Membership dues','commercial'],
+  sponsors:['Main sponsor','commercial'],partners:['Local partners','commercial'],naming:['Stadium naming rights','commercial'],fundraising:['Members\' appeals','commercial'],merch:['Merchandise','commercial'],events:['Events and hire','commercial'],dues:['Membership dues','commercial'],
   tv:['League and TV money','media'],prize:['League prize money','media'],cupprize:['Cup prize money','media'],
   feesIn:['Transfer fees received','transfers'],feesOut:['Transfer fees paid','transfers'],
   wages:['Player wages','wages'],
   depts:['Department budgets','costs'],upkeep:['Ground upkeep','costs'],ops:['Matchday stewards and police','costs'],travel:['Away travel','costs'],
   staff:['Head coach and director','wages'],staffpay:['Staff compensation','costs'],
   build:['Construction','costs'],repairs:['Repairs','costs'],interest:['Interest','costs'],
-  loanIn:['Loans drawn','financing'],loanOut:['Loan repayments','financing']
+  rent:['Ground rent','costs'],
+  loanIn:['Loans and bonds drawn','financing'],loanOut:['Loan and bond repayments','financing'],groundSale:['Sale or buy-back of the ground','capital']
 };
-const HEAD={matchday:'Matchday',commercial:'Commercial',media:'League & cup',transfers:'Transfers',wages:'Wages',costs:'Other costs',financing:'Loans'};
+const HEAD={matchday:'Matchday',commercial:'Commercial',media:'League & cup',transfers:'Transfers',wages:'Wages',costs:'Other costs',financing:'Loans',capital:'The ground'};
 const PRICE_DEF=[{terrace:11,seated:16,business:35,season:140},{terrace:9,seated:13,business:30,season:110},{terrace:7,seated:10,business:22,season:85}];
 const TV=[4.6,2.2,.8],SPONSOR=[3.4,1.9,.9],PRIZE=[[80,4],[40,2],[15,.6]];
-const WAGE_RATIO={tight:.55,normal:.65,ambitious:.75,allin:.86};
+const WAGE_RATIO={tight:.65,normal:.76,ambitious:.88,allin:.98};
 
 function F(id){return S.fin[id]}
 function finInit(id){
@@ -909,7 +916,7 @@ function weekLines(id,home,o={}){
     L.business=a.business*pr.business/1000;L.catering=a.total*2.5*(.6+g.catering*.1)*.4/1000;L.ops=-(.25+a.total/6000*(o.derby?1.6:1))*(1.3-.3*g.ops)}
   else if(o.away)L.travel=-(t===0?.5:t===1?.35:.2);
   if(o.weekly!==false){
-    L.sponsors=SPONSOR[t]*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*form*(.7+.3*g.sales);
+    L.sponsors=sponsorWeekK(id);L.partners=partnersWeekK(id,form);L.naming=namingWeekK(id);L.rent=-rentWeekK(id);
     L.merch=c.support/1000*.45*(1+g.shop*.15)*form;
     L.events=g.shop*.08+g.events*.07;
     L.dues=S.members&&S.members[id]?S.members[id].count*S.members[id].dues/SEASON_WEEKS/1000:c.support*.4*40/SEASON_WEEKS/1000;
@@ -928,12 +935,14 @@ function maxNewLoan(id){return Math.max(0,Math.floor(estSeasonIncome(id)*.8-debt
 function creditLimit(id){return Math.max(10,Math.round(estSeasonIncome(id)*.12))}
 /* expected operating income over a full season (used by AI wage policy, credit and forecasts) */
 function estSeasonIncome(id){
-  const c=CL(id),opp=null,h=sumLines(weekLines(id,true,{opp,weekly:false}),1),wk=weekLines(id,false,{});
-  const reg=(wk.sponsors||0)+(wk.merch||0)+(wk.events||0)+(wk.dues||0)+(wk.tv||0);
+  const c=CL(id),opp=null,a=attendance(id,null,{}),L=weekLines(id,true,{opp,weekly:false,att:a}),wk=weekLines(id,false,{});
+  const holdN=c.support*.28*Math.pow(PRICE_DEF[c.tier].season/F(id).prices.season,.8),share=F(id).holders?0:Math.min(.9,holdN/Math.max(1,a.total));
+  const h=sumLines(L,1)-(L.gate||0)*share; // season-ticket holders do not pay at the gate
+  const reg=(wk.sponsors||0)+(wk.partners||0)+(wk.naming||0)+(wk.merch||0)+(wk.events||0)+(wk.dues||0)+(wk.tv||0);
   const hold=c.support*.28*F(id).prices.season/1000;
   return Math.round(h*SEASON_WEEKS/2+reg*SEASON_WEEKS+hold+PRIZE[c.tier][0]*.6);
 }
-function wageCapK(id){return r2(estSeasonIncome(id)*WAGE_RATIO[F(id).policy.wage]/SEASON_WEEKS)}
+function wageCapK(id){return r2(estSeasonIncome(id)*wageRatio(id)/SEASON_WEEKS)}
 
 /* ----- the week for one club. matches: this week's games involving the club ----- */
 function financeWeek(id,matches){
@@ -944,7 +953,8 @@ function financeWeek(id,matches){
   for(const m of matches){const home=m.h===id,derby=CL(m.h).rival===m.a;
     if(home||(m.neutral&&m.a===id)){const att=attendance(m.h,m.a,{derby,cup:m.comp==='cup',round:m.round});m.att=att.total;if(home&&m.comp==='league')f.lastGate=att;
       const L=weekLines(id,true,{att,derby,cup:m.comp==='cup',neutral:m.neutral,weekly:false});for(const k in L)book(id,k,L[k])}
-    else away=true}
+    else away=true;
+    if(m.comp==='league'&&f.sponsor&&f.sponsor.kind==='bonus'&&f.sponsor.until>=S.season){const gf=home?m.gh:m.ga,ga=home?m.ga:m.gh,pts=gf>ga?3:gf===ga?1:0;if(pts)book(id,'sponsors',pts*f.sponsor.perPoint)}}
   const L=weekLines(id,false,{away});for(const k in L)book(id,k,L[k]);
   const b=groundWeek(id,matches.some(m=>m.h===id&&!m.neutral));if(b)book(id,'build',-b);
   const g=G(id);if(g.repairBill){book(id,'repairs',-g.repairBill);g.repairBill=0}
@@ -974,7 +984,7 @@ function financeSeasonEnd(id,pos,tier){
 }
 function seasonTotals(id,s){const f=F(id),lines=s==null||s===S.season?f.season:(f.hist.find(h=>h.s===s)||{lines:{}}).lines,head={};
   for(const k in lines){const h=LINE[k][1];head[h]=r1((head[h]||0)+lines[k])}return{lines,head}}
-function operatingResult(lines){let t=0;for(const k in lines)if(!['loanIn','loanOut'].includes(k))t+=lines[k];return r1(t)}
+function operatingResult(lines){let t=0;for(const k in lines)if(!['loanIn','loanOut','groundSale'].includes(k))t+=lines[k];return r1(t)}
 /* 26-week forecast with a band */
 function cashForecast(id,weeks=26){
   const f=F(id),avg=(sumLines(weekLines(id,true,{}))+sumLines(weekLines(id,false,{away:true})))/2;
@@ -990,14 +1000,15 @@ function bookCupPrize(id,amt,r){book(id,'cupprize',amt)}
 function finHealth(id){const f=F(id),fc=cashForecast(id);return f.cash<0?'red':fc.minV<0||debt(id)>estSeasonIncome(id)*.6?'tight':'healthy'}
 
 /* ----- commands ----- */
-defCommand('SetPrice',{check:(id,a)=>!(a.kind in F(id).prices)?'Unknown price':null,run:(id,a)=>{const pr=F(id).prices,k=a.kind,step=k==='season'?5:k==='business'?5:1,ref=PRICE_DEF[CL(id).tier][k];
+defCommand('SetPrice',{check:(id,a)=>{if(!(a.kind in F(id).prices))return'Unknown price';const ref=PRICE_DEF[CL(id).tier][a.kind],step=a.kind==='season'||a.kind==='business'?5:1;
+    if(a.delta>0&&hasStatute(id,STATUTE_PRICES)&&F(id).prices[a.kind]+step>Math.round(ref*1.15))return'The statute lets the members set prices: no more than 15% above the usual';return null},run:(id,a)=>{const pr=F(id).prices,k=a.kind,step=k==='season'?5:k==='business'?5:1,ref=PRICE_DEF[CL(id).tier][k];
   pr[k]=clamp(pr[k]+a.delta*step,Math.round(ref*.4),Math.round(ref*2.5));if(id===S.my)emit('Finance',id,`Price change: ${k==='season'?'season ticket':k} now £${pr[k]}.`)}});
 defCommand('TakeLoan',{check:(id,a)=>{if(!(a.amount>0))return'Choose an amount';if(a.amount>maxNewLoan(id))return`The bank lends at most £${maxNewLoan(id)}k more`;if(![3,5,10].includes(a.years))return'Choose 3, 5 or 10 years';return null},
   run:(id,a)=>{const rate=loanRate(id,a.amount),l=mkLoan(a.amount,a.years,rate,`Bank loan (${a.years} years)`);F(id).loans.push(l);book(id,'loanIn',a.amount);emit('LoanTaken',id,`${CL(id).name} borrow £${a.amount}k over ${a.years} years at ${Math.round(rate*1000)/10}%.`);return l}});
 defCommand('RepayLoan',{check:(id,a)=>{const l=F(id).loans[a.i];if(!l)return'No such loan';if(F(id).cash<l.left)return'Not enough cash to repay it';return null},
   run:(id,a)=>{const l=F(id).loans[a.i];book(id,'loanOut',-l.left);emit('LoanRepaid',id,`Loan repaid early: £${r1(l.left)}k.`);F(id).loans.splice(a.i,1)}});
-defCommand('SetSquadPolicy',{check:(id,a)=>(a.wage&&!WAGE_RATIO[a.wage])||(a.spend!=null&&!(a.spend>=0&&a.spend<=1))?'Unknown policy':null,
-  run:(id,a)=>{const p=F(id).policy;if(a.wage)p.wage=a.wage;if(a.spend!=null)p.spend=a.spend}});
+defCommand('SetSquadPolicy',{check:(id,a)=>(a.wage&&!WAGE_RATIO[a.wage])||(a.wageR!=null&&!(a.wageR>=.4&&a.wageR<=1.05))||(a.spend!=null&&!(a.spend>=0&&a.spend<=1))?'Unknown policy':null,
+  run:(id,a)=>{const p=F(id).policy;if(a.wage){p.wage=a.wage;p.wageR=WAGE_RATIO[a.wage]}if(a.wageR!=null)p.wageR=r2(a.wageR);if(a.spend!=null)p.spend=a.spend}});
 
 /* ---- club/members.js ---- */
 /* ================= Club: members, confidence, season targets and the AGM =================
@@ -1027,6 +1038,7 @@ function membersWeek(id,matches){
     if(x.comp==='league'){const xp=home?x.xh:x.xa,derby=CL(x.h).rival===x.a;confLog(id,(pts-xp)*(derby?1.6:.9),derby?'Derby results':'Results against expectation')}
     else if(x.winner===id&&x.round>=3)confLog(id,1.5,'A cup run');
   }
+  if(namingWeekK(id))confLog(id,-.12,'The ground renamed after a sponsor');
   const pi=priceIndex(id);if(pi>1.2)confLog(id,-(pi-1.2)*2.5,'Ticket prices');else if(pi<.9)confLog(id,.15,'Ticket prices');
   if(m.dues>ref*1.3)confLog(id,-(m.dues/ref-1.3)*1.5,'Membership dues');else if(m.dues<ref*.8)confLog(id,.1,'Membership dues');
 }
@@ -1159,7 +1171,7 @@ function staffCandidates(id,role){
 /* ----- computer boards: sack after failure, hire the best they can pay ----- */
 function aiStaffWeek(id){
   const w=S.week;if(w!==10&&w!==20)return;const c=CL(id),gap=posOf(id)-(c.expect||8);
-  if(gap>=4&&chance(.3)){sackStaff(id,'coach','after a poor run');aiHire(id,'coach')}
+  if(gap>=4&&chance(.3)){sackStaff(id,'coach','after a poor run');aiHire(id,'coach',true)} // mid-season: from the free pool only; poaching waits for the summer
 }
 /* computer boards prefer the free pool; they only poach from a lower division when that man is clearly better */
 function aiHire(id,role,poolOnly){
@@ -1193,6 +1205,97 @@ defCommand('SackStaff',{check:(id,a)=>{const p=P(CL(id).cast[a.role]);if(!p)retu
 defCommand('RenewStaff',{check:(id,a)=>{const p=P(CL(id).cast[a.role]);if(!p||p.pro.caretaker)return'Nobody to renew';if(p.pro.contract>1)return'The contract runs for more than a season';return null},
   run:(id,a)=>{const p=P(CL(id).cast[a.role]);p.pro.contract=2;p.pro.wage=Math.round(p.pro.wage*1.1/5)*5;emit('StaffRenewed',id,`${p.name} signs for two more seasons (£${p.pro.wage} a week).`,{pid:p.id})}});
 
+/* ---- club/commercial.js ---- */
+/* ================= Club: the season budget, sponsors and members' financing =================
+   Owns F(id).budget (the season plan), F(id).sponsor / offers / naming (commercial deals) and the members' funding
+   (bonds, fundraising, the ground sold and leased back). Money still moves only through book(); the squad frame
+   (F(id).policy) stays the one source the director works to. The statute (CL(id).statute) limits what a board may do. */
+const SPONSOR_NAMES=['Holloway Haulage','Marsh & Daughters','Kestrel Bakeries','North Fen Energy','Brackwater Building Society','Cragside Motors','Ironbridge Insurance','Tarn Valley Dairy','Saltmere Ales','Penhallow Print','Greystone Quarries','Fellside Foods','Harbourline Ferries','Moorgate Joinery'];
+const STATUTE_SALE='Members approve any sale above £50k',STATUTE_PRICES='Ticket prices are set by the members';
+function hasStatute(id,s){return CL(id).statute.includes(s)}
+/* ----- the season plan: what the board expects, and how the season is going against it ----- */
+function wageRatio(id){const p=F(id).policy;return p.wageR??WAGE_RATIO[p.wage]}
+function setBudget(id,season){
+  const f=F(id),inc=estSeasonIncome(id);
+  const build=G(id).projects.filter(p=>p.phase!=='done').reduce((a,p)=>a+Math.max(0,p.cost*(1+p.over/100)-p.paid),0);
+  f.budget={s:season,income:Math.round(inc),wages:Math.round(wageCapK(id)*SEASON_WEEKS),staff:Math.round(staffWeekK(id)*SEASON_WEEKS),depts:Math.round(deptCost(id)*SEASON_WEEKS),
+    build:Math.round(build),transfers:budgetFor(id),loans:Math.round(f.loans.reduce((a,l)=>a+l.pay,0)*SEASON_WEEKS)};
+}
+function setBudgetsAll(season){for(const id in S.clubs)setBudget(id,season)}
+function budgetRows(id){
+  const f=F(id),b=f.budget,L=f.season,w=Math.max(1,S.week),proj=v=>v*SEASON_WEEKS/w;
+  const inc=Object.keys(L).filter(k=>L[k]>0&&!['loanIn','feesIn','groundSale'].includes(k)).reduce((a,k)=>a+L[k],0);
+  const rows=[['Income',b.income,inc,true],['Player wages',-b.wages,L.wages||0,false],['Coach and director',-b.staff,L.staff||0,false],['Departments',-b.depts,L.depts||0,false],['Building',-b.build,L.build||0,false],['Transfers (net)',-b.transfers,(L.feesOut||0)+(L.feesIn||0),false]];
+  const once=['seasontix','cupgate','cupprize','fundraising','prize'].reduce((a,k)=>a+Math.max(0,L[k]||0),0),prizeEst=L.prize?0:PRIZE[CL(id).tier][0]*.6;
+  const incProj=(inc-once)*SEASON_WEEKS/w+once+prizeEst; // one-off income counts once, not thirty times
+  return rows.map(([n,plan,now,isInc])=>{const p=isInc?incProj:n==='Building'||n.startsWith('Transfers')?now:proj(now);return{n,plan,now:r1(now),proj:r1(p),over:isInc?p<plan*.92:p<plan*1.05-1}})
+}
+function budgetWarnings(id){
+  const out=[],f=F(id),b=f.budget;if(!b||!S.week)return out;
+  const w=S.week,wg=wageBillK(id)*SEASON_WEEKS;if(wg>b.wages*1.05)out.push(`The wage bill is ${Math.round((wg/b.wages-1)*100)}% over budget.`);
+  const ext=-((f.season.feesOut||0));if(b.transfers&&ext>b.transfers*1.05)out.push('Transfer spending is over budget.');
+  const inc=budgetRows(id)[0].proj;
+  if(w>=6&&inc<b.income*.9)out.push(`Income is tracking ${Math.round((1-inc/b.income)*100)}% below plan.`);
+  return out;
+}
+/* ----- sponsors: one main deal, local partners, and sometimes naming rights for the ground ----- */
+function sponsorBase(id){const c=CL(id),t=c.tier,g=groundSignals(id);return SPONSOR[t]*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*(.7+.3*g.sales)}
+function sponsorOffers(id){
+  const b=sponsorBase(id)*.65,names=pickN(SPONSOR_NAMES,3),exp=Math.max(30,(CL(id).expect?(17-CL(id).expect)*3+20:45));
+  const offers=[{name:names[0],kind:'fixed',years:3,perWeek:r2(b*.95)},{name:names[1],kind:'fixed',years:1,perWeek:r2(b*1.08)},{name:names[2],kind:'bonus',years:2,perWeek:r2(b*.42),perPoint:r2(b*.56*SEASON_WEEKS/exp)}];
+  if(!F(id).naming&&chance(.35))offers.push({name:pick(SPONSOR_NAMES),kind:'naming',years:3,perWeek:r2(sponsorBase(id)*.45)});
+  return offers;
+}
+function signSponsor(id,o){
+  const f=F(id);
+  if(o.kind==='naming'){f.naming={...o,until:S.season+o.years-1};emit('Naming',id,`${CL(id).ground} is renamed the ${o.name} Stadium for ${o.years} seasons (£${n0w(o.perWeek)}k a week).`)}
+  else{f.sponsor={...o,until:S.season+o.years-(S.week>0?0:1)};emit('Sponsor',id,`${o.name} sign as main sponsor of ${CL(id).name} for ${o.years} season${o.years>1?'s':''}${o.kind==='bonus'?' (paid partly by results)':''}.`)}
+  f.offers=(f.offers||[]).filter(x=>x!==o&&(o.kind==='naming'?x.kind!=='naming':x.kind==='naming'));
+}
+function n0w(v){return Math.round(v*10)/10}
+/* AI boards pick by their chairman's values: money takes the long fixed deal, glory bets on results */
+function aiSponsor(id){const f=F(id),v=chairValue(id),of=f.offers||[];if(!of.length)return;
+  const main=of.filter(o=>o.kind!=='naming');if(main.length&&(!f.sponsor||f.sponsor.until<S.season+1))signSponsor(id,v==='money'?main[0]:v==='glory'?main.find(o=>o.kind==='bonus')||main[0]:main[1]||main[0]);
+  const nm=(f.offers||[]).find(o=>o.kind==='naming');if(nm&&v==='money'&&!hasStatute(id,STATUTE_SALE))signSponsor(id,nm);
+  f.offers=[];}
+function sponsorWeekK(id){const f=F(id),s=f.sponsor;return r2(s&&s.until>=S.season?s.perWeek:sponsorBase(id)*.65*.4)}
+function namingWeekK(id){const n=F(id).naming;return n&&n.until>=S.season?n.perWeek:0}
+function partnersWeekK(id,form){const c=CL(id),t=c.tier,g=groundSignals(id);return SPONSOR[t]*.35*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*(form??1)*(.4+.6*g.sales)}
+/* summer: expiring deals make way for new offers (the player chooses; computer boards choose at once) */
+function commercialSeasonEnd(){
+  for(const id in S.clubs){const f=F(id);
+    if(f.naming&&f.naming.until<S.season+1){emit('Naming',id,`The naming deal for ${CL(id).ground} ends.`);f.naming=null}
+    if(!f.sponsor||f.sponsor.until<S.season+1){f.offers=sponsorOffers(id);if(f.sponsor&&id===S.my)emit('Sponsor',id,`${f.sponsor.name}'s deal ends. Three companies have made offers.`);f.sponsor=null}
+    else if(!f.naming&&chance(.15))f.offers=sponsorOffers(id).filter(o=>o.kind==='naming');
+    if(aiRuns(id))aiSponsor(id);
+  }
+}
+function commercialInit(id){const f=F(id),o=sponsorOffers(id).filter(x=>x.kind!=='naming');const pickO=pick(o);f.sponsor={...pickO,until:S.season+ri(0,2)};f.offers=[];f.naming=null;f.fundLast=-9;f.groundSold=null;f.bondSeason=-9}
+
+/* ----- members' financing ----- */
+function bondCap(id){const m=M(id);return Math.max(0,Math.round(m.count*.15*(m.conf/100)*(CL(id).tier===0?1.4:1)))}
+function bondRate(id){return r2(.03+(60-M(id).conf)*.0004)}
+function fundraiseYield(id){const m=M(id),recent=S.season-F(id).fundLast<2;return Math.round(m.count*.025*(.5+m.conf/100)*(recent?.45:1))}
+function groundValue(id){return Math.round(groundSignals(id).capacity*.11*[1.4,1,.75][CL(id).tier])}
+function rentWeekK(id){const g=F(id).groundSold;return g?g.rent:0}
+defCommand('SignSponsor',{check:(id,a)=>{const o=(F(id).offers||[])[a.i];if(!o)return'That offer has gone';if(o.kind==='naming'&&hasStatute(id,STATUTE_SALE)&&M(id).conf<55)return'The members would vote down naming rights';return null},
+  run:(id,a)=>{const o=F(id).offers[a.i];signSponsor(id,o);if(o.kind==='naming')confLog(id,-4,'The ground renamed after a sponsor')}});
+defCommand('IssueBond',{check:(id,a)=>{const f=F(id);if(f.bondSeason===S.season)return'One members\' bond a season';if(!(a.amount>0)||a.amount>bondCap(id))return`Members will lend at most £${bondCap(id)}k`;return null},
+  run:(id,a)=>{const f=F(id),r=bondRate(id);f.loans.push(mkLoan(a.amount,5,r,'Members\' bond (5 years)'));book(id,'loanIn',a.amount);f.bondSeason=S.season;confLog(id,1.5,'Members invested in the club');
+    emit('Bond',id,`${CL(id).name} raise £${a.amount}k from a members' bond at ${Math.round(r*1000)/10}%.`)}});
+defCommand('Fundraise',{check:(id)=>F(id).fundLast===S.season?'One appeal a season':null,
+  run:(id)=>{const f=F(id),y=fundraiseYield(id),recent=S.season-f.fundLast<2;book(id,'fundraising',y);f.fundLast=S.season;if(recent)confLog(id,-3,'Another appeal for money');
+    emit('Fundraising',id,`A members' appeal raises £${y}k${recent?' (donors are tiring)':''}.`);return y}});
+defCommand('SellGround',{check:(id)=>{if(F(id).groundSold)return'The ground is already sold';if(hasStatute(id,STATUTE_SALE)&&M(id).conf<60)return'The statute needs the members\' approval, and they would refuse';return null},
+  run:(id)=>{const v=groundValue(id),f=F(id);f.groundSold={value:v,rent:r2(v*.075/SEASON_WEEKS),s:S.season};book(id,'groundSale',v);confLog(id,-15,'The ground was sold');
+    emit('GroundSold',id,`${CL(id).name} sell ${CL(id).ground} for £${v}k and lease it back (£${n0w(f.groundSold.rent)}k a week).`)}});
+defCommand('BuyBackGround',{check:(id)=>{const g=F(id).groundSold;if(!g)return'The club owns its ground';if(F(id).cash<g.value*1.1)return`Buying it back costs £${Math.round(g.value*1.1)}k`;return null},
+  run:(id)=>{const g=F(id).groundSold;book(id,'groundSale',-Math.round(g.value*1.1));F(id).groundSold=null;confLog(id,10,'The ground is ours again');emit('GroundBought',id,`${CL(id).name} buy back their ground.`)}});
+/* a computer board in trouble asks its members first */
+function aiFunding(id){const f=F(id);if(f.cash>=-creditLimit(id)*.5)return;
+  const cap=bondCap(id);if(f.bondSeason<S.season-1&&cap>=10&&M(id).conf>=50)cmd('IssueBond',id,{amount:Math.round(cap*.6)},'ai');else if(f.fundLast<S.season-1)cmd('Fundraise',id,{},'ai')}
+function commercialAfterLoad(){for(const id in S.clubs){const f=F(id);if(f.fundLast==null)commercialInit(id);if(!f.budget||f.budget.s!==S.season)setBudget(id,S.season)}}
+
 /* ---- sim/ai.js ---- */
 /* ================= Simulation: rule-based club boards =================
    Every computer-run club decides through the same commands as the player (cmd(..., 'ai')): repairs, building,
@@ -1209,6 +1312,10 @@ function aiBoardWeek(id){
   // staff: richer boards hire, poor boards cut (one department at a time, start of each quarter)
   if(w%8===1){const inc=estSeasonIncome(id),want=clamp(STAFF_DEF[CL(id).tier]+(f.cash>inc*.5?1:0)+(f.cash>inc*1.1?1:0)-(f.cash<res*.5?1:0),1,5);
     const ks=Object.keys(g.depts).filter(k=>!g.depts[k].hiring&&g.depts[k].staff!==want);if(ks.length){const k=pick(ks),x=g.depts[k];cmd('SetDeptStaff',id,{dept:k,level:x.staff<want?x.staff+1:x.staff-1},'ai')}}
+  aiFunding(id);
+  // ambition: a glory-seeking board borrows to push for promotion when it looks within reach (and may overreach)
+  if(w===1&&v==='glory'&&CL(id).tier>0&&(CL(id).expect||9)<=5&&debt(id)<estSeasonIncome(id)*.3){const amt=Math.min(maxNewLoan(id),Math.round(estSeasonIncome(id)*.3));
+    if(amt>=20&&cmd('TakeLoan',id,{amount:amt,years:5},'ai').ok)cmd('SetSquadPolicy',id,{wage:'allin',spend:.9},'ai')}
   // department budgets follow the cash
   const want=f.cash<0?'tight':f.cash>res*3?'normal':f.cash<res*.5?'tight':'normal';
   for(const d in g.depts)if(g.depts[d].budget!==want)cmd('SetDeptBudget',id,{dept:d,level:want},'ai');
@@ -1283,9 +1390,11 @@ function closeSeason(){
   for(const m of moves){const c=CL(m.id);c.support=Math.round(c.support*(m.to<m.from?1.08:.93))}
   S.hist.push({s,tables,cup:S.cup.winner,moves:moves.map(m=>({...m})),agm,chairsOut:outIds.filter(i=>i!==S.my)});
   for(const id of ids){const st=S.stats[id];st.prev={inj:st.inj,injWeeks:st.injWeeks,youthGrowth:st.youthGrowth};st.inj=0;st.injWeeks=0;st.youthGrowth=0}
+  commercialSeasonEnd();
   for(const id of ids)playersSeasonEnd(id);
   S.qref=r2(S.qref*.7+worldQuality()*.3);
   faSummer();
+  setBudgetsAll(s+1);
   const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
   for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
   for(const id of ids)groundSeasonEnd(id);
@@ -1317,7 +1426,9 @@ const MIGRATIONS={
   3:s=>{s.members=s.members||{};for(const id in s.clubs){const c=s.clubs[id];s.members[id]=s.members[id]||{count:Math.round(c.support*.4),dues:[50,40,30][c.tier],conf:55,log:[],goals:[],goalsSeason:0,agm:null}}
     s.career=s.career||(s.my?[{club:s.my,from:1,to:null,why:null}]:[]);s.rep=s.rep||0;s.votedOut=s.votedOut||null;s.v=3;},
   // 3 → 4: head coaches and directors get a professional profile; the free pool is filled after loading (staffAfterLoad)
-  4:s=>{s.staffPool=s.staffPool||[];s.v=4;}
+  4:s=>{s.staffPool=s.staffPool||[];s.v=4;},
+  // 4 → 5: season budget, sponsor deals, members' financing (filled after loading: commercialAfterLoad)
+  5:s=>{s.v=5;}
 };
 function migrate(s){
   if(!s||typeof s.v!=='number'||s.v<1)throw new Error('Not a Northmarch layered save');
@@ -1325,8 +1436,9 @@ function migrate(s){
   while(s.v<VERSION){const m=MIGRATIONS[s.v+1];if(!m)throw new Error('No migration to version '+(s.v+1));m(s);}
   return s;
 }
+function schemaVersion(){return VERSION}
 function serialize(){return JSON.stringify(S)}
-function deserialize(txt){S=migrate(JSON.parse(txt));staffAfterLoad();membersAfterLoad();return S}
+function deserialize(txt){S=migrate(JSON.parse(txt));staffAfterLoad();commercialAfterLoad();membersAfterLoad();return S}
 function save(){if(!HAS_DOM)return false;try{localStorage.setItem(SAVE_KEY,serialize());return true}catch(e){return false}}
 function hasSave(){if(!HAS_DOM)return false;try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
 function load(){if(!HAS_DOM)return false;try{const t=localStorage.getItem(SAVE_KEY);if(!t)return false;deserialize(t);return true}catch(e){return false}}
@@ -1446,10 +1558,7 @@ function squadView(){
   <div class="row small"><span>Players</span><b>${sq.length} · average age ${r1(sq.reduce((a,p)=>a+p.age,0)/sq.length)}</b></div>
   <div class="row small"><span>Wage bill</span><b class="${bill>cap?'down':''}">£${n0(bill*1000)} a week · limit £${n0(cap*1000)}</b></div>
   ${gaps.slice(0,3).map(g=>`<p class="small down">${esc(g.text)}</p>`).join('')}</div>
-  <div class="panel"><p class="eyebrow">The frame for your director</p><p class="small muted">The director signs, sells and renews within these limits. You set the frame; he does the deals.</p>
-  <p class="small"><b>Wages</b> as a share of expected income</p><div class="seg">${Object.keys(WAGE_RATIO).map(k=>`<button class="${f.policy.wage===k?'on':''}" data-act="pol" data-arg="${k}" aria-pressed="${f.policy.wage===k}">${{tight:'Tight',normal:'Normal',ambitious:'Bold',allin:'All in'}[k]} ${Math.round(WAGE_RATIO[k]*100)}%</button>`).join('')}</div>
-  <p class="small"><b>Transfer money</b>: share of spare cash he may spend</p><div class="seg">${[[.2,'Keep cash'],[.5,'Balanced'],[.8,'Back him']].map(([v,n])=>`<button class="${Math.abs(f.policy.spend-v)<.05?'on':''}" data-act="spend" data-arg="${v}" aria-pressed="${Math.abs(f.policy.spend-v)<.05}">${n}</button>`).join('')}</div>
-  <p class="note">Spending power now: ${k1(budgetFor(id))}. Windows: the summer and week ${WINTER_WEEK}. Renewals in week ${RENEW_WEEK}.</p></div>
+  <div class="panel"><p class="eyebrow">The frame for your director</p><div class="row small"><span>Wage limit</span><b>£${n0(cap*1000)} a week</b></div><div class="row small"><span>Spending power now</span><b>${k1(budgetFor(id))}</b></div><p class="small muted">The director signs and sells within the frame you set in the budget.</p><button class="btn ghost" data-act="tobudget">Set the frame in Money → Budget</button></div>
   ${POS.map(pos=>{const ps=sq.filter(p=>p.pos===pos);if(!ps.length)return'';return`<p class="eyebrow">${POS_L[pos]}</p><div class="stack">${ps.map(p=>`<button class="prow" data-act="player" data-arg="${p.id}"><span><span class="pn">${esc(p.name)}${xi.includes(p.id)?' <span class="pill">XI</span>':''}</span><br><span class="pm">${p.age} · ${p.contract<=1?'<b>contract ends</b>':p.contract+' yrs'} · £${p.wage}/wk${p.inj?` · <span class="inj">out ${p.inj} wk</span>`:''}</span></span>
     <span>${qbar(p.q)}${Math.abs(p.grown)>=.1?`<span class="small ${p.grown>0?'up':'down'}"> ${p.grown>0?'▲':'▼'}</span>`:''}</span></button>`).join('')}</div>`}).join('')}`;
 }
@@ -1512,12 +1621,15 @@ function moneyView(){
     const a=attendance(id,null,{});
     body=`<p class="small muted">Families walk away first when prices rise; the terrace comes anyway; business pays for comfort.</p><div class="panel">${st('terrace','Terrace ticket','Price-tolerant')}${st('seated','Seat ticket','Price-sensitive')}${st('business','Business seat','Pays for comfort')}${st('season','Season ticket','Sold in week 1')}</div>
     <div class="panel"><div class="row small"><span>Expected crowd at these prices</span><b>${n0(a.total)} of ${n0(a.cap)}</b></div>${gate?`<div class="row small"><span>Last home game</span><b>${n0(gate.total)}</b></div>`:''}<div class="row small"><span>Expected gate per home game</span><b>${k1((a.terrace*pr.terrace+a.seated*pr.seated)/1000)}</b></div></div>`}
-  if(t==='loans'){const max=maxNewLoan(id);
+  if(t==='budget')body=budgetBody();
+  if(t==='sponsors')body=sponsorsBody();
+  if(t==='funding'){const max=maxNewLoan(id);
     body=`<div class="panel"><p class="eyebrow">Loans</p>${f.loans.length?f.loans.map((l,i)=>`<div class="grow"><span><b>${esc(l.label)}</b><br><span class="small muted">${k1(l.left)} left · ${Math.round(l.rate*1000)/10}% · ${k1(l.pay)} a week</span></span><span></span>${f.cash>=l.left?`<button class="tbtn" data-act="repay" data-arg="${i}">Repay</button>`:''}</div>`).join(''):'<p class="small muted">No loans.</p>'}</div>
     <div class="panel"><p class="eyebrow">Borrow</p><p class="small muted">The bank lends up to 80% of a season's income in total. The more you owe, the higher the rate.</p>
     <div class="seg">${[3,5,10].map(y=>`<button class="${UI.ly===y?'on':''}" data-act="ly" data-arg="${y}" aria-pressed="${UI.ly===y}">${y} years</button>`).join('')}</div>
     <div class="seg">${[25,50,100,200].filter(a=>a<=max).map(a=>`<button data-act="loan" data-arg="${a}">£${a}k at ${Math.round(loanRate(id,a)*1000)/10}%</button>`).join('')||'<p class="small down">The bank will not lend more.</p>'}</div><p class="note">Room to borrow: ${k1(max)}.</p></div>`}
-  return`${msgLine()}${gTabs(t,[['overview','Overview'],['ledger','Ledger'],['prices','Prices'],['loans','Loans']],'mtab')}${body}`;
+  if(t==='funding')body+=fundingExtra();
+  return`${msgLine()}${gTabs(t,[['overview','Overview'],['budget','Budget'],['ledger','Ledger'],['prices','Prices'],['sponsors','Sponsors'],['funding','Funding']],'mtab')}${body}`;
 }
 
 /* ----- the club tab: compare, history, layers ----- */
@@ -1675,6 +1787,38 @@ function staffSheet(role){
   ${curHtml}<p class="eyebrow">Candidates</p><p class="small muted">Ratings are your scouts' estimate. People at your own club are judged more sharply.</p><div class="stack">${list||'<p class="small muted">Nobody available.</p>'}</div>`);
 }
 
+/* ---- ui/commercial.js ---- */
+/* ================= Screens: the season budget, sponsors and funding (Money tab) ================= */
+function budgetBody(){
+  const id=S.my,f=F(id),b=f.budget,rows=budgetRows(id),warn=budgetWarnings(id),inc=estSeasonIncome(id),cap=wageCapK(id);
+  return`${warn.map(w=>`<p class="err" role="status">${esc(w)}</p>`).join('')}
+  <div class="panel"><p class="eyebrow">Season ${S.season} plan</p><div class="cmp"><span></span><b>Plan</b><b>${S.week?'On course for':'So far'}</b>
+  ${rows.map(r=>`<span>${r.n}</span><b>${k1(r.plan)}</b><b class="${r.over?'down':''}">${k1(r.proj)}</b>`).join('')}</div>
+  <p class="note">The plan is set in the summer. "On course for" scales the season so far to thirty weeks.</p></div>
+  <div class="panel"><p class="eyebrow">The frame for your director</p><p class="small muted">He signs, sells and renews within these limits. You set the frame; he does the deals.</p>
+  <div class="grow"><span><b>Wage limit</b><br><span class="small muted">${Math.round(wageRatio(id)*100)}% of income expected on current form (£${n0(inc)}k) · bill now £${n0(wageBillK(id)*1000)}</span></span><span></span><span class="stepper"><button data-act="wager" data-arg="-1" aria-label="Lower the wage limit">−</button><b>£${n0(cap*1000)}</b><button data-act="wager" data-arg="1" aria-label="Raise the wage limit">+</button></span></div>
+  <p class="small"><b>Transfer money</b>: share of spare cash he may spend</p><div class="seg">${[[.2,'Keep cash'],[.5,'Balanced'],[.8,'Back him']].map(([v,n])=>`<button class="${Math.abs(f.policy.spend-v)<.05?'on':''}" data-act="spend" data-arg="${v}" aria-pressed="${Math.abs(f.policy.spend-v)<.05}">${n}</button>`).join('')}</div>
+  <p class="note">Spending power now: ${k1(budgetFor(id))}. Windows: the summer and week ${WINTER_WEEK}. Renewals in week ${RENEW_WEEK}.</p></div>`;
+}
+function dealLine(o){return o.kind==='bonus'?`£${n0(o.perWeek*1000)} a week + £${n0(o.perPoint*1000)} a league point`:o.kind==='naming'?`£${n0(o.perWeek*1000)} a week for the stadium name`:`£${n0(o.perWeek*1000)} a week, fixed`}
+function sponsorsBody(){
+  const id=S.my,f=F(id),s=f.sponsor,n=f.naming,of=f.offers||[];
+  return`<div class="panel"><p class="eyebrow">Main sponsor</p>${s&&s.until>=S.season?`<div class="row"><b>${esc(s.name)}</b><span class="small muted">until season ${s.until}</span></div><p class="small">${dealLine(s)}</p>`:'<p class="small down">No main sponsor: local backers pay a fraction.</p>'}
+  ${n&&n.until>=S.season?`<div class="row"><b>${esc(n.name)} Stadium</b><span class="small muted">until season ${n.until}</span></div><p class="small">${dealLine(n)} · members dislike it</p>`:''}
+  <div class="row small"><span>Local partners this season</span><b>${k1(f.season.partners||0)}</b></div><p class="note">The commercial department and media facilities raise local partners now and the size of future deals.</p></div>
+  ${of.length?`<p class="eyebrow">Offers on the table</p><div class="stack">${of.map((o,i)=>`<div class="opt"><b>${esc(o.name)}${o.kind==='naming'?' (naming rights)':''}</b><span class="small">${dealLine(o)} · ${o.years} season${o.years>1?'s':''}</span>
+    <span class="small muted">${o.kind==='bonus'?'A good season pays more than a fixed deal; a bad one pays less.':o.kind==='naming'?'Big money, but members dislike a renamed ground.':o.years>=3?'Security for three seasons.':'More now, renegotiate next summer.'}</span><button class="tbtn" data-act="sponsor" data-arg="${i}">Sign</button></div>`).join('')}</div>`:'<p class="small muted">New offers arrive in the summer when a deal ends.</p>'}`;
+}
+function fundingExtra(){
+  const id=S.my,f=F(id),cap=bondCap(id),y=fundraiseYield(id),g=f.groundSold,gv=groundValue(id),stat=hasStatute(id,STATUTE_SALE);
+  return`<div class="panel"><p class="eyebrow">Members' bond</p><p class="small muted">Members lend to their club for five years, cheaper than the bank. Confident members lend more.</p>
+  ${f.bondSeason===S.season?'<p class="small">One bond a season: this season\'s is issued.</p>':cap>=5?`<div class="seg">${[.5,1].map(x=>Math.max(5,Math.round(cap*x))).map(a=>`<button data-act="bond" data-arg="${a}">£${a}k at ${Math.round(bondRate(id)*1000)/10}%</button>`).join('')}</div>`:'<p class="small down">Members have too little confidence to lend.</p>'}</div>
+  <div class="panel"><p class="eyebrow">Members' appeal</p><p class="small muted">A one-off collection. Ask too often and members give less and grumble.</p>
+  ${f.fundLast===S.season?'<p class="small">This season\'s appeal is done.</p>':`<button class="btn ghost" data-act="appeal">Launch an appeal (about £${y}k)</button>`}</div>
+  <div class="panel"><p class="eyebrow">The ground</p>${g?`<p class="small">Sold in season ${g.s}. Rent £${n0(g.rent*1000)} a week.</p><button class="btn ghost" data-act="buyback">Buy it back (£${Math.round(g.value*1.1)}k)</button>`:`<p class="small muted">Sell ${esc(CL(id).ground)} for about £${gv}k and lease it back at £${n0(gv*.075/SEASON_WEEKS*1000)} a week. Members will not forgive it easily.${stat?' The statute needs their approval.':''}</p>
+  ${UI.confirm==='sellground'?`<div class="seg"><button data-act="sellground">Sell the ground</button><button data-act="confirm" data-arg="">Keep it</button></div>`:`<button class="btn ghost" data-act="confirm" data-arg="sellground">Sell and lease back</button>`}`}</div>`;
+}
+
 /* ---- ui/act.js ---- */
 /* ================= Taps: one handler for every data-act, then save and redraw ================= */
 function say(r,okText){UI.msg=r&&r.ok===false?{err:true,text:r.err}:okText?{text:okText}:null}
@@ -1710,6 +1854,13 @@ function act(a,arg){
     case'shire':{const [role,pid]=arg.split('|');const r=cmd('HireStaff',S.my,{role,pid});say(r,'Appointed.');if(r.ok)UI.confirm=null;break}
     case'ssack':say(cmd('SackStaff',S.my,{role:arg}),'Sacked. A caretaker takes over.');break;
     case'srenew':say(cmd('RenewStaff',S.my,{role:arg}),'Contract renewed.');break;
+    case'tobudget':UI.tab='money';UI.mt='budget';UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
+    case'wager':say(cmd('SetSquadPolicy',S.my,{wageR:clamp(r2(wageRatio(S.my)+.02*(+arg)),.4,1.05)}));break;
+    case'sponsor':say(cmd('SignSponsor',S.my,{i:+arg}),'Deal signed.');break;
+    case'bond':say(cmd('IssueBond',S.my,{amount:+arg}),'Bond issued.');break;
+    case'appeal':{const r=cmd('Fundraise',S.my,{});say(r,r.ok?`The appeal raised £${r.res}k.`:null);break}
+    case'sellground':say(cmd('SellGround',S.my,{}),'The ground is sold.');UI.confirm=null;break;
+    case'buyback':say(cmd('BuyBackGround',S.my,{}),'The ground is ours again.');break;
     case'dues':say(cmd('SetDues',S.my,{delta:+arg}));break;
     case'pol':say(cmd('SetSquadPolicy',S.my,{wage:arg}));break;
     case'spend':say(cmd('SetSquadPolicy',S.my,{spend:+arg}));break;

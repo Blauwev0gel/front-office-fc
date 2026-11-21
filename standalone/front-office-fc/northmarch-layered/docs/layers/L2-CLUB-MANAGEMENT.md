@@ -1,6 +1,6 @@
 # L2 — Volwaardig clubmanagement
 
-**Status:** Speelbaar. Uitvoering volgens `docs/PROMPT_L1_L2_AFRONDEN.md`: afdelingen ✓, pakket 1 (leden, ALV) ✓, pakket 2 (trainer en directeur) ✓; pakket 3–6 open.
+**Status:** Speelbaar. Uitvoering volgens `docs/PROMPT_L1_L2_AFRONDEN.md`: afdelingen ✓, pakket 1 (leden, ALV) ✓, pakket 2 (trainer en directeur) ✓, pakket 3 (begroting, commercie, financiering) ✓; pakket 4–6 open.
 
 ## 1. Spelbelofte
 De voorzitter bestuurt de club proactief: onderzoeken, vergelijken, bouwen, financieren, onderhouden en bijsturen,
@@ -22,7 +22,9 @@ Geen eigen spelstaat: L2 is UI plus speleracties op L1-commando's (`src/ui/*.js`
 | Faciliteit van een afdeling bouwen/upgraden | Club-tab → afdeling | `StartProject` | idem, direct vanuit de afdeling |
 | Ticketprijzen | Money-tab → Prices | `SetPrice` | opkomst ↔ recette (getest: +£4 → −9% publiek, +7% recette) |
 | Lenen en aflossen | Money-tab → Loans | `TakeLoan`, `RepayLoan` | kas nu, rente en aflossing later |
-| Kader voor de directeur | Squad | `SetSquadPolicy` | loonplafond en transferruimte van de directeur |
+| Seizoensbegroting en kader voor de directeur | Money → Budget | `SetSquadPolicy` (loonlimiet in stappen, transferdeel) | plan tegenover koers, waarschuwingen; loonlimiet 88% vs 50% → loonsom £11,8k vs £8,9k per week, zwakkere selectie |
+| Hoofdsponsor kiezen, naamrecht | Money → Sponsors | `SignSponsor` | vast lang/kort of prestatiegebonden (goed seizoen +£4,8k, slecht −£2,0k t.o.v. vast); naamrecht kost vertrouwen; lokale partners volgen de commerciële afdeling |
+| Ledenobligatie, inzameling, grond verkopen/terugkopen | Money → Funding | `IssueBond`, `Fundraise`, `SellGround`, `BuyBackGround` | goedkoper dan de bank; tweede inzameling £9k i.p.v. £18k en minder vertrouwen; grondverkoop: geld nu, huur altijd, −15 vertrouwen; statuten kunnen blokkeren |
 | Speler laten gaan | Squad → speler | `ReleasePlayer` | afkoopsom, lagere loonsom |
 | Contributie instellen | Club-tab → Members | `SetDues` | ledental ↔ contributie-inkomsten ↔ vertrouwen (getest: +£25 → −16% leden, +48% contributie, −15 vertrouwen) |
 | Seizoensdoelen volgen | Week-tab | — | drie doelen (positie, financiën, academie) met voortgang; beoordeeld op de ALV |
@@ -55,6 +57,17 @@ Directeur: inschattingsruis (20−oog)/7, bereik +(q−10)/2, prijs ×(1,18−0,
 Salaris 120 (trainer) / 95 (directeur) × 1,27^(q−8) per week. Wil niet onder zijn niveau werken (q ≤ divisieplafond + 3).
 Ontslag: halve restwaarde contract, interim (q 4–7). Wegkopen: halve restwaarde als vergoeding. AI: ontslag bij achterstand ≥4 plaatsen (week 10/20, 30%) of ≥3 in de zomer (45%); vervangers primair uit de vrije markt.
 De speler ziet een schatting in sterren; bij de eigen club halveert de fout. Eigen wil (mandaten, initiatief) volgt in laag 3.
+
+### Pakket 3 — begroting, commercie en financiering (ontwerpnotitie)
+Eén bron voor het kader: `F.policy` (loonverhouding `wageR` 0,4–1,05 van de verwachte inkomsten, transferdeel `spend`). De begroting `F.budget`
+is een plan dat elke zomer wordt vastgelegd (inkomsten, lonen, trainer/directeur, afdelingen, bouw, transfers, aflossingen) en dat de lopende
+koers volgt; eenmalige inkomsten tellen één keer. Sponsors: elke zomer bij einde contract drie aanbiedingen (vast 3 jaar 0,95×, vast 1 jaar 1,08×,
+prestatie 0,42× + per punt, gelijke verwachte waarde), soms naamrecht (0,45× basis, −0,12 vertrouwen per week); lokale partners 0,35× basis met
+vorm en afdeling commercie. Financiering: ledenobligatie (cap = leden × £150 × vertrouwen, rente 3% ± vertrouwen, 5 jaar, één per seizoen),
+inzameling (leden × £25 × vertrouwen; binnen 2 seizoenen 45% en −3 vertrouwen), grond verkopen (capaciteit × £110 × divisie, huur 7,5% per jaar,
+−15 vertrouwen; terugkopen 110%, +10). Statuten: 'Members approve any sale above £50k' (verkoop/naamrecht alleen bij voldoende vertrouwen),
+'Ticket prices are set by the members' (max. 15% boven de norm). AI: sponsorkeuze naar waarde voorzitter; bij geldnood eerst obligatie, dan inzameling.
+Ook: inkomstenschatting telde seizoenkaarthouders dubbel (hersteld, loonverhoudingen evenredig herschaald); speelschema had reeksen van 15 uitwedstrijden (hersteld: max. 3).
 
 ### Afdelingsmodel
 Signaal = faciliteit × (budget × (0,55 + 0,15 × personeel)) + 0,3 × personeel × budget, × koers (1,15).

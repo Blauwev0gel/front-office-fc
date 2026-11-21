@@ -67,14 +67,14 @@ function money(S,id,amt){E.cmd('TakeLoan',id,{amount:Math.min(amt,E.maxNewLoan(i
 
 // 6. Staff: an elite medical team (no new building) and a strong sales team, against the default staff
 {const iA=[],iB=[],sA=[],sB=[],cA=[],cB=[];
- const measure={end:(S,id)=>({inj:S.stats[id].injWeeks,spons:S.fin[id].season.sponsors||0,depts:-(S.fin[id].season.depts||0)})};
+ const measure={end:(S,id)=>({inj:S.stats[id].injWeeks,spons:S.fin[id].season.partners||0,depts:-(S.fin[id].season.depts||0)})};
  for(let k=0;k<N;k++){const snap=world(6000+k);
   const A=branch(snap,()=>{},1,measure);
   const B=branch(snap,(S,id)=>{money(S,id,60);E.cmd('SetDeptStaff',id,{dept:'medical',level:5});E.cmd('SetDeptStaff',id,{dept:'commercial',level:5})},1,measure);
   iA.push(A.inj);iB.push(B.inj);sA.push(A.spons);sB.push(B.spons);cA.push(A.depts);cB.push(B.depts)}
- console.log(`staff: injury weeks A ${avg(iA).toFixed(1)} vs B ${avg(iB).toFixed(1)} · sponsors A £${avg(sA).toFixed(0)}k vs B £${avg(sB).toFixed(0)}k · department costs A £${avg(cA).toFixed(0)}k vs B £${avg(cB).toFixed(0)}k`);
+ console.log(`staff: injury weeks A ${avg(iA).toFixed(1)} vs B ${avg(iB).toFixed(1)} · local partners A £${avg(sA).toFixed(0)}k vs B £${avg(sB).toFixed(0)}k · department costs A £${avg(cA).toFixed(0)}k vs B £${avg(cB).toFixed(0)}k`);
  ok(avg(iB)<avg(iA)*.92,'more medical staff means fewer injury weeks, even without a new building');
- ok(avg(sB)>avg(sA)*1.05,'a stronger sales team brings in more sponsor money');
+ ok(avg(sB)>avg(sA)*1.08,'a stronger sales team brings in more money from local partners');
  ok(avg(cB)>avg(cA),'and staff cost money every week');}
 
 console.log(fails?`${fails} check(s) failed`:'ab-test: all checks passed');

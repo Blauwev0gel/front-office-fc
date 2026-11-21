@@ -21,8 +21,9 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     await tap('[data-act=tier][data-arg=cup]');await wide('cup');
     await tap('[data-act=tier][data-arg="0"]');await tap('.trow[data-act=club] >> nth=0');await shot('club-sheet');await wide('club sheet');await tap('.overlay [data-act=ov]');
     await tap('[data-act=tab][data-arg=squad]');await shot('squad');await wide('squad');
-    await tap('[data-act=pol][data-arg=ambitious]');
-    ok(await page.locator('[data-act=pol][data-arg=ambitious].on').count()===1,`${scheme}: the wage frame changes through a command`);
+    await tap('[data-act=tobudget]');
+    ok(await page.evaluate(()=>UI.tab==='money'&&UI.mt==='budget'),`${scheme}: the squad screen leads to the budget frame`);
+    await tap('[data-act=tab][data-arg=squad]');
     await tap('.prow >> nth=0');await shot('player');await wide('player');await tap('.overlay [data-act=ov]');
     await tap('[data-act=tab][data-arg=club]');await shot('club');await wide('club');
     await tap('[data-act=ov][data-arg=ground]');await shot('ground');
@@ -48,10 +49,13 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     if(await page.locator('.overlay [data-act=gsel]').count()){await tap('.overlay [data-act=gsel]');await tap('.overlay [data-act=gbuild] >> nth=1')}
     await tap('.overlay [data-act=ov]');
     await tap('[data-act=tab][data-arg=money]');await shot('money');await wide('money');
-    for(const t of ['ledger','prices','loans']){await tap(`[data-act=mtab][data-arg=${t}]`);await wide('money '+t)}
+    for(const t of ['budget','ledger','prices','sponsors','funding']){await tap(`[data-act=mtab][data-arg=${t}]`);await wide('money '+t)}
     await tap('[data-act=mtab][data-arg=prices]');await tap('[data-act=price][data-arg="terrace:1"]');
     ok(await page.evaluate(()=>S.fin[S.my].prices.terrace===PRICE_DEF[C().tier].terrace+1),`${scheme}: a ticket price changes`);
-    await tap('[data-act=mtab][data-arg=loans]');const loans=await page.locator('[data-act=loan]').count();
+    await tap('[data-act=mtab][data-arg=budget]');await shot('budget');const w0=await page.evaluate(()=>wageCapK(S.my));await tap('[data-act=wager][data-arg="1"]');
+    ok(await page.evaluate(w=>wageCapK(S.my)>w,w0),`${scheme}: the wage limit rises from the budget`);
+    await tap('[data-act=mtab][data-arg=funding]');await shot('funding');if(await page.locator('[data-act=appeal]').count()){await tap('[data-act=appeal]');ok(await page.evaluate(()=>F(S.my).fundLast===S.season),`${scheme}: a members' appeal is launched`)}
+    await tap('[data-act=mtab][data-arg=funding]');const loans=await page.locator('[data-act=loan]').count();
     if(loans){await tap('[data-act=loan] >> nth=0');ok(await page.evaluate(()=>S.fin[S.my].loans.some(l=>/Bank loan/.test(l.label))),`${scheme}: a loan is drawn`)}
     // play out the season by tapping, then close it
     await tap('[data-act=tab][data-arg=week]');

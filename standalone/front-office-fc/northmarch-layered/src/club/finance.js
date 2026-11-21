@@ -5,19 +5,20 @@
    ledger always reconciles: cash = start + every booked line. Amounts in £k. */
 const LINE={
   gate:['Tickets: terraces and seats','matchday'],business:['Business seats','matchday'],catering:['Catering','matchday'],seasontix:['Season tickets','matchday'],cupgate:['Cup gate','matchday'],
-  sponsors:['Sponsors','commercial'],merch:['Merchandise','commercial'],events:['Events and hire','commercial'],dues:['Membership dues','commercial'],
+  sponsors:['Main sponsor','commercial'],partners:['Local partners','commercial'],naming:['Stadium naming rights','commercial'],fundraising:['Members\' appeals','commercial'],merch:['Merchandise','commercial'],events:['Events and hire','commercial'],dues:['Membership dues','commercial'],
   tv:['League and TV money','media'],prize:['League prize money','media'],cupprize:['Cup prize money','media'],
   feesIn:['Transfer fees received','transfers'],feesOut:['Transfer fees paid','transfers'],
   wages:['Player wages','wages'],
   depts:['Department budgets','costs'],upkeep:['Ground upkeep','costs'],ops:['Matchday stewards and police','costs'],travel:['Away travel','costs'],
   staff:['Head coach and director','wages'],staffpay:['Staff compensation','costs'],
   build:['Construction','costs'],repairs:['Repairs','costs'],interest:['Interest','costs'],
-  loanIn:['Loans drawn','financing'],loanOut:['Loan repayments','financing']
+  rent:['Ground rent','costs'],
+  loanIn:['Loans and bonds drawn','financing'],loanOut:['Loan and bond repayments','financing'],groundSale:['Sale or buy-back of the ground','capital']
 };
-const HEAD={matchday:'Matchday',commercial:'Commercial',media:'League & cup',transfers:'Transfers',wages:'Wages',costs:'Other costs',financing:'Loans'};
+const HEAD={matchday:'Matchday',commercial:'Commercial',media:'League & cup',transfers:'Transfers',wages:'Wages',costs:'Other costs',financing:'Loans',capital:'The ground'};
 const PRICE_DEF=[{terrace:11,seated:16,business:35,season:140},{terrace:9,seated:13,business:30,season:110},{terrace:7,seated:10,business:22,season:85}];
 const TV=[4.6,2.2,.8],SPONSOR=[3.4,1.9,.9],PRIZE=[[80,4],[40,2],[15,.6]];
-const WAGE_RATIO={tight:.55,normal:.65,ambitious:.75,allin:.86};
+const WAGE_RATIO={tight:.65,normal:.76,ambitious:.88,allin:.98};
 
 function F(id){return S.fin[id]}
 function finInit(id){
@@ -55,7 +56,7 @@ function weekLines(id,home,o={}){
     L.business=a.business*pr.business/1000;L.catering=a.total*2.5*(.6+g.catering*.1)*.4/1000;L.ops=-(.25+a.total/6000*(o.derby?1.6:1))*(1.3-.3*g.ops)}
   else if(o.away)L.travel=-(t===0?.5:t===1?.35:.2);
   if(o.weekly!==false){
-    L.sponsors=SPONSOR[t]*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*form*(.7+.3*g.sales);
+    L.sponsors=sponsorWeekK(id);L.partners=partnersWeekK(id,form);L.naming=namingWeekK(id);L.rent=-rentWeekK(id);
     L.merch=c.support/1000*.45*(1+g.shop*.15)*form;
     L.events=g.shop*.08+g.events*.07;
     L.dues=S.members&&S.members[id]?S.members[id].count*S.members[id].dues/SEASON_WEEKS/1000:c.support*.4*40/SEASON_WEEKS/1000;
@@ -74,12 +75,14 @@ function maxNewLoan(id){return Math.max(0,Math.floor(estSeasonIncome(id)*.8-debt
 function creditLimit(id){return Math.max(10,Math.round(estSeasonIncome(id)*.12))}
 /* expected operating income over a full season (used by AI wage policy, credit and forecasts) */
 function estSeasonIncome(id){
-  const c=CL(id),opp=null,h=sumLines(weekLines(id,true,{opp,weekly:false}),1),wk=weekLines(id,false,{});
-  const reg=(wk.sponsors||0)+(wk.merch||0)+(wk.events||0)+(wk.dues||0)+(wk.tv||0);
+  const c=CL(id),opp=null,a=attendance(id,null,{}),L=weekLines(id,true,{opp,weekly:false,att:a}),wk=weekLines(id,false,{});
+  const holdN=c.support*.28*Math.pow(PRICE_DEF[c.tier].season/F(id).prices.season,.8),share=F(id).holders?0:Math.min(.9,holdN/Math.max(1,a.total));
+  const h=sumLines(L,1)-(L.gate||0)*share; // season-ticket holders do not pay at the gate
+  const reg=(wk.sponsors||0)+(wk.partners||0)+(wk.naming||0)+(wk.merch||0)+(wk.events||0)+(wk.dues||0)+(wk.tv||0);
   const hold=c.support*.28*F(id).prices.season/1000;
   return Math.round(h*SEASON_WEEKS/2+reg*SEASON_WEEKS+hold+PRIZE[c.tier][0]*.6);
 }
-function wageCapK(id){return r2(estSeasonIncome(id)*WAGE_RATIO[F(id).policy.wage]/SEASON_WEEKS)}
+function wageCapK(id){return r2(estSeasonIncome(id)*wageRatio(id)/SEASON_WEEKS)}
 
 /* ----- the week for one club. matches: this week's games involving the club ----- */
 function financeWeek(id,matches){
@@ -90,7 +93,8 @@ function financeWeek(id,matches){
   for(const m of matches){const home=m.h===id,derby=CL(m.h).rival===m.a;
     if(home||(m.neutral&&m.a===id)){const att=attendance(m.h,m.a,{derby,cup:m.comp==='cup',round:m.round});m.att=att.total;if(home&&m.comp==='league')f.lastGate=att;
       const L=weekLines(id,true,{att,derby,cup:m.comp==='cup',neutral:m.neutral,weekly:false});for(const k in L)book(id,k,L[k])}
-    else away=true}
+    else away=true;
+    if(m.comp==='league'&&f.sponsor&&f.sponsor.kind==='bonus'&&f.sponsor.until>=S.season){const gf=home?m.gh:m.ga,ga=home?m.ga:m.gh,pts=gf>ga?3:gf===ga?1:0;if(pts)book(id,'sponsors',pts*f.sponsor.perPoint)}}
   const L=weekLines(id,false,{away});for(const k in L)book(id,k,L[k]);
   const b=groundWeek(id,matches.some(m=>m.h===id&&!m.neutral));if(b)book(id,'build',-b);
   const g=G(id);if(g.repairBill){book(id,'repairs',-g.repairBill);g.repairBill=0}
@@ -120,7 +124,7 @@ function financeSeasonEnd(id,pos,tier){
 }
 function seasonTotals(id,s){const f=F(id),lines=s==null||s===S.season?f.season:(f.hist.find(h=>h.s===s)||{lines:{}}).lines,head={};
   for(const k in lines){const h=LINE[k][1];head[h]=r1((head[h]||0)+lines[k])}return{lines,head}}
-function operatingResult(lines){let t=0;for(const k in lines)if(!['loanIn','loanOut'].includes(k))t+=lines[k];return r1(t)}
+function operatingResult(lines){let t=0;for(const k in lines)if(!['loanIn','loanOut','groundSale'].includes(k))t+=lines[k];return r1(t)}
 /* 26-week forecast with a band */
 function cashForecast(id,weeks=26){
   const f=F(id),avg=(sumLines(weekLines(id,true,{}))+sumLines(weekLines(id,false,{away:true})))/2;
@@ -136,11 +140,12 @@ function bookCupPrize(id,amt,r){book(id,'cupprize',amt)}
 function finHealth(id){const f=F(id),fc=cashForecast(id);return f.cash<0?'red':fc.minV<0||debt(id)>estSeasonIncome(id)*.6?'tight':'healthy'}
 
 /* ----- commands ----- */
-defCommand('SetPrice',{check:(id,a)=>!(a.kind in F(id).prices)?'Unknown price':null,run:(id,a)=>{const pr=F(id).prices,k=a.kind,step=k==='season'?5:k==='business'?5:1,ref=PRICE_DEF[CL(id).tier][k];
+defCommand('SetPrice',{check:(id,a)=>{if(!(a.kind in F(id).prices))return'Unknown price';const ref=PRICE_DEF[CL(id).tier][a.kind],step=a.kind==='season'||a.kind==='business'?5:1;
+    if(a.delta>0&&hasStatute(id,STATUTE_PRICES)&&F(id).prices[a.kind]+step>Math.round(ref*1.15))return'The statute lets the members set prices: no more than 15% above the usual';return null},run:(id,a)=>{const pr=F(id).prices,k=a.kind,step=k==='season'?5:k==='business'?5:1,ref=PRICE_DEF[CL(id).tier][k];
   pr[k]=clamp(pr[k]+a.delta*step,Math.round(ref*.4),Math.round(ref*2.5));if(id===S.my)emit('Finance',id,`Price change: ${k==='season'?'season ticket':k} now £${pr[k]}.`)}});
 defCommand('TakeLoan',{check:(id,a)=>{if(!(a.amount>0))return'Choose an amount';if(a.amount>maxNewLoan(id))return`The bank lends at most £${maxNewLoan(id)}k more`;if(![3,5,10].includes(a.years))return'Choose 3, 5 or 10 years';return null},
   run:(id,a)=>{const rate=loanRate(id,a.amount),l=mkLoan(a.amount,a.years,rate,`Bank loan (${a.years} years)`);F(id).loans.push(l);book(id,'loanIn',a.amount);emit('LoanTaken',id,`${CL(id).name} borrow £${a.amount}k over ${a.years} years at ${Math.round(rate*1000)/10}%.`);return l}});
 defCommand('RepayLoan',{check:(id,a)=>{const l=F(id).loans[a.i];if(!l)return'No such loan';if(F(id).cash<l.left)return'Not enough cash to repay it';return null},
   run:(id,a)=>{const l=F(id).loans[a.i];book(id,'loanOut',-l.left);emit('LoanRepaid',id,`Loan repaid early: £${r1(l.left)}k.`);F(id).loans.splice(a.i,1)}});
-defCommand('SetSquadPolicy',{check:(id,a)=>(a.wage&&!WAGE_RATIO[a.wage])||(a.spend!=null&&!(a.spend>=0&&a.spend<=1))?'Unknown policy':null,
-  run:(id,a)=>{const p=F(id).policy;if(a.wage)p.wage=a.wage;if(a.spend!=null)p.spend=a.spend}});
+defCommand('SetSquadPolicy',{check:(id,a)=>(a.wage&&!WAGE_RATIO[a.wage])||(a.wageR!=null&&!(a.wageR>=.4&&a.wageR<=1.05))||(a.spend!=null&&!(a.spend>=0&&a.spend<=1))?'Unknown policy':null,
+  run:(id,a)=>{const p=F(id).policy;if(a.wage){p.wage=a.wage;p.wageR=WAGE_RATIO[a.wage]}if(a.wageR!=null)p.wageR=r2(a.wageR);if(a.spend!=null)p.spend=a.spend}});

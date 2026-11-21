@@ -41,3 +41,10 @@
 - Bijgesteld na tests: trainereffect ×1,5; wegkoopketens gestopt (vrije markt eerst); minder ontslagen; ambitieplafond en steilere salarissen.
 - Meting toegevoegd: miskopen per club (`S.stats.buys/misbuys/spent`).
 - **Volgende:** pakket 3, seizoensbegroting en commercie.
+
+## 2026-11-21 — Pakket 3: begroting, commercie en financiering
+- Nieuw: `src/club/commercial.js`, `src/ui/commercial.js`, `tests/commercial-test.js`; schema v5 (migratie getest). Money-tab: Budget, Sponsors, Funding.
+- Gevonden en hersteld: inkomstenschatting telde seizoenkaarthouders dubbel (+15%); speelschema gaf reeksen van 15 uit/thuis (fout uit Northmarch-origineel); prognose schaalde eenmalige inkomsten op.
+- Prestatiesponsor eerst altijd beter dan vast; verwachte waarde gelijkgetrokken.
+- **Volgende:** pakket 4, voetbaldiepte.
+- Na de schemafix bleek AI-financieel risico bijna nul; ambitieuze AI-leningen toegevoegd, verdere afstemming vastgelegd voor pakket 6. Wegkopen van trainers midden in het seizoen bleek te agressief (9/20 seizoenen) → alleen nog in de zomer.

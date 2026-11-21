@@ -143,6 +143,10 @@ Stop en meld het als een test structureel faalt en je de oorzaak niet binnen het
   (voorzichtig, faciliteiten en jeugd eerst, ambitie met schuld), elk 10 seizoenen × 8 seeds.
   Eis: elke strategie is levensvatbaar in een deel van de seeds, geen enkele domineert altijd,
   en maximaal investeren is aantoonbaar niet altijd optimaal.
+- **Financieel risico van AI-clubs (open punt uit pakket 3):** na het herstel van het speelschema komen computerclubs nauwelijks
+  in geldnood (0 administrations en 0 kastekorten in 4 × 20 seizoenen; eerdere faillissementen kwamen deels door de schemabug).
+  Stem af zodat ambitie met schuld bij AI-clubs soms misgaat (doel: enkele kastekorten per seizoen, 2–8 administrations per 20 seizoenen),
+  zonder dat de economie weer instort.
 - **Prestatie en opslag:** 30 seizoenen simuleren onder ±60 s; een save onder 2 MB.
 - **Menselijke speeltest:** vraag de eigenaar om 2–3 seizoenen te spelen via de privélink. Verwerk de feedback
   en markeer laag 1–2 pas daarna in `LAYER_INDEX.md` als "Gevalideerd".

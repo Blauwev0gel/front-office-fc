@@ -32,6 +32,13 @@ function act(a,arg){
     case'shire':{const [role,pid]=arg.split('|');const r=cmd('HireStaff',S.my,{role,pid});say(r,'Appointed.');if(r.ok)UI.confirm=null;break}
     case'ssack':say(cmd('SackStaff',S.my,{role:arg}),'Sacked. A caretaker takes over.');break;
     case'srenew':say(cmd('RenewStaff',S.my,{role:arg}),'Contract renewed.');break;
+    case'tobudget':UI.tab='money';UI.mt='budget';UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
+    case'wager':say(cmd('SetSquadPolicy',S.my,{wageR:clamp(r2(wageRatio(S.my)+.02*(+arg)),.4,1.05)}));break;
+    case'sponsor':say(cmd('SignSponsor',S.my,{i:+arg}),'Deal signed.');break;
+    case'bond':say(cmd('IssueBond',S.my,{amount:+arg}),'Bond issued.');break;
+    case'appeal':{const r=cmd('Fundraise',S.my,{});say(r,r.ok?`The appeal raised £${r.res}k.`:null);break}
+    case'sellground':say(cmd('SellGround',S.my,{}),'The ground is sold.');UI.confirm=null;break;
+    case'buyback':say(cmd('BuyBackGround',S.my,{}),'The ground is ours again.');break;
     case'dues':say(cmd('SetDues',S.my,{delta:+arg}));break;
     case'pol':say(cmd('SetSquadPolicy',S.my,{wage:arg}));break;
     case'spend':say(cmd('SetSquadPolicy',S.my,{spend:+arg}));break;

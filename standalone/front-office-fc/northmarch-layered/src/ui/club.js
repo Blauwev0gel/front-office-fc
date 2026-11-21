@@ -55,12 +55,15 @@ function moneyView(){
     const a=attendance(id,null,{});
     body=`<p class="small muted">Families walk away first when prices rise; the terrace comes anyway; business pays for comfort.</p><div class="panel">${st('terrace','Terrace ticket','Price-tolerant')}${st('seated','Seat ticket','Price-sensitive')}${st('business','Business seat','Pays for comfort')}${st('season','Season ticket','Sold in week 1')}</div>
     <div class="panel"><div class="row small"><span>Expected crowd at these prices</span><b>${n0(a.total)} of ${n0(a.cap)}</b></div>${gate?`<div class="row small"><span>Last home game</span><b>${n0(gate.total)}</b></div>`:''}<div class="row small"><span>Expected gate per home game</span><b>${k1((a.terrace*pr.terrace+a.seated*pr.seated)/1000)}</b></div></div>`}
-  if(t==='loans'){const max=maxNewLoan(id);
+  if(t==='budget')body=budgetBody();
+  if(t==='sponsors')body=sponsorsBody();
+  if(t==='funding'){const max=maxNewLoan(id);
     body=`<div class="panel"><p class="eyebrow">Loans</p>${f.loans.length?f.loans.map((l,i)=>`<div class="grow"><span><b>${esc(l.label)}</b><br><span class="small muted">${k1(l.left)} left · ${Math.round(l.rate*1000)/10}% · ${k1(l.pay)} a week</span></span><span></span>${f.cash>=l.left?`<button class="tbtn" data-act="repay" data-arg="${i}">Repay</button>`:''}</div>`).join(''):'<p class="small muted">No loans.</p>'}</div>
     <div class="panel"><p class="eyebrow">Borrow</p><p class="small muted">The bank lends up to 80% of a season's income in total. The more you owe, the higher the rate.</p>
     <div class="seg">${[3,5,10].map(y=>`<button class="${UI.ly===y?'on':''}" data-act="ly" data-arg="${y}" aria-pressed="${UI.ly===y}">${y} years</button>`).join('')}</div>
     <div class="seg">${[25,50,100,200].filter(a=>a<=max).map(a=>`<button data-act="loan" data-arg="${a}">£${a}k at ${Math.round(loanRate(id,a)*1000)/10}%</button>`).join('')||'<p class="small down">The bank will not lend more.</p>'}</div><p class="note">Room to borrow: ${k1(max)}.</p></div>`}
-  return`${msgLine()}${gTabs(t,[['overview','Overview'],['ledger','Ledger'],['prices','Prices'],['loans','Loans']],'mtab')}${body}`;
+  if(t==='funding')body+=fundingExtra();
+  return`${msgLine()}${gTabs(t,[['overview','Overview'],['budget','Budget'],['ledger','Ledger'],['prices','Prices'],['sponsors','Sponsors'],['funding','Funding']],'mtab')}${body}`;
 }
 
 /* ----- the club tab: compare, history, layers ----- */

@@ -11,10 +11,10 @@ function run(snap,decide,seasons,measure){E.deserialize(snap);const S=E.__get();
   for(let s=0;s<seasons;s++){while(!E.seasonOver())E.advanceWeek();if(s<seasons-1)E.closeSeason()}return measure.end(E.__get(),E.__get().my,m0)}
 
 // 1. a strong results coach against a weak one: more points
-{const a=[],b=[];let wins=0;for(let k=0;k<N;k++){const {snap,pid}=withCandidate(world(8000+k),'coach',16,'results');
+{const a=[],b=[];let wins=0;const NC=Math.max(N,32);for(let k=0;k<NC;k++){const {snap,pid}=withCandidate(world(8000+k),'coach',16,'results');
   const m={end:(S,id)=>S.tbl[id].pts};const A=run(snap,()=>{},1,m),B=run(snap,(S,id)=>{const r=E.cmd('HireStaff',id,{role:'coach',pid});if(!r.ok)console.log(r.err)},1,m);a.push(A);b.push(B);if(B>A)wins++}
- console.log(`coach (results, 16 vs 7): points A ${avg(a).toFixed(1)} vs B ${avg(b).toFixed(1)} · B more in ${wins}/${N}`);
- ok(avg(b)>avg(a)+3&&wins>=N*.6,'a better head coach wins more points');}
+ console.log(`coach (results, 16 vs 7): points A ${avg(a).toFixed(1)} vs B ${avg(b).toFixed(1)} · B more in ${wins}/${NC}`);
+ ok(avg(b)>avg(a)+3&&wins>=NC*.6,'a better head coach wins more points');}
 
 // 2. a development coach: young players grow faster
 {const a=[],b=[];for(let k=0;k<N;k++){const {snap,pid}=withCandidate(world(8100+k),'coach',15,'development');

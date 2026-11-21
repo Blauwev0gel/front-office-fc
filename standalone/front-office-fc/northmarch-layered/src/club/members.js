@@ -25,6 +25,7 @@ function membersWeek(id,matches){
     if(x.comp==='league'){const xp=home?x.xh:x.xa,derby=CL(x.h).rival===x.a;confLog(id,(pts-xp)*(derby?1.6:.9),derby?'Derby results':'Results against expectation')}
     else if(x.winner===id&&x.round>=3)confLog(id,1.5,'A cup run');
   }
+  if(namingWeekK(id))confLog(id,-.12,'The ground renamed after a sponsor');
   const pi=priceIndex(id);if(pi>1.2)confLog(id,-(pi-1.2)*2.5,'Ticket prices');else if(pi<.9)confLog(id,.15,'Ticket prices');
   if(m.dues>ref*1.3)confLog(id,-(m.dues/ref-1.3)*1.5,'Membership dues');else if(m.dues<ref*.8)confLog(id,.1,'Membership dues');
 }

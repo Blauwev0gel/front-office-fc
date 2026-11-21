@@ -16,9 +16,9 @@
 |---|---|---|---|---|---|---|
 | 1 | Clubbeheer | v3 | Grotendeels (vandaag) | **Nee**, alleen naar geld | Deels | Breed, maar zonder gevolgen buiten geld |
 | 2 | Financiën | v3 | Deels | Ja (grond, lonen, transfers) | Deels | Grootboek staat; sponsors, bank en licentie ontbreken |
-| 3 | Mensen | Nee (alleen in de systeemideeën) | Ja, goed | Ja | Ja | Sterk, maar nooit als laag beschreven |
-| 4 | Voetbal | Nee | Ja, het rijpst | Ja | Ja (via de TD) | Het fundament van het spel |
-| 5 | Leden en politiek | Nee | Ja | Ja | Ja | Sterk; het hart van het verhaal |
+| 3 | Mensen | `LAAG3-MENSEN-VOORZITTER.md` | Ja, goed | Ja | Ja | Sterk, maar nooit als laag beschreven |
+| 4 | Voetbal | `LAAG4-VOETBAL-VOORZITTER.md` | Ja, het rijpst | Ja | Ja (via de TD) | Het fundament van het spel |
+| 5 | Leden en politiek | `LAAG5-LEDEN-VOORZITTER.md` | Ja | Ja | Ja | Sterk; het hart van het verhaal |
 | 6 | Wereld | Nee | Ja, basis | Deels | Deels | 32 clubs; geen bond, gemeente, sponsors of rente |
 | 7 | Dynastie | Concept (keuzes 76–77) | **Niets** | — | — | Alleen papier |
 | — | **De verhaalstructuur** (de flow) | Keuzes 71–75 | Ja | Ja | Ja | Dit is het spel zoals het nu speelt |

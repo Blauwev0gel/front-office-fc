@@ -45,10 +45,10 @@ function money(S,id,amt){E.cmd('TakeLoan',id,{amount:Math.min(amt,E.maxNewLoan(i
 {const nA=[],nB=[],pA=[],pB=[];
  const measure={afterClose:true,end:(S,id)=>{const e=S.ev.filter(x=>x.t==='YouthIntake'&&x.c===id).pop();return{n:e.n,best:e.best}}};
  for(let k=0;k<N;k++){const snap=world(3000+k);
-  const A=branch(snap,()=>{},1,measure);
-  const B=branch(snap,(S,id)=>{money(S,id,90);const f=free(S,id);E.cmd('StartProject',id,{key:`plot:${f}:academy`,offer:'premium'})},1,measure);
+  const A=branch(snap,()=>{},2,measure);
+  const B=branch(snap,(S,id)=>{money(S,id,90);const f=free(S,id);E.cmd('StartProject',id,{key:`plot:${f}:academy`,offer:'premium'});E.cmd('SetDeptStaff',id,{dept:'academy',level:4})},2,measure); // an academy plus youth coaches; a bigger intake needs a real investment
   nA.push(A.n);nB.push(B.n);pA.push(A.best);pB.push(B.best)}
- console.log(`academy: graduates A ${avg(nA).toFixed(1)} vs B ${avg(nB).toFixed(1)} · best potential A ${avg(pA).toFixed(1)} vs B ${avg(pB).toFixed(1)}`);
+ console.log(`academy (built + youth coaches, second summer): graduates A ${avg(nA).toFixed(1)} vs B ${avg(nB).toFixed(1)} · best potential A ${avg(pA).toFixed(1)} vs B ${avg(pB).toFixed(1)}`);
  ok(avg(nB)>avg(nA)&&avg(pB)>avg(pA),'an academy delivers more and better graduates');}
 
 // 4. Ticket prices: +4 on the terrace → fewer fans, and the gate moves

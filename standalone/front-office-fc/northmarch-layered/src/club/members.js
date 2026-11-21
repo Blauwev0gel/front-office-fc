@@ -57,7 +57,8 @@ function holdAGMs(){
   for(const id in S.clubs){const m=M(id),c=CL(id);
     const goals=[];for(const gl of m.goals){const pr=goalProgress(id,gl);goals.push({text:gl.text,met:pr.met,now:pr.text});confLog(id,pr.met?gl.w*.8:-gl.w*.8,pr.met?'Season targets met':'Season targets missed')}
     const pos=posOf(id);if(c.tier>0&&pos<=2)confLog(id,12,'Promotion');if(c.tier<2&&pos>=15)confLog(id,-15,'Relegation');
-    const forPct=clamp(Math.round(20+.75*m.conf+(rnd()-.5)*10),3,97);
+    const fresh=id===S.my&&S.career.length&&S.career[S.career.length-1].from===S.season?6:0; // a first season earns some patience
+    const forPct=clamp(Math.round(24+.75*m.conf+fresh+(rnd()-.5)*10),3,97);
     m.agm={s:S.season,goals,for:forPct,against:100-forPct,out:forPct<50&&!(S.agmOff&&id===S.my),conf:m.conf,reasons:seasonReasons(id)};
     if(m.agm.out)out.push(id);
   }

@@ -2,9 +2,9 @@
 function budgetBody(){
   const id=S.my,f=F(id),b=f.budget,rows=budgetRows(id),warn=budgetWarnings(id),inc=estSeasonIncome(id),cap=wageCapK(id);
   return`${warn.map(w=>`<p class="err" role="status">${esc(w)}</p>`).join('')}
-  <div class="panel"><p class="eyebrow">Season ${S.season} plan</p><div class="cmp"><span></span><b>Plan</b><b>${S.week?'On course for':'So far'}</b>
-  ${rows.map(r=>`<span>${r.n}</span><b>${k1(r.plan)}</b><b class="${r.over?'down':''}">${k1(r.proj)}</b>`).join('')}</div>
-  <p class="note">The plan is set in the summer. "On course for" scales the season so far to thirty weeks.</p></div>
+  <div class="panel"><p class="eyebrow">Season ${S.season} plan</p><div class="cmp"><span></span><b>Plan</b><b>${S.week>=6?'On course for':'So far'}</b>
+  ${rows.map(r=>`<span>${r.n==='Player wages'?'Player wages (limit)':r.n}</span><b>${k1(r.plan)}</b><b class="${S.week>=6&&r.over&&['Income','Player wages','Departments'].includes(r.n)?'down':''}">${k1(S.week>=6?r.proj:r.now)}</b>`).join('')}</div>
+  <p class="note">${S.week>=6?'The plan is set in the summer. "On course for" scales the season so far to thirty weeks; one-off income counts once.':'Too early for a projection: from week 6 this column shows where the season is heading.'}</p></div>
   <div class="panel"><p class="eyebrow">The frame for your director</p><p class="small muted">He signs, sells and renews within these limits. You set the frame; he does the deals.</p>
   <div class="grow"><span><b>Wage limit</b><br><span class="small muted">${Math.round(wageRatio(id)*100)}% of income expected on current form (£${n0(inc)}k) · bill now £${n0(wageBillK(id)*1000)}</span></span><span></span><span class="stepper"><button data-act="wager" data-arg="-1" aria-label="Lower the wage limit">−</button><b>£${n0(cap*1000)}</b><button data-act="wager" data-arg="1" aria-label="Raise the wage limit">+</button></span></div>
   ${wageImpact(id)}

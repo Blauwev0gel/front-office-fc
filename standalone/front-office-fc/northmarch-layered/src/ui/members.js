@@ -1,6 +1,6 @@
 /* ================= Screens: members, confidence, season targets and the AGM ================= */
 function confBar(v){const c=v<40?'lo':v<55?'mid':'';return`<span class="conf ${c}" role="img" aria-label="members' confidence ${Math.round(v)} of 100"><i style="width:${Math.round(v)}%"></i><b style="left:40%"></b></span>`}
-function agmForecast(id){return clamp(Math.round(20+.75*M(id).conf),3,97)}
+function agmForecast(id){const fresh=id===S.my&&S.career.length&&S.career[S.career.length-1].from===S.season?6:0;return clamp(Math.round(24+.75*M(id).conf+fresh),3,97)}
 function reasonRows(list){return list.map(([why,d])=>`<div class="row small"><span>${esc(why)}</span><b class="${d<0?'down':'up'}">${d>0?'+':''}${r1(d)}</b></div>`).join('')}
 function targetsPanel(){
   const id=S.my,m=M(id),f=agmForecast(id);

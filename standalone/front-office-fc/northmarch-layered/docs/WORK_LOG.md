@@ -58,3 +58,12 @@
 - Nieuw: `src/club/projects.js`, `src/ui/history.js`, `tests/projects-test.js`; schema v7 (migratie). Major projects in Build; clubhistorie; Tables → History; Needs attention in Week.
 - Gevonden: playtest kon toevallig in een weggestemde voorzitter eindigen (willekeurige wereld); doelen en posities toonden in week 0 al een stand.
 - **Volgende:** pakket 6, validatie (strategietest, balans AI-risico en leeftijd, prestatie, jouw speeltest).
+
+## 2026-11-21 — L1/L2 UX completion
+- Audit (schermen, acties, loops) → plan in vijf sprints. Parallel werk van ChatGPT (overzichtstegels, stafvergelijking) samengevoegd en uitgebouwd.
+- Sprint 1: navigatie Week·Club·Squad·Money·League, Club-subnavigatie, bestuurlijk overzicht, actiebalk, oriëntatiekaart, Money in 4 tabs.
+- Sprint 2: beslisblok bij afdelingen, staf, bouw, prijzen, contributie, leningen, obligatie, sponsors, loonlimiet, stadion.
+- Sprint 3: besluitenlog met meetwaarde toen/nu; projectvoortgang; afdelingsraster.
+- Sprint 4: weekflow (verslag met positie en verwachte goals, urgent apart), seizoensreview met doelen en vooruitblik; vroege begrotingsprognose als "So far".
+- Sprint 5: strategietest (6 voorzitters), balans (leeftijd, ALV, markt, AI-risico), save-grootte, ux-test, playtest mobiel + desktop.
+- Gevonden: besluitenlog gebruikte UI-opmaak in de engine (hersteld); academies hielden alle jongeren (leeftijdsdaling); wegstemmen te frequent; markt sloot spelers van grotere clubs uit.

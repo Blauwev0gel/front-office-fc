@@ -11,5 +11,7 @@ node tests/staff-test.js
 node tests/commercial-test.js
 node tests/life-test.js
 node tests/projects-test.js
+node tests/ux-test.js
+node tests/strategy-test.js 5 5
 for s in 20261121 1 77 4242; do node tests/sim-test.js $s 20 | tail -4; done
 node tests/playtest.js

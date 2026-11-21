@@ -119,7 +119,7 @@ function solvency(id){
 /* close the books for the season: league prize money, archive the lines */
 function financeSeasonEnd(id,pos,tier){
   const [top,step]=PRIZE[tier];book(id,'prize',top-(pos-1)*step);
-  const f=F(id);f.hist.push({s:S.season,tier,pos,lines:f.season,cash:f.cash,debt:debt(id)});if(f.hist.length>40)f.hist.shift();
+  const f=F(id);f.hist.push({s:S.season,tier,pos,lines:f.season,cash:f.cash,debt:debt(id)});while(f.hist.length>(id===S.my?40:12))f.hist.shift(); // keep the save small: twelve seasons for computer clubs
   f.season={};f.holders=0;
 }
 function seasonTotals(id,s){const f=F(id),lines=s==null||s===S.season?f.season:(f.hist.find(h=>h.s===s)||{lines:{}}).lines,head={};

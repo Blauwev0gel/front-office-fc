@@ -1,6 +1,6 @@
 # L2 — Volwaardig clubmanagement
 
-**Status:** Speelbaar. Uitvoering volgens `docs/PROMPT_L1_L2_AFRONDEN.md`: afdelingen ✓, pakket 1 (leden, ALV) ✓, pakket 2 (trainer en directeur) ✓, pakket 3 (begroting, commercie, financiering) ✓, pakket 4 (voetbaldiepte) ✓, pakket 5 (projecten, historie, signalen) ✓; pakket 6 (validatie) open.
+**Status:** Speelbaar; UX afgerond voor L1/L2 (zie `docs/L1_L2_UX_ARCHITECTURE.md`, `docs/L1_L2_PLAYTEST_REPORT.md`). Uitvoering volgens `docs/PROMPT_L1_L2_AFRONDEN.md`: afdelingen ✓, pakket 1 (leden, ALV) ✓, pakket 2 (trainer en directeur) ✓, pakket 3 (begroting, commercie, financiering) ✓, pakket 4 (voetbaldiepte) ✓, pakket 5 (projecten, historie, signalen) ✓; pakket 6 (validatie) open.
 
 ## 1. Spelbelofte
 De voorzitter bestuurt de club proactief: onderzoeken, vergelijken, bouwen, financieren, onderhouden en bijsturen,

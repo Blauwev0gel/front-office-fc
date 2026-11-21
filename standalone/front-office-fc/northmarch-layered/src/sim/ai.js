@@ -7,7 +7,7 @@ function reserveK(id){return wageBillK(id)*6+10}
 function aiBoardWeek(id){
   const f=F(id),g=G(id),w=S.week,v=chairValue(id),res=reserveK(id);
   // the squad policy follows the money: rich boards spend, poor boards cut
-  if(w===1||w===WINTER_WEEK){const inc=estSeasonIncome(id),base=v==='glory'?'ambitious':v==='money'?'tight':'normal';
+  if((w===1||w===WINTER_WEEK)&&!(w===WINTER_WEEK&&f.push===S.season)){const inc=estSeasonIncome(id),base=v==='glory'?'ambitious':v==='money'?'tight':'normal';
     const pol=f.cash<res?'tight':f.cash>inc*1.1?'allin':f.cash>inc*.5?(base==='tight'?'normal':'ambitious'):base;
     cmd('SetSquadPolicy',id,{wage:pol,spend:f.cash>inc*.5?.8:v==='money'?.3:.5},'ai')}
   // staff: richer boards hire, poor boards cut (one department at a time, start of each quarter)
@@ -16,7 +16,7 @@ function aiBoardWeek(id){
   aiFunding(id);
   // ambition: a glory-seeking board borrows to push for promotion when it looks within reach (and may overreach)
   if(w===1&&v==='glory'&&CL(id).tier>0&&(CL(id).expect||9)<=5&&debt(id)<estSeasonIncome(id)*.3){const amt=Math.min(maxNewLoan(id),Math.round(estSeasonIncome(id)*.3));
-    if(amt>=20&&cmd('TakeLoan',id,{amount:amt,years:5},'ai').ok)cmd('SetSquadPolicy',id,{wage:'allin',spend:.9},'ai')}
+    if(amt>=20&&cmd('TakeLoan',id,{amount:amt,years:5},'ai').ok){cmd('SetSquadPolicy',id,{wageR:1.05,spend:.9},'ai');f.push=S.season}} // a push for promotion is not reined in at mid-season
   // department budgets follow the cash
   const want=f.cash<0?'tight':f.cash>res*3?'normal':f.cash<res*.5?'tight':'normal';
   for(const d in g.depts)if(g.depts[d].budget!==want)cmd('SetDeptBudget',id,{dept:d,level:want},'ai');

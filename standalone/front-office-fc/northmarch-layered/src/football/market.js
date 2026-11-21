@@ -21,10 +21,10 @@ function faSummer(){
 /* the value a club puts on a player it owns: its best eleven are not for sale cheaply */
 function isCore(id,p){const xi=pickXI(S.squads[id]);return xi.some(x=>x.p===p)}
 function moveWage(p,toId){return Math.round(wageFor(p.q)*(0.95+rnd()*.25)/5)*5}
-function transfer(p,from,to,fee,why){
+function transfer(p,from,to,fee,why,premium){
   const sq=S.squads[from];sq.splice(sq.indexOf(p),1);
   if(fee){book(to,'feesOut',-fee);book(from,'feesIn',fee)}
-  p.wage=moveWage(p,to);p.contract=ri(2,3);p.club=to;p.joined=S.season;S.squads[to].push(p);
+  p.wage=Math.round(moveWage(p,to)*(premium?1.3:1)/5)*5;p.contract=ri(2,3);p.club=to;p.joined=S.season;S.squads[to].push(p);
   emit('Transfer',to,`${p.name} joins ${CL(to).name} from ${CL(from).name}${fee?` for £${fee}k`:''}.`,{c2:from,pid:p.id,fee,why});
 }
 function signFree(p,to){S.fa.splice(S.fa.indexOf(p),1);p.wage=moveWage(p,to);p.contract=ri(1,2);p.club=to;p.joined=S.season;S.squads[to].push(p);
@@ -38,7 +38,7 @@ function scoutPool(id,pos,n){
   const reach=Math.max(4,6+Math.round(2*groundSignals(id).scouting+(pq(tdOf(id))-10)/2)),out=[];
   const fa=S.fa.filter(p=>(!pos||p.pos===pos)&&!(p.left&&p.left.club===id&&p.left.s>=S.season-1)); // a player who just left does not come backfor(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
   const others=Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1);
-  for(let k=0;k<reach&&others.length;k++){const o=pick(others),c=S.squads[o].filter(p=>(!pos||p.pos===pos)&&p.inj<=0&&!p.loan&&!(CL(o).rep>CL(id).rep+15&&!p.wantsOut)); /* good players rarely step down to a smaller club */if(c.length)out.push({p:pick(c),from:o})}
+  for(let k=0;k<reach&&others.length;k++){const o=pick(others),c=S.squads[o].filter(p=>(!pos||p.pos===pos)&&p.inj<=0&&!p.loan);if(c.length){const p=pick(c);out.push({p,from:o,premium:CL(o).rep>CL(id).rep+15&&!p.wantsOut})} /* stepping down to a smaller club costs a wage premium */}
   return out.slice(0,n||99);
 }
 function askingFee(p,from){const v=playerValue(p);return Math.round(v*(isCore(from,p)&&!p.wantsOut?1.6:1)*(F(from).cash<0?.75:1)*(p.wantsOut?.85:1))}
@@ -57,17 +57,17 @@ function shopFor(id,pos,minQ,o={}){
   let best=null,bv=-1;
   for(const c of scoutPool(id,pos)){
     const p=c.p,seen=p.q+(rnd()+rnd()-1)*2.5*tdNoise(id);if(seen<minQ)continue; // the director judges by eye: a weak eye is fooled more often
-    const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000;
+    const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000*(c.premium?1.3:1);
     if(fee>budget)continue;if(bill+wage>cap&&!o.mustHave)continue;
     if(c.from&&!sellerAgrees(p,c.from,fee))continue;
-    const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.3:0)-(p.age>=31?.6:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0);
+    const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0);
     if(v>bv){bv=v;best={...c,fee}}
   }
   if(!best&&o.mustHave){const base=11.5+(tierBaseStr(2)-50)/4+(S.qref-11.7),p=newPlayer(pos,{age:ri(19,30),q:base-2+rnd()*1.2,contract:0});
     p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0}}
   if(!best)return false;
   if(!o.mustHave&&minQ>0){const st=S.stats[id];st.buys=(st.buys||0)+1;if(best.p.q<minQ)st.misbuys=(st.misbuys||0)+1;st.spent=r1((st.spent||0)+best.fee)} // a signing that is not what the director thought
-  if(best.from)transfer(best.p,best.from,id,best.fee,'buy');else signFree(best.p,id);
+  if(best.from)transfer(best.p,best.from,id,best.fee,'buy',best.premium);else signFree(best.p,id);
   return best;
 }
 /* the director's work in a window: fill holes, upgrade the weakest starter, trim the squad to the wage cap */
@@ -91,8 +91,9 @@ function squadManager(id,phase){
   for(const pos of POS){let guard=3;const have=()=>phase==='winter'?available(sq).filter(p=>p.pos===pos).length+1:sq.filter(p=>p.pos===pos).length;
     while(guard-->0&&have()<REQ[pos]){const base=squadQuality(sq);if(!shopFor(id,pos,base-2.5)&&!shopFor(id,pos,0,{mustHave:true,budget:0}))break}}
   // upgrades: replace the weakest starter if a clearly better player is within reach
-  if(phase==='summer'){for(let k=0;k<3;k++){const xi=pickXI(sq);if(!xi.length)break;const worst=xi.slice().sort((a,b)=>a.p.q-b.p.q)[0];
-    const got=shopFor(id,worst.slot,worst.p.q+.8);if(!got)break}}
+  // more money buys more attempts: a rich director keeps looking for upgrades
+  if(phase==='summer'){const tries=clamp(Math.round(2+budgetFor(id)/60),3,6);for(let k=0;k<tries;k++){const xi=pickXI(sq);if(!xi.length)break;const worst=xi.slice().sort((a,b)=>a.p.q-b.p.q)[0];
+    const got=shopFor(id,worst.slot,worst.p.q+(budgetFor(id)>150?.6:.8));if(!got)break}}
   while(sq.length<SQUAD_MIN){if(!shopFor(id,pick(POS),0,{mustHave:true,budget:0}))break}
   trim();
 }

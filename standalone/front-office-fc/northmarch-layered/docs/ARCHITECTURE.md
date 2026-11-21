@@ -45,5 +45,10 @@ Het referentiespel (`northmarch-chairman-v1`) gebruikt een andere sleutel en bli
 Alle toeval via `rnd()` op `S.rs`. Zelfde seed + zelfde commando's = identieke wereld (getest, ook via save/load).
 Alleen de seed van een nieuw spel komt uit de klok van de browser.
 
+## UI-structuur (L1/L2 UX)
+Bron `src/ui/`: `render.js` (titel, keuze, week, league, squad), `club.js` (ground/money/overlays/review), `depts.js`, `members.js`, `staff.js`,
+`commercial.js`, `history.js` (signalen, projecten, historie, besluitenlog), `board.js` (Club-overzicht, subnavigatie, actiebalk, oriëntatie),
+`decide.js` (beslisblok), `act.js` (één handler). Engine-zijde besluitenlog: `src/club/journal.js` (`journalBefore/journalAdd` vanuit `cmd()` bij actor `player`).
+
 ## Lagen-schakelaars
 `S.layers={story:false,staff:false,dynasty:false}`; `S.auto=true` laat de AI ook de spelersclub besturen (tests).

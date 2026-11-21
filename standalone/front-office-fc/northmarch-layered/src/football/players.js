@@ -79,13 +79,16 @@ function playersWeek(id){
 function playersSeasonEnd(id){
   const sq=S.squads[id],c=CL(id),sg=groundSignals(id),left=[];
   for(const p of sq.slice()){
-    p.age++;p.contract--;p.yel=0;p.susp=0;p.career.push(`${c.name} ${S.season}: ${p.sApps} apps, ${p.sGoals} goals`);p.sApps=0;p.sGoals=0;p.grown=0;
+    p.age++;p.contract--;p.yel=0;p.susp=0;p.career.push(`${c.name} ${S.season}: ${p.sApps} apps, ${p.sGoals} goals`);if(p.career.length>8)p.career.splice(0,p.career.length-8);p.sApps=0;p.sGoals=0;p.grown=0;
     p.q=r1(clamp(p.q+(rnd()-.5)*.4,4,19));
-    if(p.age>=34&&rnd()<(p.age-32)*.25){sq.splice(sq.indexOf(p),1);left.push(p);emit('Retired',id,`${p.name} retires at ${p.age}.`,{pid:p.id})}
+    if(p.age>=34&&rnd()<(p.age-33)*.22){sq.splice(sq.indexOf(p),1);left.push(p);emit('Retired',id,`${p.name} retires at ${p.age}.`,{pid:p.id})}
     else if(p.contract<=0){sq.splice(sq.indexOf(p),1);left.push(p);faAdd(p,'out of contract',id);if(id===S.my)emit('PlayerLeft',id,`${p.name} leaves at the end of his contract.`,{pid:p.id})}
   }
   // academy intake: the academy level decides how many, how good and how much potential
-  const a=sg.academy,n=1+(a>=1?1:0)+(a>=3?1:0)+(a>=5?1:0),base=11.5+(tierBaseStr(c.tier)-50)/4;
+  // youngsters who will not make it are let go at 19-21, as real academies do
+  const sqq=squadQuality(sq),keep=sq.filter(p=>p.age<=21).sort((x,y)=>y.pa-x.pa).slice(0,3);
+  for(const p of sq.slice())if(p.age>=18&&p.age<=21&&!p.loan&&!keep.includes(p)&&p.pa<sqq-.3&&sq.length>SQUAD_MIN){sq.splice(sq.indexOf(p),1);left.push(p);faAdd(p,'released by the academy',id);if(id===S.my)emit('PlayerLeft',id,`${p.name} is released: he will not make the grade.`,{pid:p.id})}
+  const a=sg.academy,n=1+(a>=3?1:0)+(a>=6?1:0),base=11.5+(tierBaseStr(c.tier)-50)/4;
   const kids=[];
   for(let i=0;i<n;i++){const q=base-3.2+.25*a+rnd()*1.2;const k=newPlayer(pick(POS.slice(1)),{age:ri(16,17),q,pa:q+1+.35*a+rnd()*2.5,academy:true,contract:2,club:id,trait:sg.academyLocal&&rnd()<.4?'local hero':null});
     k.career.push('Academy');sq.push(k);kids.push(k)}

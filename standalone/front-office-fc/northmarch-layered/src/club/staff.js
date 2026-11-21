@@ -88,6 +88,10 @@ function staffSeasonEnd(){
     }}
   for(const pid of S.staffPool.slice()){const p=P(pid);p.age++;if(p.age>68){S.staffPool=S.staffPool.filter(x=>x!==pid)}}
   staffPoolTopUp();
+  // people who no longer play any part (out of football, past 68, not in the pool or a club) leave the save
+  const used=new Set(S.staffPool);for(const id in S.clubs)for(const r in CL(id).cast)used.add(CL(id).cast[r]);
+  for(const pid in S.P){const p=S.P[pid];if(!used.has(pid)&&!p.club&&p.age>68){delete S.P[pid]}}
+  for(const pid in S.P){const p=S.P[pid];p.rel=p.rel.filter(r=>S.P[r.id])}
 }
 function staffAfterLoad(){
   if(!S.staffPool||!S.staffPool.length){S.staffPool=S.staffPool||[];staffPoolTopUp()}

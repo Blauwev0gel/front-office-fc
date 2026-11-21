@@ -186,3 +186,16 @@ main.withbar{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 100px)}
 .hubtile:focus-visible{outline:3px solid var(--signal);outline-offset:2px}.hubtile:active{transform:translateY(1px)}
 .hubback{margin:12px 0 16px}.hubback button{min-height:44px}
 @media(max-width:350px){.hubtiles{gap:7px}.hubtile{padding:11px 9px}}
+
+/* Improvement map: existing board actions connected to measurable outcomes. */
+.improve{margin:18px 0 24px}.improve-intro h3{font-size:1.2rem;margin:3px 0 6px}
+.improve-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+.improve-choice{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:6px;min-height:122px;padding:13px 11px;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;cursor:pointer;overflow-wrap:anywhere}
+.improve-choice b{font-size:.9rem;line-height:1.25}.improve-choice span{font-size:.76rem;line-height:1.35;color:var(--muted)}.improve-choice small{margin-top:auto;font-size:.75rem;color:var(--navy);font-weight:700}
+.improve-choice.selected{border:2px solid var(--signal);padding:12px 10px}
+.improve-detail{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px;margin:12px 0 22px}
+.improve-detail h3{margin:0 0 7px;font-size:1.15rem}.improve-detail .eyebrow{margin:16px 0 8px}
+.improve-steps{display:flex;flex-direction:column;gap:7px}.improve-steps button{display:flex;align-items:center;gap:10px;min-height:48px;text-align:left;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:10px;cursor:pointer}
+.improve-steps button b{font-size:.86rem;flex:1}.improve-number{display:grid;place-items:center;min-width:25px;height:25px;border-radius:50%;background:var(--chip);font-weight:700;font-size:.8rem}
+.improve-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.improve-metrics>div{background:var(--paper);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px;overflow-wrap:anywhere}.improve-metrics span{font-size:.73rem;color:var(--muted)}.improve-metrics b{font-size:.94rem}
+.improve button:focus-visible{outline:3px solid var(--signal);outline-offset:2px}

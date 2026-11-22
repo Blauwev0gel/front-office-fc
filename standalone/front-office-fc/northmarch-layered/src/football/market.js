@@ -92,10 +92,11 @@ function shopFor(id,pos,minQ,o={}){
       for(const c of h.candidates)if(best&&c.pid===best.p.id)c.reason='Selected';
     }
   }
-  recordDecision(id,pos,best,evaluated,o.mustHave);
-  if(!best)return false;
+  if(!best){recordDecision(id,pos,null,evaluated,o.mustHave);return false;}
   if(!o.mustHave&&minQ>0){const st=S.stats[id];st.buys=(st.buys||0)+1;if(best.p.q<minQ)st.misbuys=(st.misbuys||0)+1;st.spent=r1((st.spent||0)+best.fee)}
   if(best.from)transfer(best.p,best.from,id,best.fee,'buy',best.premium);else signFree(best.p,id);
+  // Review the real post-transfer squad, not the pre-signing snapshot.
+  recordDecision(id,pos,best,evaluated,o.mustHave);
   return best;
 }
 /* the director's work in a window: fill holes, upgrade the weakest starter, trim the squad to the wage cap */

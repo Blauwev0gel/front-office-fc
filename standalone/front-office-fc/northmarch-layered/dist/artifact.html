@@ -129,9 +129,9 @@ hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
 .inj{color:var(--bad);font-weight:600}
 .pill{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:10px;background:var(--chip);color:var(--ink)}
 .pill.good{background:var(--good);color:var(--onnavy)}.pill.bad{background:var(--bad);color:var(--onnavy)}
-.fix{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center}
-.fix b{font-family:var(--f-display);font-weight:800;font-size:clamp(14px,4.3vw,18px);text-transform:uppercase;line-height:1.05;overflow-wrap:break-word;hyphens:auto;min-width:0}
-.fix .score{font-family:var(--f-display);font-weight:800;font-size:40px;line-height:1}
+.fix{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center;text-align:center}
+.fix b{font-family:var(--f-display);font-weight:800;font-size:clamp(12px,3.7vw,17px);text-transform:uppercase;line-height:1.05;overflow-wrap:normal;word-break:normal;hyphens:manual;min-width:0}
+.fix .score{font-family:var(--f-display);font-weight:800;font-size:34px;line-height:1}
 .cmp{display:grid;grid-template-columns:1fr auto auto;gap:4px 12px;font-size:14px;font-variant-numeric:tabular-nums}
 .cmp span:first-child{color:var(--muted)}.cmp b{text-align:right}
 .seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px}
@@ -168,9 +168,9 @@ hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
 .boardtile:focus-visible,.boardlinks button:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
 [id^="board-"]{scroll-margin-top:145px}
 .subnav{margin-top:-4px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.subnav button{padding:0 6px}
-main.withbar{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 100px)}
+main.withbar{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 160px)}
 .actbar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--paper);border-top:1px solid var(--line);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px calc(env(safe-area-inset-bottom,0px) + 10px)}
-.actbar .ab-in{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:6px}.actbar .small{color:var(--muted);text-align:center}
+.actbar .ab-in{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:6px}.ab-more{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ab-more .btn{min-height:44px;font-size:.85rem;padding-inline:6px}.playnote{border-left:4px solid var(--signal)}.actbar .small{color:var(--muted);text-align:center}
 .deptgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 .dmini{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:52px;padding:8px;border-radius:8px;border:1px solid var(--line);border-top:3px solid var(--muted);background:var(--paper);color:var(--ink);font:12px var(--f-body);cursor:pointer;min-width:0}
 .dmini b{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}.dmini span{color:var(--signal);letter-spacing:1px}
@@ -700,6 +700,7 @@ function sellerAgrees(p,from,fee){
   if(S.squads[from].length<=SQUAD_MIN)return false;
   const need=S.squads[from].filter(x=>x.pos===p.pos).length<=REQ[p.pos];
   if(need&&F(from).cash>=0&&!p.wantsOut)return false;
+  if(!canSpare(S.squads[from],p,true))return false; /* even a club in need of cash keeps its last players in a position */
   if(from===S.my&&!S.auto)return fee>=playerValue(p)*1.5&&!isCore(from,p); // the player's director only sells surplus at a premium
   return fee>=askingFee(p,from)*.85;
 }
@@ -712,7 +713,7 @@ function shopFor(id,pos,minQ,o={}){
   const pool=scoutPool(id,pos),evaluated=[];
   for(const c of shortlistCandidates(id,pos))if(!pool.some(x=>x.p===c.p))pool.unshift(c); // players the scouts have been watching come first
   for(const c of pool){
-    const p=c.p,sl=c.listed?shortlistEntry(p.id):null,seen=sl&&sl.obs?sl.est:p.q+(rnd()+rnd()-1)*2.5*tdNoise(id); // watched players are judged on the scouts' refined estimate
+    const p=c.p,sl=c.listed?shortlistEntry(p.id):null,seen=sl&&sl.obs?sl.est:p.q+(rnd()+rnd()-1)*2.5*tdNoise(id)*reportNoise(id); // watched players are judged on the scouts' refined estimate
     const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000*(c.premium?1.3:1);
     const cheap=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000,coverOk=bill+wage<=cap||wage<=cheap; /* emergency cover: within the wage limit, or a cheap basic contract. A strict ceiling alone leaves a club on its limit with no way to field a squad */
     let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
@@ -742,6 +743,8 @@ function shopFor(id,pos,minQ,o={}){
   return best;
 }
 /* the director's work in a window: fill holes, upgrade the weakest starter, trim the squad to the wage cap */
+/* a player may only leave if his position stays covered: the full requirement normally, at least one (two keepers) in a wage crisis */
+function canSpare(sq,p,crisis){const n=sq.filter(x=>x.pos===p.pos&&!x.loan).length;return n>(crisis?(p.pos==='GK'?2:1):REQ[p.pos])}
 function squadManager(id,phase){
   const sq=S.squads[id];
   // over the wage cap or too big: let the least useful players go
@@ -749,14 +752,14 @@ function squadManager(id,phase){
     while(guard-->0){const bill=wageBillK(id),crisis=bill>cap*1.15;
       if(!(sq.length>SQUAD_MAX||(bill>cap*1.05&&sq.length>SQUAD_MIN)))break;
       const xi=pickXI(sq).map(x=>x.p);
-      const pool=sq.filter(p=>!p.loan&&(crisis||!xi.includes(p))&&!(p.age<=20&&p.pa>p.q+1.5));
+      const pool=sq.filter(p=>!p.loan&&(crisis||!xi.includes(p))&&!(p.age<=20&&p.pa>p.q+1.5)&&canSpare(sq,p,crisis));
       const p=pool.sort((a,b)=>crisis?(b.wage/Math.max(1,b.q)-a.wage/Math.max(1,a.q)):(a.q-a.wage/400)-(b.q-b.wage/400))[0];if(!p)break;
       const fee=playerValue(p),buyers=Object.keys(S.clubs).filter(i=>i!==id&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX);
       if(buyers.length)transfer(p,id,pick(buyers),fee,'surplus');
       else if(!xi.includes(p)||sq.length>SQUAD_MIN+3)release(id,p,'released to cut the wage bill');else break}};
   trim();
   // players who asked to leave are sold if someone pays a fair price
-  for(const p of sq.filter(x=>x.wantsOut&&!x.loan)){const fee=Math.round(playerValue(p)*.9),buyers=Object.keys(S.clubs).filter(i=>i!==id&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX&&CL(i).rep>=CL(id).rep-10);
+  for(const p of sq.filter(x=>x.wantsOut&&!x.loan&&canSpare(sq,x,false))){const fee=Math.round(playerValue(p)*.9),buyers=Object.keys(S.clubs).filter(i=>i!==id&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX&&CL(i).rep>=CL(id).rep-10);
     if(buyers.length&&sq.length>SQUAD_MIN){p.wantsOut=false;p.morale=70;transfer(p,id,pick(buyers),fee,'request')}}
   // holes: below the minimum per position (in winter only real emergencies: injuries leave the position bare)
   for(const pos of POS){let guard=3;const have=()=>phase==='winter'?available(sq).filter(p=>p.pos===pos).length+1:sq.filter(p=>p.pos===pos).length;
@@ -767,7 +770,10 @@ function squadManager(id,phase){
     const got=shopFor(id,worst.slot,worst.p.q+(budgetFor(id)>150?.6:.8));if(!got)break}}
   while(sq.length<SQUAD_MIN){if(!shopFor(id,pick(POS),0,{mustHave:true,budget:0}))break}
   trim();
+  coverAll(id);
 }
+/* the last step of every round: no position is left without cover (two keepers, one player elsewhere) */
+function coverAll(id){const sq=S.squads[id];for(const pos of POS){let guard=3;while(guard-->0&&sq.filter(p=>p.pos===pos&&!p.loan).length<(pos==='GK'?2:1)){if(!shopFor(id,pos,0,{mustHave:true,budget:0}))break}}}
 /* renewals in the spring: keep the players worth keeping within the wage cap */
 function renewals(id){
   const sq=S.squads[id],med=sq.map(p=>p.q).sort((a,b)=>a-b)[Math.floor(sq.length/2)];
@@ -784,7 +790,7 @@ function renewals(id){
 /* the bank wants cash: sell the most valuable player who fetches a fee */
 function forcedSale(id){
   const sq=S.squads[id];if(sq.length<=SQUAD_MIN)return;
-  const p=sq.filter(x=>!x.loan).sort((a,b)=>playerValue(b)-playerValue(a))[0];if(!p)return;
+  const p=sq.filter(x=>!x.loan&&canSpare(sq,x,true)).sort((a,b)=>playerValue(b)-playerValue(a))[0];if(!p)return;
   const fee=Math.round(playerValue(p)*.8);
   const buyers=Object.keys(S.clubs).filter(i=>i!==id&&F(i).cash>fee+wageBillK(i)*4&&S.squads[i].length<SQUAD_MAX).sort((a,b)=>F(b).cash-F(a).cash);
   if(buyers.length){transfer(p,id,buyers[0],fee,'forced');emit('ForcedSale',id,`${CL(id).name} must sell ${p.name} to ${CL(buyers[0]).name} for £${fee}k.`,{pid:p.id})}
@@ -832,7 +838,7 @@ function lifeWeek(id){
 function loanOut(id){
   if(F(id).policy.loans===false||CL(id).tier===2)return;
   const sq=S.squads[id],xi=pickXI(sq).map(x=>x.p);
-  const cands=sq.filter(p=>p.age<=21&&!xi.includes(p)&&!p.loan&&p.pa>p.q+1&&sq.length>SQUAD_MIN+2).sort((a,b)=>(b.pa-b.q)-(a.pa-a.q)).slice(0,2);
+  const cands=sq.filter(p=>p.age<=21&&!xi.includes(p)&&!p.loan&&p.pa>p.q+1&&sq.length>SQUAD_MIN+2&&canSpare(sq,p,false)).sort((a,b)=>(b.pa-b.q)-(a.pa-a.q)).slice(0,2);
   for(const p of cands){
     const tos=Object.keys(S.clubs).filter(i=>CL(i).tier>CL(id).tier&&S.squads[i].length<SQUAD_MAX-1&&i!==S.my);
     const need=tos.filter(i=>S.squads[i].filter(x=>x.pos===p.pos).length<REQ[p.pos]+1);const to=need.length?pick(need):tos.length?pick(tos):null;if(!to)continue;
@@ -1642,7 +1648,8 @@ function buildPlan(id){
   const weak=xi.slice().sort((a,b)=>a.p.q-b.p.q)[0];if(weak&&weak.p.q<sqQ-.8)want.push({key:'upgrade:'+weak.slot,pos:weak.slot,kind:'upgrade',prio:1,pid:weak.p.id,why:`${weak.p.name} (${r1(weak.p.q)}) is the weakest starter`});
   // merge: keep status and history of needs that still exist; close what has been solved
   const old=Object.fromEntries(pl.needs.map(n=>[n.key,n])),keys=new Set(want.map(w=>w.key));
-  for(const n of pl.needs)if(!keys.has(n.key)&&n.status==='open'){n.status='solved';n.closed=[S.season,S.week]}
+  /* a need that disappears is not always a success: say whether it was solved, or the player simply left */
+  for(const n of pl.needs)if(!keys.has(n.key)&&n.status==='open'){const gone=n.pid&&!sq.some(p=>p.id===n.pid);n.status=gone?'lapsed':'solved';n.closed=[S.season,S.week]}
   pl.needs=pl.needs.filter(n=>n.status!=='open'||keys.has(n.key)).filter(n=>!(n.closed&&n.closed[0]<S.season-1));
   for(const w of want){if(!old[w.key])pl.needs.push({...w,id:pl.next++,status:'open',since:[S.season,S.week]});else Object.assign(old[w.key],{why:w.why,prio:w.prio})}
   pl.needs.sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||b.prio-a.prio);
@@ -1671,8 +1678,9 @@ function scoutWeek(id,salt=0){
     const again=sl.filter(e=>e.status==='watching'&&e.pos===pos).sort((a,b)=>a.obs-b.obs)[0];
     if(again&&(S.week+k+salt)%2===1){const f=findPlayer(again.pid);if(f&&f.club!==id)cand={p:f.p,club:f.club}}
     if(!cand&&rnd()<.35){const fa=S.fa.filter(p=>p.pos===pos);if(fa.length)cand={p:pick(fa),club:null}}
-    if(!cand&&others.length){const o=pick(others),sq=S.squads[o],spare=sq.filter(p=>p.pos===pos).length>REQ[pos]||F(o).cash<0,bud=budgetFor(id);
-      /* scouts watch players who can be had: surplus at their club, a club in need of cash, or a player who wants out; and within reach of the budget */
+    /* scouts watch players who can be had: surplus at their club, a club in need of cash, or a player who wants out; and within reach of the budget.
+       They try up to four clubs before the look is lost, so the department's effort turns into real observations */
+    for(let t=0;!cand&&t<4&&others.length;t++){const o=pick(others),sq=S.squads[o],spare=sq.filter(p=>p.pos===pos).length>REQ[pos]||F(o).cash<0,bud=budgetFor(id);
       const c=sq.filter(p=>p.pos===pos&&!p.loan&&(spare||p.wantsOut)&&playerValue(p)<=Math.max(5,bud*1.2));if(c.length)cand={p:pick(c),club:o}}
     if(!cand)continue;
     const look=cand.p.q+(rnd()+rnd()-1)*2.5*scoutNoise(id);let e=sl.find(x=>x.pid===cand.p.id);
@@ -1685,7 +1693,9 @@ function scoutWeek(id,salt=0){
 }
 /* how far off an estimate can be: one look with the director's own eye, or the scouts' refined average */
 function scoutRange(id,obs){return r1(2.5*scoutNoise(id)*.41*2/Math.sqrt(Math.max(1,obs)))}
-function eyeRange(id){return r1(2.5*tdNoise(id)*.41*2)}
+/* the scouting department's reports sharpen the director's judgement of every candidate, listed or not: a better department means fewer misjudged signings */
+function reportNoise(id){return clamp(1.3-.1*groundSignals(id).scouting,.55,1.3)}
+function eyeRange(id){return r1(2.5*tdNoise(id)*reportNoise(id)*.41*2)}
 function shortlistEntry(pid){return S.ops&&S.ops.shortlist.find(e=>e.pid===pid&&e.status==='watching')}
 /* in a window: watched players join the director's options, judged by the refined estimate */
 function shortlistCandidates(id,pos){
@@ -1889,6 +1899,17 @@ function advanceWeek(){
   emit('WeekClosed',null,`Week ${w} played.`);
   for(const f of HOOKS.weekClosed)f(w);
   return eventsSince(mark);
+}
+/* play on for several weeks without a decision: stops before the winter window and the renewals (the chairman may want to set policy),
+   at the end of the season, and when the club is in trouble */
+function playWeeks(max){
+  const mark=S.evn||0;let n=0,why='';
+  while(n<max&&!seasonOver()){advanceWeek();n++;
+    if(eventsSince(mark).some(e=>e.c===S.my&&['CashCrisis','ForcedSale','Administration','SafetyClosure'].includes(e.t))){why='Trouble at the club: have a look.';break}
+    if(S.week===WINTER_WEEK-1){why='The winter window opens next week.';break}
+    if(S.week===RENEW_WEEK-1){why='Contract renewals are next week.';break}}
+  if(!why&&seasonOver())why='The season is over.';
+  return{n,why,events:eventsSince(mark)};
 }
 function seasonOver(){return S.phase!=='season'||S.week>=SEASON_WEEKS}
 function closeSeason(){
@@ -2105,7 +2126,7 @@ function headline(m){const home=m.h===S.my,gf=home?m.gh:m.ga,ga=home?m.ga:m.gh,o
   return won?(gf-ga>=3?`${C().name} run riot${cup}`:`${C().name} beat ${CL(opp).name}${cup}`):(ga-gf>=3?`Humbled by ${CL(opp).name}${cup}`:`${CL(opp).name} too strong${cup}`)}
 function reportView(){
   const ms=myMatches();if(!S.week||!ms.length)return'';
-  const evs=UI.lastEv.filter(e=>e.c===S.my&&['Injury','Return','ProjectCompleted','ProjectStarted','SafetyClosure','CashCrisis','ForcedSale','Administration','Renewed','Transfer','Signing','Released','Ground','LoanTaken','CupWon'].includes(e.t));
+  const evs=UI.lastEv.filter(e=>e.c===S.my&&['Injury','Return','ProjectCompleted','ProjectStarted','SafetyClosure','CashCrisis','ForcedSale','Administration','Renewed','Transfer','Signing','Released','Ground','LoanTaken','CupWon'].includes(e.t)).slice(-6);
   const m=ms[0],f=F(S.my).last;
   return`<section class="echo" aria-label="The Northmarch Echo"><div class="mast"><b>THE NORTHMARCH ECHO</b><span>Week ${S.week}</span></div>
   <div class="head">${esc(headline(m))}</div>
@@ -2115,7 +2136,7 @@ function reportView(){
   <p class="small muted" style="text-align:center">Expected goals ${m.lh.toFixed(1)}–${m.la.toFixed(1)}: ${xgWord(m)}</p>
   ${m.scorers.length?`<p class="small">${m.scorers.map(s=>esc(s.name.split(' ').slice(-1)[0])+(s.side==='h'?' ('+esc(CL(m.h).name.split(' ')[0])+')':' ('+esc(CL(m.a).name.split(' ')[0])+')')).join(', ')}</p>`:''}`).join('<hr>')}
   ${ms.some(x=>x.comp==='league')?`<p class="small"><b>${TIER_NAME[C().tier]}: ${ord(posOf(S.my))}</b>${UI.prevPos&&UI.prevPos!==posOf(S.my)?` <span class="${UI.prevPos>posOf(S.my)?'up':'down'}">(${UI.prevPos>posOf(S.my)?'▲':'▼'}${Math.abs(UI.prevPos-posOf(S.my))})</span>`:''} · ${S.tbl[S.my].pts} point${S.tbl[S.my].pts===1?'':'s'}</p>`:''}
-  <ul>${evs.slice(0,6).map(e=>`<li>${esc(e.text)}</li>`).join('')}${f?`<li>The week's books: ${k1(f.net)}${f.lines.gate?` (gate ${k1(f.lines.gate)})`:''}.</li>`:''}</ul></section>`;
+  <ul>${evs.map(e=>`<li>${esc(e.text)}</li>`).join('')}${f?`<li>The week's books: ${k1(f.net)}${f.lines.gate?` (gate ${k1(f.lines.gate)})`:''}.</li>`:''}</ul></section>`;
 }
 function previewView(){
   if(seasonOver())return`<div class="panel"><p class="eyebrow">The season is over</p><p>${TIER_NAME[C().tier]}: you finish ${ord(posOf(S.my))}.</p></div>`;
@@ -2132,9 +2153,16 @@ function previewView(){
   if(!out.length)out.push(`<div class="panel"><p class="eyebrow">Week ${w}</p><p class="muted">No game for us this week.</p></div>`);
   return out.join('');
 }
+function myResults(n){
+  return S.ev.filter(e=>e.t==='Match'&&e.s===S.season&&(e.c===S.my||e.c2===S.my)).slice(-n).reverse().map(e=>{const home=e.c===S.my,gf=home?e.gh:e.ga,ga=home?e.ga:e.gh,r=gf>ga?'W':gf<ga?'L':'D';return{r,gf,ga,opp:home?e.c2:e.c,home,cup:e.comp==='cup',w:e.w}});
+}
+function resultsPanel(){
+  const rs=myResults(6);if(!rs.length)return'';
+  return`<div class="panel"><p class="eyebrow">Recent results</p>${rs.map(x=>`<div class="row small"><span><span class="pill ${x.r==='W'?'good':x.r==='L'?'bad':''}" aria-label="${x.r==='W'?'Win':x.r==='L'?'Defeat':'Draw'}">${x.r}</span> ${x.home?'v':'at'} ${nm(x.opp)}${x.cup?' · cup':''}</span><b>${x.gf}–${x.ga}</b></div>`).join('')}</div>`;
+}
 function weekView(){
   const over=seasonOver();
-  return`${reportView()}${urgentPanel()}${clubWeekPanel()}${windowPanel()}${previewView()}${lookPanel()}${targetsPanel()}
+  return`${UI.playNote?`<div class="panel playnote" role="status"><p class="small"><b>${esc(UI.playNote)}</b></p></div>`:''}${reportView()}${urgentPanel()}${clubWeekPanel()}${windowPanel()}${previewView()}${resultsPanel()}${lookPanel()}${targetsPanel()}
   <p class="note">${over?'Prize money, promotion and relegation, contracts and the summer window follow.':'Every week is played. Change prices, budgets or building first if you want them to count this week.'}</p>`;
 }
 
@@ -2166,7 +2194,7 @@ function loanedOutPanel(){const out=Object.entries(S.squads).flatMap(([cid,sq])=
   return out.length?`<div class="panel"><p class="eyebrow">Out on loan</p>${out.map(({p,cid})=>`<div class="row small"><span>${esc(p.name)} <span class="muted">at ${nm(cid)}</span></span><b>${p.sApps} apps</b></div>`).join('')}</div>`:''}
 function marketView(){
   const ev=S.ev.filter(e=>['Transfer','Signing','Loan'].includes(e.t)).slice(-200),wins={};
-  for(const e of ev){const k=e.w>=SEASON_WEEKS||e.w===0?`Summer ${e.w===0?e.s-1:e.s}`:e.w>=WINTER_WEEK&&e.w<=WINTER_WEEK+1?`Winter, season ${e.s}`:`Season ${e.s}`;(wins[k]=wins[k]||[]).push(e)}
+  for(const e of ev){const k=e.w===0?`Summer window, season ${e.s}`:e.w>=SEASON_WEEKS?`Summer ${e.s}`:e.w>=WINTER_WEEK&&e.w<=WINTER_WEEK+1?`Winter, season ${e.s}`:`Season ${e.s}`;(wins[k]=wins[k]||[]).push(e)}
   const keys=Object.keys(wins).reverse().slice(0,3);
   return keys.length?keys.map(k=>{const list=wins[k],fees=list.filter(e=>e.fee).sort((a,b)=>b.fee-a.fee).slice(0,5),mine=list.filter(e=>e.c===S.my||e.c2===S.my);
     return`<div class="panel"><p class="eyebrow">${esc(k)} · ${list.length} moves</p>${fees.length?`<p class="small muted">Biggest fees</p>${fees.map(e=>`<p class="small">${esc(e.text)}</p>`).join('')}`:''}${mine.length?`<p class="small muted">Your club</p>${mine.map(e=>`<p class="small"><b>${esc(e.text)}</b></p>`).join('')}`:''}</div>`}).join(''):'<p class="muted">No transfers yet. Windows: the summer and week '+WINTER_WEEK+'.</p>';
@@ -2646,7 +2674,7 @@ function actionBar(){
   if(!S||S.phase!=='season'||UI.review||UI.title)return'';
   const over=seasonOver(),w=S.week+1,pre=S.week===0,fx=over?null:fixtureOf(S.my,w),cup=!over&&CUP_WEEKS[S.cup.round]===w&&cupTieOf(S.my);
   const next=over?'All thirty weeks played':fx?`Next: ${fx.home?'v':'at'} ${CL(fx.opp).name}${cup?' + cup tie':''}`:'No league game';
-  return`<div class="actbar"><div class="ab-in"><span class="small">${esc(next)}</span><button class="btn" data-act="${over?'close':'play'}">${over?'Close the season':pre?'Close the window · start the season':`Play week ${w}`}</button></div></div>`;
+  return`<div class="actbar"><div class="ab-in"><span class="small">${esc(next)}</span><button class="btn" data-act="${over?'close':'play'}">${over?'Close the season':pre?'Close the window · start the season':`Play week ${w}`}</button>${over||pre?'':`<div class="ab-more"><button class="btn ghost" data-act="playn" data-arg="4">Play 4 weeks</button><button class="btn ghost" data-act="playn" data-arg="stop">To the next stop</button></div>`}</div></div>`;
 }
 
 /* ---- ui/decide.js ---- */
@@ -2694,7 +2722,7 @@ function recruitPanels(){
   <p class="note">${esc(RECRUIT[st].d)}. It changes whom he picks in the next window, not who is already here.</p></div>
   <div class="panel"><p class="eyebrow">Squad plan · updated ${pl.s?`S${pl.s} W${pl.w}`:'—'}</p>${open.length?open.slice(0,5).map(n=>`<div class="row small"><span><b>${NEED_WORD[n.kind]}: ${POS_ONE[n.pos]}</b><br>${esc(n.why)}<br><span class="muted">${esc(needWhen(n))}</span></span><span class="pill ${n.prio>=3?'bad':''}">${n.prio>=3?'Urgent':n.prio===2?'Soon':'Later'}</span></div>`).join('')+(open.length>5?`<p class="small muted">And ${open.length-5} more, lower down the list.</p>`:''):'<p class="small muted">No open needs: the squad covers every position.</p>'}
   ${pl.ready.length?`<p class="small"><b>Ready to step up:</b> ${pl.ready.map(r=>`${esc(r.name)} (${r.pos}, ${r.q})`).join(', ')}</p>`:''}
-  ${done.length?`<p class="small muted">Recently: ${done.map(n=>`${NEED_WORD[n.kind]} ${n.pos} ${n.status==='filled'?'filled by '+esc(n.by.name):'solved'}`).join(' · ')}</p>`:''}</div>
+  ${done.length?`<p class="small muted">Recently: ${done.map(n=>`${NEED_WORD[n.kind]} ${n.pos} ${n.status==='filled'?'filled by '+esc(n.by.name):n.status==='lapsed'?'player left':'solved'}`).join(' · ')}</p>`:''}</div>
   <div class="panel"><p class="eyebrow">Shortlist · ${scoutObservations(id)} look${scoutObservations(id)>1?'s':''} a week</p><p class="small muted">More scouting staff and a better scouting office mean more looks and sharper estimates. Each look narrows the range.</p>
   ${watch.length?watch.map(e=>{const rg=scoutRange(id,e.obs);return`<div class="row small"><span><b>${esc(e.name)}</b> <span class="muted">${e.pos}, ${e.age} · ${e.from?esc(CL(e.from).name):'free agent'}</span>${e.reason?`<br><span class="muted">Last window: ${esc(e.reason.toLowerCase())}</span>`:''}</span><b>${e.est} ±${rg}<br><span class="small muted">${e.obs} look${e.obs>1?'s':''}</span></b></div>`}).join(''):'<p class="small muted">The scouts start watching as soon as the plan has needs.</p>'}</div>
   <div class="panel"><p class="eyebrow">Signings: judged then, seen now</p>${rev.length?rev.map(x=>`<div class="row small"><span><b>${esc(x.name)}</b> <span class="muted">${x.pos}, S${x.s} · ${x.fee?'£'+x.fee+'k':'free'} · ${esc(x.need)}${x.scouted?` · watched ${x.obs}×`:' · not scouted'}</span></span><b class="${x.now!=null&&x.now<x.est-1?'down':''}">${x.est} → ${x.now??'—'}<br><span class="small muted">${x.apps!=null?x.apps+' apps · ':''}${esc(x.where)}</span></b></div>`).join('')+'<p class="note">Left: the director\'s estimate when he signed him. Right: the player\'s level now.</p>':'<p class="small muted">No signings since you took office.</p>'}</div>`;
@@ -2847,7 +2875,8 @@ function act(a,arg){
     case'helpok':S.help=true;break;
     case'journal':UI.over='journal';break;
     case'tab':UI.tab=arg;UI.over=null;if(arg==='club')UI.ct='hub';if(arg==='money')UI.mt=UI.mt||'overview';if(HAS_DOM)window.scrollTo(0,0);break;
-    case'play':{UI.prevPos=S.week?posOf(S.my):null;const ev=advanceWeek();UI.lastEv=ev||[];if(HAS_DOM)window.scrollTo(0,0);if(UI.autoLive&&myMatches().length)liveOpen(0);break}
+    case'playn':{UI.prevPos=S.week?posOf(S.my):null;const r=playWeeks(arg==='stop'?99:+arg);UI.lastEv=r.events;UI.playNote=`Played ${r.n} week${r.n===1?'':'s'}. ${r.why||''}`;if(HAS_DOM)window.scrollTo(0,0);break}
+    case'play':{UI.playNote=null;UI.prevPos=S.week?posOf(S.my):null;const ev=advanceWeek();UI.lastEv=ev||[];if(HAS_DOM)window.scrollTo(0,0);if(UI.autoLive&&myMatches().length)liveOpen(0);break}
     case'watch':liveOpen(+arg);break;
     case'lv':liveAct(arg);break;
     case'close':{const mark=S.evn||0;const h=closeSeason();UI.summerEv=eventsSince(mark);UI.review=h;UI.lastEv=[];if(HAS_DOM)window.scrollTo(0,0);break}

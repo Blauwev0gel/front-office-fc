@@ -22,7 +22,8 @@ function buildPlan(id){
   const weak=xi.slice().sort((a,b)=>a.p.q-b.p.q)[0];if(weak&&weak.p.q<sqQ-.8)want.push({key:'upgrade:'+weak.slot,pos:weak.slot,kind:'upgrade',prio:1,pid:weak.p.id,why:`${weak.p.name} (${r1(weak.p.q)}) is the weakest starter`});
   // merge: keep status and history of needs that still exist; close what has been solved
   const old=Object.fromEntries(pl.needs.map(n=>[n.key,n])),keys=new Set(want.map(w=>w.key));
-  for(const n of pl.needs)if(!keys.has(n.key)&&n.status==='open'){n.status='solved';n.closed=[S.season,S.week]}
+  /* a need that disappears is not always a success: say whether it was solved, or the player simply left */
+  for(const n of pl.needs)if(!keys.has(n.key)&&n.status==='open'){const gone=n.pid&&!sq.some(p=>p.id===n.pid);n.status=gone?'lapsed':'solved';n.closed=[S.season,S.week]}
   pl.needs=pl.needs.filter(n=>n.status!=='open'||keys.has(n.key)).filter(n=>!(n.closed&&n.closed[0]<S.season-1));
   for(const w of want){if(!old[w.key])pl.needs.push({...w,id:pl.next++,status:'open',since:[S.season,S.week]});else Object.assign(old[w.key],{why:w.why,prio:w.prio})}
   pl.needs.sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||b.prio-a.prio);
@@ -51,8 +52,9 @@ function scoutWeek(id,salt=0){
     const again=sl.filter(e=>e.status==='watching'&&e.pos===pos).sort((a,b)=>a.obs-b.obs)[0];
     if(again&&(S.week+k+salt)%2===1){const f=findPlayer(again.pid);if(f&&f.club!==id)cand={p:f.p,club:f.club}}
     if(!cand&&rnd()<.35){const fa=S.fa.filter(p=>p.pos===pos);if(fa.length)cand={p:pick(fa),club:null}}
-    if(!cand&&others.length){const o=pick(others),sq=S.squads[o],spare=sq.filter(p=>p.pos===pos).length>REQ[pos]||F(o).cash<0,bud=budgetFor(id);
-      /* scouts watch players who can be had: surplus at their club, a club in need of cash, or a player who wants out; and within reach of the budget */
+    /* scouts watch players who can be had: surplus at their club, a club in need of cash, or a player who wants out; and within reach of the budget.
+       They try up to four clubs before the look is lost, so the department's effort turns into real observations */
+    for(let t=0;!cand&&t<4&&others.length;t++){const o=pick(others),sq=S.squads[o],spare=sq.filter(p=>p.pos===pos).length>REQ[pos]||F(o).cash<0,bud=budgetFor(id);
       const c=sq.filter(p=>p.pos===pos&&!p.loan&&(spare||p.wantsOut)&&playerValue(p)<=Math.max(5,bud*1.2));if(c.length)cand={p:pick(c),club:o}}
     if(!cand)continue;
     const look=cand.p.q+(rnd()+rnd()-1)*2.5*scoutNoise(id);let e=sl.find(x=>x.pid===cand.p.id);
@@ -65,7 +67,9 @@ function scoutWeek(id,salt=0){
 }
 /* how far off an estimate can be: one look with the director's own eye, or the scouts' refined average */
 function scoutRange(id,obs){return r1(2.5*scoutNoise(id)*.41*2/Math.sqrt(Math.max(1,obs)))}
-function eyeRange(id){return r1(2.5*tdNoise(id)*.41*2)}
+/* the scouting department's reports sharpen the director's judgement of every candidate, listed or not: a better department means fewer misjudged signings */
+function reportNoise(id){return clamp(1.3-.1*groundSignals(id).scouting,.55,1.3)}
+function eyeRange(id){return r1(2.5*tdNoise(id)*reportNoise(id)*.41*2)}
 function shortlistEntry(pid){return S.ops&&S.ops.shortlist.find(e=>e.pid===pid&&e.status==='watching')}
 /* in a window: watched players join the director's options, judged by the refined estimate */
 function shortlistCandidates(id,pos){

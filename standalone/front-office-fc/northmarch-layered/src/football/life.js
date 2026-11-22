@@ -37,7 +37,7 @@ function lifeWeek(id){
 function loanOut(id){
   if(F(id).policy.loans===false||CL(id).tier===2)return;
   const sq=S.squads[id],xi=pickXI(sq).map(x=>x.p);
-  const cands=sq.filter(p=>p.age<=21&&!xi.includes(p)&&!p.loan&&p.pa>p.q+1&&sq.length>SQUAD_MIN+2).sort((a,b)=>(b.pa-b.q)-(a.pa-a.q)).slice(0,2);
+  const cands=sq.filter(p=>p.age<=21&&!xi.includes(p)&&!p.loan&&p.pa>p.q+1&&sq.length>SQUAD_MIN+2&&canSpare(sq,p,false)).sort((a,b)=>(b.pa-b.q)-(a.pa-a.q)).slice(0,2);
   for(const p of cands){
     const tos=Object.keys(S.clubs).filter(i=>CL(i).tier>CL(id).tier&&S.squads[i].length<SQUAD_MAX-1&&i!==S.my);
     const need=tos.filter(i=>S.squads[i].filter(x=>x.pos===p.pos).length<REQ[p.pos]+1);const to=need.length?pick(need):tos.length?pick(tos):null;if(!to)continue;

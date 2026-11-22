@@ -42,6 +42,17 @@ function advanceWeek(){
   for(const f of HOOKS.weekClosed)f(w);
   return eventsSince(mark);
 }
+/* play on for several weeks without a decision: stops before the winter window and the renewals (the chairman may want to set policy),
+   at the end of the season, and when the club is in trouble */
+function playWeeks(max){
+  const mark=S.evn||0;let n=0,why='';
+  while(n<max&&!seasonOver()){advanceWeek();n++;
+    if(eventsSince(mark).some(e=>e.c===S.my&&['CashCrisis','ForcedSale','Administration','SafetyClosure'].includes(e.t))){why='Trouble at the club: have a look.';break}
+    if(S.week===WINTER_WEEK-1){why='The winter window opens next week.';break}
+    if(S.week===RENEW_WEEK-1){why='Contract renewals are next week.';break}}
+  if(!why&&seasonOver())why='The season is over.';
+  return{n,why,events:eventsSince(mark)};
+}
 function seasonOver(){return S.phase!=='season'||S.week>=SEASON_WEEKS}
 function closeSeason(){
   if(S.phase!=='season'||S.week<SEASON_WEEKS)return null;

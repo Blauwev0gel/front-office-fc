@@ -15,7 +15,8 @@ function act(a,arg){
     case'helpok':S.help=true;break;
     case'journal':UI.over='journal';break;
     case'tab':UI.tab=arg;UI.over=null;if(arg==='club')UI.ct='hub';if(arg==='money')UI.mt=UI.mt||'overview';if(HAS_DOM)window.scrollTo(0,0);break;
-    case'play':{UI.prevPos=S.week?posOf(S.my):null;const ev=advanceWeek();UI.lastEv=ev||[];if(HAS_DOM)window.scrollTo(0,0);if(UI.autoLive&&myMatches().length)liveOpen(0);break}
+    case'playn':{UI.prevPos=S.week?posOf(S.my):null;const r=playWeeks(arg==='stop'?99:+arg);UI.lastEv=r.events;UI.playNote=`Played ${r.n} week${r.n===1?'':'s'}. ${r.why||''}`;if(HAS_DOM)window.scrollTo(0,0);break}
+    case'play':{UI.playNote=null;UI.prevPos=S.week?posOf(S.my):null;const ev=advanceWeek();UI.lastEv=ev||[];if(HAS_DOM)window.scrollTo(0,0);if(UI.autoLive&&myMatches().length)liveOpen(0);break}
     case'watch':liveOpen(+arg);break;
     case'lv':liveAct(arg);break;
     case'close':{const mark=S.evn||0;const h=closeSeason();UI.summerEv=eventsSince(mark);UI.review=h;UI.lastEv=[];if(HAS_DOM)window.scrollTo(0,0);break}

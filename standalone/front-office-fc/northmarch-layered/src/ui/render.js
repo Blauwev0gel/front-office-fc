@@ -54,7 +54,7 @@ function headline(m){const home=m.h===S.my,gf=home?m.gh:m.ga,ga=home?m.ga:m.gh,o
   return won?(gf-ga>=3?`${C().name} run riot${cup}`:`${C().name} beat ${CL(opp).name}${cup}`):(ga-gf>=3?`Humbled by ${CL(opp).name}${cup}`:`${CL(opp).name} too strong${cup}`)}
 function reportView(){
   const ms=myMatches();if(!S.week||!ms.length)return'';
-  const evs=UI.lastEv.filter(e=>e.c===S.my&&['Injury','Return','ProjectCompleted','ProjectStarted','SafetyClosure','CashCrisis','ForcedSale','Administration','Renewed','Transfer','Signing','Released','Ground','LoanTaken','CupWon'].includes(e.t));
+  const evs=UI.lastEv.filter(e=>e.c===S.my&&['Injury','Return','ProjectCompleted','ProjectStarted','SafetyClosure','CashCrisis','ForcedSale','Administration','Renewed','Transfer','Signing','Released','Ground','LoanTaken','CupWon'].includes(e.t)).slice(-6);
   const m=ms[0],f=F(S.my).last;
   return`<section class="echo" aria-label="The Northmarch Echo"><div class="mast"><b>THE NORTHMARCH ECHO</b><span>Week ${S.week}</span></div>
   <div class="head">${esc(headline(m))}</div>
@@ -64,7 +64,7 @@ function reportView(){
   <p class="small muted" style="text-align:center">Expected goals ${m.lh.toFixed(1)}–${m.la.toFixed(1)}: ${xgWord(m)}</p>
   ${m.scorers.length?`<p class="small">${m.scorers.map(s=>esc(s.name.split(' ').slice(-1)[0])+(s.side==='h'?' ('+esc(CL(m.h).name.split(' ')[0])+')':' ('+esc(CL(m.a).name.split(' ')[0])+')')).join(', ')}</p>`:''}`).join('<hr>')}
   ${ms.some(x=>x.comp==='league')?`<p class="small"><b>${TIER_NAME[C().tier]}: ${ord(posOf(S.my))}</b>${UI.prevPos&&UI.prevPos!==posOf(S.my)?` <span class="${UI.prevPos>posOf(S.my)?'up':'down'}">(${UI.prevPos>posOf(S.my)?'▲':'▼'}${Math.abs(UI.prevPos-posOf(S.my))})</span>`:''} · ${S.tbl[S.my].pts} point${S.tbl[S.my].pts===1?'':'s'}</p>`:''}
-  <ul>${evs.slice(0,6).map(e=>`<li>${esc(e.text)}</li>`).join('')}${f?`<li>The week's books: ${k1(f.net)}${f.lines.gate?` (gate ${k1(f.lines.gate)})`:''}.</li>`:''}</ul></section>`;
+  <ul>${evs.map(e=>`<li>${esc(e.text)}</li>`).join('')}${f?`<li>The week's books: ${k1(f.net)}${f.lines.gate?` (gate ${k1(f.lines.gate)})`:''}.</li>`:''}</ul></section>`;
 }
 function previewView(){
   if(seasonOver())return`<div class="panel"><p class="eyebrow">The season is over</p><p>${TIER_NAME[C().tier]}: you finish ${ord(posOf(S.my))}.</p></div>`;
@@ -81,9 +81,16 @@ function previewView(){
   if(!out.length)out.push(`<div class="panel"><p class="eyebrow">Week ${w}</p><p class="muted">No game for us this week.</p></div>`);
   return out.join('');
 }
+function myResults(n){
+  return S.ev.filter(e=>e.t==='Match'&&e.s===S.season&&(e.c===S.my||e.c2===S.my)).slice(-n).reverse().map(e=>{const home=e.c===S.my,gf=home?e.gh:e.ga,ga=home?e.ga:e.gh,r=gf>ga?'W':gf<ga?'L':'D';return{r,gf,ga,opp:home?e.c2:e.c,home,cup:e.comp==='cup',w:e.w}});
+}
+function resultsPanel(){
+  const rs=myResults(6);if(!rs.length)return'';
+  return`<div class="panel"><p class="eyebrow">Recent results</p>${rs.map(x=>`<div class="row small"><span><span class="pill ${x.r==='W'?'good':x.r==='L'?'bad':''}" aria-label="${x.r==='W'?'Win':x.r==='L'?'Defeat':'Draw'}">${x.r}</span> ${x.home?'v':'at'} ${nm(x.opp)}${x.cup?' · cup':''}</span><b>${x.gf}–${x.ga}</b></div>`).join('')}</div>`;
+}
 function weekView(){
   const over=seasonOver();
-  return`${reportView()}${urgentPanel()}${clubWeekPanel()}${windowPanel()}${previewView()}${lookPanel()}${targetsPanel()}
+  return`${UI.playNote?`<div class="panel playnote" role="status"><p class="small"><b>${esc(UI.playNote)}</b></p></div>`:''}${reportView()}${urgentPanel()}${clubWeekPanel()}${windowPanel()}${previewView()}${resultsPanel()}${lookPanel()}${targetsPanel()}
   <p class="note">${over?'Prize money, promotion and relegation, contracts and the summer window follow.':'Every week is played. Change prices, budgets or building first if you want them to count this week.'}</p>`;
 }
 
@@ -115,7 +122,7 @@ function loanedOutPanel(){const out=Object.entries(S.squads).flatMap(([cid,sq])=
   return out.length?`<div class="panel"><p class="eyebrow">Out on loan</p>${out.map(({p,cid})=>`<div class="row small"><span>${esc(p.name)} <span class="muted">at ${nm(cid)}</span></span><b>${p.sApps} apps</b></div>`).join('')}</div>`:''}
 function marketView(){
   const ev=S.ev.filter(e=>['Transfer','Signing','Loan'].includes(e.t)).slice(-200),wins={};
-  for(const e of ev){const k=e.w>=SEASON_WEEKS||e.w===0?`Summer ${e.w===0?e.s-1:e.s}`:e.w>=WINTER_WEEK&&e.w<=WINTER_WEEK+1?`Winter, season ${e.s}`:`Season ${e.s}`;(wins[k]=wins[k]||[]).push(e)}
+  for(const e of ev){const k=e.w===0?`Summer window, season ${e.s}`:e.w>=SEASON_WEEKS?`Summer ${e.s}`:e.w>=WINTER_WEEK&&e.w<=WINTER_WEEK+1?`Winter, season ${e.s}`:`Season ${e.s}`;(wins[k]=wins[k]||[]).push(e)}
   const keys=Object.keys(wins).reverse().slice(0,3);
   return keys.length?keys.map(k=>{const list=wins[k],fees=list.filter(e=>e.fee).sort((a,b)=>b.fee-a.fee).slice(0,5),mine=list.filter(e=>e.c===S.my||e.c2===S.my);
     return`<div class="panel"><p class="eyebrow">${esc(k)} · ${list.length} moves</p>${fees.length?`<p class="small muted">Biggest fees</p>${fees.map(e=>`<p class="small">${esc(e.text)}</p>`).join('')}`:''}${mine.length?`<p class="small muted">Your club</p>${mine.map(e=>`<p class="small"><b>${esc(e.text)}</b></p>`).join('')}`:''}</div>`}).join(''):'<p class="muted">No transfers yet. Windows: the summer and week '+WINTER_WEEK+'.</p>';

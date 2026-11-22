@@ -82,9 +82,9 @@ function foreignBudgetWeek(w){
     c.ledger.net=r2(c.ledger.net+net);
   }
 }
-function foreignSigningAffordable(id,p,fee=0){
+function foreignSigningAffordable(id,p,fee=0,expectedWage=null){
   const c=S.foreign.clubs[id],w=foreignWageWeek(id),limit=15+c.rep*1.25;
-  const projected=w+(p.wage||wageFor(p.q))/1000;
+  const projected=w+(expectedWage??p.wage??wageFor(p.q))/1000;
   return !!c&&c.budget-fee>=Math.max(20,w*4)&&projected<=limit;
 }
 function foreignSquadStrength(id){
@@ -111,10 +111,10 @@ function foreignMove(p,from,to,fee,reason){
   if(!Number.isFinite(fee)||fee<0)throw new Error('Invalid international fee');
   const fromDom=!!S.clubs[from],toDom=!!S.clubs[to];
   if(toDom&&(dst.length>=SQUAD_MAX||fee>budgetFor(to)))return false;
-  if(!toDom&&!foreignSigningAffordable(to,p,fee))return false;
-  if(fromDom&&(src.length<=SQUAD_MIN||!canSpare(src,p,false)))return false;
-  if(!fromDom&&src.filter(x=>x.pos===p.pos).length<=REQ[p.pos])return false;
   const dueWage=toDom?moveWage(p,to):Math.round(wageFor(p.q)*1.1/5)*5;
+  if(!toDom&&!foreignSigningAffordable(to,p,fee,dueWage))return false;
+  if(fromDom&&(src.length<=SQUAD_MIN||!canSpare(src,p,false)||(from===S.my&&!S.auto)))return false;
+  if(!fromDom&&src.filter(x=>x.pos===p.pos).length<=REQ[p.pos])return false;
   if(toDom&&wageBillK(to)+dueWage/1000>wageCapK(to))return false;
   playerCloseStint(p,from);
   src.splice(src.indexOf(p),1);
@@ -161,23 +161,8 @@ function foreignTransferWindow(){
     sq.push(p);
     emit('ForeignSigning',null,`${club.name} sign free agent ${p.name}.`,{pid:p.id,foreignClub:to});
   }
-  // Northmarch directors seek an imported player only when the existing squad
-  // has a genuine gap or there is a clear, affordable quality improvement.
-  for(const to of home){
-    const dest=S.squads[to];if(dest.length>=SQUAD_MAX)continue;
-    const gaps=POS.filter(pos=>dest.filter(p=>p.pos===pos&&!p.loan).length<REQ[pos]);
-    const target=gaps.length?pick(gaps):null;
-    if(!target)continue;
-    const minQ=Math.min(...dest.filter(p=>p.pos===target).map(p=>p.q).concat([squadQuality(dest)-1]));
-    let best=null,bestScore=-Infinity;
-    for(const from of abroad.slice(0,26))for(const p of foreignOptions(from,target)){
-      const fee=Math.max(1,Math.round(playerValue(p)*1.15));
-      if(fee>budgetFor(to)||wageBillK(to)+wageFor(p.q)*1.1/1000>wageCapK(to)||!playerAcceptsMove(p,from,to))continue;
-      const score=p.q+.16*(p.pa-p.q)-fee/100;
-      if(p.q>=minQ&&score>bestScore){best={p,from,fee};bestScore=score}
-    }
-    if(best&&foreignMove(best.p,best.from,to,best.fee,'squad need'))affected.add(to);
-  }
+  // Northmarch purchases must go through scoutPool/shopFor, including the human
+  // chairman's transfer mandate. Do not run a second, unapproved purchase route.
   // Foreign clubs make a limited number of active bids. A Northmarch player
   // can leave only when his club can spare him; human-owned protected squads
   // are not raided without an approved autonomous selling policy.

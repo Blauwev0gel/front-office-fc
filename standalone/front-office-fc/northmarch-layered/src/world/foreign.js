@@ -38,6 +38,13 @@ function foreignSquadInit(){
       const count=Math.max(2,Math.ceil(REQ[pos]*.8));
       for(let j=0;j<count;j++)f.squads[id].push(newPlayer(pos,{q:base-1.3+rnd()*2.3,club:id,contract:ri(1,4)}));
     }
+    // Different squad construction philosophies: surplus in some positions,
+    // gaps elsewhere. Without these, no foreign transfers are ever possible.
+    for(let n=0;n<2;n++){
+      const from=pick(POS.filter(pos=>pos!=='GK'&&f.squads[id].filter(x=>x.pos===pos).length>2));
+      const to=pick(POS.filter(pos=>pos!==from&&pos!=='GK'));
+      const p=pick(f.squads[id].filter(x=>x.pos===from));p.pos=to;
+    }
   }
 }
 function foreignSquadStrength(id){
@@ -253,12 +260,18 @@ function foreignPlayerSeasonEnd(){
       if(p.age>=31)p.q=Math.max(4,p.q-(p.age-30)*.045);
       p.q=r1(p.q);
     }
+    // Keep a playable side, but do not automatically repair every recruitment
+    // shortage: those shortages are the reason foreign clubs make market bids.
     for(const pos of POS){
-      const min=Math.max(2,Math.ceil(REQ[pos]*.8));
+      const min=pos==='GK'?2:Math.max(1,Math.floor(REQ[pos]*.75));
       while(sq.filter(p=>p.pos===pos).length<min){
         const q=11.5+(club.strength-50)/4-2+rnd()*2;
         sq.push(newPlayer(pos,{q,age:ri(17,24),contract:ri(2,4),club:id}));
       }
+    }
+    while(sq.length<20){
+      const pos=pick(POS.slice(1)),q=11.5+(club.strength-50)/4-2+rnd()*2;
+      sq.push(newPlayer(pos,{q,age:ri(16,22),contract:ri(2,4),academy:true,club:id}));
     }
   }
 }

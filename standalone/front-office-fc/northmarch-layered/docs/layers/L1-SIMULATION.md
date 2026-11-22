@@ -32,7 +32,7 @@ De gebruiker bestuurt één club via bestaande algemene keuzes: beleid, budgette
 Zie **`docs/ARCHITECTURE.md`** voor gegevens-eigenaarschap en levenscyclus.
 
 ## Savegames en records
-- Schema versie 9.
+- Schema versie 10.
 - Bestaande drie-divisiesaves kunnen worden aangevuld met twee lagere divisies zonder bestaande clubdata te resetten. De gereconstrueerde resultaten van vóór migratie zijn niet historisch exact.
 - Oude spelers krijgen deterministische identiteitdefaults zonder willekeurige hertekening van bestaande namen/kwaliteiten.
 - Contractvertrek, transfers en verhuur worden als afzonderlijke carrièreperiodes bewaard.
@@ -48,3 +48,13 @@ Zie **`docs/ARCHITECTURE.md`** voor gegevens-eigenaarschap en levenscyclus.
 
 ## Uitdrukkelijke afbakening
 L3 staff-agentautonomie, L4 verhaallagen en L5 dynasty zijn geen onderdeel van deze ontwikkelopdracht. Bestaande clubmanagement- en ALV-schermen blijven bruikbaar, maar sturen geen nieuwe geforceerde verhaallus.
+
+## 2026-11-22 — reparatie van de kernlussen (nog ongetest)
+- Competitie, beker en Europa gebruiken afzonderlijke spelerstatistieken, inclusief deelperiodes na verkoop/verhuur.
+- Een internationale spelerstransfer moet zowel eigenaarschap als geldboeken wijzigen; Northmarch-aankopen lopen via bestaande scouting, mandaat en TD.
+- Buitenlandse clubs draaien een beperkte maar doorlopende wekelijkse cashflow inclusief schulden, salarissen en bij wanbeheer sportieve consequenties.
+- Buitenlandse minuten, blessures, vorm en motivatie sturen daadwerkelijke speelsterkte en loopbaanontwikkeling.
+- Opleidingscultuur veroorzaakt nieuwe intakeverschillen, en echte toernooizeges worden spelerprijzen.
+- Archief en nieuws tonen controleerbare feiten, buitenlandse clubs en spelers in plaats van willekeurige verhalen.
+
+**Open poort:** de nieuwe systemen zijn nog niet integraal getest, en economische/voetbalbalans over vele seizoenen is niet bewezen.

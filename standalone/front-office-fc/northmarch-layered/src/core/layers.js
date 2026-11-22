@@ -12,11 +12,10 @@ function fireFeatureEvent(event,data){
 }
 function registerFeaturePanel(slot,render){
   if(typeof render!=='function')throw new TypeError('Feature panel must be a function');
-  if(FEATURE_PANELS[slot])throw new Error('Duplicate feature panel: '+slot);
-  FEATURE_PANELS[slot]=render;
+  (FEATURE_PANELS[slot]||(FEATURE_PANELS[slot]=[])).push(render);
 }
 function featurePanel(slot){
-  return FEATURE_PANELS[slot]?FEATURE_PANELS[slot]():'';
+  return (FEATURE_PANELS[slot]||[]).map(fn=>fn()).join('');
 }
 
 /* Optional rules and UI commands: fallback values belong to the base game. */

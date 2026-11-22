@@ -50,7 +50,7 @@ function windowPanel(){
 function clubWeekPanel(){
   if(!S.week||!S.ops)return'';const o=S.ops,lk=o.looks&&o.looks.s===S.season&&o.looks.w===S.week?o.looks.list:[],need=openNeeds()[0];
   const rows=[];
-  if(lk.length)rows.push(['Scouting',`${lk.length} look${lk.length===1?'':'s'} this week: ${lk.slice(0,3).map(x=>`${esc(x.name)} (${x.pos}${x.club?', '+esc(CL(x.club).name):', free'}, ${x.isNew?'new on the list':x.obs+' looks'}, ${r1(x.est)})`).join('; ')}.`]);
+  if(lk.length)rows.push(['Scouting',`${lk.length} look${lk.length===1?'':'s'} this week: ${lk.slice(0,3).map(x=>`${esc(x.name)} (${x.pos}${x.club?', '+nm(x.club):', free'}, ${x.isNew?'new on the list':x.obs+' looks'}, ${r1(x.est)})`).join('; ')}.`]);
   if(need)rows.push(['Squad plan',esc(need.why)+'.']);
   return rows.length?`<div class="panel"><p class="eyebrow">Behind the scenes · week ${S.week}</p>${rows.map(([k,t])=>`<div class="row small"><b>${k}</b><span style="text-align:right;max-width:75%">${t}</span></div>`).join('')}</div>`:'';
 }

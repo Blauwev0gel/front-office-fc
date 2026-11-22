@@ -11,7 +11,7 @@ for(let seed=1;seed<=15&&tested<3;seed++){
   E.cmd('SetMandate',id,{deals:'small'});const above=E.aboveLimit();if(!above.length)continue;tested++;
   const cap=E.dealCap(id);
   ok(above.length<=3&&above.every(p=>p.fee>cap&&p.cap===cap&&p.est>0&&p.need),`seed ${seed}: what is left alone is real and above the limit (${above.length}, limit £${cap}k)`);
-  ok(above.every(p=>{const f=E.findPlayer(p.pid);return f&&f.club!==id&&(f.club||null)===(p.from||null)}),'every player named exists at the club named');
+  ok(above.every(p=>{const f=E.findPlayer(p.pid);if(f)return f.club!==id&&(f.club||null)===(p.from||null);const fs=S.foreign&&S.foreign.squads&&S.foreign.squads[p.from];return !!(fs&&fs.some(x=>x.id===p.pid))}),'every player named exists at the club named (at home or abroad)');
   ok(S.journal.some(j=>/deal limit: Small/.test(j.text)),'the limit change is in the decision journal');
   const names=above.map(p=>p.pid);E.advanceWeek();
   const sg=S.ops.signings.filter(x=>x.need!=='Emergency cover'&&x.s===1&&x.w===0);

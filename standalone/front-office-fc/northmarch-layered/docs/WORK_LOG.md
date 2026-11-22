@@ -123,3 +123,6 @@ Register (SHA · doel · systemen · gameplay · tests · grenzen · status):
 
 ## 2026-11-22 — Crash bij seizoenseinde hersteld (Claude)
 - 931b3aa · `src/world/awards.js` (ChatGPT's wereldnieuws): `const old=S.worldLog.filter(x=>x.s===old)` verwees naar zichzelf (TDZ) en liet `closeSeason` crashen zodra het logboek 1400 regels bereikte; moet `x.s===oldest` zijn · gevonden door `sim-test`, hersteld, fast suite groen (incl. 20-seizoenensim) · TESTED
+
+## 2026-11-22 — Buitenlandse kandidaten braken het scherm (Claude)
+- (deze commit) · ChatGPT's internationale transfermarkt (`foreign.js`, `scoutPool`) laat de directeur ook spelers van buitenlandse clubs (`f_esp_7`, …) bekijken; `nm(id)` en mijn "above your limit"-/scoutkaart riepen `CL(id).name` aan en crashten daardoor in de browser bij de eerste "Play" (Node-tests zagen het niet: geen DOM) · `nm()` gebruikt nu `marketClubName()` (kent ook buitenlandse clubs); `l3-test` accepteert spelers bij buitenlandse clubs (`S.foreign.squads`) · fast suite groen, browser loopt weer een heel seizoen door · TESTED

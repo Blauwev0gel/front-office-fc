@@ -4,7 +4,7 @@ const UI={tab:'week',over:null,arg:null,gt:'stadium',mt:'overview',tier:null,msg
 const n0=v=>Math.round(v).toLocaleString('en-GB');
 const k1=v=>(v<0?'−':'')+'£'+Math.abs(r1(v)).toLocaleString('en-GB')+'k';
 const crest=`<svg class="crest" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 L31 7 V17 C31 25 24 30 17 32 C10 30 3 25 3 17 V7 Z" fill="var(--navy)"/><path d="M8 22 L14 12 L18 18 L21 14 L26 22" stroke="var(--signal)" stroke-width="2.6" fill="none" stroke-linejoin="round"/></svg>`;
-function nm(id){return esc(CL(id).name)}
+function nm(id){return esc(marketClubName(id))} /* also for clubs abroad, where a candidate may come from */
 function tierShort(t){return['Premier','One','Two','Three','Four'][t]}
 function strWord(id){const t=CL(id).tier,ids=tierIds(t).sort((a,b)=>teamStrength(b)-teamStrength(a)),r=ids.indexOf(id)+1;return r<=3?'Among the best':r<=7?'Upper half':r<=11?'Lower half':'Among the weakest'}
 function moneyWord(id){const f=F(id),inc=estSeasonIncome(id);return f.cash<0?'In the red':f.cash<inc*.1?'Stretched':f.cash<inc*.4?'Steady':'Comfortable'}

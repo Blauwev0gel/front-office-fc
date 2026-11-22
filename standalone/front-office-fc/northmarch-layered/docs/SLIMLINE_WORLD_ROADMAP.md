@@ -78,3 +78,9 @@ User requested **code development now, not blocking on builds/tests**. According
 
 ## Hand-off note
 Do not restart the six-block analysis or propose cosmetic changes. Read this roadmap and the updated `docs/ARCHITECTURE.md` and `docs/layers/L1-SIMULATION.md`, then work directly on remaining integration gaps. Do not call unfinished blocks COMPLETE.
+
+## Final source integration pass — 2026-11-22
+- Five-tier playable entry: `makeSeats()` and post-AGM `seatsAfterOut()` now present choices across *all five* Northmarch divisions; the election screen reflects the actual options. This makes a bottom-division-to-European-football career path possible rather than theoretical.
+- Integration correction: `club/recruitment.js` `findPlayer()` now searches **foreign squads**, so a director's overseas shortlist, continued scouting and subsequent transfer report no longer falsely mark overseas targets as gone or try to pass foreign club IDs to domestic `CL()`. The week-by-week scouts can now independently discover foreign players.
+- UI correction: the cup page correctly explains that divisions 0–2 join after the preliminary, not only Premier clubs in round 2.
+- Source syntax review: 20 changed engine/UI files parse successfully as isolated JavaScript modules. This is **only syntax**, not runtime execution, game simulation, build or acceptance tests. All six blocks remain IMPLEMENTING, not COMPLETE.

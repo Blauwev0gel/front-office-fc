@@ -18,6 +18,7 @@ function summerWindow(){
   if(S.my){tdClose();buildPlan(S.my)}
   for(const id of order)loanOut(id);
   youthReconcile();
+  foreignTransferWindow();
   for(const t of TIERS)tierIds(t).slice().sort((x,y)=>teamStrength(y)-teamStrength(x)).forEach((id,i)=>CL(id).expect=i+1);
   setGoalsAll();
 }

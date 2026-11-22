@@ -12,4 +12,4 @@ function directorReviewPanel(){
     <p class="note">${r.assessed?r.meeting+' of '+r.assessed+' assessed signings met the director’s original estimate.':'No signings have enough appearances to assess yet.'} This is a fixed retrospective judgement from the signing, not proof of transfer value or sporting impact.</p></div>`).join('');
 }
 
-registerFeaturePanel('directorAccountability',directorReviewPanel);
+registerFeaturePanel('recruitment:beforePolicy',directorReviewPanel);

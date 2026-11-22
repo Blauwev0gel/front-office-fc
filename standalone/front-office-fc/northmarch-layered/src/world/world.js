@@ -2,7 +2,7 @@
    Owns S.clubs (identity, tier, support, rivals) and S.P (people). mkPerson/castClub/addRel/weakest are the
    Northmarch functions (northmarch.html @7a2d5d3), kept so the story layer (L4) can attach later.
    Squads (football), grounds (club) and money (finance) are created here but owned by their own domains. */
-const VERSION=9;
+const VERSION=10;
 const SAVE_KEY='northmarch-layered-v1';
 const TIERS=[0,1,2,3,4];
 const TIER_STR=[[51,59],[44,53],[37,46],[31,40],[26,35]];

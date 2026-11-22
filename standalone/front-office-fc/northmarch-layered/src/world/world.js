@@ -51,7 +51,9 @@ function newWorld(seed){
   CL('pell').rival='corden';CL('pell').rivalWhy='a captain sold to them on deadline day';CL('corden').rival='pell';CL('corden').rivalWhy=CL('pell').rivalWhy;
   CL('pell').ground='Dock Road';
   // 77 more clubs, sized by a hidden potential, then cut into five divisions of 16
-  const names=pickN(TOWNNAMES.concat(TOWNNAMES2),77),towns=Object.keys(TOWNS);
+  const baseNames=TOWNNAMES.concat(TOWNNAMES2);
+  const names=baseNames.concat(baseNames.slice(0,26).map((name,i)=>name+' '+(i%2?'Vale':'Heath')));
+  const towns=Object.keys(TOWNS);
   const pot=names.map((tn,i)=>({tn,i,v:rnd()}));pot.sort((a,b)=>b.v-a.v);
   const need=[15,14,16,16,16]; // harrow fills tier 0; pell and corden tier 1
   let k=0;for(const tier of TIERS)for(let j=0;j<need[tier];j++){const x=pot[k++];mkClub('c'+x.i,x.tn+(rnd()<.85?' '+pick(SUFFIX):''),pick(towns),tier)}

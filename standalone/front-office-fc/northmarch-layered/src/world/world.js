@@ -66,6 +66,7 @@ function newWorld(seed){
     const str=id==='pell'?48:id==='harrow'?57:ri(a,b)+Math.round((c.support-(TIER_SUPPORT[c.tier][0]+TIER_SUPPORT[c.tier][1])/2)/600);
     S.squads[id]=genSquad(str,id);S.grounds[id]=groundInit(id);S.fin[id]=finInit(id);S.stats[id]=statsInit();S.members[id]=membersInit(id);S.records[id]=recordsInit();giveProfile(CL(id).cast.coach,'coach',CL(id).tier);giveProfile(CL(id).cast.td,'td',CL(id).tier);}
   S.foreign=foreignInit();
+  foreignSquadInit();
   staffPoolInit();
   for(const id of ids)commercialInit(id);
   S.qref=worldQuality();

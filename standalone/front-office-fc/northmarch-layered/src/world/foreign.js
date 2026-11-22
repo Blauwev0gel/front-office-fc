@@ -269,7 +269,24 @@ function foreignPlayerSeasonEnd(){
       p.sApps=0;p.sGoals=0;p.eApps=0;p.eGoals=0;
       if(p.career.length>12)p.career.shift();
       p.age++;p.contract--;p.inj=Math.max(0,(p.inj||0)-3);
-      if(p.age>=35||p.contract<=0){sq.splice(sq.indexOf(p),1);continue}
+      if(p.age>=35){
+        sq.splice(sq.indexOf(p),1);
+        emit('Retired',null,`${p.name} retires after playing for ${club.name}.`,{pid:p.id,foreignClub:id});
+        continue;
+      }
+      if(p.contract<=0){
+        const retain=club.budget>35&&p.age<=31&&rnd()<clamp((p.loyalty??55)/130+.12,.15,.85);
+        if(retain){
+          p.contract=ri(2,4);
+          p.wage=Math.round(p.wage*1.08/5)*5;
+          club.budget=Math.max(0,club.budget-Math.round(playerValue(p)*.02));
+        }else{
+          sq.splice(sq.indexOf(p),1);
+          faAdd(p,'out of contract abroad',id);
+          emit('ForeignRelease',null,`${p.name} leaves ${club.name} on a free transfer.`,{pid:p.id,foreignClub:id});
+          continue;
+        }
+      }
       if(p.age<=24&&p.q<p.pa)p.q=Math.min(p.pa,p.q+(p.pa-p.q)*(.04+rnd()*.08));
       if(p.age>=31)p.q=Math.max(4,p.q-(p.age-30)*.045);
       p.q=r1(p.q);

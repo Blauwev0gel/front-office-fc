@@ -19,16 +19,26 @@ function worldNewsRecord(e){
 }
 function worldSeasonAwards(){
   S.worldAwards=S.worldAwards||[];
-  const players=Object.entries(S.squads).flatMap(([club,sq])=>sq.filter(p=>!p.loan||p.loan.from===club).map(p=>({p,club})));
+  const players=Object.entries(S.squads).flatMap(([club,sq])=>sq.map(p=>({p,club})));
   if(!players.length)return null;
-  const scored=players.slice().sort((a,b)=>playerSeasonGoals(b.p)-playerSeasonGoals(a.p)||b.p.sApps-a.p.sApps||b.p.q-a.p.q);
+  const all=[...players,...Object.entries(S.foreign?.squads||{}).flatMap(([club,sq])=>sq.map(p=>({p,club}))),
+    ...(S.fa||[]).map(p=>({p,club:null}))];
+  const scored=all.map(({p,club})=>{
+    const stints=(p.history||[]).filter(h=>h.season===S.season&&h.partial&&S.clubs[h.club]);
+    const current=S.clubs[club]?{club,goals:p.sGoals||0,apps:p.sApps||0}:null;
+    const domestic=stints.concat(current?[current]:[]);
+    const goals=domestic.reduce((sum,h)=>sum+(h.goals||0),0);
+    const apps=domestic.reduce((sum,h)=>sum+(h.apps||0),0);
+    const best=domestic.slice().sort((a,b)=>(b.goals||0)-(a.goals||0))[0];
+    return{p,club:best?.club||club,goals,apps};
+  }).filter(x=>x.goals>0).sort((a,b)=>b.goals-a.goals||b.apps-a.apps||b.p.q-a.p.q);
   const eligible=players.filter(x=>x.p.age<=23&&x.p.sApps>=10);
   const breakthrough=eligible.slice().sort((a,b)=>b.p.grown-a.p.grown||b.p.sApps-a.p.sApps)[0]||null;
   const year={
     season:S.season,
     champions:TIERS.map(t=>({tier:t,club:standings(t)[0]})),
     cup:S.cup.winner,
-    topScorer:scored.length?{id:scored[0].p.id,name:scored[0].p.name,club:scored[0].club,goals:playerSeasonGoals(scored[0].p),apps:scored[0].p.sApps}:null,
+    topScorer:scored.length?{id:scored[0].p.id,name:scored[0].p.name,club:scored[0].club,goals:scored[0].goals,apps:scored[0].apps}:null,
     breakthrough:breakthrough?{id:breakthrough.p.id,name:breakthrough.p.name,club:breakthrough.club,age:breakthrough.p.age,delta:r2(breakthrough.p.grown)}:null,
     europe:S.foreign?.europe?.seasons?.slice(-1)[0]?.winner||null
   };

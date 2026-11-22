@@ -45,5 +45,13 @@ S.clubs[id].cast.td=tdid;
 const old=JSON.parse(E.serialize());delete old.ops.reports;
 E.deserialize(JSON.stringify(old));
 ok(Array.isArray(E.__get().ops.reports)&&E.__get().ops.reports.length===0,'legacy save without reports initializes safely');
+// The second window is produced by the real clock, without duplicate reports.
+const W=loadEngine();
+W.newWorld(72);W.chooseClub(W.__get().seats[0]);W.__get().agmOff=true;
+for(let w=0;w<15;w++)W.advanceWeek();
+const wr=W.__get().ops.reports;
+ok(wr.length===2&&wr[0].kind==='Summer'&&wr[0].w===0&&wr[1].kind==='Winter'&&wr[1].w===15,
+  'real summer and winter windows each close with one correctly dated report');
+ok(new Set(wr.map(x=>x.s+'-'+x.w)).size===wr.length,'window reports have unique season/week keys');
 console.log(failed?`l3-s32-test: ${failed} failed`:'l3-s32-test: all checks passed');
 process.exit(failed?1:0);

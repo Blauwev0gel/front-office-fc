@@ -41,7 +41,7 @@ function advanceWeek(){
   if(S.my){scoutWeek(S.my);if(w===WINTER_WEEK-1){buildPlan(S.my);tdScan(S.my)}else if(w===RENEW_WEEK)buildPlan(S.my)} // the player's club: scouting every week, the plan before the winter window and after renewals
   if(w===WINTER_WEEK){for(const id of shuffle(ids.slice()))squadManager(id,'winter');foreignTransferWindow();if(S.my)tdClose();youthReconcile()}
   if(w===RENEW_WEEK)for(const id of ids)renewals(id);
-  if(S.my)directorAuditWeek(); // freeze real post-signing evidence before the next season resets player statistics
+  fireFeatureEvent('weekClosed',{season:S.season,week:w}); // optional layers observe the completed simulation, never advance time
   membersOnEvents(eventsSince(mark));
   emit('WeekClosed',null,`Week ${w} played.`);
   for(const f of HOOKS.weekClosed)f(w);

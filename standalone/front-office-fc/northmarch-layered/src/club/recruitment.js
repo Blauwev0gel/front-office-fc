@@ -154,11 +154,44 @@ function tdScan(id){
 }
 function aboveLimit(){return(S.ops&&S.ops.missed||[]).filter(p=>p.status==='above')}
 /* the window closes: what stayed above the limit is now history (shown as "left alone") */
-function tdClose(){if(!S.ops)return;for(const p of S.ops.missed||[])if(p.status==='above'){p.status='missed';p.closed=[S.season,S.week]}}
+function tdClose(){
+  if(!S.ops)return;
+  const ops=S.ops,windowWeek=S.week===0?0:WINTER_WEEK;
+  const signings=ops.signings.filter(x=>x.s===S.season&&x.w===windowWeek);
+  const missed=(ops.missed||[]).filter(x=>x.status==='above');
+  const deals=(S.ev||[]).filter(e=>e.s===S.season&&e.w===windowWeek&&
+    ((e.c===S.my&&['Transfer','Signing'].includes(e.t))||(e.c2===S.my&&e.t==='Transfer')||
+     (e.t==='InternationalTransfer'&&(e.from===S.my||e.to===S.my))));
+  const report={s:S.season,w:windowWeek,kind:windowWeek===0?'Summer':'Winter',
+    director:tdOf(S.my).name,mandate:mandateOf(S.my).deals,
+    signed:signings.map(x=>({pid:x.pid,name:x.name,pos:x.pos,fee:x.fee,est:x.est,q0:x.q0,need:x.need})),
+    missed:missed.map(x=>({pid:x.pid,name:x.name,pos:x.pos,fee:x.fee,cap:x.cap,need:x.need})),
+    events:deals.map(e=>({t:e.t,text:e.text})),closed:[S.season,S.week]};
+  ops.reports=ops.reports||[];
+  const idx=ops.reports.findIndex(x=>x.s===report.s&&x.w===report.w);
+  if(idx>=0)ops.reports[idx]=report;else ops.reports.push(report);
+  if(ops.reports.length>8)ops.reports.splice(0,ops.reports.length-8);
+  for(const p of ops.missed||[])if(p.status==='above'){p.status='missed';p.closed=[S.season,S.week]}
+}
+/* Performance is measured from actual subsequent appearances and development, not
+   an invented manager score. A new signing is unassessed until he has played. */
+function directorWindowReviews(){
+  return (S.ops?.reports||[]).slice().reverse().map(r=>{
+    const players=r.signed.map(x=>{const f=findPlayer(x.pid),p=f?.p;
+      const apps=p?(p.sApps||0)+(p.cupApps||0)+(p.eApps||0):0;
+      const current=p?r1(p.q):null;
+      return {...x,apps,current,club:f?.club||null,
+        verdict:!p?'Unavailable':f.club!==S.my?'Departed':apps<5?'Too early':
+          current>=x.est-.5?'Meeting estimate':'Below estimate'};
+    });
+    const assessed=players.filter(x=>x.verdict==='Meeting estimate'||x.verdict==='Below estimate');
+    return {...r,players,assessed:assessed.length,meeting:assessed.filter(x=>x.verdict==='Meeting estimate').length};
+  });
+}
 /* the window opens for the chairman: the pre-season scouting rounds, a fresh plan, and the director's scan */
 function openWindow(){
   if(!S.my)return;for(let k=0;k<4;k++)scoutWeek(S.my,k*3+1);buildPlan(S.my);tdScan(S.my);
 }
 defCommand('SetMandate',{check:(id,a)=>!MANDATE_DEALS[a.deals]?'Unknown mandate':null,run:(id,a)=>{F(id).policy.mandate={...mandateOf(id),deals:a.deals};
   const w=S.week===0||S.week===WINTER_WEEK-1;if(w&&S.ops){S.ops.missed=(S.ops.missed||[]).filter(p=>p.status!=='above');tdScan(id)} /* the list follows the new limit */}});
-function opsAfterLoad(){if(S.my&&!S.ops){S.ops=opsInit();buildPlan(S.my)}if(S.ops){delete S.ops.proposals;if(!S.ops.missed){S.ops.missed=[];S.ops.pnext=S.ops.pnext||1}}}
+function opsAfterLoad(){if(S.ops&&!Array.isArray(S.ops.reports))S.ops.reports=[];if(S.my&&!S.ops){S.ops=opsInit();buildPlan(S.my)}if(S.ops){delete S.ops.proposals;if(!S.ops.missed){S.ops.missed=[];S.ops.pnext=S.ops.pnext||1}}}

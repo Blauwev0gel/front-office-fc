@@ -23,6 +23,10 @@ Status: actueel (gelijk aan de officiële tip op het moment van publiceren, gepu
 Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `football/market.js`, `core/save.js`), meld het hier onder "Open wijzigingen" voordat je begint.
 
 ## Open wijzigingen en bekende problemen
+- [ ] **Lagen eerst:** fase A = zelfstandig functionerend basisspel (L1+L2); pas daarna L3 autonomie, L4 verhaal en L5 dynasty. Vastgelegd in `docs/LAYER_CONTRACT.md` en `docs/DEV_PROTOCOL.md`.
+- [ ] **S3.2 uit de basis gehaald:** `src/layers/autonomy/director-accountability.js` en `director-accountability-ui.js` zijn optionele modules, integreren via `src/core/layers.js` met `transferWindowClosed`, `weekClosed`, `saveLoaded` en een UI-slot. `tests/layer-isolation-test.js` controleert dat spel en Football-UI zonder deze S3.2-modules blijven draaien.
+- [ ] **Bestaande S3.1 verwevenheid blijft open:** mandaten en scan/reportfuncties zitten nog in `club/recruitment.js`, `football/market.js`, `world/world.js`, `ui/recruit.js` en de UI-acties. Dit is een expliciete architectuurblokkade vóór verder L3-werk; niet claimen dat complete autonomie al optioneel is.
+
 - [ ] **Overeengekomen overlap**: ChatGPT bouwt op verzoek eigenaar L3 S3.2 op `chatgpt-slimline-world` (recruitment/clock/UI). Claude werkt in hetzelfde productgebied; eerst PR #6 controleren/integreren vóór parallelle L3-wijzigingen.
 - [ ] S3.2: vensterrapporten en betrouwbaarheid per directeur zijn geïmplementeerd en met een regressietest vastgelegd. CI en browserplaytest nog verifiëren. Betrouwbaarheid is een informatieve inschatting van scouting, geen automatisch personeelsverloop (S3.5).
 
@@ -34,6 +38,7 @@ Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `footbal
 
 ## Teststatus (laatst bekende feiten per SHA)
 | Wat | SHA | Resultaat | Datum | Door |
+| S3.2 als optionele modules + isolatietest (build, engine, UI zonder module) | 34ebd53 + docs | CI **in afwachting**; lokaal niet uitgevoerd wegens geen netwerktoegang tot GitHub vanuit werkcontainer | 2026-11-22 | GitHub Actions / ChatGPT |
 | S3.2: `node build.js`, snelle engine-suite incl. `l3-s32-test.js` en echte zomer-/winterwindowtest | 27c2d66 | **groen** in GitHub Actions, run 45032149630 (zonder browser) | 2026-11-22 | GitHub Actions |
 | S3.2: melding voor langdurig niet gebruikte aankopen | 639b6d9 + docs | **CI in afwachting**; geen lokale build, geen browserplaytest | 2026-11-22 | GitHub Actions / ChatGPT |
 |---|---|---|---|---|
@@ -46,6 +51,7 @@ Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `footbal
 Regel: een resultaat geldt alleen voor de genoemde SHA. Nieuwe SHA = opnieuw vermelden of "niet gedraaid".
 
 ## Wijzigingslog (nieuwste bovenaan)
+- 2026-11-22 ChatGPT: op expliciet verzoek eigenaar de bouwvolgorde hersteld: eerst speelbaar basisspel, daarna autonoom L3, L4, L5. S3.2-registratie en -UI verplaatst naar optionele `layers/autonomy` modules met generieke feature-events en optioneel UI-slot; basismodule-isolatietest toegevoegd. S3.1 blijft apart open voor toekomstige refactor. Documentatie en protocol bijgewerkt. PR #6 blijft Draft totdat CI slaagt; geen merge of publicatie.
 - 2026-11-22 ChatGPT: S3.2 evidence-based directeurverantwoording (vensters, historische optredens, beoordeling na 8 wedstrijden, identiteit bij stafwisseling, save/load), regressietest toegevoegd op eigen branch en PR #6 als DRAFT. Lokaal build/engine niet uitgevoerd wegens onbereikbare GitHub vanuit container; CI-status volgt. Niet gemerged of gepubliceerd.
 - 2026-11-22 Claude: artifact versie 15 gepubliceerd vanaf de officiële tip 1234d0e (sync-check --publish geslaagd); CI-regel van pull request 4 bijgewerkt (groen); branch `chatgpt-slimline-world` vastgelegd. Geen codewijzigingen.
 - 2026-11-22 Claude: eerste CI-runs op `slimline-main` rood door een steekproefcheck in `tests/l25-test.js` (3+ kijkmomenten vs 1 bij twee spelers); check vervangen door een deterministische (onzekerheid daalt per kijkmoment) en een steekproefvergelijking vanaf 8 spelers per groep. Pull request naar `slimline-main`.

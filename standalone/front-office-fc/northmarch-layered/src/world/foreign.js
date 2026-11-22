@@ -239,7 +239,7 @@ function foreignWeek(w,{historical=false}={}){
           }
         }
         for(let goal=0;goal<gf&&xi.length;goal++){
-          const scorer=scorerFrom(xi).p||null;
+          const scorer=scorerFrom(xi);
           if(!scorer)continue;
           scorer.eGoals=(scorer.eGoals||0)+1;
           m.scorers[id].push({pid:scorer.id,name:scorer.name});

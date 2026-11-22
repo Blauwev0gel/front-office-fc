@@ -25,7 +25,7 @@ function newPlayer(pos,o={}){
   const head=o.pa!=null?0:age<=19?1.5+rnd()*4:age<=22?rnd()*2.5:age<=24?rnd():0;
   const p={id:'pl'+(S.pc++),name:o.name||pname(),pos,age,q,pa:r1(o.pa??(q+head)),contract:o.contract??ri(1,3),
     wage:Math.round(wageFor(q)*(0.85+rnd()*.3)/5)*5,form:ri(55,75),inj:0,trait:o.trait||pick(PTRAITS),academy:!!o.academy,
-    apps:0,goals:0,sApps:0,sGoals:0,joined:S.season,club:o.club||null,career:[],grown:0,
+    apps:0,goals:0,sApps:0,sGoals:0,joined:S.season,club:o.club||null,originClub:o.academy?o.club||null:null,career:[],grown:0,
     devPath:o.devPath||pick(DEV_PATHS),peakAge:o.peakAge??ri(26,31),history:[]};
   return lifeDefaults(p);
 }
@@ -62,7 +62,7 @@ function wageBillK(id){return r2(S.squads[id].reduce((a,p)=>a+p.wage,0)/1000)}
 function playersWeek(id){
   const sq=S.squads[id],sg=groundSignals(id),t=sg.training,med=sg.medPrev,medR=sg.medRec,st=S.stats[id];
   const risk=clamp(1.25-.15*med-(sg.fitness?.08:.03)*Math.min(t,4)-(sg.hasTM?.12:0),.45,1.3);
-  const grow=(.12+.08*t)*coachGrowth(id)/SEASON_WEEKS,fade=(1-.06*Math.min(t,8))/SEASON_WEEKS;
+  const grow=(.12+.08*t)*coachGrowth(id)*(1+((CL(id).devCulture??45)-45)/500)/SEASON_WEEKS,fade=(1-.06*Math.min(t,8))/SEASON_WEEKS;
   for(const p of sq){
     if(p.inj>0){p.inj--;if(p.inj===0&&id===S.my)emit('Return',id,`${p.name} is fit again.`,{pid:p.id})}
     else if(rnd()<.02*risk*(p.trait==='injury-prone'?1.8:1)){

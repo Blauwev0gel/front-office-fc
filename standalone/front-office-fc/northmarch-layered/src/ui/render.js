@@ -30,7 +30,7 @@ function render(){
 /* ----- title and the choice of club ----- */
 function titleView(){
   return`<main class="scene" style="padding-top:48px"><p class="eyebrow">The Northmarch</p><h1>Chairman</h1>
-  <p class="voice">Forty-eight members' clubs, three divisions, one cup. The world runs whether you act or not.</p>
+  <p class="voice">Eighty clubs, five divisions, one national cup and a wider European football world. The world runs whether you act or not.</p>
   <p class="muted">You are the elected chairman. Build the ground, keep the books, set the frame for your director of football, and live with what follows.</p>
   <div class="stack">${hasSave()?`<button class="btn" data-act="cont">Continue</button>`:''}<button class="btn ${hasSave()?'ghost':''}" data-act="new">New game</button></div>
   <p class="note">Layer 1–2 build: the living world and club management. Stories, staff and dynasties are switched off in this version.</p></main>`;

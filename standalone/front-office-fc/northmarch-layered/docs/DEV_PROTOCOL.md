@@ -29,7 +29,9 @@ Geef in iedere PR aan welke laag de wijziging raakt en bewijs de onafhankelijkhe
 
 ## Publiceren (artifact of release)
 - Alleen vanaf de officiële tip: `scripts/sync-check.sh --publish` moet slagen. De controle kijkt naar de SHA, niet naar de branchnaam: HEAD moet **exact** de tip van `origin/slimline-main` zijn en de werkmap schoon.
-- Daarna `ARTIFACT_VERSION` en `ARTIFACT_SHA` in `DEV_STATE.md` bijwerken (aparte documentatiecommit via pull request).
+- Daarna `ARTIFACT_VERSION`, `ARTIFACT_SHA` (de bron-commit waaruit gebouwd is) en de preview-velden in `DEV_STATE.md` bijwerken (aparte documentatiecommit via pull request).
+- **`dist/` wordt niet in Git gezet**: het is gegenereerd (`node build.js`) en staat in `.gitignore`. Een speelbare kopie in Git is alleen `preview/northmarch-slimline.html`, en dan met bron-SHA, buildvariant (basis L1/L2 of met L3) en SHA-256 in `preview/README.md` en `DEV_STATE.md`. Zonder die velden geldt een bestand niet als nieuwste speelbare versie.
+- Tests die de gebouwde HTML lezen (`base-isolation-test`, `playtest`) draaien altijd ná `node build.js` (zo staat het in `tests/run-fast.sh`).
 - Nooit publiceren vanaf een SHA die niet de officiële tip is (dus niet vanaf een werkbranch met eigen, nog niet gemergede commits).
 
 ## Branchbescherming (instellen door de repo-eigenaar in GitHub)

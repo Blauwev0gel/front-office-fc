@@ -42,6 +42,6 @@ const TONE=[['"Say it and go."','"I\'ve nothing to say to you."','"You\'ve got a
 const FLAVOUR={stubborn:'"If this is about changing my mind, save your breath."',proud:'"I don\'t usually wait for people."',sly:'"Funny, I was just talking about you."',honest:'"I\'ll be straight with you."',vain:'"Did you see the paper? They spelled my name right for once."',loyal:'"Whatever the club needs."',ambitious:'"I\'ve plans, chairman. Big ones."',cautious:'"Let\'s not rush anything."',warm:'"How are you holding up?"',resentful:'"I remember the last person who sat in that chair."',impulsive:'"Go on then, spit it out."',patient:'"Take your time."',principled:'"As long as this is above board."',greedy:'"Is this about money? I hope it\'s about money."'};
 const STRONG={money:['money'],glory:['name','role'],loyalty:['security'],recognition:['name','role'],control:['power'],community:['role']};
 const WEAK={money:['name'],glory:['security'],loyalty:['money'],recognition:['money'],control:['ask'],community:['money']};
-const TIER_NAME=['Northmarch Premier','Northmarch One','Northmarch Two'];
+const TIER_NAME=['Northmarch Premier','Northmarch One','Northmarch Two','Northmarch Three','Northmarch Four'];
 const CUP_NAME='The Northmarch Cup';
 const TOWNNAMES2=['Brackenholt','Cauldmoor','Dunstrow','Elmscar','Fellbeck','Grimsett','Hollinwick','Kettlemere','Lowmarsh','Mossby','Oxenthwaite','Pendlecross','Quarrymoor','Redscar','Stonegill','Tallowfield','Wetherscar','Whinsby'];

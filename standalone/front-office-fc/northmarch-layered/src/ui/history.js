@@ -44,6 +44,18 @@ function historySheet(){
   <div class="panel"><p class="eyebrow">Season by season</p>${h.length?h.map(x=>`<div class="row small"><span><b>S${x.s}</b> ${TIER_NAME[x.tier]}, ${ord(x.pos)} · ${x.pts} pts${x.cup?`<br><span class="muted">Cup: ${esc(x.cup)}${x.top?` · top scorer ${esc(x.top.name)} (${x.top.goals})`:''}</span>`:x.top?`<br><span class="muted">Top scorer ${esc(x.top.name)} (${x.top.goals})</span>`:''}</span><b>${x.you?'You':''}</b></div>`).join(''):'<p class="small muted">The first season is under way.</p>'}</div>
   <div class="panel"><p class="eyebrow">Your career</p>${S.career.map(cr=>`<div class="row small"><span>${nm(cr.club)}<br><span class="muted">${cr.why?esc(cr.why):'In office'}</span></span><b>S${cr.from}${cr.to?'–'+cr.to:'–'}</b></div>`).join('')}</div>`);
 }
+function worldNewsPanel(limit=8){
+  const items=worldLatestNews(limit);
+  if(!items.length)return'';
+  return`<div class="panel"><div class="row"><p class="eyebrow">Around the football world</p><button class="tbtn" data-act="tier" data-arg="archive">World archive</button></div>
+    ${items.map(e=>`<p class="small"><span class="muted">S${e.s} W${e.w} · ${esc(e.t.replace(/([A-Z])/g,' $1').trim())}</span><br>${esc(e.text)}</p>`).join('')}</div>`;
+}
+function worldAwardsPanel(){
+  const awards=(S.worldAwards||[]).slice(-8).reverse();
+  if(!awards.length)return'';
+  const name=id=>S.clubs[id]?.name||S.foreign?.clubs?.[id]?.name||id;
+  return`<div class="panel"><p class="eyebrow">Players who made history</p>${awards.map(a=>`<div class="row small"><span><b>Season ${a.season}</b><br><span class="muted">Golden Boot: ${a.topScorer?esc(a.topScorer.name)+' ('+a.topScorer.goals+' goals, '+esc(name(a.topScorer.club))+')':'—'}</span>${a.breakthrough?`<br><span class="muted">Breakthrough: ${esc(a.breakthrough.name)} · +${a.breakthrough.delta}</span>`:''}</span></div>`).join('')}</div>`;
+}
 function archiveView(){
   const h=S.hist.slice().reverse(),f=S.foreign;
   const domestic=h.length?`<div class="panel"><p class="eyebrow">Northmarch roll of honour</p>${h.map(x=>`<div class="row small"><span><b>Season ${x.s}</b><br><span class="muted">${TIERS.map(t=>`${tierShort(t)}: ${esc(CL(x.tables[t][0]).name)}`).join(' · ')}</span></span><b>${x.cup?esc(CL(x.cup).name.split(' ')[0])+' (cup)':''}</b></div>`).join('')}</div>`:'<p class="muted">The first season is under way.</p>';
@@ -55,7 +67,7 @@ function archiveView(){
   const europe=f.current?.europe,completed=f.europe.seasons.slice(-5).reverse();
   const eu=`<div class="panel"><p class="eyebrow">Continental competition</p>${europe?`<p class="small">Season ${f.current.season}: ${europe.alive.length} clubs remain${europe.winner?` · Winner: ${esc(f.clubs[europe.winner]?.name||CL(europe.winner).name)}`:''}.</p>`:''}${completed.map(x=>`<p class="small">Season ${x.season}: ${esc(f.clubs[x.winner]?.name||S.clubs[x.winner]?.name||x.winner||'Undecided')}</p>`).join('')}</div>`;
   const moves=(f.market?.log||[]).slice(-12).reverse().map(m=>`<div class="row small"><span>${esc(m.name)}<br><span class="muted">${esc(S.clubs[m.from]?.name||f.clubs[m.from]?.name||m.from)} → ${esc(S.clubs[m.to]?.name||f.clubs[m.to]?.name||m.to)}</span></span><b>£${m.fee}k</b></div>`).join('');
-  return domestic+eu+countries+(moves?`<div class="panel"><p class="eyebrow">International transfer wire</p>${moves}</div>`:'');
+  return worldNewsPanel(18)+worldAwardsPanel()+domestic+eu+countries+(moves?`<div class="panel"><p class="eyebrow">International transfer wire</p>${moves}</div>`:'');
 }
 function journalPanel(n){
   const rows=journalRows(n);if(!rows.length)return`<div class="panel"><p class="eyebrow">Your decisions</p><p class="small muted">Decisions you take are noted here with a measure, so you can see later what changed.</p></div>`;

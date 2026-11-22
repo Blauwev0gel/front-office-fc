@@ -236,6 +236,28 @@ function foreignGame(h,a,neutral=false){
 }
 /* Foreign leagues simulate actual XI appearances, scorers and squad availability.
    Only foreign squads are handled here; domestic games use playMatch/matchAftermath. */
+/* Physical availability is advanced once per world week, not once per fixture.
+   Development rewards real appearances; continental load alters next week's XI.
+   Historical fixture reconstruction must not damage the current saved squad. */
+function foreignPlayersBeginWeek(){
+  for(const sq of Object.values(S.foreign.squads||{}))for(const p of sq){
+    p.tired=(p.europeLoad||0)>0?1:0;p.europeLoad=0;p.played=0;
+    if(p.inj>0)p.inj--;
+  }
+}
+function foreignPlayersEndWeek(){
+  for(const sq of Object.values(S.foreign.squads||{}))for(const p of sq){
+    const played=p.played||0;
+    if(p.age<=27&&p.q<p.pa){
+      const potential=Math.max(0,p.pa-p.q),ageFactor=p.age<=21?1.25:p.age<=24?1:.5;
+      const stage=p.devPath==='late'&&p.age<=22?.7:p.devPath==='early'&&p.age<=21?1.25:1;
+      const growth=potential*(.10/SEASON_WEEKS)*(played?1.35:.48)*ageFactor*stage;
+      p.q=Math.min(p.pa,r1(p.q+growth));
+      p.grown=r2((p.grown||0)+growth);
+    }
+    p.form=clamp(p.form+(65-p.form)*.035,35,90);
+  }
+}
 function foreignPlayerMatch(m,comp='league'){
   const f=S.foreign;
   for(const [id,goals] of [[m.h,m.gh],[m.a,m.ga]]){
@@ -243,10 +265,11 @@ function foreignPlayerMatch(m,comp='league'){
     const sq=f.squads[id];if(!sq||!sq.length)continue;
     const xi=pickXI(sq);
     for(const x of xi){
-      const p=x.p;p.apps++;p.fApps=(p.fApps||0)+1;
+      const p=x.p;p.apps++;p.fApps=(p.fApps||0)+1;p.played=1;
+      if(comp==='europe')p.europeLoad=(p.europeLoad||0)+1;
       if(comp==='europe')p.eApps=(p.eApps||0)+1;else p.sApps++;
       p.form=clamp(p.form+(goals>=2?1:goals===0?-1:0),40,88);
-      if(p.inj<=0&&comp==='europe'&&rnd()<.003)p.inj=ri(1,2);
+      if(p.inj<=0&&comp==='europe'&&rnd()<.006)p.inj=ri(2,4);
     }
     const scorers=[];
     for(let g=0;g<goals&&xi.length;g++){
@@ -283,11 +306,11 @@ function foreignWeek(w,{historical=false}={}){
   const f=S.foreign;if(!f)return;
   if(!f.current||f.current.season!==S.season)foreignStartSeason();
   if(!historical)foreignBudgetWeek(w);
-  for(const sq of Object.values(f.squads||{}))for(const p of sq)if(p.inj>0)p.inj--;
+  if(!historical)foreignPlayersBeginWeek();
   for(const league of Object.values(f.current.leagues)){
     const round=league.rounds[w-1];if(!round)continue;
     const results=round.map(([h,a])=>foreignGame(h,a));
-    for(const m of results){foreignRecord(league.rows,m);foreignPlayerMatch(m)}
+    for(const m of results){foreignRecord(league.rows,m);if(!historical)foreignPlayerMatch(m)}
     league.results.push({week:w,matches:results});
   }
   const euro=f.current.europe,idx=EURO_WEEKS.indexOf(w);
@@ -326,6 +349,7 @@ function foreignWeek(w,{historical=false}={}){
     euro.rounds.push(ties);euro.alive=winners;
     if(winners.length===1)euro.winner=winners[0];
   }
+  if(!historical)foreignPlayersEndWeek();
 }
 function foreignPlayerSeasonEnd(){
   const f=S.foreign;if(!f)return;
@@ -358,9 +382,9 @@ function foreignPlayerSeasonEnd(){
           continue;
         }
       }
-      if(p.age<=24&&p.q<p.pa)p.q=Math.min(p.pa,p.q+(p.pa-p.q)*(.04+rnd()*.08));
+      // Growth accrued each week from actual playing time, not guaranteed every summer.
       if(p.age>=31)p.q=Math.max(4,p.q-(p.age-30)*.045);
-      p.q=r1(p.q);
+      p.q=r1(p.q);p.grown=0;
     }
     // Keep a playable side, but do not automatically repair every recruitment
     // shortage: those shortages are the reason foreign clubs make market bids.

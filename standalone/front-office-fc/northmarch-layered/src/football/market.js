@@ -71,7 +71,7 @@ function scoutPool(id,pos,n,quiet){
       if(abroad>=maxForeign)break;
       const sq=S.foreign.squads[from]||[];
       const options=sq.filter(p=>(!pos||p.pos===pos)&&p.inj<=0&&p.contract>0&&
-        sq.filter(x=>x.pos===p.pos).length>REQ[p.pos]&&
+        sq.filter(x=>x.pos===p.pos).length>REQ[p.pos]&&playerAcceptsMove(p,from,id)&&
         askingFee(p,from)*tdBuyF(id)*.85<=budget&&
         bill+wageFor(p.q)*1.2/1000<=cap);
       if(!options.length)continue;
@@ -94,10 +94,10 @@ function askingFee(p,from){
   if(foreignSeller(from))return Math.max(1,Math.round(v*1.15));
   return Math.round(v*(isCore(from,p)&&!p.wantsOut?1.6:1)*(F(from).cash<0?.75:1)*(p.wantsOut?.85:1));
 }
-function sellerAgrees(p,from,fee){
+function sellerAgrees(p,from,fee,to=null){
   if(foreignSeller(from)){
     const sq=S.foreign.squads[from];
-    return !!sq&&sq.includes(p)&&sq.filter(x=>x.pos===p.pos).length>REQ[p.pos]&&fee>=askingFee(p,from)*.85;
+    return !!sq&&sq.includes(p)&&sq.filter(x=>x.pos===p.pos).length>REQ[p.pos]&&(!to||playerAcceptsMove(p,from,to))&&fee>=askingFee(p,from)*.85;
   }
   if(S.squads[from].length<=SQUAD_MIN)return false;
   const need=S.squads[from].filter(x=>x.pos===p.pos).length<=REQ[p.pos];
@@ -118,7 +118,7 @@ function shopFor(id,pos,minQ,o={}){
     const p=c.p,sl=c.listed?shortlistEntry(p.id):null,seen=sl&&sl.obs?sl.est:p.q+(rnd()+rnd()-1)*2.5*tdNoise(id)*reportNoise(id); // watched players are judged on the scouts' refined estimate
     const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000*(c.premium?1.3:1);
     const cheap=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000,coverOk=bill+wage<=cap||wage<=cheap; /* emergency cover: within the wage limit, or a cheap basic contract. A strict ceiling alone leaves a club on its limit with no way to field a squad */
-    let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':fee>capDeal&&!o.mustHave?'Above my mandate':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
+    let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':fee>capDeal&&!o.mustHave?'Above my mandate':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee,id)?'Selling club unwilling':'Considered';
     if(reason==='Considered'){
       const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0)+recruitBias(id,p,fee)-.5*(sl&&sl.obs?scoutRange(id,sl.obs):eyeRange(id)); /* the director trusts what has been watched */
       if(v>bv){bv=v;best={...c,fee,seen};}

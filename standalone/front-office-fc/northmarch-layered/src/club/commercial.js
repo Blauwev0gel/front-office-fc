@@ -31,7 +31,7 @@ function budgetWarnings(id){
   return out;
 }
 /* ----- sponsors: one main deal, local partners, and sometimes naming rights for the ground ----- */
-function sponsorBase(id){const c=CL(id),t=c.tier,g=groundSignals(id);return SPONSOR[t]*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*(.7+.3*g.sales)*(.85+.3*(c.rep??50)/100)}
+function sponsorBase(id){const c=CL(id),t=c.tier,g=groundSignals(id);return SPONSOR[t]*Math.pow(c.support/[3000,1700,850,500,300][t],.5)*(1+g.media*.03)*(.7+.3*g.sales)*(.85+.3*(c.rep??50)/100)}
 function sponsorOffers(id){
   const b=sponsorBase(id)*.65,names=pickN(SPONSOR_NAMES,3),exp=Math.max(30,(CL(id).expect?(17-CL(id).expect)*3+20:45));
   const offers=[{name:names[0],kind:'fixed',years:3,perWeek:r2(b*.95)},{name:names[1],kind:'fixed',years:1,perWeek:r2(b*1.08)},{name:names[2],kind:'bonus',years:2,perWeek:r2(b*.42),perPoint:r2(b*.56*SEASON_WEEKS/exp)}];
@@ -52,7 +52,7 @@ function aiSponsor(id){const f=F(id),v=chairValue(id),of=f.offers||[];if(!of.len
   f.offers=[];}
 function sponsorWeekK(id){const f=F(id),s=f.sponsor;return r2(s&&s.until>=S.season?s.perWeek:sponsorBase(id)*.65*.4)}
 function namingWeekK(id){const n=F(id).naming;return n&&n.until>=S.season?n.perWeek:0}
-function partnersWeekK(id,form){const c=CL(id),t=c.tier,g=groundSignals(id);return SPONSOR[t]*.35*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*(form??1)*(.4+.6*g.sales)}
+function partnersWeekK(id,form){const c=CL(id),t=c.tier,g=groundSignals(id);return SPONSOR[t]*.35*Math.pow(c.support/[3000,1700,850,500,300][t],.5)*(1+g.media*.03)*(form??1)*(.4+.6*g.sales)}
 /* summer: expiring deals make way for new offers (the player chooses; computer boards choose at once) */
 function commercialSeasonEnd(){
   for(const id in S.clubs){const f=F(id);
@@ -68,7 +68,7 @@ function commercialInit(id){const f=F(id),o=sponsorOffers(id).filter(x=>x.kind!=
 function bondCap(id){const m=M(id);return Math.max(0,Math.round(m.count*.15*(m.conf/100)*(CL(id).tier===0?1.4:1)))}
 function bondRate(id){return r2(.03+(60-M(id).conf)*.0004)}
 function fundraiseYield(id){const m=M(id),recent=S.season-F(id).fundLast<2;return Math.round(m.count*.025*(.5+m.conf/100)*(recent?.45:1))}
-function groundValue(id){return Math.round(groundSignals(id).capacity*.11*[1.4,1,.75][CL(id).tier])}
+function groundValue(id){return Math.round(groundSignals(id).capacity*.11*[1.4,1,.75,.55,.4][CL(id).tier])}
 function rentWeekK(id){const g=F(id).groundSold;return g?g.rent:0}
 defCommand('SignSponsor',{check:(id,a)=>{const o=(F(id).offers||[])[a.i];if(!o)return'That offer has gone';if(o.kind==='naming'&&hasStatute(id,STATUTE_SALE)&&M(id).conf<55)return'The members would vote down naming rights';return null},
   run:(id,a)=>{const o=F(id).offers[a.i];signSponsor(id,o);if(o.kind==='naming')confLog(id,-4,'The ground renamed after a sponsor')}});

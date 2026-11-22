@@ -44,70 +44,101 @@ function foreignSquadStrength(id){
   const sq=S.foreign.squads&&S.foreign.squads[id];
   return sq&&sq.length>=11?qualityToStr(squadQuality(sq)):S.foreign.clubs[id].strength;
 }
+/* One transfer ledger for clubs across national borders. No direct mutation may
+   bypass foreignMove, so ownership, budgets, player history and world events agree. */
+function foreignMove(p,from,to,fee,reason){
+  const f=S.foreign,src=S.squads[from]||f.squads[from],dst=S.squads[to]||f.squads[to];
+  if(!src||!dst||from===to)throw new Error('Invalid international transfer clubs');
+  if(!src.includes(p)||dst.some(x=>x.id===p.id))throw new Error('International transfer ownership mismatch');
+  if(!Number.isFinite(fee)||fee<0)throw new Error('Invalid international fee');
+  const fromDom=!!S.clubs[from],toDom=!!S.clubs[to];
+  if(toDom&&(dst.length>=SQUAD_MAX||fee>budgetFor(to)))return false;
+  if(!toDom&&fee>f.clubs[to].budget)return false;
+  if(fromDom&&(src.length<=SQUAD_MIN||!canSpare(src,p,false)))return false;
+  if(!fromDom&&src.filter(x=>x.pos===p.pos).length<=REQ[p.pos])return false;
+  const dueWage=toDom?moveWage(p,to):Math.round(wageFor(p.q)*1.1/5)*5;
+  if(toDom&&wageBillK(to)+dueWage/1000>wageCapK(to))return false;
+  src.splice(src.indexOf(p),1);
+  if(fromDom){book(from,'feesIn',fee);if(from===S.my)youthLeft(p,'sold',to,fee)}
+  else f.clubs[from].budget+=fee;
+  if(toDom)book(to,'feesOut',-fee);
+  else f.clubs[to].budget-=fee;
+  p.history=p.history||[];
+  p.history.push({season:S.season,week:S.week,type:'transfer',from,to,fee});
+  p.club=to;p.joined=S.season;p.contract=ri(2,4);p.wage=dueWage;p.loan=null;
+  dst.push(p);
+  const clubName=id=>S.clubs[id]?.name||f.clubs[id]?.name||id;
+  const text=`${p.name} joins ${clubName(to)} from ${clubName(from)} for £${fee}k.`;
+  const move={season:S.season,week:S.week,pid:p.id,name:p.name,from,to,fee,reason};
+  f.market.log.push(move);
+  emit('InternationalTransfer',toDom?to:fromDom?from:null,text,{pid:p.id,fee,reason,from,to});
+  return true;
+}
+/* Recruitment follows sporting deficits and finances rather than random full-squad
+   swaps. The three phases let sales cause replacement demand in the same window. */
 function foreignTransferWindow(){
   const f=S.foreign;if(!f)return;
   foreignSquadInit();
-  const ids=shuffle(Object.keys(f.clubs));
-  for(const id of ids){
-    const club=f.clubs[id],sq=f.squads[id],positions=POS.filter(pos=>sq.filter(p=>p.pos===pos).length<Math.max(2,REQ[pos]-1));
-    const target=positions.length?pick(positions):pick(POS);
-    const candidates=shuffle(Object.keys(S.clubs)).filter(from=>S.squads[from].length>SQUAD_MIN+1&&CL(from).tier<=3);
-    for(const from of candidates.slice(0,12)){
-      const available=S.squads[from].filter(p=>p.pos===target&&p.age<=30&&!p.loan&&canSpare(S.squads[from],p,true));
-      if(!available.length)continue;
-      const p=pick(available),fee=Math.max(1,Math.round(playerValue(p)*1.25));
-      if(fee>club.budget*.18||p.q<10.5)continue;
-      S.squads[from].splice(S.squads[from].indexOf(p),1);
-      if(from===S.my)youthLeft(p,'sold',id,fee);
-      book(from,'feesIn',fee);
-      club.budget-=fee;
-      p.club=id;p.joined=S.season;p.contract=ri(2,4);
-      p.wage=Math.round(wageFor(p.q)*1.15/5)*5;
-      sq.push(p);
-      const move={season:S.season,week:S.week,pid:p.id,name:p.name,from,to:id,fee};
-      f.market.log.push(move);
-      emit('Transfer',from,`${p.name} moves from ${CL(from).name} to ${club.name} for £${fee}k.`,{pid:p.id,foreignClub:id,fee,why:'foreign interest'});
-      break;
+  f.market=f.market||{log:[]};
+  const abroad=shuffle(Object.keys(f.clubs)),home=shuffle(Object.keys(S.clubs)),affected=new Set();
+  const foreignOptions=(from,pos)=>f.squads[from].filter(p=>p.pos===pos&&p.age<=31&&
+    f.squads[from].filter(x=>x.pos===pos).length>REQ[pos]&&p.inj<=0&&p.contract>0);
+  // Northmarch directors seek an imported player only when the existing squad
+  // has a genuine gap or there is a clear, affordable quality improvement.
+  for(const to of home){
+    const dest=S.squads[to];if(dest.length>=SQUAD_MAX)continue;
+    const gaps=POS.filter(pos=>dest.filter(p=>p.pos===pos&&!p.loan).length<REQ[pos]);
+    const target=gaps.length?pick(gaps):null;
+    if(!target)continue;
+    const minQ=Math.min(...dest.filter(p=>p.pos===target).map(p=>p.q).concat([squadQuality(dest)-1]));
+    let best=null,bestScore=-Infinity;
+    for(const from of abroad.slice(0,26))for(const p of foreignOptions(from,target)){
+      const fee=Math.max(1,Math.round(playerValue(p)*1.15));
+      if(fee>budgetFor(to)||wageBillK(to)+wageFor(p.q)*1.1/1000>wageCapK(to))continue;
+      const score=p.q+.16*(p.pa-p.q)-fee/100;
+      if(p.q>=minQ&&score>bestScore){best={p,from,fee};bestScore=score}
     }
+    if(best&&foreignMove(best.p,best.from,to,best.fee,'squad need'))affected.add(to);
   }
-  // Domestic clubs can sign affordable foreign players where the squad has a real gap.
-  for(const to of shuffle(Object.keys(S.clubs))){
-    const dest=S.squads[to];if(dest.length>=SQUAD_MAX-1)continue;
-    const short=POS.filter(pos=>dest.filter(p=>p.pos===pos).length<REQ[pos]);
-    if(!short.length)continue;
-    const pos=pick(short),cash=budgetFor(to);
-    if(cash<=0)continue;
-    const sellers=shuffle(ids);
-    for(const from of sellers.slice(0,16)){
-      const source=f.squads[from],options=source.filter(p=>p.pos===pos&&p.age<=30&&source.filter(x=>x.pos===pos).length>REQ[pos]&&p.q>=10);
-      if(!options.length)continue;
-      const p=pick(options),fee=Math.max(1,Math.round(playerValue(p)*1.2));
-      if(fee>cash||wageBillK(to)+wageFor(p.q)/1000>wageCapK(to))continue;
-      source.splice(source.indexOf(p),1);dest.push(p);
-      book(to,'feesOut',-fee);f.clubs[from].budget+=fee;
-      p.club=to;p.joined=S.season;p.contract=ri(2,4);p.wage=moveWage(p,to);
-      f.market.log.push({season:S.season,week:S.week,pid:p.id,name:p.name,from,to,fee});
-      emit('Transfer',to,`${p.name} joins ${CL(to).name} from ${f.clubs[from].name} for £${fee}k.`,{pid:p.id,foreignClub:from,fee,why:'international scouting'});
-      break;
+  // Foreign clubs make a limited number of active bids. A Northmarch player
+  // can leave only when his club can spare him; human-owned protected squads
+  // are not raided without an approved autonomous selling policy.
+  for(const to of abroad){
+    const buyer=f.clubs[to],sq=f.squads[to];
+    if(sq.length>=SQUAD_MAX||rnd()>.35)continue;
+    const needs=POS.filter(pos=>sq.filter(p=>p.pos===pos).length<REQ[pos]);
+    if(!needs.length)continue;
+    const pos=pick(needs);
+    let best=null,bestScore=-Infinity;
+    for(const from of home.slice(0,22)){
+      if(from===S.my&&!S.auto)continue;
+      const source=S.squads[from];
+      if(source.length<=SQUAD_MIN+1)continue;
+      for(const p of source.filter(p=>p.pos===pos&&p.age<=30&&!p.loan&&canSpare(source,p,false))){
+        const fee=Math.max(1,Math.round(playerValue(p)*1.3));
+        if(fee>buyer.budget*.22)continue;
+        const score=p.q+(p.age<=23?.4:0)-fee/130;
+        if(score>bestScore){best={p,from,fee};bestScore=score}
+      }
     }
+    if(best&&foreignMove(best.p,best.from,to,best.fee,'foreign club recruitment'))affected.add(best.from);
   }
-  // Foreign clubs also recruit from one another to replace gaps and circulate talent.
-  for(const id of ids){
-    const buyer=f.clubs[id],sq=f.squads[id],target=pick(POS);
-    if(sq.filter(p=>p.pos===target).length>=REQ[target]+1)continue;
-    const sellers=shuffle(ids.filter(x=>x!==id));
-    for(const from of sellers.slice(0,10)){
-      const seller=f.clubs[from],pool=f.squads[from].filter(p=>p.pos===target&&p.age<32&&f.squads[from].filter(x=>x.pos===target).length>REQ[target]);
+  // Foreign-only deals circulate players and directly change the match strengths.
+  for(const to of abroad){
+    const sq=f.squads[to],needs=POS.filter(pos=>sq.filter(p=>p.pos===pos).length<REQ[pos]);
+    if(!needs.length||rnd()>.5)continue;
+    const pos=pick(needs),buyer=f.clubs[to];
+    for(const from of shuffle(abroad.filter(id=>id!==to)).slice(0,22)){
+      const pool=foreignOptions(from,pos).sort((a,b)=>b.q-a.q);
       if(!pool.length)continue;
-      const p=pick(pool),fee=Math.max(1,Math.round(playerValue(p)));
-      if(fee>buyer.budget*.12)continue;
-      f.squads[from].splice(f.squads[from].indexOf(p),1);sq.push(p);
-      buyer.budget-=fee;seller.budget+=fee;p.club=id;p.joined=S.season;p.contract=ri(2,4);
-      f.market.log.push({season:S.season,week:S.week,pid:p.id,name:p.name,from,to:id,fee});
-      break;
+      const p=pool[0],fee=Math.max(1,Math.round(playerValue(p)*1.1));
+      if(fee>buyer.budget*.16)continue;
+      if(foreignMove(p,from,to,fee,'foreign league recruitment'))break;
     }
   }
-  if(f.market.log.length>1200)f.market.log.splice(0,f.market.log.length-1200);
+  // Clubs that lost cover can react in the current market, not after a full year.
+  for(const id of affected)coverAll(id);
+  if(f.market.log.length>1400)f.market.log.splice(0,f.market.log.length-1400);
 }
 function foreignRows(ids){return Object.fromEntries(ids.map(id=>[id,{id,p:0,pts:0,gf:0,ga:0,w:0,d:0,l:0}]))}
 function foreignRank(rows){return Object.values(rows).sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||a.id.localeCompare(b.id))}

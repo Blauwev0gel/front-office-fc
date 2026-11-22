@@ -23,7 +23,10 @@ const MIGRATIONS={
     for(const id in s.fin)s.fin[id].policy.loans??=true;s.v=6;},
   // 6 → 7: club records and richer season history (filled after loading: projectsAfterLoad)
   7:s=>{s.records=s.records||{};s.v=7;},
-  8:s=>{s.foreign=s.foreign||null;s.v=8;}
+  8:s=>{s.foreign=s.foreign||null;s.v=8;},
+  // 8 → 9: world news, awards and new persistent player/club metadata.
+  // Existing 48-club worlds are expanded after S is assigned.
+  9:s=>{s.worldLog=s.worldLog||[];s.worldAwards=s.worldAwards||[];s.v=9;}
 };
 function migrate(s){
   if(!s||typeof s.v!=='number'||s.v<1)throw new Error('Not a Northmarch layered save');

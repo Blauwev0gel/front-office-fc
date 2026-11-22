@@ -1,63 +1,80 @@
-# Slimline — World development roadmap
-Updated 2026-11-22. Branch: `claude/loving-goodall-uv00vn`.
+# SLIMLINE — Six-block world-development roadmap
 
-## Non-negotiable scope
-Build the football simulation first. No owner-story, staff conversation or dynasty layers. All mechanics must have observable downstream consequences. Do not claim tests passed unless run.
+**Date:** 22 November 2026  
+**Repository:** `Blauwev0gel/front-office-fc`  
+**Branch:** `claude/loving-goodall-uv00vn`  
+**Scope:** standalone `front-office-fc/northmarch-layered` only. No GitHub merge/deployment.
 
-## Block status
-| Block | Status | Release gate |
-|---|---|---|
-| 1. World and competition integrity | IMPLEMENTING | 5×16 Northmarch, 6 foreign countries, coherent domestic cup, real calendar-based Europe, save migration, deterministic 20-season simulations |
-| 2. International player market | IMPLEMENTING | Persistent foreign squads, player movement, transfers affect club strength and finances |
-| 3. Player careers | IMPLEMENTING | Development and career history persist across clubs/seasons |
-| 4. Club evolution | IMPLEMENTING | Results alter resources, reputation, youth and long-term outcomes |
-| 5. Match simulation | IMPLEMENTING | Tested plausible score distributions, squad availability and tactical identities |
-| 6. World presentation | IMPLEMENTING | All news and histories trace to real events |
+## Contract and evidence
+Build the actual football simulation, not story scripts, staff dialogues, owner dilemmas or a cosmetic dashboard. Every new rule must move an existing sporting, economic or historical outcome.
 
-## Block 1 audit (source inspection; not a successful test run)
-- Domestic league uses five tiers, 16 teams each and a 30-week fixture generator. The national cup uses a 32-club preliminary round followed by 48 additional clubs.
-- Foreign clubs are stored separately in `S.foreign`, protecting domestic cash/staff loops.
-- **Critical:** foreign leagues and the European cup are resolved in a single call at `closeSeason()`. They are NOT integrated with the weekly clock. This is not a finished European competition system.
-- **Critical:** the international market has no foreign squads, so Europe cannot yet share domestic player availability or transfer effects.
-- **Critical:** no actual local or CI tests have been observed since the five-tier migration. Existing test scripts contain assumptions from three-tier Northmarch and must be audited before declaring compatibility.
-- **Critical:** historical save migration 7→8 initializes a new foreign world after load; it does not reconstruct past foreign history. This must be documented as a new subsystem introduced at the upgrade point.
-- The Northmarch club names are generated from a finite pool; check uniqueness and league size under multiple seeds.
-- The 80-team national cup should be validated for exactly 79 matches, 7 rounds and one winner.
+**Current release evidence:** Code has been written and committed to GitHub. The changed JavaScript source files were checked for **syntax only** using V8 compilation. **No build, unit/integration suite, 20-season playthrough or browser playtest has been run** for these changes, following the user's instruction to focus on development. Consequently no block is certified complete.
 
-## Required verification commands
-```sh
-cd standalone/front-office-fc/northmarch-layered
-node build.js
-node tests/pyramid-test.js
-node tests/foreign-world-test.js
-sh tests/run-fast.sh
-sh tests/run-all.sh
-node tests/slimline-test.js 20 101 202 303
-```
-Report command output and seed-specific failures. Do not merge/deploy without permission.
+## Six blocks: actual implementation status
 
-## Implementation sequence for Block 1
-1. Repair immediate deterministic failures in five-tier initialization, national cup and foreign results.
-2. Model foreign league fixtures and European qualification at season start; schedule results through `advanceWeek()`, not at season close.
-3. Ensure continental matches affect player fitness, injuries, stats and financial ledger for Northmarch participants without double-booking.
-4. Introduce fixture conflict rules and verify the week calendar.
-5. Add deterministic save/reload continuation, 20-season invariants, benchmark and mobile smoke test.
-6. Build `dist/northmarch-layered.html`, only then mark Block 1 COMPLETE.
+| Block | Status | Implemented in source | Remaining release gate |
+|---|---|---|---|
+| 1 — World and competition integrity | IMPLEMENTING | Five-tier domestic pyramid, 80-team cup, six foreign leagues resolved weekly, European four-round calendar avoiding cup weeks, income and player effects, V9 migrations and partial old-save reconstruction | Demonstrate 20 seasons, all 5×16 counts, cup 79 ties, European calendar, deterministic save roundtrip |
+| 2 — International player market | IMPLEMENTING | 72 foreign clubs own persistent players, nationalities; same-market free agents; normal director scouting sees overseas players; `foreignMove()` changes both squads and financial records; club/player willingness and needs constrain movement | Validate signed player availability, contract/financial reconciliation, credible volumes, replacement chains and AI vs player-club behavior |
+| 3 — Individual player careers | IMPLEMENTING | Individual growth paths, peaks, player styles, loyalty/ambition; match outcomes change form; actual club stints on move and loan return, separate Europe apps/goals, career trophies and youth breakthrough events | Verify career statistics and identities across domestic/foreign/loan/free agency/retirement for 20 seasons |
+| 4 — Dynamic club evolution | IMPLEMENTING | Persistent heritage/titles, promotion history, multi-season reputation, responsive rivalry heat, own-youth playing-time culture and derived evolving identity | Measure long-run competitive balance and meaningful club differentiation; stop false identity flips |
+| 5 — Match engine | IMPLEMENTING | Quality+injury+morale XI, trainer style match-ups, player playing-style effects on xG and scoring, bounded team form, physical burden of cup/Europe, results feed player morale/form | Calibrate thousands of scorelines; check unexpected biases and injuries/cups/Europe interaction |
+| 6 — World becomes visible | IMPLEMENTING | In-game weekly world news, European previews and results, international transfer wire, foreign tables, annual awards, player profile career/honours, evolving club profiles and rise/fall trends | Browser acceptance of mobile navigation, safe old-save rendering, fact consistency, readability |
 
-## Evidence log
-- 2026-11-22: Source files inspected through GitHub connector; container cannot reach github.com (DNS resolution failed), so Node build and test execution have **not** occurred. Status remains AUDIT.
+## Functional design (locked)
+**World → player populations → transfers and development → clubs → fixtures/results → news and history.**
 
-- 2026-11-22: Weekly foreign fixture schedules, league tables and four-week European knockout integrated into `advanceWeek()`; domestic European participants receive minutes, injury exposure and ledger income. Source committed; tests/build deliberately deferred at user request. Remaining: migration of in-progress older saves, calendar and qualification edge cases, presentation, validation.
+A mechanism never qualifies as implemented merely because it writes an isolated value. Player identity, ownership, club finances and match strength must be integrated.
 
-- 2026-11-22: Fixed European player accounting: continental appearances now use `eApps` rather than inflating league/career appearance fields; `europeLoad` carries fatigue into the following matchweek, where squad selection and quality already read `tired`. Commits `7ef3a5c`, `47e07a5`. Added `current.startedAt` to distinguish new calendars from schedules reconstructed for legacy mid-season saves. No tests or build run at user's explicit request. Block 1 remains IMPLEMENTING.
+### Block 1: concrete source
+- `src/world/world.js`, `league.js`, `foreign.js`, `sim/clock.js`
+- `src/core/save.js` V9 with `expandLegacyPyramid()`, `foreignRestoreCalendar()`, `enrichLegacyWorld()`.
+- National cup weeks: 2,4,9,14,19,24,28. Europe: 6,11,17,25.
+- Legacy caveat: New lower tiers cannot have historical financial records reconstructed. Old current-season results are synthetic, and pre-existing cup format is preserved using a legacy flag.
+- Continental money is queued until `financeWeek` writes the normal weekly ledger.
 
-## Development batch — 2026-11-22 (source changes, untested by request)
-- Block 2: `foreign.js` now persists foreign squads with actual player IDs, adds foreign-to-Northmarch, Northmarch-to-foreign and foreign-to-foreign transfers, transfers cash through the domestic ledger, and keeps a bounded market log. Foreign players age, develop and are replenished. Integrated into `newWorld`, summer window and deserialization. Commits `d0c8660`, `6be88fa`, `895e1d6`, `f82b17b`, `8b264a7`, `6349e7d`.
-- Block 3: Individual player growth paths (early/steady/late/volatile), peak age, structured season and move histories; commits `9fc6636`, `ce2f056`.
-- Block 4: Persistent club heritage (top-division titles, cups, promotions, relegations, best tier, recent competitive streak), multi-season reputation effects; commits `858ef2a`, `d815496`.
-- Critical limitations: no build/tests performed; domestic scouting pool does not yet deliberately search foreign squads; international transfer negotiation is simplified; foreign players do not yet play detailed simulated match minutes; midseason legacy-save international results may not be reconstructed. Blocks remain IMPLEMENTING, not COMPLETE. Blocks 5 and 6 not started.
+### Block 2: concrete source
+- `src/world/foreign.js`: `foreignSquadInit`, `foreignMove`, `foreignTransferWindow`, free-agency, contract renewal and nationalities.
+- `src/football/market.js`: director searches both domestic and foreign candidate pools and uses the same budget/mandate checks.
+- `src/club/recruitment.js`: incoming/outgoing international transfers appear in recruitment windows and the director's report.
 
-- Block 5: coach-style matchup now changes chance creation (bounded modifiers), while existing coach strength and Poisson goals remain authoritative. Commit `f9fb02a`.
-- Block 6: world archive now renders six foreign league tables, current and historical European results, and recent international transfer events; title text updated to five divisions. Commits `656a512`, `1c24d42`.
-- Finance: European competition income now has an explicit media ledger category (`661520a`).
-- **Status:** all six blocks have source-code work underway, **none is COMPLETE**. Tests/build intentionally not executed. Major outstanding work: full save migration and mid-season foreign calendar recovery; foreign transfer scouting/negotiation; rich individual European match events and statistics; economic balancing; multi-season simulation verification; better world discovery/navigation and player-profile history rendering.
+### Block 3: concrete source
+- `src/football/players.js`: `PLAYER_STYLES`, `DEV_PATHS`, `playerCloseStint`, player growth, ambition/loyalty, honours and breakthroughs.
+- `src/football/life.js`, `src/club/youth.js`: match-driven form, separate loan-club stints and real youth loan records.
+- `src/ui/club.js`: player career and contract, nationalities, development, honours and European stats.
+
+### Block 4: concrete source
+- `src/world/rivalry.js`: derby/rivalry consequences and playing-time-derived youth culture.
+- `src/football/life.js`, `src/sim/clock.js`: season title, club heritage, reputation and tier transitions.
+- Identity is **derived**, not predefined as a hardcoded club strategy.
+
+### Block 5: concrete source
+- `src/football/match.js`: bounded chance modifiers from actual tactical and player profiles, with real scorer weights.
+- `src/world/foreign.js`: foreign XI selection, league/Europe goalscorers, injuries, morale and player workload.
+- `src/club/finance.js`: European income in the correct ledger period.
+
+### Block 6: concrete source
+- `src/world/awards.js`: factual events, annual awards, club trends and year records.
+- `src/core/bus.js`: bounded persistent real-world wire alongside event history.
+- `src/ui/history.js`, `render.js`, `club.js`, `act.js`: live week feed and world archive reachable in UI.
+
+## Highest-priority outstanding engineering issues
+1. Verify runtime behavior of the expanded engine. Syntax-valid does not establish working gameplay; inspect for undefined data and lifecycle mistakes.
+2. Assess the multi-year domestic economy and foreign transfer volumes. Foreign clubs deliberately have light budgets, not full finance systems.
+3. Check international signing and transfer refusal branches do not leave active shortages unfillable.
+4. Investigate missing or duplicated goals across transfers, foreign free agents, loans, and player award calculations.
+5. Ensure completed old-version cup seasons and V9 migration remain playable through multiple saves.
+6. Evaluate whether current world-news density is informative rather than overwhelming on a phone.
+7. Verify five domestic divisions, unique IDs, consistent cup draw and complete foreign standings over multiple seeds.
+8. Validate HTML build and mobile UX before any 'COMPLETE' or release label.
+
+## Explicitly deferred, not in scope
+- Mandatory owner inbox story problems, new agent autonomy layer, dynasty layer and complex individual tactical controls.
+- Overly detailed foreign staff/stadium/economy simulation until the light foreign model proves insufficient.
+- GitHub main merge and production deployment.
+
+## Verification policy
+User requested **code development now, not blocking on builds/tests**. Accordingly, source modifications continue and evidence remains honestly recorded as **untested**. When testing is authorized, run `node build.js`, `tests/run-fast.sh`, `tests/run-all.sh`, save migration checks and a seeded 20-season world simulation, followed by mobile interaction review.
+
+## Hand-off note
+Do not restart the six-block analysis or propose cosmetic changes. Read this roadmap and the updated `docs/ARCHITECTURE.md` and `docs/layers/L1-SIMULATION.md`, then work directly on remaining integration gaps. Do not call unfinished blocks COMPLETE.

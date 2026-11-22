@@ -2,7 +2,7 @@
    Owns S.members[id] (members, dues, confidence, its log, the season's targets) and the chairman's career
    (S.career, S.rep). Decisions D6 and D7: confidence moves with real causes, every club holds an AGM after week 30,
    and a chairman who loses the vote is out. The player then picks one of three open chairs in the same world. */
-const DUES_REF=[50,40,30]; // £ a year per member, by division
+const DUES_REF=[50,40,30,22,15]; // £ a year per member, by division
 const CONF_BASE=55;
 function M(id){return S.members[id]}
 function membersInit(id,o={}){
@@ -41,7 +41,7 @@ function setGoals(id){
   m.goals=[
     {k:'league',target:pos,text:c.tier>0&&pos<=2?`Promotion: finish in the top two of ${TIER_NAME[c.tier]}`:`Finish ${ord(pos)} or higher in ${TIER_NAME[c.tier]}`,w:10},
     f.cash<inc*.3?{k:'money',target:0,text:'No operating loss this season',w:6}:{k:'money',target:-Math.round(inc*.1),text:`Keep any operating loss under £${Math.round(inc*.1)}k`,w:6},
-    {k:'youth',target:[30,45,60][c.tier],text:`Academy players make ${[30,45,60][c.tier]} appearances between them`,w:5}
+    {k:'youth',target:[30,45,60,70,80][c.tier],text:`Academy players make ${[30,45,60,70,80][c.tier]} appearances between them`,w:5}
   ];m.goalsSeason=S.season;
 }
 function setGoalsAll(){for(const id in S.clubs)if(S.members[id])setGoals(id)}

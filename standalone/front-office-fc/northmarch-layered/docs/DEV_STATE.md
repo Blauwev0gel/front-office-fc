@@ -1,11 +1,11 @@
 # DEV_STATE: gedeelde status (GitHub is de waarheid, niet een gesprek)
 Beide ontwikkelaars werken dit bestand bij **bij elke afgeronde werksessie**, in dezelfde pull request als de code. CI faalt als het niet is bijgewerkt. Protocol: `docs/DEV_PROTOCOL.md`.
 
-Laatst bijgewerkt: 2026-11-22 (L1/L2 gescheiden standaardbuild, PR #6) · door: ChatGPT
+Laatst bijgewerkt: 2026-11-22 (offline weekbrief integratiekandidaat op aparte werkbranch) · door: ChatGPT
 
 ## Officiële basis
 OFFICIAL_BRANCH: slimline-main
-OFFICIAL_SHA: a2422c6
+OFFICIAL_SHA: 3bc49924046e549b66bc1b58a6396d5dd3e04b6d
 Toelichting: de commit waarop deze status slaat (laatste gemergde officiële tip vóór deze statusupdate). Dit bestand staat in een latere, alleen-documentatie-commit. `scripts/sync-check.sh` controleert dat deze SHA in de geschiedenis van je branch zit.
 Basis ontstaan door: `claude/loving-goodall-uv00vn` (alle Slimline-werk van Claude en ChatGPT, 39 commits na Claudes laatste volledige controle) op 2026-11-22 vastgelegd als officiële ontwikkelbasis.
 
@@ -21,6 +21,16 @@ Status: V15 is de laatst gepubliceerde versie, afkomstig van 1234d0e. De offici�
 | Claude | `claude/loving-goodall-uv00vn` | Slimline-kern: werving en scouting, jeugd, windows, clubkoersen, economiebalans; L3 (staf en mandaten) | rust (wacht op de nieuwe basis) |
 | ChatGPT | `chatgpt-slimline-world` (aangemaakt vanaf 1234d0e; `chatgpt/slimline-world` kan niet: de branch `chatgpt` bestaat al) | Wereld: vijf divisies, beker, buitenlandse competities, Europa, internationale markt, wedstrijdstatistieken, wereldnieuws, rivaliteiten | actief |
 Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `football/market.js`, `core/save.js`), meld het hier onder "Open wijzigingen" voordat je begint.
+
+## Integratiekandidaat (aparte werkbranch, NIET officieel vrijgegeven)
+- Branch: `chatgpt-base-weekbrief-offline-20261122` (van `3bc49924046e549b66bc1b58a6396d5dd3e04b6d`). PR #8 blijft Draft; PR #6 is al gemerged.
+- Selectief geïntegreerd: feitelijk read-only weekoverzicht met club-ID 0 fix, mobiele 390px-stijlen, UI-hook, modulemanifest, regressietest en testsuite-registratie.
+- Standaardbuild blijft L1/L2; L3 uitsluitend opt-in. Geen sim-, markt- of save-engine aangepast.
+- Kostenprotocol: `docs/GITHUB_ACTIONS_KOSTENPROTOCOL.md` toegevoegd op deze werkbranch (nog niet gemerged).
+- **Lokaal daadwerkelijk getest op het offline-pakket**: 5/5 migratietests, 13/13 briefing-unit-tests, Node syntaxchecks voor beide nieuwe JS-bestanden en Python compile check, alles geslaagd.
+- **Niet uitgevoerd op de volledige game**: `node build.js`, `node tests/base-briefing-test.js`, `node tests/base-isolation-test.js`, `node tests/layer-isolation-test.js`, echte mobiele browserplaytest en menselijke speeltest. De werkcontainer heeft geen uitgaande GitHub-netwerktoegang.
+- **GitHub Actions**: de werkbranch valt buiten de aangetroffen push-triggers. Geen PR, CI-verzoek, merge of publicatie.
+- De laatste speelbare publicatie blijft artifact V15 vanaf `1234d0e`. Zonder verdere tests geen merge/release.
 
 ## Open wijzigingen en bekende problemen
 - [ ] **Lagen eerst:** fase A = zelfstandig functionerend basisspel (L1+L2); pas daarna L3 autonomie, L4 verhaal en L5 dynasty. Vastgelegd in `docs/LAYER_CONTRACT.md` en `docs/DEV_PROTOCOL.md`.

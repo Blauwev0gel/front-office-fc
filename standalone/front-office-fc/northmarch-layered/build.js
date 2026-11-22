@@ -9,7 +9,7 @@ const ENGINE=[
   'sim/ai.js','sim/clock.js','sim/commentary.js',
   'layers/autonomy/director-deals.js','layers/autonomy/director-accountability.js','core/save.js'                            // simulation: boards, the clock; saves
 ];
-const UI=['ui/render.js','ui/club.js','ui/depts.js','ui/members.js','ui/staff.js','ui/commercial.js','ui/history.js','ui/board.js','ui/decide.js','ui/recruit.js','layers/autonomy/director-deals-ui.js','layers/autonomy/director-accountability-ui.js','ui/youth.js','ui/live.js','ui/act.js'];
+const UI=['ui/week-brief.js','ui/render.js','ui/club.js','ui/depts.js','ui/members.js','ui/staff.js','ui/commercial.js','ui/history.js','ui/board.js','ui/decide.js','ui/recruit.js','layers/autonomy/director-deals-ui.js','layers/autonomy/director-accountability-ui.js','ui/youth.js','ui/live.js','ui/act.js'];
 const ENGINE_BASE=ENGINE.filter(f=>!f.startsWith('layers/autonomy/'));
 const UI_BASE=UI.filter(f=>!f.startsWith('layers/autonomy/'));
 const ENGINE_WITHOUT_ACCOUNTABILITY=ENGINE.filter(f=>!f.includes('director-accountability'));

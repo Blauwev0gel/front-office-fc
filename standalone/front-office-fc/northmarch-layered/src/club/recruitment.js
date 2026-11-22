@@ -9,7 +9,14 @@ function opsInit(){return{plan:{s:0,w:0,needs:[],ready:[],next:1},shortlist:[],s
 function OPS(){if(!S.ops)S.ops=opsInit();return S.ops}
 function recruitStrategy(id){return F(id).policy.recruit||'balanced'}
 /* how a strategy colours the director's choice (used for every club in shopFor) */
-function recruitBias(id,p,fee){const st=recruitStrategy(id);return st==='youth'?(p.age<=22?.8:p.age>=29?-.6:0):st==='experience'?(p.age>=26&&p.age<=31?.6:p.age<=21?-.6:0):st==='value'?(-fee/60+(fee===0?.3:0)):0}
+function recruitBias(id,p,fee){
+  const st=recruitStrategy(id);
+  // A strategy should change the director's ranking of comparable affordable players,
+  // not bypass budget, minimum quality or the selling club's consent.
+  if(st==='youth')return p.age<=21?1.6:p.age<=24?1.0:p.age>=30?-1.0:p.age>=27?-.4:0;
+  if(st==='experience')return p.age>=26&&p.age<=31?1.1:p.age<=21?-1.1:p.age<=23?-.5:0;
+  return st==='value'?(-fee/60+(fee===0?.3:0)):0;
+}
 
 /* ----- the squad plan: what the squad needs, built from the real squad before each window and after renewals ----- */
 function buildPlan(id){

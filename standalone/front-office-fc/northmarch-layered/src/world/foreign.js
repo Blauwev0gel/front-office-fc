@@ -113,7 +113,7 @@ function foreignMove(p,from,to,fee,reason){
   if(toDom&&(dst.length>=SQUAD_MAX||fee>budgetFor(to)))return false;
   const dueWage=toDom?moveWage(p,to):Math.round(wageFor(p.q)*1.1/5)*5;
   if(!toDom&&!foreignSigningAffordable(to,p,fee,dueWage))return false;
-  if(fromDom&&(src.length<=SQUAD_MIN||!canSpare(src,p,false)||(from===S.my&&!S.auto)))return false;
+  if(fromDom&&(src.length<=SQUAD_MIN||!canSpare(src,p,F(from).cash<0)||(from===S.my&&!S.auto)))return false;
   if(!fromDom&&src.filter(x=>x.pos===p.pos).length<=REQ[p.pos])return false;
   if(toDom&&wageBillK(to)+dueWage/1000>wageCapK(to))return false;
   playerCloseStint(p,from);
@@ -177,9 +177,10 @@ function foreignTransferWindow(){
       if(from===S.my&&!S.auto)continue;
       const source=S.squads[from];
       if(source.length<=SQUAD_MIN+1)continue;
-      for(const p of source.filter(p=>p.pos===pos&&p.age<=30&&!p.loan&&canSpare(source,p,false))){
+      for(const p of source.filter(p=>p.pos===pos&&p.age<=30&&!p.loan&&canSpare(source,p,F(from).cash<0))){
         const fee=Math.max(1,Math.round(playerValue(p)*1.3));
         if(fee>buyer.budget*.22||!playerAcceptsMove(p,from,to))continue;
+        if(isCore(from,p)&&(F(from).cash>=0||fee<playerValue(p)*1.5))continue;
         const score=p.q+(p.age<=23?.4:0)-fee/130;
         if(score>bestScore){best={p,from,fee};bestScore=score}
       }
@@ -305,6 +306,10 @@ function foreignWeek(w,{historical=false}={}){
       const a=euro.alive[i],b=euro.alive[i+1],m=foreignGame(a,b,true);
       const winner=m.gh===m.ga?(rnd()<.5+(foreignStrength(a)-foreignStrength(b))/150?a:b):m.gh>m.ga?a:b;
       if(!historical)foreignPlayerMatch(m,'europe');
+      if(!historical)for(const id of [a,b])if(f.clubs[id]){
+        const fee=id===winner?4:2;f.clubs[id].budget=r2(f.clubs[id].budget+fee);
+        const ledger=f.clubs[id].ledger;if(ledger){ledger.income=r2(ledger.income+fee);ledger.net=r2(ledger.net+fee)}
+      }
       // Domestic entrants have their own match statistics rather than contaminating
       // league apps/goals. Event data and the European archive share the same scorers.
       for(const id of [a,b])if(!historical&&S.clubs[id]){

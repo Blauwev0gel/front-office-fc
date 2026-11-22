@@ -91,12 +91,12 @@ function foreignBudgetWeek(w){
     const matchday=w<=22?(7+c.rep*.18):0;
     const debt=c.debt||0,interest=debt*.08/SEASON_WEEKS;
     const cost=5+(w<=22?3:1)+(c.academy||1)*2+interest;
-    const ledger=foreignLedger(id);
-    const net=r2(media+commercial+matchday-wages-cost);
+    const ledger=foreignLedger(id),income=r2(media+commercial+matchday),expense=r2(cost);
+    const net=r2(income-wages-expense);
     c.budget=r2(c.budget+net);
-    ledger.income=r2(ledger.income+media+commercial+matchday);
+    ledger.income=r2(ledger.income+income);
     ledger.wages=r2(ledger.wages-wages);
-    ledger.other=r2(ledger.other-cost);
+    ledger.other=r2(ledger.other-expense);
     ledger.net=r2(ledger.net+net);
     // A club with cash repays debt; a struggling club may refinance, but not indefinitely.
     if(c.debt>0&&c.budget>Math.max(180,wages*5)){

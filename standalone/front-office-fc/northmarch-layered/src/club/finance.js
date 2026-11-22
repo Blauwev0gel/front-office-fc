@@ -93,6 +93,10 @@ function wageCapK(id){return r2(estSeasonIncome(id)*wageRatio(id)/SEASON_WEEKS)}
 /* ----- the week for one club. matches: this week's games involving the club ----- */
 function financeWeek(id,matches){
   const f=F(id),c=CL(id);f.week={};
+  // European competition payments pass through this week's ledger, not a separate off-book update.
+  if(S.continentalReceipts?.[id]){
+    book(id,'europe',S.continentalReceipts[id]);delete S.continentalReceipts[id];
+  }
   if(S.week===1&&f.sold!==S.season){const hold=Math.round(c.support*.28*clamp(1+(ppg(id)-1.35)*.3,.6,1.4)*Math.pow(PRICE_DEF[c.tier].season/f.prices.season,.8));
     f.holders=hold;f.sold=S.season;book(id,'seasontix',hold*f.prices.season/1000)}
   let away=false;

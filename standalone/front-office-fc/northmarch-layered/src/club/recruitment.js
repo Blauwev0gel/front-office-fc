@@ -30,7 +30,14 @@ function buildPlan(id){
   // merge: keep status and history of needs that still exist; close what has been solved
   const old=Object.fromEntries(pl.needs.map(n=>[n.key,n])),keys=new Set(want.map(w=>w.key));
   /* a need that disappears is not always a success: say whether it was solved, or the player simply left */
-  for(const n of pl.needs)if(!keys.has(n.key)&&n.status==='open'){const gone=n.pid&&!sq.some(p=>p.id===n.pid);n.status=gone?'lapsed':'solved';n.closed=[S.season,S.week]}
+  for(const n of pl.needs)if(!keys.has(n.key)&&n.status==='open'){
+    const player=n.pid&&sq.find(p=>p.id===n.pid);
+    const gone=n.pid&&!player;
+    const covered=n.kind==='hole'&&sq.filter(p=>p.pos===n.pos).length>=REQ[n.pos];
+    const renewed=n.kind==='contract'&&player&&player.contract>1;
+    n.status=covered||renewed?'solved':gone?'lapsed':'no-longer-needed';
+    n.closed=[S.season,S.week];
+  }
   pl.needs=pl.needs.filter(n=>n.status!=='open'||keys.has(n.key)).filter(n=>!(n.closed&&n.closed[0]<S.season-1));
   for(const w of want){if(!old[w.key])pl.needs.push({...w,id:pl.next++,status:'open',since:[S.season,S.week]});else Object.assign(old[w.key],{why:w.why,prio:w.prio})}
   pl.needs.sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||b.prio-a.prio);

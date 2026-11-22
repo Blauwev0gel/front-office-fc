@@ -65,12 +65,23 @@ function foreignSquadStrength(id){
   const sq=S.foreign.squads&&S.foreign.squads[id];
   return sq&&sq.length>=11?qualityToStr(squadQuality(sq)):S.foreign.clubs[id].strength;
 }
+function playerAcceptsMove(p,from,to){
+  const f=S.foreign,fromRep=S.clubs[from]?.rep??f.clubs[from]?.rep??45;
+  const toRep=S.clubs[to]?.rep??f.clubs[to]?.rep??45;
+  const gap=toRep-fromRep;
+  if(p.wantsOut)return true;
+  if((p.loyalty??55)>=85&&gap<15)return false;
+  if((p.ambition??55)>=80&&gap<-15)return false;
+  if(gap<-35&&(p.loyalty??55)>=55)return false;
+  return true;
+}
 /* One transfer ledger for clubs across national borders. No direct mutation may
    bypass foreignMove, so ownership, budgets, player history and world events agree. */
 function foreignMove(p,from,to,fee,reason){
   const f=S.foreign,src=S.squads[from]||f.squads[from],dst=S.squads[to]||f.squads[to];
   if(!src||!dst||from===to)throw new Error('Invalid international transfer clubs');
   if(!src.includes(p)||dst.some(x=>x.id===p.id))throw new Error('International transfer ownership mismatch');
+  if(!playerAcceptsMove(p,from,to))return false;
   if(!Number.isFinite(fee)||fee<0)throw new Error('Invalid international fee');
   const fromDom=!!S.clubs[from],toDom=!!S.clubs[to];
   if(toDom&&(dst.length>=SQUAD_MAX||fee>budgetFor(to)))return false;
@@ -135,7 +146,7 @@ function foreignTransferWindow(){
     let best=null,bestScore=-Infinity;
     for(const from of abroad.slice(0,26))for(const p of foreignOptions(from,target)){
       const fee=Math.max(1,Math.round(playerValue(p)*1.15));
-      if(fee>budgetFor(to)||wageBillK(to)+wageFor(p.q)*1.1/1000>wageCapK(to))continue;
+      if(fee>budgetFor(to)||wageBillK(to)+wageFor(p.q)*1.1/1000>wageCapK(to)||!playerAcceptsMove(p,from,to))continue;
       const score=p.q+.16*(p.pa-p.q)-fee/100;
       if(p.q>=minQ&&score>bestScore){best={p,from,fee};bestScore=score}
     }
@@ -157,7 +168,7 @@ function foreignTransferWindow(){
       if(source.length<=SQUAD_MIN+1)continue;
       for(const p of source.filter(p=>p.pos===pos&&p.age<=30&&!p.loan&&canSpare(source,p,false))){
         const fee=Math.max(1,Math.round(playerValue(p)*1.3));
-        if(fee>buyer.budget*.22)continue;
+        if(fee>buyer.budget*.22||!playerAcceptsMove(p,from,to))continue;
         const score=p.q+(p.age<=23?.4:0)-fee/130;
         if(score>bestScore){best={p,from,fee};bestScore=score}
       }
@@ -173,7 +184,7 @@ function foreignTransferWindow(){
       const pool=foreignOptions(from,pos).sort((a,b)=>b.q-a.q);
       if(!pool.length)continue;
       const p=pool[0],fee=Math.max(1,Math.round(playerValue(p)*1.1));
-      if(fee>buyer.budget*.16)continue;
+      if(fee>buyer.budget*.16||!playerAcceptsMove(p,from,to))continue;
       if(foreignMove(p,from,to,fee,'foreign league recruitment'))break;
     }
   }

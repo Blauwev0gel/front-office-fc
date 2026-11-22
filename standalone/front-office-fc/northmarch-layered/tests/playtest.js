@@ -17,6 +17,7 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     const shot=async(name)=>{if(scheme==='light'||['week','ground-build','money','club','dept'].includes(name))await page.screenshot({path:path.join(__dirname,'shots',`${scheme}-${name}.png`),fullPage:false})};
     await tap('[data-act=new]');await shot('choose');await wide('choose');
     await tap('[data-act=choose] >> nth=1');
+    ok(await page.locator('.actbar [data-act=play]').count()===1,`${scheme}: first Play Week button renders after choosing a club`);
     for(let i=0;i<3;i++)await tap('[data-act=play]');
     await shot('week');await wide('week');
     ok(await page.locator('.echo').count()===1,`${scheme}: the week report is shown`);

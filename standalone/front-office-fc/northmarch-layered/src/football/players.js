@@ -9,6 +9,11 @@ const NEAR={GK:[],CB:['FB','DM'],FB:['CB','W'],DM:['CM','CB'],CM:['DM','AM'],AM:
 const REQ={GK:2,CB:4,FB:3,DM:2,CM:3,AM:2,W:3,ST:3};
 const XI_SLOTS=['GK','FB','CB','CB','FB','DM','CM','AM','W','ST','W'];
 const DEV_PATHS=['early','steady','late','volatile'];
+const PLAYER_STYLES={
+  GK:['shot-stopper','organiser'],CB:['marker','ball-player'],FB:['runner','defender'],
+  DM:['anchor','distributor'],CM:['runner','playmaker'],AM:['creator','finisher'],
+  W:['creator','runner','finisher'],ST:['poacher','finisher','target']
+};
 const PTRAITS=['leader','professional','temperamental','injury-prone','local hero','quiet'];
 const PFIRST=['Kyle','Bradley','Ryan','Nathan','Mo','Femi','Josh','Connor','Jamie','Callum','Kieran','Liam','Marcus','Jordan','Sam','Tyler','Ellis','Dean','Reece','Harvey','Aaron','Lewis','Theo','Ollie','Kofi','Jakub','Matty','Ethan','Joe','Danny','Brandon','Cian','Ruben','Isaac','Noah','Alfie','Zach','Billy','Jay','Ashley'];
 const PLAST=['Agyeman','Rowntree','Whitlock','Dunleavy','Corrigan','Sefton','Pickles','Fairclough','Ashworth','Barraclough','Cawthorne','Dearden','Entwistle','Fenton','Greenhalgh','Hepworth','Illingworth','Jowett','Kershaw','Lockwood','Midgley','Nolan','Ormerod','Priestley','Ramsden','Sutcliffe','Thackeray','Uttley','Varley','Waddington','Yeadon','Okonjo','Mensah','Kowalczyk','Brannigan','Hussain','Achterberg','Doherty','Lomax','Tetley'];
@@ -26,10 +31,17 @@ function newPlayer(pos,o={}){
   const p={id:'pl'+(S.pc++),name:o.name||pname(),pos,age,q,pa:r1(o.pa??(q+head)),contract:o.contract??ri(1,3),
     wage:Math.round(wageFor(q)*(0.85+rnd()*.3)/5)*5,form:ri(55,75),inj:0,trait:o.trait||pick(PTRAITS),academy:!!o.academy,
     apps:0,goals:0,sApps:0,sGoals:0,joined:S.season,club:o.club||null,originClub:o.academy?o.club||null:null,career:[],grown:0,
-    devPath:o.devPath||pick(DEV_PATHS),peakAge:o.peakAge??ri(26,31),history:[]};
+    devPath:o.devPath||pick(DEV_PATHS),peakAge:o.peakAge??ri(26,31),history:[],
+    style:o.style||pick(PLAYER_STYLES[pos]),ambition:o.ambition??ri(30,90),
+    loyalty:o.loyalty??ri(25,85),honours:[],breakthroughs:0};
   return lifeDefaults(p);
 }
-function playerValue(p){const af=p.age<=21?1.6:p.age<=25?1.3:p.age<=29?1:p.age<=31?.6:.3;return Math.max(1,Math.round(wageFor(p.q)*.09*af*(1+Math.max(0,p.pa-p.q)*.15)))}
+function playerValue(p){
+  const af=p.age<=21?1.6:p.age<=25?1.3:p.age<=29?1:p.age<=31?.6:.3;
+  const visible=p.sApps>5?clamp(1+(p.sGoals/p.sApps-.09)*.65,.9,1.3):1;
+  const honours=1+Math.min(.2,(p.honours||[]).length*.025);
+  return Math.max(1,Math.round(wageFor(p.q)*.09*af*(1+Math.max(0,p.pa-p.q)*.15)*visible*honours));
+}
 function qWord(q){return q<8.5?'Poor':q<10?'Squad player':q<11.5?'Solid':q<13?'Key player':q<14.5?'Star':'Elite'}
 function genSquad(clubStr,clubId){
   const base=11.5+(clubStr-50)/4,sq=[];
@@ -74,8 +86,9 @@ function playersWeek(id){
     const path=p.devPath||'steady',early=path==='early'?1.35:path==='late'?.7:1;
     const maturity=path==='late'&&p.age>=22&&p.age<=27?1.5:path==='volatile'?.7+rnd()*.9:early;
     const pt=p.age<=23?(p.played?1.4:.7):1;
-    if(p.age<=23&&p.pa>p.q)p.q+=(p.pa-p.q)*grow*pt*maturity;
-    else if(p.age<=29&&p.pa>p.q)p.q+=(p.pa-p.q)*grow*.4*maturity;
+    const character=p.trait==='professional'?1.12:p.trait==='temperamental'?.94:1;
+    if(p.age<=23&&p.pa>p.q)p.q+=(p.pa-p.q)*grow*pt*maturity*character;
+    else if(p.age<=29&&p.pa>p.q)p.q+=(p.pa-p.q)*grow*.4*maturity*character;
     else if(p.age>=(p.peakAge||30))p.q-=.55*fade*(p.age-(p.peakAge||30)+1)*.5;
     p.q=Math.round(clamp(p.q,4,19)*1000)/1000;p.grown+=p.q-before;if(p.age<=23)st.youthGrowth+=p.q-before;
   }
@@ -87,7 +100,23 @@ function playersSeasonEnd(id){
   for(const p of sq.slice()){
     p.age++;p.contract--;p.yel=0;p.susp=0;p.career.push(`${c.name} ${S.season}: ${p.sApps} apps, ${p.sGoals} goals`);
     p.history=p.history||[];p.history.push({season:S.season,club:id,age:p.age,apps:p.sApps,goals:p.sGoals,europe:p.eApps||0,europeGoals:p.eGoals||0,quality:r1(p.q)});
-    if(p.history.length>30)p.history.shift();p.eApps=0;p.eGoals=0;if(p.career.length>8)p.career.splice(0,p.career.length-8);p.sApps=0;p.sGoals=0;p.grown=0;
+    if(p.history.length>30)p.history.shift();
+    p.honours=p.honours||[];
+    const last=c.hist[c.hist.length-1];
+    if(last&&last.pos===1&&p.sApps>=5)p.honours.push({season:S.season,type:'league',tier:last.tier,club:id});
+    if(S.cup.winner===id&&p.sApps>=3)p.honours.push({season:S.season,type:'cup',club:id});
+    if(p.honours.length>30)p.honours.shift();
+    if(p.age<=24&&p.grown>=.65&&p.sApps>=10){
+      p.breakthroughs=(p.breakthroughs||0)+1;
+      emit('Breakthrough',id,`${p.name} has made a breakthrough at ${c.name}: +${r1(p.grown)} ability in ${p.sApps} appearances.`,{pid:p.id,growth:r1(p.grown)});
+    }
+    if(c.hist.length&&c.hist[c.hist.length-1].tier<c.tier&&p.age<=30&&p.ambition>70&&p.loyalty<60){
+      p.wantsOut=true;p.morale=clamp((p.morale??60)-12,0,100);
+      if(id===S.my)emit('WantsOut',id,`${p.name} considers leaving after relegation.`,{pid:p.id});
+    }
+    p.eApps=0;p.eGoals=0;
+    if(p.career.length>8)p.career.splice(0,p.career.length-8);
+    p.sApps=0;p.sGoals=0;p.grown=0;
     p.q=r1(clamp(p.q+(rnd()-.5)*.4,4,19));
     if(p.age>=34&&rnd()<(p.age-33)*.22){sq.splice(sq.indexOf(p),1);left.push(p);youthLeft(p,'retired');emit('Retired',id,`${p.name} retires at ${p.age}.`,{pid:p.id})}
     else if(p.contract<=0){sq.splice(sq.indexOf(p),1);left.push(p);youthLeft(p,'released');faAdd(p,'out of contract',id);if(id===S.my)emit('PlayerLeft',id,`${p.name} leaves at the end of his contract.`,{pid:p.id})}

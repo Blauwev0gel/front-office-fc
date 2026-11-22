@@ -23,6 +23,24 @@ jobs:
       - name: Build and run the fast engine tests (no browser)
         run: SKIP_BROWSER=1 bash tests/run-fast.sh
 
+  mobile-browser:
+    name: mobile-browser
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Chromium and Playwright
+        run: |
+          npm install --no-save --no-package-lock --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Build default L1/L2 HTML and play through mobile light and dark
+        run: |
+          node build.js
+          node tests/playtest.js
+
   dev-state-updated:
     name: dev-state-updated
     if: github.event_name == 'pull_request'

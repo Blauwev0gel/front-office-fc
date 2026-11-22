@@ -64,6 +64,24 @@ function foreignSquadInit(){
 /* Lightweight but real weekly foreign ledger: cash pays wages, travel and facilities,
    media/matchday revenue arrives each week; transfer fees use the same balance.
    The foreign world deliberately does not run Northmarch's full stadium simulation. */
+function foreignLedger(id){
+  const c=S.foreign.clubs[id];if(!c)throw new Error('Unknown foreign club');
+  if(!c.ledger||c.ledger.season!==S.season){
+    c.ledger={season:S.season,start:c.budget,income:0,wages:0,other:0,transfers:0,financing:0,net:0};
+  }else if(c.ledger.start==null){
+    c.ledger.start=r2(c.budget-(c.ledger.income||0)-(c.ledger.wages||0)-(c.ledger.other||0)-
+      (c.ledger.transfers||0)-(c.ledger.financing||0));
+    c.ledger.transfers??=0;c.ledger.financing??=0;
+  }
+  return c.ledger;
+}
+function foreignBook(id,category,amount){
+  amount=r2(amount);if(!amount)return;
+  const c=S.foreign.clubs[id],ledger=foreignLedger(id);
+  c.budget=r2(c.budget+amount);
+  ledger[category]=r2((ledger[category]||0)+amount);
+  if(category!=='financing'&&category!=='transfers')ledger.net=r2(ledger.net+amount);
+}
 function foreignWageWeek(id){return r2((S.foreign.squads[id]||[]).reduce((sum,p)=>sum+(p.wage||0),0)/1000)}
 function foreignBudgetWeek(w){
   const f=S.foreign;
@@ -142,9 +160,9 @@ function foreignMove(p,from,to,fee,reason){
   playerCloseStint(p,from);
   src.splice(src.indexOf(p),1);
   if(fromDom){book(from,'feesIn',fee);if(from===S.my)youthLeft(p,'sold',to,fee)}
-  else f.clubs[from].budget+=fee;
+  else foreignBook(from,'transfers',fee);
   if(toDom)book(to,'feesOut',-fee);
-  else f.clubs[to].budget-=fee;
+  else foreignBook(to,'transfers',-fee);
   p.history=p.history||[];
   p.history.push({season:S.season,week:S.week,type:'transfer',from,to,fee});
   p.club=to;p.joined=S.season;p.contract=ri(2,4);p.wage=dueWage;p.loan=null;
@@ -178,7 +196,7 @@ function foreignTransferWindow(){
     const signing=Math.max(1,Math.round(playerValue(p)*.04));
     if(!foreignSigningAffordable(to,p,signing))continue;
     S.fa.splice(S.fa.indexOf(p),1);
-    club.budget-=signing;p.club=to;p.joined=S.season;p.contract=ri(2,4);
+    foreignBook(to,'transfers',-signing);p.club=to;p.joined=S.season;p.contract=ri(2,4);
     p.wage=Math.round(wageFor(p.q)*1.03/5)*5;
     p.history=p.history||[];p.history.push({season:S.season,week:S.week,type:'free',to});
     sq.push(p);
@@ -329,10 +347,7 @@ function foreignWeek(w,{historical=false}={}){
       const a=euro.alive[i],b=euro.alive[i+1],m=foreignGame(a,b,true);
       const winner=m.gh===m.ga?(rnd()<.5+(foreignStrength(a)-foreignStrength(b))/150?a:b):m.gh>m.ga?a:b;
       if(!historical)foreignPlayerMatch(m,'europe');
-      if(!historical)for(const id of [a,b])if(f.clubs[id]){
-        const fee=id===winner?4:2;f.clubs[id].budget=r2(f.clubs[id].budget+fee);
-        const ledger=f.clubs[id].ledger;if(ledger){ledger.income=r2(ledger.income+fee);ledger.net=r2(ledger.net+fee)}
-      }
+      if(!historical)for(const id of [a,b])if(f.clubs[id])foreignBook(id,'income',id===winner?4:2);
       // Domestic entrants have their own match statistics rather than contaminating
       // league apps/goals. Event data and the European archive share the same scorers.
       for(const id of [a,b])if(!historical&&S.clubs[id]){
@@ -387,7 +402,7 @@ function foreignPlayerSeasonEnd(){
         if(retain){
           p.contract=ri(2,4);
           p.wage=Math.round(p.wage*1.08/5)*5;
-          club.budget=Math.max(0,club.budget-Math.round(playerValue(p)*.02));
+          foreignBook(id,'other',-Math.max(1,Math.round(playerValue(p)*.02)));
         }else{
           sq.splice(sq.indexOf(p),1);
           faAdd(p,'out of contract abroad',id);
@@ -432,7 +447,7 @@ function foreignSeasonEnd(){
       // Never replace the ledger's real cash balance with a random place-based multiplier.
       club.budget=r2(club.budget);
       if(club.budget>600&&club.rep>=55&&(club.academy||1)<5){
-        club.academy=(club.academy||1)+1;club.budget=r2(club.budget-120);
+        club.academy=(club.academy||1)+1;foreignBook(row.id,'other',-120);
       }
     });
     if(country.tables.length>25)country.tables.shift();

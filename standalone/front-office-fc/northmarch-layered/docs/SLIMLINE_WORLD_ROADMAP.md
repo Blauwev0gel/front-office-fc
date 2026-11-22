@@ -11,8 +11,8 @@ Build the football simulation first. No owner-story, staff conversation or dynas
 | 2. International player market | IMPLEMENTING | Persistent foreign squads, player movement, transfers affect club strength and finances |
 | 3. Player careers | IMPLEMENTING | Development and career history persist across clubs/seasons |
 | 4. Club evolution | IMPLEMENTING | Results alter resources, reputation, youth and long-term outcomes |
-| 5. Match simulation | NOT STARTED | Tested plausible score distributions, squad availability and tactical identities |
-| 6. World presentation | NOT STARTED | All news and histories trace to real events |
+| 5. Match simulation | IMPLEMENTING | Tested plausible score distributions, squad availability and tactical identities |
+| 6. World presentation | IMPLEMENTING | All news and histories trace to real events |
 
 ## Block 1 audit (source inspection; not a successful test run)
 - Domestic league uses five tiers, 16 teams each and a 30-week fixture generator. The national cup uses a 32-club preliminary round followed by 48 additional clubs.
@@ -56,3 +56,8 @@ Report command output and seed-specific failures. Do not merge/deploy without pe
 - Block 3: Individual player growth paths (early/steady/late/volatile), peak age, structured season and move histories; commits `9fc6636`, `ce2f056`.
 - Block 4: Persistent club heritage (top-division titles, cups, promotions, relegations, best tier, recent competitive streak), multi-season reputation effects; commits `858ef2a`, `d815496`.
 - Critical limitations: no build/tests performed; domestic scouting pool does not yet deliberately search foreign squads; international transfer negotiation is simplified; foreign players do not yet play detailed simulated match minutes; midseason legacy-save international results may not be reconstructed. Blocks remain IMPLEMENTING, not COMPLETE. Blocks 5 and 6 not started.
+
+- Block 5: coach-style matchup now changes chance creation (bounded modifiers), while existing coach strength and Poisson goals remain authoritative. Commit `f9fb02a`.
+- Block 6: world archive now renders six foreign league tables, current and historical European results, and recent international transfer events; title text updated to five divisions. Commits `656a512`, `1c24d42`.
+- Finance: European competition income now has an explicit media ledger category (`661520a`).
+- **Status:** all six blocks have source-code work underway, **none is COMPLETE**. Tests/build intentionally not executed. Major outstanding work: full save migration and mid-season foreign calendar recovery; foreign transfer scouting/negotiation; rich individual European match events and statistics; economic balancing; multi-season simulation verification; better world discovery/navigation and player-profile history rendering.

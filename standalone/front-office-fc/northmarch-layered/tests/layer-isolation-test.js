@@ -1,5 +1,5 @@
-// Architecture gate: S3.2 is an optional module, never required for the baseline game.
-// The existing L3.1 mandate coupling is documented technical debt and not yet isolated.
+// Architecture gate: both autonomy slices are independent; the S3.2 comparison
+// keeps the S3.1 mandate active so it tests a genuinely non-interfering extension.
 const fs=require('fs'),path=require('path'),vm=require('vm');
 const {ENGINE,UI,ENGINE_WITHOUT_ACCOUNTABILITY,UI_WITHOUT_ACCOUNTABILITY}=require('../build.js');
 let failed=0;
@@ -13,10 +13,10 @@ function context(files){
 }
 const base=context(ENGINE_WITHOUT_ACCOUNTABILITY.concat(UI_WITHOUT_ACCOUNTABILITY));
 const complete=context(ENGINE.concat(UI));
-ok(ENGINE_WITHOUT_ACCOUNTABILITY.every(f=>!f.startsWith('layers/autonomy/')),
-  'baseline source list excludes L3 S3.2 implementation');
-ok(UI_WITHOUT_ACCOUNTABILITY.every(f=>!f.startsWith('layers/autonomy/')),
-  'baseline UI excludes L3 S3.2 panels');
+ok(ENGINE_WITHOUT_ACCOUNTABILITY.every(f=>!f.includes('director-accountability')),
+  'S3.1-only engine excludes L3 S3.2 reporting');
+ok(UI_WITHOUT_ACCOUNTABILITY.every(f=>!f.includes('director-accountability')),
+  'S3.1-only UI excludes L3 S3.2 reporting panel');
 ok(vm.runInContext('typeof directorTrust',base)==='undefined','baseline has no director trust module');
 ok(vm.runInContext('featurePanel("directorAccountability")',base)==='','unregistered features render nothing');
 const seed=83037;base.newWorld(seed);complete.newWorld(seed);

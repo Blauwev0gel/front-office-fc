@@ -83,6 +83,8 @@ function makeSeats(){
   const t0=ids.filter(i=>CL(i).tier===0).sort((a,b)=>teamStrength(a)-teamStrength(b));
   out.push(t0[ri(0,4)]);out.push('pell');
   const t2=ids.filter(i=>CL(i).tier===2).sort((a,b)=>CL(b).support-CL(a).support);out.push(t2[ri(0,5)]);
+  const t3=ids.filter(i=>CL(i).tier===3).sort((a,b)=>teamStrength(a)-teamStrength(b));out.push(t3[ri(3,9)]);
+  const t4=ids.filter(i=>CL(i).tier===4).sort((a,b)=>CL(b).support-CL(a).support);out.push(t4[ri(1,8)]);
   S.seats=out;
 }
 function chooseClub(id){

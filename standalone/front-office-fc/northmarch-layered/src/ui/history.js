@@ -56,6 +56,18 @@ function worldAwardsPanel(){
   const name=id=>S.clubs[id]?.name||S.foreign?.clubs?.[id]?.name||id;
   return`<div class="panel"><p class="eyebrow">Players who made history</p>${awards.map(a=>`<div class="row small"><span><b>Season ${a.season}</b><br><span class="muted">Golden Boot: ${a.topScorer?esc(a.topScorer.name)+' ('+a.topScorer.goals+' goals, '+esc(name(a.topScorer.club))+')':'—'}</span>${a.breakthrough?`<br><span class="muted">Breakthrough: ${esc(a.breakthrough.name)} · +${a.breakthrough.delta}</span>`:''}</span></div>`).join('')}</div>`;
 }
+function worldTrendsPanel(){
+  const d=worldTrends(),name=id=>S.clubs[id]?.name||id;
+  const clubRows=(items,verb)=>items.map(c=>`<button class="row small" data-act="club" data-arg="${c.id}"><span>${esc(c.name)}<br><span class="muted">${esc(c.identity)}</span></span><b>${verb==='academy'?c.culture+'/100':Math.abs(c.delta)+' division'+(Math.abs(c.delta)===1?'':'s')}</b></button>`).join('');
+  const stars=d.young.map(p=>`<div class="row small"><span>${esc(p.name)} · ${esc(name(p.club))}</span><b>+${p.growth} · ${p.apps} games</b></div>`).join('');
+  if(!d.rise.length&&!d.fall.length&&!stars)return'';
+  return`<div class="panel"><p class="eyebrow">The changing football world</p>
+    ${d.rise.length?`<p class="small muted">Clubs climbing the pyramid</p>${clubRows(d.rise,'rise')}`:''}
+    ${d.fall.length?`<p class="small muted">Clubs losing ground</p>${clubRows(d.fall,'fall')}`:''}
+    ${d.academies.length?`<p class="small muted">Strongest development cultures</p>${clubRows(d.academies,'academy')}`:''}
+    ${stars?`<p class="small muted">Young players developing this season</p>${stars}`:''}
+    <p class="note">These changes are calculated from real promotions, relegations, squad development and academy appearances.</p></div>`;
+}
 function archiveView(){
   const h=S.hist.slice().reverse(),f=S.foreign;
   const domestic=h.length?`<div class="panel"><p class="eyebrow">Northmarch roll of honour</p>${h.map(x=>`<div class="row small"><span><b>Season ${x.s}</b><br><span class="muted">${TIERS.filter(t=>x.tables[t]?.length).map(t=>`${tierShort(t)}: ${esc(CL(x.tables[t][0]).name)}`).join(' · ')}</span></span><b>${x.cup?esc(CL(x.cup).name.split(' ')[0])+' (cup)':''}</b></div>`).join('')}</div>`:'<p class="muted">The first season is under way.</p>';
@@ -67,7 +79,7 @@ function archiveView(){
   const europe=f.current?.europe,completed=f.europe.seasons.slice(-5).reverse();
   const eu=`<div class="panel"><p class="eyebrow">Continental competition</p>${europe?`<p class="small">Season ${f.current.season}: ${europe.alive.length} clubs remain${europe.winner?` · Winner: ${esc(f.clubs[europe.winner]?.name||CL(europe.winner).name)}`:''}.</p>`:''}${completed.map(x=>`<p class="small">Season ${x.season}: ${esc(f.clubs[x.winner]?.name||S.clubs[x.winner]?.name||x.winner||'Undecided')}</p>`).join('')}</div>`;
   const moves=(f.market?.log||[]).slice(-12).reverse().map(m=>`<div class="row small"><span>${esc(m.name)}<br><span class="muted">${esc(S.clubs[m.from]?.name||f.clubs[m.from]?.name||m.from)} → ${esc(S.clubs[m.to]?.name||f.clubs[m.to]?.name||m.to)}</span></span><b>£${m.fee}k</b></div>`).join('');
-  return worldNewsPanel(18)+worldAwardsPanel()+domestic+eu+countries+(moves?`<div class="panel"><p class="eyebrow">International transfer wire</p>${moves}</div>`:'');
+  return worldNewsPanel(18)+worldTrendsPanel()+worldAwardsPanel()+domestic+eu+countries+(moves?`<div class="panel"><p class="eyebrow">International transfer wire</p>${moves}</div>`:'');
 }
 function journalPanel(n){
   const rows=journalRows(n);if(!rows.length)return`<div class="panel"><p class="eyebrow">Your decisions</p><p class="small muted">Decisions you take are noted here with a measure, so you can see later what changed.</p></div>`;

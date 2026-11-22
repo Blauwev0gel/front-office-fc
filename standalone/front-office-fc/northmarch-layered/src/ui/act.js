@@ -22,6 +22,7 @@ function act(a,arg){
     case'close':{const mark=S.evn||0;const h=closeSeason();UI.summerEv=eventsSince(mark);UI.review=h;UI.lastEv=[];if(HAS_DOM)window.scrollTo(0,0);break}
     case'startnext':UI.review=null;UI.tab='week';break;
     case'tier':UI.tier=['cup','market','archive'].includes(arg)?arg:+arg;break;
+    case'worldarchive':UI.tab='table';UI.tier='archive';UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
     case'ov':UI.over=arg||null;UI.gsel=null;UI.confirm=null;if(arg==='ground')UI.gt='stadium';break;
     case'club':UI.over='club';UI.arg=arg;break;
     case'dept':UI.over='dept';UI.arg=arg;UI.gsel=null;break;

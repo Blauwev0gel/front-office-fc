@@ -19,7 +19,7 @@ function recruitBias(id,p,fee){
   const st=recruitStrategy(id);
   // A strategy should change the director's ranking of comparable affordable players,
   // not bypass budget, minimum quality or the selling club's consent.
-  if(st==='youth')return p.age<=21?1.6:p.age<=24?1.0:p.age>=30?-1.0:p.age>=27?-.4:0;
+  if(st==='youth')return (p.age<=21?1.6:p.age<=24?1.0:p.age>=30?-1.0:p.age>=27?-.4:0)+(p.age<=23?((CL(id).devCulture??45)-45)/90:0);
   if(st==='experience')return p.age>=26&&p.age<=31?1.1:p.age<=21?-1.1:p.age<=23?-.5:0;
   return st==='value'?(-fee/60+(fee===0?.3:0)):0;
 }

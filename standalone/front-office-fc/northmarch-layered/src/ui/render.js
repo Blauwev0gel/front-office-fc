@@ -37,8 +37,8 @@ function titleView(){
 }
 function chooseView(){
   const again=S.career.length>0,last=again?S.career[S.career.length-1]:null;
-  const probs=again?S.seats.map(id=>`${strWord(id)} in ${TIER_NAME[CL(id).tier]}; ${moneyWord(id).toLowerCase()} finances.`):['A big club that has fallen behind its rivals.','The harbour club: proud, broke enough to matter.','A small club with a big crowd for its size.'];
-  return`<main class="scene" style="padding-top:28px"><p class="eyebrow">${again?`Season ${S.season} · after ${esc(CL(last.club).name)}`:'Three open chairs'}</p><h2>${again?'Three clubs want you':'Where do you stand for election?'}</h2>
+  const probs=S.seats.map(id=>`${strWord(id)} in ${TIER_NAME[CL(id).tier]}; ${moneyWord(id).toLowerCase()} finances.`);
+  return`<main class="scene" style="padding-top:28px"><p class="eyebrow">${again?`Season ${S.season} · after ${esc(CL(last.club).name)}`:`${S.seats.length} open chairs`}</p><h2>${again?`${S.seats.length} clubs want you`:'Where do you stand for election?'}</h2>
   <p class="muted">${again?`${esc(last.why||'Your term ended')}. The world kept turning; pick your next club.`:'Each club is a real club in the same world. Pick the one whose problem you want.'}</p>
   <div class="stack">${S.seats.map((id,i)=>{const c=CL(id),sg=groundSignals(id),f=F(id);return`<button class="deal" data-act="choose" data-arg="${id}"><span class="dt">${esc(c.name)}</span><span class="small muted">${probs[i]}</span>
     <dl><dt>Division</dt><dd>${TIER_NAME[c.tier]}</dd><dt>Squad</dt><dd>${strWord(id)}</dd><dt>Support</dt><dd>${n0(c.support)} · ground holds ${n0(sg.capacity)}</dd><dt>Money</dt><dd>${k1(f.cash)} in the bank${debt(id)?` · ${k1(debt(id))} debt`:''}</dd></dl></button>`}).join('')}</div></main>`;

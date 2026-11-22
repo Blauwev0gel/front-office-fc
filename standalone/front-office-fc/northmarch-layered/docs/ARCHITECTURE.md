@@ -4,6 +4,14 @@ Bijgewerkt: **22 november 2026** · Branch: `claude/loving-goodall-uv00vn`
 
 **Bewijsstatus:** Dit document beschrijft de actuele broncode. De nieuwe wijzigingen aan de vijf-divisiewereld, internationale markt en alle zes blokken zijn **niet** via een build, tests of browser-playtest gevalideerd. Oudere testclaims gelden niet automatisch voor deze wijzigingen.
 
+## Verplichte bouwvolgorde en modulegrenzen (22 november 2026)
+
+**Lees `docs/LAYER_CONTRACT.md` vóór iedere nieuwe feature.** De eerste speelbare fase is **het basisspel (L1 wereld + L2 eenvoudige clubbediening)**. Pas nadat dat zelfstandig goed werkt, volgen **L3 autonomie**, **L4 verhalen/relaties** en **L5 dynasty**. Uitgebreide autonomie mag geen voorwaarde worden voor het draaien van het basisspel.
+
+`src/core/layers.js` biedt generieke feature-events en UI-slots. `src/layers/autonomy/director-accountability.js` en `src/layers/autonomy/director-accountability-ui.js` zijn optionele modules; de engine en de Football-pagina blijven uitvoerbaar als deze S3.2-uitbreiding niet wordt gebundeld. `tests/layer-isolation-test.js` verifieert dit expliciet.
+
+**Gedeeltelijk gescheiden, nog niet volledig:** de eerdere S3.1-mandaatlogica zit nog in de basisbestanden `club/recruitment.js`, `football/market.js`, `world/world.js` en de reguliere UI. Dit is geregistreerde technische schuld, geen bewijs dat L3 al geïsoleerd is. Nieuwe autonomieslices mogen die vermenging niet uitbreiden.
+
 ## Productcontract
 Slimline is de autonome voetbalwereld die onder latere management-, staff-, verhaal- en dynasty-lagen ligt. De speler stuurt een club via bestaande brede beleidskeuzes. Geen verplichte gesprekken, scripts, transfergoedkeuringen of tactische micromanagementsystemen toevoegen.
 

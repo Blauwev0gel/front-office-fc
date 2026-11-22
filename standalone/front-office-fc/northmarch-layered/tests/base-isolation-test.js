@@ -27,6 +27,8 @@ ok(!E.cmd('SetMandate',id,{deals:'small'}).ok,'base game cannot change an L3-onl
 let uiError=null,played=0;
 try{
   let html=E.recruitPanels();
+  const weekHtml=E.weekView();
+  ok(typeof weekHtml==='string'&&weekHtml.includes('Summer window'),'base Week screen renders with no optional L3 views');
   ok(html.includes('Recruitment')&&!html.includes('director\'s mandate')&&!html.includes('above your limit'),
     'base recruitment UI remains playable without L3');
   // Real club budget and sporting choices remain available, without individual transfer approval.

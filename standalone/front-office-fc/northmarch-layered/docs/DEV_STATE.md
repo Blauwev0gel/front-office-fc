@@ -35,7 +35,8 @@ Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `footbal
 
 ## Teststatus (laatst bekende feiten per SHA)
 | Wat | SHA | Resultaat | Datum | Door |
-| Basisspel V1: `node build.js`, `base-briefing-test.js`, `tests/run-fast.sh` (incl. één volledig seizoen, save/load) | e9c48e0 + docs | **Nog niet uitgevoerd op deze SHA**; GitHub CI na PR; mobiele browser-playtest licht/donker niet uitgevoerd | 2026-11-22 | ChatGPT |
+| Basisspel V1: `node build.js`, `base-briefing-test.js`, `tests/run-fast.sh` (incl. één volledig seizoen, save/load en echte wedstrijdscore) | b6e86b0 | **Groen** via GitHub Actions run 45037121192 (build en snelle engine-tests; CI zonder browser) | 2026-11-22 | GitHub Actions |
+| Basisspel V1: browser-playtest licht/donker, menselijke speelsessie | b6e86b0 + docs | **Niet uitgevoerd**; browser en spelplezier nog niet gevalideerd | 2026-11-22 | ChatGPT |
 |---|---|---|---|---|
 | Build, `save-test`, `smoke-test` | ccceb42 | groen | 2026-11-22 | Claude (lokaal) |
 | Volledige snelle suite (`tests/run-fast.sh`, incl. browser-playtest licht, 20-seizoenensim) | 717c019 | groen | 2026-11-22 | Claude (lokaal) |

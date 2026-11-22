@@ -10,6 +10,20 @@ const FOREIGN_COUNTRIES=[
   ['fra','France',['Montval','Saint-Roch','Valmer','Beaulac','Rivemont','Clairville','Port-Lumiere','Boisfort','Grandval','Bellemont','Rochefort','Aubepin']],
   ['esp','Spain',['Puerto Azul','Valdeoro','Sierra Blanca','Monteverde','Rioalto','Costa Sur','Villaluz','Campo Real','San Mirador','Altavista','Las Encinas','Marbella Norte']]
 ];
+/* Fictional names with country-specific flavour. Nationality remains fixed as
+   a player moves; being signed abroad does not change a person's origin. */
+const FOREIGN_NAMES={
+  eng:[['Harry','George','Oliver','Elliot','Daniel','Marcus','Lewis','Callum'],['Ashcroft','Fletcher','Bennett','Hawthorne','Whitmore','Hartley','Mercer','Pritchard']],
+  sco:[['Ewan','Finlay','Alasdair','Ross','Fraser','Callum','Lewis','Iain'],['MacLeod','MacKenzie','Ferguson','Fraser','Munro','Baird','McInnes','Lennox']],
+  ned:[['Daan','Jasper','Thijs','Lars','Bram','Milan','Koen','Jelle'],['de Vries','van Dijk','Bakker','Visser','van Leeuwen','Bos','Smit','Kuiper']],
+  ger:[['Lukas','Jonas','Felix','Leon','Moritz','Timo','Julian','Maximilian'],['Weber','Schneider','Hartmann','Becker','Krause','Fischer','Vogel','Neumann']],
+  fra:[['Hugo','Lucas','Noah','Yanis','Adrien','Mathis','Rayan','Bastien'],['Martin','Bernard','Dubois','Moreau','Laurent','Petit','Girard','Lefevre']],
+  esp:[['Diego','Pablo','Hugo','Sergio','Iker','Adrian','Mateo','Nicolas'],['Garcia','Fernandez','Santos','Navarro','Ortega','Ruiz','Moreno','Serrano']]
+};
+function foreignName(code){
+  const pools=FOREIGN_NAMES[code]||FOREIGN_NAMES.eng;
+  return pick(pools[0])+' '+pick(pools[1]);
+}
 function foreignInit(){
   const countries={},clubs={};
   for(const [code,name,towns] of FOREIGN_COUNTRIES){
@@ -36,7 +50,7 @@ function foreignSquadInit(){
     f.squads[id]=[];
     for(const pos of POS){
       const count=Math.max(2,Math.ceil(REQ[pos]*.8));
-      for(let j=0;j<count;j++)f.squads[id].push(newPlayer(pos,{q:base-1.3+rnd()*2.3,club:id,contract:ri(1,4)}));
+      for(let j=0;j<count;j++)f.squads[id].push(newPlayer(pos,{q:base-1.3+rnd()*2.3,club:id,name:foreignName(c.country),nationality:c.country,contract:ri(1,4)}));
     }
     // Different squad construction philosophies: surplus in some positions,
     // gaps elsewhere. Without these, no foreign transfers are ever possible.
@@ -316,12 +330,12 @@ function foreignPlayerSeasonEnd(){
       const min=pos==='GK'?2:Math.max(1,Math.floor(REQ[pos]*.75));
       while(sq.filter(p=>p.pos===pos).length<min){
         const q=11.5+(club.strength-50)/4-2+rnd()*2;
-        sq.push(newPlayer(pos,{q,age:ri(17,24),contract:ri(2,4),club:id}));
+        sq.push(newPlayer(pos,{q,age:ri(17,24),contract:ri(2,4),club:id,name:foreignName(club.country),nationality:club.country}));
       }
     }
     while(sq.length<20){
       const pos=pick(POS.slice(1)),q=11.5+(club.strength-50)/4-2+rnd()*2;
-      sq.push(newPlayer(pos,{q,age:ri(16,22),contract:ri(2,4),academy:true,club:id}));
+      sq.push(newPlayer(pos,{q,age:ri(16,22),contract:ri(2,4),academy:true,club:id,name:foreignName(club.country),nationality:club.country}));
     }
   }
 }

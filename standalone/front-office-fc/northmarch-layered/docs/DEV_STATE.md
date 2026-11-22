@@ -1,7 +1,7 @@
 # DEV_STATE: gedeelde status (GitHub is de waarheid, niet een gesprek)
 Beide ontwikkelaars werken dit bestand bij **bij elke afgeronde werksessie**, in dezelfde pull request als de code. CI faalt als het niet is bijgewerkt. Protocol: `docs/DEV_PROTOCOL.md`.
 
-Laatst bijgewerkt: 2026-11-22 (Basisspel V1: weekoverzicht geïntegreerd, artifact V16) · door: Claude
+Laatst bijgewerkt: 2026-11-22 (distributie opgeschoond: dist/ niet meer gevolgd, herkomst van artifact en preview vastgelegd) · door: Claude
 
 ## Officiële basis
 OFFICIAL_BRANCH: slimline-main
@@ -9,11 +9,21 @@ OFFICIAL_SHA: 3bc49924046e549b66bc1b58a6396d5dd3e04b6d
 Toelichting: de commit waarop deze status slaat (laatste gemergde officiële tip vóór deze statusupdate). Dit bestand staat in een latere, alleen-documentatie-commit. `scripts/sync-check.sh` controleert dat deze SHA in de geschiedenis van je branch zit.
 Basis ontstaan door: `claude/loving-goodall-uv00vn` (alle Slimline-werk van Claude en ChatGPT, 39 commits na Claudes laatste volledige controle) op 2026-11-22 vastgelegd als officiële ontwikkelbasis.
 
-## Artifact (speelbare versie)
+## Artifact en preview (speelbare versies)
+Regel: `src/` is de bron van waarheid, `build.js` genereert de HTML, `dist/` is gegenereerd en wordt **niet meer door Git gevolgd** (staat in `.gitignore`). Een speelbare versie heeft altijd een bron-commit, een buildvariant en een checksum.
+
+| | Artifact V16 | Preview in Git |
+|---|---|---|
+| Waar | https://claude.ai/artifact/MsN96ouEWMVwn76jvKr3Qw | `preview/northmarch-slimline.html` op `claude/loving-goodall-uv00vn` |
+| Bron-commit | `02d2eaa` | `d7d705c` (officiële tip na pull request 9) |
+| Buildvariant | basis (L1/L2), standaard `node build.js` | basis (L1/L2), standaard `node build.js` |
+| SHA-256 | niet bewaard; gelijk aan de preview (zie onder) | `3e029ee71f0c38ab952dd9920d4d5969a4a77b50aa6c7aeac0c01218049ca781` |
+| Gepubliceerd | 2026-11-22, op verzoek van de eigenaar vóór de merge (dus niet via `sync-check --publish`) | 2026-11-22 |
 ARTIFACT_URL: https://claude.ai/artifact/MsN96ouEWMVwn76jvKr3Qw
 ARTIFACT_VERSION: 16
 ARTIFACT_SHA: 02d2eaa
-Status: V16 is gebouwd uit `02d2eaa` (officiële tip `3bc4992` + weekoverzicht) en gepubliceerd op verzoek van de eigenaar vóór de merge, dus niet via `sync-check --publish`. Na de merge van deze pull request is de code gelijk aan V16; alleen `docs/DEV_STATE.md` verschilt. Er bestaat nog een overbodige kopie op https://claude.ai/artifact/7Enxr7jvDmbXpo4NnHXSBQ (zelfde stand, mag weg).
+Gelijkheid: een verse build van `02d2eaa` en van `d7d705c` geeft dezelfde checksum (`3e029ee71f0c38ab…`) en onder `src/` en `build.js` verschilt geen enkel bestand. De spelcode van V16 en van de preview is dus identiek. De bytes van V16 zelf zijn niet bewaard: de gelijkheid volgt uit de deterministische build, niet uit een meting van het gepubliceerde bestand. De eerdere stand `1234d0e` / V15 is vervangen.
+Het eerder opgeslagen `dist/northmarch-layered.html` was verouderd (zonder weekoverzicht, mét L3) en is daarom uit Git gehaald.
 
 ## Werkgebieden (één ontwikkelaar per gebied tegelijk)
 | Ontwikkelaar | Werkbranch | Gebied | Status |
@@ -66,6 +76,7 @@ Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `footbal
 Regel: een resultaat geldt alleen voor de genoemde SHA. Nieuwe SHA = opnieuw vermelden of "niet gedraaid".
 
 ## Wijzigingslog (nieuwste bovenaan)
+- 2026-11-22 Claude: distributie opgeschoond: `dist/` in `.gitignore` en met `git rm --cached` uit Git gehaald (lokale bestanden blijven); herkomst van artifact V16 (bron `02d2eaa`) en de preview (bron `d7d705c`, zelfde checksum) vastgelegd met buildvariant en SHA-256; `preview/README.md` en `docs/DEV_PROTOCOL.md` bijgewerkt. Alleen lokaal voorbereid en getest; nog niet gepusht, geen pull request, geen CI.
 - 2026-11-22 Claude: weekoverzicht (`02d2eaa`, ChatGPT) lokaal getest en samen met deze statuscorrectie aangeboden als pull request naar `slimline-main`; artifact V16 gepubliceerd op de eigen link; geen workflows gewijzigd.
 - 2026-11-22 ChatGPT: `mobile-browser` CI-job toegevoegd aan Slimline workflow: installeert Playwright/Chromium en bouwt/doorloopt de standaard L1/L2 standalone HTML op 390px in licht en donker. SHA f40b092 engine+base-isolation CI groen, zie run 45039214254. Browserjob nog niet afgetekend.
 - 2026-11-22 ChatGPT: S3.1 volledig uit kern en basale UI gehaald naar `layers/autonomy/director-deals.js` + `director-deals-ui.js`; default `build.js` bundelt alleen L1/L2, autonomie opt-in. Generieke hook/rule/action interfaces; market gebruikt mandaatregel alleen als feature die aanbiedt. `tests/base-isolation-test.js` toegevoegd: 3 volle seizoenen, financiën, standaard transferbeleid, save/load zonder L3; `tests/layer-isolation-test.js` blijft S3.2 vergelijken. Dit is een architectuursprint, geen claim dat gameplay 'leuk' is. CI/browseruitslagen nog te verifiëren. Overlap met Claude-code gerapporteerd in PR #6 en hier.

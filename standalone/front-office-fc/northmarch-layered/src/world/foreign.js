@@ -244,7 +244,8 @@ function foreignWeek(w,{historical=false}={}){
           scorer.eGoals=(scorer.eGoals||0)+1;
           m.scorers[id].push({pid:scorer.id,name:scorer.name});
         }
-        book(id,'europe',id===winner?4:2);
+        S.continentalReceipts=S.continentalReceipts||{};
+        S.continentalReceipts[id]=r2((S.continentalReceipts[id]||0)+(id===winner?4:2));
         const other=id===a?b:a,oppName=S.clubs[other]?.name||f.clubs[other]?.name||other;
         emit('EuropeanMatch',id,`${S.clubs[id].name} ${gf}–${ga} ${oppName} in Europe.`,{comp:'europe',opp:other,week:w,winner,scorers:m.scorers[id]});
       }

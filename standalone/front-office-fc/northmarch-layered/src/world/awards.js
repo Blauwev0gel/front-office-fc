@@ -21,14 +21,14 @@ function worldSeasonAwards(){
   S.worldAwards=S.worldAwards||[];
   const players=Object.entries(S.squads).flatMap(([club,sq])=>sq.filter(p=>!p.loan||p.loan.from===club).map(p=>({p,club})));
   if(!players.length)return null;
-  const scored=players.slice().sort((a,b)=>b.p.sGoals-a.p.sGoals||b.p.sApps-a.p.sApps||b.p.q-a.p.q);
+  const scored=players.slice().sort((a,b)=>playerSeasonGoals(b.p)-playerSeasonGoals(a.p)||b.p.sApps-a.p.sApps||b.p.q-a.p.q);
   const eligible=players.filter(x=>x.p.age<=23&&x.p.sApps>=10);
   const breakthrough=eligible.slice().sort((a,b)=>b.p.grown-a.p.grown||b.p.sApps-a.p.sApps)[0]||null;
   const year={
     season:S.season,
     champions:TIERS.map(t=>({tier:t,club:standings(t)[0]})),
     cup:S.cup.winner,
-    topScorer:scored.length?{id:scored[0].p.id,name:scored[0].p.name,club:scored[0].club,goals:scored[0].p.sGoals,apps:scored[0].p.sApps}:null,
+    topScorer:scored.length?{id:scored[0].p.id,name:scored[0].p.name,club:scored[0].club,goals:playerSeasonGoals(scored[0].p),apps:scored[0].p.sApps}:null,
     breakthrough:breakthrough?{id:breakthrough.p.id,name:breakthrough.p.name,club:breakthrough.club,age:breakthrough.p.age,delta:r2(breakthrough.p.grown)}:null,
     europe:S.foreign?.europe?.seasons?.slice(-1)[0]?.winner||null
   };

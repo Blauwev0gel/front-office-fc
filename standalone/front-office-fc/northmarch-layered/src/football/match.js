@@ -1,7 +1,7 @@
 /* ================= Football: the match =================
    lambdas/pmf/xpts are the Northmarch match engine (Poisson goals). Strength now comes from each club's own
    squad (fit players, positions, form) plus a home edge from the ground (atmosphere, pitch). */
-function lambdas(sa,sb,home){const d=(sa-sb)/20+(home?.15:-.15);return[Math.max(.4,1.35+.6*d),Math.max(.4,1.35-.6*d)]}
+function lambdas(sa,sb,home){const d=(sa-sb)/20+(home?.15:0);return[Math.max(.4,1.35+.6*d),Math.max(.4,1.35-.6*d)]}
 function pmf(l,k){let p=Math.exp(-l);for(let i=1;i<=k;i++)p*=l/i;return p}
 function xpts(la,lb){let w=0,d=0;for(let i=0;i<=9;i++){const a=pmf(la,i);for(let j=0;j<=9;j++){const b=pmf(lb,j);if(i>j)w+=a*b;else if(i===j)d+=a*b}}return 3*w+d}
 function teamStrength(id){return qualityToStr(squadQuality(S.squads[id]))}

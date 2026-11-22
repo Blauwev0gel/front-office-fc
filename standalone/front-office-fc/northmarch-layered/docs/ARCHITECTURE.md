@@ -4,6 +4,14 @@ Bijgewerkt: **22 november 2026** · Branch: `claude/loving-goodall-uv00vn`
 
 **Bewijsstatus:** Dit document beschrijft de actuele broncode. De nieuwe wijzigingen aan de vijf-divisiewereld, internationale markt en alle zes blokken zijn **niet** via een build, tests of browser-playtest gevalideerd. Oudere testclaims gelden niet automatisch voor deze wijzigingen.
 
+## Verplichte bouwvolgorde en modulegrenzen (22 november 2026)
+
+**Lees `docs/LAYER_CONTRACT.md` vóór iedere nieuwe feature.** De eerste speelbare fase is **het basisspel (L1 wereld + L2 eenvoudige clubbediening)**. Pas nadat dat zelfstandig goed werkt, volgen **L3 autonomie**, **L4 verhalen/relaties** en **L5 dynasty**. Uitgebreide autonomie mag geen voorwaarde worden voor het draaien van het basisspel.
+
+`src/core/layers.js` biedt generieke lifecycle-events, optionele regel-/actieproviders en UI-slots. **Beide L3-slices** wonen in `src/layers/autonomy/`: `director-deals*.js` (mandaten) en `director-accountability*.js` (verantwoording). De standaard-build bevat geen van deze modules; een afzonderlijke ontwikkelbuild kan ze allebei optioneel meenemen.
+
+**Build-time scheiding aangetoond:** `tests/base-isolation-test.js` doorloopt drie basis-seizoenen zonder L3; `tests/layer-isolation-test.js` bewijst dat S3.2-reporting geen uitslagen of kas verandert. Dit is **nog geen** bewijs van speelplezier of dynamische runtime-hotplug. CI zonder browser op f40b092 groen; mobiele browsertest loopt apart.
+
 ## Productcontract
 Slimline is de autonome voetbalwereld die onder latere management-, staff-, verhaal- en dynasty-lagen ligt. De speler stuurt een club via bestaande brede beleidskeuzes. Geen verplichte gesprekken, scripts, transfergoedkeuringen of tactische micromanagementsystemen toevoegen.
 
@@ -25,7 +33,7 @@ Slimline is de autonome voetbalwereld die onder latere management-, staff-, verh
 | Opslag | `core/save.js` | versie 10, migraties 1→9, legacy-piramideherstel |
 | UI | `ui/render.js`, `ui/club.js`, `ui/history.js` | week, selecties, wereldarchief en seizoensreview |
 
-`build.js` bundelt in vaste volgorde `core` → `world` (inclusief foreign, awards, rivalry) → `football` → `club` → `sim` → `save` → `ui`. De outputlocatie blijft `dist/northmarch-layered.html`.
+`build.js` bundelt standaard `ENGINE_BASE + UI_BASE`: `core` → `world` → `football` → `club` → `sim` → `save` → `ui` zonder L3. Alleen met `NORTHMARCH_BUILD_MODE=autonomy node build.js` wordt de optionele L3-engine en -UI toegevoegd. Output blijft `dist/northmarch-layered.html`.
 
 ## Nationale voetbalwereld
 - Vijf divisies van zestien Northmarch-clubs (80 clubs), elk dertig competitiewedstrijden.
@@ -71,7 +79,7 @@ Slimline is de autonome voetbalwereld die onder latere management-, staff-, verh
 - `worldTrends()` berekent stijgende/dalende clubs en jeugdontwikkelaars uit historische resultaten, niet uit scripts.
 
 ## Save-schema en historie
-- Schema `VERSION=9`, save-key `northmarch-layered-v1`.
+- Schema `VERSION=10`, save-key `northmarch-layered-v1`.
 - Migratie 8→9 voegt wereldarchieven toe. `expandLegacyPyramid()` vult oude drie-divisiesaves aan tot vijf zonder de bestaande club of lopende tijd te resetten. Reeds gespeelde lagere-divisiewedstrijden worden als synthetische historische stand opgebouwd, **zonder retroactieve inkomsten of blessures**.
 - `foreignRestoreCalendar()` reconstrueert ontbrekende buitenlandse weekkalenders bij legacy saves; retroactieve Europese wedstrijden betalen geen inkomsten en verwonden geen Northmarch-spelers.
 - `enrichLegacyWorld()` kent ID-deterministische defaults toe voor nieuwe spelersvelden en reconstrueert historische clubtitels waar mogelijk.

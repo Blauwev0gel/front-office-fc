@@ -112,7 +112,7 @@ function budgetFor(id){const f=F(id),reserve=wageBillK(id)*6;return Math.max(0,M
 function shopFor(id,pos,minQ,o={}){
   const cap=wageCapK(id),bill=wageBillK(id);let budget=o.budget??budgetFor(id);
   let best=null,bv=-Infinity;
-  const pool=scoutPool(id,pos,undefined,o.dry),evaluated=[],capDeal=o.ignoreMandate?Infinity:dealCap(id); /* o.dry: look, do not sign (the director's proposals); o.ignoreMandate: ignore the deal limit */
+  const pool=scoutPool(id,pos,undefined,o.dry),evaluated=[],capDeal=o.ignoreMandate?Infinity:featureRule('dealCap',id,Infinity); /* o.dry: look, do not sign (the director's proposals); o.ignoreMandate: ignore the deal limit */
   for(const c of shortlistCandidates(id,pos))if(!pool.some(x=>x.p===c.p))pool.unshift(c); // players the scouts have been watching come first
   for(const c of pool){
     const p=c.p,sl=c.listed?shortlistEntry(p.id):null,seen=sl&&sl.obs?sl.est:p.q+(rnd()+rnd()-1)*2.5*tdNoise(id)*reportNoise(id); // watched players are judged on the scouts' refined estimate

@@ -1,5 +1,5 @@
 # L3 — Staff, mandaten en autonomie
-**Status:** IN PROGRESS (ontwerp vastgelegd 2026-11-22, gecorrigeerd door D-L3-2; slice S3.1 getest, S3.2–S3.6 gepland). Besluit eigenaar: **mandaten zijn een deel van L3** (D-L3-1).
+**Status:** IN PROGRESS (ontwerp vastgelegd 2026-11-22, gecorrigeerd door D-L3-2; S3.1 en S3.2 optionele modules, engine-regressie op f40b092 groen; mobiele browserrevalidatie open; S3.3–S3.6 uitgesteld tot Basisspel V1). Besluit eigenaar: **mandaten zijn een deel van L3** (D-L3-1).
 
 ## Doel
 Nu zijn de directeur (TD) en de trainer één cijfer plus een specialiteit, en doen ze alles binnen het kader dat de voorzitter via beleid zet. L3 maakt van hen mensen die **zelf beslissen binnen een mandaat** en **zelf iets voorstellen als het buiten dat mandaat valt**. De voorzitter kiest nog steeds nooit spelers of opstellingen; hij bepaalt hoeveel vrijheid de staf krijgt en beoordeelt wat ze ermee doen.
@@ -36,14 +36,14 @@ Standaard voor een nieuwe club: Deals Medium. Een oude save zonder mandaat behou
 | Slice | Inhoud | Status |
 |---|---|---|
 | S3.1 | Deals-mandaat + rapportage over wat de grens liet liggen + test | TESTED |
-| S3.2 | Rapport per window en hit rate; vertrouwen in de directeur | PLANNED |
+| S3.2 | Windowverslag, retrospectieve aankoopbeoordeling, op echte optredens gebaseerde betrouwbaarheid per directeur; regressietest toegevoegd | CI ENGINE PASS / BROWSER OPEN |
 | S3.3 | Sales- en Contracts-mandaat; voorstellen voor verlengen | PLANNED |
 | S3.4 | Trainer: stijl en youth-minutes-mandaat | PLANNED |
 | S3.5 | Scouts als personen; staf die vertrekt of wordt overgenomen | PLANNED |
 | S3.6 | Validatie: gepaarde scenario's (krap v. ruim mandaat, 5 seizoenen), 10-seizoenen-gate, mobiel | PLANNED |
 
 ## State en migratie
-`F(id).policy.mandate={deals}` (ontbreekt in oude saves = Large). `S.ops.missed` (alleen speler, max 12 bewaard). Geen verplichte schemaverhoging: veilige defaults bij laden (`opsAfterLoad`; een eerder opgeslagen `S.ops.proposals` wordt verwijderd).
+`F(id).policy.mandate={deals}` (ontbreekt in oude saves = Large). `S.ops.missed` (alleen speler, max 12 bewaard). Geen verplichte schemaverhoging: veilige defaults bij laden via optionele `onFeature('saveLoaded')`; een eerder opgeslagen `S.ops.proposals` wordt verwijderd.
 
 ## Acceptatie
 - Bij Small mandaat noteert de directeur wat boven de grens valt; bij Large niets.
@@ -60,3 +60,19 @@ Standaard voor een nieuwe club: Deals Medium. Een oude save zonder mandaat behou
 ## Beperkingen
 - Alleen het Deals-mandaat bestaat; Sales, Contracts en de trainer volgen (S3.3, S3.4).
 - De directeur heeft nog geen stijl of tevredenheid: een krap mandaat heeft geen gevolgen voor zijn blijven (S3.5).
+
+## S3.2 — windowverantwoording en onderbouwd vertrouwen (ChatGPT, PR #6)
+
+**Modulegrens:** `src/layers/autonomy/director-accountability.js` (engine) en `src/layers/autonomy/director-accountability-ui.js` (weergave). De gameklok verspreidt alleen het generieke `weekClosed`-event; `club/recruitment.js` verspreidt `transferWindowClosed`. De optionele module registreert zich via `core/layers.js`. Een ontbrekende module wordt door de basissimulatie genegeerd; controle via `tests/layer-isolation-test.js`. Zie `docs/LAYER_CONTRACT.md`.
+
+**S3.1-modulegrens (nieuw):** `src/layers/autonomy/director-deals.js` en `director-deals-ui.js` dragen de mandaatlogica, UI en command. De normale `node build.js` sluit beide uit. `NORTHMARCH_BUILD_MODE=autonomy node build.js` is een expliciete ontwikkelmodus. **Niet claimen dat L3 productmatig voltooid is:** vóór nieuwe autonomieslices moet Basisspel V1 zelf aantoonbaar speelbaar én leuk zijn.
+
+- `tdClose()` bewaart een begrensd vensterverslag in `S.ops.reports` (maximaal acht vensters): echte aankopen, gemiste kandidaten en geregistreerde transfergebeurtenissen. De verantwoordelijke directeur wordt via persoon-ID vastgelegd.
+- `directorSigningApps()` leest cluboptredens uit de actuele spelersstatistieken én historische clubstints: een seizoenswissel wist bewijs niet. Optredens bij de vorige club of op huurbasis tellen niet voor het huidige aankoopresultaat.
+- Een aankoop met minder dan acht optredens na een volledig seizoen krijgt zichtbaar *Limited involvement*. Dat is een aparte waarschuwing, geen verzonnen oordeel in de scouting-hit-rate.
+- `directorAuditWeek()` bevriest de evaluatie nadat een aankoop acht cluboptredens heeft gemaakt. Oordeel: de werkelijke spelerskwaliteit op het moment van tekenen lag ten minste binnen één punt van de oorspronkelijke scoutinginschatting, of niet. Later doorgroeien of vertrekken verandert dat oordeel niet achteraf.
+- `directorTrust()` berekent de betrouwbaarheid per **feitelijke directeur** uit beoordeelde aankopen. Onder drie beoordeelde aankopen: *te vroeg om te oordelen*. Geen verzonnen score op basis van een transferwindow of één uitslag. Nieuwe directeur krijgt geen automatisch geërfde reputatie.
+- Club → Football toont de historische vensters en betrouwbaarheid naast de bestaande mandaatkeuzes. Dit is **informatieve verantwoording**: het mandaat, de stafbaan en wedstrijden worden niet automatisch door deze score gewijzigd; vergaande stafautonomie en tevredenheid blijven S3.5.
+- `tests/l3-s32-test.js` test vensters, bewijsdrempel, identiteitswisseling, seizoensreset en save/load; opgenomen in `tests/run-fast.sh`.
+
+**Grenzen en controlepunten:** De metriek meet scoutingbetrouwbaarheid bij daadwerkelijk gebruikte spelers, niet direct winstpunten, transferwinst of het totale niveau van de technisch directeur. Spelers met te weinig optredens blijven zonder oordeel. Werkelijke end-to-end browserreview is niet uitgevoerd. CI en testuitslag moeten op de PR vastgelegd worden voordat S3.2 als getest geldt.

@@ -127,7 +127,7 @@ function enrichLegacyWorld(){
     c.devCulture??=45;c.identity??='Community club';
   }
 }
-function deserialize(txt){S=migrate(JSON.parse(txt));expandLegacyPyramid();for(const [id,sq] of Object.entries(S.squads))for(const p of sq)if(p.academy&&!p.originClub)p.originClub=p.loan?.from||p.club||id;if(!S.foreign)S.foreign=foreignInit();foreignSquadInit();enrichLegacyWorld();foreignRestoreCalendar();staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();youthAfterLoad();return S}
+function deserialize(txt){S=migrate(JSON.parse(txt));expandLegacyPyramid();for(const [id,sq] of Object.entries(S.squads))for(const p of sq)if(p.academy&&!p.originClub)p.originClub=p.loan?.from||p.club||id;if(!S.foreign)S.foreign=foreignInit();foreignSquadInit();enrichLegacyWorld();foreignRestoreCalendar();staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();youthAfterLoad();fireFeatureEvent('saveLoaded',{season:S.season,week:S.week});return S}
 function save(){if(!HAS_DOM)return false;try{localStorage.setItem(SAVE_KEY,serialize());return true}catch(e){return false}}
 function hasSave(){if(!HAS_DOM)return false;try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
 function load(){if(!HAS_DOM)return false;try{const t=localStorage.getItem(SAVE_KEY);if(!t)return false;deserialize(t);return true}catch(e){return false}}

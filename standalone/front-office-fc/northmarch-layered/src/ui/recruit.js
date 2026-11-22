@@ -2,22 +2,6 @@
    Responsible → aim → current work → results → the chairman's choices. Everything shown comes from S.ops and the squad. */
 const NEED_WORD={hole:'Gap',contract:'Contract',leaving:'Leaving',ageing:'Succession',upgrade:'Upgrade'};
 function needWhen(n){return n.kind==='contract'?`Renewal talks in week ${RENEW_WEEK}`:S.week<WINTER_WEEK&&n.kind==='hole'?`Winter window (week ${WINTER_WEEK}) only if injuries leave it bare; otherwise the summer`:'The summer window'}
-/* what the director's limit leaves on the table: information for the chairman, nothing to approve */
-function missedPanel(){
-  const ms=(S.ops&&S.ops.missed)||[],above=ms.filter(p=>p.status==='above'),past=ms.filter(p=>p.status==='missed'&&(p.s===S.season||p.s===S.season-1)).slice(-3),m=mandateOf(S.my).deals,next=m==='small'?'medium':'large';
-  if(!above.length&&!past.length)return'';
-  const row=p=>`<div class="row small"><span><b>${esc(p.name)}</b> · ${POS_ONE[p.pos]}, ${p.age}${p.from?` · ${nm(p.from)}`:' · free agent'}<br><span class="muted">${esc(p.need)}.</span></span><span style="text-align:right"><b>${k1(p.fee)}</b><br><span class="muted">his view ${p.est} ± ${p.range}</span></span></div>`;
-  return`<div class="panel prop"><p class="eyebrow">${esc(tdOf(S.my).name)}: above your limit</p>
-  ${above.length?`<p class="small muted">He would go for these but your limit of ${k1(above[0].cap)} a deal stops him. You do not have to decide anything: he signs within the limit.</p>${above.map(row).join('')}
-  ${m!=='large'?`<button class="btn ghost" data-act="mandate" data-arg="${next}">Widen his limit to ${MANDATE_DEALS[next].n}</button>`:''}`:''}
-  ${past.length?`<p class="eyebrow" style="margin-top:12px">Left alone last window</p>${past.map(row).join('')}`:''}</div>`;
-}
-function mandatePanel(){
-  const m=mandateOf(S.my).deals,cap=dealCap(S.my);
-  return`<div class="panel"><p class="eyebrow">The director's mandate</p><p class="small muted">How much he may decide alone. Above the limit he leaves a deal alone; you see afterwards what that cost.</p>
-  <p class="small"><b>Deals</b></p><div class="seg grid3">${Object.entries(MANDATE_DEALS).map(([k,x])=>`<button class="${m===k?'on':''}" data-act="mandate" data-arg="${k}" aria-pressed="${m===k}">${x.n}</button>`).join('')}</div>
-  <p class="note">${esc(MANDATE_DEALS[m].d)}${cap===Infinity?'':` Right now: up to ${k1(cap)} a deal.`}</p></div>`;
-}
 function coursePanel(){
   const p=F(S.my).policy,cur=p.course&&COURSE[p.course];
   return`<div class="panel"><p class="eyebrow">Club course</p><p class="small muted">One choice sets the wage frame, transfer money, loans and recruitment together. The director follows it in every window.</p>
@@ -27,14 +11,14 @@ function coursePanel(){
 function recruitPanels(){
   const id=S.my,ops=OPS(),pl=ops.plan,td=tdOf(id),st=recruitStrategy(id),open=pl.needs.filter(n=>n.status==='open'),done=pl.needs.filter(n=>n.status!=='open').slice(0,5);
   const watch=ops.shortlist.filter(e=>e.status==='watching').sort((a,b)=>b.est-a.est).slice(0,8),rev=signingReview(),noise=scoutNoise(id);
-  return missedPanel()+coursePanel()+mandatePanel()+`<div class="panel"><p class="eyebrow">Recruitment · ${esc(td.name)}</p><p class="small muted">The director plans the squad and signs within your frame; the scouting department watches players for him every week.</p>
+  return featurePanel('recruitment:beforePolicy')+coursePanel()+featurePanel('recruitment:afterPolicy')+`<div class="panel"><p class="eyebrow">Recruitment · ${esc(td.name)}</p><p class="small muted">The director plans the squad and signs within your frame; the scouting department watches players for him every week.</p>
   <p class="small"><b>Your strategy for him</b></p><div class="seg grid4">${Object.entries(RECRUIT).map(([k,r])=>`<button class="${st===k?'on':''}" data-act="recruit" data-arg="${k}" aria-pressed="${st===k}">${r.n}</button>`).join('')}</div>
   <p class="note">${esc(RECRUIT[st].d)}. It changes whom he picks in the next window, not who is already here.</p></div>
   <div class="panel"><p class="eyebrow">Squad plan · updated ${pl.s?`S${pl.s} W${pl.w}`:'—'}</p>${open.length?open.slice(0,5).map(n=>`<div class="row small"><span><b>${NEED_WORD[n.kind]}: ${POS_ONE[n.pos]}</b><br>${esc(n.why)}<br><span class="muted">${esc(needWhen(n))}</span></span><span class="pill ${n.prio>=3?'bad':''}">${n.prio>=3?'Urgent':n.prio===2?'Soon':'Later'}</span></div>`).join('')+(open.length>5?`<p class="small muted">And ${open.length-5} more, lower down the list.</p>`:''):'<p class="small muted">No open needs: the squad covers every position.</p>'}
   ${pl.ready.length?`<p class="small"><b>Ready to step up:</b> ${pl.ready.map(r=>`${esc(r.name)} (${r.pos}, ${r.q})`).join(', ')}</p>`:''}
   ${done.length?`<p class="small muted">Recently: ${done.map(n=>`${NEED_WORD[n.kind]} ${n.pos} ${n.status==='filled'?'filled by '+esc(n.by.name):n.status==='lapsed'?'player left':'solved'}`).join(' · ')}</p>`:''}</div>
   <div class="panel"><p class="eyebrow">Shortlist · ${scoutObservations(id)} look${scoutObservations(id)>1?'s':''} a week</p><p class="small muted">More scouting staff and a better scouting office mean more looks and sharper estimates. Each look narrows the range.</p>
-  ${watch.length?watch.map(e=>{const rg=scoutRange(id,e.obs);return`<div class="row small"><span><b>${esc(e.name)}</b> <span class="muted">${e.pos}, ${e.age} · ${e.from?esc(CL(e.from).name):'free agent'}</span>${e.reason?`<br><span class="muted">Last window: ${esc(e.reason.toLowerCase())}</span>`:''}</span><b>${e.est} ±${rg}<br><span class="small muted">${e.obs} look${e.obs>1?'s':''}</span></b></div>`}).join(''):'<p class="small muted">The scouts start watching as soon as the plan has needs.</p>'}</div>
+  ${watch.length?watch.map(e=>{const rg=scoutRange(id,e.obs);return`<div class="row small"><span><b>${esc(e.name)}</b> <span class="muted">${e.pos}, ${e.age} · ${e.from?esc(marketClubName(e.from)):'free agent'}</span>${e.reason?`<br><span class="muted">Last window: ${esc(e.reason.toLowerCase())}</span>`:''}</span><b>${e.est} ±${rg}<br><span class="small muted">${e.obs} look${e.obs>1?'s':''}</span></b></div>`}).join(''):'<p class="small muted">The scouts start watching as soon as the plan has needs.</p>'}</div>
   <div class="panel"><p class="eyebrow">Signings: judged then, seen now</p>${rev.length?rev.map(x=>`<div class="row small"><span><b>${esc(x.name)}</b> <span class="muted">${x.pos}, S${x.s} · ${x.fee?'£'+x.fee+'k':'free'} · ${esc(x.need)}${x.scouted?` · watched ${x.obs}×`:' · not scouted'}</span></span><b class="${x.now!=null&&x.now<x.est-1?'down':''}">${x.est} → ${x.now??'—'}<br><span class="small muted">${x.apps!=null?x.apps+' apps · ':''}${esc(x.where)}</span></b></div>`).join('')+'<p class="note">Left: the director\'s estimate when he signed him. Right: the player\'s level now.</p>':'<p class="small muted">No signings since you took office.</p>'}</div>`;
 }
 

@@ -56,7 +56,7 @@ function act(a,arg){
     case'appeal':{const r=cmd('Fundraise',S.my,{});say(r,r.ok?`The appeal raised £${r.res}k.`:null);break}
     case'sellground':say(cmd('SellGround',S.my,{}),'The ground is sold.');UI.confirm=null;break;
     case'buyback':say(cmd('BuyBackGround',S.my,{}),'The ground is ours again.');break;
-    case'mandate':say(cmd('SetMandate',S.my,{deals:arg}),'The director follows the new limit when the window closes.');break;
+
     case'course':say(cmd('SetSquadPolicy',S.my,{course:arg}),'The director follows the new course from the next window.');break;
     case'recruit':say(cmd('SetSquadPolicy',S.my,{recruit:arg}),`Recruitment strategy: ${RECRUIT[arg].n}.`);break;
     case'dues':say(cmd('SetDues',S.my,{delta:+arg}));break;
@@ -65,6 +65,7 @@ function act(a,arg){
     case'spend':say(cmd('SetSquadPolicy',S.my,{spend:+arg}));break;
     case'confirm':UI.confirm=arg||null;break;
     case'release':{const r=cmd('ReleasePlayer',S.my,{pid:arg});say(r);if(r.ok){UI.over=null;UI.confirm=null}break}
+    default:featureAction(a,arg);break;
   }
   if(S&&!UI.title&&(S.phase!=='choose'||S.career.length))save();
   render();

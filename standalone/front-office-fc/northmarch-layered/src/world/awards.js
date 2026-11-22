@@ -44,3 +44,20 @@ function worldLatestNews(limit=8){
   return(S.worldLog||[]).filter(x=>x.priority>=2)
     .slice().sort((a,b)=>b.s-a.s||b.w-a.w||b.priority-a.priority).slice(0,limit);
 }
+
+/* Where the football pyramid is heading: derived directly from seasons played. */
+function worldTrends(){
+  const clubs=Object.values(S.clubs).filter(c=>c.hist.length>=2).map(c=>{
+    const first=c.hist[Math.max(0,c.hist.length-5)],last=c.hist[c.hist.length-1],oldTier=first.tier,newTier=c.tier;
+    return{id:c.id,name:c.name,from:oldTier,to:newTier,delta:oldTier-newTier,
+      rep:c.rep,culture:c.devCulture??45,identity:c.identity||'Community club',
+      period:S.season-first.s,position:last.pos};
+  });
+  const rise=clubs.filter(c=>c.delta>0).sort((a,b)=>b.delta-a.delta||b.rep-a.rep).slice(0,5);
+  const fall=clubs.filter(c=>c.delta<0).sort((a,b)=>a.delta-b.delta||a.rep-b.rep).slice(0,5);
+  const academies=clubs.filter(c=>c.culture>=55).sort((a,b)=>b.culture-a.culture).slice(0,5);
+  const young=Object.entries(S.squads).flatMap(([club,sq])=>sq.filter(p=>p.age<=23&&p.sApps>=5&&p.grown>.08)
+    .map(p=>({id:p.id,club,name:p.name,age:p.age,growth:r2(p.grown),apps:p.sApps})))
+    .sort((a,b)=>b.growth-a.growth||b.apps-a.apps).slice(0,6);
+  return{rise,fall,academies,young};
+}

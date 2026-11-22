@@ -91,7 +91,14 @@ function recordDecision(id,pos,best,evaluated,mustHave){
   if(!best)return;
   const e=ops.shortlist.find(x=>x.pid===best.p.id);if(e){e.status='signed';e.reason='Signed'}
   const need=ops.plan.needs.find(n=>n.status==='open'&&n.pos===pos)||ops.plan.needs.find(n=>n.status==='open'&&NEAR[best.p.pos].includes(n.pos));
-  if(need){need.status='filled';need.closed=[S.season,S.week];need.by={pid:best.p.id,name:best.p.name}}
+  if(need){
+    // A signing only resolves a shortage when the required positional cover actually exists.
+    // Contracts, departures and succession risks are not automatically solved by any arrival.
+    const sq=S.squads[id],count=sq.filter(p=>!p.loan&&p.pos===need.pos).length;
+    const resolved=need.kind==='hole'&&count>=REQ[need.pos];
+    if(resolved){need.status='filled';need.closed=[S.season,S.week];need.by={pid:best.p.id,name:best.p.name}}
+    else{need.lastSigning={pid:best.p.id,name:best.p.name,s:S.season,w:S.week};}
+  }
   ops.signings.push({pid:best.p.id,name:best.p.name,pos:best.p.pos,age:best.p.age,fee:best.fee,est:r1(best.seen??best.p.q),q0:r1(best.p.q),s:S.season,w:S.week,need:need?need.why:(mustHave?'Emergency cover':'Squad strengthening'),scouted:!!e,obs:e?e.obs:0,strategy:recruitStrategy(id)});
   if(ops.signings.length>20)ops.signings.shift();
 }

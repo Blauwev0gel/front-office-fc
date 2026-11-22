@@ -211,8 +211,9 @@ function directorWindowReviews(){
   return (S.ops?.reports||[]).slice().reverse().map(r=>{
     const players=(r.signed||[]).map(x=>{
       const evidence=directorSigningApps(x),p=evidence.player;
+      const elapsed=(S.season-(x.s??r.s))*SEASON_WEEKS+S.week-(x.w??r.w);
       const verdict=x.assessment?(x.assessment.result==='meeting'?'Met estimate':'Below estimate'):
-        !p?'Unavailable':evidence.club!==S.my?'Departed before assessment':'Too early';
+        !p?'Unavailable':evidence.club!==S.my?'Departed before assessment':elapsed>=SEASON_WEEKS?'Limited involvement':'Too early';
       return {...x,apps:evidence.apps,current:p?r1(p.q):null,club:evidence.club,verdict};
     });
     const assessed=players.filter(x=>x.assessment);

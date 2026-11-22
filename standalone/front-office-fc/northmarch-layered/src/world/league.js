@@ -24,7 +24,7 @@ function startSeason(){
     const byStr=ids.slice().sort((x,y)=>teamStrength(y)-teamStrength(x));byStr.forEach((id,i)=>CL(id).expect=i+1);
     ids.forEach(id=>S.tbl[id]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,ded:0,form:[]});}
   S.week=0;S.matches=[];
-  S.cup={round:0,alive:tierIds(1).concat(tierIds(2)),ties:[],winner:null,log:[]};
+  S.cup={round:0,alive:TIERS.flatMap(t=>tierIds(t)).slice(0,64),ties:[],winner:null,log:[]};
   cupDraw();
   setGoalsAll();
 }
@@ -49,7 +49,7 @@ function playWeekMatches(w){
   return out;
 }
 function cupDraw(){
-  const cup=S.cup;if(cup.round===1)cup.alive=cup.alive.concat(tierIds(0));
+  const cup=S.cup;
   const a=shuffle(cup.alive.slice());cup.ties=[];
   for(let i=0;i+1<a.length;i+=2)cup.ties.push({h:a[i],a:a[i+1]});
 }

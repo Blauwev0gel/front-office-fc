@@ -22,7 +22,8 @@ const MIGRATIONS={
     for(const id in s.clubs){const c=s.clubs[id];c.rep??=Math.round(Math.max(10,Math.min(95,[68,48,28][c.tier]+(c.support-[3000,1700,850][c.tier])/120)))}
     for(const id in s.fin)s.fin[id].policy.loans??=true;s.v=6;},
   // 6 → 7: club records and richer season history (filled after loading: projectsAfterLoad)
-  7:s=>{s.records=s.records||{};s.v=7;}
+  7:s=>{s.records=s.records||{};s.v=7;},
+  8:s=>{s.foreign=s.foreign||null;s.v=8;}
 };
 function migrate(s){
   if(!s||typeof s.v!=='number'||s.v<1)throw new Error('Not a Northmarch layered save');
@@ -32,7 +33,7 @@ function migrate(s){
 }
 function schemaVersion(){return VERSION}
 function serialize(){return JSON.stringify(S)}
-function deserialize(txt){S=migrate(JSON.parse(txt));staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();youthAfterLoad();return S}
+function deserialize(txt){S=migrate(JSON.parse(txt));if(!S.foreign)S.foreign=foreignInit();staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();youthAfterLoad();return S}
 function save(){if(!HAS_DOM)return false;try{localStorage.setItem(SAVE_KEY,serialize());return true}catch(e){return false}}
 function hasSave(){if(!HAS_DOM)return false;try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
 function load(){if(!HAS_DOM)return false;try{const t=localStorage.getItem(SAVE_KEY);if(!t)return false;deserialize(t);return true}catch(e){return false}}

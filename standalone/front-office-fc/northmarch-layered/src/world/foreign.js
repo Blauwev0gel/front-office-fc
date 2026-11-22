@@ -69,6 +69,27 @@ function foreignTransferWindow(){
       break;
     }
   }
+  // Domestic clubs can sign affordable foreign players where the squad has a real gap.
+  for(const to of shuffle(Object.keys(S.clubs))){
+    const dest=S.squads[to];if(dest.length>=SQUAD_MAX-1)continue;
+    const short=POS.filter(pos=>dest.filter(p=>p.pos===pos).length<REQ[pos]);
+    if(!short.length)continue;
+    const pos=pick(short),cash=budgetFor(to);
+    if(cash<=0)continue;
+    const sellers=shuffle(ids);
+    for(const from of sellers.slice(0,16)){
+      const source=f.squads[from],options=source.filter(p=>p.pos===pos&&p.age<=30&&source.filter(x=>x.pos===pos).length>REQ[pos]&&p.q>=10);
+      if(!options.length)continue;
+      const p=pick(options),fee=Math.max(1,Math.round(playerValue(p)*1.2));
+      if(fee>cash||wageBillK(to)+wageFor(p.q)/1000>wageCapK(to))continue;
+      source.splice(source.indexOf(p),1);dest.push(p);
+      book(to,'feesOut',-fee);f.clubs[from].budget+=fee;
+      p.club=to;p.joined=S.season;p.contract=ri(2,4);p.wage=moveWage(p,to);
+      f.market.log.push({season:S.season,week:S.week,pid:p.id,name:p.name,from,to,fee});
+      emit('Transfer',to,`${p.name} joins ${CL(to).name} from ${f.clubs[from].name} for £${fee}k.`,{pid:p.id,c2:from,fee,why:'international scouting'});
+      break;
+    }
+  }
   // Foreign clubs also recruit from one another to replace gaps and circulate talent.
   for(const id of ids){
     const buyer=f.clubs[id],sq=f.squads[id],target=pick(POS);
@@ -158,6 +179,29 @@ function foreignWeek(w){
     if(winners.length===1)euro.winner=winners[0];
   }
 }
+function foreignPlayerSeasonEnd(){
+  const f=S.foreign;if(!f)return;
+  for(const [id,sq] of Object.entries(f.squads||{})){
+    const club=f.clubs[id];
+    for(const p of sq.slice()){
+      p.career=p.career||[];
+      p.career.push(`${club.name} ${S.season}: foreign league`);
+      if(p.career.length>12)p.career.shift();
+      p.age++;p.contract--;
+      if(p.age>=35||p.contract<=0){sq.splice(sq.indexOf(p),1);continue}
+      if(p.age<=24&&p.q<p.pa)p.q=Math.min(p.pa,p.q+(p.pa-p.q)*(.04+rnd()*.08));
+      if(p.age>=31)p.q=Math.max(4,p.q-(p.age-30)*.045);
+      p.q=r1(p.q);
+    }
+    for(const pos of POS){
+      const min=Math.max(2,Math.ceil(REQ[pos]*.8));
+      while(sq.filter(p=>p.pos===pos).length<min){
+        const q=11.5+(club.strength-50)/4-2+rnd()*2;
+        sq.push(newPlayer(pos,{q,age:ri(17,24),contract:ri(2,4),club:id}));
+      }
+    }
+  }
+}
 function foreignSeasonEnd(){
   const f=S.foreign;if(!f)return;
   if(f.lastSeason>=S.season)return;
@@ -180,6 +224,7 @@ function foreignSeasonEnd(){
   const euro=f.current.europe;
   f.europe.seasons.push({season:S.season,participants:euro.participants,rounds:euro.rounds,winner:euro.winner});
   if(f.europe.seasons.length>25)f.europe.seasons.shift();
+  foreignPlayerSeasonEnd();
   f.lastSeason=S.season;
   f.current=null;
 }

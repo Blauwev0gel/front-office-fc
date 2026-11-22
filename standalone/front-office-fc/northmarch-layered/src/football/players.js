@@ -142,7 +142,7 @@ function playersSeasonEnd(id){
   for(const p of sq.slice())if(p.age>=18&&p.age<=21&&!p.loan&&!keep.includes(p)&&p.pa<sqq-.3&&sq.length>SQUAD_MIN){sq.splice(sq.indexOf(p),1);left.push(p);youthLeft(p,'released');faAdd(p,'released by the academy',id);if(id===S.my)emit('PlayerLeft',id,`${p.name} is released: he will not make the grade.`,{pid:p.id})}
   const a=sg.academy,n=1+(a>=3?1:0)+(a>=6?1:0),base=11.5+(tierBaseStr(c.tier)-50)/4;
   const kids=[];
-  for(let i=0;i<n;i++){const q=base-3.2+.25*a+rnd()*1.2;const k=newPlayer(pick(POS.slice(1)),{age:ri(16,17),q,pa:q+1+.35*a+rnd()*2.5,academy:true,contract:2,club:id,trait:sg.academyLocal&&rnd()<.4?'local hero':null});
+  for(let i=0;i<n;i++){const q=base-3.2+.25*a+((c.devCulture??45)-45)*.009+rnd()*1.2;const k=newPlayer(pick(POS.slice(1)),{age:ri(16,17),q,pa:q+1+.35*a+((c.devCulture??45)-45)*.015+rnd()*2.5,academy:true,contract:2,club:id,trait:sg.academyLocal&&rnd()<.4?'local hero':null});
     k.career.push('Academy');sq.push(k);kids.push(k)}
   youthIntake(id,kids);
   S.stats[id].intake=kids.length;S.stats[id].intakeBest=r1(Math.max(...kids.map(k=>k.pa)));

@@ -91,6 +91,25 @@ function foreignTransferWindow(){
   const abroad=shuffle(Object.keys(f.clubs)),home=shuffle(Object.keys(S.clubs)),affected=new Set();
   const foreignOptions=(from,pos)=>f.squads[from].filter(p=>p.pos===pos&&p.age<=31&&
     f.squads[from].filter(x=>x.pos===pos).length>REQ[pos]&&p.inj<=0&&p.contract>0);
+  // Foreign clubs participate in the same free-agent pool after Northmarch's
+  // domestic directors have completed their first summer recruitment pass.
+  for(const to of abroad){
+    const sq=f.squads[to],club=f.clubs[to];
+    if(sq.length>=SQUAD_MAX)continue;
+    const gaps=POS.filter(pos=>sq.filter(p=>p.pos===pos).length<REQ[pos]);
+    if(!gaps.length)continue;
+    const pos=pick(gaps),options=S.fa.filter(p=>p.pos===pos&&p.age<=32&&p.q>=10);
+    if(!options.length)continue;
+    const p=options.sort((a,b)=>Math.abs(a.q-(11.5+(club.strength-50)/4))-Math.abs(b.q-(11.5+(club.strength-50)/4)))[0];
+    const signing=Math.max(1,Math.round(playerValue(p)*.04));
+    if(club.budget<signing+10)continue;
+    S.fa.splice(S.fa.indexOf(p),1);
+    club.budget-=signing;p.club=to;p.joined=S.season;p.contract=ri(2,4);
+    p.wage=Math.round(wageFor(p.q)*1.03/5)*5;
+    p.history=p.history||[];p.history.push({season:S.season,week:S.week,type:'free',to});
+    sq.push(p);
+    emit('ForeignSigning',null,`${club.name} sign free agent ${p.name}.`,{pid:p.id,foreignClub:to});
+  }
   // Northmarch directors seek an imported player only when the existing squad
   // has a genuine gap or there is a clear, affordable quality improvement.
   for(const to of home){

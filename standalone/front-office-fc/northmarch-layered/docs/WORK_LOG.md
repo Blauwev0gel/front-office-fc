@@ -1,3 +1,47 @@
+## 2026-11-22 — SLIMLINE: integrale ontwikkeling zes blokken (broncode, nog niet gevalideerd)
+
+**Context.** De eerste implementatierondes waren te beperkt en er ontbrak een gekoppelde voetbalsimulatie. Deze sessie voert de zes architectuurblokken integraal uit op `claude/loving-goodall-uv00vn` zonder extra verhalen, chairman dilemma's, staff agents of dynasty. Het verzoek is **code ontwikkelen; geen build of tests uitvoeren**. Alle wijzigingen staan op de ontwikkelbranch; er is niets gemerged of gedeployed.
+
+### Blok 1 — Competities en savegames
+- Northmarch heeft vijf divisies met 16 clubs en een nationale beker met 80 teams. De externe zes landen hebben elk een werkelijk wekelijks schema en gespeelde uitslagen, Europa heeft een 16-team knockout op weken 6, 11, 17, 25 (niet dezelfde week als de nationale beker).
+- Europese resultaten beïnvloeden Northmarch-spelers met aparte Europese apps/goals, blessurekans, moraal, belasting naar de volgende week en geldontvangsten via de wekelijkse kasboekhouding. Buitenlandse clubs krijgen eigen gespeelde XI-statistieken, doelpuntenmakers en standen.
+- Save-schema naar versie 9; migratie 48→80 clubs, reconstructie van lopende wedstrijden in nieuwe lagere divisies, legacy nationale beker, herstellen ontbrekende buitenlandse kalenders en deterministische defaults voor historische spelers en clubrecords. Exacte ontbrekende historische buitenlandscores kunnen niet worden teruggehaald.
+
+### Blok 2 — Verbonden transfermarkt
+- 72 buitenlandse clubs bezitten persistente selecties met spelers-ID, contract, nationaliteit, eigenschappen, blessures en kwaliteit.
+- Eén `foreignMove`-mutatie verwerkt transfers in beide richtingen en tussen buitenlandse clubs; validatie van eigenaarschap, beschikbare posities, transfersommen en salarisgrenzen, spelerambitie en loyaliteit.
+- Normale technisch directeur vindt buitenlandse spelers via de bestaande scoutPool/shopFor-flow; buitenlandse transfers verschijnen in scoutingrapporten, marktnieuws en financieel grootboek.
+- Buitenlandse clubs verlengen contracten, produceren vrijgevallen spelers en tekenen spelers via dezelfde free-agentpool. Recruitment demands volgen daadwerkelijk surplus en tekorten; clubs reageren op verkochte dekking.
+
+### Blok 3 — Herkenbare individuele carrières
+- Individuele ontwikkelpaden, piekleeftijden, speelstijlen, loyaliteit, ambitie, afkomst, vorm en clubaanpassing.
+- `playerCloseStint` legt een tussentijdse periode per club vast bij transfers en verhuur; doelen en assists worden niet zonder meer naar het nieuwe team overgedragen; buitenlandse carrière telt apart van domestic.
+- Echte titels/bekers, ontwikkelings-doorbraken, contract-/verlengingshistorie en Europese prestaties worden bijgehouden en getoond.
+
+### Blok 4 — Veranderende clubs
+- Clubheritage met titels, bekers, promoties, degradaties en hoogste divisie; rep groeit door daadwerkelijke prestaties over meerdere seizoenen.
+- De echte wedstrijden voeden rivaliteitssterkte; die slijt zonder wedstrijden en kan organisch overschaduwd worden door nieuwe rivalen.
+- Aandeel van eigen-opleiding-spelers in de gespeelde minuten beïnvloedt de clubcultuur, en die cultuur beïnvloedt jeugdontwikkeling. Afgeleide clubidentiteiten tonen verhaallijnen die uit data voortkomen.
+
+### Blok 5 — Wedstrijddynamiek
+- Trainer-specifieke matchups, spelersstijlen in het basiselftal, aanvals- en verdedigingssynergie, vorm en scorers beïnvloeden daadwerkelijke xG en uitslagen, begrensd zodat elftalkwaliteit leidend blijft.
+- Uitslagen, persoonlijke doelpunten en derby's beïnvloeden moraal en vorm. Europese en nationale belasting geven prestaties in volgende wedstrijden consequenties.
+
+### Blok 6 — De levende voetbalwereld zichtbaar
+- `world/awards.js` maakt een bounded persistent feitenarchief, seizoenprijzen en trends van groeiende/dalende clubs, jeugdontwikkelaars en doorbrekende spelers.
+- `ui/history.js` biedt Europa/landen, transfers, clubtrends, wereldnieuws en spelersprijzen; `ui/render.js` geeft Europees voorbeschouwings- en resultaatenscherm en voetbalnieuws in de wekelijkse loop.
+- `ui/club.js` toont geschiedenis/identiteit/jeugd, individuele rollen/levensloop/statistieken en seizoensprijzen.
+- Speelkeuze en na wegstemmen beschikbaarheid omvat nu alle vijf divisies; starten in de onderste divisie is dus mogelijk.
+
+### Integratie/structuur
+- Nieuw: `src/world/awards.js`, `src/world/rivalry.js`; in `build.js` opgenomen.
+- Bijgewerkt: `docs/ARCHITECTURE.md`, `docs/layers/L1-SIMULATION.md`, `docs/SLIMLINE_WORLD_ROADMAP.md` (alle zes status IMPLEMENTING). Historische drie-divisiedocumenten zijn niet langer geldige bron van waarheid.
+- Er is **geen build, geautomatiseerde test, 10-20-seizoenstest of browserplaytest** uitgevoerd op deze wijzigingen. Nieuwe code is syntactisch geïnspecteerd, maar dat bewijst geen functionele integratie of balans. Releasegate en bewijs blijven open.
+
+**Open aandachtspunten:** 20-seizoenen-balans van financiën/transferstromen, historisch correcte save-integratie, prijs- en salarisbalans van buitenland, kwaliteit van wedstrijden en echte mobiele bruikbaarheid. Geen van de zes blokken is op grond van deze sessie als COMPLETE gemarkeerd.
+
+---
+
 # Werklog
 
 ## 2026-11-21 — Fase 0 / Poort A laag 1

@@ -21,7 +21,7 @@ ok(S.phase==='season'&&S.week===0,'chairman chooses a club and starts the base s
 ok(!S.fin[id].policy.mandate&&!S.ops.missed&&!S.ops.reports,
   'default club has no hidden mandates, missed targets or director-accountability state');
 ok(E.featureRule('dealCap',id,Infinity)===Infinity,'ordinary transfer market has no deal-mandate cap');
-ok(E.featurePanel('directorDealsInfo')===''&&E.featurePanel('directorAccountability')==='',
+ok(E.featurePanel('recruitment:beforePolicy')===''&&E.featurePanel('recruitment:afterPolicy')==='',
   'optional L3 interface slots are empty');
 ok(!E.cmd('SetMandate',id,{deals:'small'}).ok,'base game cannot change an L3-only mandate');
 let uiError=null,played=0;

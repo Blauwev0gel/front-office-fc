@@ -24,10 +24,11 @@ function moveWage(p,toId){return Math.round(wageFor(p.q)*(0.95+rnd()*.25)/5)*5}
 function transfer(p,from,to,fee,why,premium){
   const sq=S.squads[from];sq.splice(sq.indexOf(p),1);if(from===S.my)youthLeft(p,'sold',to,fee);
   if(fee){book(to,'feesOut',-fee);book(from,'feesIn',fee)}
+  p.history=p.history||[];p.history.push({season:S.season,week:S.week,type:'transfer',from,to,fee});
   p.wage=Math.round(moveWage(p,to)*(premium?1.3:1)/5)*5;p.contract=ri(2,3);p.club=to;p.joined=S.season;S.squads[to].push(p);
   emit('Transfer',to,`${p.name} joins ${CL(to).name} from ${CL(from).name}${fee?` for £${fee}k`:''}.`,{c2:from,pid:p.id,fee,why});
 }
-function signFree(p,to){S.fa.splice(S.fa.indexOf(p),1);p.wage=moveWage(p,to);p.contract=ri(1,2);p.club=to;p.joined=S.season;S.squads[to].push(p);
+function signFree(p,to){S.fa.splice(S.fa.indexOf(p),1);p.history=p.history||[];p.history.push({season:S.season,week:S.week,type:'free',to});p.wage=moveWage(p,to);p.contract=ri(1,2);p.club=to;p.joined=S.season;S.squads[to].push(p);
   emit('Signing',to,`${CL(to).name} sign free agent ${p.name} (${POS_ONE[p.pos]}).`,{pid:p.id})}
 /* releasing a player costs a quarter of what is left on his contract */
 function releaseCost(p){return r1(p.wage*SEASON_WEEKS*Math.max(0,p.contract)/1000*.25)}

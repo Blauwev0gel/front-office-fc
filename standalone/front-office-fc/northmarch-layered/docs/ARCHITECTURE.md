@@ -22,7 +22,7 @@ Slimline is de autonome voetbalwereld die onder latere management-, staff-, verh
 | Financiën | `club/finance.js`, `club/commercial.js` | `S.fin`; uitsluitend `book()` wijzigt Northmarch-kas |
 | Opleiding en scouting | `club/youth.js`, `club/recruitment.js` | jeugdtrajecten, directeurbesluiten |
 | Centrale tijd | `sim/clock.js` | `S.week`, `S.season`, seizoensovergangen |
-| Opslag | `core/save.js` | versie 9, migraties 1→9, legacy-piramideherstel |
+| Opslag | `core/save.js` | versie 10, migraties 1→9, legacy-piramideherstel |
 | UI | `ui/render.js`, `ui/club.js`, `ui/history.js` | week, selecties, wereldarchief en seizoensreview |
 
 `build.js` bundelt in vaste volgorde `core` → `world` (inclusief foreign, awards, rivalry) → `football` → `club` → `sim` → `save` → `ui`. De outputlocatie blijft `dist/northmarch-layered.html`.
@@ -79,3 +79,13 @@ Slimline is de autonome voetbalwereld die onder latere management-, staff-, verh
 
 ## Ontwikkelregels en releasegate
 Alle nieuwe mechanieken moeten gevolgen hebben voor bestaande simulatiegegevens. Wijzig nooit alleen UI-copy voor een niet-bestaand systeem. Geen merge/deploy zonder expliciete goedkeuring. Statussen staan in `docs/SLIMLINE_WORLD_ROADMAP.md`. Voor deze code zijn **nog geen build, regressietests, 20-seizoenstests of browser-playtests uitgevoerd**.
+
+## Defect repair (2026-11-22, unverified)
+- `football/match.js` treats `comp:'cup'` as separate `cupApps/cupGoals`; all new league records and player awards exclude cup goals.
+- `world/foreign.js` owns `foreignLedger()` and `foreignBook()`; foreign clubs now pay wages and fixed costs each week, earn media, matchday and Europe revenue and can enter debt-financed administration. Their cash/ledger are separate from domestic `book()`.
+- **Single recruitment path:** Northmarch imports are selected by the same director/scout/mandate route as domestic buys. `foreignTransferWindow` is limited to foreign-owned signings/sales and AI domestic departures subject to coverage rules.
+- A foreign player can have `sApps/sGoals` in league, `eApps/eGoals` in Europe and persistent partial stints on moving, like a domestic player.
+- Foreign league champions and European champions grant true `p.honours`. Foreign academies and domestic youth cultures affect generated talent.
+- `foreignClubSheet()` and `worldPlayerSheet()` expose read-only foreign club/player views via the world archive without revealing unscouted exact ability.
+- **v10 migration:** if v9 season stats mixed cup/league appearances, the remaining legacy-season Golden Boot is marked provisional. No exact retroactive split exists.
+- **Evidence:** no build, runtime tests or browser game review performed for these repairs.

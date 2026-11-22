@@ -18,6 +18,7 @@ function summerWindow(){
   if(S.my){tdClose();buildPlan(S.my)}
   for(const id of order)loanOut(id);
   youthReconcile();
+  foreignTransferWindow();
   for(const t of TIERS)tierIds(t).slice().sort((x,y)=>teamStrength(y)-teamStrength(x)).forEach((id,i)=>CL(id).expect=i+1);
   setGoalsAll();
 }
@@ -29,6 +30,7 @@ function advanceWeek(){
   // Continental games in the previous week affect availability and performance this week.
   for(const id of ids)for(const p of S.squads[id])if(p.europeLoad){p.tired=1;p.europeLoad=0}
   const matches=playWeekMatches(w);
+  rivalryWeek(matches);
   foreignWeek(w);
   for(const id of ids)playersWeek(id);
   for(const id of ids)lifeWeek(id);
@@ -62,6 +64,8 @@ function closeSeason(){
   // the AGM comes first: targets, promotion and relegation are judged on the final table
   devRecord(); /* the season's final picture of the club, before the AGM and the new season */
   foreignSeasonEnd();
+  const awards=worldSeasonAwards();
+  clubCultureSeasonEnd();
   const outIds=holdAGMs(),agm=S.my?{...M(S.my).agm,club:S.my}:null;afterAGMs(outIds);
   for(const t of TIERS){tables[t]=standings(t);tables[t].forEach((id,i)=>{financeSeasonEnd(id,i+1,t);CL(id).hist.push({s,tier:t,pos:i+1,pts:S.tbl[id].pts,top:topScorer(id),cup:cupReached(id),you:id===S.my})})}
   // support grows with success, promotion and the clubhouse; shrinks with failure
@@ -69,8 +73,13 @@ function closeSeason(){
     c.support=Math.round(clamp(c.support*(1+.025*(exp-pos)/8+.004*sg.community),250,9000))}
   repSeasonEnd();
   const moves=promoteRelegate();
-  for(const m of moves){const c=CL(m.id);c.support=Math.round(c.support*(m.to<m.from?1.08:.93))}
-  S.hist.push({s,tables,cup:S.cup.winner,moves:moves.map(m=>({...m})),agm,chairsOut:outIds.filter(i=>i!==S.my)});
+  rivalrySeasonEnd();
+  for(const m of moves){const c=CL(m.id);c.support=Math.round(c.support*(m.to<m.from?1.08:.93));
+    c.heritage=c.heritage||{titles:0,promotions:0,relegations:0,cups:0,bestTier:m.from,streak:0};
+    if(m.to<m.from)c.heritage.promotions++;else c.heritage.relegations++;
+    c.heritage.bestTier=Math.min(c.heritage.bestTier,m.to);
+  }
+  S.hist.push({s,tables,cup:S.cup.winner,moves:moves.map(m=>({...m})),agm,awards,chairsOut:outIds.filter(i=>i!==S.my)});
   for(const id of ids){const st=S.stats[id];st.prev={inj:st.inj,injWeeks:st.injWeeks,youthGrowth:st.youthGrowth};st.inj=0;st.injWeeks=0;st.youthGrowth=0}
   commercialSeasonEnd();
   returnLoans();

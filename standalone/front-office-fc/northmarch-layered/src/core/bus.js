@@ -7,6 +7,7 @@ function emit(type,club,text,data){
   S.evn=(S.evn||0)+1;
   const e={n:S.evn,t:type,c:club||null,s:S.season,w:S.week,text:text||'',...(data||{})};
   S.ev.push(e);if(S.ev.length>EV_KEEP)S.ev.splice(0,S.ev.length-EV_KEEP);
+  if(typeof worldNewsRecord==='function')worldNewsRecord(e);
   return e;
 }
 function eventsSince(n){return S.ev.filter(e=>e.n>n)}

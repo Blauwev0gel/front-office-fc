@@ -53,6 +53,15 @@ function returnLoans(){
 function wageDemand(p,med){return Math.round(wageFor(p.q)*(1+(p.q>=med?.12:0)+rnd()*.12+(p.morale<40?.2:0)+(p.age<=23&&p.pa>p.q+1?.1:0))/5)*5}
 /* reputation: how the region sees a club, from where it plays and how it does */
 function repSeasonEnd(){
-  for(const id in S.clubs){const c=CL(id),pos=posOf(id),target=[70,48,28,20,14][c.tier]+(9-pos)*1.6+(S.cup.winner===id?6:0);c.rep=Math.round(clamp(c.rep+(target-c.rep)*.25,5,99))}
+  for(const id in S.clubs){
+    const c=CL(id),pos=posOf(id),target=[70,48,28,20,14][c.tier]+(9-pos)*1.6+(S.cup.winner===id?6:0);
+    const past=c.hist.slice(-5),recent=past.reduce((sum,h)=>sum+(h.pos<=3?2:h.pos>=14?-2:0),0);
+    c.rep=Math.round(clamp(c.rep+(target+recent-c.rep)*.25,5,99));
+    c.heritage=c.heritage||{titles:0,promotions:0,relegations:0,cups:0,bestTier:c.tier,streak:0};
+    const h=c.heritage;h.bestTier=Math.min(h.bestTier,c.tier);
+    if(pos===1&&c.tier===0)h.titles++;
+    if(S.cup.winner===id)h.cups++;
+    h.streak=pos<=3?Math.max(1,h.streak+1):pos>=14?Math.min(-1,h.streak-1):0;
+  }
 }
 function repWord(r){return r<25?'Local':r<45?'Regional':r<65?'Respected':r<80?'Big name':'Famous'}

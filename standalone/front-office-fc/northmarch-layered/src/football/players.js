@@ -8,6 +8,7 @@ const POS_ONE={GK:'goalkeeper',CB:'centre-back',FB:'full-back',DM:'holding midfi
 const NEAR={GK:[],CB:['FB','DM'],FB:['CB','W'],DM:['CM','CB'],CM:['DM','AM'],AM:['CM','W','ST'],W:['AM','FB','ST'],ST:['W','AM']};
 const REQ={GK:2,CB:4,FB:3,DM:2,CM:3,AM:2,W:3,ST:3};
 const XI_SLOTS=['GK','FB','CB','CB','FB','DM','CM','AM','W','ST','W'];
+const DEV_PATHS=['early','steady','late','volatile'];
 const PTRAITS=['leader','professional','temperamental','injury-prone','local hero','quiet'];
 const PFIRST=['Kyle','Bradley','Ryan','Nathan','Mo','Femi','Josh','Connor','Jamie','Callum','Kieran','Liam','Marcus','Jordan','Sam','Tyler','Ellis','Dean','Reece','Harvey','Aaron','Lewis','Theo','Ollie','Kofi','Jakub','Matty','Ethan','Joe','Danny','Brandon','Cian','Ruben','Isaac','Noah','Alfie','Zach','Billy','Jay','Ashley'];
 const PLAST=['Agyeman','Rowntree','Whitlock','Dunleavy','Corrigan','Sefton','Pickles','Fairclough','Ashworth','Barraclough','Cawthorne','Dearden','Entwistle','Fenton','Greenhalgh','Hepworth','Illingworth','Jowett','Kershaw','Lockwood','Midgley','Nolan','Ormerod','Priestley','Ramsden','Sutcliffe','Thackeray','Uttley','Varley','Waddington','Yeadon','Okonjo','Mensah','Kowalczyk','Brannigan','Hussain','Achterberg','Doherty','Lomax','Tetley'];
@@ -24,7 +25,8 @@ function newPlayer(pos,o={}){
   const head=o.pa!=null?0:age<=19?1.5+rnd()*4:age<=22?rnd()*2.5:age<=24?rnd():0;
   const p={id:'pl'+(S.pc++),name:o.name||pname(),pos,age,q,pa:r1(o.pa??(q+head)),contract:o.contract??ri(1,3),
     wage:Math.round(wageFor(q)*(0.85+rnd()*.3)/5)*5,form:ri(55,75),inj:0,trait:o.trait||pick(PTRAITS),academy:!!o.academy,
-    apps:0,goals:0,sApps:0,sGoals:0,joined:S.season,club:o.club||null,career:[],grown:0};
+    apps:0,goals:0,sApps:0,sGoals:0,joined:S.season,club:o.club||null,originClub:o.academy?o.club||null:null,career:[],grown:0,
+    devPath:o.devPath||pick(DEV_PATHS),peakAge:o.peakAge??ri(26,31),history:[]};
   return lifeDefaults(p);
 }
 function playerValue(p){const af=p.age<=21?1.6:p.age<=25?1.3:p.age<=29?1:p.age<=31?.6:.3;return Math.max(1,Math.round(wageFor(p.q)*.09*af*(1+Math.max(0,p.pa-p.q)*.15)))}
@@ -60,7 +62,7 @@ function wageBillK(id){return r2(S.squads[id].reduce((a,p)=>a+p.wage,0)/1000)}
 function playersWeek(id){
   const sq=S.squads[id],sg=groundSignals(id),t=sg.training,med=sg.medPrev,medR=sg.medRec,st=S.stats[id];
   const risk=clamp(1.25-.15*med-(sg.fitness?.08:.03)*Math.min(t,4)-(sg.hasTM?.12:0),.45,1.3);
-  const grow=(.12+.08*t)*coachGrowth(id)/SEASON_WEEKS,fade=(1-.06*Math.min(t,8))/SEASON_WEEKS;
+  const grow=(.12+.08*t)*coachGrowth(id)*(1+((CL(id).devCulture??45)-45)/500)/SEASON_WEEKS,fade=(1-.06*Math.min(t,8))/SEASON_WEEKS;
   for(const p of sq){
     if(p.inj>0){p.inj--;if(p.inj===0&&id===S.my)emit('Return',id,`${p.name} is fit again.`,{pid:p.id})}
     else if(rnd()<.02*risk*(p.trait==='injury-prone'?1.8:1)){
@@ -69,10 +71,12 @@ function playersWeek(id){
     }
     p.form=clamp(p.form+ri(-5,5),35,90);
     const before=p.q;
-    const pt=p.age<=23?(p.played?1.4:.7):1; // young players grow by playing
-    if(p.age<=23&&p.pa>p.q)p.q+=(p.pa-p.q)*grow*pt;
-    else if(p.age<=29&&p.pa>p.q)p.q+=(p.pa-p.q)*grow*.4;
-    else if(p.age>=31)p.q-=.55*fade;
+    const path=p.devPath||'steady',early=path==='early'?1.35:path==='late'?.7:1;
+    const maturity=path==='late'&&p.age>=22&&p.age<=27?1.5:path==='volatile'?.7+rnd()*.9:early;
+    const pt=p.age<=23?(p.played?1.4:.7):1;
+    if(p.age<=23&&p.pa>p.q)p.q+=(p.pa-p.q)*grow*pt*maturity;
+    else if(p.age<=29&&p.pa>p.q)p.q+=(p.pa-p.q)*grow*.4*maturity;
+    else if(p.age>=(p.peakAge||30))p.q-=.55*fade*(p.age-(p.peakAge||30)+1)*.5;
     p.q=Math.round(clamp(p.q,4,19)*1000)/1000;p.grown+=p.q-before;if(p.age<=23)st.youthGrowth+=p.q-before;
   }
 }
@@ -81,7 +85,9 @@ function playersSeasonEnd(id){
   const sq=S.squads[id],c=CL(id),sg=groundSignals(id),left=[];
   youthDevRecord(id);
   for(const p of sq.slice()){
-    p.age++;p.contract--;p.yel=0;p.susp=0;p.career.push(`${c.name} ${S.season}: ${p.sApps} apps, ${p.sGoals} goals`);if(p.career.length>8)p.career.splice(0,p.career.length-8);p.sApps=0;p.sGoals=0;p.grown=0;
+    p.age++;p.contract--;p.yel=0;p.susp=0;p.career.push(`${c.name} ${S.season}: ${p.sApps} apps, ${p.sGoals} goals`);
+    p.history=p.history||[];p.history.push({season:S.season,club:id,age:p.age,apps:p.sApps,goals:p.sGoals,europe:p.eApps||0,quality:r1(p.q)});
+    if(p.history.length>30)p.history.shift();p.eApps=0;if(p.career.length>8)p.career.splice(0,p.career.length-8);p.sApps=0;p.sGoals=0;p.grown=0;
     p.q=r1(clamp(p.q+(rnd()-.5)*.4,4,19));
     if(p.age>=34&&rnd()<(p.age-33)*.22){sq.splice(sq.indexOf(p),1);left.push(p);youthLeft(p,'retired');emit('Retired',id,`${p.name} retires at ${p.age}.`,{pid:p.id})}
     else if(p.contract<=0){sq.splice(sq.indexOf(p),1);left.push(p);youthLeft(p,'released');faAdd(p,'out of contract',id);if(id===S.my)emit('PlayerLeft',id,`${p.name} leaves at the end of his contract.`,{pid:p.id})}

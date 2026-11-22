@@ -6,7 +6,7 @@
 const LINE={
   gate:['Tickets: terraces and seats','matchday'],business:['Business seats','matchday'],catering:['Catering','matchday'],seasontix:['Season tickets','matchday'],cupgate:['Cup gate','matchday'],
   sponsors:['Main sponsor','commercial'],partners:['Local partners','commercial'],naming:['Stadium naming rights','commercial'],fundraising:['Members\' appeals','commercial'],merch:['Merchandise','commercial'],events:['Events and hire','commercial'],dues:['Membership dues','commercial'],
-  tv:['League and TV money','media'],prize:['League prize money','media'],cupprize:['Cup prize money','media'],
+  tv:['League and TV money','media'],prize:['League prize money','media'],cupprize:['Cup prize money','media'],europe:['European competition income','media'],
   feesIn:['Transfer fees received','transfers'],feesOut:['Transfer fees paid','transfers'],
   wages:['Player wages','wages'],
   depts:['Department budgets','costs'],upkeep:['Ground upkeep','costs'],ops:['Matchday stewards and police','costs'],travel:['Away travel','costs'],

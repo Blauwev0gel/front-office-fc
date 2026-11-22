@@ -47,7 +47,7 @@ function historySheet(){
 function worldNewsPanel(limit=8){
   const items=worldLatestNews(limit);
   if(!items.length)return'';
-  return`<div class="panel"><div class="row"><p class="eyebrow">Around the football world</p><button class="tbtn" data-act="tier" data-arg="archive">World archive</button></div>
+  return`<div class="panel"><div class="row"><p class="eyebrow">Around the football world</p><button class="tbtn" data-act="worldarchive">World archive</button></div>
     ${items.map(e=>`<p class="small"><span class="muted">S${e.s} W${e.w} · ${esc(e.t.replace(/([A-Z])/g,' $1').trim())}</span><br>${esc(e.text)}</p>`).join('')}</div>`;
 }
 function worldAwardsPanel(){

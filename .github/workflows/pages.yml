@@ -41,6 +41,12 @@ jobs:
           ref: claude-game
           path: versions/claude
           persist-credentials: false
+      - name: Check out Northmarch L1/L2 preview
+        uses: actions/checkout@v6
+        with:
+          ref: slimline-main
+          path: versions/northmarch
+          persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -53,7 +59,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p site/chatgpt site/claude
+          mkdir -p site/chatgpt site/claude site/northmarch
           for branch in main chatgpt claude; do
             (
               cd "versions/$branch"
@@ -66,10 +72,11 @@ jobs:
             if [ "$branch" = main ]; then target=site; fi
             cp "versions/$branch/dist/index.html" "$target/index.html"
           done
+          cp versions/northmarch/standalone/front-office-fc/northmarch-layered/preview/northmarch-slimline.html site/northmarch/index.html
           touch site/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@v5
-      - name: Upload all three versions
+      - name: Upload game versions including Northmarch
         uses: actions/upload-pages-artifact@v4
         with:
           path: site

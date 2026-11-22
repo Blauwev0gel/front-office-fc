@@ -58,6 +58,7 @@ function reportView(){
   const m=ms[0],f=F(S.my).last;
   return`<section class="echo" aria-label="The Northmarch Echo"><div class="mast"><b>THE NORTHMARCH ECHO</b><span>Week ${S.week}</span></div>
   <div class="head">${esc(headline(m))}</div>
+  ${ms.map((x,i)=>`<button class="btn ghost lvwatch" data-act="watch" data-arg="${i}">▶ Watch ${ms.length>1?esc(x.comp==='cup'?'the cup tie':'the league match'):'the match'}, minute by minute</button>`).join('')}
   ${ms.map(m=>`<div class="fix"><b>${nm(m.h)}</b><span class="score">${m.gh}–${m.ga}</span><b>${nm(m.a)}</b></div>
   <p class="small muted" style="text-align:center">${m.comp==='cup'?esc(CUP_ROUND[m.round])+' · ':''}${m.att?n0(m.att)+' watching':''}${m.pens?` · ${nm(m.pens)} win on penalties`:''}</p>
   <p class="small muted" style="text-align:center">Expected goals ${m.lh.toFixed(1)}–${m.la.toFixed(1)}: ${xgWord(m)}</p>

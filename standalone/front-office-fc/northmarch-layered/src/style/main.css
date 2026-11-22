@@ -204,3 +204,23 @@ main.withbar{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 100px)}
 .dept-player{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;min-height:55px;padding:10px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);margin:6px 0;cursor:pointer}
 .dept-player span:first-child{display:flex;flex-direction:column;gap:2px}.dept-player small{color:var(--muted);font-size:.76rem}.dept-player span:last-child{font-size:.76rem;white-space:nowrap}
 div.dept-player{cursor:default;font-size:13.333px} /* a row that is not a button (player away on loan) looks the same, without the tap cursor */
+
+/* ----- watching a match ----- */
+.lvwatch{margin:10px 0 4px;min-height:44px}
+.lvscore{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center}
+.lvscore b{font-size:2.4rem;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.lvt{font-weight:700;font-size:.95rem;overflow-wrap:anywhere}
+.lvclock{text-align:center;font-weight:700;margin:2px 0 6px;font-variant-numeric:tabular-nums}
+.lvprog{height:6px}
+.lvpitch{position:relative;aspect-ratio:100/64;background:var(--chip);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:4px 0}
+.lvpitch svg{position:absolute;inset:0;width:100%;height:100%}.lvpitch svg *{fill:none;stroke:var(--muted);stroke-width:.5;vector-effect:non-scaling-stroke}
+.lvpitch.flash{outline:3px solid var(--signal);outline-offset:-3px}
+.lvball{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:var(--ink);border:3px solid var(--paper);box-shadow:0 0 0 1px var(--ink);transition:left .5s ease-in-out,top .5s ease-in-out}
+.lvside{position:absolute;bottom:4px;font-size:.66rem;color:var(--muted);letter-spacing:.03em;max-width:46%}.lvside.l{left:8px}.lvside.r{right:8px;text-align:right}
+.lvmom{height:96px}.lvmom svg{width:100%;height:100%;display:block}
+.lvctl{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.lvctl .btn{min-height:44px;padding-inline:6px}.lvctl .btn:last-child{grid-column:1/-1}.lvctl .btn.on{background:var(--ink);color:var(--paper)}
+.lvstat{display:grid;grid-template-columns:3.2rem 1fr 3.2rem;align-items:center;text-align:center;padding:5px 0;font-size:.9rem}.lvstat b{font-variant-numeric:tabular-nums}.lvstat span{color:var(--muted);font-size:.8rem}
+.lvrow{display:grid;grid-template-columns:3.2rem 1fr;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:.92rem;line-height:1.35}.lvrow:first-child{border-top:0}
+.lvmin{font-variant-numeric:tabular-nums;color:var(--muted)}.lvrow.goal{background:var(--chip);margin:0 -8px;padding-inline:8px;border-radius:8px}.lvrow.now{font-weight:600}
+.lvauto{display:flex;align-items:center;gap:10px;min-height:44px;font-size:.9rem}.lvauto input{width:22px;height:22px}
+@media (prefers-reduced-motion:reduce){.lvball{transition:none}}

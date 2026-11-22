@@ -214,6 +214,26 @@ main.withbar{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 100px)}
 .dept-player{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;min-height:55px;padding:10px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);margin:6px 0;cursor:pointer}
 .dept-player span:first-child{display:flex;flex-direction:column;gap:2px}.dept-player small{color:var(--muted);font-size:.76rem}.dept-player span:last-child{font-size:.76rem;white-space:nowrap}
 div.dept-player{cursor:default;font-size:13.333px} /* a row that is not a button (player away on loan) looks the same, without the tap cursor */
+
+/* ----- watching a match ----- */
+.lvwatch{margin:10px 0 4px;min-height:44px}
+.lvscore{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center}
+.lvscore b{font-size:2.4rem;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.lvt{font-weight:700;font-size:.95rem;overflow-wrap:anywhere}
+.lvclock{text-align:center;font-weight:700;margin:2px 0 6px;font-variant-numeric:tabular-nums}
+.lvprog{height:6px}
+.lvpitch{position:relative;aspect-ratio:100/64;background:var(--chip);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:4px 0}
+.lvpitch svg{position:absolute;inset:0;width:100%;height:100%}.lvpitch svg *{fill:none;stroke:var(--muted);stroke-width:.5;vector-effect:non-scaling-stroke}
+.lvpitch.flash{outline:3px solid var(--signal);outline-offset:-3px}
+.lvball{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:var(--ink);border:3px solid var(--paper);box-shadow:0 0 0 1px var(--ink);transition:left .5s ease-in-out,top .5s ease-in-out}
+.lvside{position:absolute;bottom:4px;font-size:.66rem;color:var(--muted);letter-spacing:.03em;max-width:46%}.lvside.l{left:8px}.lvside.r{right:8px;text-align:right}
+.lvmom{height:96px}.lvmom svg{width:100%;height:100%;display:block}
+.lvctl{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.lvctl .btn{min-height:44px;padding-inline:6px}.lvctl .btn:last-child{grid-column:1/-1}.lvctl .btn.on{background:var(--ink);color:var(--paper)}
+.lvstat{display:grid;grid-template-columns:3.2rem 1fr 3.2rem;align-items:center;text-align:center;padding:5px 0;font-size:.9rem}.lvstat b{font-variant-numeric:tabular-nums}.lvstat span{color:var(--muted);font-size:.8rem}
+.lvrow{display:grid;grid-template-columns:3.2rem 1fr;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:.92rem;line-height:1.35}.lvrow:first-child{border-top:0}
+.lvmin{font-variant-numeric:tabular-nums;color:var(--muted)}.lvrow.goal{background:var(--chip);margin:0 -8px;padding-inline:8px;border-radius:8px}.lvrow.now{font-weight:600}
+.lvauto{display:flex;align-items:center;gap:10px;min-height:44px;font-size:.9rem}.lvauto input{width:22px;height:22px}
+@media (prefers-reduced-motion:reduce){.lvball{transition:none}}
 </style>
 </head>
 <body>
@@ -1902,6 +1922,90 @@ function closeSeason(){
 function playSeason(){if(S.phase==='choose')chooseClub(S.seats[0]);while(!seasonOver())advanceWeek();return closeSeason()}
 function simulateSeasons(n){for(let i=0;i<n;i++)playSeason()}
 
+/* ---- sim/commentary.js ---- */
+/* ================= Simulation: the match told minute by minute =================
+   The match engine has already decided the game (score, scorers, expected goals, who played). This module only TELLS it:
+   a timeline of chances, goals and commentary that always ends in the real result. It uses its own generator seeded from the
+   match itself, never rnd(), so watching a match changes nothing in the world and the same match always reads the same.
+   Nothing here is stored: matchStory(m) is recomputed whenever it is shown. No cards or injuries are invented: only real ones. */
+const CHANCE_KINDS=[['save',.34],['off',.28],['block',.2],['post',.06],['miss',.12]];
+function storySeed(m){return hashStr(`${S.season}|${S.week}|${m.comp}|${m.round||0}|${m.h}|${m.a}`)}
+function storyPlayer(pid){const f=findPlayer(pid);return f?f.p:{id:pid,name:'a player',pos:'CM',q:10}}
+function lastName(p){const n=String(p.name||'a player').split(' ');return n.length>1?n.slice(1).join(' '):n[0]}
+const SC_POS={GK:0,CB:.5,FB:.5,DM:.6,CM:1.4,AM:2.6,W:2.8,ST:5};
+function weighted(r,xs,fn){const tot=xs.reduce((a,x)=>a+fn(x),0)||1;let v=r()*tot;for(const x of xs){v-=fn(x);if(v<=0)return x}return xs[xs.length-1]}
+function sidePos(side,r,kind){ /* where on the pitch the ball is: the home side attacks to the right (x 100) */
+  const att=kind==='goal'||kind==='save'||kind==='post'||kind==='miss'||kind==='block'||kind==='off'||kind==='corner';
+  const x=att?(kind==='goal'?96+r()*2:80+r()*14):45+r()*10,y=kind==='corner'?(r()<.5?6:94):28+r()*44;
+  return{x:side==='h'?x:100-x,y};
+}
+const T_SHOT={save:['{p} lets fly from the edge of the box, but {gk} gets down to save.','{p} meets it first time. {gk} is equal to it.','{p} cuts inside and shoots: a good stop from {gk}.','A flat drive from {p}, and {gk} parries it away.'],
+  off:['{p} has a go from distance. It sails over the bar.','{p} gets the shot away but drags it wide.','{p} snatches at it and puts it well off target.','Chance for {p}, but the finish is poor.'],
+  block:['{p} shoots, and a defender throws himself in the way.','{p} pulls the trigger. Blocked on the line of the six-yard box.','The shot from {p} is charged down.'],
+  post:['{p} hits the woodwork! {gk} was beaten all the way.','Off the post from {p}! The ground gasps.','{p} thunders it against the bar. So close.'],
+  miss:['{p} has an open goal to aim at and somehow misses it!','Huge chance for {p}, six yards out, and he puts it wide.','{p} is clean through and {gk} smothers it at his feet.']};
+const T_GOAL=['GOAL! {p} finishes it off for {t}.','GOAL! {p} finds the net! {t} have scored.','{p} scores! A cool, composed finish.','GOAL for {t}! {p} gets on the end of it.'];
+const T_ASSIST=[' Set up by {a}.',' The pass came from {a}.',' {a} did the hard work.'],T_NOASSIST=[' A fine individual effort.',' He took it all the way himself.',' It came off a loose ball in the box.'];
+const T_QUIET=['An even spell. Neither side finds a way through.','The game settles into a midfield battle.','{t} keep the ball well but cannot break the other side down.','Neither goalkeeper has much to do at the moment.','{t} are pressing high and winning the ball back.','A scrappy period. Plenty of fouls, few chances.'];
+function fill(s,o){return s.replace(/\{(\w+)\}/g,(_,k)=>o[k]??'')}
+function matchStory(m){
+  const r=mkRng(storySeed(m)),pk=a=>a[Math.floor(r()*a.length)];
+  const names={h:CL(m.h).name,a:CL(m.a).name},xi={h:(m.xiH||[]).map(storyPlayer),a:(m.xiA||[]).map(storyPlayer)};
+  const gk=s=>(xi[s].find(p=>p.pos==='GK')||{name:'the keeper'}),gkName=s=>lastName(gk(s));
+  const seen={},pu=(k,a)=>{const u=seen[k]||(seen[k]=[]),left=a.filter(x=>!u.includes(x)),c=pk(left.length?left:a);u.push(c);return c}; /* no sentence twice in one match until the list is used up */
+  const ev=[],push=e=>ev.push({o:ev.length,...e});
+  const goals={h:m.scorers.filter(s=>s.side==='h'),a:m.scorers.filter(s=>s.side==='a')};
+  const used=new Set(),minute=(lo,hi)=>{let t=0,v;do{v=Math.round(lo+r()*(hi-lo));t++}while(used.has(v)&&t<12);used.add(v);return v};
+  /* goals: the real scorers, at invented minutes */
+  for(const side of ['h','a'])for(const g of goals[side]){const p=storyPlayer(g.pid),mates=xi[side].filter(x=>x.id!==g.pid&&x.pos!=='GK'),as=r()<.62&&mates.length?weighted(r,mates,x=>SC_POS[x.pos]+.6):null;
+    push({min:minute(2,93),t:'goal',side,pid:g.pid,p:p.name,a:as?as.name:null,xg:.1+r()*.6,...sidePos(side,r,'goal')})}
+  /* the other chances: more of them for the side with the higher expected goals */
+  for(const side of ['h','a']){const l=side==='h'?m.lh:m.la,n=Math.max(1,Math.round(l*3.6+(r()-.5)*3));
+    for(let i=0;i<n;i++){const kind=weighted(r,CHANCE_KINDS,k=>k[1])[0],sh=weighted(r,xi[side].filter(x=>x.pos!=='GK'),x=>SC_POS[x.pos]+.3),
+      xg={save:.08+r()*.22,off:.03+r()*.12,block:.05+r()*.15,post:.12+r()*.2,miss:.35+r()*.25}[kind];
+      push({min:minute(3,92),t:kind,side,pid:sh.id,p:sh.name,xg,...sidePos(side,r,kind)})}
+    if(r()<.55)push({min:minute(10,88),t:'corner',side,xg:0,...sidePos(side,r,'corner')})}
+  /* real injuries of this week only */
+  for(const e of S.ev)if(e.t==='Injury'&&e.s===S.season&&e.w===S.week&&(e.c===m.h||e.c===m.a)){const f=findPlayer(e.pid);if(f&&(xi.h.some(p=>p.id===e.pid)||xi.a.some(p=>p.id===e.pid)))push({min:minute(12,80),t:'injury',side:e.c===m.h?'h':'a',pid:e.pid,p:f.p.name,weeks:e.weeks,xg:0,x:50,y:50})}
+  ev.sort((x,y)=>x.min-y.min||x.o-y.o);
+  /* expected goals: scaled so the match total is the engine's own number */
+  for(const side of ['h','a']){const es=ev.filter(e=>e.side===side&&e.xg),sum=es.reduce((a,e)=>a+e.xg,0),l=side==='h'?m.lh:m.la,k=sum?clamp(l/sum,.3,12):1;for(const e of es)e.xg=e.xg*k}
+  /* the text, with the running score */
+  let sh=0,sa=0;const out=[];
+  out.push({min:0,t:'start',side:null,text:`Kick-off at ${CL(m.h).ground||'the ground'}. ${names.h} against ${names.a}.`,x:50,y:50,xg:0});
+  let prev=0,halfDone=false;
+  const quiet=min=>{const t=pu('quiet',T_QUIET);out.push({min,t:'note',side:null,text:fill(t,{t:names[r()<.5?'h':'a']}),x:40+r()*20,y:30+r()*40,xg:0})};
+  for(const e of ev){
+    if(!halfDone&&e.min>45){out.push({min:45,t:'half',side:null,text:`Half time: ${names.h} ${sh}–${sa} ${names.a}.`,x:50,y:50,xg:0,sh,sa});halfDone=true;prev=45}
+    if(e.min-prev>14){quiet(Math.round(prev+(e.min-prev)/2))}
+    let text='';const o={p:lastName({name:e.p}),t:names[e.side==='h'?'h':'a'],gk:gkName(e.side==='h'?'a':'h'),a:e.a?lastName({name:e.a}):''};
+    if(e.t==='goal'){const lead=(e.side==='h'?sh:sa)-(e.side==='h'?sa:sh);if(e.side==='h')sh++;else sa++;
+      const sit=sh+sa===1?` ${names[e.side]} take the lead.`:sh===sa?` It is all square again: ${sh}–${sa}.`:lead>=0&&Math.abs(sh-sa)>=2?` ${sh}–${sa}: ${names[e.side]} are in control.`:e.min>=80?` Late, late goal. It is ${sh}–${sa}.`:` ${sh}–${sa}.`;
+      text=fill(pu('goal',T_GOAL),o)+(e.a?fill(pk(T_ASSIST),o):fill(pk(T_NOASSIST),o))+sit;e.sh=sh;e.sa=sa}
+    else if(e.t==='corner')text=`${names[e.side]} win a corner. ${pk(['It is cleared at the near post.','The delivery is cut out.','Dangerous, but it comes to nothing.'])}`;
+    else if(e.t==='injury')text=`${e.p} is down and has to be treated. He is out for ${e.weeks} week${e.weeks>1?'s':''}.`;
+    else text=fill(pu(e.t,T_SHOT[e.t]),o);
+    out.push({...e,text,sh,sa});prev=e.min;
+  }
+  if(!halfDone)out.push({min:45,t:'half',side:null,text:`Half time: ${names.h} ${[...ev].filter(e=>e.t==='goal'&&e.min<=45&&e.side==='h').length}–${[...ev].filter(e=>e.t==='goal'&&e.min<=45&&e.side==='a').length} ${names.a}.`,x:50,y:50,xg:0});
+  out.sort((x,y)=>x.min-y.min);
+  const fin=`Full time: ${names.h} ${m.gh}–${m.ga} ${names.a}.`;
+  const endMin=Math.max(90,...out.map(e=>e.min));
+  out.push({min:endMin,t:'end',side:null,text:fin,x:50,y:50,xg:0,sh:m.gh,sa:m.ga});
+  /* a cup tie that stays level goes to a shoot-out; the winner is already decided, only the kicks are told */
+  let pens=null;
+  if(m.pens){const win=m.pens===m.h?'h':'a',los=win==='h'?'a':'h',w=3+Math.floor(r()*3),l=Math.max(0,w-1-Math.floor(r()*2)),kick=(side,i,sc)=>{const k=xi[side].filter(p=>p.pos!=='GK')[i%10];return sc?`${lastName(k)} scores.`:`${lastName(k)} ${pk(['hits the post.','sees it saved by '+gkName(side==='h'?'a':'h')+'.','blazes it over.'])}`}
+    const seq=[];for(let i=0;i<5;i++)for(const side of ['h','a']){const tot=side===win?w:l,done=seq.filter(s=>s.side===side&&s.sc).length,left=5-seq.filter(s=>s.side===side).length;seq.push({side,sc:done<tot&&(tot-done>=left||r()<.7),i})}
+    const hs=seq.filter(s=>s.side==='h'&&s.sc).length,as=seq.filter(s=>s.side==='a'&&s.sc).length;pens={h:hs,a:as,seq:seq.map(s=>({side:s.side,sc:s.sc,text:kick(s.side,s.i,s.sc)}))};
+    out.push({min:endMin+1,t:'pens',side:win,text:`Level after ninety minutes: penalties. ${names[win]} win the shoot-out ${Math.max(hs,as)}–${Math.min(hs,as)}.`,x:50,y:50,xg:0,sh:m.gh,sa:m.ga})}
+  /* pressure through the game: who has the ball, nudged by every chance */
+  const share=m.lh/(m.lh+m.la),mom=[];let v=share;
+  for(let t=1;t<=90;t++){v+=(share-v)*.12+(r()-.5)*.09;let b=0;for(const e of ev){if(Math.abs(e.min-t)<=3&&e.xg)b+=(e.side==='h'?1:-1)*e.xg*.18*(1-Math.abs(e.min-t)/4)}mom.push(clamp(v+b,.08,.92))}
+  const stat=side=>{const es=ev.filter(e=>e.side===side&&['goal','save','off','block','post','miss'].includes(e.t));return{shots:es.length,on:es.filter(e=>['goal','save','post'].includes(e.t)).length,xg:r2(es.reduce((a,e)=>a+e.xg,0))}};
+  for(const e of out)e.xg=r2(e.xg);
+  return{h:m.h,a:m.a,names,events:out,mom,pens,stats:{h:stat('h'),a:stat('a')},final:{h:m.gh,a:m.ga}};
+}
+
 /* ---- core/save.js ---- */
 /* ================= Core: savegames with a schema version and migrations =================
    The whole world is one JSON object S. A save carries S.v; load() runs every migration from that version up to
@@ -2003,6 +2107,7 @@ function reportView(){
   const m=ms[0],f=F(S.my).last;
   return`<section class="echo" aria-label="The Northmarch Echo"><div class="mast"><b>THE NORTHMARCH ECHO</b><span>Week ${S.week}</span></div>
   <div class="head">${esc(headline(m))}</div>
+  ${ms.map((x,i)=>`<button class="btn ghost lvwatch" data-act="watch" data-arg="${i}">▶ Watch ${ms.length>1?esc(x.comp==='cup'?'the cup tie':'the league match'):'the match'}, minute by minute</button>`).join('')}
   ${ms.map(m=>`<div class="fix"><b>${nm(m.h)}</b><span class="score">${m.gh}–${m.ga}</span><b>${nm(m.a)}</b></div>
   <p class="small muted" style="text-align:center">${m.comp==='cup'?esc(CUP_ROUND[m.round])+' · ':''}${m.att?n0(m.att)+' watching':''}${m.pens?` · ${nm(m.pens)} win on penalties`:''}</p>
   <p class="small muted" style="text-align:center">Expected goals ${m.lh.toFixed(1)}–${m.la.toFixed(1)}: ${xgWord(m)}</p>
@@ -2092,7 +2197,7 @@ function msgLine(){return UI.msg?`<p class="${UI.msg.err?'err':'small up'}" role
 function overlayShell(title,body){return`<div class="overlay" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="inner"><div class="row"><h2>${esc(title)}</h2><button class="tbtn" data-act="ov">Close</button></div>${msgLine()}${body}</div></div>`}
 function overlayView(){
   if(UI.over==='ground')return groundOverlay();if(UI.over==='dept')return deptSheet(UI.arg);if(UI.over==='staff')return staffSheet(UI.arg);if(UI.over==='history')return historySheet();if(UI.over==='journal')return journalSheet();
-  if(UI.over==='club')return clubSheet(UI.arg);if(UI.over==='player')return playerSheet(UI.arg);return'';
+  if(UI.over==='live')return liveView();if(UI.over==='club')return clubSheet(UI.arg);if(UI.over==='player')return playerSheet(UI.arg);return'';
 }
 
 /* ----- the ground ----- */
@@ -2645,6 +2750,83 @@ function youthPanels(){
 }
 function devLines(p){return(p.dev||[]).slice(-5).map(d=>`<div class="row small"><span>Season ${d.s} · age ${d.age}${d.where?` · on loan at ${esc(d.where)}`:''}</span><b>${d.q} · ${d.apps} apps</b></div>`).join('')}
 
+/* ---- ui/live.js ---- */
+/* ================= Screens: watch the match (text commentary brought to life) =================
+   Tells the match that has already been played (sim/commentary.js matchStory). The chairman watches; he does not coach.
+   The clock, ball, pressure strip, statistics and commentary run on a timer that redraws only the live blocks. */
+const LIVE_KEY='northmarch-layered-live';
+function liveAutoGet(){try{return localStorage.getItem(LIVE_KEY)==='1'}catch(e){return false}}
+function liveAutoSet(v){try{localStorage.setItem(LIVE_KEY,v?'1':'0')}catch(e){}}
+function liveOpen(i){const m=myMatches()[i];if(!m)return;const story=matchStory(m);UI.live={i,story,min:0,acc:0,hold:0,playing:true,speed:1,end:story.events[story.events.length-1].min};UI.over='live'}
+function liveMinLabel(e){return e.t==='start'?'KO':e.t==='half'?'HT':e.t==='end'?'FT':e.t==='pens'?'PEN':e.min>90?`90+${e.min-90}'`:`${e.min}'`}
+function liveClock(L){return L.min<=0?'Kick-off':L.min>=L.end?'Full time':L.min>90?`90+${L.min-90}'`:`${L.min}'`}
+function liveAt(L){
+  const evs=L.story.events.filter(e=>e.min<=L.min),sh={h:0,a:0,on:{h:0,a:0},xg:{h:0,a:0}};
+  for(const e of evs){if(e.t==='goal')sh[e.side]++;if(e.side&&['goal','save','off','block','post','miss'].includes(e.t)){sh[e.side+'n']=(sh[e.side+'n']||0)+1;if(['goal','save','post'].includes(e.t))sh.on[e.side]++;sh.xg[e.side]+=e.xg}}
+  const mm=L.story.mom.slice(0,Math.max(1,Math.min(90,L.min))),avg=mm.reduce((a,v)=>a+v,0)/mm.length,ph=Math.round(clamp(50+(avg-.5)*60,25,75));
+  return{evs,gh:sh.h,ga:sh.a,shots:[sh.hn||0,sh.an||0],on:[sh.on.h,sh.on.a],xg:[r1(sh.xg.h),r1(sh.xg.a)],poss:[ph,100-ph]};
+}
+function liveTop(L){
+  const A=liveAt(L),n=L.story.names,fin=L.min>=L.end;
+  return`<div class="lvscore"><span class="lvt">${esc(n.h)}</span><b aria-label="Score">${A.gh}–${A.ga}</b><span class="lvt">${esc(n.a)}</span></div>
+  <p class="lvclock" role="status">${esc(liveClock(L))}</p><div class="bar lvprog" role="img" aria-label="Match progress"><i style="width:${Math.min(100,Math.round(L.min/Math.max(90,L.end)*100))}%"></i></div>
+  ${fin&&L.story.pens?`<p class="small" style="text-align:center"><b>${esc(n[L.story.pens.h>L.story.pens.a?'h':'a'])} win on penalties, ${Math.max(L.story.pens.h,L.story.pens.a)}–${Math.min(L.story.pens.h,L.story.pens.a)}</b></p>`:''}`;
+}
+function liveMom(L){
+  const m=L.story.mom,t=Math.min(90,L.min);let bars='';
+  for(let i=0;i<t;i++){const v=m[i]-.5,h=Math.min(46,Math.abs(v)*170);bars+=`<rect x="${i+.1}" y="${v>=0?50-h:50}" width=".8" height="${Math.max(.6,h)}" fill="${v>=0?'var(--signal)':'var(--muted)'}"/>`}
+  let marks='';for(const e of L.story.events)if(e.t==='goal'&&e.min<=L.min){const x=Math.min(89.5,e.min)+.5;marks+=`<rect x="${x-.9}" y="${e.side==='h'?0:88}" width="1.8" height="12" fill="var(--ink)"/>`}
+  return`<svg viewBox="0 0 90 100" preserveAspectRatio="none" role="img" aria-label="Who is on top, minute by minute: upper half ${esc(L.story.names.h)}, lower half ${esc(L.story.names.a)}"><line x1="0" y1="50" x2="90" y2="50" stroke="var(--line)" stroke-width=".6"/>${bars}${marks}</svg>`;
+}
+function liveStats(L){
+  const A=liveAt(L),row=(k,a,b)=>`<div class="lvstat"><b>${a}</b><span>${k}</span><b>${b}</b></div>`;
+  return row('Shots',A.shots[0],A.shots[1])+row('On target',A.on[0],A.on[1])+row('Expected goals',A.xg[0].toFixed(1),A.xg[1].toFixed(1))+row('Possession',A.poss[0]+'%',A.poss[1]+'%');
+}
+function liveFeed(L){
+  const evs=liveAt(L).evs.slice().reverse();
+  return evs.map((e,i)=>`<div class="lvrow ${e.t==='goal'?'goal':''} ${i===0?'now':''}"><b class="lvmin">${liveMinLabel(e)}</b><span>${e.t==='goal'?'<b>⚽ ':''}${esc(e.text)}${e.t==='goal'?'</b>':''}${e.t==='pens'&&L.story.pens?`<br><small class="muted">${L.story.pens.seq.map(s=>esc((s.side==='h'?L.story.names.h:L.story.names.a).split(' ')[0]+': '+s.text)).join(' ')}</small>`:''}</span></div>`).join('');
+}
+function liveBall(L){const e=liveAt(L).evs.slice(-1)[0]||{x:50,y:50};return{x:e.x??50,y:e.y??50,goal:e&&e.t==='goal'&&L.hold>0}}
+function liveControls(L){
+  const fin=L.min>=L.end;
+  return fin?`<button class="btn" data-act="ov">Back to the club</button>`:
+  `<div class="lvctl"><button class="btn ${L.playing?'ghost':''}" data-act="lv" data-arg="pp" aria-pressed="${L.playing}">${L.playing?'Pause':'Play'}</button>${[1,2,4].map(s=>`<button class="btn ghost ${L.speed===s?'on':''}" data-act="lv" data-arg="s${s}" aria-pressed="${L.speed===s}">${s}×</button>`).join('')}<button class="btn ghost" data-act="lv" data-arg="skip">Skip to full time</button></div>`;
+}
+function liveView(){
+  const L=UI.live;if(!L)return'';const b=liveBall(L);
+  return`<div class="overlay live" role="dialog" aria-modal="true" aria-label="The match"><div class="inner">
+  <div class="row"><p class="eyebrow">${esc(L.story.names.h)} v ${esc(L.story.names.a)}</p><button class="tbtn" data-act="ov">Close</button></div>
+  <div id="lvTop">${liveTop(L)}</div>
+  <div class="lvpitch${b.goal?' flash':''}" id="lvPitch"><svg viewBox="0 0 100 64" preserveAspectRatio="none" aria-hidden="true"><rect x="1" y="1" width="98" height="62" rx="1"/><line x1="50" y1="1" x2="50" y2="63"/><circle cx="50" cy="32" r="8"/><rect x="1" y="16" width="14" height="32"/><rect x="85" y="16" width="14" height="32"/><rect x="1" y="25" width="5" height="14"/><rect x="94" y="25" width="5" height="14"/></svg><i class="lvball" id="lvBall" style="left:${b.x}%;top:${b.y}%"></i><span class="lvside l">${esc(L.story.names.h)} attack →</span><span class="lvside r">← ${esc(L.story.names.a)} attack</span></div>
+  <div class="panel"><p class="eyebrow">Who is on top</p><div class="lvmom" id="lvMom">${liveMom(L)}</div><p class="note">Above the line: ${esc(L.story.names.h)}. Below: ${esc(L.story.names.a)}. A dark bar marks a goal.</p></div>
+  <div id="lvCtl">${liveControls(L)}</div>
+  <div class="panel" id="lvStats">${liveStats(L)}</div>
+  <div class="panel"><p class="eyebrow">Commentary</p><div id="lvFeed" role="log">${liveFeed(L)}</div></div>
+  <label class="lvauto"><input type="checkbox" data-act="lv" data-arg="auto" ${UI.autoLive?'checked':''}> Open my match live after Play</label>
+  <p class="note">The result was decided by the match engine before you opened this. Watching changes nothing; you cannot coach from the chair.</p></div></div>`;
+}
+/* redraw only the live blocks, so the ball can glide and the page does not jump */
+function liveUpdate(){
+  const L=UI.live;if(!HAS_DOM||!L||UI.over!=='live')return;const set=(id,h)=>{const el=document.getElementById(id);if(el)el.innerHTML=h};
+  set('lvTop',liveTop(L));set('lvMom',liveMom(L));set('lvStats',liveStats(L));set('lvFeed',liveFeed(L));
+  const b=liveBall(L),ball=document.getElementById('lvBall'),pit=document.getElementById('lvPitch');if(ball){ball.style.left=b.x+'%';ball.style.top=b.y+'%'}if(pit)pit.classList.toggle('flash',b.goal);
+  const ctl=document.getElementById('lvCtl');if(ctl&&L.min>=L.end&&!ctl.dataset.fin){ctl.innerHTML=liveControls(L);ctl.dataset.fin='1'}
+}
+function liveTick(){
+  const L=UI.live;if(!L||UI.over!=='live'||!L.playing||L.min>=L.end)return;
+  if(L.hold>0){L.hold--;return}
+  L.acc+=L.speed;if(L.acc<4)return;L.acc=0;L.min++;
+  const hit=L.story.events.some(e=>e.min===L.min&&e.t==='goal');if(hit)L.hold=Math.round(16/L.speed);
+  liveUpdate();
+}
+function liveAct(arg){
+  const L=UI.live;if(arg==='auto'){UI.autoLive=!UI.autoLive;liveAutoSet(UI.autoLive);return}
+  if(!L)return;
+  if(arg==='pp')L.playing=!L.playing;else if(arg==='skip'){L.min=L.end;L.hold=0}else if(/^s\d$/.test(arg))L.speed=+arg.slice(1)
+}
+UI.autoLive=HAS_DOM?liveAutoGet():false;
+if(HAS_DOM)setInterval(liveTick,75);
+
 /* ---- ui/act.js ---- */
 /* ================= Taps: one handler for every data-act, then save and redraw ================= */
 function say(r,okText){UI.msg=r&&r.ok===false?{err:true,text:r.err}:okText?{text:okText}:null}
@@ -2663,7 +2845,9 @@ function act(a,arg){
     case'helpok':S.help=true;break;
     case'journal':UI.over='journal';break;
     case'tab':UI.tab=arg;UI.over=null;if(arg==='club')UI.ct='hub';if(arg==='money')UI.mt=UI.mt||'overview';if(HAS_DOM)window.scrollTo(0,0);break;
-    case'play':{UI.prevPos=S.week?posOf(S.my):null;const ev=advanceWeek();UI.lastEv=ev||[];if(HAS_DOM)window.scrollTo(0,0);break}
+    case'play':{UI.prevPos=S.week?posOf(S.my):null;const ev=advanceWeek();UI.lastEv=ev||[];if(HAS_DOM)window.scrollTo(0,0);if(UI.autoLive&&myMatches().length)liveOpen(0);break}
+    case'watch':liveOpen(+arg);break;
+    case'lv':liveAct(arg);break;
     case'close':{const mark=S.evn||0;const h=closeSeason();UI.summerEv=eventsSince(mark);UI.review=h;UI.lastEv=[];if(HAS_DOM)window.scrollTo(0,0);break}
     case'startnext':UI.review=null;UI.tab='week';break;
     case'tier':UI.tier=['cup','market','archive'].includes(arg)?arg:+arg;break;

@@ -17,5 +17,6 @@ function mandatePanel(){
 }
 
 registerFeaturePanel('recruitment:beforePolicy',missedPanel);
+registerFeaturePanel('week:recruitmentAlerts',missedPanel);
 registerFeaturePanel('recruitment:afterPolicy',mandatePanel);
 registerFeatureAction('mandate',arg=>say(cmd('SetMandate',S.my,{deals:arg}),'The director follows the new limit when the window closes.'));

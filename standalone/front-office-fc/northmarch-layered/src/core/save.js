@@ -90,7 +90,35 @@ function expandLegacyPyramid(){
 }
 function schemaVersion(){return VERSION}
 function serialize(){return JSON.stringify(S)}
-function deserialize(txt){S=migrate(JSON.parse(txt));expandLegacyPyramid();for(const [id,sq] of Object.entries(S.squads))for(const p of sq)if(p.academy&&!p.originClub)p.originClub=p.loan?.from||p.club||id;if(!S.foreign)S.foreign=foreignInit();foreignRestoreCalendar();staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();youthAfterLoad();return S}
+/* Make every existing career and club carry the new simulation metadata.
+   Defaults are ID-derived so a legacy save does not reroll personalities. */
+function enrichLegacyWorld(){
+  S.worldLog=S.worldLog||[];S.worldAwards=S.worldAwards||[];
+  const all=Object.values(S.squads).flat().concat(S.fa||[],Object.values(S.foreign?.squads||{}).flat());
+  for(const p of all){
+    const h=String(p.id||'').split('').reduce((n,ch)=>(n*31+ch.charCodeAt(0))>>>0,17);
+    if(!p.style)p.style=(PLAYER_STYLES[p.pos]||['runner'])[h%(PLAYER_STYLES[p.pos]||['runner']).length];
+    p.devPath=p.devPath||DEV_PATHS[h%DEV_PATHS.length];
+    p.peakAge??=26+h%6;p.ambition??=30+h%61;p.loyalty??=25+(h>>>3)%61;
+    p.history=p.history||[];p.honours=p.honours||[];p.breakthroughs??=0;
+    p.eApps??=0;p.eGoals??=0;p.europeLoad??=0;
+  }
+  for(const c of Object.values(S.clubs)){
+    const hist=c.hist||[];
+    if(!c.heritage){
+      let promotions=0,relegations=0;
+      const tiers=hist.map(h=>h.tier).concat(c.tier);
+      for(let i=1;i<tiers.length;i++)if(tiers[i]<tiers[i-1])promotions++;else if(tiers[i]>tiers[i-1])relegations++;
+      c.heritage={
+        titles:hist.filter(h=>h.tier===0&&h.pos===1).length,
+        cups:(S.hist||[]).filter(h=>h.cup===c.id).length,
+        promotions,relegations,bestTier:Math.min(c.tier,...hist.map(h=>h.tier)),streak:0
+      };
+    }
+    c.devCulture??=45;c.identity??='Community club';
+  }
+}
+function deserialize(txt){S=migrate(JSON.parse(txt));expandLegacyPyramid();for(const [id,sq] of Object.entries(S.squads))for(const p of sq)if(p.academy&&!p.originClub)p.originClub=p.loan?.from||p.club||id;if(!S.foreign)S.foreign=foreignInit();foreignSquadInit();enrichLegacyWorld();foreignRestoreCalendar();staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();youthAfterLoad();return S}
 function save(){if(!HAS_DOM)return false;try{localStorage.setItem(SAVE_KEY,serialize());return true}catch(e){return false}}
 function hasSave(){if(!HAS_DOM)return false;try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
 function load(){if(!HAS_DOM)return false;try{const t=localStorage.getItem(SAVE_KEY);if(!t)return false;deserialize(t);return true}catch(e){return false}}

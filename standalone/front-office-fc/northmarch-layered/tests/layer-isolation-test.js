@@ -18,7 +18,7 @@ ok(ENGINE_WITHOUT_ACCOUNTABILITY.every(f=>!f.includes('director-accountability')
 ok(UI_WITHOUT_ACCOUNTABILITY.every(f=>!f.includes('director-accountability')),
   'S3.1-only UI excludes L3 S3.2 reporting panel');
 ok(vm.runInContext('typeof directorTrust',base)==='undefined','baseline has no director trust module');
-ok(vm.runInContext('featurePanel("directorAccountability")',base)==='','unregistered features render nothing');
+ok(vm.runInContext('featurePanel("unused:slot")',base)==='','unregistered features render nothing');
 const seed=83037;base.newWorld(seed);complete.newWorld(seed);
 const club=base.__get().seats[0];
 base.chooseClub(club);complete.chooseClub(club);

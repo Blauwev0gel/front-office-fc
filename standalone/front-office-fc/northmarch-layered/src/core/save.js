@@ -26,7 +26,15 @@ const MIGRATIONS={
   8:s=>{s.foreign=s.foreign||null;s.v=8;},
   // 8 → 9: world news, awards and new persistent player/club metadata.
   // Existing 48-club worlds are expanded after S is assigned.
-  9:s=>{s.worldLog=s.worldLog||[];s.worldAwards=s.worldAwards||[];s.v=9;}
+  9:s=>{s.worldLog=s.worldLog||[];s.worldAwards=s.worldAwards||[];s.v=9;},
+  // v10 splits league/cup stats and introduces actual foreign wages and facilities.
+  // Historical v9 totals may have mixed competitions; do not invent missing cup games.
+  10:s=>{for(const sq of Object.values(s.squads||{}))for(const p of sq){
+    if(s.week>0&&((p.sApps||0)>0||(p.sGoals||0)>0))p.mixedStatsSeason=s.season;
+    p.cupApps??=0;p.cupGoals??=0;
+  }
+  for(const c of Object.values(s.foreign?.clubs||{})){c.academy??=1;c.ledger??=null}
+  s.v=10;}
 };
 function migrate(s){
   if(!s||typeof s.v!=='number'||s.v<1)throw new Error('Not a Northmarch layered save');

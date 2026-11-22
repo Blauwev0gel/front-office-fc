@@ -139,7 +139,7 @@ function cupView(){
   const cup=S.cup,rounds={};for(const l of cup.log)(rounds[l.r]=rounds[l.r]||[]).push(l);
   const next=cup.round<CUP_WEEKS.length?`<div class="panel"><p class="eyebrow">${CUP_ROUND[cup.round]} · week ${CUP_WEEKS[cup.round]}</p>${cup.ties.map(t=>`<div class="row small ${t.h===S.my||t.a===S.my?'':''}"><span>${t.h===S.my||t.a===S.my?'<b>':''}${nm(t.h)} v ${nm(t.a)}${t.h===S.my||t.a===S.my?'</b>':''}</span></div>`).join('')}</div>`:`<div class="panel"><p class="eyebrow">Winners</p><p><b>${nm(cup.winner)}</b></p></div>`;
   const mine=cup.alive.includes(S.my)||cup.winner===S.my;
-  return`<p class="small ${mine?'up':'muted'}">${cup.winner===S.my?'You won the cup.':mine?'Still in the cup.':cup.round===0&&C().tier===0?'Premier clubs enter in the second round.':'Out of the cup.'} Prize money grows every round.</p>${next}
+  return`<p class="small ${mine?'up':'muted'}">${cup.winner===S.my?'You won the cup.':mine?'Still in the cup.':cup.round===0&&C().tier<=2?'The top three divisions join after the preliminary round.':'Out of the cup.'} Prize money grows every round.</p>${next}
   ${Object.keys(rounds).reverse().map(r=>`<div class="panel"><p class="eyebrow">${CUP_ROUND[r]}</p>${rounds[r].map(l=>`<div class="row small"><span>${l.h===S.my||l.a===S.my?'<b>':''}${nm(l.h)} ${l.gh}–${l.ga} ${nm(l.a)}${l.h===S.my||l.a===S.my?'</b>':''}</span></div>`).join('')}</div>`).join('')}`;
 }
 

@@ -70,7 +70,7 @@ function shopFor(id,pos,minQ,o={}){
   for(const c of pool){
     const p=c.p,sl=c.listed?shortlistEntry(p.id):null,seen=sl&&sl.obs?sl.est:p.q+(rnd()+rnd()-1)*2.5*tdNoise(id); // watched players are judged on the scouts' refined estimate
     const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000*(c.premium?1.3:1);
-    const coverOk=bill+wage<=cap; // emergency cover must also fit the club's wage policy
+    const cheap=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000,coverOk=bill+wage<=cap||wage<=cheap; /* emergency cover: within the wage limit, or a cheap basic contract. A strict ceiling alone leaves a club on its limit with no way to field a squad */
     let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
     if(reason==='Considered'){
       const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0)+recruitBias(id,p,fee)-.5*(sl&&sl.obs?scoutRange(id,sl.obs):eyeRange(id)); /* the director trusts what has been watched */
@@ -80,7 +80,7 @@ function shopFor(id,pos,minQ,o={}){
   }
   if(!best&&o.mustHave){const base=11.5+(tierBaseStr(2)-50)/4 /* fixed level: new faces from below Northmarch Two do not grow with the world (T2) */,p=newPlayer(pos,{age:ri(19,30),q:base-2+rnd()*1.2,contract:0});
     // A trialist is not a free escape hatch from the wage ceiling: if there is no room, the director cannot sign him.
-    if(bill+wageFor(p.q)/1000<=cap){p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0};}}
+    if(bill+wageFor(p.q)/1000<=cap||wageFor(p.q)/1000<=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000){p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0};}}
   if(id===S.my){
     const history=S.stats[id].scoutHistory||[];
     const h=history[history.length-1];

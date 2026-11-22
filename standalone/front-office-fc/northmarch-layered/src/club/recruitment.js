@@ -36,7 +36,7 @@ function openNeeds(){return OPS().plan.needs.filter(n=>n.status==='open')}
 function scoutObservations(id){return 1+Math.floor(groundSignals(id).scouting/1.5)}
 function scoutNoise(id){return 1.4*clamp(.9-.08*groundSignals(id).scouting,.35,.9)} /* specialist scouts: sharper than one glance from the director, sharper still with a better department */
 function findPlayer(pid){for(const c in S.squads){const p=S.squads[c].find(x=>x.id===pid);if(p)return{p,club:c}}const f=S.fa.find(x=>x.id===pid);return f?{p:f,club:null}:null}
-function scoutWeek(id){
+function scoutWeek(id,salt=0){
   const ops=OPS(),needs=openNeeds(),sl=ops.shortlist;ops.looks={s:S.season,w:S.week,list:[]}; /* this week's looks, for the weekly club report */
   // keep the shortlist true to the world: moves, signings, retirements
   for(const e of sl){if(e.status!=='watching')continue;const f=findPlayer(e.pid);if(!f){e.status='gone';e.reason='No longer in football';continue}
@@ -45,11 +45,11 @@ function scoutWeek(id){
   const SCOUT_W={hole:3,upgrade:2,leaving:2,ageing:1,contract:1}; /* scouts follow where the director will search: gaps first, then upgrades and departures */
   const positions=needs.length?needs.flatMap(n=>Array(SCOUT_W[n.kind]||1).fill(n.pos)):[pick(POS)],n=scoutObservations(id);
   const others=Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1);
-  for(let k=0;k<n;k++){const pos=positions[(S.week*n+k)%positions.length];
+  for(let k=0;k<n;k++){const pos=positions[(S.week*n+k+salt)%positions.length];
     let cand=null;
     // half the looks go back to players already on the list, the least-watched first: that is how estimates firm up
     const again=sl.filter(e=>e.status==='watching'&&e.pos===pos).sort((a,b)=>a.obs-b.obs)[0];
-    if(again&&(S.week+k)%2===1){const f=findPlayer(again.pid);if(f&&f.club!==id)cand={p:f.p,club:f.club}}
+    if(again&&(S.week+k+salt)%2===1){const f=findPlayer(again.pid);if(f&&f.club!==id)cand={p:f.p,club:f.club}}
     if(!cand&&rnd()<.35){const fa=S.fa.filter(p=>p.pos===pos);if(fa.length)cand={p:pick(fa),club:null}}
     if(!cand&&others.length){const o=pick(others),sq=S.squads[o],spare=sq.filter(p=>p.pos===pos).length>REQ[pos]||F(o).cash<0,bud=budgetFor(id);
       /* scouts watch players who can be had: surplus at their club, a club in need of cash, or a player who wants out; and within reach of the budget */
@@ -88,13 +88,14 @@ function signingReview(){return(S.ops?S.ops.signings:[]).slice(-6).reverse().map
 /* the transfer windows, made visible: what is coming, what the director is working on, what was done */
 function windowInfo(){
   const id=S.my,ev=S.ev.filter(e=>(e.c===id&&(e.t==='Transfer'||e.t==='Signing'))||(e.c2===id&&e.t==='Transfer'));
-  const open=openNeeds().filter(n=>n.kind==='hole'||n.prio>=2),summerDone=S.season>1&&S.week<=5,winterDone=S.week>=WINTER_WEEK&&S.week<=WINTER_WEEK+5;
+  const open=openNeeds().filter(n=>n.kind==='hole'||n.prio>=2),summerDone=S.week>=1&&S.week<=5,winterDone=S.week>=WINTER_WEEK&&S.week<=WINTER_WEEK+5;
   const report=(s,w)=>{const x=ev.filter(e=>e.s===s&&e.w===w);return{ins:x.filter(e=>e.c===id),outs:x.filter(e=>e.c2===id)}};
-  if(seasonOver())return{k:'summer-next',name:'Summer window',when:'Right after the season is closed: contracts end, the academy brings in new players and the director shops.',open};
+  if(S.week===0)return{k:'open',name:'Summer window',when:'Open through the pre-season. The scouts watch players for the director while it runs. Set your strategy and your money frame now: the director signs and sells when you start the season.',open};
+  if(seasonOver())return{k:'summer-next',name:'Summer window',when:'Opens after the season is closed, with the new pre-season: contracts end and the academy brings in new players.',open};
+  if(summerDone)return{k:'done',name:'Summer window',when:'Closed when the season started.',...report(S.season,0),open};
   if(winterDone)return{k:'done',name:'Winter window',when:`Closed in week ${WINTER_WEEK}.`,...report(S.season,WINTER_WEEK),open};
   if(S.week===WINTER_WEEK-1)return{k:'next',name:'Winter window',when:`Opens next week (week ${WINTER_WEEK}). The director acts on this plan.`,open};
   if(S.week<WINTER_WEEK-1)return{k:'upcoming',name:'Winter window',when:`Week ${WINTER_WEEK}, in ${WINTER_WEEK-1-S.week} week${WINTER_WEEK-1-S.week===1?'':'s'}. The scouts are preparing the list.`,open};
-  if(summerDone)return{k:'done',name:'Summer window',when:'Closed before the season.',...report(S.season-1,SEASON_WEEKS),open};
   return{k:'none',name:'Next window',when:'The summer window follows the season; no more transfers until then.',open};
 }
 function opsAfterLoad(){if(S.my&&!S.ops){S.ops=opsInit();buildPlan(S.my)}}

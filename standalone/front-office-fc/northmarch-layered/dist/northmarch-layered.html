@@ -721,7 +721,7 @@ function shopFor(id,pos,minQ,o={}){
   for(const c of pool){
     const p=c.p,sl=c.listed?shortlistEntry(p.id):null,seen=sl&&sl.obs?sl.est:p.q+(rnd()+rnd()-1)*2.5*tdNoise(id); // watched players are judged on the scouts' refined estimate
     const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000*(c.premium?1.3:1);
-    const coverOk=bill+wage<=cap; // emergency cover must also fit the club's wage policy
+    const cheap=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000,coverOk=bill+wage<=cap||wage<=cheap; /* emergency cover: within the wage limit, or a cheap basic contract. A strict ceiling alone leaves a club on its limit with no way to field a squad */
     let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
     if(reason==='Considered'){
       const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0)+recruitBias(id,p,fee)-.5*(sl&&sl.obs?scoutRange(id,sl.obs):eyeRange(id)); /* the director trusts what has been watched */
@@ -731,7 +731,7 @@ function shopFor(id,pos,minQ,o={}){
   }
   if(!best&&o.mustHave){const base=11.5+(tierBaseStr(2)-50)/4 /* fixed level: new faces from below Northmarch Two do not grow with the world (T2) */,p=newPlayer(pos,{age:ri(19,30),q:base-2+rnd()*1.2,contract:0});
     // A trialist is not a free escape hatch from the wage ceiling: if there is no room, the director cannot sign him.
-    if(bill+wageFor(p.q)/1000<=cap){p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0};}}
+    if(bill+wageFor(p.q)/1000<=cap||wageFor(p.q)/1000<=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000){p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0};}}
   if(id===S.my){
     const history=S.stats[id].scoutHistory||[];
     const h=history[history.length-1];
@@ -1663,7 +1663,7 @@ function openNeeds(){return OPS().plan.needs.filter(n=>n.status==='open')}
 function scoutObservations(id){return 1+Math.floor(groundSignals(id).scouting/1.5)}
 function scoutNoise(id){return 1.4*clamp(.9-.08*groundSignals(id).scouting,.35,.9)} /* specialist scouts: sharper than one glance from the director, sharper still with a better department */
 function findPlayer(pid){for(const c in S.squads){const p=S.squads[c].find(x=>x.id===pid);if(p)return{p,club:c}}const f=S.fa.find(x=>x.id===pid);return f?{p:f,club:null}:null}
-function scoutWeek(id){
+function scoutWeek(id,salt=0){
   const ops=OPS(),needs=openNeeds(),sl=ops.shortlist;ops.looks={s:S.season,w:S.week,list:[]}; /* this week's looks, for the weekly club report */
   // keep the shortlist true to the world: moves, signings, retirements
   for(const e of sl){if(e.status!=='watching')continue;const f=findPlayer(e.pid);if(!f){e.status='gone';e.reason='No longer in football';continue}
@@ -1672,11 +1672,11 @@ function scoutWeek(id){
   const SCOUT_W={hole:3,upgrade:2,leaving:2,ageing:1,contract:1}; /* scouts follow where the director will search: gaps first, then upgrades and departures */
   const positions=needs.length?needs.flatMap(n=>Array(SCOUT_W[n.kind]||1).fill(n.pos)):[pick(POS)],n=scoutObservations(id);
   const others=Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1);
-  for(let k=0;k<n;k++){const pos=positions[(S.week*n+k)%positions.length];
+  for(let k=0;k<n;k++){const pos=positions[(S.week*n+k+salt)%positions.length];
     let cand=null;
     // half the looks go back to players already on the list, the least-watched first: that is how estimates firm up
     const again=sl.filter(e=>e.status==='watching'&&e.pos===pos).sort((a,b)=>a.obs-b.obs)[0];
-    if(again&&(S.week+k)%2===1){const f=findPlayer(again.pid);if(f&&f.club!==id)cand={p:f.p,club:f.club}}
+    if(again&&(S.week+k+salt)%2===1){const f=findPlayer(again.pid);if(f&&f.club!==id)cand={p:f.p,club:f.club}}
     if(!cand&&rnd()<.35){const fa=S.fa.filter(p=>p.pos===pos);if(fa.length)cand={p:pick(fa),club:null}}
     if(!cand&&others.length){const o=pick(others),sq=S.squads[o],spare=sq.filter(p=>p.pos===pos).length>REQ[pos]||F(o).cash<0,bud=budgetFor(id);
       /* scouts watch players who can be had: surplus at their club, a club in need of cash, or a player who wants out; and within reach of the budget */
@@ -1715,13 +1715,14 @@ function signingReview(){return(S.ops?S.ops.signings:[]).slice(-6).reverse().map
 /* the transfer windows, made visible: what is coming, what the director is working on, what was done */
 function windowInfo(){
   const id=S.my,ev=S.ev.filter(e=>(e.c===id&&(e.t==='Transfer'||e.t==='Signing'))||(e.c2===id&&e.t==='Transfer'));
-  const open=openNeeds().filter(n=>n.kind==='hole'||n.prio>=2),summerDone=S.season>1&&S.week<=5,winterDone=S.week>=WINTER_WEEK&&S.week<=WINTER_WEEK+5;
+  const open=openNeeds().filter(n=>n.kind==='hole'||n.prio>=2),summerDone=S.week>=1&&S.week<=5,winterDone=S.week>=WINTER_WEEK&&S.week<=WINTER_WEEK+5;
   const report=(s,w)=>{const x=ev.filter(e=>e.s===s&&e.w===w);return{ins:x.filter(e=>e.c===id),outs:x.filter(e=>e.c2===id)}};
-  if(seasonOver())return{k:'summer-next',name:'Summer window',when:'Right after the season is closed: contracts end, the academy brings in new players and the director shops.',open};
+  if(S.week===0)return{k:'open',name:'Summer window',when:'Open through the pre-season. The scouts watch players for the director while it runs. Set your strategy and your money frame now: the director signs and sells when you start the season.',open};
+  if(seasonOver())return{k:'summer-next',name:'Summer window',when:'Opens after the season is closed, with the new pre-season: contracts end and the academy brings in new players.',open};
+  if(summerDone)return{k:'done',name:'Summer window',when:'Closed when the season started.',...report(S.season,0),open};
   if(winterDone)return{k:'done',name:'Winter window',when:`Closed in week ${WINTER_WEEK}.`,...report(S.season,WINTER_WEEK),open};
   if(S.week===WINTER_WEEK-1)return{k:'next',name:'Winter window',when:`Opens next week (week ${WINTER_WEEK}). The director acts on this plan.`,open};
   if(S.week<WINTER_WEEK-1)return{k:'upcoming',name:'Winter window',when:`Week ${WINTER_WEEK}, in ${WINTER_WEEK-1-S.week} week${WINTER_WEEK-1-S.week===1?'':'s'}. The scouts are preparing the list.`,open};
-  if(summerDone)return{k:'done',name:'Summer window',when:'Closed before the season.',...report(S.season-1,SEASON_WEEKS),open};
   return{k:'none',name:'Next window',when:'The summer window follows the season; no more transfers until then.',open};
 }
 function opsAfterLoad(){if(S.my&&!S.ops){S.ops=opsInit();buildPlan(S.my)}}
@@ -1863,8 +1864,22 @@ function onWeek(f){HOOKS.weekClosed.push(f)}
 function onSeason(f){HOOKS.seasonClosed.push(f)}
 function clearHooks(){HOOKS.weekClosed.length=0;HOOKS.seasonClosed.length=0}
 function allIds(){return Object.keys(S.clubs)}
+/* the summer transfer window: open through the pre-season (week 0), closed when the new season's first week is played.
+   The director of every club signs, sells and loans in one go; the chairman's strategy and frame are what count by then. */
+function summerWindow(){
+  const ids=allIds();
+  if(S.my){for(let k=0;k<4;k++)scoutWeek(S.my,k*3+1);buildPlan(S.my)} /* the pre-season weeks of scouting before the window closes */
+  const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
+  for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
+  if(S.my)buildPlan(S.my);
+  for(const id of order)loanOut(id);
+  youthReconcile();
+  for(const t of TIERS)tierIds(t).slice().sort((x,y)=>teamStrength(y)-teamStrength(x)).forEach((id,i)=>CL(id).expect=i+1);
+  setGoalsAll();
+}
 function advanceWeek(){
   if(S.phase!=='season'||S.week>=SEASON_WEEKS)return null;
+  if(S.week===0)summerWindow();
   S.week++;const w=S.week,ids=allIds();
   const mark=S.evn||0;
   const matches=playWeekMatches(w);
@@ -1903,12 +1918,6 @@ function closeSeason(){
   S.qref=r2(S.qref*.7+worldQuality()*.3);
   faSummer();
   setBudgetsAll(s+1);
-  const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
-  if(S.my)buildPlan(S.my);
-  for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
-  if(S.my)buildPlan(S.my);
-  for(const id of order)loanOut(id);
-  youthReconcile();
   for(const id of ids)groundSeasonEnd(id);
   staffSeasonEnd();
   emit('SeasonClosed',null,`Season ${s} is over.`,{season:s});
@@ -2287,7 +2296,7 @@ function reviewView(){
   <p class="voice">${mv?(mv.to<mv.from?`Promoted to ${TIER_NAME[mv.to]}.`:`Relegated to ${TIER_NAME[mv.to]}.`):`Another season in ${TIER_NAME[last.tier]}.`}${h.cup===id?' And the cup is ours.':''}</p>
   <div class="panel"><div class="row small"><span>Points</span><b>${last.pts}</b></div><div class="row small"><span>Operating result</span><b class="${operatingResult(fh.lines)<0?'down':'up'}">${k1(operatingResult(fh.lines))}</b></div><div class="row small"><span>Cash</span><b>${k1(F(id).cash)}</b></div><div class="row small"><span>Cup winners</span><b>${nm(h.cup)}</b></div></div>
   <div class="panel"><p class="eyebrow">Around the Northmarch</p>${TIERS.map(t=>`<div class="row small"><span>${TIER_NAME[t]} champions</span><b>${nm(h.tables[t][0])}</b></div>`).join('')}${h.moves.filter(m=>m.to<m.from).map(m=>`<p class="small up">${nm(m.id)} go up to ${TIER_NAME[m.to]}.</p>`).join('')}</div>
-  <div class="panel"><p class="eyebrow">The summer</p>${kids?`<p class="small">${esc(kids.text)}</p>`:''}${ins.map(e=>`<p class="small">In: ${esc(e.text)}</p>`).join('')}${outs.map(e=>`<p class="small">Out: ${esc(e.text)}</p>`).join('')}${!ins.length&&!outs.length?'<p class="small muted">A quiet window.</p>':''}</div>
+  <div class="panel"><p class="eyebrow">The summer</p>${kids?`<p class="small">${esc(kids.text)}</p>`:''}<p class="small muted">The transfer window opens with the new season's pre-season. You set the frame first; the director then signs and sells.</p></div>
   ${h.agm&&h.agm.goals?`<div class="panel"><p class="eyebrow">Season targets</p>${h.agm.goals.map(g=>`<div class="row small"><span>${esc(g.text)}<br><span class="muted">${esc(g.now)}</span></span><span class="pill ${g.met?'good':'bad'}">${g.met?'Met':'Missed'}</span></div>`).join('')}</div>`:''}
   ${!out&&S.my?seasonAheadPanel():''}
   ${h.chairsOut&&h.chairsOut.length?`<div class="panel"><p class="eyebrow">Other AGMs</p>${h.chairsOut.slice(0,6).map(c=>`<p class="small">${nm(c)} vote their chairman out.</p>`).join('')}</div>`:''}
@@ -2642,9 +2651,9 @@ function onboardCard(){
 /* the action bar: playing the week is always one tap away */
 function actionBar(){
   if(!S||S.phase!=='season'||UI.review||UI.title)return'';
-  const over=seasonOver(),w=S.week+1,fx=over?null:fixtureOf(S.my,w),cup=!over&&CUP_WEEKS[S.cup.round]===w&&cupTieOf(S.my);
+  const over=seasonOver(),w=S.week+1,pre=S.week===0,fx=over?null:fixtureOf(S.my,w),cup=!over&&CUP_WEEKS[S.cup.round]===w&&cupTieOf(S.my);
   const next=over?'All thirty weeks played':fx?`Next: ${fx.home?'v':'at'} ${CL(fx.opp).name}${cup?' + cup tie':''}`:'No league game';
-  return`<div class="actbar"><div class="ab-in"><span class="small">${esc(next)}</span><button class="btn" data-act="${over?'close':'play'}">${over?'Close the season':`Play week ${w}`}</button></div></div>`;
+  return`<div class="actbar"><div class="ab-in"><span class="small">${esc(next)}</span><button class="btn" data-act="${over?'close':'play'}">${over?'Close the season':pre?'Close the window · start the season':`Play week ${w}`}</button></div></div>`;
 }
 
 /* ---- ui/decide.js ---- */
@@ -2701,7 +2710,7 @@ function recruitPanels(){
 /* ----- the weekly club report and the transfer window, on the Week screen ----- */
 function windowPanel(){
   const w=windowInfo(),active=w.k==='next'||w.k==='done';
-  return`<div class="panel"><div class="row"><p class="eyebrow">${esc(w.name)}</p><span class="pill ${w.k==='next'?'bad':w.k==='done'?'good':''}">${w.k==='next'?'Next week':w.k==='done'?'Closed':w.k==='summer-next'?'After the season':'Upcoming'}</span></div>
+  return`<div class="panel"><div class="row"><p class="eyebrow">${esc(w.name)}</p><span class="pill ${w.k==='next'||w.k==='open'?'bad':w.k==='done'?'good':''}">${w.k==='open'?'Open now':w.k==='next'?'Next week':w.k==='done'?'Closed':w.k==='summer-next'?'After the season':'Upcoming'}</span></div>
   <p class="small">${esc(w.when)}</p>
   ${w.open.length&&w.k!=='done'&&w.k!=='none'?`<p class="small muted">The director's plan: ${w.open.slice(0,3).map(n=>esc(NEED_WORD[n.kind]+' · '+POS_ONE[n.pos])).join(', ')}.</p>`:''}
   ${w.k==='done'?(w.ins.length||w.outs.length?`${w.ins.map(e=>`<p class="small"><b>In:</b> ${esc(e.text)}</p>`).join('')}${w.outs.map(e=>`<p class="small"><b>Out:</b> ${esc(e.text)}</p>`).join('')}`:'<p class="small muted">The director did no business: nobody came in or went out.</p>')+(w.open.length?`<p class="small muted">Still open: ${w.open.slice(0,3).map(n=>esc(n.why)).join('; ')}.</p>`:''):''}

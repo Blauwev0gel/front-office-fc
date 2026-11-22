@@ -9,8 +9,22 @@ function onWeek(f){HOOKS.weekClosed.push(f)}
 function onSeason(f){HOOKS.seasonClosed.push(f)}
 function clearHooks(){HOOKS.weekClosed.length=0;HOOKS.seasonClosed.length=0}
 function allIds(){return Object.keys(S.clubs)}
+/* the summer transfer window: open through the pre-season (week 0), closed when the new season's first week is played.
+   The director of every club signs, sells and loans in one go; the chairman's strategy and frame are what count by then. */
+function summerWindow(){
+  const ids=allIds();
+  if(S.my){for(let k=0;k<4;k++)scoutWeek(S.my,k*3+1);buildPlan(S.my)} /* the pre-season weeks of scouting before the window closes */
+  const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
+  for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
+  if(S.my)buildPlan(S.my);
+  for(const id of order)loanOut(id);
+  youthReconcile();
+  for(const t of TIERS)tierIds(t).slice().sort((x,y)=>teamStrength(y)-teamStrength(x)).forEach((id,i)=>CL(id).expect=i+1);
+  setGoalsAll();
+}
 function advanceWeek(){
   if(S.phase!=='season'||S.week>=SEASON_WEEKS)return null;
+  if(S.week===0)summerWindow();
   S.week++;const w=S.week,ids=allIds();
   const mark=S.evn||0;
   const matches=playWeekMatches(w);
@@ -49,12 +63,6 @@ function closeSeason(){
   S.qref=r2(S.qref*.7+worldQuality()*.3);
   faSummer();
   setBudgetsAll(s+1);
-  const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
-  if(S.my)buildPlan(S.my);
-  for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
-  if(S.my)buildPlan(S.my);
-  for(const id of order)loanOut(id);
-  youthReconcile();
   for(const id of ids)groundSeasonEnd(id);
   staffSeasonEnd();
   emit('SeasonClosed',null,`Season ${s} is over.`,{season:s});

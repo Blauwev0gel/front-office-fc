@@ -19,7 +19,7 @@ function recruitPanels(){
 /* ----- the weekly club report and the transfer window, on the Week screen ----- */
 function windowPanel(){
   const w=windowInfo(),active=w.k==='next'||w.k==='done';
-  return`<div class="panel"><div class="row"><p class="eyebrow">${esc(w.name)}</p><span class="pill ${w.k==='next'?'bad':w.k==='done'?'good':''}">${w.k==='next'?'Next week':w.k==='done'?'Closed':w.k==='summer-next'?'After the season':'Upcoming'}</span></div>
+  return`<div class="panel"><div class="row"><p class="eyebrow">${esc(w.name)}</p><span class="pill ${w.k==='next'||w.k==='open'?'bad':w.k==='done'?'good':''}">${w.k==='open'?'Open now':w.k==='next'?'Next week':w.k==='done'?'Closed':w.k==='summer-next'?'After the season':'Upcoming'}</span></div>
   <p class="small">${esc(w.when)}</p>
   ${w.open.length&&w.k!=='done'&&w.k!=='none'?`<p class="small muted">The director's plan: ${w.open.slice(0,3).map(n=>esc(NEED_WORD[n.kind]+' · '+POS_ONE[n.pos])).join(', ')}.</p>`:''}
   ${w.k==='done'?(w.ins.length||w.outs.length?`${w.ins.map(e=>`<p class="small"><b>In:</b> ${esc(e.text)}</p>`).join('')}${w.outs.map(e=>`<p class="small"><b>Out:</b> ${esc(e.text)}</p>`).join('')}`:'<p class="small muted">The director did no business: nobody came in or went out.</p>')+(w.open.length?`<p class="small muted">Still open: ${w.open.slice(0,3).map(n=>esc(n.why)).join('; ')}.</p>`:''):''}

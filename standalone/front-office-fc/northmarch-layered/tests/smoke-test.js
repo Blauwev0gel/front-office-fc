@@ -11,6 +11,7 @@ let ran=0;for(const [n,a] of calls){const r=E.cmd(n,id,a);if(r.ok)ran++;else con
 ok(ran>=12,`player commands run through cmd() (${ran}/${calls.length}; refusals above are valid rule checks)`);
 ok(S.journal.length>=10,'the decision journal records them');
 for(let s=0;s<2;s++){while(!E.seasonOver())E.advanceWeek();E.closeSeason()}
+E.advanceWeek(); /* the summer window is open through the pre-season and closes when week 1 is played */
 ok(S.season===3&&S.phase==='season','two full seasons play through, AGMs included');
 let bad=[];for(const c in S.clubs){const f=S.fin[c];let sum=f.start;for(const h of f.hist)for(const k in h.lines)sum+=h.lines[k];for(const k in f.season)sum+=f.season[k];
   if(Math.abs(sum-f.cash)>.5)bad.push(c+' ledger');if(!Number.isFinite(f.cash))bad.push(c+' cash');const n=S.squads[c].length;if(n<18||n>30)bad.push(c+' squad '+n)}

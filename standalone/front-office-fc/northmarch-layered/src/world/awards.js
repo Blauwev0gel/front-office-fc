@@ -40,10 +40,11 @@ function worldSeasonAwards(){
     cup:S.cup.winner,
     topScorer:scored.length?{id:scored[0].p.id,name:scored[0].p.name,club:scored[0].club,goals:scored[0].goals,apps:scored[0].apps}:null,
     breakthrough:breakthrough?{id:breakthrough.p.id,name:breakthrough.p.name,club:breakthrough.club,age:breakthrough.p.age,delta:r2(breakthrough.p.grown)}:null,
-    europe:S.foreign?.europe?.seasons?.slice(-1)[0]?.winner||null
+    europe:S.foreign?.europe?.seasons?.slice(-1)[0]?.winner||null,
+    statsEstimated:all.some(x=>x.p.mixedStatsSeason===S.season)
   };
   if(year.topScorer)emit('SeasonAward',year.topScorer.club,
-    `${year.topScorer.name} wins the Northmarch Golden Boot with ${year.topScorer.goals} goals.`,{pid:year.topScorer.id,award:'golden-boot'});
+    year.statsEstimated?`${year.topScorer.name} leads a provisional scoring list (${year.topScorer.goals}); older competition totals could not be separated.`:`${year.topScorer.name} wins the Northmarch Golden Boot with ${year.topScorer.goals} goals.`,{pid:year.topScorer.id,award:year.statsEstimated?'provisional-scorer':'golden-boot'});
   if(year.breakthrough&&year.breakthrough.delta>0)emit('SeasonAward',year.breakthrough.club,
     `${year.breakthrough.name} is the season's breakthrough player (+${year.breakthrough.delta} development).`,{pid:year.breakthrough.id,award:'breakthrough'});
   S.worldAwards.push(year);

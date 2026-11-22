@@ -31,6 +31,11 @@ ok(reports[0].signed.every((x,i)=>JSON.stringify(x.assessment)===snapshots[i]),'
 // Season rollover resets live player statistics but must not erase past observations.
 for(const p of ps){p.history.push({season:S.season,club:id,apps:8,cupApps:0,europe:0});p.sApps=0;}
 S.season++;
+const idle=S.squads[id][3];
+reports[0].signed.push({pid:idle.id,name:idle.name,pos:idle.pos,s:1,w:0,
+  est:idle.q,q0:idle.q,directorPid:tdid,fee:0,need:'Bench cover'});
+ok(E.directorWindowReviews()[0].players.some(x=>x.pid===idle.id&&x.verdict==='Limited involvement'),
+  'an unused signing after a full season is flagged rather than silently called successful');
 ok(E.directorWindowReviews()[0].assessed===3&&E.directorTrust().n===3,'reports and trust survive a season stats reset');
 const saved=E.serialize();
 E.deserialize(saved);

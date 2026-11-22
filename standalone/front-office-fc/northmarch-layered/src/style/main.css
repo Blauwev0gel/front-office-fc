@@ -227,3 +227,15 @@ div.dept-player{cursor:default;font-size:13.333px} /* a row that is not a button
 
 .devt{display:flex;flex-direction:column}.devr{display:grid;grid-template-columns:2rem 3rem 3rem 3.2rem 1fr 1fr;gap:6px;padding:7px 0;border-top:1px solid var(--line);font-size:.85rem;font-variant-numeric:tabular-nums}.devr.head{border-top:0;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
 .propcard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0;background:var(--paper)}.propbtn{display:grid;grid-template-columns:1.4fr 1fr;gap:8px;margin-top:8px}.propbtn .btn{min-height:44px;font-size:.88rem;padding-inline:6px}.prop{border-left:4px solid var(--signal)}.seg.grid3{display:grid;grid-template-columns:repeat(3,1fr)}
+
+/* Base-game weekly briefing: clear on a 390px display, no secondary menu. */
+.chairman-brief{border-color:var(--signal);}
+.brief-match{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:4px 0 2px;}
+.brief-match b{font-size:1.15rem;}
+.brief-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 14px;}
+.brief-stat{min-width:0;background:var(--panel,rgba(127,127,127,.07));padding:9px 7px;border-radius:6px;display:flex;flex-direction:column;gap:5px;}
+.brief-stat b{font-size:1rem;overflow-wrap:anywhere;}
+.brief-focus{border-top:1px solid var(--line,rgba(127,127,127,.25));padding-top:12px;}
+.brief-focus .btn{width:100%;margin-top:8px;}
+.brief-decision{border-top:1px solid var(--line,rgba(127,127,127,.25));margin-top:12px;padding-top:10px;}
+@media(max-width:360px){.brief-stats{gap:5px}.brief-stat{padding:7px 5px}.brief-stat b{font-size:.87rem}}

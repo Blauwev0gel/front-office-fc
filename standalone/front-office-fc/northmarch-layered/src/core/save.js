@@ -102,7 +102,7 @@ function enrichLegacyWorld(){
     p.devPath=p.devPath||DEV_PATHS[h%DEV_PATHS.length];
     p.peakAge??=26+h%6;p.ambition??=30+h%61;p.loyalty??=25+(h>>>3)%61;
     p.history=p.history||[];p.honours=p.honours||[];p.breakthroughs??=0;
-    p.eApps??=0;p.eGoals??=0;p.europeLoad??=0;
+    p.eApps??=0;p.eGoals??=0;p.cupApps??=0;p.cupGoals??=0;p.europeLoad??=0;
   }
   for(const c of Object.values(S.clubs)){
     const hist=c.hist||[];

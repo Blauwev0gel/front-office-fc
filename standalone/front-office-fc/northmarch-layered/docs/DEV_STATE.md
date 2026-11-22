@@ -38,7 +38,8 @@ Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `footbal
 
 ## Teststatus (laatst bekende feiten per SHA)
 | Wat | SHA | Resultaat | Datum | Door |
-| Basisbuild standaard zonder S3.1/S3.2, opt-in L3 build en 3-seizoenen baseline-regressie | f40b092 + docs | **CI lopend, niet lokaal getest** op deze SHA; browser licht/donker niet opnieuw gespeeld | 2026-11-22 | ChatGPT / GitHub Actions |
+| Basisbuild standaard zonder S3.1/S3.2, opt-in L3 build en 3-seizoenen baseline-regressie | f40b092 | **Groen** via GitHub Actions run 45039214254; build + bestaande L3-tests + layer-isolation + base-isolation + 20-season sim, zonder browser | 2026-11-22 | GitHub Actions |
+| Mobiele 390px-browser-playtest licht én donker op standaard basisspel-build | 073015b + docs | Extra CI-gate `mobile-browser` toegevoegd; **uitkomst in afwachting**, niet lokaal uitgevoerd | 2026-11-22 | ChatGPT / GitHub Actions |
 | S3.2 als optionele modules + isolatietest (build, engine, UI zonder module) | 34ebd53 + docs | CI **in afwachting**; lokaal niet uitgevoerd wegens geen netwerktoegang tot GitHub vanuit werkcontainer | 2026-11-22 | GitHub Actions / ChatGPT |
 | S3.2: `node build.js`, snelle engine-suite incl. `l3-s32-test.js` en echte zomer-/winterwindowtest | 27c2d66 | **groen** in GitHub Actions, run 45032149630 (zonder browser) | 2026-11-22 | GitHub Actions |
 | S3.2: melding voor langdurig niet gebruikte aankopen | 639b6d9 + docs | **CI in afwachting**; geen lokale build, geen browserplaytest | 2026-11-22 | GitHub Actions / ChatGPT |
@@ -52,6 +53,7 @@ Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `footbal
 Regel: een resultaat geldt alleen voor de genoemde SHA. Nieuwe SHA = opnieuw vermelden of "niet gedraaid".
 
 ## Wijzigingslog (nieuwste bovenaan)
+- 2026-11-22 ChatGPT: `mobile-browser` CI-job toegevoegd aan Slimline workflow: installeert Playwright/Chromium en bouwt/doorloopt de standaard L1/L2 standalone HTML op 390px in licht en donker. SHA f40b092 engine+base-isolation CI groen, zie run 45039214254. Browserjob nog niet afgetekend.
 - 2026-11-22 ChatGPT: S3.1 volledig uit kern en basale UI gehaald naar `layers/autonomy/director-deals.js` + `director-deals-ui.js`; default `build.js` bundelt alleen L1/L2, autonomie opt-in. Generieke hook/rule/action interfaces; market gebruikt mandaatregel alleen als feature die aanbiedt. `tests/base-isolation-test.js` toegevoegd: 3 volle seizoenen, financiën, standaard transferbeleid, save/load zonder L3; `tests/layer-isolation-test.js` blijft S3.2 vergelijken. Dit is een architectuursprint, geen claim dat gameplay 'leuk' is. CI/browseruitslagen nog te verifiëren. Overlap met Claude-code gerapporteerd in PR #6 en hier.
 - 2026-11-22 ChatGPT: op expliciet verzoek eigenaar de bouwvolgorde hersteld: eerst speelbaar basisspel, daarna autonoom L3, L4, L5. S3.2-registratie en -UI verplaatst naar optionele `layers/autonomy` modules met generieke feature-events en optioneel UI-slot; basismodule-isolatietest toegevoegd. S3.1 blijft apart open voor toekomstige refactor. Documentatie en protocol bijgewerkt. PR #6 blijft Draft totdat CI slaagt; geen merge of publicatie.
 - 2026-11-22 ChatGPT: S3.2 evidence-based directeurverantwoording (vensters, historische optredens, beoordeling na 8 wedstrijden, identiteit bij stafwisseling, save/load), regressietest toegevoegd op eigen branch en PR #6 als DRAFT. Lokaal build/engine niet uitgevoerd wegens onbereikbare GitHub vanuit container; CI-status volgt. Niet gemerged of gepubliceerd.

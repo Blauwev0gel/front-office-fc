@@ -58,6 +58,7 @@ function foreignTransferWindow(){
       const p=pick(available),fee=Math.max(1,Math.round(playerValue(p)*1.25));
       if(fee>club.budget*.18||p.q<10.5)continue;
       S.squads[from].splice(S.squads[from].indexOf(p),1);
+      if(from===S.my)youthLeft(p,'sold',id,fee);
       book(from,'feesIn',fee);
       club.budget-=fee;
       p.club=id;p.joined=S.season;p.contract=ri(2,4);
@@ -65,7 +66,7 @@ function foreignTransferWindow(){
       sq.push(p);
       const move={season:S.season,week:S.week,pid:p.id,name:p.name,from,to:id,fee};
       f.market.log.push(move);
-      emit('Transfer',from,`${p.name} moves from ${CL(from).name} to ${club.name} for £${fee}k.`,{pid:p.id,c2:id,fee,why:'foreign interest'});
+      emit('Transfer',from,`${p.name} moves from ${CL(from).name} to ${club.name} for £${fee}k.`,{pid:p.id,foreignClub:id,fee,why:'foreign interest'});
       break;
     }
   }
@@ -86,7 +87,7 @@ function foreignTransferWindow(){
       book(to,'feesOut',-fee);f.clubs[from].budget+=fee;
       p.club=to;p.joined=S.season;p.contract=ri(2,4);p.wage=moveWage(p,to);
       f.market.log.push({season:S.season,week:S.week,pid:p.id,name:p.name,from,to,fee});
-      emit('Transfer',to,`${p.name} joins ${CL(to).name} from ${f.clubs[from].name} for £${fee}k.`,{pid:p.id,c2:from,fee,why:'international scouting'});
+      emit('Transfer',to,`${p.name} joins ${CL(to).name} from ${f.clubs[from].name} for £${fee}k.`,{pid:p.id,foreignClub:from,fee,why:'international scouting'});
       break;
     }
   }

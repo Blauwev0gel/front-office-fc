@@ -20,6 +20,8 @@ function faSummer(){
 
 /* the value a club puts on a player it owns: its best eleven are not for sale cheaply */
 function isCore(id,p){const xi=pickXI(S.squads[id]);return xi.some(x=>x.p===p)}
+function marketClubName(id){return S.clubs[id]?.name||S.foreign?.clubs?.[id]?.name||id}
+function foreignSeller(id){return !!(S.foreign&&S.foreign.clubs[id])}
 function moveWage(p,toId){return Math.round(wageFor(p.q)*(0.95+rnd()*.25)/5)*5}
 function transfer(p,from,to,fee,why,premium){
   const sq=S.squads[from];sq.splice(sq.indexOf(p),1);if(from===S.my)youthLeft(p,'sold',to,fee);
@@ -56,19 +58,43 @@ function scoutPool(id,pos,n,quiet){
     out.push({p,from:o,premium:CL(o).rep>CL(id).rep+15&&!p.wantsOut});
     found++;
   }
+  // Overseas scouting is part of the same director search, fee and mandate.
+  // Players at foreign clubs are persistent people, not one-off generated offers.
+  if(S.foreign&&S.foreign.squads&&budget>0){
+    const maxForeign=Math.max(1,Math.floor(reach*.45)),countries=shuffle(Object.keys(S.foreign.clubs));
+    let abroad=0;
+    for(const from of countries){
+      if(abroad>=maxForeign)break;
+      const sq=S.foreign.squads[from]||[];
+      const options=sq.filter(p=>(!pos||p.pos===pos)&&p.inj<=0&&p.contract>0&&
+        sq.filter(x=>x.pos===p.pos).length>REQ[p.pos]&&
+        askingFee(p,from)*tdBuyF(id)*.85<=budget&&
+        bill+wageFor(p.q)*1.2/1000<=cap);
+      if(!options.length)continue;
+      out.push({p:pick(options),from,premium:false,international:true});abroad++;
+    }
+  }
   // Keep a compact record of candidates the director actually encountered.
   // This is evidence of a search, not a promise of a signing or a scout assignment.
   if(id===S.my&&!quiet){
     const st=S.stats[id],history=st.scoutHistory||(st.scoutHistory=[]);
     const found=out.slice(0,n||99);
     history.push({season:S.season,week:S.week,pos:pos||'any',director:tdOf(id).name,
-      candidates:found.slice(0,16).map(c=>({pid:c.p.id,name:c.p.name,pos:c.p.pos,age:c.p.age,from:c.from?CL(c.from).name:'Free agent',quality:r1(c.p.q)}))});
+      candidates:found.slice(0,16).map(c=>({pid:c.p.id,name:c.p.name,pos:c.p.pos,age:c.p.age,from:c.from?marketClubName(c.from):'Free agent',quality:r1(c.p.q)}))});
     if(history.length>12)history.splice(0,history.length-12);
   }
   return out.slice(0,n||99);
 }
-function askingFee(p,from){const v=playerValue(p);return Math.round(v*(isCore(from,p)&&!p.wantsOut?1.6:1)*(F(from).cash<0?.75:1)*(p.wantsOut?.85:1))}
+function askingFee(p,from){
+  const v=playerValue(p);
+  if(foreignSeller(from))return Math.max(1,Math.round(v*1.15));
+  return Math.round(v*(isCore(from,p)&&!p.wantsOut?1.6:1)*(F(from).cash<0?.75:1)*(p.wantsOut?.85:1));
+}
 function sellerAgrees(p,from,fee){
+  if(foreignSeller(from)){
+    const sq=S.foreign.squads[from];
+    return !!sq&&sq.includes(p)&&sq.filter(x=>x.pos===p.pos).length>REQ[p.pos]&&fee>=askingFee(p,from)*.85;
+  }
   if(S.squads[from].length<=SQUAD_MIN)return false;
   const need=S.squads[from].filter(x=>x.pos===p.pos).length<=REQ[p.pos];
   if(need&&F(from).cash>=0&&!p.wantsOut)return false;
@@ -93,7 +119,7 @@ function shopFor(id,pos,minQ,o={}){
       const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0)+recruitBias(id,p,fee)-.5*(sl&&sl.obs?scoutRange(id,sl.obs):eyeRange(id)); /* the director trusts what has been watched */
       if(v>bv){bv=v;best={...c,fee,seen};}
     }
-    if(id===S.my)evaluated.push({pid:p.id,name:p.name,pos:p.pos,age:p.age,from:c.from?CL(c.from).name:'Free agent',estimate:r1(seen),fee,reason});
+    if(id===S.my)evaluated.push({pid:p.id,name:p.name,pos:p.pos,age:p.age,from:c.from?marketClubName(c.from):'Free agent',estimate:r1(seen),fee,reason});
   }
   if(o.dry)return best;
   if(!best&&o.mustHave){const base=11.5+(tierBaseStr(2)-50)/4 /* fixed level: new faces from below Northmarch Two do not grow with the world (T2) */,p=newPlayer(pos,{age:ri(19,30),q:base-2+rnd()*1.2,contract:0});
@@ -111,7 +137,11 @@ function shopFor(id,pos,minQ,o={}){
   }
   if(!best){recordDecision(id,pos,null,evaluated,o.mustHave);return false;}
   if(!o.mustHave&&minQ>0){const st=S.stats[id];st.buys=(st.buys||0)+1;if(best.p.q<minQ)st.misbuys=(st.misbuys||0)+1;st.spent=r1((st.spent||0)+best.fee)}
-  if(best.from)transfer(best.p,best.from,id,best.fee,'buy',best.premium);else signFree(best.p,id);
+  if(best.from){
+    if(foreignSeller(best.from)){
+      if(!foreignMove(best.p,best.from,id,best.fee,'director scouting'))return false;
+    }else transfer(best.p,best.from,id,best.fee,'buy',best.premium);
+  }else signFree(best.p,id);
   // Review the real post-transfer squad, not the pre-signing snapshot.
   recordDecision(id,pos,best,evaluated,o.mustHave);
   return best;

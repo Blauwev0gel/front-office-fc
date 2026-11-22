@@ -13,7 +13,7 @@ Beide ontwikkelaars pushen **nooit** naar elkaars werkbranch.
 
 Lees `docs/LAYER_CONTRACT.md` naast `docs/ARCHITECTURE.md` en `docs/DEV_STATE.md`.
 **Eerst het zelfstandig speelbare basisspel (L1 + L2), daarna pas L3 autonomie, L4 verhaal en L5 dynasty.**
-Nieuwe code in een hogere laag moet via generieke events, commands en UI-slots integreren, niet door rechtstreeks het basisspel of de centrale klok afhankelijk te maken van extra lagen. De basis moet zonder de hogere module blijven werken; maak daarvoor een regressietest. De bestaande S3.1-koppelingen zijn open technische schuld en mogen niet als precedent worden gebruikt.
+Nieuwe code in een hogere laag moet via generieke events, commands en UI-slots integreren, niet door rechtstreeks het basisspel of de centrale klok afhankelijk te maken van extra lagen. De basis moet zonder de hogere module blijven werken; maak daarvoor een regressietest. S3.1 en S3.2 zijn nu als optionele modules losgetrokken; de standaard `node build.js` bevat uitsluitend L1/L2. De grens wordt door `tests/base-isolation-test.js` gecontroleerd.
 Geef in iedere PR aan welke laag de wijziging raakt en bewijs de onafhankelijkheid van het basisspel. Verwar CI groen niet met de inhoudelijke fase-A-gate.
 
 ## Voor iedere codewijziging (verplicht)
@@ -24,7 +24,7 @@ Geef in iedere PR aan welke laag de wijziging raakt en bewijs de onafhankelijkhe
 ## Bij het afronden van een werksessie
 1. `node build.js` en een korte controle (de bestaande snelle tests draait CI; zware tests alleen op verzoek van de eigenaar).
 2. `docs/DEV_STATE.md` bijwerken: officiële SHA (na merge), werkgebieden, open wijzigingen, teststatus (wat is **echt** gedraaid, op welke SHA), artifact-SHA. Een resultaat zonder SHA telt niet; "niet gedraaid" is een geldig antwoord.
-3. Pull request naar `slimline-main`. Titel: gebied + doel. CI (`build-and-test`, `dev-state-updated`) moet groen zijn en de branch up-to-date met `slimline-main`.
+3. Pull request naar `slimline-main`. Titel: gebied + doel. CI (`build-and-test`, `mobile-browser`, `dev-state-updated`) moet groen zijn en de branch up-to-date met `slimline-main`.
 4. Na de merge: de andere ontwikkelaar haalt `slimline-main` op voordat die weer code wijzigt.
 
 ## Publiceren (artifact of release)
@@ -35,12 +35,12 @@ Geef in iedere PR aan welke laag de wijziging raakt en bewijs de onafhankelijkhe
 ## Branchbescherming (instellen door de repo-eigenaar in GitHub)
 Settings → Branches → Add rule (of `gh api`), voor `slimline-main`:
 - Require a pull request before merging (geen directe pushes, ook niet voor beheerders: "Do not allow bypassing").
-- Require status checks to pass: `build-and-test` en `dev-state-updated`; **Require branches to be up to date before merging**.
+- Require status checks to pass: `build-and-test`, `mobile-browser` en `dev-state-updated`; **Require branches to be up to date before merging**.
 - Block force pushes en deletions.
 Hetzelfde als commando (eenmalig, nadat de eerste CI-run de checknamen heeft aangemaakt):
 ```
 gh api -X PUT repos/Blauwev0gel/front-office-fc/branches/slimline-main/protection --input - <<'JSON'
-{"required_status_checks":{"strict":true,"contexts":["build-and-test","dev-state-updated"]},
+{"required_status_checks":{"strict":true,"contexts":["build-and-test","mobile-browser","dev-state-updated"]},
  "enforce_admins":true,
  "required_pull_request_reviews":{"required_approving_review_count":0},
  "restrictions":null,"allow_force_pushes":false,"allow_deletions":false}

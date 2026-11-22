@@ -8,12 +8,14 @@ const FA_MAX=90;
 function faNew(n){
   // new faces come from below Northmarch Two (local leagues, abroad): mostly weaker; good free agents are players clubs let go
   for(let i=0;i<n;i++){const age=ri(19,33),base=11.5+(tierBaseStr(2)-50)/4 /* fixed level: new faces from below Northmarch Two do not grow with the world (T2) */;
-    const p=newPlayer(pick(POS),{age,q:base-1.8+rnd()*2+(rnd()<.1?1.2:0)-(age>=31?.5:0),contract:0});p.why=pick(['released in the summer','out of contract','back from a spell abroad','released after a long injury','left a club that went part-time']);S.fa.push(p)}
+    const p=newPlayer(pick(POS),{age,q:base-1.8+rnd()*2+(rnd()<.1?1.2:0)-(age>=31?.5:0),contract:0});p.faEntered={s:S.season,w:S.week};p.why=pick(['released in the summer','out of contract','back from a spell abroad','released after a long injury','left a club that went part-time']);S.fa.push(p)}
 }
 function faInit(){S.fa=[];faNew(60)}
-function faAdd(p,why,from){p.left={club:from||p.club,s:S.season};p.club=null;p.why=why;p.contract=0;p.inj=0;S.fa.push(p)}
+function faAdd(p,why,from){p.left={club:from||p.club,s:S.season};p.faEntered={s:S.season,w:S.week};p.club=null;p.why=why;p.contract=0;p.inj=0;S.fa.push(p)}
 function faSummer(){
-  S.fa=S.fa.filter(p=>p.age<35);for(const p of S.fa)p.age++;
+  // Players released during this same season-end have already aged in their club.
+  for(const p of S.fa)if(!p.faEntered||p.faEntered.s<S.season||p.faEntered.w<SEASON_WEEKS)p.age++;
+  S.fa=S.fa.filter(p=>p.age<35);
   S.fa.sort((a,b)=>b.q-a.q);if(S.fa.length>FA_MAX)S.fa.length=FA_MAX;
   faNew(Math.max(10,70-S.fa.length));
 }

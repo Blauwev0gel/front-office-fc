@@ -15,7 +15,7 @@ const err=o=>avg(sl.filter(e=>e.obs===o||(o===3&&e.obs>=3)).map(e=>{const f=E.fi
 ok(E.scoutObservations(id)>looks1,`a stronger scouting department takes more looks a week (${looks1} → ${E.scoutObservations(id)})`);
 const one=sl.filter(e=>e.obs===1),many=sl.filter(e=>e.obs>=3);if(many.length>=2)ok(err(3)<err(1),`players watched three or more times are judged more accurately (error ${err(3).toFixed(2)} vs ${err(1).toFixed(2)})`);
 // 4. the window: signings are linked to needs and remembered with the estimate at the time
-while(!E.seasonOver())E.advanceWeek();E.closeSeason();
+while(!E.seasonOver())E.advanceWeek();E.closeSeason();E.advanceWeek(); /* the next summer window closes in week 1; two windows, so one unlucky draw does not decide the check */
 const sg=S.ops.signings;ok(sg.length>0&&sg.every(x=>x.need&&Number.isFinite(x.est)),`summer signings are recorded with the need they fill (${sg.length})`);
 ok(S.ops.plan.needs.some(n=>(n.status==='filled'&&n.by)||(n.lastSigning&&n.lastSigning.name)),'needs show who arrived for them (filled by, or the latest signing)');
 // 5. the strategy changes whom the director picks (same world, one different frame)

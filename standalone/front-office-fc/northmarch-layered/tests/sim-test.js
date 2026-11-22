@@ -45,8 +45,9 @@ console.log(`cup winners: ${[...new Set(S.hist.map(h=>h.cup))].length} different
 if(N>=20){ // long-horizon criteria only make sense over twenty seasons
 ok(movers>=16,'too few clubs change division');
 ok(yoyo>=15,`the world stays mobile: ${yoyo} clubs change division three times or more`); // full Two↔Premier journeys are rare (0-3 per seed) and reported above
-ok(chairsOut>=5&&chairsOut<=80,`chairmen voted out: ${chairsOut} (expected 5-80 in ${N} seasons)`);
-ok(admins.length<=N,'administration is too common');
+const K=Object.keys(S.clubs).length/48; /* the bounds were calibrated for 48 clubs; they scale with the size of the world */
+ok(chairsOut>=5&&chairsOut<=Math.round(80*K),`chairmen voted out: ${chairsOut} (expected 5-${Math.round(80*K)} in ${N} seasons)`);
+ok(admins.length<=Math.round(N*K),`administration is too common (${admins.length}, limit ${Math.round(N*K)})`);
 ok(cash[47]<20000,'a club hoards unlimited money');
 ok(cash[24]>-200,'the median club is deep in the red: the economy does not close');
 const inc0=Object.keys(S.clubs).map(i=>E.estSeasonIncome(i));

@@ -134,8 +134,14 @@ function squadManager(id,phase){
   for(const p of sq.filter(x=>x.wantsOut&&!x.loan&&canSpare(sq,x,false))){const fee=Math.round(playerValue(p)*.9),buyers=Object.keys(S.clubs).filter(i=>i!==id&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX&&CL(i).rep>=CL(id).rep-10);
     if(buyers.length&&sq.length>SQUAD_MIN){p.wantsOut=false;p.morale=70;transfer(p,id,pick(buyers),fee,'request')}}
   // holes: below the minimum per position (in winter only real emergencies: injuries leave the position bare)
-  for(const pos of POS){let guard=3;const have=()=>phase==='winter'?available(sq).filter(p=>p.pos===pos).length+1:sq.filter(p=>p.pos===pos).length;
-    while(guard-->0&&have()<REQ[pos]){const base=squadQuality(sq);if(!shopFor(id,pos,base-2.5)&&!shopFor(id,pos,0,{mustHave:true,budget:0}))break}}
+  for(const pos of POS){let guard=3;
+    // Permanent squad gaps require permanent cover. In winter, an injury alone only
+    // triggers emergency cover when no fit player remains in the position.
+    const have=()=>sq.filter(p=>p.pos===pos&&!p.loan).length;
+    const target=phase==='winter'?(available(sq).some(p=>p.pos===pos)?Math.min(REQ[pos],have()):Math.max(1,have()+1)):REQ[pos];
+    while(guard-->0&&(have()<target||(phase==='winter'&&!available(sq).some(p=>p.pos===pos)))){
+      const base=squadQuality(sq);if(!shopFor(id,pos,base-2.5)&&!shopFor(id,pos,0,{mustHave:true,budget:0}))break;
+    }}
   // upgrades: replace the weakest starter if a clearly better player is within reach
   // more money buys more attempts: a rich director keeps looking for upgrades
   if(phase==='summer'){const tries=clamp(Math.round(2+budgetFor(id)/60),3,6);for(let k=0;k<tries;k++){const xi=pickXI(sq);if(!xi.length)break;const worst=xi.slice().sort((a,b)=>a.p.q-b.p.q)[0];

@@ -1,7 +1,7 @@
 # DEV_STATE: gedeelde status (GitHub is de waarheid, niet een gesprek)
 Beide ontwikkelaars werken dit bestand bij **bij elke afgeronde werksessie**, in dezelfde pull request als de code. CI faalt als het niet is bijgewerkt. Protocol: `docs/DEV_PROTOCOL.md`.
 
-Laatst bijgewerkt: 2026-11-22 (offline weekbrief integratiekandidaat op aparte werkbranch) · door: ChatGPT
+Laatst bijgewerkt: 2026-11-22 (Basisspel V1: weekoverzicht geïntegreerd, artifact V16) · door: Claude
 
 ## Officiële basis
 OFFICIAL_BRANCH: slimline-main
@@ -11,9 +11,9 @@ Basis ontstaan door: `claude/loving-goodall-uv00vn` (alle Slimline-werk van Clau
 
 ## Artifact (speelbare versie)
 ARTIFACT_URL: https://claude.ai/artifact/MsN96ouEWMVwn76jvKr3Qw
-ARTIFACT_VERSION: 15
-ARTIFACT_SHA: 1234d0e
-Status: V15 is de laatst gepubliceerde versie, afkomstig van 1234d0e. De officiële branch bevat sindsdien ook de documentatiemerge a2422c6. Er is geen nieuwe HTML gepubliceerd; elke latere release vereist exacte sync-check.
+ARTIFACT_VERSION: 16
+ARTIFACT_SHA: 02d2eaa
+Status: V16 is gebouwd uit `02d2eaa` (officiële tip `3bc4992` + weekoverzicht) en gepubliceerd op verzoek van de eigenaar vóór de merge, dus niet via `sync-check --publish`. Na de merge van deze pull request is de code gelijk aan V16; alleen `docs/DEV_STATE.md` verschilt. Er bestaat nog een overbodige kopie op https://claude.ai/artifact/7Enxr7jvDmbXpo4NnHXSBQ (zelfde stand, mag weg).
 
 ## Werkgebieden (één ontwikkelaar per gebied tegelijk)
 | Ontwikkelaar | Werkbranch | Gebied | Status |
@@ -22,15 +22,16 @@ Status: V15 is de laatst gepubliceerde versie, afkomstig van 1234d0e. De offici�
 | ChatGPT | `chatgpt-slimline-world` (aangemaakt vanaf 1234d0e; `chatgpt/slimline-world` kan niet: de branch `chatgpt` bestaat al) | Wereld: vijf divisies, beker, buitenlandse competities, Europa, internationale markt, wedstrijdstatistieken, wereldnieuws, rivaliteiten | actief |
 Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `football/market.js`, `core/save.js`), meld het hier onder "Open wijzigingen" voordat je begint.
 
-## Integratiekandidaat (aparte werkbranch, NIET officieel vrijgegeven)
+## Basisspel V1: weekoverzicht (commit 02d2eaa, in deze pull request naar slimline-main)
 - Branch: `chatgpt-base-weekbrief-offline-20261122` (van `3bc49924046e549b66bc1b58a6396d5dd3e04b6d`). PR #8 blijft Draft; PR #6 is al gemerged.
 - Selectief geïntegreerd: feitelijk read-only weekoverzicht met club-ID 0 fix, mobiele 390px-stijlen, UI-hook, modulemanifest, regressietest en testsuite-registratie.
 - Standaardbuild blijft L1/L2; L3 uitsluitend opt-in. Geen sim-, markt- of save-engine aangepast.
 - Kostenprotocol: `docs/GITHUB_ACTIONS_KOSTENPROTOCOL.md` toegevoegd op deze werkbranch (nog niet gemerged).
 - **Lokaal daadwerkelijk getest op het offline-pakket**: 5/5 migratietests, 13/13 briefing-unit-tests, Node syntaxchecks voor beide nieuwe JS-bestanden en Python compile check, alles geslaagd.
-- **Niet uitgevoerd op de volledige game**: `node build.js`, `node tests/base-briefing-test.js`, `node tests/base-isolation-test.js`, `node tests/layer-isolation-test.js`, echte mobiele browserplaytest en menselijke speeltest. De werkcontainer heeft geen uitgaande GitHub-netwerktoegang.
+- **Lokaal getest door Claude op `02d2eaa` (22 nov, in een aparte worktree)**: `node build.js` (40 basismodules), `base-briefing-test`, `base-isolation-test`, `layer-isolation-test`: alle groen. Browsercontrole op 390 px, licht en donker: 3 statistieken, 1 actie (52 px, leidt naar het budgetscherm), uitslag en nettoresultaat kloppen met de engine, geen horizontale scroll, geen scriptfouten, opnieuw renderen verandert de wereld niet. Ook de build mét optionele L3-modules: overzicht werkt, een seizoensovergang slaagt.
+- **Niet uitgevoerd**: volledige snelle suite, 20-seizoenensim, menselijke speeltest. Club-ID 0 (numeriek) kon niet end-to-end worden geprobeerd: de club-ID's in deze engine zijn tekst (`pell`, `c5`); alleen de guard `S.my==null` is gelezen.
 - **GitHub Actions**: de werkbranch valt buiten de aangetroffen push-triggers. Geen PR, CI-verzoek, merge of publicatie.
-- De laatste speelbare publicatie blijft artifact V15 vanaf `1234d0e`. Zonder verdere tests geen merge/release.
+- Kostenprotocol: `docs/GITHUB_ACTIONS_KOSTENPROTOCOL.md` is leidend bij botsende instructies. Deze pull request is een bewuste, door de eigenaar toegestane CI-run.
 
 ## Open wijzigingen en bekende problemen
 - [ ] **Lagen eerst:** fase A = zelfstandig functionerend basisspel (L1+L2); pas daarna L3 autonomie, L4 verhaal en L5 dynasty. Vastgelegd in `docs/LAYER_CONTRACT.md` en `docs/DEV_PROTOCOL.md`.
@@ -58,11 +59,14 @@ Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `footbal
 | Volledige snelle suite (`tests/run-fast.sh`, incl. browser-playtest licht, 20-seizoenensim) | 717c019 | groen | 2026-11-22 | Claude (lokaal) |
 | CI (`build-and-test`, zonder browser) op de officiële basis | ccceb42 (+ docs) | **rood**: build, pyramid-, foreign-world-, save-, ux-, smoke-test groen; `l25-test` faalde op een te kleine steekproef (testfout); `youth-`, `story-`, `slimline-`, `l3-test` en sim niet bereikt | 2026-11-22 | GitHub Actions, runs 1 en 2 |
 | `l25-test` na herstel van die check | ccceb42 + testfix | groen (alleen deze test lokaal gedraaid) | 2026-11-22 | Claude |
+| Basisspel V1: build (40 basismodules), `base-briefing-`, `base-isolation-`, `layer-isolation-test`, 390 px browsercheck licht+donker, L3-variant | 02d2eaa | groen (gerichte tests, lokaal) | 2026-11-22 | Claude |
+| CI op de pull request met `02d2eaa` en deze statuscorrectie | | in afwachting | | GitHub Actions |
 | CI op pull request 4 (testfix, kop `b82dac5`), daarna gemerged tot `1234d0e` | b82dac5 | **groen** (build en alle snelle engine-tests, zonder browser) | 2026-11-22 | GitHub Actions, run 3 |
 | Lange gates (`slimline-test 10`, `policy-test`, volledige playtest licht+donker) | 717c019 (deels eerder) | groen op de toen actuele stand | 2026-11-22 | Claude |
 Regel: een resultaat geldt alleen voor de genoemde SHA. Nieuwe SHA = opnieuw vermelden of "niet gedraaid".
 
 ## Wijzigingslog (nieuwste bovenaan)
+- 2026-11-22 Claude: weekoverzicht (`02d2eaa`, ChatGPT) lokaal getest en samen met deze statuscorrectie aangeboden als pull request naar `slimline-main`; artifact V16 gepubliceerd op de eigen link; geen workflows gewijzigd.
 - 2026-11-22 ChatGPT: `mobile-browser` CI-job toegevoegd aan Slimline workflow: installeert Playwright/Chromium en bouwt/doorloopt de standaard L1/L2 standalone HTML op 390px in licht en donker. SHA f40b092 engine+base-isolation CI groen, zie run 45039214254. Browserjob nog niet afgetekend.
 - 2026-11-22 ChatGPT: S3.1 volledig uit kern en basale UI gehaald naar `layers/autonomy/director-deals.js` + `director-deals-ui.js`; default `build.js` bundelt alleen L1/L2, autonomie opt-in. Generieke hook/rule/action interfaces; market gebruikt mandaatregel alleen als feature die aanbiedt. `tests/base-isolation-test.js` toegevoegd: 3 volle seizoenen, financiën, standaard transferbeleid, save/load zonder L3; `tests/layer-isolation-test.js` blijft S3.2 vergelijken. Dit is een architectuursprint, geen claim dat gameplay 'leuk' is. CI/browseruitslagen nog te verifiëren. Overlap met Claude-code gerapporteerd in PR #6 en hier.
 - 2026-11-22 ChatGPT: op expliciet verzoek eigenaar de bouwvolgorde hersteld: eerst speelbaar basisspel, daarna autonoom L3, L4, L5. S3.2-registratie en -UI verplaatst naar optionele `layers/autonomy` modules met generieke feature-events en optioneel UI-slot; basismodule-isolatietest toegevoegd. S3.1 blijft apart open voor toekomstige refactor. Documentatie en protocol bijgewerkt. PR #6 blijft Draft totdat CI slaagt; geen merge of publicatie.

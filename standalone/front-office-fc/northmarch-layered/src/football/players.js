@@ -36,6 +36,21 @@ function newPlayer(pos,o={}){
     loyalty:o.loyalty??ri(25,85),honours:[],breakthroughs:0};
   return lifeDefaults(p);
 }
+/* Close the prior club's part-season before a move. This avoids crediting
+   the buyer with goals and appearances the player earned somewhere else. */
+function playerCloseStint(p,club){
+  if(!club)return;
+  const played=(p.sApps||0)+(p.eApps||0);
+  if(!played&&!p.sGoals&&!p.eGoals)return;
+  p.history=p.history||[];
+  p.history.push({season:S.season,club,age:p.age,apps:p.sApps||0,goals:p.sGoals||0,
+    europe:p.eApps||0,europeGoals:p.eGoals||0,quality:r1(p.q),partial:true});
+  if(p.history.length>40)p.history.splice(0,p.history.length-40);
+  p.sApps=0;p.sGoals=0;p.eApps=0;p.eGoals=0;
+}
+function playerSeasonGoals(p){
+  return(p.sGoals||0)+(p.history||[]).filter(h=>h.season===S.season&&h.partial).reduce((sum,h)=>sum+(h.goals||0),0);
+}
 function playerValue(p){
   const af=p.age<=21?1.6:p.age<=25?1.3:p.age<=29?1:p.age<=31?.6:.3;
   const visible=p.sApps>5?clamp(1+(p.sGoals/p.sApps-.09)*.65,.9,1.3):1;
@@ -100,7 +115,7 @@ function playersSeasonEnd(id){
   for(const p of sq.slice()){
     p.age++;p.contract--;p.yel=0;p.susp=0;p.career.push(`${c.name} ${S.season}: ${p.sApps} apps, ${p.sGoals} goals`);
     p.history=p.history||[];p.history.push({season:S.season,club:id,age:p.age,apps:p.sApps,goals:p.sGoals,europe:p.eApps||0,europeGoals:p.eGoals||0,quality:r1(p.q)});
-    if(p.history.length>30)p.history.shift();
+    if(p.history.length>40)p.history.shift();
     p.honours=p.honours||[];
     const last=c.hist[c.hist.length-1];
     if(last&&last.pos===1&&p.sApps>=5)p.honours.push({season:S.season,type:'league',tier:last.tier,club:id});

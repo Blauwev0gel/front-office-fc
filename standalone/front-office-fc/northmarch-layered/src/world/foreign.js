@@ -84,7 +84,7 @@ function foreignWeek(w){
       for(const id of [a,b])if(S.clubs[id]){
         const xi=pickXI(S.squads[id]);
         for(const x of xi){
-          x.p.apps++;x.p.sApps++;x.p.played=1;x.p.tired=1;
+          x.p.eApps=(x.p.eApps||0)+1;x.p.europeLoad=(x.p.europeLoad||0)+1;
           // The extra fixture creates a small but real injury exposure.
           if(x.p.inj<=0&&rnd()<.006)x.p.inj=ri(1,2);
         }

@@ -31,9 +31,60 @@ function migrate(s){
   while(s.v<VERSION){const m=MIGRATIONS[s.v+1];if(!m)throw new Error('No migration to version '+(s.v+1));m(s);}
   return s;
 }
+/* Upgrade a legacy three-division world in place without discarding the chairman's
+   season, finances, squad or existing fixtures. Lower divisions enter the pyramid.
+   Previously played lower-tier matches are seeded as historical fixtures; they do
+   not pay cash retroactively or trigger player injuries. */
+function expandLegacyPyramid(){
+  const ids=Object.keys(S.clubs);
+  if(ids.length===80)return false;
+  if(ids.length!==48||TIERS.slice(0,3).some(t=>ids.filter(id=>CL(id).tier===t).length!==16)){
+    throw new Error('Unsupported legacy pyramid: expected three complete divisions of 16');
+  }
+  S.stats=S.stats||{};S.members=S.members||{};S.records=S.records||{};S.tbl=S.tbl||{};S.fx=S.fx||{};
+  const used=new Set(ids.map(id=>CL(id).name));
+  const towns=Object.keys(TOWNS);
+  for(const tier of [3,4])for(let i=0;i<16;i++){
+    const seedName=(TOWNNAMES.concat(TOWNNAMES2))[tier*16+i]||pick(TOWNNAMES);
+    let name=seedName+' '+(i%3===0?'Vale':i%3===1?'Heath':'Town');
+    let k=2;while(used.has(name))name=seedName+' '+(i%2?'Vale':'Heath')+' '+k++;
+    used.add(name);
+    const id='legacy_'+tier+'_'+i;
+    const c=mkClub(id,name,pick(towns),tier);
+    castClub(c);
+    const [lo,hi]=TIER_STR[tier],str=ri(lo,hi);
+    S.squads[id]=genSquad(str,id);
+    S.grounds[id]=groundInit(id);
+    S.fin[id]=finInit(id);
+    S.stats[id]=statsInit();
+    S.members[id]=membersInit(id);
+    S.records[id]=recordsInit();
+    giveProfile(c.cast.coach,'coach',tier);
+    giveProfile(c.cast.td,'td',tier);
+    commercialInit(id);
+    const rivals=Object.keys(S.clubs).filter(j=>j!==id&&CL(j).tier===tier);
+    c.rival=pick(rivals);
+  }
+  // Build schedules and reconstruct completed matchdays without resetting the existing season.
+  for(const tier of [3,4]){
+    const clubs=tierIds(tier);
+    S.fx[tier]=makeFixtures(clubs);
+    clubs.slice().sort((a,b)=>teamStrength(b)-teamStrength(a)).forEach((id,i)=>CL(id).expect=i+1);
+    for(const id of clubs)S.tbl[id]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,ded:0,form:[]};
+    for(let w=1;w<=Math.min(S.week||0,SEASON_WEEKS);w++)for(const [h,a] of S.fx[tier][w-1]){
+      const [lh,la]=lambdas(teamStrength(h),teamStrength(a),true);
+      const gh=pois(lh,rnd),ga=pois(la,rnd);
+      rec(h,gh,ga);rec(a,ga,gh);
+    }
+  }
+  // Preserve the original in-progress cup. Future seasons use all 80 clubs.
+  if(S.cup)S.cup.legacy=true;
+  S.legacyPyramidUpgrade={season:S.season,week:S.week,added:32};
+  return true;
+}
 function schemaVersion(){return VERSION}
 function serialize(){return JSON.stringify(S)}
-function deserialize(txt){S=migrate(JSON.parse(txt));if(!S.foreign)S.foreign=foreignInit();foreignRestoreCalendar();staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();youthAfterLoad();return S}
+function deserialize(txt){S=migrate(JSON.parse(txt));expandLegacyPyramid();if(!S.foreign)S.foreign=foreignInit();foreignRestoreCalendar();staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();youthAfterLoad();return S}
 function save(){if(!HAS_DOM)return false;try{localStorage.setItem(SAVE_KEY,serialize());return true}catch(e){return false}}
 function hasSave(){if(!HAS_DOM)return false;try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
 function load(){if(!HAS_DOM)return false;try{const t=localStorage.getItem(SAVE_KEY);if(!t)return false;deserialize(t);return true}catch(e){return false}}

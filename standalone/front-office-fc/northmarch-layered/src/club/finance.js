@@ -16,8 +16,8 @@ const LINE={
   loanIn:['Loans and bonds drawn','financing'],loanOut:['Loan and bond repayments','financing'],groundSale:['Sale or buy-back of the ground','capital']
 };
 const HEAD={matchday:'Matchday',commercial:'Commercial',media:'League & cup',transfers:'Transfers',wages:'Wages',costs:'Other costs',financing:'Loans',capital:'The ground'};
-const PRICE_DEF=[{terrace:11,seated:16,business:35,season:140},{terrace:9,seated:13,business:30,season:110},{terrace:7,seated:10,business:22,season:85}];
-const TV=[4.6,2.2,.8],SPONSOR=[3.4,1.9,.9],PRIZE=[[80,4],[40,2],[15,.6]];
+const PRICE_DEF=[{terrace:11,seated:16,business:35,season:140},{terrace:9,seated:13,business:30,season:110},{terrace:7,seated:10,business:22,season:85},{terrace:6,seated:9,business:18,season:65},{terrace:5,seated:8,business:15,season:50}];
+const TV=[4.6,2.2,.8,.35,.15],SPONSOR=[3.4,1.9,.9,.45,.25],PRIZE=[[80,4],[40,2],[15,.6],[8,.3],[4,.15]];
 const WAGE_RATIO={tight:.65,normal:.76,ambitious:.88,allin:.98};
 /* club courses: a simple way to set the direction. Each bundles the existing policy settings (nothing new is simulated). */
 const COURSE={
@@ -28,7 +28,7 @@ const COURSE={
 
 function F(id){return S.fin[id]}
 function finInit(id){
-  const c=CL(id),t=c.tier,cash=[ri(90,260),ri(30,140),ri(10,60)][t],debt=pick([0,0,0,1,2,3])*[90,50,25][t];
+  const c=CL(id),t=c.tier,cash=[ri(90,260),ri(30,140),ri(10,60),ri(5,35),ri(2,20)][t],debt=pick([0,0,0,1,2,3])*[90,50,25,12,6][t];
   const v=chairValue(id);
   const f={cash:0,start:0,loans:[],prices:{...PRICE_DEF[t]},season:{},last:null,hist:[],od:0,admin:null,holders:0,sold:0,lastGate:null,
     policy:{wage:v==='glory'?'ambitious':v==='money'?'tight':'normal',spend:v==='glory'?.7:v==='money'?.3:.5,loans:true,recruit:v==='money'?'value':v==='glory'?'experience':v==='community'?'youth':'balanced'}};

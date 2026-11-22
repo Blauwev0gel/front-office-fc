@@ -172,14 +172,14 @@ function foreignPlayerMatch(m,comp='league'){
     const sq=f.squads[id];if(!sq||!sq.length)continue;
     const xi=pickXI(sq);
     for(const x of xi){
-      const p=x.p;p.apps++;p.sApps++;p.fApps=(p.fApps||0)+1;
-      if(comp==='europe')p.eApps=(p.eApps||0)+1;
+      const p=x.p;p.apps++;p.fApps=(p.fApps||0)+1;
+      if(comp==='europe')p.eApps=(p.eApps||0)+1;else p.sApps++;
       p.form=clamp(p.form+(goals>=2?1:goals===0?-1:0),40,88);
       if(p.inj<=0&&comp==='europe'&&rnd()<.003)p.inj=ri(1,2);
     }
     const scorers=[];
     for(let g=0;g<goals&&xi.length;g++){
-      const p=scorerFrom(xi);p.goals++;p.sGoals++;scorers.push({pid:p.id,name:p.name});
+      const p=scorerFrom(xi);p.goals++;if(comp==='europe')p.eGoals=(p.eGoals||0)+1;else p.sGoals++;scorers.push({pid:p.id,name:p.name});
     }
     if(!m.scorers)m.scorers={};
     m.scorers[id]=scorers;
@@ -234,7 +234,7 @@ function foreignWeek(w,{historical=false}={}){
           const p=x.p;p.eApps=(p.eApps||0)+1;p.europeLoad=(p.europeLoad||0)+1;
           p.morale=clamp(p.morale+(gf>ga?2:gf<ga?-2:0),0,100);
           if(p.inj<=0&&rnd()<.006){
-            p.inj=ri(1,2);
+            p.inj=ri(2,4);
             emit('Injury',id,`${p.name} suffers an injury in Europe and will miss ${p.inj} week${p.inj===1?'':'s'}.`,{pid:p.id,weeks:p.inj,comp:'europe'});
           }
         }

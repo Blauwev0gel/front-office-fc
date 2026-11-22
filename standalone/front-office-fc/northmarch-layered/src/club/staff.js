@@ -7,7 +7,7 @@ const STAFF_SPEC={
   coach:{development:'Develops young players',results:'Gets results now',attacking:'Attacking football',defensive:'Hard to beat'},
   td:{eye:'A sharp eye for a player',negotiator:'A hard bargainer',youth:'Builds on young players'}
 };
-const STAFF_Q=[[10,16],[7,13],[4,10]];
+const STAFF_Q=[[10,16],[7,13],[4,10],[3,8],[2,7]];
 const POOL_SIZE={coach:9,td:7};
 function staffWage(role,q){return Math.max(60,Math.round((role==='coach'?120:95)*Math.pow(1.27,q-8)/5)*5)}
 function giveProfile(pid,role,tier,o={}){

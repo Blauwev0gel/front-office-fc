@@ -111,7 +111,9 @@ function squadManager(id,phase){
       if(!(sq.length>SQUAD_MAX||(bill>cap*1.05&&sq.length>SQUAD_MIN)))break;
       const xi=pickXI(sq).map(x=>x.p);
       const pool=sq.filter(p=>!p.loan&&(crisis||!xi.includes(p))&&!(p.age<=20&&p.pa>p.q+1.5)&&canSpare(sq,p,crisis));
-      const p=pool.sort((a,b)=>crisis?(b.wage/Math.max(1,b.q)-a.wage/Math.max(1,a.q)):(a.q-a.wage/400)-(b.q-b.wage/400))[0];if(!p)break;
+      const strategy=recruitStrategy(id);
+      const saleValue=p=>p.q-p.wage/400+(strategy==='youth'&&p.age<=23?Math.max(0,p.pa-p.q)*.5:0)+(strategy==='experience'&&p.age>=32?-.6:0);
+      const p=pool.sort((a,b)=>crisis?(b.wage/Math.max(1,b.q)-a.wage/Math.max(1,a.q)):(saleValue(a)-saleValue(b)))[0];if(!p)break;
       const fee=playerValue(p),buyers=Object.keys(S.clubs).filter(i=>i!==id&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX);
       if(buyers.length)transfer(p,id,pick(buyers),fee,'surplus');
       else if(!xi.includes(p)||sq.length>SQUAD_MIN+3)release(id,p,'released to cut the wage bill');else break}};
@@ -140,7 +142,10 @@ function renewals(id){
   const sq=S.squads[id],med=sq.map(p=>p.q).sort((a,b)=>a-b)[Math.floor(sq.length/2)];
   for(const p of sq.filter(x=>x.contract===1).sort((a,b)=>b.q-a.q)){
     const short=sq.filter(x=>x.contract>1).length<22;
-    const want=(p.q>=med-.3||(p.age<=22&&p.pa>med)||short)&&p.age<34;
+    const strategy=recruitStrategy(id);
+    const prospect=p.age<=23&&p.pa>=p.q+1.5&&p.pa>=med;
+    const valueContract=strategy==='value'&&p.wage>0&&p.q<med&&p.age>=29;
+    const want=!valueContract&&(p.q>=med-.3||(p.age<=22&&p.pa>med)||short||(strategy==='youth'&&prospect))&&p.age<(strategy==='experience'?35:34);
     if(!want||p.loan)continue;
     // contract talks: the player names his price; the director offers what the wage limit allows
     const demand=wageDemand(p,med),room=(wageCapK(id)*1.05-wageBillK(id))*1000+p.wage,offer=Math.min(demand,Math.round(room/5)*5);

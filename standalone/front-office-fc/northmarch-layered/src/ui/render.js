@@ -104,8 +104,8 @@ function tableView(){
   const st=standings(t);
   return`${tabs}<div class="panel"><p class="eyebrow">${TIER_NAME[t]}</p><div class="tbl" role="table" aria-label="${TIER_NAME[t]} table">
   <div class="trow head" role="row"><span>#</span><span>Club</span><span>P</span><span>GD</span><b>Pts</b></div>
-  ${st.map((id,i)=>{const r=S.tbl[id],zone=(t>0&&i<2)?'zone-up':(t<2&&i>=14)?'zone-down':'';return`<button class="trow ${id===S.my?'me':''} ${zone}" role="row" data-act="club" data-arg="${id}"><span>${i+1}</span><span class="nm">${nm(id)}${r.ded?` <span class="inj">−${r.ded}</span>`:''}</span><span>${r.p}</span><span>${r.gf-r.ga>0?'+':''}${r.gf-r.ga}</span><b>${r.pts}</b></button>`}).join('')}</div>
-  <p class="note">${t>0?'Top two go up. ':''}${t<2?'Bottom two go down. ':''}Tap a club to inspect it.</p></div>`;
+  ${st.map((id,i)=>{const r=S.tbl[id],zone=(t>0&&i<2)?'zone-up':(t<4&&i>=14)?'zone-down':'';return`<button class="trow ${id===S.my?'me':''} ${zone}" role="row" data-act="club" data-arg="${id}"><span>${i+1}</span><span class="nm">${nm(id)}${r.ded?` <span class="inj">−${r.ded}</span>`:''}</span><span>${r.p}</span><span>${r.gf-r.ga>0?'+':''}${r.gf-r.ga}</span><b>${r.pts}</b></button>`}).join('')}</div>
+  <p class="note">${t>0?'Top two go up. ':''}${t<4?'Bottom two go down. ':''}Tap a club to inspect it.</p></div>`;
 }
 function cupView(){
   const cup=S.cup,rounds={};for(const l of cup.log)(rounds[l.r]=rounds[l.r]||[]).push(l);

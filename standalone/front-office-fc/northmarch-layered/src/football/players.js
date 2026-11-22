@@ -39,12 +39,9 @@ function genSquad(clubStr,clubId){
 }
 function fitFor(p,slot){return p.pos===slot?1:NEAR[p.pos].includes(slot)?.85:(slot==='GK'||p.pos==='GK')?.3:.6}
 function available(sq){return sq.filter(p=>p.inj<=0&&!(p.susp>0))}
-function pickXI(sq,id){
+function pickXI(sq){
   const av=available(sq),xi=[];
-  // A youth-oriented club gives near-ready prospects a fair chance, not a guaranteed start.
-  // The bonus is small relative to quality and fitness, so selection remains competitive.
-  const youth=id!=null&&F(id).policy.recruit==='youth';
-  const score=p=>p.q+(p.form-65)/40+((p.morale??60)-60)/60-(p.tired?1:0)+(youth&&p.age<=22?Math.min(.35,Math.max(0,p.pa-p.q)*.12):0);
+  const score=p=>p.q+(p.form-65)/40+((p.morale??60)-60)/60-(p.tired?1:0);
   for(const slot of XI_SLOTS){let b=null,bv=-99;for(const p of av){if(xi.some(x=>x.p===p))continue;const v=score(p)*fitFor(p,slot);if(v>bv){bv=v;b=p}}if(b)xi.push({p:b,slot})}
   return xi;
 }

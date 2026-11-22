@@ -34,7 +34,8 @@ Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `footbal
 
 ## Teststatus (laatst bekende feiten per SHA)
 | Wat | SHA | Resultaat | Datum | Door |
-| S3.2: `node build.js`, snelle engine-suite incl. `l3-s32-test.js` | 7f35fc9 + docs | CI op PR #6 **in afwachting**; lokaal niet uitgevoerd (container kan GitHub niet ophalen) | 2026-11-22 | GitHub Actions / ChatGPT |
+| S3.2: `node build.js`, snelle engine-suite incl. `l3-s32-test.js` en echte zomer-/winterwindowtest | 27c2d66 | **groen** in GitHub Actions, run 45032149630 (zonder browser) | 2026-11-22 | GitHub Actions |
+| S3.2: melding voor langdurig niet gebruikte aankopen | 639b6d9 + docs | **CI in afwachting**; geen lokale build, geen browserplaytest | 2026-11-22 | GitHub Actions / ChatGPT |
 |---|---|---|---|---|
 | Build, `save-test`, `smoke-test` | ccceb42 | groen | 2026-11-22 | Claude (lokaal) |
 | Volledige snelle suite (`tests/run-fast.sh`, incl. browser-playtest licht, 20-seizoenensim) | 717c019 | groen | 2026-11-22 | Claude (lokaal) |

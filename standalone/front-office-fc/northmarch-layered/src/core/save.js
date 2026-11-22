@@ -97,6 +97,7 @@ function enrichLegacyWorld(){
   const all=Object.values(S.squads).flat().concat(S.fa||[],Object.values(S.foreign?.squads||{}).flat());
   for(const p of all){
     const h=String(p.id||'').split('').reduce((n,ch)=>(n*31+ch.charCodeAt(0))>>>0,17);
+    p.nationality??=(p.club&&p.club.startsWith('f_')?p.club.split('_')[1]:'nmr');
     if(!p.style)p.style=(PLAYER_STYLES[p.pos]||['runner'])[h%(PLAYER_STYLES[p.pos]||['runner']).length];
     p.devPath=p.devPath||DEV_PATHS[h%DEV_PATHS.length];
     p.peakAge??=26+h%6;p.ambition??=30+h%61;p.loyalty??=25+(h>>>3)%61;

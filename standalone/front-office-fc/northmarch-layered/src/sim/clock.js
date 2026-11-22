@@ -59,6 +59,7 @@ function closeSeason(){
   const ids=allIds(),s=S.season,tables={};
   // the AGM comes first: targets, promotion and relegation are judged on the final table
   devRecord(); /* the season's final picture of the club, before the AGM and the new season */
+  foreignSeasonEnd();
   const outIds=holdAGMs(),agm=S.my?{...M(S.my).agm,club:S.my}:null;afterAGMs(outIds);
   for(const t of TIERS){tables[t]=standings(t);tables[t].forEach((id,i)=>{financeSeasonEnd(id,i+1,t);CL(id).hist.push({s,tier:t,pos:i+1,pts:S.tbl[id].pts,top:topScorer(id),cup:cupReached(id),you:id===S.my})})}
   // support grows with success, promotion and the clubhouse; shrinks with failure

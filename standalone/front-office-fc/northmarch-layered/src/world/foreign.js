@@ -71,7 +71,7 @@ function foreignBudgetWeek(w){
     const wages=foreignWageWeek(id);
     const media=10+c.rep*.65,commercial=5+c.rep*.28;
     const matchday=w<=22?(7+c.rep*.18):0;
-    const cost=5+(w<=22?3:1);
+    const cost=5+(w<=22?3:1)+(c.academy||1)*2;
     const net=r2(media+commercial+matchday-wages-cost);
     c.budget=r2(c.budget+net);
     c.ledger=c.ledger||{season:S.season,income:0,wages:0,other:0,net:0};
@@ -376,12 +376,12 @@ function foreignPlayerSeasonEnd(){
     for(const pos of POS){
       const min=pos==='GK'?2:Math.max(1,Math.floor(REQ[pos]*.75));
       while(sq.filter(p=>p.pos===pos).length<min){
-        const q=11.5+(club.strength-50)/4-2+rnd()*2;
+        const q=11.5+(club.strength-50)/4-2+rnd()*2+((club.academy||1)-1)*.09;
         sq.push(newPlayer(pos,{q,age:ri(17,24),contract:ri(2,4),club:id,name:foreignName(club.country),nationality:club.country}));
       }
     }
     while(sq.length<20){
-      const pos=pick(POS.slice(1)),q=11.5+(club.strength-50)/4-2+rnd()*2;
+      const pos=pick(POS.slice(1)),q=11.5+(club.strength-50)/4-2+rnd()*2+((club.academy||1)-1)*.09;
       sq.push(newPlayer(pos,{q,age:ri(16,22),contract:ri(2,4),academy:true,club:id,name:foreignName(club.country),nationality:club.country}));
     }
   }
@@ -403,6 +403,9 @@ function foreignSeasonEnd(){
       // Season performance affects next year's broadcast and sponsorship prospects via reputation.
       // Never replace the ledger's real cash balance with a random place-based multiplier.
       club.budget=r2(club.budget);
+      if(club.budget>600&&club.rep>=55&&(club.academy||1)<5){
+        club.academy=(club.academy||1)+1;club.budget=r2(club.budget-120);
+      }
     });
     if(country.tables.length>25)country.tables.shift();
     if(country.champions.length>25)country.champions.shift();

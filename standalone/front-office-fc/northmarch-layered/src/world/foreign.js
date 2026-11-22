@@ -173,6 +173,7 @@ function foreignStartSeason(){
 function foreignWeek(w,{historical=false}={}){
   const f=S.foreign;if(!f)return;
   if(!f.current||f.current.season!==S.season)foreignStartSeason();
+  for(const sq of Object.values(f.squads||{}))for(const p of sq)if(p.inj>0)p.inj--;
   for(const league of Object.values(f.current.leagues)){
     const round=league.rounds[w-1];if(!round)continue;
     const results=round.map(([h,a])=>foreignGame(h,a));

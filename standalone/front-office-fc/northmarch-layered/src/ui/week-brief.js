@@ -16,12 +16,16 @@ function chairmanFocus(){
 function chairmanBriefingData(){
   const id=S.my,focus=chairmanFocus(),f=F(id),m=M(id),latest=(S.journal||[]).filter(j=>j.club===id).slice(-1)[0]||null;
   const last=(S.week&&f.last&&Number.isFinite(f.last.net))?f.last.net:null;
+  const match=S.week?myMatches()[0]:null;
+  const score=match?{opponent:marketClubName(match.h===id?match.a:match.h),
+    ours:match.h===id?match.gh:match.ga,theirs:match.h===id?match.ga:match.gh,
+    competition:match.comp==='cup'?'Cup':'League'}:null;
   const safe=['cash','debt','wagebill','strength','members','conf'];
   const measured=latest&&safe.includes(latest.key)?metric(latest.key,id):null;
   const decision=latest?{text:latest.text,metric:measured&&Number.isFinite(latest.before)&&Number.isFinite(measured.v)?
     {label:measured.label,before:measured.fmt(latest.before),now:measured.fmt(measured.v)}:null}:null;
   return{focus,season:S.season,week:S.week,cash:f.cash,weeklyNet:last,confidence:m.conf,
-    strength:Math.round(teamStrength(id)),position:S.week?posOf(id):null,decision};
+    strength:Math.round(teamStrength(id)),position:S.week?posOf(id):null,decision,match:score};
 }
 function chairmanBriefingView(){
   if(!S||!S.my)return'';
@@ -30,6 +34,7 @@ function chairmanBriefingView(){
   const score=b.position?ord(b.position)+' in '+TIER_NAME[C().tier]:'Pre-season';
   return`<section class="panel chairman-brief" aria-label="Chairman's weekly briefing">
   <div class="row"><p class="eyebrow">Chairman's briefing · season ${b.season}, ${b.week?'week '+b.week:'pre-season'}</p><span class="pill">L1/L2</span></div>
+  ${b.match?`<div class="brief-match"><span class="eyebrow">${esc(b.match.competition)} result</span><b>${b.match.ours}–${b.match.theirs} <span class="small muted">against ${esc(b.match.opponent)}</span></b></div>`:''}
   <div class="brief-stats">${metricBox('League',score)}${metricBox('Cash',k1(b.cash))}${metricBox('Last week net',direction)}</div>
   <div class="brief-focus"><p class="eyebrow">${esc(f.tag)}</p><p class="small">${esc(f.text)}</p>
   <button class="btn ghost" data-act="${esc(f.act)}" data-arg="${esc(f.arg||'')}">${esc(f.cta)}</button></div>

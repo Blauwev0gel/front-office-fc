@@ -38,7 +38,8 @@ function playMatch(h,a,o={}){
   const sh=teamStrength(h)+coachEdge(h)+(o.neutral?0:homeEdge(h)),sa=teamStrength(a)+coachEdge(a);
   const [lh0,la0]=lambdas(sh,sa,!o.neutral),ch=coachLambda(h),ca=coachLambda(a),tm=tacticalMatchup(h,a),hs=lineupStyle(xh),as=lineupStyle(xa),lh=lh0*ch[0]*ca[1]*tm[0]*hs.attack*as.defense*recentForm(h),la=la0*ca[0]*ch[1]*tm[1]*as.attack*hs.defense*recentForm(a);
   const gh=pois(lh,rnd),ga=pois(la,rnd),scorers=[];
-  for(const [xi,n,side] of [[xh,gh,'h'],[xa,ga,'a']]){for(const x of xi){x.p.apps++;x.p.sApps++}
-    for(let i=0;i<n&&xi.length;i++){const p=scorerFrom(xi);p.goals++;p.sGoals++;scorers.push({side,pid:p.id,name:p.name})}}
+  for(const [xi,n,side] of [[xh,gh,'h'],[xa,ga,'a']]){
+    for(const x of xi){x.p.apps++;if(o.comp==='cup')x.p.cupApps=(x.p.cupApps||0)+1;else x.p.sApps++}
+    for(let i=0;i<n&&xi.length;i++){const p=scorerFrom(xi);p.goals++;if(o.comp==='cup')p.cupGoals=(p.cupGoals||0)+1;else p.sGoals++;scorers.push({side,pid:p.id,name:p.name})}}
   return{xiH:xh.map(x=>x.p.id),xiA:xa.map(x=>x.p.id),comp:o.comp||'league',tier:o.tier,round:o.round,h,a,gh,ga,sh:r1(sh),sa:r1(sa),lh:r2(lh),la:r2(la),xh:r2(xpts(lh,la)),xa:r2(xpts(la,lh)),scorers,styles:{home:hs,away:as},neutral:!!o.neutral};
 }

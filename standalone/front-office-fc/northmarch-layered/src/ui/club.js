@@ -12,7 +12,7 @@ function msgLine(){return UI.msg?`<p class="${UI.msg.err?'err':'small up'}" role
 function overlayShell(title,body){return`<div class="overlay" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="inner"><div class="row"><h2>${esc(title)}</h2><button class="tbtn" data-act="ov">Close</button></div>${msgLine()}${body}</div></div>`}
 function overlayView(){
   if(UI.over==='ground')return groundOverlay();if(UI.over==='dept')return deptSheet(UI.arg);if(UI.over==='staff')return staffSheet(UI.arg);if(UI.over==='history')return historySheet();if(UI.over==='journal')return journalSheet();
-  if(UI.over==='live')return liveView();if(UI.over==='club')return clubSheet(UI.arg);if(UI.over==='player')return playerSheet(UI.arg);return'';
+  if(UI.over==='live')return liveView();if(UI.over==='club')return clubSheet(UI.arg);if(UI.over==='player')return playerSheet(UI.arg);if(UI.over==='foreignclub')return foreignClubSheet(UI.arg);if(UI.over==='worldplayer')return worldPlayerSheet(UI.arg);return'';
 }
 
 /* ----- the ground ----- */
@@ -79,6 +79,53 @@ function clubSheet(id){
   <div class="panel"><p class="eyebrow">Best players</p>${sq.slice(0,4).map(p=>`<div class="row small"><span>${esc(p.name)} <span class="muted">${p.pos}, ${p.age}</span></span>${qbar(p.q)}</div>`).join('')}</div>
   ${ev.length?`<div class="panel"><p class="eyebrow">Lately</p><ul class="log">${ev.map(e=>`<li><span class="num">S${e.s} W${e.w}</span> ${esc(e.text)}</li>`).join('')}</ul></div>`:''}
   <p class="small muted">Rivals: ${nm(c.rival)}. Founded ${c.founded}.</p>`);
+}
+/* World inspection is read-only. Scouting quality and the director's shortlist
+   are not bypassed by opening a foreign player's public career profile. */
+function foreignClubSheet(id){
+  const f=S.foreign,c=f?.clubs[id];
+  if(!c)return overlayShell('Foreign club','<p class="small muted">Club no longer available.</p>');
+  const country=f.countries[c.country],season=f.current?.leagues?.[c.country];
+  const table=season?foreignRank(season.rows):country.tables.slice(-1)[0]?.rows||[];
+  const row=table.find(x=>x.id===id),position=table.findIndex(x=>x.id===id)+1;
+  const sq=(f.squads[id]||[]).slice().sort((a,b)=>b.q-a.q),ledger=c.ledger;
+  const recent=(f.market?.log||[]).filter(m=>m.from===id||m.to===id).slice(-6).reverse();
+  return overlayShell(c.name,`<div class="panel">
+    <p class="eyebrow">${esc(country.name)} · ${esc(country.divisions[0].name)}</p>
+    <div class="row small"><span>League position</span><b>${position?ord(position):'—'} ${row?(' · '+row.pts+' points'):''}</b></div>
+    <div class="row small"><span>Squad strength</span><b>${Math.round(foreignStrength(id))}</b></div>
+    <div class="row small"><span>Reputation · academy</span><b>${c.rep} · level ${c.academy||1}</b></div>
+    <div class="row small"><span>Cash · debt (£k)</span><b>£${n0(c.budget)}k · £${n0(c.debt||0)}k</b></div>
+    <div class="row small"><span>Weekly player wages</span><b>£${foreignWageWeek(id)}k</b></div>
+    ${c.adminSeason===S.season?'<p class="inj">Club in administration this season.</p>':''}
+  </div>
+  ${ledger?`<div class="panel"><p class="eyebrow">Season cash movements · £k</p>
+    <div class="row small"><span>Opening balance</span><b>${n0(ledger.start??0)}</b></div>
+    <div class="row small"><span>Revenue · wages</span><b>${n0(ledger.income)} · ${n0(ledger.wages)}</b></div>
+    <div class="row small"><span>Facilities and costs</span><b>${n0(ledger.other)}</b></div>
+    <div class="row small"><span>Transfers · financing</span><b>${n0(ledger.transfers||0)} · ${n0(ledger.financing||0)}</b></div>
+  </div>`:''}
+  <div class="panel"><p class="eyebrow">Squad · ${sq.length} players</p>${sq.slice(0,18).map(p=>`<button class="row small" data-act="worldplayer" data-arg="${p.id}"><span>${esc(p.name)}<br><span class="muted">${p.pos} · ${p.age} · ${(p.nationality||'nmr').toUpperCase()}</span></span><b>${p.sApps||0} games</b></button>`).join('')}</div>
+  ${recent.length?`<div class="panel"><p class="eyebrow">Recent transfers</p>${recent.map(m=>`<p class="small">${esc(m.name)} · ${m.to===id?'Arrived':'Left'} · £${m.fee}k</p>`).join('')}</div>`:''}
+  ${c.history.length?`<div class="panel"><p class="eyebrow">Recent seasons</p>${c.history.slice(-8).reverse().map(h=>`<div class="row small"><span>Season ${h.season}</span><b>${ord(h.place)} · ${h.pts} points</b></div>`).join('')}</div>`:''}`);
+}
+function worldPlayerSheet(pid){
+  const result=findPlayer(pid);
+  if(!result)return overlayShell('Player archive','<p class="small muted">This player has retired or left the tracked professional leagues.</p>');
+  const p=result.p,id=result.club,home=S.clubs[id]?.name||S.foreign?.clubs?.[id]?.name||'Free agent';
+  const name=club=>S.clubs[club]?.name||S.foreign?.clubs?.[club]?.name||club||'Free agent';
+  const seasons=(p.history||[]).slice(-20).reverse();
+  return overlayShell(p.name,`<div class="panel"><p class="eyebrow">${esc(home)}</p>
+    <div class="row small"><span>Age · nationality</span><b>${p.age} · ${(p.nationality||'nmr').toUpperCase()}</b></div>
+    <div class="row small"><span>Position · style</span><b>${POS_ONE[p.pos]} · ${esc(p.style||'Balanced')}</b></div>
+    <div class="row small"><span>This season's league</span><b>${p.sApps||0} apps · ${p.sGoals||0} goals</b></div>
+    <div class="row small"><span>Europe</span><b>${p.eApps||0} apps · ${p.eGoals||0} goals</b></div>
+    <div class="row small"><span>Contract remaining</span><b>${p.contract||0} years</b></div>
+    <p class="small muted">Ability and potential are not displayed without your own scouting observations.</p></div>
+    ${seasons.length?`<div class="panel"><p class="eyebrow">Career</p>${seasons.map(h=>h.type?
+      `<p class="small">S${h.season} · ${h.type} · ${esc(name(h.from))} → ${esc(name(h.to))}`:
+      `<div class="row small"><span>S${h.season} · ${esc(name(h.club))}</span><b>${h.apps||0} apps · ${h.goals||0} goals</b></div>`).join('')}</div>`:''}
+    ${(p.honours||[]).length?`<div class="panel"><p class="eyebrow">Honours</p>${p.honours.slice(-8).map(h=>`<p class="small">Season ${h.season}: ${h.type==='cup'?'Cup winner':'League champion'} · ${esc(name(h.club))}</p>`).join('')}</div>`:''}`);
 }
 function playerSheet(pid){
   const p=S.squads[S.my].find(x=>x.id===pid);if(!p)return overlayShell('Player','<p class="muted">No longer at the club.</p>');

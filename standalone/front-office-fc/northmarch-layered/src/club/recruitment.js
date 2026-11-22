@@ -11,7 +11,7 @@ const SHORTLIST_MAX=12;
 const MANDATE_DEALS={small:{n:'Small',share:.4,d:'He signs himself up to 40% of the transfer budget a deal.'},medium:{n:'Medium',share:.75,d:'He signs himself up to 75% of the transfer budget a deal.'},large:{n:'Large',share:1,d:'He signs anyone within the transfer budget, no questions asked.'}};
 function mandateOf(id){return(F(id).policy&&F(id).policy.mandate)||{deals:'large'}}
 function dealCap(id){if(id!==S.my||S.auto)return Infinity;const m=MANDATE_DEALS[mandateOf(id).deals]||MANDATE_DEALS.large;return m.share>=1?Infinity:Math.max(5,Math.round(budgetFor(id)*m.share))}
-function opsInit(){return{plan:{s:0,w:0,needs:[],ready:[],next:1},shortlist:[],signings:[],missed:[],pnext:1}}
+function opsInit(){return{plan:{s:0,w:0,needs:[],ready:[],next:1},shortlist:[],signings:[],missed:[],reports:[],pnext:1}}
 function OPS(){if(!S.ops)S.ops=opsInit();return S.ops}
 function recruitStrategy(id){return F(id).policy.recruit||'balanced'}
 /* how a strategy colours the director's choice (used for every club in shopFor) */
@@ -118,7 +118,7 @@ function recordDecision(id,pos,best,evaluated,mustHave){
     if(resolved){need.status='filled';need.closed=[S.season,S.week];need.by={pid:best.p.id,name:best.p.name}}
     else{need.lastSigning={pid:best.p.id,name:best.p.name,s:S.season,w:S.week};}
   }
-  ops.signings.push({pid:best.p.id,name:best.p.name,pos:best.p.pos,age:best.p.age,fee:best.fee,est:r1(best.seen??best.p.q),q0:r1(best.p.q),s:S.season,w:S.week,need:need?need.why:(mustHave?'Emergency cover':'Squad strengthening'),scouted:!!e,obs:e?e.obs:0,strategy:recruitStrategy(id)});
+  ops.signings.push({pid:best.p.id,name:best.p.name,pos:best.p.pos,age:best.p.age,fee:best.fee,est:r1(best.seen??best.p.q),q0:r1(best.p.q),s:S.season,w:S.week,need:need?need.why:(mustHave?'Emergency cover':'Squad strengthening'),scouted:!!e,obs:e?e.obs:0,strategy:recruitStrategy(id),directorPid:tdOf(id).id,directorName:tdOf(id).name});
   if(ops.signings.length>20)ops.signings.shift();
 }
 function signingReview(){return(S.ops?S.ops.signings:[]).slice(-6).reverse().map(x=>{const f=findPlayer(x.pid);return{...x,now:f?r1(f.p.q):null,apps:f?f.p.apps:null,where:f?(f.club===S.my?'at the club':f.club?marketClubName(f.club):'released'):'gone'}})}
@@ -163,8 +163,8 @@ function tdClose(){
     ((e.c===S.my&&['Transfer','Signing'].includes(e.t))||(e.c2===S.my&&e.t==='Transfer')||
      (e.t==='InternationalTransfer'&&(e.from===S.my||e.to===S.my))));
   const report={s:S.season,w:windowWeek,kind:windowWeek===0?'Summer':'Winter',
-    director:tdOf(S.my).name,mandate:mandateOf(S.my).deals,
-    signed:signings.map(x=>({pid:x.pid,name:x.name,pos:x.pos,fee:x.fee,est:x.est,q0:x.q0,need:x.need})),
+    director:tdOf(S.my).name,directorPid:tdOf(S.my).id,mandate:mandateOf(S.my).deals,
+    signed:signings.map(x=>({pid:x.pid,name:x.name,pos:x.pos,fee:x.fee,est:x.est,q0:x.q0,need:x.need,s:x.s,w:x.w,directorPid:x.directorPid||null,directorName:x.directorName||null})),
     missed:missed.map(x=>({pid:x.pid,name:x.name,pos:x.pos,fee:x.fee,cap:x.cap,need:x.need})),
     events:deals.map(e=>({t:e.t,text:e.text})),closed:[S.season,S.week]};
   ops.reports=ops.reports||[];
@@ -173,19 +173,50 @@ function tdClose(){
   if(ops.reports.length>8)ops.reports.splice(0,ops.reports.length-8);
   for(const p of ops.missed||[])if(p.status==='above'){p.status='missed';p.closed=[S.season,S.week]}
 }
-/* Performance is measured from actual subsequent appearances and development, not
-   an invented manager score. A new signing is unassessed until he has played. */
+/* S3.2: retained evidence, not a fictional satisfaction score.
+   A club appearance in an earlier season remains valid after the season stats reset.
+   Stints are counted only for the chairman's club, not games before a transfer or on loan.
+   An assessment is frozen after eight real appearances, so later growth, transfers
+   and retirement cannot rewrite how the original signing was judged. */
+function directorSigningApps(x){
+  const f=findPlayer(x.pid);
+  if(!f)return {apps:x.appsObserved||0,player:null,club:null};
+  const p=f.p;
+  const history=(p.history||[]).filter(h=>h.club===S.my&&h.season>=x.s);
+  const past=history.reduce((n,h)=>n+(h.apps||0)+(h.cupApps||0)+(h.europe||0),0);
+  const current=f.club===S.my?(p.sApps||0)+(p.cupApps||0)+(p.eApps||0):0;
+  return {apps:Math.max(x.appsObserved||0,past+current),player:p,club:f.club};
+}
+function directorAuditWeek(){
+  if(!S.my||!S.ops)return;
+  for(const r of S.ops.reports||[])for(const x of r.signed||[]){
+    const evidence=directorSigningApps(x);
+    x.appsObserved=evidence.apps;
+    if(x.assessment||evidence.apps<8||!Number.isFinite(x.est)||!Number.isFinite(x.q0))continue;
+    x.assessment={result:x.q0>=x.est-1?'meeting':'below',apps:evidence.apps,
+      s:S.season,w:S.week,estimate:x.est,qualityAtSigning:x.q0};
+  }
+}
+/* Trust attaches to the actual director who signed each player. A replacement
+   inherits none of a predecessor's successes or mistakes. The sample count
+   prevents a single fortunate signing from deciding his reputation. */
+function directorTrust(pid){
+  const who=pid||tdOf(S.my)?.id;
+  const all=(S.ops?.reports||[]).flatMap(r=>r.signed||[]).filter(x=>x.directorPid===who&&x.assessment);
+  const n=all.length,hits=all.filter(x=>x.assessment.result==='meeting').length;
+  const label=n<3?'Too early to judge':hits/n>=2/3?'Earned confidence':hits/n<=1/3?'Recruitment concerns':'Mixed recruitment record';
+  return {pid:who,n,hits,rate:n?Math.round(hits/n*100):null,label};
+}
 function directorWindowReviews(){
   return (S.ops?.reports||[]).slice().reverse().map(r=>{
-    const players=r.signed.map(x=>{const f=findPlayer(x.pid),p=f?.p;
-      const apps=p?(p.sApps||0)+(p.cupApps||0)+(p.eApps||0):0;
-      const current=p?r1(p.q):null;
-      return {...x,apps,current,club:f?.club||null,
-        verdict:!p?'Unavailable':f.club!==S.my?'Departed':apps<5?'Too early':
-          current>=x.est-.5?'Meeting estimate':'Below estimate'};
+    const players=(r.signed||[]).map(x=>{
+      const evidence=directorSigningApps(x),p=evidence.player;
+      const verdict=x.assessment?(x.assessment.result==='meeting'?'Met estimate':'Below estimate'):
+        !p?'Unavailable':evidence.club!==S.my?'Departed before assessment':'Too early';
+      return {...x,apps:evidence.apps,current:p?r1(p.q):null,club:evidence.club,verdict};
     });
-    const assessed=players.filter(x=>x.verdict==='Meeting estimate'||x.verdict==='Below estimate');
-    return {...r,players,assessed:assessed.length,meeting:assessed.filter(x=>x.verdict==='Meeting estimate').length};
+    const assessed=players.filter(x=>x.assessment);
+    return {...r,players,assessed:assessed.length,meeting:assessed.filter(x=>x.assessment.result==='meeting').length};
   });
 }
 /* the window opens for the chairman: the pre-season scouting rounds, a fresh plan, and the director's scan */

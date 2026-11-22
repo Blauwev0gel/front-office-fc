@@ -19,10 +19,11 @@ Status: **VEROUDERD**: 40 commits achter OFFICIAL_SHA (o.a. saveschema v10, were
 | Ontwikkelaar | Werkbranch | Gebied | Status |
 |---|---|---|---|
 | Claude | `claude/loving-goodall-uv00vn` | Slimline-kern: werving en scouting, jeugd, windows, clubkoersen, economiebalans; L3 (staf en mandaten) | rust (wacht op de nieuwe basis) |
-| ChatGPT | *nog in te vullen (eigen branch, niet de branch van Claude)* | Wereld: vijf divisies, beker, buitenlandse competities, Europa, internationale markt, wedstrijdstatistieken, wereldnieuws, rivaliteiten | actief |
+| ChatGPT | `chatgpt-slimline-world` | Wereld: vijf divisies, beker, buitenlandse competities, Europa, internationale markt, wedstrijdstatistieken, wereldnieuws, rivaliteiten | actief |
 Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `football/market.js`, `core/save.js`), meld het hier onder "Open wijzigingen" voordat je begint.
 
 ## Open wijzigingen en bekende problemen
+- [ ] ChatGPT werkt op verzoek van de eigenaar aan L3 S3.2 (tijdelijke overlap met Claude's gebied). Feitelijke windowrapporten zijn geïmplementeerd op eigen branch; vertrouwen, seizoensoverschrijdende validatie en tests nog open. Claude moet deze wijziging vóór verdere L3-ontwikkeling integreren.
 - [ ] Economie: de directeur kan meerdere vrije spelers op dezelfde positie tegelijk tekenen (upgradelus in `squadManager`).
 - [ ] Economie: de onderste divisie (4) heeft nauwelijks financiële buffer (mediane cash ±£3–10k in lange simulaties).
 - [ ] Wereldkwaliteit zakt langzaam over lange periodes (loonschaal is begrensd op 11,7, het onderliggende verloop niet opgelost).
@@ -30,6 +31,7 @@ Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `footbal
 - [ ] Volgens `docs/SLIMLINE_WORLD_ROADMAP.md` (ChatGPT) is het volledige spel, mobiele UX, het test-harnas en de langetermijneconomie na zijn laatste wijzigingen nog niet door hem uitgevoerd. Nieuwe regressietests (`tests/world-repair-regressions.js`) zijn volgens zijn commit geschreven maar niet uitgevoerd.
 
 ## Teststatus (laatst bekende feiten per SHA)
+| L3 S3.2 (ChatGPT branch, nog niet gemerged) | 93ccac0 + docs | **niet gedraaid**; CI moet build en snelle tests nog controleren | 2026-11-22 | ChatGPT |
 | Wat | SHA | Resultaat | Datum | Door |
 |---|---|---|---|---|
 | Build, `save-test`, `smoke-test` | ccceb42 | groen | 2026-11-22 | Claude (lokaal) |

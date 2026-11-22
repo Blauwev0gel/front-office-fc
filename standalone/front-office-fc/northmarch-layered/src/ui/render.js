@@ -66,6 +66,34 @@ function reportView(){
   ${ms.some(x=>x.comp==='league')?`<p class="small"><b>${TIER_NAME[C().tier]}: ${ord(posOf(S.my))}</b>${UI.prevPos&&UI.prevPos!==posOf(S.my)?` <span class="${UI.prevPos>posOf(S.my)?'up':'down'}">(${UI.prevPos>posOf(S.my)?'▲':'▼'}${Math.abs(UI.prevPos-posOf(S.my))})</span>`:''} · ${S.tbl[S.my].pts} point${S.tbl[S.my].pts===1?'':'s'}</p>`:''}
   <ul>${evs.map(e=>`<li>${esc(e.text)}</li>`).join('')}${f?`<li>The week's books: ${k1(f.net)}${f.lines.gate?` (gate ${k1(f.lines.gate)})`:''}.</li>`:''}</ul></section>`;
 }
+function europeanFixtureOf(id,week){
+  const euro=S.foreign?.current?.europe;
+  if(!euro||!EURO_WEEKS.includes(week))return null;
+  const i=euro.alive.indexOf(id);
+  if(i<0||euro.alive.length<2)return null;
+  const j=i%2===0?i+1:i-1;
+  return euro.alive[j]?{home:euro.alive[i-i%2],away:euro.alive[i-i%2+1],opponent:euro.alive[j]}:null;
+}
+function europeanPreviewPanel(){
+  const w=S.week+1,fixture=europeanFixtureOf(S.my,w);
+  if(!fixture)return'';
+  const a=fixture.home,b=fixture.away,sa=foreignStrength(a),sb=foreignStrength(b);
+  const [lh,la]=lambdas(sa,sb,false),p=wdlProb(lh,la),mine=a===S.my?p.w:p.l;
+  const name=id=>S.clubs[id]?.name||S.foreign?.clubs?.[id]?.name||id;
+  return`<div class="panel"><p class="eyebrow">European knockout · week ${w}</p>
+    <div class="fix"><b>${esc(name(a))}</b><span class="muted">v</span><b>${esc(name(b))}</b></div>
+    <p class="small muted">One-leg, neutral-ground knockout. Expected goals ${lh.toFixed(1)}–${la.toFixed(1)}; chance of winning in normal time about ${pct(mine)}. Extra match load will affect next week.</p></div>`;
+}
+function europeanResultPanel(){
+  const rounds=S.foreign?.current?.europe?.rounds||[];
+  const matches=rounds.flat().filter(m=>m.week===S.week&&(m.h===S.my||m.a===S.my));
+  if(!matches.length)return'';
+  const name=id=>S.clubs[id]?.name||S.foreign?.clubs?.[id]?.name||id;
+  return matches.map(m=>`<div class="panel"><p class="eyebrow">Europe · week ${m.week}</p>
+    <div class="fix"><b>${esc(name(m.h))}</b><span class="score">${m.gh}–${m.ga}</span><b>${esc(name(m.a))}</b></div>
+    <p class="small muted">${m.winner===S.my?'Through to the next round':'Eliminated'}${m.gh===m.ga?' after a deciding shoot-out':''}.
+    ${m.scorers?.[S.my]?.length?' Scorers: '+m.scorers[S.my].map(x=>esc(x.name)).join(', ')+'.':''}</p></div>`).join('');
+}
 function previewView(){
   if(seasonOver())return`<div class="panel"><p class="eyebrow">The season is over</p><p>${TIER_NAME[C().tier]}: you finish ${ord(posOf(S.my))}.</p></div>`;
   const w=S.week+1,fx=fixtureOf(S.my,w),cup=CUP_WEEKS[S.cup.round]===w?cupTieOf(S.my):null,out=[];
@@ -79,7 +107,7 @@ function previewView(){
     <span>Form</span><b>${(S.tbl[m.h].form||[]).join('')||'—'}</b><b>${(S.tbl[m.a].form||[]).join('')||'—'}</b></div>
     <p class="small muted">The bookmakers: ${pct(mine)} we win, ${pct(p.d)} a draw, ${pct(theirs)} we lose.</p></div>`)}
   if(!out.length)out.push(`<div class="panel"><p class="eyebrow">Week ${w}</p><p class="muted">No game for us this week.</p></div>`);
-  return out.join('');
+  return out.join('')+europeanPreviewPanel();
 }
 function myResults(n){
   return S.ev.filter(e=>e.t==='Match'&&e.s===S.season&&(e.c===S.my||e.c2===S.my)).slice(-n).reverse().map(e=>{const home=e.c===S.my,gf=home?e.gh:e.ga,ga=home?e.ga:e.gh,r=gf>ga?'W':gf<ga?'L':'D';return{r,gf,ga,opp:home?e.c2:e.c,home,cup:e.comp==='cup',w:e.w}});
@@ -90,7 +118,7 @@ function resultsPanel(){
 }
 function weekView(){
   const over=seasonOver();
-  return`${UI.playNote?`<div class="panel playnote" role="status"><p class="small"><b>${esc(UI.playNote)}</b></p></div>`:''}${reportView()}${urgentPanel()}${missedPanel()}${clubWeekPanel()}${windowPanel()}${previewView()}${resultsPanel()}${worldNewsPanel(5)}${lookPanel()}${targetsPanel()}
+  return`${UI.playNote?`<div class="panel playnote" role="status"><p class="small"><b>${esc(UI.playNote)}</b></p></div>`:''}${reportView()}${europeanResultPanel()}${urgentPanel()}${missedPanel()}${clubWeekPanel()}${windowPanel()}${previewView()}${resultsPanel()}${worldNewsPanel(5)}${lookPanel()}${targetsPanel()}
   <p class="note">${over?'Prize money, promotion and relegation, contracts and the summer window follow.':'Every week is played. Change prices, budgets or building first if you want them to count this week.'}</p>`;
 }
 
@@ -121,7 +149,7 @@ function potWord(p){const d=p.pa-p.q;return p.age>=29?'At their level':d>2.5?'Bi
 function loanedOutPanel(){const out=Object.entries(S.squads).flatMap(([cid,sq])=>sq.filter(p=>p.loan&&p.loan.from===S.my).map(p=>({p,cid})));
   return out.length?`<div class="panel"><p class="eyebrow">Out on loan</p>${out.map(({p,cid})=>`<div class="row small"><span>${esc(p.name)} <span class="muted">at ${nm(cid)}</span></span><b>${p.sApps} apps</b></div>`).join('')}</div>`:''}
 function marketView(){
-  const ev=S.ev.filter(e=>['Transfer','Signing','Loan'].includes(e.t)).slice(-200),wins={};
+  const ev=S.ev.filter(e=>['Transfer','InternationalTransfer','Signing','Loan'].includes(e.t)).slice(-200),wins={};
   for(const e of ev){const k=e.w===0?`Summer window, season ${e.s}`:e.w>=SEASON_WEEKS?`Summer ${e.s}`:e.w>=WINTER_WEEK&&e.w<=WINTER_WEEK+1?`Winter, season ${e.s}`:`Season ${e.s}`;(wins[k]=wins[k]||[]).push(e)}
   const keys=Object.keys(wins).reverse().slice(0,3);
   return keys.length?keys.map(k=>{const list=wins[k],fees=list.filter(e=>e.fee).sort((a,b)=>b.fee-a.fee).slice(0,5),mine=list.filter(e=>e.c===S.my||e.c2===S.my);

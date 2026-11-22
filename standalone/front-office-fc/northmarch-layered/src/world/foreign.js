@@ -65,6 +65,7 @@ function foreignMove(p,from,to,fee,reason){
   if(!fromDom&&src.filter(x=>x.pos===p.pos).length<=REQ[p.pos])return false;
   const dueWage=toDom?moveWage(p,to):Math.round(wageFor(p.q)*1.1/5)*5;
   if(toDom&&wageBillK(to)+dueWage/1000>wageCapK(to))return false;
+  playerCloseStint(p,from);
   src.splice(src.indexOf(p),1);
   if(fromDom){book(from,'feesIn',fee);if(from===S.my)youthLeft(p,'sold',to,fee)}
   else f.clubs[from].budget+=fee;
@@ -172,14 +173,14 @@ function foreignPlayerMatch(m,comp='league'){
     const sq=f.squads[id];if(!sq||!sq.length)continue;
     const xi=pickXI(sq);
     for(const x of xi){
-      const p=x.p;p.apps++;p.sApps++;p.fApps=(p.fApps||0)+1;
-      if(comp==='europe')p.eApps=(p.eApps||0)+1;
+      const p=x.p;p.apps++;p.fApps=(p.fApps||0)+1;
+      if(comp==='europe')p.eApps=(p.eApps||0)+1;else p.sApps++;
       p.form=clamp(p.form+(goals>=2?1:goals===0?-1:0),40,88);
       if(p.inj<=0&&comp==='europe'&&rnd()<.003)p.inj=ri(1,2);
     }
     const scorers=[];
     for(let g=0;g<goals&&xi.length;g++){
-      const p=scorerFrom(xi);p.goals++;p.sGoals++;scorers.push({pid:p.id,name:p.name});
+      const p=scorerFrom(xi);p.goals++;if(comp==='europe')p.eGoals=(p.eGoals||0)+1;else p.sGoals++;scorers.push({pid:p.id,name:p.name});
     }
     if(!m.scorers)m.scorers={};
     m.scorers[id]=scorers;
@@ -224,19 +225,32 @@ function foreignWeek(w,{historical=false}={}){
     for(let i=0;i<euro.alive.length;i+=2){
       const a=euro.alive[i],b=euro.alive[i+1],m=foreignGame(a,b,true);
       const winner=m.gh===m.ga?(rnd()<.5+(foreignStrength(a)-foreignStrength(b))/150?a:b):m.gh>m.ga?a:b;
-      foreignPlayerMatch(m,'europe');
-      ties.push({...m,winner,week:w});winners.push(winner);
-      // Domestic entrants use their actual squad; continental minutes and fatigue affect players.
+      if(!historical)foreignPlayerMatch(m,'europe');
+      // Domestic entrants have their own match statistics rather than contaminating
+      // league apps/goals. Event data and the European archive share the same scorers.
       for(const id of [a,b])if(!historical&&S.clubs[id]){
-        const xi=pickXI(S.squads[id]);
+        const xi=pickXI(S.squads[id]),gf=id===a?m.gh:m.ga,ga=id===a?m.ga:m.gh;
+        if(!m.scorers)m.scorers={};m.scorers[id]=[];
         for(const x of xi){
-          x.p.eApps=(x.p.eApps||0)+1;x.p.europeLoad=(x.p.europeLoad||0)+1;
-          // The extra fixture creates a small but real injury exposure.
-          if(x.p.inj<=0&&rnd()<.006)x.p.inj=ri(1,2);
+          const p=x.p;p.eApps=(p.eApps||0)+1;p.europeLoad=(p.europeLoad||0)+1;
+          p.morale=clamp(p.morale+(gf>ga?2:gf<ga?-2:0),0,100);
+          if(p.inj<=0&&rnd()<.006){
+            p.inj=ri(2,4);
+            emit('Injury',id,`${p.name} suffers an injury in Europe and will miss ${p.inj} week${p.inj===1?'':'s'}.`,{pid:p.id,weeks:p.inj,comp:'europe'});
+          }
         }
-        book(id,'europe',id===winner?4:2);
-        emit('EuropeanMatch',id,`${S.clubs[id].name} ${id===a?m.gh:m.ga}–${id===a?m.ga:m.gh} ${S.clubs[id===a?b:a]?.name||f.clubs[id===a?b:a].name} in Europe.`,{comp:'europe',opp:id===a?b:a,week:w,winner});
+        for(let goal=0;goal<gf&&xi.length;goal++){
+          const scorer=scorerFrom(xi);
+          if(!scorer)continue;
+          scorer.eGoals=(scorer.eGoals||0)+1;
+          m.scorers[id].push({pid:scorer.id,name:scorer.name});
+        }
+        S.continentalReceipts=S.continentalReceipts||{};
+        S.continentalReceipts[id]=r2((S.continentalReceipts[id]||0)+(id===winner?4:2));
+        const other=id===a?b:a,oppName=S.clubs[other]?.name||f.clubs[other]?.name||other;
+        emit('EuropeanMatch',id,`${S.clubs[id].name} ${gf}–${ga} ${oppName} in Europe.`,{comp:'europe',opp:other,week:w,winner,scorers:m.scorers[id]});
       }
+      ties.push({...m,winner,week:w});winners.push(winner);
     }
     euro.rounds.push(ties);euro.alive=winners;
     if(winners.length===1)euro.winner=winners[0];
@@ -250,9 +264,9 @@ function foreignPlayerSeasonEnd(){
       p.career=p.career||[];
       p.career.push(`${club.name} ${S.season}: ${p.sApps||0} apps, ${p.sGoals||0} goals`);
       p.history=p.history||[];
-      p.history.push({season:S.season,club:id,age:p.age,apps:p.sApps||0,goals:p.sGoals||0,europe:p.eApps||0,quality:r1(p.q)});
+      p.history.push({season:S.season,club:id,age:p.age,apps:p.sApps||0,goals:p.sGoals||0,europe:p.eApps||0,europeGoals:p.eGoals||0,quality:r1(p.q)});
       if(p.history.length>30)p.history.shift();
-      p.sApps=0;p.sGoals=0;p.eApps=0;
+      p.sApps=0;p.sGoals=0;p.eApps=0;p.eGoals=0;
       if(p.career.length>12)p.career.shift();
       p.age++;p.contract--;p.inj=Math.max(0,(p.inj||0)-3);
       if(p.age>=35||p.contract<=0){sq.splice(sq.indexOf(p),1);continue}

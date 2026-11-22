@@ -62,8 +62,11 @@ function expandLegacyPyramid(){
     giveProfile(c.cast.coach,'coach',tier);
     giveProfile(c.cast.td,'td',tier);
     commercialInit(id);
-    const rivals=Object.keys(S.clubs).filter(j=>j!==id&&CL(j).tier===tier);
-    c.rival=pick(rivals);
+  }
+  // Lower-division rivals must be selected after all sixteen clubs exist.
+  for(const tier of [3,4])for(const id of tierIds(tier)){
+    const rivals=tierIds(tier).filter(other=>other!==id);
+    CL(id).rival=pick(rivals);
   }
   // Build schedules and reconstruct completed matchdays without resetting the existing season.
   for(const tier of [3,4]){
@@ -84,7 +87,7 @@ function expandLegacyPyramid(){
 }
 function schemaVersion(){return VERSION}
 function serialize(){return JSON.stringify(S)}
-function deserialize(txt){S=migrate(JSON.parse(txt));expandLegacyPyramid();if(!S.foreign)S.foreign=foreignInit();foreignRestoreCalendar();staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();youthAfterLoad();return S}
+function deserialize(txt){S=migrate(JSON.parse(txt));expandLegacyPyramid();for(const [id,sq] of Object.entries(S.squads))for(const p of sq)if(p.academy&&!p.originClub)p.originClub=p.loan?.from||p.club||id;if(!S.foreign)S.foreign=foreignInit();foreignRestoreCalendar();staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();youthAfterLoad();return S}
 function save(){if(!HAS_DOM)return false;try{localStorage.setItem(SAVE_KEY,serialize());return true}catch(e){return false}}
 function hasSave(){if(!HAS_DOM)return false;try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
 function load(){if(!HAS_DOM)return false;try{const t=localStorage.getItem(SAVE_KEY);if(!t)return false;deserialize(t);return true}catch(e){return false}}

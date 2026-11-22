@@ -15,7 +15,7 @@ function potentialBand(id,p){const d=potentialSeen(id,p)-squadQuality(S.squads[i
 function youthDevRecord(id){
   if(id!==S.my)return;const Y=YOUTH();
   for(const p of S.squads[id]){if(p.age>23&&!Y.grads[p.id])continue;
-    const line={s:S.season,age:p.age,q:r1(p.q),apps:p.sApps,where:p.wasLoan?CL(p.wasLoan).name:null};p.wasLoan=null;
+    const line={s:S.season,age:p.age,q:r1(p.q),apps:p.loanStats?.apps??p.sApps,where:p.wasLoan?CL(p.wasLoan).name:null};p.wasLoan=null;p.loanStats=null;
     if(p.age<=23){p.dev=p.dev||[];p.dev.push(line);if(p.dev.length>DEV_MAX)p.dev.shift()}
     const g=Y.grads[p.id];if(g){g.dev.push(line);if(g.dev.length>DEV_MAX)g.dev.shift();g.peak=Math.max(g.peak,line.q);if(!line.where&&line.apps>=10)g.regular=true}
   }

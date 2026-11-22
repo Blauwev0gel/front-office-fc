@@ -15,7 +15,10 @@ function matchAftermath(m){
       const temper=p.trait==='temperamental'?2:1;
       if(rnd()<.006*temper){p.susp=ri(1,3);if(club===S.my)emit('Suspended',club,`${p.name} is sent off and banned for ${p.susp} match${p.susp>1?'es':''}.`,{pid})}
       else if(rnd()<.09*temper){p.yel++;if(p.yel%5===0){p.susp=1;if(club===S.my)emit('Suspended',club,`${p.name} collects his fifth booking: banned for one match.`,{pid})}}
-      p.morale=clamp(p.morale+res*3,0,100);
+      const scored=(m.scorers||[]).filter(x=>x.pid===pid).length;
+      p.form=clamp(p.form+res*2+Math.min(6,scored*3),35,90);
+      const rival=CL(club).rival===(side==='h'?m.a:m.h);
+      p.morale=clamp(p.morale+res*(rival?5:3)+Math.min(4,scored*2),0,100);
     }
     for(const p of S.squads[club])if(!xi.includes(p.id))p.morale=clamp(p.morale+res,0,100);
   }
@@ -46,8 +49,10 @@ function loanOut(id){
   }
 }
 function returnLoans(){
-  for(const id in S.squads){const sq=S.squads[id];for(const p of sq.slice())if(p.loan&&p.loan.from!==id){sq.splice(sq.indexOf(p),1);const from=p.loan.from;p.loan=null;if(from===S.my)p.wasLoan=id;S.squads[from].push(p);
-    if(from===S.my)emit('LoanBack',from,`${p.name} returns from his loan (${p.sApps} appearances).`,{pid:p.id})}}
+  for(const id in S.squads){const sq=S.squads[id];for(const p of sq.slice())if(p.loan&&p.loan.from!==id){
+    p.loanStats={apps:p.sApps||0,goals:p.sGoals||0};playerCloseStint(p,id);
+    sq.splice(sq.indexOf(p),1);const from=p.loan.from;p.loan=null;if(from===S.my)p.wasLoan=id;S.squads[from].push(p);
+    if(from===S.my)emit('LoanBack',from,`${p.name} returns from his loan (${p.loanStats?.apps||0} appearances).`,{pid:p.id})}}
 }
 /* contract demands: what a player asks for at renewal (more if he is good, wanted, or unhappy) */
 function wageDemand(p,med){return Math.round(wageFor(p.q)*(1+(p.q>=med?.12:0)+rnd()*.12+(p.morale<40?.2:0)+(p.age<=23&&p.pa>p.q+1?.1:0))/5)*5}

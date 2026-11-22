@@ -48,3 +48,5 @@ Report command output and seed-specific failures. Do not merge/deploy without pe
 - 2026-11-22: Source files inspected through GitHub connector; container cannot reach github.com (DNS resolution failed), so Node build and test execution have **not** occurred. Status remains AUDIT.
 
 - 2026-11-22: Weekly foreign fixture schedules, league tables and four-week European knockout integrated into `advanceWeek()`; domestic European participants receive minutes, injury exposure and ledger income. Source committed; tests/build deliberately deferred at user request. Remaining: migration of in-progress older saves, calendar and qualification edge cases, presentation, validation.
+
+- 2026-11-22: Fixed European player accounting: continental appearances now use `eApps` rather than inflating league/career appearance fields; `europeLoad` carries fatigue into the following matchweek, where squad selection and quality already read `tired`. Commits `7ef3a5c`, `47e07a5`. Added `current.startedAt` to distinguish new calendars from schedules reconstructed for legacy mid-season saves. No tests or build run at user's explicit request. Block 1 remains IMPLEMENTING.

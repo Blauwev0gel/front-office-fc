@@ -11,6 +11,7 @@ run node tests/l25-test.js
 run node tests/youth-test.js
 run node tests/story-test.js
 run node tests/slimline-test.js 4 101 202
+run node tests/l3-test.js
 run node tests/sim-test.js 20261121 20
 run node tests/playtest.js light
 echo "fast suite: all passed"

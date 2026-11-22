@@ -226,3 +226,4 @@ div.dept-player{cursor:default;font-size:13.333px} /* a row that is not a button
 @media (prefers-reduced-motion:reduce){.lvball{transition:none}}
 
 .devt{display:flex;flex-direction:column}.devr{display:grid;grid-template-columns:2rem 3rem 3rem 3.2rem 1fr 1fr;gap:6px;padding:7px 0;border-top:1px solid var(--line);font-size:.85rem;font-variant-numeric:tabular-nums}.devr.head{border-top:0;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+.propcard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0;background:var(--paper)}.propbtn{display:grid;grid-template-columns:1.4fr 1fr;gap:8px;margin-top:8px}.propbtn .btn{min-height:44px;font-size:.88rem;padding-inline:6px}.prop{border-left:4px solid var(--signal)}.seg.grid3{display:grid;grid-template-columns:repeat(3,1fr)}

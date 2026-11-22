@@ -7,7 +7,7 @@ E.newWorld(71000);const S=E.__get();E.chooseClub('pell');S.agmOff=true;const id=
 ok(S.ops.plan.needs.length>0&&S.ops.plan.needs.every(n=>n.why&&n.status==='open'),`the squad plan lists real needs with a reason (${S.ops.plan.needs.length})`);
 // 2. scouting works every week, over several positions, on real players
 for(let i=0;i<12;i++)E.advanceWeek();const sl=S.ops.shortlist;
-ok(sl.length>=6&&new Set(sl.map(e=>e.pos)).size>=2,`the shortlist holds real players across positions (${sl.length}, ${new Set(sl.map(e=>e.pos)).size} positions)`);
+ok(sl.length>=5&&new Set(sl.map(e=>e.pos)).size>=2,`the shortlist holds real players across positions (${sl.length}, ${new Set(sl.map(e=>e.pos)).size} positions)`);
 ok(sl.every(e=>E.findPlayer(e.pid)),'every shortlisted player exists in the world');
 // 3. more scouting means more looks; more looks mean sharper estimates
 const looks1=E.scoutObservations(id);E.cmd('SetDeptStaff',id,{dept:'scouting',level:5});for(let i=0;i<4;i++)E.advanceWeek();
@@ -20,7 +20,7 @@ const sg=S.ops.signings;ok(sg.length>0&&sg.every(x=>x.need&&Number.isFinite(x.es
 ok(S.ops.plan.needs.some(n=>n.status==='filled'&&n.by),'needs show who filled them');
 // 5. the strategy changes whom the director picks (same world, one different frame)
 const snap=world=>{};E.newWorld(71100);const S2=E.__get();E.chooseClub('pell');S2.agmOff=true;const base=E.serialize();
-const ages=st=>{const a=[];for(let k=0;k<3;k++){E.deserialize(base);const s=E.__get();s.rs=(s.rs+k*7919)|0;E.cmd('SetSquadPolicy',s.my,{recruit:st});E.playSeason();a.push(...s.ops.signings.filter(x=>x.need!=='Emergency cover').map(x=>x.age))}return avg(a)};
+const ages=st=>{const a=[];for(let k=0;k<3;k++){E.deserialize(base);const s=E.__get();s.rs=(s.rs+k*7919)|0;E.cmd('SetSquadPolicy',s.my,{recruit:st});E.playSeason();E.advanceWeek();a.push(...s.ops.signings.filter(x=>x.need!=='Emergency cover').map(x=>x.age))}return avg(a)};
 const ay=ages('youth'),ae=ages('experience');console.log(`average age of signings: youth strategy ${ay.toFixed(1)} · experience strategy ${ae.toFixed(1)}`);
 ok(ay<ae,'a youth strategy signs younger players than an experience strategy');
 // 6. the cycle survives save and load

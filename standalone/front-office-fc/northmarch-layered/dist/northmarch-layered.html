@@ -236,6 +236,7 @@ div.dept-player{cursor:default;font-size:13.333px} /* a row that is not a button
 @media (prefers-reduced-motion:reduce){.lvball{transition:none}}
 
 .devt{display:flex;flex-direction:column}.devr{display:grid;grid-template-columns:2rem 3rem 3rem 3.2rem 1fr 1fr;gap:6px;padding:7px 0;border-top:1px solid var(--line);font-size:.85rem;font-variant-numeric:tabular-nums}.devr.head{border-top:0;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+.propcard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0;background:var(--paper)}.propbtn{display:grid;grid-template-columns:1.4fr 1fr;gap:8px;margin-top:8px}.propbtn .btn{min-height:44px;font-size:.88rem;padding-inline:6px}.prop{border-left:4px solid var(--signal)}.seg.grid3{display:grid;grid-template-columns:repeat(3,1fr)}
 </style>
 </head>
 <body>
@@ -346,7 +347,7 @@ function cmd(name,club,args,actor){
    Owns S.clubs (identity, tier, support, rivals) and S.P (people). mkPerson/castClub/addRel/weakest are the
    Northmarch functions (northmarch.html @7a2d5d3), kept so the story layer (L4) can attach later.
    Squads (football), grounds (club) and money (finance) are created here but owned by their own domains. */
-const VERSION=7;
+const VERSION=8;
 const SAVE_KEY='northmarch-layered-v1';
 const TIERS=[0,1,2];
 const TIER_STR=[[51,59],[44,53],[37,46]];
@@ -407,6 +408,7 @@ function newWorld(seed){
   for(const id of ids){const c=CL(id),[a,b]=TIER_STR[c.tier];
     const str=id==='pell'?48:id==='harrow'?57:ri(a,b)+Math.round((c.support-(TIER_SUPPORT[c.tier][0]+TIER_SUPPORT[c.tier][1])/2)/600);
     S.squads[id]=genSquad(str,id);S.grounds[id]=groundInit(id);S.fin[id]=finInit(id);S.stats[id]=statsInit();S.members[id]=membersInit(id);S.records[id]=recordsInit();giveProfile(CL(id).cast.coach,'coach',CL(id).tier);giveProfile(CL(id).cast.td,'td',CL(id).tier);}
+  S.foreign=foreignInit();
   staffPoolInit();
   for(const id of ids)commercialInit(id);
   S.qref=worldQuality();
@@ -429,7 +431,7 @@ function chooseClub(id){
   if(!S.seats.includes(id))return false;
   S.my=id;S.phase='season';S.votedOut=null;
   S.career.push({club:id,from:S.season,to:null,why:null});
-  S.ops=opsInit();S.youth=youthInit();buildPlan(id);
+  S.ops=opsInit();S.youth=youthInit();F(id).policy.mandate={deals:'medium'};openWindow();
   const m=M(id);m.conf=r1(clamp(62+S.rep*2,40,80));m.log.push({s:S.season,w:S.week,d:0,why:'A new chairman: the members give you a chance'});
   emit('ChairmanElected',id,`You are elected chairman of ${CL(id).name}.`);
   return true;
@@ -518,6 +520,84 @@ function promoteRelegate(){
     up.forEach(i=>{CL(i).tier=t;moves.push({id:i,from:t+1,to:t});emit('Promoted',i,`${CL(i).name} are promoted to ${TIER_NAME[t]}.`)});
   }
   return moves;
+}
+
+/* ---- world/foreign.js ---- */
+/* ================= World layer: foreign football =================
+   Lightweight autonomous leagues. Foreign clubs are deliberately NOT in S.clubs:
+   the domestic match, wage, staff and stadium engines must never process them.
+   All randomness uses the saved world RNG; no real clubs or trademarks. */
+const FOREIGN_COUNTRIES=[
+  ['eng','England',['Northbridge','Westford','Ashmere','Kingsport','Briarwick','Eastborough','Mereford','Redhaven','Stonebury','Whitecross','Blackmere','Southwick']],
+  ['sco','Scotland',['Glenhaven','Lochford','Dunbrae','Strathmore','Inverwick','Forthside','Braeholm','Eastloch','Kirkhaven','Northglen','Cairnford','Westbrae']],
+  ['ned','Netherlands',['Rijnstad','Havenburg','Noordveen','Zuiddam','Waterwijk','Veldhoven','Oostmeer','Duinrade','IJsselpoort','Maaswijk','Lindenstad','Westerveen']],
+  ['ger','Germany',['Eisenstadt','Waldheim','Rosenbruck','Nordhafen','Bergfeld','Westtal','Grunfurt','Steinbach','Ostburg','Lindenheim','Falkenstadt','Sudhaven']],
+  ['fra','France',['Montval','Saint-Roch','Valmer','Beaulac','Rivemont','Clairville','Port-Lumiere','Boisfort','Grandval','Bellemont','Rochefort','Aubepin']],
+  ['esp','Spain',['Puerto Azul','Valdeoro','Sierra Blanca','Monteverde','Rioalto','Costa Sur','Villaluz','Campo Real','San Mirador','Altavista','Las Encinas','Marbella Norte']]
+];
+function foreignInit(){
+  const countries={},clubs={};
+  for(const [code,name,towns] of FOREIGN_COUNTRIES){
+    const ids=[];
+    towns.forEach((town,i)=>{const id='f_'+code+'_'+i;
+      clubs[id]={id,country:code,name:town+(i%3===0?' Athletic':i%3===1?' FC':' United'),
+        strength:Math.round(48+rnd()*28),rep:Math.round(35+rnd()*50),budget:Math.round(80+rnd()*800),
+        form:0,history:[]};ids.push(id)});
+    countries[code]={code,name,divisions:[{id:code+'_1',name:name+' Premier Division',clubs:ids}],champions:[],tables:[]};
+  }
+  return{countries,clubs,europe:{seasons:[]},lastSeason:0};
+}
+function foreignStandings(ids){
+  const rows=ids.map(id=>({id,pts:0,gf:0,ga:0,w:0,d:0,l:0}));
+  const byId=Object.fromEntries(rows.map(r=>[r.id,r]));
+  const order=shuffle(ids.slice());
+  for(let leg=0;leg<2;leg++)for(let i=0;i<order.length;i++)for(let j=i+1;j<order.length;j++){
+    const h=byId[leg?order[j]:order[i]],a=byId[leg?order[i]:order[j]];
+    const sh=S.foreign.clubs[h.id].strength,sa=S.foreign.clubs[a.id].strength;
+    const [lh,la]=lambdas(sh,sa,true),gh=pois(lh,rnd),ga=pois(la,rnd);
+    h.gf+=gh;h.ga+=ga;a.gf+=ga;a.ga+=gh;
+    if(gh>ga){h.w++;h.pts+=3;a.l++}else if(gh<ga){a.w++;a.pts+=3;h.l++}else{h.d++;a.d++;h.pts++;a.pts++}
+  }
+  return rows.sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||a.id.localeCompare(b.id));
+}
+function foreignSeasonEnd(){
+  if(!S.foreign)S.foreign=foreignInit();
+  const f=S.foreign;if(f.lastSeason>=S.season)return;
+  const qualifiers=[];
+  for(const country of Object.values(f.countries)){
+    const ids=country.divisions[0].clubs,table=foreignStandings(ids);
+    country.tables.push({season:S.season,rows:table});
+    country.champions.push({season:S.season,id:table[0].id});
+    for(const row of table){
+      const club=f.clubs[row.id],place=table.indexOf(row)+1;
+      club.history.push({season:S.season,place,pts:row.pts});
+      club.form=Math.round((row.pts-33)/5);
+      club.strength=Math.max(35,Math.min(85,club.strength+Math.round((rnd()-.5)*5+(place<=3?1:place>=10?-1:0))));
+      club.rep=Math.max(15,Math.min(95,club.rep+(place===1?2:place>=10?-1:0)));
+      club.budget=Math.max(20,Math.round(club.budget*(.98+(13-place)*.004)));
+    }
+    qualifiers.push(...table.slice(0,2).map(x=>x.id));
+    if(country.tables.length>25)country.tables.shift();
+    if(country.champions.length>25)country.champions.shift();
+  }
+  // Northmarch enters through its actual top-division standings, not a fictional placeholder.
+  const home=standings(0).slice(0,4);
+  const participants=qualifiers.concat(home);
+  let alive=shuffle(participants);
+  const rounds=[];
+  while(alive.length>1){
+    const next=[],ties=[];
+    for(let i=0;i<alive.length;i+=2){
+      const a=alive[i],b=alive[i+1],sa=f.clubs[a]?.strength??teamStrength(a),sb=f.clubs[b]?.strength??teamStrength(b);
+      const [la,lb]=lambdas(sa,sb,false),ga=pois(la,rnd),gb=pois(lb,rnd);
+      const winner=ga===gb?(rnd()<.5+(sa-sb)/150?a:b):ga>gb?a:b;
+      ties.push({a,b,ga,gb,winner});next.push(winner);
+    }
+    rounds.push(ties);alive=next;
+  }
+  f.europe.seasons.push({season:S.season,participants,rounds,winner:alive[0]});
+  if(f.europe.seasons.length>25)f.europe.seasons.shift();
+  f.lastSeason=S.season;
 }
 
 /* ---- football/players.js ---- */
@@ -687,15 +767,30 @@ function releaseCost(p){return r1(p.wage*SEASON_WEEKS*Math.max(0,p.contract)/100
 function release(id,p,why){const sq=S.squads[id];const pay=releaseCost(p);if(pay)book(id,'wages',-pay);sq.splice(sq.indexOf(p),1);youthLeft(p,'released');faAdd(p,why||'released',id);if(id===S.my)emit('Released',id,`${p.name} is released.`,{pid:p.id})}
 
 /* the players a club's director can see: free agents and players at other clubs, wider with a better scouting office */
-function scoutPool(id,pos,n){
+function scoutPool(id,pos,n,quiet){
   const reach=Math.max(4,6+Math.round(2*groundSignals(id).scouting+(pq(tdOf(id))-10)/2)),out=[];
   const fa=S.fa.filter(p=>(!pos||p.pos===pos)&&!(p.left&&p.left.club===id&&p.left.s>=S.season-1)); // a player who just left does not come back
   for(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
-  const others=Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1);
-  for(let k=0;k<reach&&others.length;k++){const o=pick(others),c=S.squads[o].filter(p=>(!pos||p.pos===pos)&&p.inj<=0&&!p.loan);if(c.length){const p=pick(c);out.push({p,from:o,premium:CL(o).rep>CL(id).rep+15&&!p.wantsOut})} /* stepping down to a smaller club costs a wage premium */}
+  const others=shuffle(Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1));
+  // Scout players a selling club could actually spare. Sampling random protected starters
+  // produced reports that could never turn into transfers.
+  const budget=budgetFor(id),cap=wageCapK(id),bill=wageBillK(id);
+  let found=0;
+  for(const o of others){
+    if(found>=reach)break;
+    const c=S.squads[o].filter(p=>(!pos||p.pos===pos)&&p.inj<=0&&!p.loan&&
+      canSpare(S.squads[o],p,true)&&
+      (p.wantsOut||S.squads[o].filter(x=>x.pos===p.pos&&!x.loan).length>REQ[p.pos]||F(o).cash<0)&&
+      askingFee(p,o)*tdBuyF(id)*.85<=budget&&
+      bill+wageFor(p.q)/1000*(CL(o).rep>CL(id).rep+15&&!p.wantsOut?1.3:1)<=cap);
+    if(!c.length)continue;
+    const p=pick(c);
+    out.push({p,from:o,premium:CL(o).rep>CL(id).rep+15&&!p.wantsOut});
+    found++;
+  }
   // Keep a compact record of candidates the director actually encountered.
   // This is evidence of a search, not a promise of a signing or a scout assignment.
-  if(id===S.my){
+  if(id===S.my&&!quiet){
     const st=S.stats[id],history=st.scoutHistory||(st.scoutHistory=[]);
     const found=out.slice(0,n||99);
     history.push({season:S.season,week:S.week,pos:pos||'any',director:tdOf(id).name,
@@ -719,19 +814,20 @@ function budgetFor(id){const f=F(id),reserve=wageBillK(id)*6;return Math.max(0,M
 function shopFor(id,pos,minQ,o={}){
   const cap=wageCapK(id),bill=wageBillK(id);let budget=o.budget??budgetFor(id);
   let best=null,bv=-Infinity;
-  const pool=scoutPool(id,pos),evaluated=[];
+  const pool=scoutPool(id,pos,undefined,o.dry),evaluated=[],capDeal=o.ignoreMandate?Infinity:dealCap(id); /* o.dry: look, do not sign (the director's proposals); o.ignoreMandate: ignore the deal limit */
   for(const c of shortlistCandidates(id,pos))if(!pool.some(x=>x.p===c.p))pool.unshift(c); // players the scouts have been watching come first
   for(const c of pool){
     const p=c.p,sl=c.listed?shortlistEntry(p.id):null,seen=sl&&sl.obs?sl.est:p.q+(rnd()+rnd()-1)*2.5*tdNoise(id)*reportNoise(id); // watched players are judged on the scouts' refined estimate
     const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000*(c.premium?1.3:1);
     const cheap=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000,coverOk=bill+wage<=cap||wage<=cheap; /* emergency cover: within the wage limit, or a cheap basic contract. A strict ceiling alone leaves a club on its limit with no way to field a squad */
-    let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
+    let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':fee>capDeal&&!o.mustHave?'Above my mandate':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
     if(reason==='Considered'){
       const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0)+recruitBias(id,p,fee)-.5*(sl&&sl.obs?scoutRange(id,sl.obs):eyeRange(id)); /* the director trusts what has been watched */
       if(v>bv){bv=v;best={...c,fee,seen};}
     }
     if(id===S.my)evaluated.push({pid:p.id,name:p.name,pos:p.pos,age:p.age,from:c.from?CL(c.from).name:'Free agent',estimate:r1(seen),fee,reason});
   }
+  if(o.dry)return best;
   if(!best&&o.mustHave){const base=11.5+(tierBaseStr(2)-50)/4 /* fixed level: new faces from below Northmarch Two do not grow with the world (T2) */,p=newPlayer(pos,{age:ri(19,30),q:base-2+rnd()*1.2,contract:0});
     // A trialist is not a free escape hatch from the wage ceiling: if there is no room, the director cannot sign him.
     if(bill+wageFor(p.q)/1000<=cap||wageFor(p.q)/1000<=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000){p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0};}}
@@ -745,10 +841,11 @@ function shopFor(id,pos,minQ,o={}){
       for(const c of h.candidates)if(best&&c.pid===best.p.id)c.reason='Selected';
     }
   }
-  recordDecision(id,pos,best,evaluated,o.mustHave);
-  if(!best)return false;
+  if(!best){recordDecision(id,pos,null,evaluated,o.mustHave);return false;}
   if(!o.mustHave&&minQ>0){const st=S.stats[id];st.buys=(st.buys||0)+1;if(best.p.q<minQ)st.misbuys=(st.misbuys||0)+1;st.spent=r1((st.spent||0)+best.fee)}
   if(best.from)transfer(best.p,best.from,id,best.fee,'buy',best.premium);else signFree(best.p,id);
+  // Review the real post-transfer squad, not the pre-signing snapshot.
+  recordDecision(id,pos,best,evaluated,o.mustHave);
   return best;
 }
 /* the director's work in a window: fill holes, upgrade the weakest starter, trim the squad to the wage cap */
@@ -771,8 +868,14 @@ function squadManager(id,phase){
   for(const p of sq.filter(x=>x.wantsOut&&!x.loan&&canSpare(sq,x,false))){const fee=Math.round(playerValue(p)*.9),buyers=Object.keys(S.clubs).filter(i=>i!==id&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX&&CL(i).rep>=CL(id).rep-10);
     if(buyers.length&&sq.length>SQUAD_MIN){p.wantsOut=false;p.morale=70;transfer(p,id,pick(buyers),fee,'request')}}
   // holes: below the minimum per position (in winter only real emergencies: injuries leave the position bare)
-  for(const pos of POS){let guard=3;const have=()=>phase==='winter'?available(sq).filter(p=>p.pos===pos).length+1:sq.filter(p=>p.pos===pos).length;
-    while(guard-->0&&have()<REQ[pos]){const base=squadQuality(sq);if(!shopFor(id,pos,base-2.5)&&!shopFor(id,pos,0,{mustHave:true,budget:0}))break}}
+  for(const pos of POS){let guard=3;
+    // Permanent squad gaps require permanent cover. In winter, an injury alone only
+    // triggers emergency cover when no fit player remains in the position.
+    const have=()=>sq.filter(p=>p.pos===pos&&!p.loan).length;
+    const target=phase==='winter'&&!available(sq).some(p=>p.pos===pos)?Math.max(REQ[pos],have()+1):REQ[pos];
+    while(guard-->0&&(have()<target||(phase==='winter'&&!available(sq).some(p=>p.pos===pos)))){
+      const base=squadQuality(sq);if(!shopFor(id,pos,base-2.5)&&!shopFor(id,pos,0,{mustHave:true,budget:0}))break;
+    }}
   // upgrades: replace the weakest starter if a clearly better player is within reach
   // more money buys more attempts: a rich director keeps looking for upgrades
   if(phase==='summer'){const tries=clamp(Math.round(2+budgetFor(id)/60),3,6);for(let k=0;k<tries;k++){const xi=pickXI(sq);if(!xi.length)break;const worst=xi.slice().sort((a,b)=>a.p.q-b.p.q)[0];
@@ -1624,7 +1727,7 @@ function journalKey(name,a){
   if(['SetDeptStaff','SetDeptBudget','SetDeptCourse'].includes(name))return'dept:'+a.dept;
   if(name==='StartProject'){const k=(a.key||'').split(':');if(k[0]==='plot'){const kind=k[2]==='up'?(G(S.my).plots[+k[1]]||{}).kind:k[2];const map={training:'dept:training',medical:'dept:medical',academy:'dept:academy',scouting:'dept:scouting',commercial:'dept:commercial',clubhouse:'dept:community'};return map[kind]||'capacity'}return'capacity'}
   return{StartStadium:'capacity',BuyPlot:null,HireStaff:a.role==='coach'?'ppg':'strength',SackStaff:a.role==='coach'?'ppg':'strength',RenewStaff:null,SetPrice:'att',SetDues:'members',SignSponsor:'sponsorwk',
-    TakeLoan:'debt',RepayLoan:'debt',IssueBond:'debt',Fundraise:'cash',SellGround:'cash',BuyBackGround:'cash',SetSquadPolicy:a.course?'strength':a.loans!=null?null:'wagebill',ReleasePlayer:'wagebill',Repair:'dept:grounds'}[name]??null;
+    TakeLoan:'debt',RepayLoan:'debt',IssueBond:'debt',Fundraise:'cash',SellGround:'cash',BuyBackGround:'cash',SetMandate:'strength',ApproveProposal:'strength',DeclineProposal:null,SetSquadPolicy:a.course?'strength':a.loans!=null?null:'wagebill',ReleasePlayer:'wagebill',Repair:'dept:grounds'}[name]??null;
 }
 function journalText(name,a,id){
   const D=a.dept&&DEPT[a.dept]?DEPT[a.dept].n:'';
@@ -1635,6 +1738,9 @@ function journalText(name,a,id){
     case'SetPrice':return`${a.kind==='season'?'Season ticket':a.kind[0].toUpperCase()+a.kind.slice(1)} price ${a.delta>0?'up':'down'} to £${F(id).prices[a.kind]}`;case'SetDues':return`Dues ${a.delta>0?'up':'down'} to £${M(id).dues}`;
     case'SignSponsor':{const s=F(id).sponsor;return`Sponsor deal signed${s?': '+s.name:''}`}case'TakeLoan':return`Loan of £${a.amount}k over ${a.years} years`;case'RepayLoan':return'Loan repaid';case'IssueBond':return`Members' bond of £${a.amount}k`;
     case'Fundraise':return"Members' appeal";case'SellGround':return'The ground sold and leased back';case'BuyBackGround':return'The ground bought back';case'ReleasePlayer':return'Player released';
+    case'SetMandate':return`Director's deal limit: ${MANDATE_DEALS[a.deals].n}`;
+    case'ApproveProposal':{const p=(S.ops.proposals||[]).find(x=>x.id===a.id);return p?`Approved: ${p.name}, ${jk1(p.fee)}`:'Proposal approved'}
+    case'DeclineProposal':{const p=(S.ops.proposals||[]).find(x=>x.id===a.id);return p?`Declined: ${p.name}`:'Proposal declined'}
     case'SetSquadPolicy':return a.course?`Club course: ${COURSE[a.course].n}`:a.wageR!=null?`Wage limit set to ${Math.round(a.wageR*100)}% of income`:a.spend!=null?`Transfer money: ${Math.round(a.spend*100)}% of spare cash`:a.loans!=null?(a.loans?'Young reserves may go on loan':'Young reserves stay at the club'):a.recruit?`Recruitment strategy: ${RECRUIT[a.recruit].n}`:a.wage?`Wage frame: ${a.wage}`:'Frame changed';
   }
   return name;
@@ -1655,11 +1761,24 @@ function journalRows(n){return(S.journal||[]).filter(j=>j.club===S.my).slice(-n)
    window logic (football/market.js shopFor) uses the shortlist's refined estimates. No individual scouts (that is L3). */
 const RECRUIT={balanced:{n:'Balanced',d:'The best player the money buys'},youth:{n:'Youth',d:'Young players who will grow'},experience:{n:'Experience',d:'Proven players in their prime'},value:{n:'Value',d:'Cheap deals and free agents'}};
 const SHORTLIST_MAX=12;
-function opsInit(){return{plan:{s:0,w:0,needs:[],ready:[],next:1},shortlist:[],signings:[]}}
+/* ----- L3 (slice 1): the director's mandate on deals, and what he proposes beyond it -----
+   Deals up to the limit he signs himself; a better player above the limit reaches the chairman as a proposal.
+   Only the player's club has a mandate; a missing mandate (old save) means no limit, as before. */
+const MANDATE_DEALS={small:{n:'Small',share:.4,d:'He signs himself up to 40% of the transfer budget a deal.'},medium:{n:'Medium',share:.75,d:'He signs himself up to 75% of the transfer budget a deal.'},large:{n:'Large',share:1,d:'He signs anyone within the transfer budget, no questions asked.'}};
+function mandateOf(id){return(F(id).policy&&F(id).policy.mandate)||{deals:'large'}}
+function dealCap(id){if(id!==S.my||S.auto)return Infinity;const m=MANDATE_DEALS[mandateOf(id).deals]||MANDATE_DEALS.large;return m.share>=1?Infinity:Math.max(5,Math.round(budgetFor(id)*m.share))}
+function opsInit(){return{plan:{s:0,w:0,needs:[],ready:[],next:1},shortlist:[],signings:[],proposals:[],pnext:1}}
 function OPS(){if(!S.ops)S.ops=opsInit();return S.ops}
 function recruitStrategy(id){return F(id).policy.recruit||'balanced'}
 /* how a strategy colours the director's choice (used for every club in shopFor) */
-function recruitBias(id,p,fee){const st=recruitStrategy(id);return st==='youth'?(p.age<=22?.8:p.age>=29?-.6:0):st==='experience'?(p.age>=26&&p.age<=31?.6:p.age<=21?-.6:0):st==='value'?(-fee/60+(fee===0?.3:0)):0}
+function recruitBias(id,p,fee){
+  const st=recruitStrategy(id);
+  // A strategy should change the director's ranking of comparable affordable players,
+  // not bypass budget, minimum quality or the selling club's consent.
+  if(st==='youth')return p.age<=21?1.6:p.age<=24?1.0:p.age>=30?-1.0:p.age>=27?-.4:0;
+  if(st==='experience')return p.age>=26&&p.age<=31?1.1:p.age<=21?-1.1:p.age<=23?-.5:0;
+  return st==='value'?(-fee/60+(fee===0?.3:0)):0;
+}
 
 /* ----- the squad plan: what the squad needs, built from the real squad before each window and after renewals ----- */
 function buildPlan(id){
@@ -1673,7 +1792,14 @@ function buildPlan(id){
   // merge: keep status and history of needs that still exist; close what has been solved
   const old=Object.fromEntries(pl.needs.map(n=>[n.key,n])),keys=new Set(want.map(w=>w.key));
   /* a need that disappears is not always a success: say whether it was solved, or the player simply left */
-  for(const n of pl.needs)if(!keys.has(n.key)&&n.status==='open'){const gone=n.pid&&!sq.some(p=>p.id===n.pid);n.status=gone?'lapsed':'solved';n.closed=[S.season,S.week]}
+  for(const n of pl.needs)if(!keys.has(n.key)&&n.status==='open'){
+    const player=n.pid&&sq.find(p=>p.id===n.pid);
+    const gone=n.pid&&!player;
+    const covered=n.kind==='hole'&&sq.filter(p=>p.pos===n.pos).length>=REQ[n.pos];
+    const renewed=n.kind==='contract'&&player&&player.contract>1;
+    n.status=covered||renewed?'solved':gone?'lapsed':'no-longer-needed';
+    n.closed=[S.season,S.week];
+  }
   pl.needs=pl.needs.filter(n=>n.status!=='open'||keys.has(n.key)).filter(n=>!(n.closed&&n.closed[0]<S.season-1));
   for(const w of want){if(!old[w.key])pl.needs.push({...w,id:pl.next++,status:'open',since:[S.season,S.week]});else Object.assign(old[w.key],{why:w.why,prio:w.prio})}
   pl.needs.sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||b.prio-a.prio);
@@ -1734,7 +1860,14 @@ function recordDecision(id,pos,best,evaluated,mustHave){
   if(!best)return;
   const e=ops.shortlist.find(x=>x.pid===best.p.id);if(e){e.status='signed';e.reason='Signed'}
   const need=ops.plan.needs.find(n=>n.status==='open'&&n.pos===pos)||ops.plan.needs.find(n=>n.status==='open'&&NEAR[best.p.pos].includes(n.pos));
-  if(need){need.status='filled';need.closed=[S.season,S.week];need.by={pid:best.p.id,name:best.p.name}}
+  if(need){
+    // A signing only resolves a shortage when the required positional cover actually exists.
+    // Contracts, departures and succession risks are not automatically solved by any arrival.
+    const sq=S.squads[id],count=sq.filter(p=>!p.loan&&p.pos===need.pos).length;
+    const resolved=need.kind==='hole'&&count>=REQ[need.pos];
+    if(resolved){need.status='filled';need.closed=[S.season,S.week];need.by={pid:best.p.id,name:best.p.name}}
+    else{need.lastSigning={pid:best.p.id,name:best.p.name,s:S.season,w:S.week};}
+  }
   ops.signings.push({pid:best.p.id,name:best.p.name,pos:best.p.pos,age:best.p.age,fee:best.fee,est:r1(best.seen??best.p.q),q0:r1(best.p.q),s:S.season,w:S.week,need:need?need.why:(mustHave?'Emergency cover':'Squad strengthening'),scouted:!!e,obs:e?e.obs:0,strategy:recruitStrategy(id)});
   if(ops.signings.length>20)ops.signings.shift();
 }
@@ -1752,7 +1885,46 @@ function windowInfo(){
   if(S.week<WINTER_WEEK-1)return{k:'upcoming',name:'Winter window',when:`Week ${WINTER_WEEK}, in ${WINTER_WEEK-1-S.week} week${WINTER_WEEK-1-S.week===1?'':'s'}. The scouts are preparing the list.`,open};
   return{k:'none',name:'Next window',when:'The summer window follows the season; no more transfers until then.',open};
 }
-function opsAfterLoad(){if(S.my&&!S.ops){S.ops=opsInit();buildPlan(S.my)}}
+/* when a window opens (pre-season, the week before the winter window): the director looks for the best player for his main needs
+   without signing. Above the mandate, the best option becomes a proposal. At most three, strongest first. */
+function tdPropose(id){
+  if(id!==S.my||S.auto)return;const ops=OPS();ops.proposals=(ops.proposals||[]).filter(p=>p.status==='open'?false:true).slice(-9);
+  const cap=dealCap(id);if(cap===Infinity)return;
+  const sqQ=squadQuality(S.squads[id]),seen=new Set(),out=[];
+  for(const n of openNeeds().filter(n=>n.prio>=1).slice(0,5)){
+    if(seen.has(n.pos))continue;seen.add(n.pos);
+    const own=n.pid&&S.squads[id].find(p=>p.id===n.pid),minQ=n.kind==='upgrade'&&own?own.q+.8:sqQ-2.5;
+    const best=shopFor(id,n.pos,minQ,{dry:true,ignoreMandate:true});if(!best||best.fee<=cap)continue;
+    const sl=shortlistEntry(best.p.id);
+    out.push({pid:best.p.id,name:best.p.name,pos:best.p.pos,age:best.p.age,from:best.from||null,fee:best.fee,wage:Math.round(wageFor(best.p.q)*(best.premium?1.3:1)),est:r1(best.seen??best.p.q),range:sl&&sl.obs?scoutRange(id,sl.obs):eyeRange(id),need:n.why,kind:n.kind});
+  }
+  out.sort((a,b)=>b.est-a.est);
+  for(const o of out.slice(0,3))ops.proposals.push({id:ops.pnext++,s:S.season,w:S.week,status:'open',...o});
+}
+function openProposals(){return(S.ops&&S.ops.proposals||[]).filter(p=>p.status==='open')}
+/* the window closes: approved proposals are carried out if the player is still for sale and the club can pay; the rest lapse */
+function tdExecute(id){
+  if(id!==S.my||!S.ops)return;
+  for(const pr of S.ops.proposals.filter(p=>p.status==='approved')){
+    const f=findPlayer(pr.pid);let why='';
+    if(!f)why='He is no longer in football.';else if(f.club===id)why='He already plays for us.';else if((pr.from||null)!==(f.club||null))why='He has moved on.';
+    else if(S.squads[id].length>=SQUAD_MAX)why='The squad is full.';else if(F(id).cash<pr.fee)why='The club cannot pay any more.';
+    else if(f.club&&!sellerAgrees(f.p,f.club,pr.fee))why='His club will not sell at that price.';
+    if(why){pr.status='failed';pr.why=why;emit('ProposalFailed',id,`${pr.name} did not come: ${why}`,{pid:pr.pid});continue}
+    if(f.club)transfer(f.p,f.club,id,pr.fee,'proposal',false);else signFree(f.p,id);
+    recordDecision(id,pr.pos,{p:f.p,fee:pr.fee,seen:pr.est},[],false);pr.status='done';pr.done=[S.season,S.week];
+  }
+}
+function tdExpire(){if(!S.ops)return;for(const p of S.ops.proposals)if(p.status==='open'){p.status='expired';p.why='Not answered: he did not pursue it.'}}
+/* the window opens for the chairman: the pre-season scouting rounds, a fresh plan, and the director's proposals */
+function openWindow(){
+  if(!S.my)return;for(let k=0;k<4;k++)scoutWeek(S.my,k*3+1);buildPlan(S.my);tdPropose(S.my);
+}
+defCommand('SetMandate',{check:(id,a)=>!MANDATE_DEALS[a.deals]?'Unknown mandate':null,run:(id,a)=>{F(id).policy.mandate={...mandateOf(id),deals:a.deals};
+  const w=S.week===0||S.week===WINTER_WEEK-1;if(w&&S.ops){S.ops.proposals=S.ops.proposals.filter(p=>p.status!=='open');tdPropose(id)} /* the open proposals follow the new limit */}});
+defCommand('ApproveProposal',{check:(id,a)=>{const p=openProposals().find(x=>x.id===a.id);return!p?'That proposal is no longer open':F(id).cash<p.fee?'The club cannot pay that':null},run:(id,a)=>{const p=openProposals().find(x=>x.id===a.id);p.status='approved'}});
+defCommand('DeclineProposal',{check:(id,a)=>!openProposals().find(x=>x.id===a.id)?'That proposal is no longer open':null,run:(id,a)=>{const p=openProposals().find(x=>x.id===a.id);p.status='declined'}});
+function opsAfterLoad(){if(S.my&&!S.ops){S.ops=opsInit();buildPlan(S.my)}if(S.ops&&!S.ops.proposals){S.ops.proposals=[];S.ops.pnext=1}}
 
 /* ---- club/youth.js ---- */
 /* ================= L2.5: the youth development cycle =================
@@ -1895,10 +2067,10 @@ function allIds(){return Object.keys(S.clubs)}
    The director of every club signs, sells and loans in one go; the chairman's strategy and frame are what count by then. */
 function summerWindow(){
   const ids=allIds();
-  if(S.my){for(let k=0;k<4;k++)scoutWeek(S.my,k*3+1);buildPlan(S.my)} /* the pre-season weeks of scouting before the window closes */
+  if(S.my)tdExecute(S.my); /* the chairman's approved proposals first */
   const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
   for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
-  if(S.my)buildPlan(S.my);
+  if(S.my){tdExpire();buildPlan(S.my)}
   for(const id of order)loanOut(id);
   youthReconcile();
   for(const t of TIERS)tierIds(t).slice().sort((x,y)=>teamStrength(y)-teamStrength(x)).forEach((id,i)=>CL(id).expect=i+1);
@@ -1916,8 +2088,8 @@ function advanceWeek(){
   recordsWeek(matches);
   for(const id of ids)membersWeek(id,matches.filter(m=>m.h===id||m.a===id));
   for(const id of ids){if(aiRuns(id)){aiBoardWeek(id);aiStaffWeek(id);aiStadium(id)}}
-  if(S.my){scoutWeek(S.my);if(w===WINTER_WEEK-1||w===RENEW_WEEK)buildPlan(S.my)} // the player's club: scouting every week, the plan before the winter window and after renewals
-  if(w===WINTER_WEEK){for(const id of shuffle(ids.slice()))squadManager(id,'winter');youthReconcile()}
+  if(S.my){scoutWeek(S.my);if(w===WINTER_WEEK-1){buildPlan(S.my);tdPropose(S.my)}else if(w===RENEW_WEEK)buildPlan(S.my)} // the player's club: scouting every week, the plan before the winter window and after renewals
+  if(w===WINTER_WEEK){if(S.my)tdExecute(S.my);for(const id of shuffle(ids.slice()))squadManager(id,'winter');if(S.my)tdExpire();youthReconcile()}
   if(w===RENEW_WEEK)for(const id of ids)renewals(id);
   membersOnEvents(eventsSince(mark));
   emit('WeekClosed',null,`Week ${w} played.`);
@@ -1941,6 +2113,7 @@ function closeSeason(){
   const ids=allIds(),s=S.season,tables={};
   // the AGM comes first: targets, promotion and relegation are judged on the final table
   devRecord(); /* the season's final picture of the club, before the AGM and the new season */
+  foreignSeasonEnd();
   const outIds=holdAGMs(),agm=S.my?{...M(S.my).agm,club:S.my}:null;afterAGMs(outIds);
   for(const t of TIERS){tables[t]=standings(t);tables[t].forEach((id,i)=>{financeSeasonEnd(id,i+1,t);CL(id).hist.push({s,tier:t,pos:i+1,pts:S.tbl[id].pts,top:topScorer(id),cup:cupReached(id),you:id===S.my})})}
   // support grows with success, promotion and the clubhouse; shrinks with failure
@@ -1962,7 +2135,7 @@ function closeSeason(){
   emit('SeasonClosed',null,`Season ${s} is over.`,{season:s});
   for(const f of HOOKS.seasonClosed)f(s);
   S.season++;startSeason();S.phase='season';
-  if(S.votedOut){S.my=null;S.seats=seatsAfterOut();S.phase='choose'}
+  if(S.votedOut){S.my=null;S.seats=seatsAfterOut();S.phase='choose'}else openWindow();
   return S.hist[S.hist.length-1];
 }
 /* run the world without a human: the test harness and the 'simulate' tool */
@@ -2079,7 +2252,8 @@ const MIGRATIONS={
     for(const id in s.clubs){const c=s.clubs[id];c.rep??=Math.round(Math.max(10,Math.min(95,[68,48,28][c.tier]+(c.support-[3000,1700,850][c.tier])/120)))}
     for(const id in s.fin)s.fin[id].policy.loans??=true;s.v=6;},
   // 6 → 7: club records and richer season history (filled after loading: projectsAfterLoad)
-  7:s=>{s.records=s.records||{};s.v=7;}
+  7:s=>{s.records=s.records||{};s.v=7;},
+  8:s=>{s.foreign=s.foreign||null;s.v=8;}
 };
 function migrate(s){
   if(!s||typeof s.v!=='number'||s.v<1)throw new Error('Not a Northmarch layered save');
@@ -2089,7 +2263,7 @@ function migrate(s){
 }
 function schemaVersion(){return VERSION}
 function serialize(){return JSON.stringify(S)}
-function deserialize(txt){S=migrate(JSON.parse(txt));staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();youthAfterLoad();return S}
+function deserialize(txt){S=migrate(JSON.parse(txt));if(!S.foreign)S.foreign=foreignInit();staffAfterLoad();commercialAfterLoad();projectsAfterLoad();membersAfterLoad();opsAfterLoad();youthAfterLoad();return S}
 function save(){if(!HAS_DOM)return false;try{localStorage.setItem(SAVE_KEY,serialize());return true}catch(e){return false}}
 function hasSave(){if(!HAS_DOM)return false;try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
 function load(){if(!HAS_DOM)return false;try{const t=localStorage.getItem(SAVE_KEY);if(!t)return false;deserialize(t);return true}catch(e){return false}}
@@ -2187,7 +2361,7 @@ function resultsPanel(){
 }
 function weekView(){
   const over=seasonOver();
-  return`${UI.playNote?`<div class="panel playnote" role="status"><p class="small"><b>${esc(UI.playNote)}</b></p></div>`:''}${reportView()}${urgentPanel()}${clubWeekPanel()}${windowPanel()}${previewView()}${resultsPanel()}${lookPanel()}${targetsPanel()}
+  return`${UI.playNote?`<div class="panel playnote" role="status"><p class="small"><b>${esc(UI.playNote)}</b></p></div>`:''}${reportView()}${urgentPanel()}${proposalsPanel()}${clubWeekPanel()}${windowPanel()}${previewView()}${resultsPanel()}${lookPanel()}${targetsPanel()}
   <p class="note">${over?'Prize money, promotion and relegation, contracts and the summer window follow.':'Every week is played. Change prices, budgets or building first if you want them to count this week.'}</p>`;
 }
 
@@ -2713,7 +2887,7 @@ function onboardCard(){
 function actionBar(){
   if(!S||S.phase!=='season'||UI.review||UI.title)return'';
   const over=seasonOver(),w=S.week+1,pre=S.week===0,fx=over?null:fixtureOf(S.my,w),cup=!over&&CUP_WEEKS[S.cup.round]===w&&cupTieOf(S.my);
-  const next=over?'All thirty weeks played':fx?`Next: ${fx.home?'v':'at'} ${CL(fx.opp).name}${cup?' + cup tie':''}`:'No league game';
+  const wait=openProposals().length,next=wait&&(pre||S.week===WINTER_WEEK-1)?`${wait} proposal${wait>1?'s':''} from the director waiting`:over?'All thirty weeks played':fx?`Next: ${fx.home?'v':'at'} ${CL(fx.opp).name}${cup?' + cup tie':''}`:'No league game';
   return`<div class="actbar"><div class="ab-in"><span class="small">${esc(next)}</span><button class="btn" data-act="${over?'close':'play'}">${over?'Close the season':pre?'Close the window · start the season':`Play week ${w}`}</button>${over||pre?'':`<div class="ab-more"><button class="btn ghost" data-act="playn" data-arg="4">Play 4 weeks</button><button class="btn ghost" data-act="playn" data-arg="stop">To the next stop</button></div>`}</div></div>`;
 }
 
@@ -2754,6 +2928,25 @@ function stadiumImpact(id,pl){const sg=groundSignals(id),a=attendance(id,null,{}
    Responsible → aim → current work → results → the chairman's choices. Everything shown comes from S.ops and the squad. */
 const NEED_WORD={hole:'Gap',contract:'Contract',leaving:'Leaving',ageing:'Succession',upgrade:'Upgrade'};
 function needWhen(n){return n.kind==='contract'?`Renewal talks in week ${RENEW_WEEK}`:S.week<WINTER_WEEK&&n.kind==='hole'?`Winter window (week ${WINTER_WEEK}) only if injuries leave it bare; otherwise the summer`:'The summer window'}
+/* the director's proposals: what he found above his mandate, and what became of it */
+function proposalsPanel(){
+  const ps=(S.ops&&S.ops.proposals)||[],open=ps.filter(p=>p.status==='open'),recent=ps.filter(p=>p.status!=='open'&&(p.s===S.season||p.s===S.season-1)).slice(-4);
+  if(!open.length&&!recent.length)return'';
+  const word={approved:'Approved: he signs when the window closes',declined:'Declined',done:'Signed',failed:'Did not happen',expired:'Lapsed'};
+  return`<div class="panel prop"><p class="eyebrow">${esc(tdOf(S.my).name)} asks${open.length?` · ${open.length} waiting`:''}</p>
+  ${open.length?`<p class="small muted">Better players above his limit. Answer before the window closes; if you do not, he lets them go.</p>`:''}
+  ${open.map(p=>`<div class="propcard"><p class="small"><b>${esc(p.name)}</b> · ${POS_ONE[p.pos]}, ${p.age}${p.from?` · ${nm(p.from)}`:' · free agent'}</p>
+    <div class="row small"><span>Fee</span><b>${k1(p.fee)}</b></div><div class="row small"><span>Wage</span><b>£${n0(p.wage)} a week</b></div><div class="row small"><span>His view of the player</span><b>${p.est} ± ${p.range}</b></div>
+    <p class="small muted">${esc(p.need)}.</p>
+    <div class="propbtn"><button class="btn" data-act="approve" data-arg="${p.id}">Approve ${k1(p.fee)}</button><button class="btn ghost" data-act="decline" data-arg="${p.id}">Decline</button></div></div>`).join('')}
+  ${recent.length?`<p class="small muted">${recent.map(p=>`${esc(p.name)}: ${word[p.status]}${p.why?' ('+esc(p.why)+')':''}`).join(' · ')}</p>`:''}</div>`;
+}
+function mandatePanel(){
+  const m=mandateOf(S.my).deals,cap=dealCap(S.my);
+  return`<div class="panel"><p class="eyebrow">The director's mandate</p><p class="small muted">How much he may decide alone. Bigger deals come to you as a proposal, and only when they are better than what he can sign himself.</p>
+  <p class="small"><b>Deals</b></p><div class="seg grid3">${Object.entries(MANDATE_DEALS).map(([k,x])=>`<button class="${m===k?'on':''}" data-act="mandate" data-arg="${k}" aria-pressed="${m===k}">${x.n}</button>`).join('')}</div>
+  <p class="note">${esc(MANDATE_DEALS[m].d)}${cap===Infinity?'':` Right now: up to ${k1(cap)} a deal.`}</p></div>`;
+}
 function coursePanel(){
   const p=F(S.my).policy,cur=p.course&&COURSE[p.course];
   return`<div class="panel"><p class="eyebrow">Club course</p><p class="small muted">One choice sets the wage frame, transfer money, loans and recruitment together. The director follows it in every window.</p>
@@ -2763,7 +2956,7 @@ function coursePanel(){
 function recruitPanels(){
   const id=S.my,ops=OPS(),pl=ops.plan,td=tdOf(id),st=recruitStrategy(id),open=pl.needs.filter(n=>n.status==='open'),done=pl.needs.filter(n=>n.status!=='open').slice(0,5);
   const watch=ops.shortlist.filter(e=>e.status==='watching').sort((a,b)=>b.est-a.est).slice(0,8),rev=signingReview(),noise=scoutNoise(id);
-  return coursePanel()+`<div class="panel"><p class="eyebrow">Recruitment · ${esc(td.name)}</p><p class="small muted">The director plans the squad and signs within your frame; the scouting department watches players for him every week.</p>
+  return proposalsPanel()+coursePanel()+mandatePanel()+`<div class="panel"><p class="eyebrow">Recruitment · ${esc(td.name)}</p><p class="small muted">The director plans the squad and signs within your frame; the scouting department watches players for him every week.</p>
   <p class="small"><b>Your strategy for him</b></p><div class="seg grid4">${Object.entries(RECRUIT).map(([k,r])=>`<button class="${st===k?'on':''}" data-act="recruit" data-arg="${k}" aria-pressed="${st===k}">${r.n}</button>`).join('')}</div>
   <p class="note">${esc(RECRUIT[st].d)}. It changes whom he picks in the next window, not who is already here.</p></div>
   <div class="panel"><p class="eyebrow">Squad plan · updated ${pl.s?`S${pl.s} W${pl.w}`:'—'}</p>${open.length?open.slice(0,5).map(n=>`<div class="row small"><span><b>${NEED_WORD[n.kind]}: ${POS_ONE[n.pos]}</b><br>${esc(n.why)}<br><span class="muted">${esc(needWhen(n))}</span></span><span class="pill ${n.prio>=3?'bad':''}">${n.prio>=3?'Urgent':n.prio===2?'Soon':'Later'}</span></div>`).join('')+(open.length>5?`<p class="small muted">And ${open.length-5} more, lower down the list.</p>`:''):'<p class="small muted">No open needs: the squad covers every position.</p>'}
@@ -2959,6 +3152,9 @@ function act(a,arg){
     case'appeal':{const r=cmd('Fundraise',S.my,{});say(r,r.ok?`The appeal raised £${r.res}k.`:null);break}
     case'sellground':say(cmd('SellGround',S.my,{}),'The ground is sold.');UI.confirm=null;break;
     case'buyback':say(cmd('BuyBackGround',S.my,{}),'The ground is ours again.');break;
+    case'mandate':say(cmd('SetMandate',S.my,{deals:arg}),'The director follows the new limit.');break;
+    case'approve':say(cmd('ApproveProposal',S.my,{id:+arg}),'Approved. He signs when the window closes.');break;
+    case'decline':say(cmd('DeclineProposal',S.my,{id:+arg}));break;
     case'course':say(cmd('SetSquadPolicy',S.my,{course:arg}),'The director follows the new course from the next window.');break;
     case'recruit':say(cmd('SetSquadPolicy',S.my,{recruit:arg}),`Recruitment strategy: ${RECRUIT[arg].n}.`);break;
     case'dues':say(cmd('SetDues',S.my,{delta:+arg}));break;

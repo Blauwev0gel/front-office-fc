@@ -34,7 +34,7 @@ function releaseCost(p){return r1(p.wage*SEASON_WEEKS*Math.max(0,p.contract)/100
 function release(id,p,why){const sq=S.squads[id];const pay=releaseCost(p);if(pay)book(id,'wages',-pay);sq.splice(sq.indexOf(p),1);youthLeft(p,'released');faAdd(p,why||'released',id);if(id===S.my)emit('Released',id,`${p.name} is released.`,{pid:p.id})}
 
 /* the players a club's director can see: free agents and players at other clubs, wider with a better scouting office */
-function scoutPool(id,pos,n){
+function scoutPool(id,pos,n,quiet){
   const reach=Math.max(4,6+Math.round(2*groundSignals(id).scouting+(pq(tdOf(id))-10)/2)),out=[];
   const fa=S.fa.filter(p=>(!pos||p.pos===pos)&&!(p.left&&p.left.club===id&&p.left.s>=S.season-1)); // a player who just left does not come back
   for(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
@@ -57,7 +57,7 @@ function scoutPool(id,pos,n){
   }
   // Keep a compact record of candidates the director actually encountered.
   // This is evidence of a search, not a promise of a signing or a scout assignment.
-  if(id===S.my){
+  if(id===S.my&&!quiet){
     const st=S.stats[id],history=st.scoutHistory||(st.scoutHistory=[]);
     const found=out.slice(0,n||99);
     history.push({season:S.season,week:S.week,pos:pos||'any',director:tdOf(id).name,
@@ -81,19 +81,20 @@ function budgetFor(id){const f=F(id),reserve=wageBillK(id)*6;return Math.max(0,M
 function shopFor(id,pos,minQ,o={}){
   const cap=wageCapK(id),bill=wageBillK(id);let budget=o.budget??budgetFor(id);
   let best=null,bv=-Infinity;
-  const pool=scoutPool(id,pos),evaluated=[];
+  const pool=scoutPool(id,pos,undefined,o.dry),evaluated=[],capDeal=o.ignoreMandate?Infinity:dealCap(id); /* o.dry: look, do not sign (the director's proposals); o.ignoreMandate: ignore the deal limit */
   for(const c of shortlistCandidates(id,pos))if(!pool.some(x=>x.p===c.p))pool.unshift(c); // players the scouts have been watching come first
   for(const c of pool){
     const p=c.p,sl=c.listed?shortlistEntry(p.id):null,seen=sl&&sl.obs?sl.est:p.q+(rnd()+rnd()-1)*2.5*tdNoise(id)*reportNoise(id); // watched players are judged on the scouts' refined estimate
     const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000*(c.premium?1.3:1);
     const cheap=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000,coverOk=bill+wage<=cap||wage<=cheap; /* emergency cover: within the wage limit, or a cheap basic contract. A strict ceiling alone leaves a club on its limit with no way to field a squad */
-    let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
+    let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':fee>capDeal&&!o.mustHave?'Above my mandate':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
     if(reason==='Considered'){
       const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0)+recruitBias(id,p,fee)-.5*(sl&&sl.obs?scoutRange(id,sl.obs):eyeRange(id)); /* the director trusts what has been watched */
       if(v>bv){bv=v;best={...c,fee,seen};}
     }
     if(id===S.my)evaluated.push({pid:p.id,name:p.name,pos:p.pos,age:p.age,from:c.from?CL(c.from).name:'Free agent',estimate:r1(seen),fee,reason});
   }
+  if(o.dry)return best;
   if(!best&&o.mustHave){const base=11.5+(tierBaseStr(2)-50)/4 /* fixed level: new faces from below Northmarch Two do not grow with the world (T2) */,p=newPlayer(pos,{age:ri(19,30),q:base-2+rnd()*1.2,contract:0});
     // A trialist is not a free escape hatch from the wage ceiling: if there is no room, the director cannot sign him.
     if(bill+wageFor(p.q)/1000<=cap||wageFor(p.q)/1000<=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000){p.why='a trialist from the local leagues';S.fa.push(p);best={p,from:null,fee:0};}}

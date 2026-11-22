@@ -5,7 +5,13 @@
    window logic (football/market.js shopFor) uses the shortlist's refined estimates. No individual scouts (that is L3). */
 const RECRUIT={balanced:{n:'Balanced',d:'The best player the money buys'},youth:{n:'Youth',d:'Young players who will grow'},experience:{n:'Experience',d:'Proven players in their prime'},value:{n:'Value',d:'Cheap deals and free agents'}};
 const SHORTLIST_MAX=12;
-function opsInit(){return{plan:{s:0,w:0,needs:[],ready:[],next:1},shortlist:[],signings:[]}}
+/* ----- L3 (slice 1): the director's mandate on deals, and what he proposes beyond it -----
+   Deals up to the limit he signs himself; a better player above the limit reaches the chairman as a proposal.
+   Only the player's club has a mandate; a missing mandate (old save) means no limit, as before. */
+const MANDATE_DEALS={small:{n:'Small',share:.4,d:'He signs himself up to 40% of the transfer budget a deal.'},medium:{n:'Medium',share:.75,d:'He signs himself up to 75% of the transfer budget a deal.'},large:{n:'Large',share:1,d:'He signs anyone within the transfer budget, no questions asked.'}};
+function mandateOf(id){return(F(id).policy&&F(id).policy.mandate)||{deals:'large'}}
+function dealCap(id){if(id!==S.my||S.auto)return Infinity;const m=MANDATE_DEALS[mandateOf(id).deals]||MANDATE_DEALS.large;return m.share>=1?Infinity:Math.max(5,Math.round(budgetFor(id)*m.share))}
+function opsInit(){return{plan:{s:0,w:0,needs:[],ready:[],next:1},shortlist:[],signings:[],proposals:[],pnext:1}}
 function OPS(){if(!S.ops)S.ops=opsInit();return S.ops}
 function recruitStrategy(id){return F(id).policy.recruit||'balanced'}
 /* how a strategy colours the director's choice (used for every club in shopFor) */
@@ -123,4 +129,43 @@ function windowInfo(){
   if(S.week<WINTER_WEEK-1)return{k:'upcoming',name:'Winter window',when:`Week ${WINTER_WEEK}, in ${WINTER_WEEK-1-S.week} week${WINTER_WEEK-1-S.week===1?'':'s'}. The scouts are preparing the list.`,open};
   return{k:'none',name:'Next window',when:'The summer window follows the season; no more transfers until then.',open};
 }
-function opsAfterLoad(){if(S.my&&!S.ops){S.ops=opsInit();buildPlan(S.my)}}
+/* when a window opens (pre-season, the week before the winter window): the director looks for the best player for his main needs
+   without signing. Above the mandate, the best option becomes a proposal. At most three, strongest first. */
+function tdPropose(id){
+  if(id!==S.my||S.auto)return;const ops=OPS();ops.proposals=(ops.proposals||[]).filter(p=>p.status==='open'?false:true).slice(-9);
+  const cap=dealCap(id);if(cap===Infinity)return;
+  const sqQ=squadQuality(S.squads[id]),seen=new Set(),out=[];
+  for(const n of openNeeds().filter(n=>n.prio>=1).slice(0,5)){
+    if(seen.has(n.pos))continue;seen.add(n.pos);
+    const own=n.pid&&S.squads[id].find(p=>p.id===n.pid),minQ=n.kind==='upgrade'&&own?own.q+.8:sqQ-2.5;
+    const best=shopFor(id,n.pos,minQ,{dry:true,ignoreMandate:true});if(!best||best.fee<=cap)continue;
+    const sl=shortlistEntry(best.p.id);
+    out.push({pid:best.p.id,name:best.p.name,pos:best.p.pos,age:best.p.age,from:best.from||null,fee:best.fee,wage:Math.round(wageFor(best.p.q)*(best.premium?1.3:1)),est:r1(best.seen??best.p.q),range:sl&&sl.obs?scoutRange(id,sl.obs):eyeRange(id),need:n.why,kind:n.kind});
+  }
+  out.sort((a,b)=>b.est-a.est);
+  for(const o of out.slice(0,3))ops.proposals.push({id:ops.pnext++,s:S.season,w:S.week,status:'open',...o});
+}
+function openProposals(){return(S.ops&&S.ops.proposals||[]).filter(p=>p.status==='open')}
+/* the window closes: approved proposals are carried out if the player is still for sale and the club can pay; the rest lapse */
+function tdExecute(id){
+  if(id!==S.my||!S.ops)return;
+  for(const pr of S.ops.proposals.filter(p=>p.status==='approved')){
+    const f=findPlayer(pr.pid);let why='';
+    if(!f)why='He is no longer in football.';else if(f.club===id)why='He already plays for us.';else if((pr.from||null)!==(f.club||null))why='He has moved on.';
+    else if(S.squads[id].length>=SQUAD_MAX)why='The squad is full.';else if(F(id).cash<pr.fee)why='The club cannot pay any more.';
+    else if(f.club&&!sellerAgrees(f.p,f.club,pr.fee))why='His club will not sell at that price.';
+    if(why){pr.status='failed';pr.why=why;emit('ProposalFailed',id,`${pr.name} did not come: ${why}`,{pid:pr.pid});continue}
+    if(f.club)transfer(f.p,f.club,id,pr.fee,'proposal',false);else signFree(f.p,id);
+    recordDecision(id,pr.pos,{p:f.p,fee:pr.fee,seen:pr.est},[],false);pr.status='done';pr.done=[S.season,S.week];
+  }
+}
+function tdExpire(){if(!S.ops)return;for(const p of S.ops.proposals)if(p.status==='open'){p.status='expired';p.why='Not answered: he did not pursue it.'}}
+/* the window opens for the chairman: the pre-season scouting rounds, a fresh plan, and the director's proposals */
+function openWindow(){
+  if(!S.my)return;for(let k=0;k<4;k++)scoutWeek(S.my,k*3+1);buildPlan(S.my);tdPropose(S.my);
+}
+defCommand('SetMandate',{check:(id,a)=>!MANDATE_DEALS[a.deals]?'Unknown mandate':null,run:(id,a)=>{F(id).policy.mandate={...mandateOf(id),deals:a.deals};
+  const w=S.week===0||S.week===WINTER_WEEK-1;if(w&&S.ops){S.ops.proposals=S.ops.proposals.filter(p=>p.status!=='open');tdPropose(id)} /* the open proposals follow the new limit */}});
+defCommand('ApproveProposal',{check:(id,a)=>{const p=openProposals().find(x=>x.id===a.id);return!p?'That proposal is no longer open':F(id).cash<p.fee?'The club cannot pay that':null},run:(id,a)=>{const p=openProposals().find(x=>x.id===a.id);p.status='approved'}});
+defCommand('DeclineProposal',{check:(id,a)=>!openProposals().find(x=>x.id===a.id)?'That proposal is no longer open':null,run:(id,a)=>{const p=openProposals().find(x=>x.id===a.id);p.status='declined'}});
+function opsAfterLoad(){if(S.my&&!S.ops){S.ops=opsInit();buildPlan(S.my)}if(S.ops&&!S.ops.proposals){S.ops.proposals=[];S.ops.pnext=1}}

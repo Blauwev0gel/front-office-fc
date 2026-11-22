@@ -4,6 +4,7 @@
 const {loadEngine}=require('./load.js');
 const N=+process.argv[2]||5,SEEDS=+process.argv[3]||4,ONLY=process.argv.slice(4);
 const SCEN={
+  'deal limit small (proposals left unanswered) v large':[E=>E.cmd('SetMandate',E.__get().my,{deals:'small'}),E=>E.cmd('SetMandate',E.__get().my,{deals:'large'})],
   'course frugal v win now':[E=>E.cmd('SetSquadPolicy',E.__get().my,{course:'frugal'}),E=>E.cmd('SetSquadPolicy',E.__get().my,{course:'win'})],
   'course youth first v win now':[E=>E.cmd('SetSquadPolicy',E.__get().my,{course:'youth'}),E=>E.cmd('SetSquadPolicy',E.__get().my,{course:'win'})],
   'recruit youth v experience':[E=>E.cmd('SetSquadPolicy',E.__get().my,{recruit:'youth'}),E=>E.cmd('SetSquadPolicy',E.__get().my,{recruit:'experience'})],

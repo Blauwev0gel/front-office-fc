@@ -38,8 +38,23 @@ function scoutPool(id,pos,n){
   const reach=Math.max(4,6+Math.round(2*groundSignals(id).scouting+(pq(tdOf(id))-10)/2)),out=[];
   const fa=S.fa.filter(p=>(!pos||p.pos===pos)&&!(p.left&&p.left.club===id&&p.left.s>=S.season-1)); // a player who just left does not come back
   for(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
-  const others=Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1);
-  for(let k=0;k<reach&&others.length;k++){const o=pick(others),c=S.squads[o].filter(p=>(!pos||p.pos===pos)&&p.inj<=0&&!p.loan);if(c.length){const p=pick(c);out.push({p,from:o,premium:CL(o).rep>CL(id).rep+15&&!p.wantsOut})} /* stepping down to a smaller club costs a wage premium */}
+  const others=shuffle(Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1));
+  // Scout players a selling club could actually spare. Sampling random protected starters
+  // produced reports that could never turn into transfers.
+  const budget=budgetFor(id),cap=wageCapK(id),bill=wageBillK(id);
+  let found=0;
+  for(const o of others){
+    if(found>=reach)break;
+    const c=S.squads[o].filter(p=>(!pos||p.pos===pos)&&p.inj<=0&&!p.loan&&
+      canSpare(S.squads[o],p,true)&&
+      (p.wantsOut||S.squads[o].filter(x=>x.pos===p.pos&&!x.loan).length>REQ[p.pos]||F(o).cash<0)&&
+      askingFee(p,o)*tdBuyF(id)*.85<=budget&&
+      bill+wageFor(p.q)/1000*(CL(o).rep>CL(id).rep+15&&!p.wantsOut?1.3:1)<=cap);
+    if(!c.length)continue;
+    const p=pick(c);
+    out.push({p,from:o,premium:CL(o).rep>CL(id).rep+15&&!p.wantsOut});
+    found++;
+  }
   // Keep a compact record of candidates the director actually encountered.
   // This is evidence of a search, not a promise of a signing or a scout assignment.
   if(id===S.my){

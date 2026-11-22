@@ -285,7 +285,7 @@ function foreignPlayersEndWeek(){
 }
 function foreignPlayerMatch(m,comp='league'){
   const f=S.foreign;
-  for(const [id,goals] of [[m.h,m.gh],[m.a,m.ga]]){
+  for(const [id,goals,conceded] of [[m.h,m.gh,m.ga],[m.a,m.ga,m.gh]]){
     if(!f.clubs[id])continue;
     const sq=f.squads[id];if(!sq||!sq.length)continue;
     const xi=pickXI(sq);
@@ -293,7 +293,9 @@ function foreignPlayerMatch(m,comp='league'){
       const p=x.p;p.apps++;p.fApps=(p.fApps||0)+1;p.played=1;
       if(comp==='europe')p.europeLoad=(p.europeLoad||0)+1;
       if(comp==='europe')p.eApps=(p.eApps||0)+1;else p.sApps++;
-      p.form=clamp(p.form+(goals>=2?1:goals===0?-1:0),40,88);
+      const result=goals>conceded?1:goals<conceded?-1:0;
+      p.form=clamp(p.form+result*2+(goals>=2?1:0),35,90);
+      p.morale=clamp((p.morale??60)+result*(comp==='europe'?4:2),0,100);
       if(p.inj<=0&&comp==='europe'&&rnd()<.006)p.inj=ri(2,4);
     }
     const scorers=[];
@@ -451,8 +453,26 @@ function foreignSeasonEnd(){
     if(country.tables.length>25)country.tables.shift();
     if(country.champions.length>25)country.champions.shift();
   }
+  // Winning a championship is permanent player history, not only a club statistic.
+  for(const country of Object.values(f.countries)){
+    const champion=country.champions[country.champions.length-1]?.id;
+    if(!champion)continue;
+    for(const p of f.squads[champion]||[])if((p.sApps||0)>=5){
+      p.honours=p.honours||[];
+      p.honours.push({season:S.season,type:'league',country:country.code,club:champion});
+    }
+    emit('ForeignChampion',null,`${f.clubs[champion].name} win the ${country.name} championship.`,{foreignClub:champion,country:country.code});
+  }
   const euro=f.current.europe;
   f.europe.seasons.push({season:S.season,participants:euro.participants,rounds:euro.rounds,winner:euro.winner});
+  if(euro.winner){
+    const winners=S.squads[euro.winner]||f.squads[euro.winner]||[];
+    for(const p of winners)if((p.eApps||0)>0){
+      p.honours=p.honours||[];p.honours.push({season:S.season,type:'europe',club:euro.winner});
+    }
+    emit('EuropeanChampion',S.clubs[euro.winner]?euro.winner:null,
+      `${S.clubs[euro.winner]?.name||f.clubs[euro.winner]?.name||euro.winner} win the European knockout competition.`,{champion:euro.winner});
+  }
   if(f.europe.seasons.length>25)f.europe.seasons.shift();
   foreignPlayerSeasonEnd();
   f.lastSeason=S.season;

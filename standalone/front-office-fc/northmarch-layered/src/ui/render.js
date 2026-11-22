@@ -149,7 +149,7 @@ function potWord(p){const d=p.pa-p.q;return p.age>=29?'At their level':d>2.5?'Bi
 function loanedOutPanel(){const out=Object.entries(S.squads).flatMap(([cid,sq])=>sq.filter(p=>p.loan&&p.loan.from===S.my).map(p=>({p,cid})));
   return out.length?`<div class="panel"><p class="eyebrow">Out on loan</p>${out.map(({p,cid})=>`<div class="row small"><span>${esc(p.name)} <span class="muted">at ${nm(cid)}</span></span><b>${p.sApps} apps</b></div>`).join('')}</div>`:''}
 function marketView(){
-  const ev=S.ev.filter(e=>['Transfer','Signing','Loan'].includes(e.t)).slice(-200),wins={};
+  const ev=S.ev.filter(e=>['Transfer','InternationalTransfer','Signing','Loan'].includes(e.t)).slice(-200),wins={};
   for(const e of ev){const k=e.w===0?`Summer window, season ${e.s}`:e.w>=SEASON_WEEKS?`Summer ${e.s}`:e.w>=WINTER_WEEK&&e.w<=WINTER_WEEK+1?`Winter, season ${e.s}`:`Season ${e.s}`;(wins[k]=wins[k]||[]).push(e)}
   const keys=Object.keys(wins).reverse().slice(0,3);
   return keys.length?keys.map(k=>{const list=wins[k],fees=list.filter(e=>e.fee).sort((a,b)=>b.fee-a.fee).slice(0,5),mine=list.filter(e=>e.c===S.my||e.c2===S.my);

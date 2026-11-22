@@ -80,8 +80,17 @@ function foreignWeek(w){
       const a=euro.alive[i],b=euro.alive[i+1],m=foreignGame(a,b,true);
       const winner=m.gh===m.ga?(rnd()<.5+(foreignStrength(a)-foreignStrength(b))/150?a:b):m.gh>m.ga?a:b;
       ties.push({...m,winner,week:w});winners.push(winner);
-      // European match income uses the domestic ledger, never foreign finances.
-      for(const id of [a,b])if(S.clubs[id])book(id,'europe',id===winner?4:2);
+      // Domestic entrants use their actual squad; continental minutes and fatigue affect players.
+      for(const id of [a,b])if(S.clubs[id]){
+        const xi=pickXI(S.squads[id]);
+        for(const x of xi){
+          x.p.apps++;x.p.sApps++;x.p.played=1;x.p.tired=1;
+          // The extra fixture creates a small but real injury exposure.
+          if(x.p.inj<=0&&rnd()<.006)x.p.inj=ri(1,2);
+        }
+        book(id,'europe',id===winner?4:2);
+        emit('EuropeanMatch',id,`${S.clubs[id].name} ${id===a?m.gh:m.ga}–${id===a?m.ga:m.gh} ${S.clubs[id===a?b:a]?.name||f.clubs[id===a?b:a].name} in Europe.`,{comp:'europe',opp:id===a?b:a,week:w,winner});
+      }
     }
     euro.rounds.push(ties);euro.alive=winners;
     if(winners.length===1)euro.winner=winners[0];

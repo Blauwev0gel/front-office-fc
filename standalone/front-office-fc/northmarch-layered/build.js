@@ -3,7 +3,7 @@
 const fs=require('fs'),path=require('path');
 const ENGINE=[
   'core/content.js','core/rng.js','core/bus.js',                       // core: content, rng, events and commands
-  'world/world.js','world/league.js','world/foreign.js',                                  // world: clubs, people, divisions, cup
+  'world/world.js','world/league.js','world/foreign.js','world/awards.js',                                  // world: clubs, people, divisions, cup
   'football/players.js','football/match.js','football/market.js','football/life.js',      // football: squads, matches, market
   'club/ground.js','club/finance.js','club/members.js','club/staff.js','club/commercial.js','club/projects.js','club/journal.js','club/recruitment.js','club/youth.js',                                  // club: ground and money
   'sim/ai.js','sim/clock.js','sim/commentary.js','core/save.js'                            // simulation: boards, the clock; saves

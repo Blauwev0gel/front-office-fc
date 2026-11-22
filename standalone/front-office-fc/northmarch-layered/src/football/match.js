@@ -9,7 +9,7 @@ function homeEdge(id){const sg=groundSignals(id);return sg.atmosphere*.12+(sg.pi
 const SCORE_W={GK:0,CB:.5,FB:.5,DM:.6,CM:1.4,AM:2.6,W:2.8,ST:5};
 function scorerFrom(xi){const tot=xi.reduce((a,x)=>a+SCORE_W[x.slot]*x.p.q,0);let r=rnd()*tot;for(const x of xi){r-=SCORE_W[x.slot]*x.p.q;if(r<=0)return x.p}return xi[xi.length-1].p}
 function playMatch(h,a,o={}){
-  const xh=pickXI(S.squads[h],h),xa=pickXI(S.squads[a],a);
+  const xh=pickXI(S.squads[h]),xa=pickXI(S.squads[a]);
   const sh=teamStrength(h)+coachEdge(h)+(o.neutral?0:homeEdge(h)),sa=teamStrength(a)+coachEdge(a);
   const [lh0,la0]=lambdas(sh,sa,!o.neutral),ch=coachLambda(h),ca=coachLambda(a),lh=lh0*ch[0]*ca[1],la=la0*ca[0]*ch[1];
   const gh=pois(lh,rnd),ga=pois(la,rnd),scorers=[];

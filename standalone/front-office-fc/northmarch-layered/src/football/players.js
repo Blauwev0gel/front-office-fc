@@ -86,8 +86,8 @@ function playersSeasonEnd(id){
   youthDevRecord(id);
   for(const p of sq.slice()){
     p.age++;p.contract--;p.yel=0;p.susp=0;p.career.push(`${c.name} ${S.season}: ${p.sApps} apps, ${p.sGoals} goals`);
-    p.history=p.history||[];p.history.push({season:S.season,club:id,age:p.age,apps:p.sApps,goals:p.sGoals,europe:p.eApps||0,quality:r1(p.q)});
-    if(p.history.length>30)p.history.shift();p.eApps=0;if(p.career.length>8)p.career.splice(0,p.career.length-8);p.sApps=0;p.sGoals=0;p.grown=0;
+    p.history=p.history||[];p.history.push({season:S.season,club:id,age:p.age,apps:p.sApps,goals:p.sGoals,europe:p.eApps||0,europeGoals:p.eGoals||0,quality:r1(p.q)});
+    if(p.history.length>30)p.history.shift();p.eApps=0;p.eGoals=0;if(p.career.length>8)p.career.splice(0,p.career.length-8);p.sApps=0;p.sGoals=0;p.grown=0;
     p.q=r1(clamp(p.q+(rnd()-.5)*.4,4,19));
     if(p.age>=34&&rnd()<(p.age-33)*.22){sq.splice(sq.indexOf(p),1);left.push(p);youthLeft(p,'retired');emit('Retired',id,`${p.name} retires at ${p.age}.`,{pid:p.id})}
     else if(p.contract<=0){sq.splice(sq.indexOf(p),1);left.push(p);youthLeft(p,'released');faAdd(p,'out of contract',id);if(id===S.my)emit('PlayerLeft',id,`${p.name} leaves at the end of his contract.`,{pid:p.id})}

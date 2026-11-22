@@ -84,3 +84,25 @@ Do not restart the six-block analysis or propose cosmetic changes. Read this roa
 - Integration correction: `club/recruitment.js` `findPlayer()` now searches **foreign squads**, so a director's overseas shortlist, continued scouting and subsequent transfer report no longer falsely mark overseas targets as gone or try to pass foreign club IDs to domestic `CL()`. The week-by-week scouts can now independently discover foreign players.
 - UI correction: the cup page correctly explains that divisions 0–2 join after the preliminary, not only Premier clubs in round 2.
 - Source syntax review: 20 changed engine/UI files parse successfully as isolated JavaScript modules. This is **only syntax**, not runtime execution, game simulation, build or acceptance tests. All six blocks remain IMPLEMENTING, not COMPLETE.
+
+## Consolidation and defect repair — 22 November 2026
+
+**Status: IMPLEMENTING / NOT RELEASE CERTIFIED.** These are committed source changes, not claims of passing integration or gameplay tests.
+
+### Repaired source contracts
+- **Competition accounting:** `playMatch` now routes league appearances/goals to `sApps/sGoals` and cup appearances/goals to `cupApps/cupGoals`. Europe retains `eApps/eGoals`. `playerCloseStint` persists all three categories, and player profiles show their distinct totals. Golden Boot therefore uses league scorers on new games, not combined cup totals.
+- **Legacy honesty:** schema is now **v10**. Loading old v9 saves initializes new fields and marks the already-played season as `mixedStatsSeason` where totals cannot historically be separated. The Golden Boot is provisional for such a season. We do not fabricate unknown old cup scorers.
+- **Neutral matches:** fixed Poisson home/away offset for neutral fixtures; neutral games no longer give an arbitrary away-team chance advantage.
+- **One player-market decision path:** deleted the autonomous domestic buying loop in `foreignTransferWindow`, which had bypassed the human club's director budget and transfer mandate. Domestic incoming moves now pass through the existing `scoutPool → shopFor → foreignMove` flow. Foreign clubs can bid for financially pressured AI domestic players; sales can trigger `coverAll` replacement recruitment. Human sales remain protected.
+- **Foreign club economy:** foreign clubs now recognize weekly media/commercial/matchday income, contracted wages, expenses, debt interest, loan drawings/repayments, transfer fees, European prize receipts and academy investments. `foreignLedger` tracks opening balance, operations, transfers and financing. Sustained insolvency can cause points deductions and development cuts.
+- **Foreign players:** recovery and continental fatigue occur once each week; appearance-driven growth replaces blanket summer development. Actual results change form and morale.
+- **Club cultures:** youth-development culture now affects the quality/potential of academy intakes and recruitment preference. Rivalry stakes apply only to comparable league positions in the same tier. The rise/fall identity rules now use the actual historical tier path; meaningful changes generate events.
+- **Career milestones:** foreign-league winners and the European winner grant honours to participating players, not just clubs.
+- **World UI:** foreign league rows and the international transfer wire now lead to read-only foreign-club and player career profiles. Club finance pages expose real ledger entries without revealing hidden talent ratings. High-priority news is emphasized over low-value mass transfer chatter.
+- **Regression contract authored:** `tests/world-repair-regressions.js` checks cup statistics, fair neutral odds, 80/72 clubs, calendar, finances, uniqueness, promotions and save roundtrips. **It has deliberately not been run**, following the user's request to focus on coding.
+
+### Still unverified or open
+- Runtime execution of the complete standalone game, mobile UX, scripted test harness and long-run economy have not been run. JavaScript syntax of 15 touched files was checked; this is not integration proof.
+- Aggregate cross-market transfer volumes, wage/club solvency distributions, team-strength trends, player careers and academy value over 10–20 seasons must be assessed before declaring any of the six blocks COMPLETE.
+- The foreign financial model is intentionally lean, not a full second domestic club/ground/staff economy. Its parameter calibration is still a release blocker.
+- Historic saved data cannot recover detailed scorer events that were never recorded in the prior format.

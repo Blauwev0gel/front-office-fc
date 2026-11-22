@@ -36,7 +36,7 @@ Standaard voor een nieuwe club: Deals Medium. Een oude save zonder mandaat behou
 | Slice | Inhoud | Status |
 |---|---|---|
 | S3.1 | Deals-mandaat + rapportage over wat de grens liet liggen + test | TESTED |
-| S3.2 | Feitelijk rapport per window, gemiste deals, voorlopig oordeel over aankopen; vertrouwen in de directeur nog niet mechanisch gekoppeld | IMPLEMENTED / UNTESTED |
+| S3.2 | Windowverslag, retrospectieve aankoopbeoordeling, op echte optredens gebaseerde betrouwbaarheid per directeur; regressietest toegevoegd | IMPLEMENTED / CI PENDING |
 | S3.3 | Sales- en Contracts-mandaat; voorstellen voor verlengen | PLANNED |
 | S3.4 | Trainer: stijl en youth-minutes-mandaat | PLANNED |
 | S3.5 | Scouts als personen; staf die vertrekt of wordt overgenomen | PLANNED |
@@ -61,8 +61,12 @@ Standaard voor een nieuwe club: Deals Medium. Een oude save zonder mandaat behou
 - Alleen het Deals-mandaat bestaat; Sales, Contracts en de trainer volgen (S3.3, S3.4).
 - De directeur heeft nog geen stijl of tevredenheid: een krap mandaat heeft geen gevolgen voor zijn blijven (S3.5).
 
-## S3.2 implementatie (ChatGPT, nog niet gevalideerd)
-- `tdClose()` bewaart een begrensd, persistente snapshot van het afgesloten zomer-/winterwindow (`S.ops.reports`, maximaal acht), inclusief aankopen, gemiste kandidaten en bestaande transfergebeurtenissen.
-- `directorWindowReviews()` beoordeelt uitsluitend aangetoonde spelersprestaties ten opzichte van de oorspronkelijke scoutinginschatting; onvoldoende wedstrijden krijgen `Too early`, geen fictieve score.
-- `src/ui/recruit.js` toont de verantwoording bij Club → Football. Er is geen knop om een individuele transfer goed te keuren.
-- Nog open: echte vertrouwensmechaniek, robuuste seizoensoverschrijdende speelminuten/hit rate, regressietests en browsercontrole. Deze slice is NIET klaar of getest.
+## S3.2 — windowverantwoording en onderbouwd vertrouwen (ChatGPT, PR #6)
+- `tdClose()` bewaart een begrensd vensterverslag in `S.ops.reports` (maximaal acht vensters): echte aankopen, gemiste kandidaten en geregistreerde transfergebeurtenissen. De verantwoordelijke directeur wordt via persoon-ID vastgelegd.
+- `directorSigningApps()` leest cluboptredens uit de actuele spelersstatistieken én historische clubstints: een seizoenswissel wist bewijs niet. Optredens bij de vorige club of op huurbasis tellen niet voor het huidige aankoopresultaat.
+- `directorAuditWeek()` bevriest de evaluatie nadat een aankoop acht cluboptredens heeft gemaakt. Oordeel: de werkelijke spelerskwaliteit op het moment van tekenen lag ten minste binnen één punt van de oorspronkelijke scoutinginschatting, of niet. Later doorgroeien of vertrekken verandert dat oordeel niet achteraf.
+- `directorTrust()` berekent de betrouwbaarheid per **feitelijke directeur** uit beoordeelde aankopen. Onder drie beoordeelde aankopen: *te vroeg om te oordelen*. Geen verzonnen score op basis van een transferwindow of één uitslag. Nieuwe directeur krijgt geen automatisch geërfde reputatie.
+- Club → Football toont de historische vensters en betrouwbaarheid naast de bestaande mandaatkeuzes. Dit is **informatieve verantwoording**: het mandaat, de stafbaan en wedstrijden worden niet automatisch door deze score gewijzigd; vergaande stafautonomie en tevredenheid blijven S3.5.
+- `tests/l3-s32-test.js` test vensters, bewijsdrempel, identiteitswisseling, seizoensreset en save/load; opgenomen in `tests/run-fast.sh`.
+
+**Grenzen en controlepunten:** De metriek meet scoutingbetrouwbaarheid bij daadwerkelijk gebruikte spelers, niet direct winstpunten, transferwinst of het totale niveau van de technisch directeur. Spelers met te weinig optredens blijven zonder oordeel. Werkelijke end-to-end browserreview is niet uitgevoerd. CI en testuitslag moeten op de PR vastgelegd worden voordat S3.2 als getest geldt.

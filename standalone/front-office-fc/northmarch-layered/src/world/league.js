@@ -50,7 +50,7 @@ function playWeekMatches(w){
   return out;
 }
 function cupDraw(){
-  const cup=S.cup;if(cup.round===1)cup.alive=cup.alive.concat(tierIds(0),tierIds(1),tierIds(2));
+  const cup=S.cup;if(cup.winner)return;if(cup.round===1)cup.alive=cup.alive.concat(cup.legacy?tierIds(0):tierIds(0).concat(tierIds(1),tierIds(2)));
   const a=shuffle(cup.alive.slice());cup.ties=[];
   for(let i=0;i+1<a.length;i+=2)cup.ties.push({h:a[i],a:a[i+1]});
 }
@@ -67,8 +67,9 @@ function playCupRound(){
     cup.log.push({r,h:t.h,a:t.a,gh:m.gh,ga:m.ga,w});
   }
   cup.round++;cup.alive=won;
-  if(cup.round>=CUP_WEEKS.length){cup.winner=won[0];emit('CupWon',won[0],`${CL(won[0]).name} win ${CUP_NAME}.`)}
-  else cupDraw();
+  if(won.length===1){cup.winner=won[0];cup.round=CUP_WEEKS.length;cup.ties=[];emit('CupWon',won[0],`${CL(won[0]).name} win ${CUP_NAME}.`)}
+  else if(won.length>1)cupDraw();
+  else throw new Error('National cup produced no winners');
   return out;
 }
 

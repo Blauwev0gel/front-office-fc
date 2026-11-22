@@ -3,9 +3,9 @@
    30 league weeks, two up and two down between each pair of divisions, and a knock-out cup in six rounds.
    makeFixtures/standings are the Northmarch functions. */
 const SEASON_WEEKS=30;
-const CUP_WEEKS=[4,9,14,19,24,28];
-const CUP_ROUND=['First round','Second round','Third round','Quarter-final','Semi-final','Final'];
-const CUP_PRIZE=[1.5,3,6,10,16,30];
+const CUP_WEEKS=[2,4,9,14,19,24,28];
+const CUP_ROUND=['Preliminary round','First round','Second round','Third round','Quarter-final','Semi-final','Final'];
+const CUP_PRIZE=[.5,1.5,3,6,10,16,30];
 
 /* circle method (from Northmarch), with home and away balanced per club: whoever has been away longest, or at home least, plays at home.
    The Northmarch original alternated by position, which gave clubs runs of up to fifteen away games. Max run now 3. */
@@ -24,7 +24,7 @@ function startSeason(){
     const byStr=ids.slice().sort((x,y)=>teamStrength(y)-teamStrength(x));byStr.forEach((id,i)=>CL(id).expect=i+1);
     ids.forEach(id=>S.tbl[id]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,ded:0,form:[]});}
   S.week=0;S.matches=[];
-  S.cup={round:0,alive:TIERS.flatMap(t=>tierIds(t)).slice(0,64),ties:[],winner:null,log:[]};
+  S.cup={round:0,alive:tierIds(3).concat(tierIds(4)),ties:[],winner:null,log:[]};
   cupDraw();
   setGoalsAll();
 }
@@ -49,7 +49,7 @@ function playWeekMatches(w){
   return out;
 }
 function cupDraw(){
-  const cup=S.cup;
+  const cup=S.cup;if(cup.round===1)cup.alive=cup.alive.concat(tierIds(0),tierIds(1),tierIds(2));
   const a=shuffle(cup.alive.slice());cup.ties=[];
   for(let i=0;i+1<a.length;i+=2)cup.ties.push({h:a[i],a:a[i+1]});
 }

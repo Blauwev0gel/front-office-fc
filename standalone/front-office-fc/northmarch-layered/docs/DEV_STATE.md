@@ -26,11 +26,11 @@ Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `footbal
 - Branch: `chatgpt-base-weekbrief-offline-20261122` (van `3bc49924046e549b66bc1b58a6396d5dd3e04b6d`). PR #8 blijft Draft; PR #6 is al gemerged.
 - Selectief geïntegreerd: feitelijk read-only weekoverzicht met club-ID 0 fix, mobiele 390px-stijlen, UI-hook, modulemanifest, regressietest en testsuite-registratie.
 - Standaardbuild blijft L1/L2; L3 uitsluitend opt-in. Geen sim-, markt- of save-engine aangepast.
-- Kostenprotocol: `docs/GITHUB_ACTIONS_KOSTENPROTOCOL.md` toegevoegd op deze werkbranch (nog niet gemerged).
+- Kostenprotocol: `docs/GITHUB_ACTIONS_KOSTENPROTOCOL.md` is toegevoegd en komt met deze pull request op `slimline-main`.
 - **Lokaal daadwerkelijk getest op het offline-pakket**: 5/5 migratietests, 13/13 briefing-unit-tests, Node syntaxchecks voor beide nieuwe JS-bestanden en Python compile check, alles geslaagd.
 - **Lokaal getest door Claude op `02d2eaa` (22 nov, in een aparte worktree)**: `node build.js` (40 basismodules), `base-briefing-test`, `base-isolation-test`, `layer-isolation-test`: alle groen. Browsercontrole op 390 px, licht en donker: 3 statistieken, 1 actie (52 px, leidt naar het budgetscherm), uitslag en nettoresultaat kloppen met de engine, geen horizontale scroll, geen scriptfouten, opnieuw renderen verandert de wereld niet. Ook de build mét optionele L3-modules: overzicht werkt, een seizoensovergang slaagt.
 - **Niet uitgevoerd**: volledige snelle suite, 20-seizoenensim, menselijke speeltest. Club-ID 0 (numeriek) kon niet end-to-end worden geprobeerd: de club-ID's in deze engine zijn tekst (`pell`, `c5`); alleen de guard `S.my==null` is gelezen.
-- **GitHub Actions**: de werkbranch valt buiten de aangetroffen push-triggers. Geen PR, CI-verzoek, merge of publicatie.
+- **GitHub Actions**: de branch `chatgpt-base-weekbrief-offline-20261122` heeft zelf geen run gestart (geen enkele run gevonden). De CI draait nu voor het eerst op deze pull request, met toestemming van de eigenaar.
 - Kostenprotocol: `docs/GITHUB_ACTIONS_KOSTENPROTOCOL.md` is leidend bij botsende instructies. Deze pull request is een bewuste, door de eigenaar toegestane CI-run.
 
 ## Open wijzigingen en bekende problemen

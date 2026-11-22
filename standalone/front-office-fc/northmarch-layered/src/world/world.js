@@ -4,9 +4,9 @@
    Squads (football), grounds (club) and money (finance) are created here but owned by their own domains. */
 const VERSION=8;
 const SAVE_KEY='northmarch-layered-v1';
-const TIERS=[0,1,2];
-const TIER_STR=[[51,59],[44,53],[37,46]];
-const TIER_SUPPORT=[[1900,4300],[1000,2500],[450,1300]];
+const TIERS=[0,1,2,3,4];
+const TIER_STR=[[51,59],[44,53],[37,46],[31,40],[26,35]];
+const TIER_SUPPORT=[[1900,4300],[1000,2500],[450,1300],[250,850],[150,550]];
 
 function mkPerson(role,club,o={}){
   const id='p'+(S.pc++);
@@ -50,10 +50,10 @@ function newWorld(seed){
   mkClub('harrow','Harrowgate Town','cathedral',0,{support:3600});
   CL('pell').rival='corden';CL('pell').rivalWhy='a captain sold to them on deadline day';CL('corden').rival='pell';CL('corden').rivalWhy=CL('pell').rivalWhy;
   CL('pell').ground='Dock Road';
-  // 45 more clubs, sized by a hidden potential, then cut into three divisions of 16
-  const names=pickN(TOWNNAMES.concat(TOWNNAMES2),45),towns=Object.keys(TOWNS);
+  // 77 more clubs, sized by a hidden potential, then cut into five divisions of 16
+  const names=pickN(TOWNNAMES.concat(TOWNNAMES2),77),towns=Object.keys(TOWNS);
   const pot=names.map((tn,i)=>({tn,i,v:rnd()}));pot.sort((a,b)=>b.v-a.v);
-  const need=[15,14,16]; // harrow fills tier 0; pell and corden tier 1
+  const need=[15,14,16,16,16]; // harrow fills tier 0; pell and corden tier 1
   let k=0;for(const tier of TIERS)for(let j=0;j<need[tier];j++){const x=pot[k++];mkClub('c'+x.i,x.tn+(rnd()<.85?' '+pick(SUFFIX):''),pick(towns),tier)}
   const ids=Object.keys(S.clubs);
   ids.forEach(i=>{const c=CL(i);if(c.rival)return;const cands=ids.filter(j=>j!==i&&CL(j).tier===c.tier&&!CL(j).rival);const r=cands.length?pick(cands):pick(ids.filter(j=>j!==i));c.rival=r;if(!CL(r).rival){CL(r).rival=i;CL(r).rivalWhy=c.rivalWhy}});
@@ -71,7 +71,7 @@ function newWorld(seed){
   startSeason();
   setBudgetsAll(1);
   makeSeats();
-  emit('WorldCreated',null,`${ids.length} clubs in three divisions.`);
+  emit('WorldCreated',null,`${ids.length} clubs in five divisions.`);
   return S;
 }
 /* three chairs to choose from: one per division, each with its own problem */

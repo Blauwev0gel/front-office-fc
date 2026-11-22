@@ -74,11 +74,11 @@ function archiveView(){
   if(!f)return domestic;
   const countries=Object.values(f.countries).map(c=>{
     const current=f.current&&f.current.leagues[c.code],rows=current?foreignRank(current.rows):c.tables.length?c.tables[c.tables.length-1].rows:[];
-    return`<div class="panel"><p class="eyebrow">${esc(c.name)} · ${current?'Current season':'Last completed season'}</p>${rows.slice(0,5).map((x,i)=>`<div class="row small"><span>${i+1}. ${esc(f.clubs[x.id].name)}</span><b>${x.pts} pts</b></div>`).join('')||'<p class="small muted">No results yet.</p>'}</div>`;
+    return`<div class="panel"><p class="eyebrow">${esc(c.name)} · ${current?'Current season':'Last completed season'}</p>${rows.slice(0,8).map((x,i)=>`<button class="row small" data-act="foreignclub" data-arg="${x.id}"><span>${i+1}. ${esc(f.clubs[x.id].name)}</span><b>${x.pts} pts</b></button>`).join('')||'<p class="small muted">No results yet.</p>'}</div>`;
   }).join('');
   const europe=f.current?.europe,completed=f.europe.seasons.slice(-5).reverse();
   const eu=`<div class="panel"><p class="eyebrow">Continental competition</p>${europe?`<p class="small">Season ${f.current.season}: ${europe.alive.length} clubs remain${europe.winner?` · Winner: ${esc(f.clubs[europe.winner]?.name||CL(europe.winner).name)}`:''}.</p>`:''}${completed.map(x=>`<p class="small">Season ${x.season}: ${esc(f.clubs[x.winner]?.name||S.clubs[x.winner]?.name||x.winner||'Undecided')}</p>`).join('')}</div>`;
-  const moves=(f.market?.log||[]).slice(-12).reverse().map(m=>`<div class="row small"><span>${esc(m.name)}<br><span class="muted">${esc(S.clubs[m.from]?.name||f.clubs[m.from]?.name||m.from)} → ${esc(S.clubs[m.to]?.name||f.clubs[m.to]?.name||m.to)}</span></span><b>£${m.fee}k</b></div>`).join('');
+  const moves=(f.market?.log||[]).slice(-12).reverse().map(m=>`<button class="row small" data-act="worldplayer" data-arg="${m.pid}"><span>${esc(m.name)}<br><span class="muted">${esc(S.clubs[m.from]?.name||f.clubs[m.from]?.name||m.from)} → ${esc(S.clubs[m.to]?.name||f.clubs[m.to]?.name||m.to)}</span></span><b>£${m.fee}k</b></button>`).join('');
   return worldNewsPanel(18)+worldTrendsPanel()+worldAwardsPanel()+domestic+eu+countries+(moves?`<div class="panel"><p class="eyebrow">International transfer wire</p>${moves}</div>`:'');
 }
 function journalPanel(n){

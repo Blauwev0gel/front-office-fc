@@ -3,6 +3,8 @@
 const fs=require('fs'),path=require('path'),vm=require('vm');
 const {ENGINE_BASE,UI_BASE,ENGINE,UI}=require('../build.js');
 const root=path.join(__dirname,'..','src');
+const shipped=fs.readFileSync(path.join(__dirname,'..','dist','northmarch-layered.html'),'utf8');
+
 let fails=0;
 function ok(c,msg){console.log((c?'ok   ':'FAIL ')+msg);if(!c)fails++}
 function instance(files){
@@ -10,6 +12,9 @@ function instance(files){
   vm.runInContext(files.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n')+'\n;this.__get=()=>S;',ctx);
   return ctx;
 }
+ok(!/function (tdScan|mandatePanel|directorTrust|directorReviewPanel)\s*\(/.test(shipped)
+   && !shipped.includes('const MANDATE_DEALS='),
+  'real published HTML contains no S3.1 or S3.2 implementation');
 ok(ENGINE_BASE.every(f=>!f.startsWith('layers/'))&&UI_BASE.every(f=>!f.startsWith('layers/')),
   'published build has no autonomy-layer module');
 ok(ENGINE.length>ENGINE_BASE.length&&UI.length>UI_BASE.length,

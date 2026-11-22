@@ -62,6 +62,11 @@ Standaard voor een nieuwe club: Deals Medium. Een oude save zonder mandaat behou
 - De directeur heeft nog geen stijl of tevredenheid: een krap mandaat heeft geen gevolgen voor zijn blijven (S3.5).
 
 ## S3.2 — windowverantwoording en onderbouwd vertrouwen (ChatGPT, PR #6)
+
+**Modulegrens:** `src/layers/autonomy/director-accountability.js` (engine) en `src/layers/autonomy/director-accountability-ui.js` (weergave). De gameklok verspreidt alleen het generieke `weekClosed`-event; `club/recruitment.js` verspreidt `transferWindowClosed`. De optionele module registreert zich via `core/layers.js`. Een ontbrekende module wordt door de basissimulatie genegeerd; controle via `tests/layer-isolation-test.js`. Zie `docs/LAYER_CONTRACT.md`.
+
+**Niet claimen als volledig voltooid L3:** de eerdere deals-mandaten (S3.1) zitten nog rechtstreeks in bestaande basisbestanden en moeten vóór uitbreiding met S3.3–S3.5 worden geïsoleerd. De releaseprioriteit blijft een bewezen functionerend basisspel, niet extra autonome functionaliteit.
+
 - `tdClose()` bewaart een begrensd vensterverslag in `S.ops.reports` (maximaal acht vensters): echte aankopen, gemiste kandidaten en geregistreerde transfergebeurtenissen. De verantwoordelijke directeur wordt via persoon-ID vastgelegd.
 - `directorSigningApps()` leest cluboptredens uit de actuele spelersstatistieken én historische clubstints: een seizoenswissel wist bewijs niet. Optredens bij de vorige club of op huurbasis tellen niet voor het huidige aankoopresultaat.
 - Een aankoop met minder dan acht optredens na een volledig seizoen krijgt zichtbaar *Limited involvement*. Dat is een aparte waarschuwing, geen verzonnen oordeel in de scouting-hit-rate.

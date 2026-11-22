@@ -16,6 +16,6 @@ function mandatePanel(){
   <p class="note">${esc(MANDATE_DEALS[m].d)}${cap===Infinity?'':` Right now: up to ${k1(cap)} a deal.`}</p></div>`;
 }
 
-registerFeaturePanel('directorDealsInfo',missedPanel);
-registerFeaturePanel('directorDealsControls',mandatePanel);
+registerFeaturePanel('recruitment:beforePolicy',missedPanel);
+registerFeaturePanel('recruitment:afterPolicy',mandatePanel);
 registerFeatureAction('mandate',arg=>say(cmd('SetMandate',S.my,{deals:arg}),'The director follows the new limit when the window closes.'));

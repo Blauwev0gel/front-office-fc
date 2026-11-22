@@ -65,6 +65,7 @@ function foreignMove(p,from,to,fee,reason){
   if(!fromDom&&src.filter(x=>x.pos===p.pos).length<=REQ[p.pos])return false;
   const dueWage=toDom?moveWage(p,to):Math.round(wageFor(p.q)*1.1/5)*5;
   if(toDom&&wageBillK(to)+dueWage/1000>wageCapK(to))return false;
+  playerCloseStint(p,from);
   src.splice(src.indexOf(p),1);
   if(fromDom){book(from,'feesIn',fee);if(from===S.my)youthLeft(p,'sold',to,fee)}
   else f.clubs[from].budget+=fee;

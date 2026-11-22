@@ -7,7 +7,7 @@ Build the football simulation first. No owner-story, staff conversation or dynas
 ## Block status
 | Block | Status | Release gate |
 |---|---|---|
-| 1. World and competition integrity | AUDIT | 5×16 Northmarch, 6 foreign countries, coherent domestic cup, real calendar-based Europe, save migration, deterministic 20-season simulations |
+| 1. World and competition integrity | IMPLEMENTING | 5×16 Northmarch, 6 foreign countries, coherent domestic cup, real calendar-based Europe, save migration, deterministic 20-season simulations |
 | 2. International player market | NOT STARTED | Persistent foreign squads, player movement, transfers affect club strength and finances |
 | 3. Player careers | NOT STARTED | Development and career history persist across clubs/seasons |
 | 4. Club evolution | NOT STARTED | Results alter resources, reputation, youth and long-term outcomes |
@@ -46,3 +46,5 @@ Report command output and seed-specific failures. Do not merge/deploy without pe
 
 ## Evidence log
 - 2026-11-22: Source files inspected through GitHub connector; container cannot reach github.com (DNS resolution failed), so Node build and test execution have **not** occurred. Status remains AUDIT.
+
+- 2026-11-22: Weekly foreign fixture schedules, league tables and four-week European knockout integrated into `advanceWeek()`; domestic European participants receive minutes, injury exposure and ledger income. Source committed; tests/build deliberately deferred at user request. Remaining: migration of in-progress older saves, calendar and qualification edge cases, presentation, validation.

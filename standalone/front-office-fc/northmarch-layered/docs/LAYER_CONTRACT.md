@@ -17,24 +17,26 @@
 
 1. **Eén bron van waarheid.** Een domein bezit zijn eigen toestand; `football/` bezit spelers, `world/` competities, `club/` beleid en geld, `sim/clock.js` de tijd. Hogere lagen bewaren hun eigen aanvullende data, niet een tweede selectie/transferbudget/stand.
 2. **Richting van afhankelijkheden.** Basisspel mag geen rechtstreeks beroep doen op functies uit `layers/autonomy/`, `layers/story/` of `layers/dynasty/`. Een hogere laag mag feiten lezen en via de bestaande gecontroleerde `cmd()`-route regels laten uitvoeren.
-3. **Generieke uitbreidingspunten.** `src/core/layers.js` bevat `onFeature()`, `fireFeatureEvent()`, `registerFeaturePanel()` en `featurePanel()`. De kern zendt feitelijke lifecycle-events uit; de feature abonneert zich. Een ontbrekende feature is een no-op en mag de kern nooit blokkeren.
+3. **Generieke uitbreidingspunten.** `src/core/layers.js` bevat `onFeature()`, `fireFeatureEvent()`, `registerFeatureRule()`, `featureRule()`, `registerFeatureAction()`, `featureAction()`, `registerFeaturePanel()` en `featurePanel()`. De kern zendt feitelijke lifecycle-events uit; de feature abonneert zich. Een ontbrekende feature is een no-op en mag de kern nooit blokkeren.
 4. **Eén centrale klok.** `advanceWeek()` en `closeSeason()` zijn de enige tijdbepalers. Hogere lagen mogen geen verborgen weken toevoegen of vanuit een hook de klok opnieuw aanroepen.
 5. **Geen tweede UI-spel.** Uitbreidingsschermen worden in benoemde slots van de bestaande UI ingevoegd, niet als een duplicaat van de Club- of Week-flow.
 6. **Determinisme en opslag.** Een optionele rapportage mag uitkomsten en random state niet beïnvloeden. Aanvullende feature-state heeft veilige defaults in oudere saves en waar nodig een expliciete migratie.
 7. **Gates zijn verplicht.** Elke PR die een hogere laag raakt, moet zowel de featuretests als `tests/layer-isolation-test.js` halen. Dit bewijst voorlopig specifiek onafhankelijkheid van S3.2; breid de test uit zodra S3.1 verder wordt losgetrokken.
 
-## Huidige code na isolatie van S3.2 (werkbranch, nog niet gemerged)
+## Huidige code na isolatie van S3.1 + S3.2 (werkbranch, nog niet gemerged)
 
-- `src/layers/autonomy/director-accountability.js` bezit rapporten, acht-optredens-evaluaties en de directeurgebonden betrouwbaarheid; `src/layers/autonomy/director-accountability-ui.js` bezit hun weergave.
-- De basis roept geen `directorAuditWeek()` of `directorReviewPanel()` rechtstreeks meer aan. De klok zendt `weekClosed` en het basisspel zendt `transferWindowClosed`; save-load zendt `saveLoaded`. Dat zijn algemene integratiepunten.
-- `build.js` houdt een expliciete lijst bij van optionele S3.2-modules. De isolatietest bouwt de kern **zonder deze modules** in een VM en vergelijkt sportieve en financiële uitkomsten met een engine **met** de modules.
+- **Normale publicatiebuild = alleen L1/L2.** `node build.js` bevat `ENGINE_BASE + UI_BASE`, zonder bestanden uit `layers/`. Optionele ontwikkelbuild met L3 is expliciet `NORTHMARCH_BUILD_MODE=autonomy node build.js`.
+- `src/layers/autonomy/director-deals.js` bezit mandaatlimieten, de scan vóór het window, gemiste kandidaten en het `SetMandate`-commando. `director-deals-ui.js` bezit bijbehorende knoppen en infoblokken.
+- `src/layers/autonomy/director-accountability.js` bezit zomer-/winterrapporten, acht-optredens-evaluaties en de directeurgebonden beoordelingen; `director-accountability-ui.js` bezit hun weergave.
+- `src/football/market.js` vraagt de **generieke** `featureRule('dealCap',id,Infinity)`. Zonder L3 geldt het normale clubtransferbudget; geen mandaatcap. `world/world.js` zendt `clubChosen`; `club/recruitment.js` en `sim/clock.js` zenden `windowPlanReady` of `transferWindowClosed`, en de kern kent geen `tdScan`, `mandateOf` of `MANDATE_DEALS` meer.
+- `src/ui/recruit.js` gebruikt benoemde optionele slots; `ui/act.js` stuurt onherkende uitbreidingsacties via `featureAction`. Als de laag ontbreekt, blijven de basisinterface en seizoensloop functioneren.
+- `tests/layer-isolation-test.js` vergelijkt een engine met S3.1 **wel**, S3.2 **niet** tegen een engine met beide: rapportage verandert de wereld niet. `tests/base-isolation-test.js` moet daarnaast 3 complete seizoenen en save/load laten draaien **zonder beide L3-modules**.
 
-## Openstaand structureel werk (niet verbergen)
+## Structurele beperkingen die nog gelden
 
-- **S3.1 is nog verweven met de basis.** `club/recruitment.js` bevat `MANDATE_DEALS`, `tdScan`, `tdClose` en `SetMandate`; `football/market.js` vraagt `dealCap()`, `world/world.js` initialiseert een mandaat en `ui/recruit.js` bevat mandaatpanelen. Dit moet vóór nieuwe L3-S3.3/S3.4-uitbreiding worden losgekoppeld via dezelfde generieke feature- en commandinterfaces.
-- `club/staff.js` bevat de eenvoudige basisregels voor trainer/TD. Die mogen in fase A blijven; *persoonlijkheid*, *tevredenheid*, *gesprekken* en *autonome initiatieven* horen in fase B en niet in `sim/clock.js`.
-- De huidige build concateneert klassiek JavaScript op vaste volgorde. De fysieke modules bestaan al, maar ES-importgrenzen en strikte toegang tot private state zijn niet afgedwongen. Noem dit **modulair in opbouw**, niet reeds een volledig geïsoleerde pluginarchitectuur.
-- Voor fase A blijft de langetermijnkwaliteit van spelers/clubfinanciën en de volledige browser- en mobiele speltest open. Start niet aan complexere L3-logica om deze basisproblemen te maskeren.
+- De code is in klassieke JavaScript-bestanden geordend, door `build.js` in vaste volgorde samengevoegd. Dit is **build-time modulariteit**; geen volwaardige runtime-hotplugarchitectuur met afgedwongen privé-state. Een afzonderlijke L3-build is mogelijk, maar live aan-/uitzetten binnen één save is nog geen ondersteunde productfunctie.
+- `club/staff.js` blijft de **basis**logica voor trainer/TD bevatten. Menselijk initiatief, gesprekken en emotionele tevredenheid horen later in L3.
+- De langetermijnbalans, vierderdivisiefinanciën, echte menselijke speeltest en een volledige mobiele browsercheck blijven open tot bewezen. **Een geslaagde CI bewijst geen leuk spel.**
 
 ## Reviewchecklist voor iedere volgende PR
 
@@ -45,4 +47,4 @@
 - Welke test is daadwerkelijk uitgevoerd op welke SHA? Welke validatie ontbreekt nog?
 - Is `DEV_STATE.md` bijgewerkt? Is de PR gebaseerd op de actuele `slimline-main`?
 
-**Nieuwe autonoomheidsfeatures pas uitbreiden nadat bovenstaande scheiding voor S3.1 is aangepakt én de fase-A-gameplay is gevalideerd.**
+**Nieuwe L3-features pas uitbreiden nadat de fase-A-gameplay is gevalideerd.**

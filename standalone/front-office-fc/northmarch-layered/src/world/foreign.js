@@ -47,7 +47,7 @@ function foreignRecord(rows,m){
 }
 function foreignStartSeason(){
   const f=S.foreign;if(!f)return;
-  f.current={season:S.season,leagues:{},europe:null};
+  f.current={season:S.season,leagues:{},europe:null,startedAt:S.week||0};
   for(const c of Object.values(f.countries)){
     const ids=c.divisions[0].clubs;
     f.current.leagues[c.code]={rounds:foreignFixtureRounds(ids),rows:foreignRows(ids),results:[]};

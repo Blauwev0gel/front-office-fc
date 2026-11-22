@@ -71,6 +71,7 @@ function newWorld(seed){
   for(const id of ids)commercialInit(id);
   S.qref=worldQuality();
   faInit();
+  enrichLegacyWorld(); /* a new world gets the same fields a loaded one is given, so a save continues exactly like the original */
   startSeason();
   setBudgetsAll(1);
   makeSeats();

@@ -19,5 +19,5 @@ ok(!bad.length,`every club's ledger reconciles and squads stay between 18 and 30
 ok(E.tierIds(0).length===16&&E.tierIds(1).length===16&&E.tierIds(2).length===16,'three divisions of sixteen');
 // voted out: the chairman picks a new club and plays on
 for(let i=0;i<29;i++)E.advanceWeek();S.members[S.my].conf=2;E.advanceWeek();E.closeSeason();
-ok(S.phase==='choose'&&S.seats.length===3,'a lost AGM vote offers three new chairs');E.chooseClub(S.seats[1]);E.advanceWeek();ok(S.week===1&&S.career.length===2,'and the game carries on at the new club');
+ok(S.phase==='choose'&&S.seats.length>=3&&new Set(S.seats.map(i=>S.clubs[i].tier)).size===S.seats.length,`a lost AGM vote offers new chairs, one in each division (${S.seats.length})`);E.chooseClub(S.seats[1]);E.advanceWeek();ok(S.week===1&&S.career.length===2,'and the game carries on at the new club');
 console.log(fails?`${fails} check(s) failed`:'smoke-test: all checks passed');process.exit(fails?1:0);

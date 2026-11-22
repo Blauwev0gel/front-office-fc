@@ -33,7 +33,7 @@ function newPlayer(pos,o={}){
     apps:0,goals:0,sApps:0,sGoals:0,joined:S.season,club:o.club||null,originClub:o.academy?o.club||null:null,career:[],grown:0,
     devPath:o.devPath||pick(DEV_PATHS),peakAge:o.peakAge??ri(26,31),history:[],
     style:o.style||pick(PLAYER_STYLES[pos]),ambition:o.ambition??ri(30,90),
-    loyalty:o.loyalty??ri(25,85),honours:[],breakthroughs:0};
+    loyalty:o.loyalty??ri(25,85),honours:[],breakthroughs:0,eApps:0,eGoals:0,europeLoad:0};
   return lifeDefaults(p);
 }
 /* Close the prior club's part-season before a move. This avoids crediting

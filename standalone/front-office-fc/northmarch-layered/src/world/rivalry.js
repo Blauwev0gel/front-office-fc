@@ -46,10 +46,17 @@ function clubCultureSeasonEnd(){
     const share=total?minutes/total:0;
     const target=Math.round(clamp(25+share*160+groundSignals(id).academy*3,10,95));
     c.devCulture=Math.round((c.devCulture??45)*.7+target*.3);
-    c.identity=c.hist.length>=2&&c.hist.slice(-2).some(h=>h.tier<c.tier-1)?'Fallen club':
-      c.heritage?.titles&&c.tier>=2?'Former champion':
+    const oldIdentity=c.identity||'Community club';
+    const recent=c.hist.slice(-5),best=c.heritage?.bestTier??c.tier;
+    const fell=best<=1&&c.tier>=best+2;
+    const rising=recent.some(h=>h.tier>c.tier)&&c.heritage?.promotions>=1;
+    c.identity=fell?(c.heritage?.titles?'Former champion':'Fallen club'):
       c.devCulture>=64?'Youth developer':
-      c.heritage?.promotions>=2&&c.hist.slice(-5).some(h=>h.tier>=c.tier+1)?'Rising club':
+      rising?'Rising club':
       c.rep>=75?'Established name':'Community club';
+    if(c.identity!==oldIdentity){
+      c.identitySince=S.season;
+      emit('ClubIdentity',id,`${c.name} are now regarded as ${c.identity.toLowerCase()}, following their results and development.`,{from:oldIdentity,to:c.identity});
+    }
   }
 }

@@ -16,6 +16,7 @@ run node tests/slimline-test.js 4 101 202
 run node tests/l3-test.js
 run node tests/l3-s32-test.js
 run node tests/layer-isolation-test.js
+run node tests/base-isolation-test.js
 run node tests/sim-test.js 20261121 20
 [ -n "$SKIP_BROWSER" ] || run node tests/playtest.js light  # CI sets SKIP_BROWSER=1 (no browser there)
 echo "fast suite: all passed"

@@ -138,7 +138,7 @@ function squadManager(id,phase){
     // Permanent squad gaps require permanent cover. In winter, an injury alone only
     // triggers emergency cover when no fit player remains in the position.
     const have=()=>sq.filter(p=>p.pos===pos&&!p.loan).length;
-    const target=phase==='winter'?(available(sq).some(p=>p.pos===pos)?Math.min(REQ[pos],have()):Math.max(1,have()+1)):REQ[pos];
+    const target=phase==='winter'&&!available(sq).some(p=>p.pos===pos)?Math.max(REQ[pos],have()+1):REQ[pos];
     while(guard-->0&&(have()<target||(phase==='winter'&&!available(sq).some(p=>p.pos===pos)))){
       const base=squadQuality(sq);if(!shopFor(id,pos,base-2.5)&&!shopFor(id,pos,0,{mustHave:true,budget:0}))break;
     }}

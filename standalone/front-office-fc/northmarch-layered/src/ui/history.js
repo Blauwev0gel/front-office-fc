@@ -58,7 +58,7 @@ function worldAwardsPanel(){
 }
 function archiveView(){
   const h=S.hist.slice().reverse(),f=S.foreign;
-  const domestic=h.length?`<div class="panel"><p class="eyebrow">Northmarch roll of honour</p>${h.map(x=>`<div class="row small"><span><b>Season ${x.s}</b><br><span class="muted">${TIERS.map(t=>`${tierShort(t)}: ${esc(CL(x.tables[t][0]).name)}`).join(' · ')}</span></span><b>${x.cup?esc(CL(x.cup).name.split(' ')[0])+' (cup)':''}</b></div>`).join('')}</div>`:'<p class="muted">The first season is under way.</p>';
+  const domestic=h.length?`<div class="panel"><p class="eyebrow">Northmarch roll of honour</p>${h.map(x=>`<div class="row small"><span><b>Season ${x.s}</b><br><span class="muted">${TIERS.filter(t=>x.tables[t]?.length).map(t=>`${tierShort(t)}: ${esc(CL(x.tables[t][0]).name)}`).join(' · ')}</span></span><b>${x.cup?esc(CL(x.cup).name.split(' ')[0])+' (cup)':''}</b></div>`).join('')}</div>`:'<p class="muted">The first season is under way.</p>';
   if(!f)return domestic;
   const countries=Object.values(f.countries).map(c=>{
     const current=f.current&&f.current.leagues[c.code],rows=current?foreignRank(current.rows):c.tables.length?c.tables[c.tables.length-1].rows:[];

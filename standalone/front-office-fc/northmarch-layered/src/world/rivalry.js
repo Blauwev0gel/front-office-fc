@@ -11,7 +11,8 @@ function rivalryWeek(matches){
     const a=CL(m.h),b=CL(m.a),cup=m.comp==='cup';
     const derby=a.town===b.town,traditional=a.rival===b.id||b.rival===a.id;
     const close=Math.abs(m.gh-m.ga)<=1;
-    const stakes=cup?2:((posOf(a.id)<=4&&posOf(b.id)<=4)||(posOf(a.id)>=13&&posOf(b.id)>=13)?2:0);
+    const sameTier=a.tier===b.tier;
+    const stakes=cup?2:(sameTier&&((posOf(a.id)<=4&&posOf(b.id)<=4)||(posOf(a.id)>=13&&posOf(b.id)>=13)))?2:0;
     const extra=(derby?2:0)+(traditional?1:0)+(close?1:0)+stakes;
     for(const [self,other,won] of [[a,b,m.gh>m.ga],[b,a,m.ga>m.gh]]){
       const r=rivalryPair(self.id,other.id);

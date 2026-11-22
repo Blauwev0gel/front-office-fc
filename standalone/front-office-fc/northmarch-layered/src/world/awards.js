@@ -12,7 +12,7 @@ function worldNewsRecord(e){
     // Retain a broad multi-season snapshot rather than allowing one busy summer to erase history.
     const years=[...new Set(S.worldLog.map(x=>x.s))].sort((a,b)=>a-b);
     const oldest=years[0];
-    const old=S.worldLog.filter(x=>x.s===old),keep=old.sort((a,b)=>b.priority-a.priority).slice(0,40);
+    const old=S.worldLog.filter(x=>x.s===oldest),keep=old.sort((a,b)=>b.priority-a.priority).slice(0,40);
     if(old.length>40)S.worldLog=S.worldLog.filter(x=>x.s!==oldest).concat(keep).sort((a,b)=>a.s-b.s||a.w-b.w);
     if(S.worldLog.length>1400)S.worldLog.splice(0,S.worldLog.length-1400);
   }

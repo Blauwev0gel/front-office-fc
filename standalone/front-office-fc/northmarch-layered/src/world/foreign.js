@@ -20,14 +20,76 @@ function foreignInit(){
         form:0,history:[]};ids.push(id)});
     countries[code]={code,name,divisions:[{id:code+'_1',name:name+' Premier Division',clubs:ids}],champions:[],tables:[]};
   }
-  return{countries,clubs,europe:{seasons:[]},lastSeason:0,current:null,market:{log:[]}};
+  return{countries,clubs,europe:{seasons:[]},lastSeason:0,current:null,market:{log:[]},squads:{}};
 }
 /* Persistent, week-driven international football. Foreign clubs deliberately remain lightweight:
    no Northmarch finances, squads or board commands. The domestic clubs use actual team strength. */
 const EURO_WEEKS=[6,12,18,24];
+/* Foreign player population is intentionally lighter than Northmarch's fully staffed clubs.
+   Persistent individuals are shared with the domestic transfer economy, not a second fake market. */
+function foreignSquadInit(){
+  const f=S.foreign;if(!f)return;
+  f.squads=f.squads||{};
+  for(const id of Object.keys(f.clubs)){
+    if(f.squads[id]&&f.squads[id].length)continue;
+    const c=f.clubs[id],base=11.5+(c.strength-50)/4;
+    f.squads[id]=[];
+    for(const pos of POS){
+      const count=Math.max(2,Math.ceil(REQ[pos]*.8));
+      for(let j=0;j<count;j++)f.squads[id].push(newPlayer(pos,{q:base-1.3+rnd()*2.3,club:id,contract:ri(1,4)}));
+    }
+  }
+}
+function foreignSquadStrength(id){
+  const sq=S.foreign.squads&&S.foreign.squads[id];
+  return sq&&sq.length>=11?qualityToStr(squadQuality(sq)):S.foreign.clubs[id].strength;
+}
+function foreignTransferWindow(){
+  const f=S.foreign;if(!f)return;
+  foreignSquadInit();
+  const ids=shuffle(Object.keys(f.clubs));
+  for(const id of ids){
+    const club=f.clubs[id],sq=f.squads[id],positions=POS.filter(pos=>sq.filter(p=>p.pos===pos).length<Math.max(2,REQ[pos]-1));
+    const target=positions.length?pick(positions):pick(POS);
+    const candidates=shuffle(Object.keys(S.clubs)).filter(from=>S.squads[from].length>SQUAD_MIN+1&&CL(from).tier<=3);
+    for(const from of candidates.slice(0,12)){
+      const available=S.squads[from].filter(p=>p.pos===target&&p.age<=30&&!p.loan&&canSpare(S.squads[from],p,true));
+      if(!available.length)continue;
+      const p=pick(available),fee=Math.max(1,Math.round(playerValue(p)*1.25));
+      if(fee>club.budget*.18||p.q<10.5)continue;
+      S.squads[from].splice(S.squads[from].indexOf(p),1);
+      book(from,'feesIn',fee);
+      club.budget-=fee;
+      p.club=id;p.joined=S.season;p.contract=ri(2,4);
+      p.wage=Math.round(wageFor(p.q)*1.15/5)*5;
+      sq.push(p);
+      const move={season:S.season,week:S.week,pid:p.id,name:p.name,from,to:id,fee};
+      f.market.log.push(move);
+      emit('Transfer',from,`${p.name} moves from ${CL(from).name} to ${club.name} for £${fee}k.`,{pid:p.id,c2:id,fee,why:'foreign interest'});
+      break;
+    }
+  }
+  // Foreign clubs also recruit from one another to replace gaps and circulate talent.
+  for(const id of ids){
+    const buyer=f.clubs[id],sq=f.squads[id],target=pick(POS);
+    if(sq.filter(p=>p.pos===target).length>=REQ[target]+1)continue;
+    const sellers=shuffle(ids.filter(x=>x!==id));
+    for(const from of sellers.slice(0,10)){
+      const seller=f.clubs[from],pool=f.squads[from].filter(p=>p.pos===target&&p.age<32&&f.squads[from].filter(x=>x.pos===target).length>REQ[target]);
+      if(!pool.length)continue;
+      const p=pick(pool),fee=Math.max(1,Math.round(playerValue(p)));
+      if(fee>buyer.budget*.12)continue;
+      f.squads[from].splice(f.squads[from].indexOf(p),1);sq.push(p);
+      buyer.budget-=fee;seller.budget+=fee;p.club=id;p.joined=S.season;p.contract=ri(2,4);
+      f.market.log.push({season:S.season,week:S.week,pid:p.id,name:p.name,from,to:id,fee});
+      break;
+    }
+  }
+  if(f.market.log.length>1200)f.market.log.splice(0,f.market.log.length-1200);
+}
 function foreignRows(ids){return Object.fromEntries(ids.map(id=>[id,{id,p:0,pts:0,gf:0,ga:0,w:0,d:0,l:0}]))}
 function foreignRank(rows){return Object.values(rows).sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||a.id.localeCompare(b.id))}
-function foreignStrength(id){return S.foreign.clubs[id]?S.foreign.clubs[id].strength:teamStrength(id)}
+function foreignStrength(id){return S.foreign.clubs[id]?foreignSquadStrength(id):teamStrength(id)}
 function foreignFixtureRounds(ids){
   const a=shuffle(ids.slice()),n=a.length,rounds=[];let order=a.slice();
   for(let w=0;w<n-1;w++){
@@ -108,7 +170,7 @@ function foreignSeasonEnd(){
       const club=f.clubs[row.id],place=i+1;
       club.history.push({season:S.season,place,pts:row.pts});
       club.form=Math.round((row.pts-33)/5);
-      club.strength=Math.max(35,Math.min(85,club.strength+Math.round((rnd()-.5)*5+(place<=3?1:place>=10?-1:0))));
+      club.strength=Math.max(35,Math.min(85,Math.round(foreignSquadStrength(row.id)+(place<=3?1:place>=10?-1:0))));
       club.rep=Math.max(15,Math.min(95,club.rep+(place===1?2:place>=10?-1:0)));
       club.budget=Math.max(20,Math.round(club.budget*(.98+(13-place)*.004)));
     });

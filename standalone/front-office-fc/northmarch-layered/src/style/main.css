@@ -230,6 +230,8 @@ div.dept-player{cursor:default;font-size:13.333px} /* a row that is not a button
 
 /* Base-game weekly briefing: clear on a 390px display, no secondary menu. */
 .chairman-brief{border-color:var(--signal);}
+.brief-match{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:4px 0 2px;}
+.brief-match b{font-size:1.15rem;}
 .brief-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 14px;}
 .brief-stat{min-width:0;background:var(--panel,rgba(127,127,127,.07));padding:9px 7px;border-radius:6px;display:flex;flex-direction:column;gap:5px;}
 .brief-stat b{font-size:1rem;overflow-wrap:anywhere;}

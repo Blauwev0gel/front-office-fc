@@ -56,7 +56,7 @@ function openNeeds(){return OPS().plan.needs.filter(n=>n.status==='open')}
 /* ----- scouting: every week the department observes real players for the open needs; estimates sharpen with each look ----- */
 function scoutObservations(id){return 1+Math.floor(groundSignals(id).scouting/1.5)}
 function scoutNoise(id){return 1.4*clamp(.9-.08*groundSignals(id).scouting,.35,.9)} /* specialist scouts: sharper than one glance from the director, sharper still with a better department */
-function findPlayer(pid){for(const c in S.squads){const p=S.squads[c].find(x=>x.id===pid);if(p)return{p,club:c}}const f=S.fa.find(x=>x.id===pid);return f?{p:f,club:null}:null}
+function findPlayer(pid){for(const c in S.squads){const p=S.squads[c].find(x=>x.id===pid);if(p)return{p,club:c}}for(const c in S.foreign?.squads||{}){const p=S.foreign.squads[c].find(x=>x.id===pid);if(p)return{p,club:c}}const f=S.fa.find(x=>x.id===pid);return f?{p:f,club:null}:null}
 function scoutWeek(id,salt=0){
   const ops=OPS(),needs=openNeeds(),sl=ops.shortlist;ops.looks={s:S.season,w:S.week,list:[]}; /* this week's looks, for the weekly club report */
   // keep the shortlist true to the world: moves, signings, retirements
@@ -66,6 +66,7 @@ function scoutWeek(id,salt=0){
   const SCOUT_W={hole:3,upgrade:2,leaving:2,ageing:1,contract:1}; /* scouts follow where the director will search: gaps first, then upgrades and departures */
   const positions=needs.length?needs.flatMap(n=>Array(SCOUT_W[n.kind]||1).fill(n.pos)):[pick(POS)],n=scoutObservations(id);
   const others=Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1);
+  const overseas=Object.keys(S.foreign?.squads||{});
   for(let k=0;k<n;k++){const pos=positions[(S.week*n+k+salt)%positions.length];
     let cand=null;
     // half the looks go back to players already on the list, the least-watched first: that is how estimates firm up
@@ -76,6 +77,11 @@ function scoutWeek(id,salt=0){
        They try up to four clubs before the look is lost, so the department's effort turns into real observations */
     for(let t=0;!cand&&t<4&&others.length;t++){const o=pick(others),sq=S.squads[o],spare=sq.filter(p=>p.pos===pos).length>REQ[pos]||F(o).cash<0,bud=budgetFor(id);
       const c=sq.filter(p=>p.pos===pos&&!p.loan&&(spare||p.wantsOut)&&playerValue(p)<=Math.max(5,bud*1.2));if(c.length)cand={p:pick(c),club:o}}
+    if(!cand&&overseas.length&&rnd()<.4){
+      const from=pick(overseas),sq=S.foreign.squads[from];
+      const candidates=sq.filter(p=>p.pos===pos&&p.inj<=0&&p.contract>0&&sq.filter(x=>x.pos===pos).length>REQ[pos]&&playerAcceptsMove(p,from,id)&&askingFee(p,from)<=Math.max(5,budgetFor(id)*1.2));
+      if(candidates.length)cand={p:pick(candidates),club:from};
+    }
     if(!cand)continue;
     const look=cand.p.q+(rnd()+rnd()-1)*2.5*scoutNoise(id);let e=sl.find(x=>x.pid===cand.p.id);
     const isNew=!e;if(!e){e={pid:cand.p.id,name:cand.p.name,pos,age:cand.p.age,from:cand.club,est:look,obs:0,status:'watching',first:[S.season,S.week],need:(needs.find(x=>x.pos===pos)||{}).id||null};sl.push(e)}
@@ -94,7 +100,7 @@ function shortlistEntry(pid){return S.ops&&S.ops.shortlist.find(e=>e.pid===pid&&
 /* in a window: watched players join the director's options, judged by the refined estimate */
 function shortlistCandidates(id,pos){
   if(id!==S.my||!S.ops)return[];const out=[];
-  for(const e of S.ops.shortlist){if(e.status!=='watching'||(pos&&e.pos!==pos))continue;const f=findPlayer(e.pid);if(!f||f.club===id)continue;out.push({p:f.p,from:f.club,premium:f.club?CL(f.club).rep>CL(id).rep+15&&!f.p.wantsOut:false,listed:true})}
+  for(const e of S.ops.shortlist){if(e.status!=='watching'||(pos&&e.pos!==pos))continue;const f=findPlayer(e.pid);if(!f||f.club===id)continue;out.push({p:f.p,from:f.club,premium:f.club&&!foreignSeller(f.club)?CL(f.club).rep>CL(id).rep+15&&!f.p.wantsOut:false,listed:true})}
   return out;
 }
 /* after the director decides: the need is filled, the shortlist and the review remember why */
@@ -115,7 +121,7 @@ function recordDecision(id,pos,best,evaluated,mustHave){
   ops.signings.push({pid:best.p.id,name:best.p.name,pos:best.p.pos,age:best.p.age,fee:best.fee,est:r1(best.seen??best.p.q),q0:r1(best.p.q),s:S.season,w:S.week,need:need?need.why:(mustHave?'Emergency cover':'Squad strengthening'),scouted:!!e,obs:e?e.obs:0,strategy:recruitStrategy(id)});
   if(ops.signings.length>20)ops.signings.shift();
 }
-function signingReview(){return(S.ops?S.ops.signings:[]).slice(-6).reverse().map(x=>{const f=findPlayer(x.pid);return{...x,now:f?r1(f.p.q):null,apps:f?f.p.apps:null,where:f?(f.club===S.my?'at the club':f.club?CL(f.club).name:'released'):'gone'}})}
+function signingReview(){return(S.ops?S.ops.signings:[]).slice(-6).reverse().map(x=>{const f=findPlayer(x.pid);return{...x,now:f?r1(f.p.q):null,apps:f?f.p.apps:null,where:f?(f.club===S.my?'at the club':f.club?marketClubName(f.club):'released'):'gone'}})}
 /* the transfer windows, made visible: what is coming, what the director is working on, what was done */
 function windowInfo(){
   const id=S.my,ev=S.ev.filter(e=>(e.c===id&&(e.t==='Transfer'||e.t==='Signing'))||(e.c2===id&&e.t==='Transfer')||(e.t==='InternationalTransfer'&&(e.from===id||e.to===id)));

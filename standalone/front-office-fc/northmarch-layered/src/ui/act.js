@@ -53,6 +53,7 @@ function act(a,arg){
     case'appeal':{const r=cmd('Fundraise',S.my,{});say(r,r.ok?`The appeal raised £${r.res}k.`:null);break}
     case'sellground':say(cmd('SellGround',S.my,{}),'The ground is sold.');UI.confirm=null;break;
     case'buyback':say(cmd('BuyBackGround',S.my,{}),'The ground is ours again.');break;
+    case'course':say(cmd('SetSquadPolicy',S.my,{course:arg}),'The director follows the new course from the next window.');break;
     case'recruit':say(cmd('SetSquadPolicy',S.my,{recruit:arg}),`Recruitment strategy: ${RECRUIT[arg].n}.`);break;
     case'dues':say(cmd('SetDues',S.my,{delta:+arg}));break;
     case'pol':say(cmd('SetSquadPolicy',S.my,{wage:arg}));break;

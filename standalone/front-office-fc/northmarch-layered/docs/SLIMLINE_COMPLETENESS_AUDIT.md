@@ -76,3 +76,48 @@ G7: A built, playable HTML artifact and exact commit SHA are supplied only after
 
 ## Next concrete implementation slice
 S1.1: audit and fix recruitment decision causality. Produce one reproducible test comparing shortlist-backed vs ad-hoc signings, verify every purchase respects budget and wage policy, ensure positional needs are resolved truthfully, and rerun 20-season economy checks. Do not start a new independent recruitment simulator.
+
+---
+
+## Completion status (2026-11-22, Claude) — measured, not claimed
+Status per gate. Numbers come from `tests/slimline-test.js` and `tests/policy-test.js` (matched worlds, 5 seasons, 4 seeds; ± is one standard error; small samples are indicative only).
+
+| Gate | Status | Evidence |
+|---|---|---|
+| G1 fast tests | PASS | `tests/run-fast.sh`: build, save, ux, smoke, l25, youth, story, slimline (4 seasons × 2 seeds), 20-season sim, light playtest |
+| G2 ≥10 seasons autonomous, several seeds | PASS | `node tests/slimline-test.js 10`: 3 seeds × 10 seasons: no invalid squads, duplicates, NaN, unreconciled ledger or empty position. **Found and fixed on the way:** 62 clubs without a keeper (or spits, back, midfielder) after the window |
+| G3 paired policy scenarios | REPORTED | table below |
+| G4 no decorative switches | PASS | every policy changes stored state and a measurable downstream value (table below) |
+| G5 mobile 390 px, light/dark, full season, save/reload | PASS | `node tests/playtest.js` (both themes); multi-week play and the development screens checked at 390 px |
+| G6 no L3/L4 | PASS | no agents, stories, conversations or individual football decisions; club courses only bundle existing settings |
+| G7 artifact + SHA | see WORK_LOG | supplied after the final verification run |
+
+### Policy scenarios (B minus A)
+| Scenario | Clear effects (> 2 SE) | Not distinguishable from noise |
+|---|---|---|
+| Recruitment: youth v experience | squad age +2.3 ± 0.8, youth growth −4.6 ± 1.5, academy first-team apps −35 ± 16, net transfer spend +£502k ± 108k | points −2.1 ± 2.1, strength +1.1 ± 2.7 |
+| Wage frame: tight v ambitious | wage bill +£3.6k/wk ± 1.3 (+18%) | strength +4.9 ± 4.8, points +1.4 ± 2.6 |
+| Transfer money 10% v 90% | net transfer spend +£996k ± 381k, cash −£589k ± 277k, injury weeks +40 ± 11 | strength −1.0 ± 2.3 |
+| Scouting staff 1 v 5 | scout looks ×2.0 (97 → 194, later 131 → 266 after the scouts' retry fix), squad age −2.1 ± 0.5 | strength |
+| **Scouting, isolated window (40 worlds)** | strength gain per window +0.50 ± 0.21; estimate error 1.36 v 1.79; overestimation of signings 1.23 v 1.58 | – |
+| Medical staff 1 v 5 | injury weeks −79 ± 17 (−46%), points +3.7 ± 1.3 | strength |
+| Training staff 1 v 5 | youth growth +8.5 ± 2.1 (+72%) | strength, points |
+| Academy staff 1 v 5 | strength +5.3 ± 1.8, points +2.1 ± 0.6 | intake potential (seen potential is noisy) |
+| Loans on v off | players on loan −0.75 ± 0.48 | strength, points |
+| Course: Sustainable v Win now | strength +5.0 ± 0.9, points +2.3 ± 0.5, wage bill +£4.7k/wk ± 0.8, net transfer spend +£585k ± 285k, cash −£640k ± 191k | squad age |
+| Course: Youth first v Win now | – | everything (strength +0.4 ± 2.4, squad age −0.4 ± 0.4) |
+
+### Findings of the audit, handled
+1. REQ (22) v SQUAD_MIN (20): REQ is the per-position target and now also the floor below which only a wage crisis may let a player go (`canSpare`); no persistent false needs were found in 3 × 10 seasons.
+2. Needs that disappear are now `solved` or `lapsed` (player left) and shown that way.
+3. AI clubs: still no shortlist; their automated recruitment stays believable (0 administrations, ledger reconciles over 20 seasons, no empty positions).
+4. The shortlist decides 8–17% of signings. The effect of scouting was not coming from it: the department's reports now sharpen the director's judgement of every candidate (`reportNoise`), which is what gives the measured +0.5 strength per window.
+5. Scouts now try up to four clubs per look: effective looks rose about 35%.
+6./7./8. Policy differentiation is measured over 5 seasons in matched worlds (table above); the 20-season economy check stays in `sim-test`.
+
+### Known limits (not hidden)
+- **Money buys little on the pitch.** More transfer money or a higher wage frame mostly changes spending, cash and the wage bill; the sporting return (+1 to +5 strength) is within the noise for single levers. The combined course (Sustainable v Win now) does show a clear return.
+- **Youth first and Win now end up equally strong** after five seasons in this sample; the course description says so.
+- The window is one decision moment, not a period of weeks; the chairman never picks individual players.
+- Only the player's club keeps a shortlist and a squad plan.
+- Policy scenarios take about 35 s each (`tests/policy-test.js`, not part of the fast suite).

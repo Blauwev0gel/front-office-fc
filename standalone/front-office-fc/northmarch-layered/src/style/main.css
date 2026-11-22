@@ -224,3 +224,5 @@ div.dept-player{cursor:default;font-size:13.333px} /* a row that is not a button
 .lvmin{font-variant-numeric:tabular-nums;color:var(--muted)}.lvrow.goal{background:var(--chip);margin:0 -8px;padding-inline:8px;border-radius:8px}.lvrow.now{font-weight:600}
 .lvauto{display:flex;align-items:center;gap:10px;min-height:44px;font-size:.9rem}.lvauto input{width:22px;height:22px}
 @media (prefers-reduced-motion:reduce){.lvball{transition:none}}
+
+.devt{display:flex;flex-direction:column}.devr{display:grid;grid-template-columns:2rem 3rem 3rem 3.2rem 1fr 1fr;gap:6px;padding:7px 0;border-top:1px solid var(--line);font-size:.85rem;font-variant-numeric:tabular-nums}.devr.head{border-top:0;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}

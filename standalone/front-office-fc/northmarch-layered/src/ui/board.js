@@ -5,6 +5,7 @@ const CLUB_TABS=[['overview','Overview'],['football','Football'],['depts','Depar
 /* Club-hub V2: direct access to existing L1/L2 responsibilities. */
 const CLUB_HUB_GROUPS=[
   ['Football organisation',[
+    ['Club course','Set the direction','ctab','football'],
     ['Trainer & director','Appoint and review','ctab','football'],
     ['Training','Player development','dept','training'],
     ['Medical','Injuries and recovery','dept','medical'],

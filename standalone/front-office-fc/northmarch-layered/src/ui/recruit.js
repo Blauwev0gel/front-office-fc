@@ -2,10 +2,16 @@
    Responsible → aim → current work → results → the chairman's choices. Everything shown comes from S.ops and the squad. */
 const NEED_WORD={hole:'Gap',contract:'Contract',leaving:'Leaving',ageing:'Succession',upgrade:'Upgrade'};
 function needWhen(n){return n.kind==='contract'?`Renewal talks in week ${RENEW_WEEK}`:S.week<WINTER_WEEK&&n.kind==='hole'?`Winter window (week ${WINTER_WEEK}) only if injuries leave it bare; otherwise the summer`:'The summer window'}
+function coursePanel(){
+  const p=F(S.my).policy,cur=p.course&&COURSE[p.course];
+  return`<div class="panel"><p class="eyebrow">Club course</p><p class="small muted">One choice sets the wage frame, transfer money, loans and recruitment together. The director follows it in every window.</p>
+  <div class="stack">${Object.entries(COURSE).map(([k,c])=>`<button class="opt ${p.course===k?'on':''}" data-act="course" data-arg="${k}" aria-pressed="${p.course===k}"><b>${c.n}</b><span class="small muted">${esc(c.d)}</span></button>`).join('')}</div>
+  ${cur?`<p class="small"><b>What to expect:</b> ${esc(cur.fx)}</p><p class="note">Wages: ${cur.wage} · transfer money: ${Math.round(cur.spend*100)}% · loans: ${cur.loans?'on':'off'} · recruitment: ${RECRUIT[cur.recruit].n}.</p>`:`<p class="small muted">Custom: you have set the choices one by one (wage frame, transfer money, recruitment). Pick a course to set them all at once.</p>`}</div>`;
+}
 function recruitPanels(){
   const id=S.my,ops=OPS(),pl=ops.plan,td=tdOf(id),st=recruitStrategy(id),open=pl.needs.filter(n=>n.status==='open'),done=pl.needs.filter(n=>n.status!=='open').slice(0,5);
   const watch=ops.shortlist.filter(e=>e.status==='watching').sort((a,b)=>b.est-a.est).slice(0,8),rev=signingReview(),noise=scoutNoise(id);
-  return`<div class="panel"><p class="eyebrow">Recruitment · ${esc(td.name)}</p><p class="small muted">The director plans the squad and signs within your frame; the scouting department watches players for him every week.</p>
+  return coursePanel()+`<div class="panel"><p class="eyebrow">Recruitment · ${esc(td.name)}</p><p class="small muted">The director plans the squad and signs within your frame; the scouting department watches players for him every week.</p>
   <p class="small"><b>Your strategy for him</b></p><div class="seg grid4">${Object.entries(RECRUIT).map(([k,r])=>`<button class="${st===k?'on':''}" data-act="recruit" data-arg="${k}" aria-pressed="${st===k}">${r.n}</button>`).join('')}</div>
   <p class="note">${esc(RECRUIT[st].d)}. It changes whom he picks in the next window, not who is already here.</p></div>
   <div class="panel"><p class="eyebrow">Squad plan · updated ${pl.s?`S${pl.s} W${pl.w}`:'—'}</p>${open.length?open.slice(0,5).map(n=>`<div class="row small"><span><b>${NEED_WORD[n.kind]}: ${POS_ONE[n.pos]}</b><br>${esc(n.why)}<br><span class="muted">${esc(needWhen(n))}</span></span><span class="pill ${n.prio>=3?'bad':''}">${n.prio>=3?'Urgent':n.prio===2?'Soon':'Later'}</span></div>`).join('')+(open.length>5?`<p class="small muted">And ${open.length-5} more, lower down the list.</p>`:''):'<p class="small muted">No open needs: the squad covers every position.</p>'}

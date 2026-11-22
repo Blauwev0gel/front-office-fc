@@ -104,6 +104,7 @@ function reviewView(){
   <div class="panel"><p class="eyebrow">Around the Northmarch</p>${TIERS.map(t=>`<div class="row small"><span>${TIER_NAME[t]} champions</span><b>${nm(h.tables[t][0])}</b></div>`).join('')}${h.moves.filter(m=>m.to<m.from).map(m=>`<p class="small up">${nm(m.id)} go up to ${TIER_NAME[m.to]}.</p>`).join('')}</div>
   <div class="panel"><p class="eyebrow">The summer</p>${kids?`<p class="small">${esc(kids.text)}</p>`:''}<p class="small muted">The transfer window opens with the new season's pre-season. You set the frame first; the director then signs and sells.</p></div>
   ${h.agm&&h.agm.goals?`<div class="panel"><p class="eyebrow">Season targets</p>${h.agm.goals.map(g=>`<div class="row small"><span>${esc(g.text)}<br><span class="muted">${esc(g.now)}</span></span><span class="pill ${g.met?'good':'bad'}">${g.met?'Met':'Missed'}</span></div>`).join('')}</div>`:''}
+  ${!out&&S.my?devChangePanel():''}
   ${!out&&S.my?seasonAheadPanel():''}
   ${h.chairsOut&&h.chairsOut.length?`<div class="panel"><p class="eyebrow">Other AGMs</p>${h.chairsOut.slice(0,6).map(c=>`<p class="small">${nm(c)} vote their chairman out.</p>`).join('')}</div>`:''}
   <button class="btn" data-act="startnext">${out?'Choose a new club':`Start season ${S.season}`}</button></main>`;

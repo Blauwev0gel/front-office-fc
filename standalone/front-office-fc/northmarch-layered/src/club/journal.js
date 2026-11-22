@@ -28,11 +28,20 @@ function metric(key,id){
   }
   return null;
 }
+/* the club's development log: one line per season for the player's club, taken when the season is over.
+   It lets the chairman see what his choices changed over the years. S.dev is optional and stays small (12 seasons). */
+function devSnap(id){
+  const sg=groundSignals(id),st=S.stats[id],sq=S.squads[id],m=M(id);
+  return{s:S.season,tier:CL(id).tier,pos:posOf(id),str:r1(teamStrength(id)),age:r1(sq.reduce((a,p)=>a+p.age,0)/Math.max(1,sq.length)),wages:Math.round(wageBillK(id)*1000),
+    members:m.count,conf:Math.round(m.conf),cap:sg.capacity,rep:CL(id).rep,cash:Math.round(F(id).cash),inj:st.injWeeks,growth:r1(st.youthGrowth),
+    staff:Object.fromEntries(Object.keys(DEPT).map(k=>[k,G(id).depts[k].staff]))};
+}
+function devRecord(){if(!S.my)return;S.dev=S.dev||[];S.dev.push(devSnap(S.my));if(S.dev.length>12)S.dev.shift()}
 function journalKey(name,a){
   if(['SetDeptStaff','SetDeptBudget','SetDeptCourse'].includes(name))return'dept:'+a.dept;
   if(name==='StartProject'){const k=(a.key||'').split(':');if(k[0]==='plot'){const kind=k[2]==='up'?(G(S.my).plots[+k[1]]||{}).kind:k[2];const map={training:'dept:training',medical:'dept:medical',academy:'dept:academy',scouting:'dept:scouting',commercial:'dept:commercial',clubhouse:'dept:community'};return map[kind]||'capacity'}return'capacity'}
   return{StartStadium:'capacity',BuyPlot:null,HireStaff:a.role==='coach'?'ppg':'strength',SackStaff:a.role==='coach'?'ppg':'strength',RenewStaff:null,SetPrice:'att',SetDues:'members',SignSponsor:'sponsorwk',
-    TakeLoan:'debt',RepayLoan:'debt',IssueBond:'debt',Fundraise:'cash',SellGround:'cash',BuyBackGround:'cash',SetSquadPolicy:a.loans!=null?null:'wagebill',ReleasePlayer:'wagebill',Repair:'dept:grounds'}[name]??null;
+    TakeLoan:'debt',RepayLoan:'debt',IssueBond:'debt',Fundraise:'cash',SellGround:'cash',BuyBackGround:'cash',SetSquadPolicy:a.course?'strength':a.loans!=null?null:'wagebill',ReleasePlayer:'wagebill',Repair:'dept:grounds'}[name]??null;
 }
 function journalText(name,a,id){
   const D=a.dept&&DEPT[a.dept]?DEPT[a.dept].n:'';
@@ -43,7 +52,7 @@ function journalText(name,a,id){
     case'SetPrice':return`${a.kind==='season'?'Season ticket':a.kind[0].toUpperCase()+a.kind.slice(1)} price ${a.delta>0?'up':'down'} to £${F(id).prices[a.kind]}`;case'SetDues':return`Dues ${a.delta>0?'up':'down'} to £${M(id).dues}`;
     case'SignSponsor':{const s=F(id).sponsor;return`Sponsor deal signed${s?': '+s.name:''}`}case'TakeLoan':return`Loan of £${a.amount}k over ${a.years} years`;case'RepayLoan':return'Loan repaid';case'IssueBond':return`Members' bond of £${a.amount}k`;
     case'Fundraise':return"Members' appeal";case'SellGround':return'The ground sold and leased back';case'BuyBackGround':return'The ground bought back';case'ReleasePlayer':return'Player released';
-    case'SetSquadPolicy':return a.wageR!=null?`Wage limit set to ${Math.round(a.wageR*100)}% of income`:a.spend!=null?`Transfer money: ${Math.round(a.spend*100)}% of spare cash`:a.loans!=null?(a.loans?'Young reserves may go on loan':'Young reserves stay at the club'):a.recruit?`Recruitment strategy: ${RECRUIT[a.recruit].n}`:a.wage?`Wage frame: ${a.wage}`:'Frame changed';
+    case'SetSquadPolicy':return a.course?`Club course: ${COURSE[a.course].n}`:a.wageR!=null?`Wage limit set to ${Math.round(a.wageR*100)}% of income`:a.spend!=null?`Transfer money: ${Math.round(a.spend*100)}% of spare cash`:a.loans!=null?(a.loans?'Young reserves may go on loan':'Young reserves stay at the club'):a.recruit?`Recruitment strategy: ${RECRUIT[a.recruit].n}`:a.wage?`Wage frame: ${a.wage}`:'Frame changed';
   }
   return name;
 }

@@ -23,11 +23,24 @@ function finChartSVG(hist){
   ${vals.map((v,i)=>`<rect x="${Math.round(i*bw+bw*.2)}" width="${Math.round(bw*.6)}" y="${Math.min(y(v),H/2)}" height="${Math.max(1,Math.abs(y(v)-H/2))}" class="${v<0?'barneg':'barpos'}"/>`).join('')}
   <polyline class="mid" points="${cash.map((v,i)=>`${Math.round(i*bw+bw/2)},${y(v)}`).join(' ')}"/></svg><p class="note">Bars: operating result per season. Line: cash at the end of each season.</p>`;
 }
+/* how the club changed: the latest season against the one before, then the seasons in a row */
+const DEV_COLS=[['Position',d=>ord(d.pos),d=>-d.pos,1],['Squad strength',d=>Math.round(d.str),d=>d.str,1],['Average age',d=>d.age.toFixed(1),d=>0,0],['Wage bill a week',d=>'£'+n0(d.wages),d=>0,0],
+  ['Members',d=>n0(d.members),d=>d.members,1],['Ground capacity',d=>n0(d.cap),d=>d.cap,1],['Reputation',d=>d.rep,d=>d.rep,1],['Cash',d=>k1(d.cash),d=>d.cash,1],['Weeks lost to injury',d=>d.inj,d=>-d.inj,1],['Youth growth',d=>'+'+d.growth.toFixed(1),d=>d.growth,1]];
+function devChangePanel(){
+  const dv=S.dev||[],a=dv[dv.length-1],b=dv[dv.length-2];if(!a)return'';
+  return`<div class="panel"><p class="eyebrow">How the club changed${b?` · season ${a.s} against ${b.s}`:` · season ${a.s}`}</p>${DEV_COLS.map(([n,f,v,judge])=>{const dl=b?v(a)-v(b):0,arrow=b&&Math.abs(dl)>1e-9&&judge?` <span class="${dl>0?'up':'down'}" aria-label="${dl>0?'better':'worse'}">${dl>0?'▲':'▼'}</span>`:'';
+    return`<div class="row small"><span>${n}</span><b>${b?`${f(b)} → `:''}${f(a)}${arrow}</b></div>`}).join('')}
+  <p class="note">Staffing, budgets and policy show up here over the seasons. Other clubs change too, so read it as a direction, not a verdict.</p></div>`;
+}
+function devTablePanel(){
+  const dv=(S.dev||[]).slice(-6).reverse();if(dv.length<2)return'';
+  return`<div class="panel"><p class="eyebrow">Season by season: the club</p><div class="devt" role="table"><div class="devr head" role="row"><span>S</span><span>Pos</span><span>Str</span><span>Age</span><span>Wages</span><span>Members</span></div>${dv.map(d=>`<div class="devr" role="row"><span>${d.s}</span><span>${ord(d.pos)}</span><span>${Math.round(d.str)}</span><span>${d.age.toFixed(1)}</span><span>£${r1(d.wages/1000)}k</span><span>${n0(d.members)}</span></div>`).join('')}</div></div>`;
+}
 function historySheet(){
   const id=S.my,c=C(),h=c.hist.slice().reverse(),r=S.records[id]||{},hon=honours(id),fh=F(id).hist.filter(x=>c.hist.some(y=>y.s===x.s));
   return overlayShell(`${c.name}: history`,`<div class="panel"><p class="eyebrow">Honours</p>${hon.titles.length?hon.titles.map(t=>`<p class="small"><b>${TIER_NAME[t.tier]} champions</b>, season ${t.s}</p>`).join(''):'<p class="small muted">No titles yet.</p>'}${hon.cups.length?`<p class="small"><b>${CUP_NAME}</b>: ${hon.cups.map(s=>'season '+s).join(', ')}</p>`:''}</div>
   <div class="panel"><p class="eyebrow">Records</p><div class="row small"><span>Biggest win</span><b>${r.bigWin?`${r.bigWin.gf}–${r.bigWin.ga} v ${nm(r.bigWin.opp)} (S${r.bigWin.s})`:'—'}</b></div><div class="row small"><span>Record crowd</span><b>${r.crowd?`${n0(r.crowd.n)} v ${nm(r.crowd.opp)} (S${r.crowd.s})`:'—'}</b></div></div>
-  <div class="panel"><p class="eyebrow">Money over the seasons</p>${finChartSVG(fh.slice(-12))}</div>
+  ${devChangePanel()}${devTablePanel()}<div class="panel"><p class="eyebrow">Money over the seasons</p>${finChartSVG(fh.slice(-12))}</div>
   <div class="panel"><p class="eyebrow">Season by season</p>${h.length?h.map(x=>`<div class="row small"><span><b>S${x.s}</b> ${TIER_NAME[x.tier]}, ${ord(x.pos)} · ${x.pts} pts${x.cup?`<br><span class="muted">Cup: ${esc(x.cup)}${x.top?` · top scorer ${esc(x.top.name)} (${x.top.goals})`:''}</span>`:x.top?`<br><span class="muted">Top scorer ${esc(x.top.name)} (${x.top.goals})</span>`:''}</span><b>${x.you?'You':''}</b></div>`).join(''):'<p class="small muted">The first season is under way.</p>'}</div>
   <div class="panel"><p class="eyebrow">Your career</p>${S.career.map(cr=>`<div class="row small"><span>${nm(cr.club)}<br><span class="muted">${cr.why?esc(cr.why):'In office'}</span></span><b>S${cr.from}${cr.to?'–'+cr.to:'–'}</b></div>`).join('')}</div>`);
 }

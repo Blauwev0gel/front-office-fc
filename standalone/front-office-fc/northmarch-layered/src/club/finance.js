@@ -19,6 +19,12 @@ const HEAD={matchday:'Matchday',commercial:'Commercial',media:'League & cup',tra
 const PRICE_DEF=[{terrace:11,seated:16,business:35,season:140},{terrace:9,seated:13,business:30,season:110},{terrace:7,seated:10,business:22,season:85}];
 const TV=[4.6,2.2,.8],SPONSOR=[3.4,1.9,.9],PRIZE=[[80,4],[40,2],[15,.6]];
 const WAGE_RATIO={tight:.65,normal:.76,ambitious:.88,allin:.98};
+/* club courses: a simple way to set the direction. Each bundles the existing policy settings (nothing new is simulated). */
+const COURSE={
+  balanced:{n:'Balanced',d:'A steady club: normal wages, some transfer money, the best player the money buys.',wage:'normal',spend:.5,loans:true,recruit:'balanced',fx:'Middle of the road on cost and results.'},
+  youth:{n:'Youth first',d:'Grow your own: young signings, academy players get games, reserves go out on loan.',wage:'normal',spend:.4,loans:true,recruit:'youth',fx:'Younger signings and more games for academy players. In the short run the squad is no stronger.'},
+  win:{n:'Win now',d:'Spend to win: high wages, big transfer money, proven players, nobody sent out on loan.',wage:'ambitious',spend:.8,loans:false,recruit:'experience',fx:'A stronger squad and more points, at the price of a bigger wage bill and less cash in the bank.'},
+  frugal:{n:'Sustainable',d:'Live within the means: tight wages, little transfer money, bargains and free agents.',wage:'tight',spend:.3,loans:true,recruit:'value',fx:'A healthier bank balance, but a weaker squad and fewer points.'}};
 
 function F(id){return S.fin[id]}
 function finInit(id){
@@ -147,5 +153,5 @@ defCommand('TakeLoan',{check:(id,a)=>{if(!(a.amount>0))return'Choose an amount';
   run:(id,a)=>{const rate=loanRate(id,a.amount),l=mkLoan(a.amount,a.years,rate,`Bank loan (${a.years} years)`);F(id).loans.push(l);book(id,'loanIn',a.amount);emit('LoanTaken',id,`${CL(id).name} borrow £${a.amount}k over ${a.years} years at ${Math.round(rate*1000)/10}%.`);return l}});
 defCommand('RepayLoan',{check:(id,a)=>{const l=F(id).loans[a.i];if(!l)return'No such loan';if(F(id).cash<l.left)return'Not enough cash to repay it';return null},
   run:(id,a)=>{const l=F(id).loans[a.i];book(id,'loanOut',-l.left);emit('LoanRepaid',id,`Loan repaid early: £${r1(l.left)}k.`);F(id).loans.splice(a.i,1)}});
-defCommand('SetSquadPolicy',{check:(id,a)=>(a.wage&&!WAGE_RATIO[a.wage])||(a.wageR!=null&&!(a.wageR>=.4&&a.wageR<=1.05))||(a.spend!=null&&!(a.spend>=0&&a.spend<=1))||(a.loans!=null&&typeof a.loans!=='boolean')||(a.recruit!=null&&!RECRUIT[a.recruit])?'Unknown policy':null,
-  run:(id,a)=>{const p=F(id).policy;if(a.wage){p.wage=a.wage;p.wageR=WAGE_RATIO[a.wage]}if(a.wageR!=null)p.wageR=r2(a.wageR);if(a.spend!=null)p.spend=a.spend;if(a.loans!=null)p.loans=a.loans;if(a.recruit)p.recruit=a.recruit}});
+defCommand('SetSquadPolicy',{check:(id,a)=>(a.wage&&!WAGE_RATIO[a.wage])||(a.wageR!=null&&!(a.wageR>=.4&&a.wageR<=1.05))||(a.spend!=null&&!(a.spend>=0&&a.spend<=1))||(a.loans!=null&&typeof a.loans!=='boolean')||(a.recruit!=null&&!RECRUIT[a.recruit])||(a.course!=null&&!COURSE[a.course])?'Unknown policy':null,
+  run:(id,a)=>{const p=F(id).policy;if(a.course){const c=COURSE[a.course];p.wage=c.wage;p.wageR=WAGE_RATIO[c.wage];p.spend=c.spend;p.loans=c.loans;p.recruit=c.recruit;p.course=a.course;return}p.course=null;if(a.wage){p.wage=a.wage;p.wageR=WAGE_RATIO[a.wage]}if(a.wageR!=null)p.wageR=r2(a.wageR);if(a.spend!=null)p.spend=a.spend;if(a.loans!=null)p.loans=a.loans;if(a.recruit)p.recruit=a.recruit}});

@@ -14,7 +14,7 @@ E.chooseClub(S.seats[0]);S.agmOff=true;
 const before=Object.fromEntries(Object.keys(S.clubs).map(id=>[id,S.clubs[id].tier]));
 for(let w=1;w<=30;w++){
   E.advanceWeek();
-  if(w===2)assert.strictEqual(S.cup.alive.length,16,'preliminary winners');
+  if(w===2){assert.strictEqual(S.cup.log.filter(l=>l.r===0).length,16,'16 preliminary ties played');assert.strictEqual(S.cup.alive.length,64,'16 preliminary winners plus the 48 clubs of divisions 0-2 enter the first round')}
   if(w===4)assert.strictEqual(S.cup.alive.length,32,'32 first-round winners');
 }
 assert.strictEqual(S.cup.log.length,79,'80-club knockout needs 79 ties');

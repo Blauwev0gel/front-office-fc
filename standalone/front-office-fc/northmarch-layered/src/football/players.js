@@ -16,8 +16,9 @@ const SQUAD_MIN=20,SQUAD_MAX=27;
 function pname(){return `${pick(PFIRST)} ${pick(PLAST)}`}
 /* weekly wage in £ for a player of quality q: semi-professional at the bottom, full-time at the top */
 /* wages follow the market: quality relative to the world's level (S.qref), so a richer, better world does not inflate wages forever */
-function wageFor(q){return Math.max(30,Math.round(150*Math.pow(1.65,q-((S&&S.qref)||11.7)+2.2)/5)*5)}
-function worldQuality(){const ids=Object.keys(S.squads);return r2(ids.reduce((a,i)=>a+squadQuality(S.squads[i]),0)/ids.length)}
+function wageFor(q){return Math.max(30,Math.round(150*Math.pow(1.65,q-Math.max(11.7,(S&&S.qref)||11.7)+2.2)/5)*5)} /* never below the calibration level, also for saves made while the reference was still too low */
+/* the wage scale is calibrated on the top three divisions (48 clubs). Lower divisions sit below that reference; counting them would pull it down and make every contract dearer */
+function worldQuality(){const ids=Object.keys(S.squads).filter(i=>S.clubs[i]&&S.clubs[i].tier<=2);return r2(ids.reduce((a,i)=>a+squadQuality(S.squads[i]),0)/Math.max(1,ids.length))}
 function newPlayer(pos,o={}){
   const age=o.age??ri(18,33),q=r1(o.q??(9+rnd()*5));
   const head=o.pa!=null?0:age<=19?1.5+rnd()*4:age<=22?rnd()*2.5:age<=24?rnd():0;

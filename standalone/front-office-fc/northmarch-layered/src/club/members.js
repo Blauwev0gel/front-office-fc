@@ -80,7 +80,7 @@ function afterAGMs(outIds){
 /* the player's seats after being voted out: one per division, better clubs for a better reputation */
 function seatsAfterOut(){
   const ex=new Set([S.votedOut,...S.career.map(x=>x.club)]),out=[];
-  for(const t of TIERS){const ids=tierIds(t).filter(i=>!ex.has(i)).sort((a,b)=>teamStrength(a)-teamStrength(b));
+  for(const t of [0,1,2]){const ids=tierIds(t).filter(i=>!ex.has(i)) /* three chairs, one in each of the top three divisions, as at the start of a game */.sort((a,b)=>teamStrength(a)-teamStrength(b));
     const k=clamp(Math.round(ids.length*(.35+.06*S.rep))+ri(-2,2),0,ids.length-1);out.push(ids[k])}
   return out;
 }

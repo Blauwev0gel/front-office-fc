@@ -72,7 +72,7 @@ function closeSeason(){
   commercialSeasonEnd();
   returnLoans();
   for(const id of ids)playersSeasonEnd(id);
-  S.qref=r2(S.qref*.7+worldQuality()*.3);
+  S.qref=r2(Math.max(11.7,S.qref*.7+worldQuality()*.3)); /* the wage scale follows a richer world up (no wage inflation) but never falls below the calibration level: a world that gets weaker must not make contracts dearer */
   faSummer();
   setBudgetsAll(s+1);
   for(const id of ids)groundSeasonEnd(id);

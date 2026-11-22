@@ -614,8 +614,9 @@ const SQUAD_MIN=20,SQUAD_MAX=27;
 function pname(){return `${pick(PFIRST)} ${pick(PLAST)}`}
 /* weekly wage in £ for a player of quality q: semi-professional at the bottom, full-time at the top */
 /* wages follow the market: quality relative to the world's level (S.qref), so a richer, better world does not inflate wages forever */
-function wageFor(q){return Math.max(30,Math.round(150*Math.pow(1.65,q-((S&&S.qref)||11.7)+2.2)/5)*5)}
-function worldQuality(){const ids=Object.keys(S.squads);return r2(ids.reduce((a,i)=>a+squadQuality(S.squads[i]),0)/ids.length)}
+function wageFor(q){return Math.max(30,Math.round(150*Math.pow(1.65,q-Math.max(11.7,(S&&S.qref)||11.7)+2.2)/5)*5)} /* never below the calibration level, also for saves made while the reference was still too low */
+/* the wage scale is calibrated on the top three divisions (48 clubs). Lower divisions sit below that reference; counting them would pull it down and make every contract dearer */
+function worldQuality(){const ids=Object.keys(S.squads).filter(i=>S.clubs[i]&&S.clubs[i].tier<=2);return r2(ids.reduce((a,i)=>a+squadQuality(S.squads[i]),0)/Math.max(1,ids.length))}
 function newPlayer(pos,o={}){
   const age=o.age??ri(18,33),q=r1(o.q??(9+rnd()*5));
   const head=o.pa!=null?0:age<=19?1.5+rnd()*4:age<=22?rnd()*2.5:age<=24?rnd():0;
@@ -1398,7 +1399,7 @@ function afterAGMs(outIds){
 /* the player's seats after being voted out: one per division, better clubs for a better reputation */
 function seatsAfterOut(){
   const ex=new Set([S.votedOut,...S.career.map(x=>x.club)]),out=[];
-  for(const t of TIERS){const ids=tierIds(t).filter(i=>!ex.has(i)).sort((a,b)=>teamStrength(a)-teamStrength(b));
+  for(const t of [0,1,2]){const ids=tierIds(t).filter(i=>!ex.has(i)) /* three chairs, one in each of the top three divisions, as at the start of a game */.sort((a,b)=>teamStrength(a)-teamStrength(b));
     const k=clamp(Math.round(ids.length*(.35+.06*S.rep))+ri(-2,2),0,ids.length-1);out.push(ids[k])}
   return out;
 }
@@ -2106,7 +2107,7 @@ function closeSeason(){
   commercialSeasonEnd();
   returnLoans();
   for(const id of ids)playersSeasonEnd(id);
-  S.qref=r2(S.qref*.7+worldQuality()*.3);
+  S.qref=r2(Math.max(11.7,S.qref*.7+worldQuality()*.3)); /* the wage scale follows a richer world up (no wage inflation) but never falls below the calibration level: a world that gets weaker must not make contracts dearer */
   faSummer();
   setBudgetsAll(s+1);
   for(const id of ids)groundSeasonEnd(id);

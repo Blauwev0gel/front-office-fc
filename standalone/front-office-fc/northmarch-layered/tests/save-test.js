@@ -28,7 +28,7 @@ threw=false;try{E.deserialize('{"foo":1}')}catch(e){threw=true}ok(threw,'a forei
 // migration 2 → 3: a save without members, targets or a career gets them and plays on
 {const v2=JSON.parse(snap);v2.v=2;delete v2.members;delete v2.career;delete v2.rep;delete v2.votedOut;
  E.deserialize(JSON.stringify(v2));const S=E.__get();
- ok(S.v===V&&Object.keys(S.members).length===48&&S.members[S.my].goals.length===3,'a version 2 save gets members, confidence and season targets');
+ ok(S.v===V&&Object.keys(S.members).length===Object.keys(S.clubs).length&&S.members[S.my].goals.length===3,'a version 2 save gets members, confidence and season targets');
  let err=null;try{E.playSeason()}catch(e){err=e.message}ok(!err,'the migrated save plays on through an AGM '+(err||''));}
 // migration 3 → 4: coaches and directors without a profile get one, and the free pool is filled
 {const v3=JSON.parse(snap);v3.v=3;delete v3.staffPool;for(const id in v3.P)delete v3.P[id].pro;
@@ -42,5 +42,5 @@ threw=false;try{E.deserialize('{"foo":1}')}catch(e){threw=true}ok(threw,'a forei
  let err=null;try{E.playSeason()}catch(e){err=e.message}ok(!err,'and plays on '+(err||''));}
 // migration 6 → 7: records and history fields
 {const v6=JSON.parse(snap);v6.v=6;delete v6.records;E.deserialize(JSON.stringify(v6));const S=E.__get();
- ok(S.v===V&&Object.keys(S.records).length===48,'a version 6 save gets club records');let err=null;try{E.playSeason()}catch(e){err=e.message}ok(!err,'and plays on '+(err||''));}
+ ok(S.v===V&&Object.keys(S.records).length===Object.keys(S.clubs).length,'a version 6 save gets club records');let err=null;try{E.playSeason()}catch(e){err=e.message}ok(!err,'and plays on '+(err||''));}
 console.log(fails?`${fails} check(s) failed`:'save-test: all checks passed');process.exit(fails?1:0);

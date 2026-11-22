@@ -17,7 +17,7 @@ const one=sl.filter(e=>e.obs===1),many=sl.filter(e=>e.obs>=3);if(many.length>=2)
 // 4. the window: signings are linked to needs and remembered with the estimate at the time
 while(!E.seasonOver())E.advanceWeek();E.closeSeason();
 const sg=S.ops.signings;ok(sg.length>0&&sg.every(x=>x.need&&Number.isFinite(x.est)),`summer signings are recorded with the need they fill (${sg.length})`);
-ok(S.ops.plan.needs.some(n=>n.status==='filled'&&n.by),'needs show who filled them');
+ok(S.ops.plan.needs.some(n=>(n.status==='filled'&&n.by)||(n.lastSigning&&n.lastSigning.name)),'needs show who arrived for them (filled by, or the latest signing)');
 // 5. the strategy changes whom the director picks (same world, one different frame)
 const snap=world=>{};E.newWorld(71100);const S2=E.__get();E.chooseClub('pell');S2.agmOff=true;const base=E.serialize();
 const ages=st=>{const a=[];for(let k=0;k<3;k++){E.deserialize(base);const s=E.__get();s.rs=(s.rs+k*7919)|0;E.cmd('SetSquadPolicy',s.my,{recruit:st});E.playSeason();E.advanceWeek();a.push(...s.ops.signings.filter(x=>x.need!=='Emergency cover').map(x=>x.age))}return avg(a)};

@@ -30,7 +30,7 @@ function foreignInit(){
     const ids=[];
     towns.forEach((town,i)=>{const id='f_'+code+'_'+i;
       clubs[id]={id,country:code,name:town+(i%3===0?' Athletic':i%3===1?' FC':' United'),
-        strength:Math.round(48+rnd()*28),rep:Math.round(35+rnd()*50),budget:Math.round(80+rnd()*800),
+        strength:Math.round(48+rnd()*28),rep:Math.round(35+rnd()*50),budget:Math.round(80+rnd()*800),academy:1,ledger:null,
         form:0,history:[]};ids.push(id)});
     countries[code]={code,name,divisions:[{id:code+'_1',name:name+' Premier Division',clubs:ids}],champions:[],tables:[]};
   }

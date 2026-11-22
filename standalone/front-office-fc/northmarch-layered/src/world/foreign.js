@@ -77,6 +77,7 @@ function foreignBudgetWeek(w){
     c.budget=r2(c.budget+net);
     c.ledger=c.ledger||{season:S.season,income:0,wages:0,other:0,net:0,financing:0};
     if(c.ledger.season!==S.season)c.ledger={season:S.season,income:0,wages:0,other:0,net:0,financing:0};
+    c.ledger.financing??=0;
     c.ledger.income=r2(c.ledger.income+media+commercial+matchday);
     c.ledger.wages=r2(c.ledger.wages-wages);
     c.ledger.other=r2(c.ledger.other-cost);
@@ -107,7 +108,7 @@ function foreignBudgetWeek(w){
 function foreignSigningAffordable(id,p,fee=0,expectedWage=null){
   const c=S.foreign.clubs[id],w=foreignWageWeek(id),limit=15+c.rep*1.25;
   const projected=w+(expectedWage??p.wage??wageFor(p.q))/1000;
-  return !!c&&c.budget-fee>=Math.max(20,w*4)&&projected<=limit;
+  return !!c&&c.adminSeason!==S.season&&(c.debt||0)<c.rep*5&&c.budget-fee>=Math.max(20,w*4)&&projected<=limit;
 }
 function foreignSquadStrength(id){
   const sq=S.foreign.squads&&S.foreign.squads[id];

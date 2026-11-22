@@ -70,7 +70,11 @@ function closeSeason(){
     c.support=Math.round(clamp(c.support*(1+.025*(exp-pos)/8+.004*sg.community),250,9000))}
   repSeasonEnd();
   const moves=promoteRelegate();
-  for(const m of moves){const c=CL(m.id);c.support=Math.round(c.support*(m.to<m.from?1.08:.93))}
+  for(const m of moves){const c=CL(m.id);c.support=Math.round(c.support*(m.to<m.from?1.08:.93));
+    c.heritage=c.heritage||{titles:0,promotions:0,relegations:0,cups:0,bestTier:m.from,streak:0};
+    if(m.to<m.from)c.heritage.promotions++;else c.heritage.relegations++;
+    c.heritage.bestTier=Math.min(c.heritage.bestTier,m.to);
+  }
   S.hist.push({s,tables,cup:S.cup.winner,moves:moves.map(m=>({...m})),agm,chairsOut:outIds.filter(i=>i!==S.my)});
   for(const id of ids){const st=S.stats[id];st.prev={inj:st.inj,injWeeks:st.injWeeks,youthGrowth:st.youthGrowth};st.inj=0;st.injWeeks=0;st.youthGrowth=0}
   commercialSeasonEnd();

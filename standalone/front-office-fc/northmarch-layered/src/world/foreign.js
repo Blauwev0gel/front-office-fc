@@ -20,7 +20,7 @@ function foreignInit(){
         form:0,history:[]};ids.push(id)});
     countries[code]={code,name,divisions:[{id:code+'_1',name:name+' Premier Division',clubs:ids}],champions:[],tables:[]};
   }
-  return{countries,clubs,europe:{seasons:[]},lastSeason:0,current:null};
+  return{countries,clubs,europe:{seasons:[]},lastSeason:0,current:null,market:{log:[]}};
 }
 /* Persistent, week-driven international football. Foreign clubs deliberately remain lightweight:
    no Northmarch finances, squads or board commands. The domestic clubs use actual team strength. */

@@ -46,8 +46,10 @@ function loanOut(id){
   }
 }
 function returnLoans(){
-  for(const id in S.squads){const sq=S.squads[id];for(const p of sq.slice())if(p.loan&&p.loan.from!==id){sq.splice(sq.indexOf(p),1);const from=p.loan.from;p.loan=null;if(from===S.my)p.wasLoan=id;S.squads[from].push(p);
-    if(from===S.my)emit('LoanBack',from,`${p.name} returns from his loan (${p.sApps} appearances).`,{pid:p.id})}}
+  for(const id in S.squads){const sq=S.squads[id];for(const p of sq.slice())if(p.loan&&p.loan.from!==id){
+    p.loanStats={apps:p.sApps||0,goals:p.sGoals||0};playerCloseStint(p,id);
+    sq.splice(sq.indexOf(p),1);const from=p.loan.from;p.loan=null;if(from===S.my)p.wasLoan=id;S.squads[from].push(p);
+    if(from===S.my)emit('LoanBack',from,`${p.name} returns from his loan (${p.loanStats?.apps||0} appearances).`,{pid:p.id})}}
 }
 /* contract demands: what a player asks for at renewal (more if he is good, wanted, or unhappy) */
 function wageDemand(p,med){return Math.round(wageFor(p.q)*(1+(p.q>=med?.12:0)+rnd()*.12+(p.morale<40?.2:0)+(p.age<=23&&p.pa>p.q+1?.1:0))/5)*5}

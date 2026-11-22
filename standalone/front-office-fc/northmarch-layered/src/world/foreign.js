@@ -71,15 +71,37 @@ function foreignBudgetWeek(w){
     const wages=foreignWageWeek(id);
     const media=10+c.rep*.65,commercial=5+c.rep*.28;
     const matchday=w<=22?(7+c.rep*.18):0;
-    const cost=5+(w<=22?3:1)+(c.academy||1)*2;
-    const net=r2(media+commercial+matchday-wages-cost);
+    const debt=c.debt||0,interest=debt*.08/SEASON_WEEKS;
+    const cost=5+(w<=22?3:1)+(c.academy||1)*2+interest;
+    let net=r2(media+commercial+matchday-wages-cost);
     c.budget=r2(c.budget+net);
-    c.ledger=c.ledger||{season:S.season,income:0,wages:0,other:0,net:0};
-    if(c.ledger.season!==S.season)c.ledger={season:S.season,income:0,wages:0,other:0,net:0};
+    c.ledger=c.ledger||{season:S.season,income:0,wages:0,other:0,net:0,financing:0};
+    if(c.ledger.season!==S.season)c.ledger={season:S.season,income:0,wages:0,other:0,net:0,financing:0};
     c.ledger.income=r2(c.ledger.income+media+commercial+matchday);
     c.ledger.wages=r2(c.ledger.wages-wages);
     c.ledger.other=r2(c.ledger.other-cost);
     c.ledger.net=r2(c.ledger.net+net);
+    // A club with cash repays debt; a struggling club may refinance, but not indefinitely.
+    if(c.debt>0&&c.budget>Math.max(180,wages*5)){
+      const repay=r2(Math.min(c.debt,(c.budget-Math.max(180,wages*5))*.12));
+      c.debt=r2(c.debt-repay);c.budget=r2(c.budget-repay);
+      c.ledger.financing=r2(c.ledger.financing-repay);
+    }
+    const limit=Math.max(80,c.rep*2),maxDebt=c.rep*8;
+    if(c.budget<-limit&&(c.debt||0)<maxDebt){
+      const draw=r2(Math.min(maxDebt-(c.debt||0),Math.max(100,limit-c.budget)));
+      if(draw>0){
+        c.budget=r2(c.budget+draw);c.debt=r2((c.debt||0)+draw);
+        c.ledger.financing=r2(c.ledger.financing+draw);
+        emit('ForeignLoan',null,`${c.name} borrow £${Math.round(draw)}k to cover operating losses.`,{foreignClub:id,amount:draw});
+      }
+    }
+    if(c.budget<-limit&&(c.debt||0)>=maxDebt&&c.adminSeason!==S.season){
+      c.adminSeason=S.season;c.rep=Math.max(15,c.rep-3);c.academy=Math.max(1,(c.academy||1)-1);
+      const table=f.current?.leagues?.[c.country]?.rows?.[id];
+      if(table){table.pts-=6;table.ded=(table.ded||0)+6}
+      emit('ForeignAdministration',null,`${c.name} enter administration after sustained losses; six league points deducted.`,{foreignClub:id,debt:c.debt});
+    }
   }
 }
 function foreignSigningAffordable(id,p,fee=0,expectedWage=null){

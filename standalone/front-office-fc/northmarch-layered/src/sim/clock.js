@@ -26,6 +26,8 @@ function advanceWeek(){
   if(S.week===0)summerWindow();
   S.week++;const w=S.week,ids=allIds();
   const mark=S.evn||0;
+  // Continental games in the previous week affect availability and performance this week.
+  for(const id of ids)for(const p of S.squads[id])if(p.europeLoad){p.tired=1;p.europeLoad=0}
   const matches=playWeekMatches(w);
   foreignWeek(w);
   for(const id of ids)playersWeek(id);

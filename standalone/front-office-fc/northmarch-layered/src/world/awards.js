@@ -1,12 +1,12 @@
 /* World records, season awards and press wire.
    All highlights are calculated from the live simulation; no random news events.
    News remains in a bounded archive, independent of the short technical event bus. */
-const WORLD_LOG_TYPES=['CupWon','Promoted','Relegated','InternationalTransfer','ForeignSigning','ForeignRelease','Breakthrough','ClubIdentity','StaffPoached','Administration','EuropeanMatch','SeasonAward','Rivalry','ForcedSale','PlayerLeft','Retired','YouthIntake'];
+const WORLD_LOG_TYPES=['CupWon','Promoted','Relegated','InternationalTransfer','ForeignSigning','ForeignRelease','ForeignAdministration','ForeignLoan','Breakthrough','ClubIdentity','StaffPoached','Administration','EuropeanMatch','SeasonAward','Rivalry','ForcedSale','PlayerLeft','Retired','YouthIntake'];
 function worldNewsRecord(e){
   if(!WORLD_LOG_TYPES.includes(e.t))return;
   S.worldLog=S.worldLog||[];
   const priority={CupWon:5,Promoted:5,Relegated:5,SeasonAward:5,Administration:5,Rivalry:4,EuropeanMatch:3,
-    InternationalTransfer:3,ForeignSigning:2,ForeignRelease:2,Breakthrough:4,ClubIdentity:3,StaffPoached:3,ForcedSale:4,Retired:2,PlayerLeft:1,YouthIntake:1}[e.t]||1;
+    InternationalTransfer:3,ForeignSigning:2,ForeignRelease:2,ForeignAdministration:5,ForeignLoan:2,Breakthrough:4,ClubIdentity:3,StaffPoached:3,ForcedSale:4,Retired:2,PlayerLeft:1,YouthIntake:1}[e.t]||1;
   S.worldLog.push({s:e.s,w:e.w,t:e.t,c:e.c,text:e.text,priority,pid:e.pid||null,fee:e.fee||0});
   if(S.worldLog.length>1400){
     // Retain a broad multi-season snapshot rather than allowing one busy summer to erase history.
@@ -51,7 +51,7 @@ function worldSeasonAwards(){
   return year;
 }
 function worldLatestNews(limit=8){
-  return(S.worldLog||[]).filter(x=>x.priority>=2)
+  return(S.worldLog||[]).filter(x=>x.priority>=3)
     .slice().sort((a,b)=>b.s-a.s||b.w-a.w||b.priority-a.priority).slice(0,limit);
 }
 

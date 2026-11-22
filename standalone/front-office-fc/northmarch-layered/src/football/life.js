@@ -15,7 +15,10 @@ function matchAftermath(m){
       const temper=p.trait==='temperamental'?2:1;
       if(rnd()<.006*temper){p.susp=ri(1,3);if(club===S.my)emit('Suspended',club,`${p.name} is sent off and banned for ${p.susp} match${p.susp>1?'es':''}.`,{pid})}
       else if(rnd()<.09*temper){p.yel++;if(p.yel%5===0){p.susp=1;if(club===S.my)emit('Suspended',club,`${p.name} collects his fifth booking: banned for one match.`,{pid})}}
-      p.morale=clamp(p.morale+res*3,0,100);
+      const scored=(m.scorers||[]).filter(x=>x.pid===pid).length;
+      p.form=clamp(p.form+res*2+Math.min(6,scored*3),35,90);
+      const rival=CL(club).rival===(side==='h'?m.a:m.h);
+      p.morale=clamp(p.morale+res*(rival?5:3)+Math.min(4,scored*2),0,100);
     }
     for(const p of S.squads[club])if(!xi.includes(p.id))p.morale=clamp(p.morale+res,0,100);
   }

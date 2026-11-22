@@ -5,7 +5,7 @@
 const MORALE_WORD=m=>m<25?'Unhappy':m<45?'Restless':m<65?'Content':m<82?'Happy':'Flying';
 function lifeDefaults(p){p.morale??=60;p.yel??=0;p.susp??=0;p.tired??=0;p.played??=0;p.loan??=null;p.wantsOut??=false;p.lowWeeks??=0;return p}
 function moraleF(p){return .93+.12*(p.morale??60)/100}
-function repInit(c){return Math.round(clamp([68,48,28][c.tier]+(c.support-[3000,1700,850][c.tier])/120,10,95))}
+function repInit(c){return Math.round(clamp([68,48,28,20,14][c.tier]+(c.support-[3000,1700,850,500,300][c.tier])/120,10,95))}
 /* after each match: who played, cards and bans, and how the result feels */
 function matchAftermath(m){
   for(const [side,club] of [['h',m.h],['a',m.a]]){
@@ -35,7 +35,7 @@ function lifeWeek(id){
 }
 /* loans: young players who would not play go to a club below that needs them, and come back in the summer */
 function loanOut(id){
-  if(F(id).policy.loans===false||CL(id).tier===2)return;
+  if(F(id).policy.loans===false||CL(id).tier>=3)return;
   const sq=S.squads[id],xi=pickXI(sq).map(x=>x.p);
   const cands=sq.filter(p=>p.age<=21&&!xi.includes(p)&&!p.loan&&p.pa>p.q+1&&sq.length>SQUAD_MIN+2&&canSpare(sq,p,false)).sort((a,b)=>(b.pa-b.q)-(a.pa-a.q)).slice(0,2);
   for(const p of cands){
@@ -53,6 +53,6 @@ function returnLoans(){
 function wageDemand(p,med){return Math.round(wageFor(p.q)*(1+(p.q>=med?.12:0)+rnd()*.12+(p.morale<40?.2:0)+(p.age<=23&&p.pa>p.q+1?.1:0))/5)*5}
 /* reputation: how the region sees a club, from where it plays and how it does */
 function repSeasonEnd(){
-  for(const id in S.clubs){const c=CL(id),pos=posOf(id),target=[70,48,28][c.tier]+(9-pos)*1.6+(S.cup.winner===id?6:0);c.rep=Math.round(clamp(c.rep+(target-c.rep)*.25,5,99))}
+  for(const id in S.clubs){const c=CL(id),pos=posOf(id),target=[70,48,28,20,14][c.tier]+(9-pos)*1.6+(S.cup.winner===id?6:0);c.rep=Math.round(clamp(c.rep+(target-c.rep)*.25,5,99))}
 }
 function repWord(r){return r<25?'Local':r<45?'Regional':r<65?'Respected':r<80?'Big name':'Famous'}

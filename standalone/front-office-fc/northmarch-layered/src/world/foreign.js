@@ -125,6 +125,28 @@ function foreignGame(h,a,neutral=false){
   const [lh,la]=lambdas(foreignStrength(h),foreignStrength(a),!neutral);
   return{h,a,gh:pois(lh,rnd),ga:pois(la,rnd)};
 }
+/* Foreign leagues simulate actual XI appearances, scorers and squad availability.
+   Only foreign squads are handled here; domestic games use playMatch/matchAftermath. */
+function foreignPlayerMatch(m,comp='league'){
+  const f=S.foreign;
+  for(const [id,goals] of [[m.h,m.gh],[m.a,m.ga]]){
+    if(!f.clubs[id])continue;
+    const sq=f.squads[id];if(!sq||!sq.length)continue;
+    const xi=pickXI(sq);
+    for(const x of xi){
+      const p=x.p;p.apps++;p.sApps++;p.fApps=(p.fApps||0)+1;
+      if(comp==='europe')p.eApps=(p.eApps||0)+1;
+      p.form=clamp(p.form+(goals>=2?1:goals===0?-1:0),40,88);
+      if(p.inj<=0&&comp==='europe'&&rnd()<.003)p.inj=ri(1,2);
+    }
+    const scorers=[];
+    for(let g=0;g<goals&&xi.length;g++){
+      const p=scorerFrom(xi);p.goals++;p.sGoals++;scorers.push({pid:p.id,name:p.name});
+    }
+    if(!m.scorers)m.scorers={};
+    m.scorers[id]=scorers;
+  }
+}
 function foreignRecord(rows,m){
   const h=rows[m.h],a=rows[m.a];h.p++;a.p++;h.gf+=m.gh;h.ga+=m.ga;a.gf+=m.ga;a.ga+=m.gh;
   if(m.gh>m.ga){h.w++;a.l++;h.pts+=3}else if(m.gh<m.ga){a.w++;h.l++;a.pts+=3}else{h.d++;a.d++;h.pts++;a.pts++}
@@ -148,13 +170,13 @@ function foreignStartSeason(){
   entrants.push(...home);
   f.current.europe={participants:entrants,alive:shuffle(entrants.slice()),rounds:[],winner:null};
 }
-function foreignWeek(w){
+function foreignWeek(w,{historical=false}={}){
   const f=S.foreign;if(!f)return;
   if(!f.current||f.current.season!==S.season)foreignStartSeason();
   for(const league of Object.values(f.current.leagues)){
     const round=league.rounds[w-1];if(!round)continue;
     const results=round.map(([h,a])=>foreignGame(h,a));
-    for(const m of results)foreignRecord(league.rows,m);
+    for(const m of results){foreignRecord(league.rows,m);foreignPlayerMatch(m)}
     league.results.push({week:w,matches:results});
   }
   const euro=f.current.europe,idx=EURO_WEEKS.indexOf(w);
@@ -163,9 +185,10 @@ function foreignWeek(w){
     for(let i=0;i<euro.alive.length;i+=2){
       const a=euro.alive[i],b=euro.alive[i+1],m=foreignGame(a,b,true);
       const winner=m.gh===m.ga?(rnd()<.5+(foreignStrength(a)-foreignStrength(b))/150?a:b):m.gh>m.ga?a:b;
+      foreignPlayerMatch(m,'europe');
       ties.push({...m,winner,week:w});winners.push(winner);
       // Domestic entrants use their actual squad; continental minutes and fatigue affect players.
-      for(const id of [a,b])if(S.clubs[id]){
+      for(const id of [a,b])if(!historical&&S.clubs[id]){
         const xi=pickXI(S.squads[id]);
         for(const x of xi){
           x.p.eApps=(x.p.eApps||0)+1;x.p.europeLoad=(x.p.europeLoad||0)+1;
@@ -186,9 +209,13 @@ function foreignPlayerSeasonEnd(){
     const club=f.clubs[id];
     for(const p of sq.slice()){
       p.career=p.career||[];
-      p.career.push(`${club.name} ${S.season}: foreign league`);
+      p.career.push(`${club.name} ${S.season}: ${p.sApps||0} apps, ${p.sGoals||0} goals`);
+      p.history=p.history||[];
+      p.history.push({season:S.season,club:id,age:p.age,apps:p.sApps||0,goals:p.sGoals||0,europe:p.eApps||0,quality:r1(p.q)});
+      if(p.history.length>30)p.history.shift();
+      p.sApps=0;p.sGoals=0;p.eApps=0;
       if(p.career.length>12)p.career.shift();
-      p.age++;p.contract--;
+      p.age++;p.contract--;p.inj=Math.max(0,(p.inj||0)-3);
       if(p.age>=35||p.contract<=0){sq.splice(sq.indexOf(p),1);continue}
       if(p.age<=24&&p.q<p.pa)p.q=Math.min(p.pa,p.q+(p.pa-p.q)*(.04+rnd()*.08));
       if(p.age>=31)p.q=Math.max(4,p.q-(p.age-30)*.045);
@@ -228,4 +255,18 @@ function foreignSeasonEnd(){
   foreignPlayerSeasonEnd();
   f.lastSeason=S.season;
   f.current=null;
+}
+/* Saves made before the weekly European calendar have no current fixture state.
+   Reconstruct only missing foreign results; do not retroactively pay prizes or injure
+   Northmarch players. Deterministic once the reconstructed state is saved. */
+function foreignRestoreCalendar(){
+  const f=S.foreign;
+  if(!f)return;
+  if(!f.squads||!Object.keys(f.squads).length)foreignSquadInit();
+  if(!f.market)f.market={log:[]};
+  if(f.current&&f.current.season===S.season)return;
+  foreignStartSeason();
+  const through=Math.max(0,Math.min(SEASON_WEEKS,S.week||0));
+  for(let w=1;w<=through;w++)foreignWeek(w,{historical:true});
+  f.current.reconstructed=through>0;
 }

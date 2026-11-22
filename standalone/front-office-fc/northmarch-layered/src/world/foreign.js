@@ -61,6 +61,32 @@ function foreignSquadInit(){
     }
   }
 }
+/* Lightweight but real weekly foreign ledger: cash pays wages, travel and facilities,
+   media/matchday revenue arrives each week; transfer fees use the same balance.
+   The foreign world deliberately does not run Northmarch's full stadium simulation. */
+function foreignWageWeek(id){return r2((S.foreign.squads[id]||[]).reduce((sum,p)=>sum+(p.wage||0),0)/1000)}
+function foreignBudgetWeek(w){
+  const f=S.foreign;
+  for(const [id,c] of Object.entries(f.clubs)){
+    const wages=foreignWageWeek(id);
+    const media=10+c.rep*.65,commercial=5+c.rep*.28;
+    const matchday=w<=22?(7+c.rep*.18):0;
+    const cost=5+(w<=22?3:1);
+    const net=r2(media+commercial+matchday-wages-cost);
+    c.budget=r2(c.budget+net);
+    c.ledger=c.ledger||{season:S.season,income:0,wages:0,other:0,net:0};
+    if(c.ledger.season!==S.season)c.ledger={season:S.season,income:0,wages:0,other:0,net:0};
+    c.ledger.income=r2(c.ledger.income+media+commercial+matchday);
+    c.ledger.wages=r2(c.ledger.wages-wages);
+    c.ledger.other=r2(c.ledger.other-cost);
+    c.ledger.net=r2(c.ledger.net+net);
+  }
+}
+function foreignSigningAffordable(id,p,fee=0){
+  const c=S.foreign.clubs[id],w=foreignWageWeek(id),limit=15+c.rep*1.25;
+  const projected=w+(p.wage||wageFor(p.q))/1000;
+  return !!c&&c.budget-fee>=Math.max(20,w*4)&&projected<=limit;
+}
 function foreignSquadStrength(id){
   const sq=S.foreign.squads&&S.foreign.squads[id];
   return sq&&sq.length>=11?qualityToStr(squadQuality(sq)):S.foreign.clubs[id].strength;
@@ -85,7 +111,7 @@ function foreignMove(p,from,to,fee,reason){
   if(!Number.isFinite(fee)||fee<0)throw new Error('Invalid international fee');
   const fromDom=!!S.clubs[from],toDom=!!S.clubs[to];
   if(toDom&&(dst.length>=SQUAD_MAX||fee>budgetFor(to)))return false;
-  if(!toDom&&fee>f.clubs[to].budget)return false;
+  if(!toDom&&!foreignSigningAffordable(to,p,fee))return false;
   if(fromDom&&(src.length<=SQUAD_MIN||!canSpare(src,p,false)))return false;
   if(!fromDom&&src.filter(x=>x.pos===p.pos).length<=REQ[p.pos])return false;
   const dueWage=toDom?moveWage(p,to):Math.round(wageFor(p.q)*1.1/5)*5;
@@ -127,7 +153,7 @@ function foreignTransferWindow(){
     if(!options.length)continue;
     const p=options.sort((a,b)=>Math.abs(a.q-(11.5+(club.strength-50)/4))-Math.abs(b.q-(11.5+(club.strength-50)/4)))[0];
     const signing=Math.max(1,Math.round(playerValue(p)*.04));
-    if(club.budget<signing+10)continue;
+    if(!foreignSigningAffordable(to,p,signing))continue;
     S.fa.splice(S.fa.indexOf(p),1);
     club.budget-=signing;p.club=to;p.joined=S.season;p.contract=ri(2,4);
     p.wage=Math.round(wageFor(p.q)*1.03/5)*5;
@@ -256,6 +282,7 @@ function foreignStartSeason(){
 function foreignWeek(w,{historical=false}={}){
   const f=S.foreign;if(!f)return;
   if(!f.current||f.current.season!==S.season)foreignStartSeason();
+  if(!historical)foreignBudgetWeek(w);
   for(const sq of Object.values(f.squads||{}))for(const p of sq)if(p.inj>0)p.inj--;
   for(const league of Object.values(f.current.leagues)){
     const round=league.rounds[w-1];if(!round)continue;
@@ -364,7 +391,9 @@ function foreignSeasonEnd(){
       club.form=Math.round((row.pts-33)/5);
       club.strength=Math.max(35,Math.min(85,Math.round(foreignSquadStrength(row.id)+(place<=3?1:place>=10?-1:0))));
       club.rep=Math.max(15,Math.min(95,club.rep+(place===1?2:place>=10?-1:0)));
-      club.budget=Math.max(20,Math.round(club.budget*(.98+(13-place)*.004)));
+      // Season performance affects next year's broadcast and sponsorship prospects via reputation.
+      // Never replace the ledger's real cash balance with a random place-based multiplier.
+      club.budget=r2(club.budget);
     });
     if(country.tables.length>25)country.tables.shift();
     if(country.champions.length>25)country.champions.shift();

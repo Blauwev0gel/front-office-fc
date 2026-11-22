@@ -1,3 +1,20 @@
+## 2026-11-22 — consolidatie: kritische code-review en integrale reparaties
+
+**Aanleiding:** bij review van laatste commit `2f8f417` bleek dat de zes blokken vooral waren uitgebreid, maar onvoldoende integraal verbonden. De gebruiker gaf expliciet opdracht de gevonden fouten daadwerkelijk te herstellen en eerdere instructie om niet op builds/tests te blokkeren blijft gelden.
+
+**Gecommit in deze sessie:**
+- Betrouwbare scheiding van beker, competitie en Europese spelersoptredens en -goals; neutral-ground Poissonbias gecorrigeerd. Nieuwe schema versie 10 markeert onherstelbaar gecombineerde historische seizoenstatistieken als voorlopig, in plaats van ze als exacte topscorersdata te presenteren.
+- Buitenlandse clubs ontvangen en betalen wekelijks cash; `foreignLedger` registreert beginstand, media/commerce, salarissen, kosten, transfers, Europese inkomsten, lening/dossier en academy-herinvestering. Administration veroorzaakt echt puntenverlies en reputatieschade.
+- Het automatische buitenlandse koopprogramma voor Northmarch-clubs is verwijderd wegens omzeilen van de bestaande TD-mandaten. Normale scouting/shortlist/shopFor regelt inkomende internationale deals. Financieel gedwongen AI-verkopen kunnen een vervangingsketen starten, maar menselijk verkoopbeleid is beschermd.
+- Buitenlandse spelers hebben wekelijkse belastbaarheid, blessureherstel en ontwikkeling die uit echte wedstrijden voortkomt, plus wedstrijdgebonden moraal en spelerhonours voor landstitels en Europa.
+- Clubcultuur beïnvloedt talentinstroom en scouting; identificatie van stijgende/gevallen clubs kijkt naar echte divisieverplaatsingen.
+- Wereldarchief biedt inspectie van buitenlandse clubs, kaspositie, selecties, carrièrehistorie en transfernieuws zonder exacte verborgen scoutingsratings bloot te leggen. Voetbalnieuws wordt op belangrijke gebeurtenissen gefilterd.
+- Regressiesuite `tests/world-repair-regressions.js` is aangemaakt om deze contracten later te valideren. **Niet uitgevoerd.**
+
+**Bewijsniveau:** 15 gewijzigde bronbestanden afzonderlijk op JavaScript-syntax gecontroleerd, zonder geconstateerde parsefouten. Er is geen build, volledige samengevoegde code-evaluatie, regressietest, 20-seizoenstest of mobiele playtest uitgevoerd. Geen main merge/deploy. Alle zes blokken blijven IMPLEMENTING. Zie `docs/SLIMLINE_WORLD_ROADMAP.md` voor open releasepoorten.
+
+---
+
 ## 2026-11-22 — SLIMLINE: integrale ontwikkeling zes blokken (broncode, nog niet gevalideerd)
 
 **Context.** De eerste implementatierondes waren te beperkt en er ontbrak een gekoppelde voetbalsimulatie. Deze sessie voert de zes architectuurblokken integraal uit op `claude/loving-goodall-uv00vn` zonder extra verhalen, chairman dilemma's, staff agents of dynasty. Het verzoek is **code ontwikkelen; geen build of tests uitvoeren**. Alle wijzigingen staan op de ontwikkelbranch; er is niets gemerged of gedeployed.

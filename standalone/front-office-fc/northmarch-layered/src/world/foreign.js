@@ -24,7 +24,7 @@ function foreignInit(){
 }
 /* Persistent, week-driven international football. Foreign clubs deliberately remain lightweight:
    no Northmarch finances, squads or board commands. The domestic clubs use actual team strength. */
-const EURO_WEEKS=[6,12,18,24];
+const EURO_WEEKS=[6,11,17,25]; // deliberately avoid Northmarch cup weeks
 /* Foreign player population is intentionally lighter than Northmarch's fully staffed clubs.
    Persistent individuals are shared with the domestic transfer economy, not a second fake market. */
 function foreignSquadInit(){

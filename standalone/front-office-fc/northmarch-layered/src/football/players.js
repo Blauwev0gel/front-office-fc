@@ -28,7 +28,7 @@ function worldQuality(){const ids=Object.keys(S.squads).filter(i=>S.clubs[i]&&S.
 function newPlayer(pos,o={}){
   const age=o.age??ri(18,33),q=r1(o.q??(9+rnd()*5));
   const head=o.pa!=null?0:age<=19?1.5+rnd()*4:age<=22?rnd()*2.5:age<=24?rnd():0;
-  const p={id:'pl'+(S.pc++),name:o.name||pname(),pos,age,q,pa:r1(o.pa??(q+head)),contract:o.contract??ri(1,3),
+  const p={id:'pl'+(S.pc++),name:o.name||pname(),nationality:o.nationality||(o.club&&o.club.startsWith('f_')?o.club.split('_')[1]:'nmr'),pos,age,q,pa:r1(o.pa??(q+head)),contract:o.contract??ri(1,3),
     wage:Math.round(wageFor(q)*(0.85+rnd()*.3)/5)*5,form:ri(55,75),inj:0,trait:o.trait||pick(PTRAITS),academy:!!o.academy,
     apps:0,goals:0,sApps:0,sGoals:0,joined:S.season,club:o.club||null,originClub:o.academy?o.club||null:null,career:[],grown:0,
     devPath:o.devPath||pick(DEV_PATHS),peakAge:o.peakAge??ri(26,31),history:[],

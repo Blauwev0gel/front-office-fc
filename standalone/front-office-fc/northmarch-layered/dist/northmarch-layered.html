@@ -287,7 +287,7 @@ const TONE=[['"Say it and go."','"I\'ve nothing to say to you."','"You\'ve got a
 const FLAVOUR={stubborn:'"If this is about changing my mind, save your breath."',proud:'"I don\'t usually wait for people."',sly:'"Funny, I was just talking about you."',honest:'"I\'ll be straight with you."',vain:'"Did you see the paper? They spelled my name right for once."',loyal:'"Whatever the club needs."',ambitious:'"I\'ve plans, chairman. Big ones."',cautious:'"Let\'s not rush anything."',warm:'"How are you holding up?"',resentful:'"I remember the last person who sat in that chair."',impulsive:'"Go on then, spit it out."',patient:'"Take your time."',principled:'"As long as this is above board."',greedy:'"Is this about money? I hope it\'s about money."'};
 const STRONG={money:['money'],glory:['name','role'],loyalty:['security'],recognition:['name','role'],control:['power'],community:['role']};
 const WEAK={money:['name'],glory:['security'],loyalty:['money'],recognition:['money'],control:['ask'],community:['money']};
-const TIER_NAME=['Northmarch Premier','Northmarch One','Northmarch Two'];
+const TIER_NAME=['Northmarch Premier','Northmarch One','Northmarch Two','Northmarch Three','Northmarch Four'];
 const CUP_NAME='The Northmarch Cup';
 const TOWNNAMES2=['Brackenholt','Cauldmoor','Dunstrow','Elmscar','Fellbeck','Grimsett','Hollinwick','Kettlemere','Lowmarsh','Mossby','Oxenthwaite','Pendlecross','Quarrymoor','Redscar','Stonegill','Tallowfield','Wetherscar','Whinsby'];
 
@@ -349,9 +349,9 @@ function cmd(name,club,args,actor){
    Squads (football), grounds (club) and money (finance) are created here but owned by their own domains. */
 const VERSION=8;
 const SAVE_KEY='northmarch-layered-v1';
-const TIERS=[0,1,2];
-const TIER_STR=[[51,59],[44,53],[37,46]];
-const TIER_SUPPORT=[[1900,4300],[1000,2500],[450,1300]];
+const TIERS=[0,1,2,3,4];
+const TIER_STR=[[51,59],[44,53],[37,46],[31,40],[26,35]];
+const TIER_SUPPORT=[[1900,4300],[1000,2500],[450,1300],[250,850],[150,550]];
 
 function mkPerson(role,club,o={}){
   const id='p'+(S.pc++);
@@ -395,10 +395,12 @@ function newWorld(seed){
   mkClub('harrow','Harrowgate Town','cathedral',0,{support:3600});
   CL('pell').rival='corden';CL('pell').rivalWhy='a captain sold to them on deadline day';CL('corden').rival='pell';CL('corden').rivalWhy=CL('pell').rivalWhy;
   CL('pell').ground='Dock Road';
-  // 45 more clubs, sized by a hidden potential, then cut into three divisions of 16
-  const names=pickN(TOWNNAMES.concat(TOWNNAMES2),45),towns=Object.keys(TOWNS);
+  // 77 more clubs, sized by a hidden potential, then cut into five divisions of 16
+  const baseNames=TOWNNAMES.concat(TOWNNAMES2);
+  const names=baseNames.concat(baseNames.slice(0,26).map((name,i)=>name+' '+(i%2?'Vale':'Heath')));
+  const towns=Object.keys(TOWNS);
   const pot=names.map((tn,i)=>({tn,i,v:rnd()}));pot.sort((a,b)=>b.v-a.v);
-  const need=[15,14,16]; // harrow fills tier 0; pell and corden tier 1
+  const need=[15,14,16,16,16]; // harrow fills tier 0; pell and corden tier 1
   let k=0;for(const tier of TIERS)for(let j=0;j<need[tier];j++){const x=pot[k++];mkClub('c'+x.i,x.tn+(rnd()<.85?' '+pick(SUFFIX):''),pick(towns),tier)}
   const ids=Object.keys(S.clubs);
   ids.forEach(i=>{const c=CL(i);if(c.rival)return;const cands=ids.filter(j=>j!==i&&CL(j).tier===c.tier&&!CL(j).rival);const r=cands.length?pick(cands):pick(ids.filter(j=>j!==i));c.rival=r;if(!CL(r).rival){CL(r).rival=i;CL(r).rivalWhy=c.rivalWhy}});
@@ -416,7 +418,7 @@ function newWorld(seed){
   startSeason();
   setBudgetsAll(1);
   makeSeats();
-  emit('WorldCreated',null,`${ids.length} clubs in three divisions.`);
+  emit('WorldCreated',null,`${ids.length} clubs in five divisions.`);
   return S;
 }
 /* three chairs to choose from: one per division, each with its own problem */
@@ -443,9 +445,9 @@ function chooseClub(id){
    30 league weeks, two up and two down between each pair of divisions, and a knock-out cup in six rounds.
    makeFixtures/standings are the Northmarch functions. */
 const SEASON_WEEKS=30;
-const CUP_WEEKS=[4,9,14,19,24,28];
-const CUP_ROUND=['First round','Second round','Third round','Quarter-final','Semi-final','Final'];
-const CUP_PRIZE=[1.5,3,6,10,16,30];
+const CUP_WEEKS=[2,4,9,14,19,24,28];
+const CUP_ROUND=['Preliminary round','First round','Second round','Third round','Quarter-final','Semi-final','Final'];
+const CUP_PRIZE=[.5,1.5,3,6,10,16,30];
 
 /* circle method (from Northmarch), with home and away balanced per club: whoever has been away longest, or at home least, plays at home.
    The Northmarch original alternated by position, which gave clubs runs of up to fifteen away games. Max run now 3. */
@@ -464,7 +466,7 @@ function startSeason(){
     const byStr=ids.slice().sort((x,y)=>teamStrength(y)-teamStrength(x));byStr.forEach((id,i)=>CL(id).expect=i+1);
     ids.forEach(id=>S.tbl[id]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,ded:0,form:[]});}
   S.week=0;S.matches=[];
-  S.cup={round:0,alive:tierIds(1).concat(tierIds(2)),ties:[],winner:null,log:[]};
+  S.cup={round:0,alive:tierIds(3).concat(tierIds(4)),ties:[],winner:null,log:[]};
   cupDraw();
   setGoalsAll();
 }
@@ -489,7 +491,7 @@ function playWeekMatches(w){
   return out;
 }
 function cupDraw(){
-  const cup=S.cup;if(cup.round===1)cup.alive=cup.alive.concat(tierIds(0));
+  const cup=S.cup;if(cup.round===1)cup.alive=cup.alive.concat(tierIds(0),tierIds(1),tierIds(2));
   const a=shuffle(cup.alive.slice());cup.ties=[];
   for(let i=0;i+1<a.length;i+=2)cup.ties.push({h:a[i],a:a[i+1]});
 }
@@ -918,7 +920,7 @@ defCommand('ReleasePlayer',{who:['player','td'],check:(id,a)=>{const p=S.squads[
 const MORALE_WORD=m=>m<25?'Unhappy':m<45?'Restless':m<65?'Content':m<82?'Happy':'Flying';
 function lifeDefaults(p){p.morale??=60;p.yel??=0;p.susp??=0;p.tired??=0;p.played??=0;p.loan??=null;p.wantsOut??=false;p.lowWeeks??=0;return p}
 function moraleF(p){return .93+.12*(p.morale??60)/100}
-function repInit(c){return Math.round(clamp([68,48,28][c.tier]+(c.support-[3000,1700,850][c.tier])/120,10,95))}
+function repInit(c){return Math.round(clamp([68,48,28,20,14][c.tier]+(c.support-[3000,1700,850,500,300][c.tier])/120,10,95))}
 /* after each match: who played, cards and bans, and how the result feels */
 function matchAftermath(m){
   for(const [side,club] of [['h',m.h],['a',m.a]]){
@@ -948,7 +950,7 @@ function lifeWeek(id){
 }
 /* loans: young players who would not play go to a club below that needs them, and come back in the summer */
 function loanOut(id){
-  if(F(id).policy.loans===false||CL(id).tier===2)return;
+  if(F(id).policy.loans===false||CL(id).tier>=3)return;
   const sq=S.squads[id],xi=pickXI(sq).map(x=>x.p);
   const cands=sq.filter(p=>p.age<=21&&!xi.includes(p)&&!p.loan&&p.pa>p.q+1&&sq.length>SQUAD_MIN+2&&canSpare(sq,p,false)).sort((a,b)=>(b.pa-b.q)-(a.pa-a.q)).slice(0,2);
   for(const p of cands){
@@ -966,7 +968,7 @@ function returnLoans(){
 function wageDemand(p,med){return Math.round(wageFor(p.q)*(1+(p.q>=med?.12:0)+rnd()*.12+(p.morale<40?.2:0)+(p.age<=23&&p.pa>p.q+1?.1:0))/5)*5}
 /* reputation: how the region sees a club, from where it plays and how it does */
 function repSeasonEnd(){
-  for(const id in S.clubs){const c=CL(id),pos=posOf(id),target=[70,48,28][c.tier]+(9-pos)*1.6+(S.cup.winner===id?6:0);c.rep=Math.round(clamp(c.rep+(target-c.rep)*.25,5,99))}
+  for(const id in S.clubs){const c=CL(id),pos=posOf(id),target=[70,48,28,20,14][c.tier]+(9-pos)*1.6+(S.cup.winner===id?6:0);c.rep=Math.round(clamp(c.rep+(target-c.rep)*.25,5,99))}
 }
 function repWord(r){return r<25?'Local':r<45?'Regional':r<65?'Respected':r<80?'Big name':'Famous'}
 
@@ -1007,15 +1009,15 @@ const DEPT={
   matchday:{n:'Matchday operations',fac:null,courses:['atmosphere','comfort'],does:'Stewards, catering and ticketing. Atmosphere, comfort and matchday costs.',cd:{atmosphere:'A louder ground: a bigger home edge',comfort:'Happier seated fans'}},
   grounds:{n:'Grounds & maintenance',fac:null,courses:['stadium','pitch'],does:'Groundstaff and maintenance. How fast the stands, facilities and pitch recover.',cd:{stadium:'Stands and facilities wear less',pitch:'The pitch recovers faster'}}
 };
-const STAFF_COST=[0,.5,.75,1,1.4,1.9],STAFF_DEF=[3,2,1],HIRE_WEEKS=3;
+const STAFF_COST=[0,.5,.75,1,1.4,1.9],STAFF_DEF=[3,2,1,1,1],HIRE_WEEKS=3;
 const STAFF_WORD=['','Skeleton','Part-time','Full team','Strong','Elite'];
 const BUDGET_F={tight:.7,normal:1,generous:1.3};
-const DEPT_COST=[.3,.2,.11]; // £k per department per week at staff level 3 and a normal budget, by division
+const DEPT_COST=[.3,.2,.11,.07,.04]; // £k per department per week at staff level 3 and a normal budget, by division
 const OFFER={cheap:{n:'Cheap builder',p:.85,over:.35,delay:.3},standard:{n:'Standard builder',p:1,over:.15,delay:.15},premium:{n:'Premium builder',p:1.2,over:.05,delay:.05}};
 const lvCost=(base,lv)=>Math.round(base*Math.pow(1.6,lv-1));
 
 function groundInit(id){
-  const c=CL(id),cap=Math.round(c.support*(1.15+rnd()*.4)/100)*100,am=c.tier===2,pro=c.tier===0;
+  const c=CL(id),cap=Math.round(c.support*(1.15+rnd()*.4)/100)*100,am=c.tier>=2,pro=c.tier===0;
   const side=(type,share)=>({type,rings:Math.max(1,Math.round(cap*share/RING[type])),roof:type==='seated'?2:am?0:1,cond:ri(55,85)});
   const g={sides:{N:side('terrace',.3),E:side(am?'terrace':'seated',.25),S:side('terrace',.25),W:side('seated',.2)},
     pitch:{lv:am?2:pro?4:3,cond:ri(60,85),drain:am?1:2,heat:false},fac:{},plots:[],depts:{},projects:[],next:1,repairBill:0};
@@ -1180,8 +1182,8 @@ const LINE={
   loanIn:['Loans and bonds drawn','financing'],loanOut:['Loan and bond repayments','financing'],groundSale:['Sale or buy-back of the ground','capital']
 };
 const HEAD={matchday:'Matchday',commercial:'Commercial',media:'League & cup',transfers:'Transfers',wages:'Wages',costs:'Other costs',financing:'Loans',capital:'The ground'};
-const PRICE_DEF=[{terrace:11,seated:16,business:35,season:140},{terrace:9,seated:13,business:30,season:110},{terrace:7,seated:10,business:22,season:85}];
-const TV=[4.6,2.2,.8],SPONSOR=[3.4,1.9,.9],PRIZE=[[80,4],[40,2],[15,.6]];
+const PRICE_DEF=[{terrace:11,seated:16,business:35,season:140},{terrace:9,seated:13,business:30,season:110},{terrace:7,seated:10,business:22,season:85},{terrace:6,seated:9,business:18,season:65},{terrace:5,seated:8,business:15,season:50}];
+const TV=[4.6,2.2,.8,.35,.15],SPONSOR=[3.4,1.9,.9,.45,.25],PRIZE=[[80,4],[40,2],[15,.6],[8,.3],[4,.15]];
 const WAGE_RATIO={tight:.65,normal:.76,ambitious:.88,allin:.98};
 /* club courses: a simple way to set the direction. Each bundles the existing policy settings (nothing new is simulated). */
 const COURSE={
@@ -1192,7 +1194,7 @@ const COURSE={
 
 function F(id){return S.fin[id]}
 function finInit(id){
-  const c=CL(id),t=c.tier,cash=[ri(90,260),ri(30,140),ri(10,60)][t],debt=pick([0,0,0,1,2,3])*[90,50,25][t];
+  const c=CL(id),t=c.tier,cash=[ri(90,260),ri(30,140),ri(10,60),ri(5,35),ri(2,20)][t],debt=pick([0,0,0,1,2,3])*[90,50,25,12,6][t];
   const v=chairValue(id);
   const f={cash:0,start:0,loans:[],prices:{...PRICE_DEF[t]},season:{},last:null,hist:[],od:0,admin:null,holders:0,sold:0,lastGate:null,
     policy:{wage:v==='glory'?'ambitious':v==='money'?'tight':'normal',spend:v==='glory'?.7:v==='money'?.3:.5,loans:true,recruit:v==='money'?'value':v==='glory'?'experience':v==='community'?'youth':'balanced'}};
@@ -1325,7 +1327,7 @@ defCommand('SetSquadPolicy',{check:(id,a)=>(a.wage&&!WAGE_RATIO[a.wage])||(a.wag
    Owns S.members[id] (members, dues, confidence, its log, the season's targets) and the chairman's career
    (S.career, S.rep). Decisions D6 and D7: confidence moves with real causes, every club holds an AGM after week 30,
    and a chairman who loses the vote is out. The player then picks one of three open chairs in the same world. */
-const DUES_REF=[50,40,30]; // £ a year per member, by division
+const DUES_REF=[50,40,30,22,15]; // £ a year per member, by division
 const CONF_BASE=55;
 function M(id){return S.members[id]}
 function membersInit(id,o={}){
@@ -1364,7 +1366,7 @@ function setGoals(id){
   m.goals=[
     {k:'league',target:pos,text:c.tier>0&&pos<=2?`Promotion: finish in the top two of ${TIER_NAME[c.tier]}`:`Finish ${ord(pos)} or higher in ${TIER_NAME[c.tier]}`,w:10},
     f.cash<inc*.3?{k:'money',target:0,text:'No operating loss this season',w:6}:{k:'money',target:-Math.round(inc*.1),text:`Keep any operating loss under £${Math.round(inc*.1)}k`,w:6},
-    {k:'youth',target:[30,45,60][c.tier],text:`Academy players make ${[30,45,60][c.tier]} appearances between them`,w:5}
+    {k:'youth',target:[30,45,60,70,80][c.tier],text:`Academy players make ${[30,45,60,70,80][c.tier]} appearances between them`,w:5}
   ];m.goalsSeason=S.season;
 }
 function setGoalsAll(){for(const id in S.clubs)if(S.members[id])setGoals(id)}
@@ -1422,7 +1424,7 @@ const STAFF_SPEC={
   coach:{development:'Develops young players',results:'Gets results now',attacking:'Attacking football',defensive:'Hard to beat'},
   td:{eye:'A sharp eye for a player',negotiator:'A hard bargainer',youth:'Builds on young players'}
 };
-const STAFF_Q=[[10,16],[7,13],[4,10]];
+const STAFF_Q=[[10,16],[7,13],[4,10],[3,8],[2,7]];
 const POOL_SIZE={coach:9,td:7};
 function staffWage(role,q){return Math.max(60,Math.round((role==='coach'?120:95)*Math.pow(1.27,q-8)/5)*5)}
 function giveProfile(pid,role,tier,o={}){
@@ -1554,7 +1556,7 @@ function budgetWarnings(id){
   return out;
 }
 /* ----- sponsors: one main deal, local partners, and sometimes naming rights for the ground ----- */
-function sponsorBase(id){const c=CL(id),t=c.tier,g=groundSignals(id);return SPONSOR[t]*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*(.7+.3*g.sales)*(.85+.3*(c.rep??50)/100)}
+function sponsorBase(id){const c=CL(id),t=c.tier,g=groundSignals(id);return SPONSOR[t]*Math.pow(c.support/[3000,1700,850,500,300][t],.5)*(1+g.media*.03)*(.7+.3*g.sales)*(.85+.3*(c.rep??50)/100)}
 function sponsorOffers(id){
   const b=sponsorBase(id)*.65,names=pickN(SPONSOR_NAMES,3),exp=Math.max(30,(CL(id).expect?(17-CL(id).expect)*3+20:45));
   const offers=[{name:names[0],kind:'fixed',years:3,perWeek:r2(b*.95)},{name:names[1],kind:'fixed',years:1,perWeek:r2(b*1.08)},{name:names[2],kind:'bonus',years:2,perWeek:r2(b*.42),perPoint:r2(b*.56*SEASON_WEEKS/exp)}];
@@ -1575,7 +1577,7 @@ function aiSponsor(id){const f=F(id),v=chairValue(id),of=f.offers||[];if(!of.len
   f.offers=[];}
 function sponsorWeekK(id){const f=F(id),s=f.sponsor;return r2(s&&s.until>=S.season?s.perWeek:sponsorBase(id)*.65*.4)}
 function namingWeekK(id){const n=F(id).naming;return n&&n.until>=S.season?n.perWeek:0}
-function partnersWeekK(id,form){const c=CL(id),t=c.tier,g=groundSignals(id);return SPONSOR[t]*.35*Math.pow(c.support/[3000,1700,850][t],.5)*(1+g.media*.03)*(form??1)*(.4+.6*g.sales)}
+function partnersWeekK(id,form){const c=CL(id),t=c.tier,g=groundSignals(id);return SPONSOR[t]*.35*Math.pow(c.support/[3000,1700,850,500,300][t],.5)*(1+g.media*.03)*(form??1)*(.4+.6*g.sales)}
 /* summer: expiring deals make way for new offers (the player chooses; computer boards choose at once) */
 function commercialSeasonEnd(){
   for(const id in S.clubs){const f=F(id);
@@ -1591,7 +1593,7 @@ function commercialInit(id){const f=F(id),o=sponsorOffers(id).filter(x=>x.kind!=
 function bondCap(id){const m=M(id);return Math.max(0,Math.round(m.count*.15*(m.conf/100)*(CL(id).tier===0?1.4:1)))}
 function bondRate(id){return r2(.03+(60-M(id).conf)*.0004)}
 function fundraiseYield(id){const m=M(id),recent=S.season-F(id).fundLast<2;return Math.round(m.count*.025*(.5+m.conf/100)*(recent?.45:1))}
-function groundValue(id){return Math.round(groundSignals(id).capacity*.11*[1.4,1,.75][CL(id).tier])}
+function groundValue(id){return Math.round(groundSignals(id).capacity*.11*[1.4,1,.75,.55,.4][CL(id).tier])}
 function rentWeekK(id){const g=F(id).groundSold;return g?g.rent:0}
 defCommand('SignSponsor',{check:(id,a)=>{const o=(F(id).offers||[])[a.i];if(!o)return'That offer has gone';if(o.kind==='naming'&&hasStatute(id,STATUTE_SALE)&&M(id).conf<55)return'The members would vote down naming rights';return null},
   run:(id,a)=>{const o=F(id).offers[a.i];signSponsor(id,o);if(o.kind==='naming')confLog(id,-4,'The ground renamed after a sponsor')}});
@@ -1727,7 +1729,7 @@ function journalKey(name,a){
   if(['SetDeptStaff','SetDeptBudget','SetDeptCourse'].includes(name))return'dept:'+a.dept;
   if(name==='StartProject'){const k=(a.key||'').split(':');if(k[0]==='plot'){const kind=k[2]==='up'?(G(S.my).plots[+k[1]]||{}).kind:k[2];const map={training:'dept:training',medical:'dept:medical',academy:'dept:academy',scouting:'dept:scouting',commercial:'dept:commercial',clubhouse:'dept:community'};return map[kind]||'capacity'}return'capacity'}
   return{StartStadium:'capacity',BuyPlot:null,HireStaff:a.role==='coach'?'ppg':'strength',SackStaff:a.role==='coach'?'ppg':'strength',RenewStaff:null,SetPrice:'att',SetDues:'members',SignSponsor:'sponsorwk',
-    TakeLoan:'debt',RepayLoan:'debt',IssueBond:'debt',Fundraise:'cash',SellGround:'cash',BuyBackGround:'cash',SetMandate:'strength',ApproveProposal:'strength',DeclineProposal:null,SetSquadPolicy:a.course?'strength':a.loans!=null?null:'wagebill',ReleasePlayer:'wagebill',Repair:'dept:grounds'}[name]??null;
+    TakeLoan:'debt',RepayLoan:'debt',IssueBond:'debt',Fundraise:'cash',SellGround:'cash',BuyBackGround:'cash',SetMandate:'strength',SetSquadPolicy:a.course?'strength':a.loans!=null?null:'wagebill',ReleasePlayer:'wagebill',Repair:'dept:grounds'}[name]??null;
 }
 function journalText(name,a,id){
   const D=a.dept&&DEPT[a.dept]?DEPT[a.dept].n:'';
@@ -1739,8 +1741,6 @@ function journalText(name,a,id){
     case'SignSponsor':{const s=F(id).sponsor;return`Sponsor deal signed${s?': '+s.name:''}`}case'TakeLoan':return`Loan of £${a.amount}k over ${a.years} years`;case'RepayLoan':return'Loan repaid';case'IssueBond':return`Members' bond of £${a.amount}k`;
     case'Fundraise':return"Members' appeal";case'SellGround':return'The ground sold and leased back';case'BuyBackGround':return'The ground bought back';case'ReleasePlayer':return'Player released';
     case'SetMandate':return`Director's deal limit: ${MANDATE_DEALS[a.deals].n}`;
-    case'ApproveProposal':{const p=(S.ops.proposals||[]).find(x=>x.id===a.id);return p?`Approved: ${p.name}, ${jk1(p.fee)}`:'Proposal approved'}
-    case'DeclineProposal':{const p=(S.ops.proposals||[]).find(x=>x.id===a.id);return p?`Declined: ${p.name}`:'Proposal declined'}
     case'SetSquadPolicy':return a.course?`Club course: ${COURSE[a.course].n}`:a.wageR!=null?`Wage limit set to ${Math.round(a.wageR*100)}% of income`:a.spend!=null?`Transfer money: ${Math.round(a.spend*100)}% of spare cash`:a.loans!=null?(a.loans?'Young reserves may go on loan':'Young reserves stay at the club'):a.recruit?`Recruitment strategy: ${RECRUIT[a.recruit].n}`:a.wage?`Wage frame: ${a.wage}`:'Frame changed';
   }
   return name;
@@ -1762,12 +1762,12 @@ function journalRows(n){return(S.journal||[]).filter(j=>j.club===S.my).slice(-n)
 const RECRUIT={balanced:{n:'Balanced',d:'The best player the money buys'},youth:{n:'Youth',d:'Young players who will grow'},experience:{n:'Experience',d:'Proven players in their prime'},value:{n:'Value',d:'Cheap deals and free agents'}};
 const SHORTLIST_MAX=12;
 /* ----- L3 (slice 1): the director's mandate on deals, and what he proposes beyond it -----
-   Deals up to the limit he signs himself; a better player above the limit reaches the chairman as a proposal.
+   Deals up to the limit he signs himself; a better player above the limit he leaves alone, and the chairman sees that afterwards.
    Only the player's club has a mandate; a missing mandate (old save) means no limit, as before. */
 const MANDATE_DEALS={small:{n:'Small',share:.4,d:'He signs himself up to 40% of the transfer budget a deal.'},medium:{n:'Medium',share:.75,d:'He signs himself up to 75% of the transfer budget a deal.'},large:{n:'Large',share:1,d:'He signs anyone within the transfer budget, no questions asked.'}};
 function mandateOf(id){return(F(id).policy&&F(id).policy.mandate)||{deals:'large'}}
 function dealCap(id){if(id!==S.my||S.auto)return Infinity;const m=MANDATE_DEALS[mandateOf(id).deals]||MANDATE_DEALS.large;return m.share>=1?Infinity:Math.max(5,Math.round(budgetFor(id)*m.share))}
-function opsInit(){return{plan:{s:0,w:0,needs:[],ready:[],next:1},shortlist:[],signings:[],proposals:[],pnext:1}}
+function opsInit(){return{plan:{s:0,w:0,needs:[],ready:[],next:1},shortlist:[],signings:[],missed:[],pnext:1}}
 function OPS(){if(!S.ops)S.ops=opsInit();return S.ops}
 function recruitStrategy(id){return F(id).policy.recruit||'balanced'}
 /* how a strategy colours the director's choice (used for every club in shopFor) */
@@ -1885,10 +1885,11 @@ function windowInfo(){
   if(S.week<WINTER_WEEK-1)return{k:'upcoming',name:'Winter window',when:`Week ${WINTER_WEEK}, in ${WINTER_WEEK-1-S.week} week${WINTER_WEEK-1-S.week===1?'':'s'}. The scouts are preparing the list.`,open};
   return{k:'none',name:'Next window',when:'The summer window follows the season; no more transfers until then.',open};
 }
-/* when a window opens (pre-season, the week before the winter window): the director looks for the best player for his main needs
-   without signing. Above the mandate, the best option becomes a proposal. At most three, strongest first. */
-function tdPropose(id){
-  if(id!==S.my||S.auto)return;const ops=OPS();ops.proposals=(ops.proposals||[]).filter(p=>p.status==='open'?false:true).slice(-9);
+/* when a window opens (pre-season, the week before the winter window) the director looks, without signing, for the best player for his main needs.
+   What he would go for but may not (above the mandate) is noted: the chairman sees what his limit leaves on the table and can widen it.
+   There is nothing to approve: the director decides everything within the mandate, and nothing outside it. */
+function tdScan(id){
+  if(id!==S.my||S.auto)return;const ops=OPS();ops.missed=(ops.missed||[]).filter(p=>p.status!=='above').slice(-9);
   const cap=dealCap(id);if(cap===Infinity)return;
   const sqQ=squadQuality(S.squads[id]),seen=new Set(),out=[];
   for(const n of openNeeds().filter(n=>n.prio>=1).slice(0,5)){
@@ -1896,35 +1897,21 @@ function tdPropose(id){
     const own=n.pid&&S.squads[id].find(p=>p.id===n.pid),minQ=n.kind==='upgrade'&&own?own.q+.8:sqQ-2.5;
     const best=shopFor(id,n.pos,minQ,{dry:true,ignoreMandate:true});if(!best||best.fee<=cap)continue;
     const sl=shortlistEntry(best.p.id);
-    out.push({pid:best.p.id,name:best.p.name,pos:best.p.pos,age:best.p.age,from:best.from||null,fee:best.fee,wage:Math.round(wageFor(best.p.q)*(best.premium?1.3:1)),est:r1(best.seen??best.p.q),range:sl&&sl.obs?scoutRange(id,sl.obs):eyeRange(id),need:n.why,kind:n.kind});
+    out.push({pid:best.p.id,name:best.p.name,pos:best.p.pos,age:best.p.age,from:best.from||null,fee:best.fee,est:r1(best.seen??best.p.q),range:sl&&sl.obs?scoutRange(id,sl.obs):eyeRange(id),need:n.why,kind:n.kind});
   }
   out.sort((a,b)=>b.est-a.est);
-  for(const o of out.slice(0,3))ops.proposals.push({id:ops.pnext++,s:S.season,w:S.week,status:'open',...o});
+  for(const o of out.slice(0,3))ops.missed.push({id:ops.pnext++,s:S.season,w:S.week,status:'above',cap,...o});
 }
-function openProposals(){return(S.ops&&S.ops.proposals||[]).filter(p=>p.status==='open')}
-/* the window closes: approved proposals are carried out if the player is still for sale and the club can pay; the rest lapse */
-function tdExecute(id){
-  if(id!==S.my||!S.ops)return;
-  for(const pr of S.ops.proposals.filter(p=>p.status==='approved')){
-    const f=findPlayer(pr.pid);let why='';
-    if(!f)why='He is no longer in football.';else if(f.club===id)why='He already plays for us.';else if((pr.from||null)!==(f.club||null))why='He has moved on.';
-    else if(S.squads[id].length>=SQUAD_MAX)why='The squad is full.';else if(F(id).cash<pr.fee)why='The club cannot pay any more.';
-    else if(f.club&&!sellerAgrees(f.p,f.club,pr.fee))why='His club will not sell at that price.';
-    if(why){pr.status='failed';pr.why=why;emit('ProposalFailed',id,`${pr.name} did not come: ${why}`,{pid:pr.pid});continue}
-    if(f.club)transfer(f.p,f.club,id,pr.fee,'proposal',false);else signFree(f.p,id);
-    recordDecision(id,pr.pos,{p:f.p,fee:pr.fee,seen:pr.est},[],false);pr.status='done';pr.done=[S.season,S.week];
-  }
-}
-function tdExpire(){if(!S.ops)return;for(const p of S.ops.proposals)if(p.status==='open'){p.status='expired';p.why='Not answered: he did not pursue it.'}}
-/* the window opens for the chairman: the pre-season scouting rounds, a fresh plan, and the director's proposals */
+function aboveLimit(){return(S.ops&&S.ops.missed||[]).filter(p=>p.status==='above')}
+/* the window closes: what stayed above the limit is now history (shown as "left alone") */
+function tdClose(){if(!S.ops)return;for(const p of S.ops.missed||[])if(p.status==='above'){p.status='missed';p.closed=[S.season,S.week]}}
+/* the window opens for the chairman: the pre-season scouting rounds, a fresh plan, and the director's scan */
 function openWindow(){
-  if(!S.my)return;for(let k=0;k<4;k++)scoutWeek(S.my,k*3+1);buildPlan(S.my);tdPropose(S.my);
+  if(!S.my)return;for(let k=0;k<4;k++)scoutWeek(S.my,k*3+1);buildPlan(S.my);tdScan(S.my);
 }
 defCommand('SetMandate',{check:(id,a)=>!MANDATE_DEALS[a.deals]?'Unknown mandate':null,run:(id,a)=>{F(id).policy.mandate={...mandateOf(id),deals:a.deals};
-  const w=S.week===0||S.week===WINTER_WEEK-1;if(w&&S.ops){S.ops.proposals=S.ops.proposals.filter(p=>p.status!=='open');tdPropose(id)} /* the open proposals follow the new limit */}});
-defCommand('ApproveProposal',{check:(id,a)=>{const p=openProposals().find(x=>x.id===a.id);return!p?'That proposal is no longer open':F(id).cash<p.fee?'The club cannot pay that':null},run:(id,a)=>{const p=openProposals().find(x=>x.id===a.id);p.status='approved'}});
-defCommand('DeclineProposal',{check:(id,a)=>!openProposals().find(x=>x.id===a.id)?'That proposal is no longer open':null,run:(id,a)=>{const p=openProposals().find(x=>x.id===a.id);p.status='declined'}});
-function opsAfterLoad(){if(S.my&&!S.ops){S.ops=opsInit();buildPlan(S.my)}if(S.ops&&!S.ops.proposals){S.ops.proposals=[];S.ops.pnext=1}}
+  const w=S.week===0||S.week===WINTER_WEEK-1;if(w&&S.ops){S.ops.missed=(S.ops.missed||[]).filter(p=>p.status!=='above');tdScan(id)} /* the list follows the new limit */}});
+function opsAfterLoad(){if(S.my&&!S.ops){S.ops=opsInit();buildPlan(S.my)}if(S.ops){delete S.ops.proposals;if(!S.ops.missed){S.ops.missed=[];S.ops.pnext=S.ops.pnext||1}}}
 
 /* ---- club/youth.js ---- */
 /* ================= L2.5: the youth development cycle =================
@@ -2067,10 +2054,9 @@ function allIds(){return Object.keys(S.clubs)}
    The director of every club signs, sells and loans in one go; the chairman's strategy and frame are what count by then. */
 function summerWindow(){
   const ids=allIds();
-  if(S.my)tdExecute(S.my); /* the chairman's approved proposals first */
   const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
   for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
-  if(S.my){tdExpire();buildPlan(S.my)}
+  if(S.my){tdClose();buildPlan(S.my)}
   for(const id of order)loanOut(id);
   youthReconcile();
   for(const t of TIERS)tierIds(t).slice().sort((x,y)=>teamStrength(y)-teamStrength(x)).forEach((id,i)=>CL(id).expect=i+1);
@@ -2088,8 +2074,8 @@ function advanceWeek(){
   recordsWeek(matches);
   for(const id of ids)membersWeek(id,matches.filter(m=>m.h===id||m.a===id));
   for(const id of ids){if(aiRuns(id)){aiBoardWeek(id);aiStaffWeek(id);aiStadium(id)}}
-  if(S.my){scoutWeek(S.my);if(w===WINTER_WEEK-1){buildPlan(S.my);tdPropose(S.my)}else if(w===RENEW_WEEK)buildPlan(S.my)} // the player's club: scouting every week, the plan before the winter window and after renewals
-  if(w===WINTER_WEEK){if(S.my)tdExecute(S.my);for(const id of shuffle(ids.slice()))squadManager(id,'winter');if(S.my)tdExpire();youthReconcile()}
+  if(S.my){scoutWeek(S.my);if(w===WINTER_WEEK-1){buildPlan(S.my);tdScan(S.my)}else if(w===RENEW_WEEK)buildPlan(S.my)} // the player's club: scouting every week, the plan before the winter window and after renewals
+  if(w===WINTER_WEEK){for(const id of shuffle(ids.slice()))squadManager(id,'winter');if(S.my)tdClose();youthReconcile()}
   if(w===RENEW_WEEK)for(const id of ids)renewals(id);
   membersOnEvents(eventsSince(mark));
   emit('WeekClosed',null,`Week ${w} played.`);
@@ -2236,11 +2222,11 @@ const MIGRATIONS={
   2:s=>{for(const id in s.grounds){const d=s.grounds[id].depts,t=s.clubs[id].tier;
       d.medical=d.medical||{budget:d.training.budget,course:'prevention',pending:null,settle:0};
       d.grounds=d.grounds||{budget:d.matchday.budget,course:'stadium',pending:null,settle:0};
-      for(const k in d){d[k].staff=d[k].staff??[3,2,1][t];d[k].hiring=d[k].hiring??null}}
+      for(const k in d){d[k].staff=d[k].staff??[3,2,1,1,1][t];d[k].hiring=d[k].hiring??null}}
     s.stats=s.stats||{};for(const id in s.clubs)s.stats[id]=s.stats[id]||{inj:0,injWeeks:0,youthGrowth:0,intake:0,intakeBest:0};
     s.v=2;},
   // 2 → 3: members, dues, confidence and season targets per club; the chairman's career
-  3:s=>{s.members=s.members||{};for(const id in s.clubs){const c=s.clubs[id];s.members[id]=s.members[id]||{count:Math.round(c.support*.4),dues:[50,40,30][c.tier],conf:55,log:[],goals:[],goalsSeason:0,agm:null}}
+  3:s=>{s.members=s.members||{};for(const id in s.clubs){const c=s.clubs[id];s.members[id]=s.members[id]||{count:Math.round(c.support*.4),dues:[50,40,30,22,15][c.tier],conf:55,log:[],goals:[],goalsSeason:0,agm:null}}
     s.career=s.career||(s.my?[{club:s.my,from:1,to:null,why:null}]:[]);s.rep=s.rep||0;s.votedOut=s.votedOut||null;s.v=3;},
   // 3 → 4: head coaches and directors get a professional profile; the free pool is filled after loading (staffAfterLoad)
   4:s=>{s.staffPool=s.staffPool||[];s.v=4;},
@@ -2249,7 +2235,7 @@ const MIGRATIONS={
   // 5 → 6: player morale, cards, loans and transfer requests; club reputation
   6:s=>{const d=p=>{p.morale??=60;p.yel??=0;p.susp??=0;p.tired??=0;p.played??=0;p.loan??=null;p.wantsOut??=false;p.lowWeeks??=0};
     for(const id in s.squads)s.squads[id].forEach(d);(s.fa||[]).forEach(d);
-    for(const id in s.clubs){const c=s.clubs[id];c.rep??=Math.round(Math.max(10,Math.min(95,[68,48,28][c.tier]+(c.support-[3000,1700,850][c.tier])/120)))}
+    for(const id in s.clubs){const c=s.clubs[id];c.rep??=Math.round(Math.max(10,Math.min(95,[68,48,28,20,15][c.tier]+(c.support-[3000,1700,850,500,300][c.tier])/120)))}
     for(const id in s.fin)s.fin[id].policy.loans??=true;s.v=6;},
   // 6 → 7: club records and richer season history (filled after loading: projectsAfterLoad)
   7:s=>{s.records=s.records||{};s.v=7;},
@@ -2276,7 +2262,7 @@ const n0=v=>Math.round(v).toLocaleString('en-GB');
 const k1=v=>(v<0?'−':'')+'£'+Math.abs(r1(v)).toLocaleString('en-GB')+'k';
 const crest=`<svg class="crest" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 L31 7 V17 C31 25 24 30 17 32 C10 30 3 25 3 17 V7 Z" fill="var(--navy)"/><path d="M8 22 L14 12 L18 18 L21 14 L26 22" stroke="var(--signal)" stroke-width="2.6" fill="none" stroke-linejoin="round"/></svg>`;
 function nm(id){return esc(CL(id).name)}
-function tierShort(t){return['Premier','One','Two'][t]}
+function tierShort(t){return['Premier','One','Two','Three','Four'][t]}
 function strWord(id){const t=CL(id).tier,ids=tierIds(t).sort((a,b)=>teamStrength(b)-teamStrength(a)),r=ids.indexOf(id)+1;return r<=3?'Among the best':r<=7?'Upper half':r<=11?'Lower half':'Among the weakest'}
 function moneyWord(id){const f=F(id),inc=estSeasonIncome(id);return f.cash<0?'In the red':f.cash<inc*.1?'Stretched':f.cash<inc*.4?'Steady':'Comfortable'}
 function wdlProb(lh,la){let w=0,d=0;for(let i=0;i<=9;i++){const a=pmf(lh,i);for(let j=0;j<=9;j++){const b=pmf(la,j);if(i>j)w+=a*b;else if(i===j)d+=a*b}}return{w,d,l:1-w-d}}
@@ -2361,7 +2347,7 @@ function resultsPanel(){
 }
 function weekView(){
   const over=seasonOver();
-  return`${UI.playNote?`<div class="panel playnote" role="status"><p class="small"><b>${esc(UI.playNote)}</b></p></div>`:''}${reportView()}${urgentPanel()}${proposalsPanel()}${clubWeekPanel()}${windowPanel()}${previewView()}${resultsPanel()}${lookPanel()}${targetsPanel()}
+  return`${UI.playNote?`<div class="panel playnote" role="status"><p class="small"><b>${esc(UI.playNote)}</b></p></div>`:''}${reportView()}${urgentPanel()}${missedPanel()}${clubWeekPanel()}${windowPanel()}${previewView()}${resultsPanel()}${lookPanel()}${targetsPanel()}
   <p class="note">${over?'Prize money, promotion and relegation, contracts and the summer window follow.':'Every week is played. Change prices, budgets or building first if you want them to count this week.'}</p>`;
 }
 
@@ -2887,7 +2873,7 @@ function onboardCard(){
 function actionBar(){
   if(!S||S.phase!=='season'||UI.review||UI.title)return'';
   const over=seasonOver(),w=S.week+1,pre=S.week===0,fx=over?null:fixtureOf(S.my,w),cup=!over&&CUP_WEEKS[S.cup.round]===w&&cupTieOf(S.my);
-  const wait=openProposals().length,next=wait&&(pre||S.week===WINTER_WEEK-1)?`${wait} proposal${wait>1?'s':''} from the director waiting`:over?'All thirty weeks played':fx?`Next: ${fx.home?'v':'at'} ${CL(fx.opp).name}${cup?' + cup tie':''}`:'No league game';
+  const next=over?'All thirty weeks played':fx?`Next: ${fx.home?'v':'at'} ${CL(fx.opp).name}${cup?' + cup tie':''}`:'No league game';
   return`<div class="actbar"><div class="ab-in"><span class="small">${esc(next)}</span><button class="btn" data-act="${over?'close':'play'}">${over?'Close the season':pre?'Close the window · start the season':`Play week ${w}`}</button>${over||pre?'':`<div class="ab-more"><button class="btn ghost" data-act="playn" data-arg="4">Play 4 weeks</button><button class="btn ghost" data-act="playn" data-arg="stop">To the next stop</button></div>`}</div></div>`;
 }
 
@@ -2928,22 +2914,19 @@ function stadiumImpact(id,pl){const sg=groundSignals(id),a=attendance(id,null,{}
    Responsible → aim → current work → results → the chairman's choices. Everything shown comes from S.ops and the squad. */
 const NEED_WORD={hole:'Gap',contract:'Contract',leaving:'Leaving',ageing:'Succession',upgrade:'Upgrade'};
 function needWhen(n){return n.kind==='contract'?`Renewal talks in week ${RENEW_WEEK}`:S.week<WINTER_WEEK&&n.kind==='hole'?`Winter window (week ${WINTER_WEEK}) only if injuries leave it bare; otherwise the summer`:'The summer window'}
-/* the director's proposals: what he found above his mandate, and what became of it */
-function proposalsPanel(){
-  const ps=(S.ops&&S.ops.proposals)||[],open=ps.filter(p=>p.status==='open'),recent=ps.filter(p=>p.status!=='open'&&(p.s===S.season||p.s===S.season-1)).slice(-4);
-  if(!open.length&&!recent.length)return'';
-  const word={approved:'Approved: he signs when the window closes',declined:'Declined',done:'Signed',failed:'Did not happen',expired:'Lapsed'};
-  return`<div class="panel prop"><p class="eyebrow">${esc(tdOf(S.my).name)} asks${open.length?` · ${open.length} waiting`:''}</p>
-  ${open.length?`<p class="small muted">Better players above his limit. Answer before the window closes; if you do not, he lets them go.</p>`:''}
-  ${open.map(p=>`<div class="propcard"><p class="small"><b>${esc(p.name)}</b> · ${POS_ONE[p.pos]}, ${p.age}${p.from?` · ${nm(p.from)}`:' · free agent'}</p>
-    <div class="row small"><span>Fee</span><b>${k1(p.fee)}</b></div><div class="row small"><span>Wage</span><b>£${n0(p.wage)} a week</b></div><div class="row small"><span>His view of the player</span><b>${p.est} ± ${p.range}</b></div>
-    <p class="small muted">${esc(p.need)}.</p>
-    <div class="propbtn"><button class="btn" data-act="approve" data-arg="${p.id}">Approve ${k1(p.fee)}</button><button class="btn ghost" data-act="decline" data-arg="${p.id}">Decline</button></div></div>`).join('')}
-  ${recent.length?`<p class="small muted">${recent.map(p=>`${esc(p.name)}: ${word[p.status]}${p.why?' ('+esc(p.why)+')':''}`).join(' · ')}</p>`:''}</div>`;
+/* what the director's limit leaves on the table: information for the chairman, nothing to approve */
+function missedPanel(){
+  const ms=(S.ops&&S.ops.missed)||[],above=ms.filter(p=>p.status==='above'),past=ms.filter(p=>p.status==='missed'&&(p.s===S.season||p.s===S.season-1)).slice(-3),m=mandateOf(S.my).deals,next=m==='small'?'medium':'large';
+  if(!above.length&&!past.length)return'';
+  const row=p=>`<div class="row small"><span><b>${esc(p.name)}</b> · ${POS_ONE[p.pos]}, ${p.age}${p.from?` · ${nm(p.from)}`:' · free agent'}<br><span class="muted">${esc(p.need)}.</span></span><span style="text-align:right"><b>${k1(p.fee)}</b><br><span class="muted">his view ${p.est} ± ${p.range}</span></span></div>`;
+  return`<div class="panel prop"><p class="eyebrow">${esc(tdOf(S.my).name)}: above your limit</p>
+  ${above.length?`<p class="small muted">He would go for these but your limit of ${k1(above[0].cap)} a deal stops him. You do not have to decide anything: he signs within the limit.</p>${above.map(row).join('')}
+  ${m!=='large'?`<button class="btn ghost" data-act="mandate" data-arg="${next}">Widen his limit to ${MANDATE_DEALS[next].n}</button>`:''}`:''}
+  ${past.length?`<p class="eyebrow" style="margin-top:12px">Left alone last window</p>${past.map(row).join('')}`:''}</div>`;
 }
 function mandatePanel(){
   const m=mandateOf(S.my).deals,cap=dealCap(S.my);
-  return`<div class="panel"><p class="eyebrow">The director's mandate</p><p class="small muted">How much he may decide alone. Bigger deals come to you as a proposal, and only when they are better than what he can sign himself.</p>
+  return`<div class="panel"><p class="eyebrow">The director's mandate</p><p class="small muted">How much he may decide alone. Above the limit he leaves a deal alone; you see afterwards what that cost.</p>
   <p class="small"><b>Deals</b></p><div class="seg grid3">${Object.entries(MANDATE_DEALS).map(([k,x])=>`<button class="${m===k?'on':''}" data-act="mandate" data-arg="${k}" aria-pressed="${m===k}">${x.n}</button>`).join('')}</div>
   <p class="note">${esc(MANDATE_DEALS[m].d)}${cap===Infinity?'':` Right now: up to ${k1(cap)} a deal.`}</p></div>`;
 }
@@ -2956,7 +2939,7 @@ function coursePanel(){
 function recruitPanels(){
   const id=S.my,ops=OPS(),pl=ops.plan,td=tdOf(id),st=recruitStrategy(id),open=pl.needs.filter(n=>n.status==='open'),done=pl.needs.filter(n=>n.status!=='open').slice(0,5);
   const watch=ops.shortlist.filter(e=>e.status==='watching').sort((a,b)=>b.est-a.est).slice(0,8),rev=signingReview(),noise=scoutNoise(id);
-  return proposalsPanel()+coursePanel()+mandatePanel()+`<div class="panel"><p class="eyebrow">Recruitment · ${esc(td.name)}</p><p class="small muted">The director plans the squad and signs within your frame; the scouting department watches players for him every week.</p>
+  return missedPanel()+coursePanel()+mandatePanel()+`<div class="panel"><p class="eyebrow">Recruitment · ${esc(td.name)}</p><p class="small muted">The director plans the squad and signs within your frame; the scouting department watches players for him every week.</p>
   <p class="small"><b>Your strategy for him</b></p><div class="seg grid4">${Object.entries(RECRUIT).map(([k,r])=>`<button class="${st===k?'on':''}" data-act="recruit" data-arg="${k}" aria-pressed="${st===k}">${r.n}</button>`).join('')}</div>
   <p class="note">${esc(RECRUIT[st].d)}. It changes whom he picks in the next window, not who is already here.</p></div>
   <div class="panel"><p class="eyebrow">Squad plan · updated ${pl.s?`S${pl.s} W${pl.w}`:'—'}</p>${open.length?open.slice(0,5).map(n=>`<div class="row small"><span><b>${NEED_WORD[n.kind]}: ${POS_ONE[n.pos]}</b><br>${esc(n.why)}<br><span class="muted">${esc(needWhen(n))}</span></span><span class="pill ${n.prio>=3?'bad':''}">${n.prio>=3?'Urgent':n.prio===2?'Soon':'Later'}</span></div>`).join('')+(open.length>5?`<p class="small muted">And ${open.length-5} more, lower down the list.</p>`:''):'<p class="small muted">No open needs: the squad covers every position.</p>'}
@@ -3152,9 +3135,7 @@ function act(a,arg){
     case'appeal':{const r=cmd('Fundraise',S.my,{});say(r,r.ok?`The appeal raised £${r.res}k.`:null);break}
     case'sellground':say(cmd('SellGround',S.my,{}),'The ground is sold.');UI.confirm=null;break;
     case'buyback':say(cmd('BuyBackGround',S.my,{}),'The ground is ours again.');break;
-    case'mandate':say(cmd('SetMandate',S.my,{deals:arg}),'The director follows the new limit.');break;
-    case'approve':say(cmd('ApproveProposal',S.my,{id:+arg}),'Approved. He signs when the window closes.');break;
-    case'decline':say(cmd('DeclineProposal',S.my,{id:+arg}));break;
+    case'mandate':say(cmd('SetMandate',S.my,{deals:arg}),'The director follows the new limit when the window closes.');break;
     case'course':say(cmd('SetSquadPolicy',S.my,{course:arg}),'The director follows the new course from the next window.');break;
     case'recruit':say(cmd('SetSquadPolicy',S.my,{recruit:arg}),`Recruitment strategy: ${RECRUIT[arg].n}.`);break;
     case'dues':say(cmd('SetDues',S.my,{delta:+arg}));break;

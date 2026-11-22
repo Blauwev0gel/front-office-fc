@@ -13,10 +13,9 @@ function allIds(){return Object.keys(S.clubs)}
    The director of every club signs, sells and loans in one go; the chairman's strategy and frame are what count by then. */
 function summerWindow(){
   const ids=allIds();
-  if(S.my)tdExecute(S.my); /* the chairman's approved proposals first */
   const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
   for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
-  if(S.my){tdExpire();buildPlan(S.my)}
+  if(S.my){tdClose();buildPlan(S.my)}
   for(const id of order)loanOut(id);
   youthReconcile();
   for(const t of TIERS)tierIds(t).slice().sort((x,y)=>teamStrength(y)-teamStrength(x)).forEach((id,i)=>CL(id).expect=i+1);
@@ -34,8 +33,8 @@ function advanceWeek(){
   recordsWeek(matches);
   for(const id of ids)membersWeek(id,matches.filter(m=>m.h===id||m.a===id));
   for(const id of ids){if(aiRuns(id)){aiBoardWeek(id);aiStaffWeek(id);aiStadium(id)}}
-  if(S.my){scoutWeek(S.my);if(w===WINTER_WEEK-1){buildPlan(S.my);tdPropose(S.my)}else if(w===RENEW_WEEK)buildPlan(S.my)} // the player's club: scouting every week, the plan before the winter window and after renewals
-  if(w===WINTER_WEEK){if(S.my)tdExecute(S.my);for(const id of shuffle(ids.slice()))squadManager(id,'winter');if(S.my)tdExpire();youthReconcile()}
+  if(S.my){scoutWeek(S.my);if(w===WINTER_WEEK-1){buildPlan(S.my);tdScan(S.my)}else if(w===RENEW_WEEK)buildPlan(S.my)} // the player's club: scouting every week, the plan before the winter window and after renewals
+  if(w===WINTER_WEEK){for(const id of shuffle(ids.slice()))squadManager(id,'winter');if(S.my)tdClose();youthReconcile()}
   if(w===RENEW_WEEK)for(const id of ids)renewals(id);
   membersOnEvents(eventsSince(mark));
   emit('WeekClosed',null,`Week ${w} played.`);

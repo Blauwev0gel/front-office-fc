@@ -90,7 +90,7 @@ function resultsPanel(){
 }
 function weekView(){
   const over=seasonOver();
-  return`${UI.playNote?`<div class="panel playnote" role="status"><p class="small"><b>${esc(UI.playNote)}</b></p></div>`:''}${reportView()}${urgentPanel()}${proposalsPanel()}${clubWeekPanel()}${windowPanel()}${previewView()}${resultsPanel()}${lookPanel()}${targetsPanel()}
+  return`${UI.playNote?`<div class="panel playnote" role="status"><p class="small"><b>${esc(UI.playNote)}</b></p></div>`:''}${reportView()}${urgentPanel()}${missedPanel()}${clubWeekPanel()}${windowPanel()}${previewView()}${resultsPanel()}${lookPanel()}${targetsPanel()}
   <p class="note">${over?'Prize money, promotion and relegation, contracts and the summer window follow.':'Every week is played. Change prices, budgets or building first if you want them to count this week.'}</p>`;
 }
 

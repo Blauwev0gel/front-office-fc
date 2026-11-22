@@ -41,7 +41,7 @@ function journalKey(name,a){
   if(['SetDeptStaff','SetDeptBudget','SetDeptCourse'].includes(name))return'dept:'+a.dept;
   if(name==='StartProject'){const k=(a.key||'').split(':');if(k[0]==='plot'){const kind=k[2]==='up'?(G(S.my).plots[+k[1]]||{}).kind:k[2];const map={training:'dept:training',medical:'dept:medical',academy:'dept:academy',scouting:'dept:scouting',commercial:'dept:commercial',clubhouse:'dept:community'};return map[kind]||'capacity'}return'capacity'}
   return{StartStadium:'capacity',BuyPlot:null,HireStaff:a.role==='coach'?'ppg':'strength',SackStaff:a.role==='coach'?'ppg':'strength',RenewStaff:null,SetPrice:'att',SetDues:'members',SignSponsor:'sponsorwk',
-    TakeLoan:'debt',RepayLoan:'debt',IssueBond:'debt',Fundraise:'cash',SellGround:'cash',BuyBackGround:'cash',SetMandate:'strength',ApproveProposal:'strength',DeclineProposal:null,SetSquadPolicy:a.course?'strength':a.loans!=null?null:'wagebill',ReleasePlayer:'wagebill',Repair:'dept:grounds'}[name]??null;
+    TakeLoan:'debt',RepayLoan:'debt',IssueBond:'debt',Fundraise:'cash',SellGround:'cash',BuyBackGround:'cash',SetMandate:'strength',SetSquadPolicy:a.course?'strength':a.loans!=null?null:'wagebill',ReleasePlayer:'wagebill',Repair:'dept:grounds'}[name]??null;
 }
 function journalText(name,a,id){
   const D=a.dept&&DEPT[a.dept]?DEPT[a.dept].n:'';
@@ -53,8 +53,6 @@ function journalText(name,a,id){
     case'SignSponsor':{const s=F(id).sponsor;return`Sponsor deal signed${s?': '+s.name:''}`}case'TakeLoan':return`Loan of £${a.amount}k over ${a.years} years`;case'RepayLoan':return'Loan repaid';case'IssueBond':return`Members' bond of £${a.amount}k`;
     case'Fundraise':return"Members' appeal";case'SellGround':return'The ground sold and leased back';case'BuyBackGround':return'The ground bought back';case'ReleasePlayer':return'Player released';
     case'SetMandate':return`Director's deal limit: ${MANDATE_DEALS[a.deals].n}`;
-    case'ApproveProposal':{const p=(S.ops.proposals||[]).find(x=>x.id===a.id);return p?`Approved: ${p.name}, ${jk1(p.fee)}`:'Proposal approved'}
-    case'DeclineProposal':{const p=(S.ops.proposals||[]).find(x=>x.id===a.id);return p?`Declined: ${p.name}`:'Proposal declined'}
     case'SetSquadPolicy':return a.course?`Club course: ${COURSE[a.course].n}`:a.wageR!=null?`Wage limit set to ${Math.round(a.wageR*100)}% of income`:a.spend!=null?`Transfer money: ${Math.round(a.spend*100)}% of spare cash`:a.loans!=null?(a.loans?'Young reserves may go on loan':'Young reserves stay at the club'):a.recruit?`Recruitment strategy: ${RECRUIT[a.recruit].n}`:a.wage?`Wage frame: ${a.wage}`:'Frame changed';
   }
   return name;

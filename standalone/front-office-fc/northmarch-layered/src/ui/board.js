@@ -132,6 +132,6 @@ function onboardCard(){
 function actionBar(){
   if(!S||S.phase!=='season'||UI.review||UI.title)return'';
   const over=seasonOver(),w=S.week+1,pre=S.week===0,fx=over?null:fixtureOf(S.my,w),cup=!over&&CUP_WEEKS[S.cup.round]===w&&cupTieOf(S.my);
-  const wait=openProposals().length,next=wait&&(pre||S.week===WINTER_WEEK-1)?`${wait} proposal${wait>1?'s':''} from the director waiting`:over?'All thirty weeks played':fx?`Next: ${fx.home?'v':'at'} ${CL(fx.opp).name}${cup?' + cup tie':''}`:'No league game';
+  const next=over?'All thirty weeks played':fx?`Next: ${fx.home?'v':'at'} ${CL(fx.opp).name}${cup?' + cup tie':''}`:'No league game';
   return`<div class="actbar"><div class="ab-in"><span class="small">${esc(next)}</span><button class="btn" data-act="${over?'close':'play'}">${over?'Close the season':pre?'Close the window · start the season':`Play week ${w}`}</button>${over||pre?'':`<div class="ab-more"><button class="btn ghost" data-act="playn" data-arg="4">Play 4 weeks</button><button class="btn ghost" data-act="playn" data-arg="stop">To the next stop</button></div>`}</div></div>`;
 }

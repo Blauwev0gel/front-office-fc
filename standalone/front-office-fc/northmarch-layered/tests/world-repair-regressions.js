@@ -31,7 +31,7 @@ function verifyStats(){
   assert.strictEqual(n1,n2,'neutral games cannot give away team an xG advantage');
 }
 function verifyWorld(seed){
-  const E=loadEngine();E.newWorld(seed);const S=E.__get();
+  const E=loadEngine();E.newWorld(seed);let S=E.__get();
   assert.strictEqual(S.v,10,'save schema version');
   assert.strictEqual(Object.keys(S.clubs).length,80,'80 Northmarch clubs');
   assert.strictEqual(Object.keys(S.foreign.clubs).length,72,'72 foreign clubs');
@@ -53,7 +53,7 @@ function verifyWorld(seed){
   assert.strictEqual(S.foreign.current.europe.rounds.length,4,'four European rounds');
   uniqueOwnership(S);foreignCash(S);
   const save=E.serialize(),previous=JSON.parse(save);
-  E.deserialize(save);
+  E.deserialize(save);S=E.__get();
   assert.strictEqual(E.__get().foreign.current.europe.winner,previous.foreign.current.europe.winner,'European champion survives save/load');
   E.closeSeason();
   assert.strictEqual(S.worldAwards.length,1,'one factual season award set');

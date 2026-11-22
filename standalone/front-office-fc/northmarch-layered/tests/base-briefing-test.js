@@ -23,6 +23,9 @@ E.advanceWeek();S=E.__get();b=E.chairmanBriefingData();
 ok(S.week===1&&b.week===1,'advancing one week advances the displayed week');
 ok(b.weeklyNet===S.fin[S.my].last.net,'briefing reports last real net cash movement');
 ok(b.position===E.posOf(S.my),'briefing uses the live league table');
+const lastMatch=E.myMatches()[0];
+if(lastMatch){const ours=lastMatch.h===S.my?lastMatch.gh:lastMatch.ga;
+  ok(b.match?.ours===ours&&E.chairmanBriefingView().includes('result'),'match score is taken from the real engine and shown first');}
 ok(E.chairmanBriefingView().includes('Last decision'),'the decision remains visible after a played week');
 const saved=E.serialize();
 E.deserialize(saved);S=E.__get();

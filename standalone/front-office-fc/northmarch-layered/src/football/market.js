@@ -72,11 +72,9 @@ function shopFor(id,pos,minQ,o={}){
     const p=c.p,sl=c.listed?shortlistEntry(p.id):null,seen=sl&&sl.obs?sl.est:p.q+(rnd()+rnd()-1)*2.5*tdNoise(id)*reportNoise(id); // watched players are judged on the scouts' refined estimate
     const fee=c.from?Math.round(askingFee(p,c.from)*tdBuyF(id)):0,wage=wageFor(p.q)/1000*(c.premium?1.3:1);
     const cheap=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000,coverOk=bill+wage<=cap||wage<=cheap; /* emergency cover: within the wage limit, or a cheap basic contract. A strict ceiling alone leaves a club on its limit with no way to field a squad */
-    const developing=recruitStrategy(id)==='youth'&&p.age<=23&&p.pa>=p.q+1.5;
-    const targetQ=developing?minQ-.75:minQ; // youth directors can consider a near-ready prospect, not an uncompetitive replacement
-    let reason=seen<targetQ?'Below target':fee>budget?'Outside transfer budget':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
+    let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee)?'Selling club unwilling':'Considered';
     if(reason==='Considered'){
-      const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*(recruitStrategy(id)==='youth'?.32:.18):0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0)+recruitBias(id,p,fee)-.5*(sl&&sl.obs?scoutRange(id,sl.obs):eyeRange(id)); /* the director trusts what has been watched */
+      const v=o.mustHave?-wage*1000-fee:seen+(p.age<=24?(p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-fee/200+(tdYouth(id)&&p.age<=21?.5:0)+recruitBias(id,p,fee)-.5*(sl&&sl.obs?scoutRange(id,sl.obs):eyeRange(id)); /* the director trusts what has been watched */
       if(v>bv){bv=v;best={...c,fee,seen};}
     }
     if(id===S.my)evaluated.push({pid:p.id,name:p.name,pos:p.pos,age:p.age,from:c.from?CL(c.from).name:'Free agent',estimate:r1(seen),fee,reason});
@@ -111,9 +109,7 @@ function squadManager(id,phase){
       if(!(sq.length>SQUAD_MAX||(bill>cap*1.05&&sq.length>SQUAD_MIN)))break;
       const xi=pickXI(sq).map(x=>x.p);
       const pool=sq.filter(p=>!p.loan&&(crisis||!xi.includes(p))&&!(p.age<=20&&p.pa>p.q+1.5)&&canSpare(sq,p,crisis));
-      const strategy=recruitStrategy(id);
-      const saleValue=p=>p.q-p.wage/400+(strategy==='youth'&&p.age<=23?Math.max(0,p.pa-p.q)*.5:0)+(strategy==='experience'&&p.age>=32?-.6:0);
-      const p=pool.sort((a,b)=>crisis?(b.wage/Math.max(1,b.q)-a.wage/Math.max(1,a.q)):(saleValue(a)-saleValue(b)))[0];if(!p)break;
+      const p=pool.sort((a,b)=>crisis?(b.wage/Math.max(1,b.q)-a.wage/Math.max(1,a.q)):(a.q-a.wage/400)-(b.q-b.wage/400))[0];if(!p)break;
       const fee=playerValue(p),buyers=Object.keys(S.clubs).filter(i=>i!==id&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX);
       if(buyers.length)transfer(p,id,pick(buyers),fee,'surplus');
       else if(!xi.includes(p)||sq.length>SQUAD_MIN+3)release(id,p,'released to cut the wage bill');else break}};
@@ -126,11 +122,8 @@ function squadManager(id,phase){
     while(guard-->0&&have()<REQ[pos]){const base=squadQuality(sq);if(!shopFor(id,pos,base-2.5)&&!shopFor(id,pos,0,{mustHave:true,budget:0}))break}}
   // upgrades: replace the weakest starter if a clearly better player is within reach
   // more money buys more attempts: a rich director keeps looking for upgrades
-  if(phase==='summer'){const tries=clamp(Math.round(2+budgetFor(id)/60),3,6);for(let k=0;k<tries;k++){const xi=pickXI(sq);if(!xi.length)break;const strategy=recruitStrategy(id);
-    // Youth clubs protect promising starters from short-term replacement; win-now clubs seek immediate upgrades.
-    const worst=xi.slice().sort((a,b)=>(a.p.q+(strategy==='youth'&&a.p.age<=23?Math.max(0,a.p.pa-a.p.q)*.3:0))-(b.p.q+(strategy==='youth'&&b.p.age<=23?Math.max(0,b.p.pa-b.p.q)*.3:0)))[0];
-    const minUpgrade=strategy==='youth'?1.0:strategy==='experience'?.55:(budgetFor(id)>150?.6:.8);
-    const got=shopFor(id,worst.slot,worst.p.q+minUpgrade);if(!got)break}}
+  if(phase==='summer'){const tries=clamp(Math.round(2+budgetFor(id)/60),3,6);for(let k=0;k<tries;k++){const xi=pickXI(sq);if(!xi.length)break;const worst=xi.slice().sort((a,b)=>a.p.q-b.p.q)[0];
+    const got=shopFor(id,worst.slot,worst.p.q+(budgetFor(id)>150?.6:.8));if(!got)break}}
   while(sq.length<SQUAD_MIN){if(!shopFor(id,pick(POS),0,{mustHave:true,budget:0}))break}
   trim();
   coverAll(id);
@@ -142,10 +135,7 @@ function renewals(id){
   const sq=S.squads[id],med=sq.map(p=>p.q).sort((a,b)=>a-b)[Math.floor(sq.length/2)];
   for(const p of sq.filter(x=>x.contract===1).sort((a,b)=>b.q-a.q)){
     const short=sq.filter(x=>x.contract>1).length<22;
-    const strategy=recruitStrategy(id);
-    const prospect=p.age<=23&&p.pa>=p.q+1.5&&p.pa>=med;
-    const valueContract=strategy==='value'&&p.wage>0&&p.q<med&&p.age>=29;
-    const want=!valueContract&&(p.q>=med-.3||(p.age<=22&&p.pa>med)||short||(strategy==='youth'&&prospect))&&p.age<(strategy==='experience'?35:34);
+    const want=(p.q>=med-.3||(p.age<=22&&p.pa>med)||short)&&p.age<34;
     if(!want||p.loan)continue;
     // contract talks: the player names his price; the director offers what the wage limit allows
     const demand=wageDemand(p,med),room=(wageCapK(id)*1.05-wageBillK(id))*1000+p.wage,offer=Math.min(demand,Math.round(room/5)*5);

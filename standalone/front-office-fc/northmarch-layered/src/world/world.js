@@ -92,7 +92,7 @@ function chooseClub(id){
   if(!S.seats.includes(id))return false;
   S.my=id;S.phase='season';S.votedOut=null;
   S.career.push({club:id,from:S.season,to:null,why:null});
-  S.ops=opsInit();S.youth=youthInit();F(id).policy.mandate={deals:'medium'};openWindow();
+  S.ops=opsInit();S.youth=youthInit();fireFeatureEvent('clubChosen',{club:id});openWindow();
   const m=M(id);m.conf=r1(clamp(62+S.rep*2,40,80));m.log.push({s:S.season,w:S.week,d:0,why:'A new chairman: the members give you a chance'});
   emit('ChairmanElected',id,`You are elected chairman of ${CL(id).name}.`);
   return true;

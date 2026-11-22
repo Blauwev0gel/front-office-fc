@@ -23,11 +23,11 @@ for(const seed of SEEDS){
     for(const id of ids){const f=S.fin[id];let sum=f.start;for(const h of f.hist)for(const k in h.lines)sum+=h.lines[k];for(const k in f.season)sum+=f.season[k];
       ok(Number.isFinite(f.cash)&&Math.abs(sum-f.cash)<=.5,`seed ${seed} season ${s} ${id}: ledger`);
       if(S.squads[id].length<20-8)ok(false,`seed ${seed} ${id}: squad collapsed`);}
-    for(const t of [0,1,2])ok(E.standings(t).length===16,`seed ${seed} season ${s}: division ${t} size`);
+    for(const t of [0,1,2,3,4])ok(E.standings(t).length===16,`seed ${seed} season ${s}: division ${t} size`);
     E.closeSeason();
     stat.admin=ids.filter(i=>S.fin[i].adminCount).length;
   }
-  const per=avg(stat.moves)/48;
+  const per=avg(stat.moves)/80;
   console.log(`seed ${seed}: ${N} seasons in ${((Date.now()-t0)/1000).toFixed(1)}s · squads ${stat.squadMin}–${stat.squadMax} · summer moves per club ${per.toFixed(2)} · position holes ${stat.holes}`);
 }
 console.log(fails?`slimline-test: ${fails} failed`:'slimline-test: all checks passed');process.exit(fails?1:0);

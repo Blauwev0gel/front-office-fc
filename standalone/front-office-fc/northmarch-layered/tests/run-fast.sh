@@ -4,6 +4,8 @@
 cd "$(dirname "$0")/.."
 run(){ out=$("$@" 2>&1); code=$?; if [ $code -ne 0 ]; then echo "$out"; echo "FAILED: $*"; exit 1; fi; echo "$out" | tail -1; }
 run node build.js
+run node tests/pyramid-test.js
+run node tests/foreign-world-test.js
 run node tests/save-test.js
 run node tests/ux-test.js
 run node tests/smoke-test.js

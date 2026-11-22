@@ -34,15 +34,15 @@ const DEPT={
   matchday:{n:'Matchday operations',fac:null,courses:['atmosphere','comfort'],does:'Stewards, catering and ticketing. Atmosphere, comfort and matchday costs.',cd:{atmosphere:'A louder ground: a bigger home edge',comfort:'Happier seated fans'}},
   grounds:{n:'Grounds & maintenance',fac:null,courses:['stadium','pitch'],does:'Groundstaff and maintenance. How fast the stands, facilities and pitch recover.',cd:{stadium:'Stands and facilities wear less',pitch:'The pitch recovers faster'}}
 };
-const STAFF_COST=[0,.5,.75,1,1.4,1.9],STAFF_DEF=[3,2,1],HIRE_WEEKS=3;
+const STAFF_COST=[0,.5,.75,1,1.4,1.9],STAFF_DEF=[3,2,1,1,1],HIRE_WEEKS=3;
 const STAFF_WORD=['','Skeleton','Part-time','Full team','Strong','Elite'];
 const BUDGET_F={tight:.7,normal:1,generous:1.3};
-const DEPT_COST=[.3,.2,.11]; // £k per department per week at staff level 3 and a normal budget, by division
+const DEPT_COST=[.3,.2,.11,.07,.04]; // £k per department per week at staff level 3 and a normal budget, by division
 const OFFER={cheap:{n:'Cheap builder',p:.85,over:.35,delay:.3},standard:{n:'Standard builder',p:1,over:.15,delay:.15},premium:{n:'Premium builder',p:1.2,over:.05,delay:.05}};
 const lvCost=(base,lv)=>Math.round(base*Math.pow(1.6,lv-1));
 
 function groundInit(id){
-  const c=CL(id),cap=Math.round(c.support*(1.15+rnd()*.4)/100)*100,am=c.tier===2,pro=c.tier===0;
+  const c=CL(id),cap=Math.round(c.support*(1.15+rnd()*.4)/100)*100,am=c.tier>=2,pro=c.tier===0;
   const side=(type,share)=>({type,rings:Math.max(1,Math.round(cap*share/RING[type])),roof:type==='seated'?2:am?0:1,cond:ri(55,85)});
   const g={sides:{N:side('terrace',.3),E:side(am?'terrace':'seated',.25),S:side('terrace',.25),W:side('seated',.2)},
     pitch:{lv:am?2:pro?4:3,cond:ri(60,85),drain:am?1:2,heat:false},fac:{},plots:[],depts:{},projects:[],next:1,repairBill:0};

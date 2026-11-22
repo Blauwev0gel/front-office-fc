@@ -4,6 +4,8 @@ set -e
 run(){ out=$("$@" 2>&1); code=$?; echo "$out" | tail -6; [ $code -eq 0 ] || { echo "FAILED: $*"; exit 1; }; }
 cd "$(dirname "$0")/.."
 node build.js
+node tests/pyramid-test.js
+node tests/foreign-world-test.js
 node tests/save-test.js
 node tests/smoke-test.js
 node tests/ab-test.js

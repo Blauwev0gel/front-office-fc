@@ -27,6 +27,7 @@ function advanceWeek(){
   S.week++;const w=S.week,ids=allIds();
   const mark=S.evn||0;
   const matches=playWeekMatches(w);
+  foreignWeek(w);
   for(const id of ids)playersWeek(id);
   for(const id of ids)lifeWeek(id);
   for(const id of ids)financeWeek(id,matches.filter(m=>m.h===id||m.a===id));

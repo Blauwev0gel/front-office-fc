@@ -91,27 +91,25 @@ function foreignBudgetWeek(w){
     const matchday=w<=22?(7+c.rep*.18):0;
     const debt=c.debt||0,interest=debt*.08/SEASON_WEEKS;
     const cost=5+(w<=22?3:1)+(c.academy||1)*2+interest;
-    let net=r2(media+commercial+matchday-wages-cost);
+    const ledger=foreignLedger(id);
+    const net=r2(media+commercial+matchday-wages-cost);
     c.budget=r2(c.budget+net);
-    c.ledger=c.ledger||{season:S.season,income:0,wages:0,other:0,net:0,financing:0};
-    if(c.ledger.season!==S.season)c.ledger={season:S.season,income:0,wages:0,other:0,net:0,financing:0};
-    c.ledger.financing??=0;
-    c.ledger.income=r2(c.ledger.income+media+commercial+matchday);
-    c.ledger.wages=r2(c.ledger.wages-wages);
-    c.ledger.other=r2(c.ledger.other-cost);
-    c.ledger.net=r2(c.ledger.net+net);
+    ledger.income=r2(ledger.income+media+commercial+matchday);
+    ledger.wages=r2(ledger.wages-wages);
+    ledger.other=r2(ledger.other-cost);
+    ledger.net=r2(ledger.net+net);
     // A club with cash repays debt; a struggling club may refinance, but not indefinitely.
     if(c.debt>0&&c.budget>Math.max(180,wages*5)){
       const repay=r2(Math.min(c.debt,(c.budget-Math.max(180,wages*5))*.12));
       c.debt=r2(c.debt-repay);c.budget=r2(c.budget-repay);
-      c.ledger.financing=r2(c.ledger.financing-repay);
+      ledger.financing=r2(ledger.financing-repay);
     }
     const limit=Math.max(80,c.rep*2),maxDebt=c.rep*8;
     if(c.budget<-limit&&(c.debt||0)<maxDebt){
       const draw=r2(Math.min(maxDebt-(c.debt||0),Math.max(100,limit-c.budget)));
       if(draw>0){
         c.budget=r2(c.budget+draw);c.debt=r2((c.debt||0)+draw);
-        c.ledger.financing=r2(c.ledger.financing+draw);
+        ledger.financing=r2(ledger.financing+draw);
         emit('ForeignLoan',null,`${c.name} borrow £${Math.round(draw)}k to cover operating losses.`,{foreignClub:id,amount:draw});
       }
     }

@@ -118,9 +118,9 @@ function recordDecision(id,pos,best,evaluated,mustHave){
 function signingReview(){return(S.ops?S.ops.signings:[]).slice(-6).reverse().map(x=>{const f=findPlayer(x.pid);return{...x,now:f?r1(f.p.q):null,apps:f?f.p.apps:null,where:f?(f.club===S.my?'at the club':f.club?CL(f.club).name:'released'):'gone'}})}
 /* the transfer windows, made visible: what is coming, what the director is working on, what was done */
 function windowInfo(){
-  const id=S.my,ev=S.ev.filter(e=>(e.c===id&&(e.t==='Transfer'||e.t==='Signing'))||(e.c2===id&&e.t==='Transfer'));
+  const id=S.my,ev=S.ev.filter(e=>(e.c===id&&(e.t==='Transfer'||e.t==='Signing'))||(e.c2===id&&e.t==='Transfer')||(e.t==='InternationalTransfer'&&(e.from===id||e.to===id)));
   const open=openNeeds().filter(n=>n.kind==='hole'||n.prio>=2),summerDone=S.week>=1&&S.week<=5,winterDone=S.week>=WINTER_WEEK&&S.week<=WINTER_WEEK+5;
-  const report=(s,w)=>{const x=ev.filter(e=>e.s===s&&e.w===w);return{ins:x.filter(e=>e.c===id),outs:x.filter(e=>e.c2===id)}};
+  const report=(s,w)=>{const x=ev.filter(e=>e.s===s&&e.w===w);return{ins:x.filter(e=>e.t==='InternationalTransfer'?e.to===id:e.c===id),outs:x.filter(e=>e.t==='InternationalTransfer'?e.from===id:e.c2===id)}};
   if(S.week===0)return{k:'open',name:'Summer window',when:'Open through the pre-season. The scouts watch players for the director while it runs. Set your strategy and your money frame now: the director signs and sells when you start the season.',open};
   if(seasonOver())return{k:'summer-next',name:'Summer window',when:'Opens after the season is closed, with the new pre-season: contracts end and the academy brings in new players.',open};
   if(summerDone)return{k:'done',name:'Summer window',when:'Closed when the season started.',...report(S.season,0),open};

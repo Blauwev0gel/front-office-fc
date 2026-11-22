@@ -10,7 +10,7 @@ Principe: **GitHub bepaalt de waarheid**, niet wat een ontwikkelaar of een gespr
 Beide ontwikkelaars pushen **nooit** naar elkaars werkbranch.
 
 ## Voor iedere codewijziging (verplicht)
-1. `scripts/sync-check.sh` draaien. Exitcode 1 betekent: stop en synchroniseer eerst (`git merge origin/slimline-main`), los conflicten **zichtbaar** op (lees beide kanten, geen "ours/theirs" op de bonnefooi), bouw (`node build.js`), en draai de check opnieuw.
+1. `git fetch origin slimline-main` en `scripts/sync-check.sh` draaien. Bestaat het script op je branch nog niet, dan loop je achter: eerst `git merge origin/slimline-main`. Exitcode 1 betekent: stop en synchroniseer eerst (`git merge origin/slimline-main`), los conflicten **zichtbaar** op (lees beide kanten, geen "ours/theirs" op de bonnefooi), bouw (`node build.js`), en draai de check opnieuw.
 2. Geen stilzwijgende overschrijvingen: een conflict in iemands gebied wordt vermeld in `DEV_STATE.md` onder "Open wijzigingen".
 3. Werk in het eigen gebied (tabel in `DEV_STATE.md`). Wil je een ander gebied raken, meld het eerst daar.
 
@@ -21,9 +21,9 @@ Beide ontwikkelaars pushen **nooit** naar elkaars werkbranch.
 4. Na de merge: de andere ontwikkelaar haalt `slimline-main` op voordat die weer code wijzigt.
 
 ## Publiceren (artifact of release)
-- Alleen vanaf de officiële tip: `scripts/sync-check.sh --publish` moet slagen (HEAD = tip van `slimline-main`, schone werkmap).
+- Alleen vanaf de officiële tip: `scripts/sync-check.sh --publish` moet slagen. De controle kijkt naar de SHA, niet naar de branchnaam: HEAD moet **exact** de tip van `origin/slimline-main` zijn en de werkmap schoon.
 - Daarna `ARTIFACT_VERSION` en `ARTIFACT_SHA` in `DEV_STATE.md` bijwerken (aparte documentatiecommit via pull request).
-- Nooit publiceren vanaf een werkbranch of een verouderde SHA.
+- Nooit publiceren vanaf een SHA die niet de officiële tip is (dus niet vanaf een werkbranch met eigen, nog niet gemergede commits).
 
 ## Branchbescherming (instellen door de repo-eigenaar in GitHub)
 Settings → Branches → Add rule (of `gh api`), voor `slimline-main`:

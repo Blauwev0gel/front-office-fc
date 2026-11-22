@@ -1,54 +1,81 @@
-# Architectuur — technische bron van waarheid
+# Slimline — Architectuur en bron van waarheid
 
-## Bouw
-- Broncode in `src/`, samengevoegd door `build.js` in vaste volgorde tot **`dist/northmarch-layered.html`**
-  (één standalone bestand, offline speelbaar; webfonts optioneel).
-- `tests/load.js` laadt dezelfde engine-modules zonder UI in een Node-VM: elke test draait de echte code.
-- Volgorde (`build.js`): `core/content` → `core/rng` → `core/bus` → `world/world` → `world/league` →
-  `football/players` → `football/match` → `football/market` → `club/ground` → `club/finance` → `sim/ai` →
-  `sim/clock` → `core/save` → `ui/render` → `ui/club` → `ui/act`.
+Bijgewerkt: **22 november 2026** · Branch: `claude/loving-goodall-uv00vn`
 
-## Toestand
-Eén object `S` (JSON, savebaar). Eigenaarschap per domein: zie `docs/layers/L1-SIMULATION.md` §3.
-Alleen `book(id,line,amount)` wijzigt kas; alleen `advanceWeek()`/`closeSeason()` verzetten de tijd.
+**Bewijsstatus:** Dit document beschrijft de actuele broncode. De nieuwe wijzigingen aan de vijf-divisiewereld, internationale markt en alle zes blokken zijn **niet** via een build, tests of browser-playtest gevalideerd. Oudere testclaims gelden niet automatisch voor deze wijzigingen.
 
-## Tijd (één klok)
-```
-advanceWeek():  week++ → playWeekMatches (competitie 3×16 + beker)
-                → playersWeek(id) voor alle clubs (blessures ← medisch, groei ← training × speeltijd) → lifeWeek(id) (schorsingen, moraal, verzoeken)
-                → financeWeek(id) voor alle clubs (opkomst, regels, bouw ← groundWeek, leningen, solvabiliteit)
-                → membersWeek(id) voor alle clubs (leden, vertrouwen)
-                → aiBoardWeek(id) voor AI-clubs (personeel, budgetten, prijzen, reparaties, projecten, loonbeleid)
-                → week 15: squadManager(winter) · week 24: renewals · membersOnEvents (reactie op events van de week)
-                → event WeekClosed → HOOKS.weekClosed
-closeSeason():  ALV's (holdAGMs/afterAGMs) → prijzengeld + archief → sponsors (commercialSeasonEnd) → begroting volgend seizoen (setBudgetsAll) → aanhang → promotie/degradatie → spelers (leeftijd, contracten,
-                pensioen, academie) → qref → vrije spelers → zomerwindow (2 rondes, rijkste clubs eerst) → verhuur (loanOut)
-                → veiligheidsinspectie → staffSeasonEnd (contracten, AI-ontslagen, vrije markt) → event SeasonClosed → HOOKS.seasonClosed → nieuw seizoen
-```
+## Productcontract
+Slimline is de autonome voetbalwereld die onder latere management-, staff-, verhaal- en dynasty-lagen ligt. De speler stuurt een club via bestaande brede beleidskeuzes. Geen verplichte gesprekken, scripts, transfergoedkeuringen of tactische micromanagementsystemen toevoegen.
 
-## Commando's
-`cmd(name, clubId, args, actor)` met actor `player | ai | td | story`. Validatie (`check`) vóór uitvoering (`run`);
-de speler kan alleen de eigen club aansturen. Gedefinieerd: `StartProject`, `Repair`, `SetDeptBudget`,
-`SetDeptCourse` (ground.js) · `SetPrice`, `TakeLoan`, `RepayLoan`, `SetSquadPolicy` (finance.js) · `ReleasePlayer` (market.js) · `SetDeptStaff` (ground.js) · `SetDues` (members.js) · `HireStaff`, `SackStaff`, `RenewStaff` (staff.js) · `BuyPlot`, `StartStadium` (projects.js) · `SignSponsor`, `IssueBond`, `Fundraise`, `SellGround`, `BuyBackGround` (commercial.js).
-Hogere lagen (staff, verhalen) krijgen géén eigen mutatiepad: zij roepen dezelfde commando's aan.
+## Modules en eigenaarschap
+| Domein | Code | Toestand |
+|---|---|---|
+| Kern en events | `core/rng.js`, `core/bus.js` | `S.rs`, `S.ev`, `S.worldLog` |
+| Northmarch-wereld | `world/world.js` | `S.clubs`, `S.P`, clubidentiteit |
+| Competitie en beker | `world/league.js` | `S.fx`, `S.tbl`, `S.cup` |
+| Buitenland en Europa | `world/foreign.js` | `S.foreign`: landen, clubs, selecties, tabellen, transfers, Europese loting |
+| Echte wereldgeschiedenis | `world/awards.js` | `S.worldAwards`, `S.worldLog`, `worldTrends()` |
+| Rivaliteiten en jeugdidentiteit | `world/rivalry.js` | `c.rivalries`, `c.devCulture`, `c.identity` |
+| Spelers en selecties | `football/players.js` | `S.squads`, ontwikkelpaden, carrièrehistorie, kwaliteiten |
+| Wedstrijden | `football/match.js`, `football/life.js` | uitslagen, speelstijlen, vorm, schorsingen, vermoeidheid |
+| Markt | `football/market.js` | `S.fa`, scouting, clubtransfers, contracten |
+| Financiën | `club/finance.js`, `club/commercial.js` | `S.fin`; uitsluitend `book()` wijzigt Northmarch-kas |
+| Opleiding en scouting | `club/youth.js`, `club/recruitment.js` | jeugdtrajecten, directeurbesluiten |
+| Centrale tijd | `sim/clock.js` | `S.week`, `S.season`, seizoensovergangen |
+| Opslag | `core/save.js` | versie 9, migraties 1→9, legacy-piramideherstel |
+| UI | `ui/render.js`, `ui/club.js`, `ui/history.js` | week, selecties, wereldarchief en seizoensreview |
 
-## Events
-`emit(type, club, text, data)` → `S.ev` (laatste 2500, volgnummer `n`). `eventsSince(n)`, `eventsFor(club, {s,w,types})`.
-Lijst: `docs/layers/L1-SIMULATION.md` §6.
+`build.js` bundelt in vaste volgorde `core` → `world` (inclusief foreign, awards, rivalry) → `football` → `club` → `sim` → `save` → `ui`. De outputlocatie blijft `dist/northmarch-layered.html`.
 
-## Saves
-`SAVE_KEY='northmarch-layered-v1'`, schemaversie `S.v` (= `VERSION` 7; 6→7 records/historie; 5→6 moraal/kaarten/verhuur/reputatie; migraties 1→2 afdelingen, 2→3 leden, 3→4 trainers/directeuren, 4→5 begroting/sponsors/financiering). `migrate()` loopt `MIGRATIONS[v+1]` in volgorde;
-een nieuwere of vreemde save wordt geweigerd. Regel: geen `VERSION`-ophoging zonder migratie én test.
-Het referentiespel (`northmarch-chairman-v1`) gebruikt een andere sleutel en blijft onaangetast.
+## Nationale voetbalwereld
+- Vijf divisies van zestien Northmarch-clubs (80 clubs), elk dertig competitiewedstrijden.
+- Twee clubs promoveren en degraderen per divisiegrens.
+- Beker: 32 clubs in de voorronde, daarna 48 toegevoegde clubs: 80 deelnemers, 79 knock-outduels, zeven rondes.
+- Bekerweken: 2, 4, 9, 14, 19, 24, 28.
+- Deels geconverteerde oude bekertoernooien behouden een `legacy`-vlag; de winnaar beëindigt het toernooi zodra één club resteert.
 
-## Determinisme
-Alle toeval via `rnd()` op `S.rs`. Zelfde seed + zelfde commando's = identieke wereld (getest, ook via save/load).
-Alleen de seed van een nieuw spel komt uit de klok van de browser.
+## Buitenlandse voetbalwereld
+- Engeland, Schotland, Nederland, Duitsland, Frankrijk, Spanje: elk twaalf fictieve clubs en tweeëntwintig speeldagen.
+- Buitenlandse clubs staan **niet** in `S.clubs` of `S.fin`. Ze hebben een lichte eigen budget- en selectieadministratie, geen volledige Northmarch-boekhouding.
+- Persisterende spelers met ID, nationaliteit, club, leeftijd, kwaliteit, stijl, contract, ontwikkeling en carrière.
+- Internationale transfers gebruiken één mutatieroute `foreignMove()`: controle van eigendom, dekking, spelerbereidheid, budget en salaris; aanpassing van beide selecties en financiële rekeningen.
+- De normale directeurzoektocht `scoutPool()` kan buitenlandse spelers vinden; noodzaken en buitenlandse contractafloop voeden een gedeelde markt.
+- Europa: 16 deelnemers (12 uit buitenlandse toplijsten, vier uit Northmarch), vier knock-outrondes in week 6, 11, 17 en 25. Geen overlap met bekerweken.
+- Europese wedstrijden beïnvloeden afzonderlijke spelersstatistieken, echte doelpuntenmakers, moraal, blessurerisico, volgende-weekvermoeidheid en clubinkomsten.
 
-## UI-structuur (L1/L2 UX)
-Bron `src/ui/`: `render.js` (titel, keuze, week, league, squad), `club.js` (ground/money/overlays/review), `depts.js`, `members.js`, `staff.js`,
-`commercial.js`, `history.js` (signalen, projecten, historie, besluitenlog), `board.js` (Club-overzicht, subnavigatie, actiebalk, oriëntatie),
-`decide.js` (beslisblok), `act.js` (één handler). Engine-zijde besluitenlog: `src/club/journal.js` (`journalBefore/journalAdd` vanuit `cmd()` bij actor `player`).
+## Eén centrale klok
+`advanceWeek()`:
+1. Week 0: zomertransferperiode (clubs stellen selecties samen, inclusief internationale markt).
+2. Vorige Europese belasting op fitte/selectieaanwezige spelers toepassen.
+3. Week verhogen; vijf divisies + eventuele nationale bekerwedstrijden.
+4. Ontwikkeling van rivaliteit op basis van echte wedstrijden.
+5. Buitenlandse competitiewedstrijden en de geplande Europese knock-outronde.
+6. Spelers: blessureherstel, training, persoonlijke ontwikkeling; daarna moraal/discipline.
+7. `financeWeek`: inkomsten, Europese ontvangsten, lonen, gebouwen, rente en solvabiliteit via dezelfde ledger.
+8. Leden, besturen, staf/scouting; winterwindow in week 15 en verlengingen in week 24.
+9. `WeekClosed` en hooks.
 
-## Lagen-schakelaars
-`S.layers={story:false,staff:false,dynasty:false}`; `S.auto=true` laat de AI ook de spelersclub besturen (tests).
+`closeSeason()`:
+1. Buitenlandse competitie en Europa archiveren; buitenlandse spelers verouderen en contracten verstrijken.
+2. Feitelijke seizoensprijzen vaststellen voordat spelersstatistieken worden gereset.
+3. Algemene ledenvergaderingen, seizoensprijzen, historie en financiën afronden.
+4. Support, reputatie, promotie/degradatie en nieuwe rivaliteiten bepalen.
+5. Clubidentiteit en opleidingstraditie berekenen uit werkelijk gespeelde minuten van eigen jeugd.
+6. Lenen terug, spelers verouderen, jeugdinstroom, vrije spelers, nieuwe budgetten en trainerscontracten.
+7. Volgend seizoen beginnen via `startSeason()`.
+
+## Bewaarde individuele geschiedenis
+- De waarde `p.history` bevat afgebakende clubperiodes, seizoenen en transfers. `playerCloseStint()` voorkomt dat goals bij de volgende club terechtkomen.
+- `p.honours` bevat daadwerkelijk gewonnen bekers en titels; `p.devPath`, `p.style`, `p.ambition`, `p.loyalty` hebben sportieve of economische gevolgen.
+- `S.worldAwards` houdt onder andere Golden Boot en doorbraakspeler bij; `S.worldLog` is een begrensd feitenarchief naast de korte eventbus.
+- `worldTrends()` berekent stijgende/dalende clubs en jeugdontwikkelaars uit historische resultaten, niet uit scripts.
+
+## Save-schema en historie
+- Schema `VERSION=9`, save-key `northmarch-layered-v1`.
+- Migratie 8→9 voegt wereldarchieven toe. `expandLegacyPyramid()` vult oude drie-divisiesaves aan tot vijf zonder de bestaande club of lopende tijd te resetten. Reeds gespeelde lagere-divisiewedstrijden worden als synthetische historische stand opgebouwd, **zonder retroactieve inkomsten of blessures**.
+- `foreignRestoreCalendar()` reconstrueert ontbrekende buitenlandse weekkalenders bij legacy saves; retroactieve Europese wedstrijden betalen geen inkomsten en verwonden geen Northmarch-spelers.
+- `enrichLegacyWorld()` kent ID-deterministische defaults toe voor nieuwe spelersvelden en reconstrueert historische clubtitels waar mogelijk.
+- Historische buitenlandse resultaten van vóór de invoering van die wereld bestaan niet. Dit is een daadwerkelijke beperking, geen impliciete migratie.
+
+## Ontwikkelregels en releasegate
+Alle nieuwe mechanieken moeten gevolgen hebben voor bestaande simulatiegegevens. Wijzig nooit alleen UI-copy voor een niet-bestaand systeem. Geen merge/deploy zonder expliciete goedkeuring. Statussen staan in `docs/SLIMLINE_WORLD_ROADMAP.md`. Voor deze code zijn **nog geen build, regressietests, 20-seizoenstests of browser-playtests uitgevoerd**.

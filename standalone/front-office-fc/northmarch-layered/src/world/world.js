@@ -2,7 +2,7 @@
    Owns S.clubs (identity, tier, support, rivals) and S.P (people). mkPerson/castClub/addRel/weakest are the
    Northmarch functions (northmarch.html @7a2d5d3), kept so the story layer (L4) can attach later.
    Squads (football), grounds (club) and money (finance) are created here but owned by their own domains. */
-const VERSION=8;
+const VERSION=9;
 const SAVE_KEY='northmarch-layered-v1';
 const TIERS=[0,1,2,3,4];
 const TIER_STR=[[51,59],[44,53],[37,46],[31,40],[26,35]];
@@ -83,6 +83,8 @@ function makeSeats(){
   const t0=ids.filter(i=>CL(i).tier===0).sort((a,b)=>teamStrength(a)-teamStrength(b));
   out.push(t0[ri(0,4)]);out.push('pell');
   const t2=ids.filter(i=>CL(i).tier===2).sort((a,b)=>CL(b).support-CL(a).support);out.push(t2[ri(0,5)]);
+  const t3=ids.filter(i=>CL(i).tier===3).sort((a,b)=>teamStrength(a)-teamStrength(b));out.push(t3[ri(3,9)]);
+  const t4=ids.filter(i=>CL(i).tier===4).sort((a,b)=>CL(b).support-CL(a).support);out.push(t4[ri(1,8)]);
   S.seats=out;
 }
 function chooseClub(id){

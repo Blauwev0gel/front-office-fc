@@ -37,3 +37,23 @@
      '<details class="nm85-details"><summary>Full reports, transfer planning and club signals</summary>'+previousWeek()+'</details></div>';
  };
 })();
+
+/* V18.5 navigation correction: one navigation system, one primary match CTA. */
+(function(){
+ const oldTopBar=topBar,oldActionBar=actionBar,oldAct=act;
+ const inGame=()=>!!(S&&S.my&&S.phase==='season'&&!UI.title&&!UI.review);
+ topBar=function(){
+   if(!inGame())return oldTopBar();
+   if(UI.tab==='week')return '';
+   return '<nav class="nm85-backnav" aria-label="Club navigation"><button class="btn ghost" data-act="nm85home">‹ Club home</button><span>'+esc({build:'Upgrades',club:'Club',squad:'Squad',money:'Finances',table:'League'}[UI.tab]||'Club')+'</span></nav>';
+ };
+ actionBar=function(){
+   if(!inGame())return oldActionBar();
+   if(UI.tab==='week'&&(!UI.v183Stage||UI.v183Stage==='preview'))return '';
+   return oldActionBar();
+ };
+ act=function(a,arg){
+   if(a==='nm85home'){UI.tab='week';UI.over=null;UI.v183Stage='preview';render();return}
+   return oldAct(a,arg);
+ };
+})();

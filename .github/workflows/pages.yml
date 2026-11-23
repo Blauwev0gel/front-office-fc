@@ -72,7 +72,7 @@ jobs:
             if [ "$branch" = main ]; then target=site; fi
             cp "versions/$branch/dist/index.html" "$target/index.html"
           done
-          cp versions/main/releases/northmarch/v18.3.html site/northmarch/index.html
+          cp versions/main/releases/northmarch/v18.4.html site/northmarch/index.html
           touch site/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@v5

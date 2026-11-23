@@ -645,3 +645,31 @@ main.withbar{padding-bottom:164px!important;min-width:0}
 .nm86-full{margin:14px 0}
 .nm86-full>summary{cursor:pointer;padding:12px}
 @media(max-width:560px){.nm86-upgrade-grid{grid-template-columns:1fr}.nm86-cash-bottom{justify-content:flex-start}.nm86-upgrade-cta .btn{flex-shrink:0}}
+
+
+/* V18.7: one department = one destination, safe mobile sizing.
+   Prevent narrow flex siblings from forcing letter-by-letter words. */
+.nm85-home,.nm85-grid,.nm85-tile{min-width:0}
+.nm85-tile,.nm85-tile .nm85-label,.nm85-tile small{overflow-wrap:normal;word-break:normal}
+.nm85-tile small{max-width:100%;line-height:1.35}
+.nm86-cash,.nm86-section,.nm86-money-grid{min-width:0;max-width:100%}
+.nm86-section>div{min-width:0}
+.overlay .inner{min-width:0;width:100%;max-width:460px}
+.overlay .inner>.row>h2{min-width:0;overflow-wrap:normal;word-break:normal}
+@media(max-width:430px){
+  .nm85-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .nm85-tile{min-height:102px;padding:10px 7px}
+  .nm85-label{font-size:.83rem}
+  .nm85-tile strong{font-size:.95rem}
+  .nm86-money-grid{gap:4px}
+  .nm86-money-grid>div{padding:10px 3px}
+}
+
+/* Facility actions and staffing remain touch-friendly inside one department sheet. */
+.v187-facility,.v187-facility-confirm,.v187-ground-staff{min-width:0;overflow-wrap:normal;word-break:normal}
+.v187-facility .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.v187-facility-confirm{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.v187-facility-confirm p{flex-basis:100%;margin:4px 0 8px}
+.v187-facility .btn{max-width:100%;white-space:normal;min-height:44px}
+.v187-ground-staff summary,.v187-dept-reports summary{cursor:pointer;min-height:42px;padding:8px 0}
+.v187-ground-staff .seg,.v187-dept-reports .seg{margin:9px 0}

@@ -89,7 +89,9 @@ function wageBillK(id){return r2(S.squads[id].reduce((a,p)=>a+p.wage,0)/1000)}
 /* ----- weekly: injuries (medical) and development (training). Called once per club per week ----- */
 function playersWeek(id){
   const sq=S.squads[id],sg=groundSignals(id),t=sg.training,med=sg.medPrev,medR=sg.medRec,st=S.stats[id];
-  const risk=clamp(1.25-.15*med-(sg.fitness?.08:.03)*Math.min(t,4)-(sg.hasTM?.12:0),.45,1.3);
+  // Medical prevention has diminishing returns, but unlike a hard lower clamp
+  // every further upgrade still reduces injury risk to a smaller extent.
+  const risk=clamp(1.25/(1+.18*Math.max(0,med))-(sg.fitness?.08:.03)*Math.min(t,4)-(sg.hasTM?.12:0),.32,1.3);
   const grow=(.12+.08*t)*coachGrowth(id)*(1+((CL(id).devCulture??45)-45)/500)/SEASON_WEEKS,fade=(1-.06*Math.min(t,8))/SEASON_WEEKS;
   for(const p of sq){
     if(p.inj>0){p.inj--;if(p.inj===0&&id===S.my)emit('Return',id,`${p.name} is fit again.`,{pid:p.id})}
@@ -141,9 +143,9 @@ function playersSeasonEnd(id){
   // youngsters who will not make it are let go at 19-21, as real academies do
   const sqq=squadQuality(sq),keep=sq.filter(p=>p.age<=21).sort((x,y)=>y.pa-x.pa).slice(0,3);
   for(const p of sq.slice())if(p.age>=18&&p.age<=21&&!p.loan&&!keep.includes(p)&&p.pa<sqq-.3&&sq.length>SQUAD_MIN){sq.splice(sq.indexOf(p),1);left.push(p);youthLeft(p,'released');faAdd(p,'released by the academy',id);if(id===S.my)emit('PlayerLeft',id,`${p.name} is released: he will not make the grade.`,{pid:p.id})}
-  const a=sg.academy,n=1+(a>=3?1:0)+(a>=6?1:0),base=11.5+(tierBaseStr(c.tier)-50)/4;
+  const a=sg.academy,n=1+(a>=2.5?1:0)+(a>=5.5?1:0),base=11.5+(tierBaseStr(c.tier)-50)/4;
   const kids=[];
-  for(let i=0;i<n;i++){const q=base-3.2+.25*a+((c.devCulture??45)-45)*.009+rnd()*1.2;const k=newPlayer(pick(POS.slice(1)),{age:ri(16,17),q,pa:q+1+.35*a+((c.devCulture??45)-45)*.015+rnd()*2.5,academy:true,contract:2,club:id,trait:sg.academyLocal&&rnd()<.4?'local hero':null});
+  for(let i=0;i<n;i++){const q=base-3.2+.34*a+((c.devCulture??45)-45)*.009+rnd()*1.2;const k=newPlayer(pick(POS.slice(1)),{age:ri(16,17),q,pa:q+1+.48*a+((c.devCulture??45)-45)*.015+rnd()*2.5,academy:true,contract:2,club:id,trait:sg.academyLocal&&rnd()<.4?'local hero':null});
     k.career.push('Academy');sq.push(k);kids.push(k)}
   youthIntake(id,kids);
   S.stats[id].intake=kids.length;S.stats[id].intakeBest=r1(Math.max(...kids.map(k=>k.pa)));

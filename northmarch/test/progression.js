@@ -4,7 +4,7 @@ const fs=require('fs'),vm=require('vm'),path=require('path');
 const root=path.resolve(__dirname,'..');
 const paths=JSON.parse(fs.readFileSync(path.join(root,'manifest.json'),'utf8'));
 const js=paths.map(p=>fs.readFileSync(path.join(root,p),'utf8')).join('\n');
-const g=vm.runInNewContext(js+';({newWorld,chooseClub,advanceWeek,closeSeason,getS:()=>S,SEASON_WEEKS,projectCatalog,cmd,groundSignals,teamStrength,F,CL,G})');
+// Every run gets an isolated VM: newWorld() does not reset all module-level state.
 const strategies={
   control:[],
   sporting:['training','medical'],
@@ -15,12 +15,15 @@ const seeds=[1804,1805,1806,1807,1808];
 const seasonCount=Number(process.argv[4]||10);
 if(!Number.isInteger(seasonCount)||seasonCount<1||seasonCount>40)throw Error('Season count must be 1..40');
 function run(seed,strategy){
+ const g=vm.runInNewContext(js+';({newWorld,chooseClub,advanceWeek,closeSeason,getS:()=>S,SEASON_WEEKS,projectCatalog,cmd,groundSignals,teamStrength,F,CL,G})');
  g.newWorld(seed);g.chooseClub(g.getS().seats[0]);
- let investments=0,attempts=0,denied=0;const annual=[];
+ let investments=0,attempts=0,denied=0,clubSwitches=0,previousClub=null;const annual=[];
  for(let season=0;season<seasonCount;season++){
   if(g.getS().phase==='choose')g.chooseClub(g.getS().seats[0]);
   const id=g.getS().my;
   if(!id)throw Error('No playable club in season '+season);
+  if(previousClub!==null&&id!==previousClub)clubSwitches++;
+  previousClub=id;
   if(strategy.length){
    const options=g.projectCatalog(id);
    // One strategic investment per season, never bypass command validation.
@@ -40,7 +43,7 @@ function run(seed,strategy){
  }
  if(strategy.length&&attempts===0)throw Error('No investments attempted; check project selection');
  const last=annual[annual.length-1];
- return {seed,strategy:strategy.join('+')||'control',investments,attempts,denied,final:last,annual};
+ return {seed,strategy:strategy.join('+')||'control',investments,attempts,denied,clubSwitches,final:last,annual};
 }
 const output=[];
 const wanted=process.argv[3]||'all';
@@ -50,7 +53,7 @@ for(const [name,focus] of Object.entries(strategies)){
 }
 const summary=Object.keys(strategies).filter(name=>wanted==='all'||wanted===name).map(name=>{
  const runs=output.filter(x=>x.strategy===name),avg=k=>+(runs.reduce((a,x)=>a+x.final[k],0)/runs.length).toFixed(2);
- return {strategy:name,seeds:runs.length,investments:runs.reduce((a,x)=>a+x.investments,0),denied:runs.reduce((a,x)=>a+x.denied,0),avgTier:avg('tier'),avgCashK:avg('cash'),avgSquad:avg('squad'),avgTraining:avg('training'),avgAcademy:avg('academy'),avgScouting:avg('scouting'),avgCapacity:avg('capacity')};
+ return {strategy:name,seeds:runs.length,investments:runs.reduce((a,x)=>a+x.investments,0),denied:runs.reduce((a,x)=>a+x.denied,0),clubSwitches:runs.reduce((a,x)=>a+x.clubSwitches,0),avgTier:avg('tier'),avgCashK:avg('cash'),avgSquad:avg('squad'),avgTraining:avg('training'),avgAcademy:avg('academy'),avgScouting:avg('scouting'),avgCapacity:avg('capacity')};
 });
 console.table(summary);
 const outfile=process.argv[2];

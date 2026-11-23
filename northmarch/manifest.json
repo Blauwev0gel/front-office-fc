@@ -40,5 +40,6 @@
   "src/ui/youth.js",
   "src/ui/live.js",
   "src/ui/act.js",
-  "src/ui/home-v185.js"
+  "src/ui/home-v185.js",
+  "src/ui/upgrades-v186.js"
 ]

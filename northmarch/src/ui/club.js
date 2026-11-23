@@ -33,6 +33,21 @@ function groundBody(){
     <p class="small muted">Building is paid week by week. The cash forecast in Money shows what it does to the bank.</p>
     ${groups.map(gr=>`<div class="panel"><p class="eyebrow">${esc(gr)}</p><div class="stack">${cat.filter(o=>o.group===gr).map(o=>o.busy?`<div class="opt dim"><b>${esc(o.label)}</b><span class="small muted">Work under way here</span></div>`:UI.gsel===o.key?`<div class="opt on"><b>${esc(o.label)}</b><span class="small">${esc(o.effect)} · ${o.weeks} weeks${o.permit?' + permit':''} · paid at about £${n0(o.cost/o.weeks*1000)} a week</span><div class="offers">${Object.entries(OFFER).map(([ok,of])=>`<button class="offer" data-act="gbuild" data-arg="${o.key}|${ok}"><b>£${Math.round(o.cost*of.p)}k</b><span>${of.n}</span><span class="muted">${Math.round(of.over*100)}% overrun risk</span></button>`).join('')}</div><button class="tbtn" data-act="gsel" data-arg="">Cancel</button></div>`:`<button class="opt" data-act="gsel" data-arg="${o.key}"><b>${esc(o.label)}</b><span class="small muted">£${o.cost}k · ${esc(o.effect)}</span></button>`).join('')}</div></div>`).join('')}`}
   if(t==='repairs'){const rl=repairList(id);body=rl.length?`<p class="small muted">Below 30% a safety inspection can close half a stand.</p><div class="panel">${rl.map(r=>`<div class="grow"><span><b>${esc(r.label)}</b><br>${condBar(r.cond)}</span><span></span><button class="tbtn" data-act="grepair" data-arg="${r.key}">Repair £${r.cost}k</button></div>`).join('')}</div>`:'<p class="muted">Everything is in good shape.</p>'}
+  // Grounds & maintenance is managed inside the Stadium tile, not in another upgrades hub.
+  if(t==='stadium'){
+    const d=g.depts.grounds,kp=deptKpi(id,'grounds');
+    body+='<details class="panel v187-ground-staff"><summary><b>Grounds team & maintenance</b> · '+d.staff+'/5 staff</summary>'+
+      '<p class="small muted">This team controls wear, repair speed and the playing surface.</p>'+
+      '<p class="small">'+esc(kp.label)+': <b>'+esc(kp.text)+'</b></p>'+
+      '<p class="eyebrow">Staff</p><div class="seg">'+[1,2,3,4,5].map(n=>
+        '<button class="'+((d.hiring?d.hiring.to:d.staff)===n?'on':'')+'" data-act="dstaff" data-arg="grounds:'+n+'" '+(d.hiring?'disabled':'')+'>'+n+'/5 · £'+n0(deptWeekCost(id,'grounds',n)*1000)+'/wk</button>').join('')+'</div>'+
+      '<p class="eyebrow">Weekly budget</p><div class="seg">'+Object.keys(BUDGET_F).map(b=>
+        '<button class="'+(d.budget===b?'on':'')+'" data-act="gdept" data-arg="grounds:'+b+'">'+b+' · £'+n0(deptWeekCost(id,'grounds',null,b)*1000)+'/wk</button>').join('')+'</div>'+
+      '<p class="eyebrow">Maintenance focus</p><div class="seg">'+DEPT.grounds.courses.map(c=>
+        '<button class="'+((d.pending||d.course)===c?'on':'')+'" data-act="gcourse" data-arg="grounds:'+c+'">'+esc(c)+'</button>').join('')+'</div>'+
+      (d.hiring?'<p class="small muted">New groundstaff arrive in '+d.hiring.left+' weeks.</p>':'')+
+      '</details>';
+  }
   const log=eventsFor(id,{types:['Ground','ProjectStarted','ProjectCompleted','SafetyClosure']}).slice(-5).reverse();
   return`${gTabs(t,[['stadium','Stadium'],['build','Investments'],['repairs','Repairs']],'gtab','grid4')}${body}${log.length?`<div class="panel"><p class="eyebrow">Ground log</p><ul class="log">${log.map(l=>`<li><span class="num">S${l.s} W${l.w}</span> ${esc(l.text)}</li>`).join('')}</ul></div>`:''}`;
 }

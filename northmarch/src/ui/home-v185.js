@@ -8,7 +8,7 @@
    const id=S.my,c=CL(id),f=F(id),m=M(id),g=G(id),sig=groundSignals(id);
    const fixture=seasonOver()?null:fixtureOf(id,S.week+1);
    const recent=(S.tbl[id]?.form||[]).slice(-5).join(' · ')||'No results yet';
-   const active=g.projects.filter(p=>p.phase!=='done');
+
    const alerts=signals(id).filter(x=>x.lv>=2).slice(0,1);
    const last=S.v183?.club===id?S.v183.issues?.at(-1):null;
    const level=k=>{const p=g.plots.find(x=>x.kind===k);return p?'Level '+p.lv:'Not built'};
@@ -25,15 +25,18 @@
      tile('Squad',Math.round(teamStrength(id)),'Players & contracts','tab','squad','⚽')+
      tile('Manager','Staff','Coach & director','ctab','football','♟')+
      tile('Training',level('training'),dept('training'),'dept','training','↗')+
+     tile('Medical',level('medical'),dept('medical'),'dept','medical','✚')+
      tile('Youth',level('academy'),dept('academy'),'dept','academy','★')+
      tile('Scouting',level('scouting'),dept('scouting'),'dept','scouting','⌕')+
-     tile('Stadium',Math.round(sig.capacity).toLocaleString('en-GB'),'Ground & projects','ctab','ground','▥')+
+     tile('Stadium',Math.round(sig.capacity).toLocaleString('en-GB'),'Ground, upgrades & repairs','ov','ground','▥')+
+     tile('Matchday','Operations',dept('matchday'),'dept','matchday','◷')+
      tile('Finances',k1(f.cash),'Accounts & budgets','hubmoney','overview','£')+
      tile('Commercial',level('commercial'),dept('commercial'),'dept','commercial','▣')+
+     tile('Community',level('clubhouse'),dept('community'),'dept','community','♙')+
      tile('Board',Math.round(m.conf)+'/100','Members & goals','ctab','members','♜')+
      tile('League',S.week?ord(posOf(id)):'—','Table & results','tab','table','▤')+
      '</section>'+
-     (active.length?'<section class="nm85-progress"><b>Under construction</b><p>'+active.slice(0,2).map(p=>esc(p.label)+' · '+(p.phase==='permit'?'Permit pending':p.left+' weeks left')).join(' · ')+'</p><button class="tbtn" data-act="tab" data-arg="build">Manage upgrades ›</button></section>':'<section class="nm85-progress"><b>Improve your club</b><p>Invest in facilities to build long-term strength and income.</p><button class="tbtn" data-act="tab" data-arg="build">Explore upgrades ›</button></section>')+
+
      (last?'<button class="nm85-news" data-act="v183paper" data-arg="'+esc(last.key)+'"><span class="nm85-kicker">THE NORTHMARCH ECHO · WEEK '+last.w+'</span><b>'+esc(last.matches[0]?.headline||'Your club this week')+'</b><span>Weekly news and accounts ›</span></button>':'')+
      '<details class="nm85-details"><summary>Full reports, transfer planning and club signals</summary>'+previousWeek()+'</details></div>';
  };

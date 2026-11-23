@@ -606,3 +606,42 @@ main.withbar{padding-bottom:164px!important;min-width:0}
 .nm85-details{margin:14px 0}
 .nm85-details>summary{cursor:pointer;padding:12px;font-size:.8rem}
 @media(max-width:340px){.nm85-score{grid-template-columns:repeat(2,minmax(0,1fr))}.nm85-grid{gap:5px}.nm85-tile{min-height:101px}}
+
+
+/* V18.6: cashflow and meaningful upgrade choices */
+.nm86-cash,.nm86-upgrade,.nm86-active,.nm86-upgrade-cta{border:1px solid #bdcbd5;border-radius:11px;background:#f8fafc;color:#173047}
+.nm86-cash{padding:13px;margin:12px 0}
+.nm86-section{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.nm86-section h3{font-size:1rem;margin:4px 0 9px}
+.nm86-money-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.nm86-money-grid>div{padding:10px 5px;border-radius:7px;background:#e9f0f5;text-align:center}
+.nm86-money-grid small{display:block;font-size:.59rem;letter-spacing:.04em}
+.nm86-money-grid strong{display:block;margin-top:5px;font-size:clamp(.83rem,3.1vw,1.1rem)}
+.nm86-negative,.nm86-risk{color:#a43c29}
+.nm86-cash-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-top:10px;font-size:.75rem}
+.nm86-forecast{font-size:.79rem;margin:11px 0 5px}
+.nm86-footnote{font-size:.69rem;line-height:1.4;opacity:.8;margin:8px 0 0}
+.nm86-upgrade-cta{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;margin:12px 0}
+.nm86-upgrade-cta span{display:flex;flex-direction:column;gap:4px}
+.nm86-upgrade-cta small{font-size:.71rem}
+.nm86-upgrades{max-width:840px;margin:auto}
+.nm86-upgrades-head h2{margin:7px 0;font-size:1.6rem}
+.nm86-upgrades-head p{font-size:.85rem;opacity:.8}
+.nm86-upgrade-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.nm86-upgrade{padding:13px;min-width:0}
+.nm86-upgrade .nm86-section{justify-content:flex-start;align-items:center;flex-wrap:wrap}
+.nm86-route{font-size:.65rem;font-weight:750;letter-spacing:.06em;text-transform:uppercase;background:#d9e6ee;border-radius:5px;padding:3px 6px}
+.nm86-upgrade p{font-size:.77rem;line-height:1.4}
+.nm86-price{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.nm86-price strong{font-size:1.1rem}
+.nm86-price span{font-size:.72rem}
+.nm86-upgrade .btn{margin-top:8px;min-height:40px}
+.nm86-effect{font-weight:600}
+.nm86-muted{font-size:.76rem;opacity:.7}
+.nm86-confirm{padding:9px;background:#e9f0f5;border-radius:7px}
+.nm86-confirm .btn{margin-right:5px}
+.nm86-active{padding:13px;margin:12px 0}
+.nm86-active p{font-size:.78rem;margin:6px 0}
+.nm86-full{margin:14px 0}
+.nm86-full>summary{cursor:pointer;padding:12px}
+@media(max-width:560px){.nm86-upgrade-grid{grid-template-columns:1fr}.nm86-cash-bottom{justify-content:flex-start}.nm86-upgrade-cta .btn{flex-shrink:0}}

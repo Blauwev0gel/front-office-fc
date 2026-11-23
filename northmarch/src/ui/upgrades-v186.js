@@ -55,7 +55,7 @@
     '<p>'+esc(route.why)+'</p>'+
     (opt?'<div class="nm86-price"><strong>'+money(opt.cost)+'</strong><span>'+opt.weeks+' weeks'+(opt.permit?' + permit':'')+'</span></div>'+
       '<p class="nm86-effect">Next: '+esc(opt.label)+' · '+esc(opt.effect)+'</p>'+
-      '<p class="nm86-footnote">Approx. '+money(opt.cost/Math.max(1,opt.weeks))+'/week during construction. Possible delays and overruns.</p>'+
+      '<p class="nm86-footnote">Approx. '+money(opt.cost/Math.max(1,opt.weeks))+'/week during construction. Completed facilities add recurring upkeep; costs and benefits continue into future seasons. Possible delays and overruns.</p>'+
       (reserve<0?'<p class="nm86-risk">Cash after quoted cost: '+money(reserve)+' · review borrowing risk.</p>':'')+
       (busy?'<p class="nm86-muted">Work already under way at this location.</p>':
       selected?'<div class="nm86-confirm"><p>Commit '+money(opt.cost)+'? Payments occur over construction. Current 26-week forecast low: '+money(forecast.minV)+'.</p><button class="btn" data-act="buildgo" data-arg="'+esc(opt.key)+'">Approve project</button><button class="btn ghost" data-act="buildpick" data-arg="'+esc(opt.key)+'">Cancel</button></div>':

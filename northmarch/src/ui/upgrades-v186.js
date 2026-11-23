@@ -56,7 +56,7 @@
    const panel='<section class="v181-dept-block v187-facility" aria-label="'+esc(title)+' investment">'+
      '<h3>Facility & investment</h3><div class="row small"><span><b>'+esc(title)+'</b></span><strong>'+esc(state)+'</strong></div>'+
      '<p class="small muted">'+esc(benefit)+'</p>'+action+'</section>';
-   const marker='<section class="v181-dept-block"><h3>1. Choose a direction</h3>';
+   const marker='<section class="v181-dept-block">';
    if(!html.includes(marker))throw Error('Department screen missing decision marker: '+k);
    return html.replace(marker,panel+marker);
  };

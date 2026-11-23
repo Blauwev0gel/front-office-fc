@@ -147,7 +147,9 @@ function financeSeasonEnd(id,pos,tier){
 }
 function seasonTotals(id,s){const f=F(id),lines=s==null||s===S.season?f.season:(f.hist.find(h=>h.s===s)||{lines:{}}).lines,head={};
   for(const k in lines){const h=LINE[k][1];head[h]=r1((head[h]||0)+lines[k])}return{lines,head}}
-function operatingResult(lines){let t=0;for(const k in lines)if(!['loanIn','loanOut','groundSale'].includes(k))t+=lines[k];return r1(t)}
+// Operating result excludes investment, transfer capital and financing cash flows.
+// Those lines still remain in the ledger and contribute to cash movement.
+function operatingResult(lines){let t=0;for(const k in lines)if(!['loanIn','loanOut','groundSale','build','feesIn','feesOut','interest'].includes(k))t+=lines[k];return r1(t)}
 /* 26-week forecast with a band */
 function cashForecast(id,weeks=26){
   const f=F(id),avg=(sumLines(weekLines(id,true,{}))+sumLines(weekLines(id,false,{away:true})))/2;

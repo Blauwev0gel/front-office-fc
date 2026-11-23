@@ -32,7 +32,7 @@ const DEPT={
   scouting:{n:'Scouting',fac:'scouting',courses:['domestic','abroad'],does:'Scouts. The director sees more players before he signs one.',cd:{domestic:'Players from nearby divisions',abroad:'More players seen, further afield'}},
   commercial:{n:'Commercial',fac:'commercial',courses:['local','premium'],does:'Sales staff. Sponsors, merchandise and hire income.',cd:{local:'More merchandise and hire',premium:'Bigger sponsor deals'}},
   community:{n:'Members & community',fac:'clubhouse',courses:['members','events'],does:'Membership office and volunteers. Dues, and a support that grows.',cd:{members:'More members and dues',events:'More events income'}},
-  matchday:{n:'Matchday operations',fac:null,courses:['atmosphere','comfort'],does:'Stewards, catering and ticketing. Atmosphere, comfort and matchday costs.',cd:{atmosphere:'A louder ground: a bigger home edge',comfort:'Happier seated fans'}},
+  matchday:{n:'Matchday operations',fac:'parking',courses:['atmosphere','comfort'],does:'Stewards, catering and ticketing. Atmosphere, comfort and matchday costs.',cd:{atmosphere:'A louder ground: a bigger home edge',comfort:'Happier seated fans'}},
   grounds:{n:'Grounds & maintenance',fac:null,courses:['stadium','pitch'],does:'Groundstaff and maintenance. How fast the stands, facilities and pitch recover.',cd:{stadium:'Stands and facilities wear less',pitch:'The pitch recovers faster'}}
 };
 const STAFF_COST=[0,.5,.75,1,1.4,1.9],STAFF_DEF=[3,2,1,1,1],HIRE_WEEKS=3;

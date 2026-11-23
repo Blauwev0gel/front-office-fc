@@ -49,7 +49,7 @@ function groundBody(){
       '</details>';
   }
   const log=eventsFor(id,{types:['Ground','ProjectStarted','ProjectCompleted','SafetyClosure']}).slice(-5).reverse();
-  return`${gTabs(t,[['stadium','Stadium'],['build','Investments'],['repairs','Repairs']],'gtab','grid4')}${body}${log.length?`<div class="panel"><p class="eyebrow">Ground log</p><ul class="log">${log.map(l=>`<li><span class="num">S${l.s} W${l.w}</span> ${esc(l.text)}</li>`).join('')}</ul></div>`:''}`;
+  return`${gTabs(t,[['stadium','Stadium'],['build','Investments'],['repairs','Repairs']],'gtab','grid3')}${body}${log.length?`<div class="panel"><p class="eyebrow">Ground log</p><ul class="log">${log.map(l=>`<li><span class="num">S${l.s} W${l.w}</span> ${esc(l.text)}</li>`).join('')}</ul></div>`:''}`;
 }
 
 /* ----- money ----- */

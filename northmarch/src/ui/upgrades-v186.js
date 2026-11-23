@@ -2,7 +2,7 @@
    The V18.6 economic model is unchanged. No separate upgrades hub or home CTA.
    Existing club/ground, department and finance views remain the owners of actions. */
 (function(){
- const previousMoneyView=moneyView,previousAct=act;
+ const previousMoneyView=moneyView,previousAct=act,previousDeptSheet=deptSheet;
  const money=v=>k1(Math.round(v*10)/10);
  function cashPanel(id){
    const f=F(id),lines=f.season||{},entries=Object.entries(lines);
@@ -22,6 +22,43 @@
    const original=previousMoneyView();
    if(!S||!S.my||UI.mt!=='overview')return original;
    return cashPanel(S.my)+original;
+ };
+ // Show the real facility project in the department's primary decision sheet.
+ // The older V18.1 decision sheet hid building behind "Open full report".
+ deptSheet=function(k){
+   const html=previousDeptSheet(k);
+   if(!S||!S.my||UI.v181DeptFull===k||!DEPT[k]?.fac)return html;
+   const id=S.my,kind=DEPT[k].fac,fac=deptFacility(id,k),estate=G(id);
+   if(!fac)return html;
+   const idx=estate.plots.findIndex(p=>p.kind===kind);
+   const job=estate.projects.find(p=>p.phase!=='done'&&(
+     p.key.endsWith(':'+kind)||(idx>=0&&p.target==='plot:'+idx)));
+   const opt=fac.opt,chosen=opt&&UI.gsel===opt.key;
+   const title=COMPLEX[kind].n;
+   const state=fac.have?'Level '+fac.have.lv+' · '+Math.round(fac.have.cond)+'% condition':'Not built';
+   const benefit=COMPLEX[kind].sig;
+   let action='';
+   if(job){
+     action='<div class="v187-facility-job"><b>Under construction</b><p>'+esc(job.label)+' · '+
+       (job.phase==='permit'?'Awaiting permit':job.left+' weeks remaining')+
+       ' · '+k1(job.paid)+' paid of '+k1(job.cost)+'</p></div>';
+   }else if(opt){
+     action='<p class="small muted">'+esc(opt.label)+' · '+k1(opt.cost)+' · '+opt.weeks+' weeks'+
+       (opt.permit?' + planning permission':'')+'. Ongoing maintenance increases after completion.</p>'+
+       (chosen?
+         '<div class="v187-facility-confirm"><p>Commit '+k1(opt.cost)+' to this department? Paid as construction progresses; delays and overruns are possible.</p>'+
+           '<button class="btn" data-act="gbuild" data-arg="'+esc(opt.key)+'|standard">Approve investment</button>'+
+           '<button class="btn ghost" data-act="gsel" data-arg="">Cancel</button></div>':
+         '<button class="btn ghost" data-act="gsel" data-arg="'+esc(opt.key)+'">Plan department investment</button>');
+   }else action='<p class="small muted">'+(fac.noPlot?
+      'No free plot. The club cannot build another facility until a plot is available.':
+      'Facility is at its maximum level.')+'</p>';
+   const panel='<section class="v181-dept-block v187-facility" aria-label="'+esc(title)+' investment">'+
+     '<h3>Facility & investment</h3><div class="row small"><span><b>'+esc(title)+'</b></span><strong>'+esc(state)+'</strong></div>'+
+     '<p class="small muted">'+esc(benefit)+'</p>'+action+'</section>';
+   const marker='<section class="v181-dept-block"><h3>1. Choose a direction</h3>';
+   if(!html.includes(marker))throw Error('Department screen missing decision marker: '+k);
+   return html.replace(marker,panel+marker);
  };
  // Older deep links may still target Upgrades. Resolve them to the physical ground,
  // where stadium improvements live; department facilities use their own tiles.

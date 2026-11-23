@@ -5,7 +5,7 @@
  const ledger=(id)=>{
    const f=F(id),lines=f.season||{},groups={};
    const entries=Object.entries(lines);
-   const income=entries.filter(([k,v])=>v>0&&k!=='loanIn').reduce((s,[k,v])=>s+v,0);
+   const income=entries.filter(([,v])=>v>0).reduce((s,[k,v])=>s+v,0);
    const outgo=entries.filter(([,v])=>v<0).reduce((s,[k,v])=>s-v,0);
    const construction=-(lines.build||0);
    const operating=operatingResult(lines);
@@ -18,10 +18,10 @@
    const risk=fc.minV<0;
    return '<section class="nm86-cash" aria-label="Club cashflow">'+
     '<div class="nm86-section"><div><span class="nm85-kicker">CLUB FINANCES · SEASON TO DATE</span><h3>Money in, money out</h3></div><button class="tbtn" data-act="tab" data-arg="money">Full accounts ›</button></div>'+
-    '<div class="nm86-money-grid"><div><small>INCOME</small><strong>'+money(l.income)+'</strong></div><div><small>EXPENSES</small><strong>'+money(l.outgo)+'</strong></div><div><small>NET CASH MOVEMENT*</small><strong class="'+(l.income-l.outgo<0?'nm86-negative':'')+'">'+money(l.income-l.outgo)+'</strong></div></div>'+
-    '<div class="nm86-cash-bottom"><span>Cash now <b>'+money(f.cash)+'</b></span><span>Construction paid <b>'+money(l.construction)+'</b></span><span>Debt <b>'+money(loans)+'</b></span></div>'+
+    '<div class="nm86-money-grid"><div><small>CASH IN</small><strong>'+money(l.income)+'</strong></div><div><small>CASH OUT</small><strong>'+money(l.outgo)+'</strong></div><div><small>NET CASH MOVEMENT</small><strong class="'+(l.income-l.outgo<0?'nm86-negative':'')+'">'+money(l.income-l.outgo)+'</strong></div></div>'+
+    '<div class="nm86-cash-bottom"><span>Cash now <b>'+money(f.cash)+'</b></span><span>Operating result <b>'+money(l.operating)+'</b></span><span>Construction paid <b>'+money(l.construction)+'</b></span><span>Debt <b>'+money(loans)+'</b></span></div>'+
     '<p class="nm86-forecast '+(risk?'nm86-risk':'')+'">Estimated lowest cash in the next 26 weeks: <b>'+money(fc.minV)+'</b>'+(risk?' · Risk of running short':'')+'</p>'+
-    '<p class="nm86-footnote">*Income minus expenses booked this season, including construction; excludes new borrowing. Forecast is indicative, not guaranteed. Last matchweek: '+money(weeklyIn)+' in / '+money(weeklyOut)+' out.</p></section>';
+    '<p class="nm86-footnote">Cash movement includes borrowing, loan repayments and construction. Operating result excludes investing and financing flows. Forecast is indicative, not guaranteed. Last matchweek: '+money(weeklyIn)+' in / '+money(weeklyOut)+' out.</p></section>';
  };
  const routes=[
   {name:'Better training',kind:'training',why:'Improve player growth towards potential. Stronger development takes seasons.',tag:'Sport'},

@@ -68,8 +68,8 @@ function weekLines(id,home,o={}){
     // Keep the same ledger lines so old saves, reports and forecasts remain compatible.
     const retailGain=Math.log1p(Math.max(0,g.shop)) / Math.log(2);
     const eventsGain=Math.log1p(Math.max(0,g.events)) / Math.log(2);
-    L.merch=c.support/1000*.45*(1+retailGain*.16)*form;
-    L.events=c.support/1000*(retailGain*.12+eventsGain*.10)*form;
+    L.merch=c.support/1000*.45*(1+retailGain*.32)*form;
+    L.events=c.support/1000*(retailGain*.25+eventsGain*.10)*form;
     L.dues=S.members&&S.members[id]?S.members[id].count*S.members[id].dues/SEASON_WEEKS/1000:c.support*.4*40/SEASON_WEEKS/1000;
     L.tv=TV[t];
     L.wages=-wageBillK(id);L.staff=-staffWeekK(id);L.depts=-deptCost(id);

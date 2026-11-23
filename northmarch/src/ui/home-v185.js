@@ -30,7 +30,7 @@
      tile('Stadium',Math.round(sig.capacity).toLocaleString('en-GB'),'Ground & projects','ctab','ground','▥')+
      tile('Finances',k1(f.cash),'Accounts & budgets','hubmoney','overview','£')+
      tile('Commercial',level('commercial'),dept('commercial'),'dept','commercial','▣')+
-     tile('Board',Math.round(m.conf)+'/100','Members & goals','ctab','members','♜')+
+     tile('Board',Math.round(m.conf)+'/100','Members & goals','ctab','members','♜')+\n     tile('League',S.week?ord(posOf(id)):'—','Table & results','tab','table','▤')+
      '</section>'+
      (active.length?'<section class="nm85-progress"><b>Under construction</b><p>'+active.slice(0,2).map(p=>esc(p.label)+' · '+(p.phase==='permit'?'Permit pending':p.left+' weeks left')).join(' · ')+'</p><button class="tbtn" data-act="tab" data-arg="build">Manage upgrades ›</button></section>':'<section class="nm85-progress"><b>Improve your club</b><p>Invest in facilities to build long-term strength and income.</p><button class="tbtn" data-act="tab" data-arg="build">Explore upgrades ›</button></section>')+
      (last?'<button class="nm85-news" data-act="v183paper" data-arg="'+esc(last.key)+'"><span class="nm85-kicker">THE NORTHMARCH ECHO · WEEK '+last.w+'</span><b>'+esc(last.matches[0]?.headline||'Your club this week')+'</b><span>Weekly news and accounts ›</span></button>':'')+

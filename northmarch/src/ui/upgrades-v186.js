@@ -58,7 +58,27 @@
      '<p class="small muted">'+esc(benefit)+'</p>'+action+'</section>';
    const marker='<section class="v181-dept-block">';
    if(!html.includes(marker))throw Error('Department screen missing decision marker: '+k);
-   return html.replace(marker,panel+marker);
+   let output=html.replace(marker,panel+marker);
+   // Keep staff and reporting within this same sheet instead of sending players
+   // to a second "full department report" screen.
+   const advanced='<section class="v181-dept-block"><h3>More information and controls</h3>';
+   const start=output.indexOf(advanced);
+   if(start>=0){
+     const stop=output.indexOf('</section>',start);
+     if(stop<0)throw Error('Unclosed department controls: '+k);
+     const dept=estate.depts[k];
+     const staffChoices=[1,2,3,4,5].map(n=>'<button class="'+((dept.hiring?dept.hiring.to:dept.staff)===n?'on':'')+
+       '" data-act="dstaff" data-arg="'+esc(k)+':'+n+'" '+(dept.hiring?'disabled':'')+'>'+
+       n+'/5 · £'+n0(deptWeekCost(id,k,n)*1000)+'/wk</button>').join('');
+     const staffPanel='<section class="v181-dept-block"><h3>People & staffing</h3>'+
+       '<p class="small muted">Your team has '+dept.staff+'/5 staff. Hiring takes '+HIRE_WEEKS+' weeks and affects the weekly budget.</p>'+
+       '<div class="seg">'+staffChoices+'</div>'+
+       (dept.hiring?'<p class="small muted">Recruiting: '+dept.hiring.left+' weeks remaining.</p>':'')+'</section>';
+     const pipeline=departmentPipeline(k);
+     const extra=pipeline?'<details class="panel v187-dept-reports"><summary>Department pipeline and records</summary>'+pipeline+'</details>':'';
+     output=output.slice(0,start)+staffPanel+extra+output.slice(stop+'</section>'.length);
+   }
+   return output;
  };
  // Older deep links may still target Upgrades. Resolve them to the physical ground,
  // where stadium improvements live; department facilities use their own tiles.

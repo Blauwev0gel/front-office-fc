@@ -39,5 +39,6 @@
   "src/ui/recruit.js",
   "src/ui/youth.js",
   "src/ui/live.js",
-  "src/ui/act.js"
+  "src/ui/act.js",
+  "src/ui/home-v185.js"
 ]

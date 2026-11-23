@@ -1,0 +1,165 @@
+/* ---- ui/club.js ---- */
+/* ================= Screens: the club (ground, money, comparison, history), overlays and the season review =================
+   Ground and money overlays are adapted from voorzitter-fundering ui/system.js; every change goes through cmd(). */
+function condBar(c){const v=Math.round(c);return`<span class="cbar ${v<30?'lo':v<60?'mid':''}" role="img" aria-label="condition ${v}%"><i style="width:${v}%"></i></span><span class="small muted cnum">${v}%</span>`}
+function hubCards(){
+  const id=S.my,g=G(id),sg=groundSignals(id),w=groundCondWorst(id),run=g.projects.filter(p=>p.phase!=='done'),f=F(id),fc=cashForecast(id),h=finHealth(id);
+  return`<div class="hub">
+  <button class="hubc" data-act="ctab" data-arg="ground"><span class="eyebrow">Ground</span><b>${n0(sg.capacity)} places</b><span class="small ${w.c<40?'down':'muted'}">${w.c<40?'⚠ ':''}${esc(w.n)} ${Math.round(w.c)}%</span><span class="small muted">${run.length?`${run.length} project${run.length>1?'s':''} running`:'No building work'}</span></button>
+  <button class="hubc" data-act="tab" data-arg="money"><span class="eyebrow">Money</span><b class="${f.cash<0?'down':''}">${k1(f.cash)}</b><span class="small ${f.last&&f.last.net<0?'down':'up'}">${f.last?'Last week '+k1(f.last.net):'No weeks played'}</span><span class="small ${h==='healthy'?'muted':'down'}">${h==='healthy'?'Healthy':h==='tight'?'Tight':'In the red'} · low ${k1(fc.minV)}</span></button></div>`;
+}
+function gTabs(cur,list,act,cls){return`<div class="tabs ${cls||''}" role="tablist">${list.map(([k,n])=>`<button class="${cur===k?'on':''}" data-act="${act}" data-arg="${k}" aria-pressed="${cur===k}">${n}</button>`).join('')}</div>`}
+function msgLine(){return UI.msg?`<p class="${UI.msg.err?'err':'small up'}" role="status">${esc(UI.msg.text)}</p>`:''}
+function overlayShell(title,body){return`<div class="overlay" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="inner"><div class="row"><h2>${esc(title)}</h2><button class="tbtn" data-act="ov">Close</button></div>${msgLine()}${body}</div></div>`}
+function overlayView(){
+  if(UI.over==='ground')return groundOverlay();if(UI.over==='dept')return deptSheet(UI.arg);if(UI.over==='staff')return staffSheet(UI.arg);if(UI.over==='history')return historySheet();if(UI.over==='journal')return journalSheet();
+  if(UI.over==='live')return liveView();if(UI.over==='club')return clubSheet(UI.arg);if(UI.over==='player')return playerSheet(UI.arg);if(UI.over==='foreignclub')return foreignClubSheet(UI.arg);if(UI.over==='worldplayer')return worldPlayerSheet(UI.arg);return'';
+}
+
+/* ----- the ground ----- */
+function groundOverlay(){return overlayShell(CL(S.my).ground||'The ground',groundBody())}
+function groundBody(){
+  const id=S.my,g=G(id),sg=groundSignals(id),t=UI.gt,gate=F(id).lastGate;let body='';
+  if(t==='stadium'){
+    body=`<div class="panel"><div class="row"><span>Licensed capacity</span><b>${n0(sg.capacity)}</b></div>${sg.limitedBy?`<p class="small down">Limited by ${sg.limitedBy==='access'?'the turnstiles':'safety'}: the stands hold more.</p>`:''}${gate?`<p class="small muted">Last home game: ${n0(gate.total)} (${n0(gate.terrace)} standing, ${n0(gate.seated)} seated, ${gate.business} business).</p>`:''}
+    <div class="row small"><span>Atmosphere (home edge)</span><b>${sg.atmosphere}</b></div><div class="row small"><span>Comfort</span><b>${sg.comfort}</b></div></div>
+    <div class="panel"><p class="eyebrow">The four sides</p>${Object.entries(g.sides).map(([k,s])=>`<div class="grow"><span><b>${SIDE_NAME[k]}</b><br><span class="small muted">${s.type==='terrace'?'Terrace':'Seated'} · ${s.rings} ring${s.rings>1?'s':''} · ${n0(s.rings*RING[s.type])} · ${['no roof','part roof','full roof'][s.roof]}${building(id,'side:'+k)?' · building':''}</span></span>${condBar(s.cond)}</div>`).join('')}</div>
+    <div class="panel"><p class="eyebrow">The pitch</p><div class="grow"><span><b>${LV_NAME[g.pitch.lv]} grass</b><br><span class="small muted">Drainage ${LV_NAME[g.pitch.drain]}</span></span>${condBar(g.pitch.cond)}</div></div>
+    <div class="panel"><p class="eyebrow">Facilities</p>${Object.entries(g.fac).map(([k,f])=>`<div class="grow"><span><b>${FAC[k].n}</b><br><span class="small muted">${LV_NAME[f.lv]} · ${FAC[k].sig}</span></span>${condBar(f.cond)}</div>`).join('')}</div>`}
+  if(t==='complex')body=`<p class="small muted">Six plots. You can never build everything: what stands here decides what kind of club you are.</p><div class="panel">${g.plots.map((p,i)=>p.kind?`<div class="grow"><span><b>${i+1}. ${COMPLEX[p.kind].n}</b><br><span class="small muted">${LV_NAME[p.lv]} · ${COMPLEX[p.kind].sig}</span></span>${condBar(p.cond)}</div>`:`<div class="grow"><span><b>${i+1}. Empty plot</b><br><span class="small muted">${building(id,'plot:'+i)?'Building work under way':'Free to build on'}</span></span></div>`).join('')}</div>
+    <div class="panel"><p class="eyebrow">What the complex does on the pitch</p>${[['Training level','Young players grow faster, old ones fade slower',sg.training],['Medical level','Fewer and shorter injuries',sg.medical],['Academy level','How many graduates, and how good',sg.academy],['Scouting reach','How many players the director sees',sg.scouting],['Shop and events','Merchandise and hire income',sg.shop],['Community','Dues, and support that grows',sg.community]].map(([n,d,v])=>`<div class="row small"><span>${n}<br><span class="muted">${d}</span></span><b>${v}</b></div>`).join('')}</div>`;
+  if(t==='build'){const cat=projectCatalog(id),run=g.projects.filter(p=>p.phase!=='done'),groups=[...new Set(cat.map(o=>o.group))];
+    body=`${majorProjectsPanel()}${run.length?`<div class="panel"><p class="eyebrow">Under way</p>${run.map(p=>`<div class="row small"><span><b>${esc(p.label)}</b><br><span class="muted">${p.phase==='permit'?'Waiting for the permit':`${p.left} weeks left`} · £${p.cost}k${p.over?` (+${p.over}%)`:''} · paid ${k1(p.paid)}</span></span></div>`).join('')}</div>`:''}
+    <p class="small muted">Building is paid week by week. The cash forecast in Money shows what it does to the bank.</p>
+    ${groups.map(gr=>`<div class="panel"><p class="eyebrow">${esc(gr)}</p><div class="stack">${cat.filter(o=>o.group===gr).map(o=>o.busy?`<div class="opt dim"><b>${esc(o.label)}</b><span class="small muted">Work under way here</span></div>`:UI.gsel===o.key?`<div class="opt on"><b>${esc(o.label)}</b><span class="small">${esc(o.effect)} · ${o.weeks} weeks${o.permit?' + permit':''} · paid at about £${n0(o.cost/o.weeks*1000)} a week</span><div class="offers">${Object.entries(OFFER).map(([ok,of])=>`<button class="offer" data-act="gbuild" data-arg="${o.key}|${ok}"><b>£${Math.round(o.cost*of.p)}k</b><span>${of.n}</span><span class="muted">${Math.round(of.over*100)}% overrun risk</span></button>`).join('')}</div><button class="tbtn" data-act="gsel" data-arg="">Cancel</button></div>`:`<button class="opt" data-act="gsel" data-arg="${o.key}"><b>${esc(o.label)}</b><span class="small muted">£${o.cost}k · ${esc(o.effect)}</span></button>`).join('')}</div></div>`).join('')}`}
+  if(t==='repairs'){const rl=repairList(id);body=rl.length?`<p class="small muted">Below 30% a safety inspection can close half a stand.</p><div class="panel">${rl.map(r=>`<div class="grow"><span><b>${esc(r.label)}</b><br>${condBar(r.cond)}</span><span></span><button class="tbtn" data-act="grepair" data-arg="${r.key}">Repair £${r.cost}k</button></div>`).join('')}</div>`:'<p class="muted">Everything is in good shape.</p>'}
+  const log=eventsFor(id,{types:['Ground','ProjectStarted','ProjectCompleted','SafetyClosure']}).slice(-5).reverse();
+  return`${gTabs(t,[['stadium','Stadium'],['complex','Complex'],['build','Build'],['repairs','Repairs']],'gtab','grid4')}${body}${log.length?`<div class="panel"><p class="eyebrow">Ground log</p><ul class="log">${log.map(l=>`<li><span class="num">S${l.s} W${l.w}</span> ${esc(l.text)}</li>`).join('')}</ul></div>`:''}`;
+}
+
+/* ----- money ----- */
+function forecastSVG(fc){
+  const all=[...fc.low,...fc.high,0],mn=Math.min(...all),mx=Math.max(...all),W=300,H=90,x=i=>Math.round(i/(fc.mid.length-1)*W),y=v=>Math.round(H-4-(v-mn)/(mx-mn||1)*(H-8));
+  const band=fc.high.map((v,i)=>`${x(i)},${y(v)}`).join(' ')+' '+fc.low.map((v,i)=>`${x(i)},${y(v)}`).reverse().join(' ');
+  return`<svg class="fcast" viewBox="0 0 ${W} ${H}" role="img" aria-label="Cash forecast: lowest £${fc.minV}k in ${fc.minW} weeks"><polygon points="${band}" class="band"/><line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" class="zero"/><polyline points="${fc.mid.map((v,i)=>`${x(i)},${y(v)}`).join(' ')}" class="mid"/></svg>`;
+}
+function linesTable(L){return Object.keys(LINE).filter(k=>L[k]).map(k=>`<div class="row small"><span>${LINE[k][0]}</span><b class="${L[k]<0?'down':''}">${k1(L[k])}</b></div>`).join('')||'<p class="small muted">Nothing yet.</p>'}
+function moneyView(){
+  const id=S.my,f=F(id),t=UI.mt,fc=cashForecast(id),sl=seasonTotals(id),h=finHealth(id);let body='';
+  if(t==='overview'){const heads=Object.keys(HEAD).map(k=>[k,sl.head[k]||0]).filter(x=>x[1]),mx=Math.max(1,...heads.map(x=>Math.abs(x[1])));
+    body=`<div class="panel"><div class="row"><span>In the bank</span><b class="${f.cash<0?'down':''}">${k1(f.cash)}</b></div><div class="row small"><span>Debt</span><b>${k1(debt(id))}</b></div><div class="row small"><span>Overdraft limit</span><b>${k1(-creditLimit(id))}</b></div><div class="row small"><span>Health</span><b class="${h==='healthy'?'up':'down'}">${h==='healthy'?'Healthy':h==='tight'?'Tight':'In the red'}</b></div></div>
+    <div class="panel"><p class="eyebrow">Next 26 weeks</p>${forecastSVG(fc)}<p class="small ${fc.minV<0?'down':'muted'}">${fc.minV>=f.cash-1?'No dip ahead on current form.':`Lowest point: ${k1(fc.minV)} in ${fc.minW} week${fc.minW>1?'s':''}.`} The band shows bad and good results.</p></div>
+    <div class="panel"><p class="eyebrow">Season ${S.season} so far</p>${heads.map(([k,v])=>`<div class="hline"><span>${HEAD[k]}</span><span class="hbar"><i class="${v<0?'neg':''}" style="width:${Math.round(Math.abs(v)/mx*100)}%"></i></span><b class="${v<0?'down':''}">${k1(v)}</b></div>`).join('')||'<p class="small muted">No weeks played yet.</p>'}<div class="row small"><span>Operating result</span><b class="${operatingResult(sl.lines)<0?'down':'up'}">${k1(operatingResult(sl.lines))}</b></div></div>
+    <p class="small muted">Over 3 weeks above the overdraft limit means administration: six points and a rescue loan.</p>`}
+  if(t==='ledger')body=`<div class="panel"><p class="eyebrow">Last week</p>${f.last?linesTable(f.last.lines)+`<div class="row"><span>Net</span><b class="${f.last.net<0?'down':'up'}">${k1(f.last.net)}</b></div>`:'<p class="small muted">No week played yet.</p>'}</div><div class="panel"><p class="eyebrow">Season ${S.season} so far</p>${linesTable(sl.lines)}</div>
+    ${f.hist.slice(-3).reverse().map(hh=>`<div class="panel"><div class="row"><b>Season ${hh.s}</b><span class="small muted">${TIER_NAME[hh.tier]}, ${ord(hh.pos)}</span></div><div class="row small"><span>Operating result</span><b class="${operatingResult(hh.lines)<0?'down':''}">${k1(operatingResult(hh.lines))}</b></div><div class="row small"><span>Cash at the end</span><b>${k1(hh.cash)}</b></div></div>`).join('')}`;
+  if(t==='budget')body=budgetBody();
+  if(t==='income'||t==='sponsors'||t==='prices'){const pb=pricesBody();body=`<p class="eyebrow">Tickets</p>${pb}<p class="eyebrow">Sponsors</p>${sponsorsBody()}`}
+  if(t==='funding'){const max=maxNewLoan(id);
+    body=`<div class="panel"><p class="eyebrow">Loans</p>${f.loans.length?f.loans.map((l,i)=>`<div class="grow"><span><b>${esc(l.label)}</b><br><span class="small muted">${k1(l.left)} left · ${Math.round(l.rate*1000)/10}% · ${k1(l.pay)} a week</span></span><span></span>${f.cash>=l.left?`<button class="tbtn" data-act="repay" data-arg="${i}">Repay</button>`:''}</div>`).join(''):'<p class="small muted">No loans.</p>'}</div>
+    <div class="panel"><p class="eyebrow">Borrow</p><p class="small muted">The bank lends up to 80% of a season's income in total. The more you owe, the higher the rate.</p>
+    <div class="seg">${[3,5,10].map(y=>`<button class="${UI.ly===y?'on':''}" data-act="ly" data-arg="${y}" aria-pressed="${UI.ly===y}">${y} years</button>`).join('')}</div>
+    <div class="seg">${[25,50,100,200].filter(a=>a<=max).map(a=>`<button data-act="loan" data-arg="${a}">£${a}k at ${Math.round(loanRate(id,a)*1000)/10}%</button>`).join('')||'<p class="small down">The bank will not lend more.</p>'}</div><p class="note">${[25,50,100,200].filter(a=>a<=max).map(a=>`£${a}k: ${loanImpact(id,a,UI.ly)}`).join('<br>')}</p><p class="note">Room to borrow: ${k1(max)}.</p></div>`}
+  if(t==='funding')body+=fundingExtra();
+  return`${msgLine()}${gTabs(t,[['overview','Overview'],['budget','Budget'],['income','Income'],['funding','Funding']],'mtab','grid4')}${body}`;
+}
+
+function pricesBody(){const id=S.my,f=F(id);let body='';
+const pr=f.prices,gate=f.lastGate,ref=PRICE_DEF[C().tier];const st=(k,n,note)=>`<div class="grow"><span><b>${n}</b><br><span class="small muted">${note} · usual £${ref[k]}</span></span><span></span><span class="stepper"><button data-act="price" data-arg="${k}:-1" aria-label="Lower ${n}">−</button><b>£${pr[k]}</b><button data-act="price" data-arg="${k}:1" aria-label="Raise ${n}">+</button></span></div>`;
+    const a=attendance(id,null,{});
+    body=`<p class="small muted">Families walk away first when prices rise; the terrace comes anyway; business pays for comfort.</p><div class="panel">${st('terrace','Terrace ticket','Price-tolerant')}${st('seated','Seat ticket','Price-sensitive')}${st('business','Business seat','Pays for comfort')}${st('season','Season ticket','Sold in week 1')}</div>
+    <div class="panel"><div class="row small"><span>Expected crowd at these prices</span><b>${n0(a.total)} of ${n0(a.cap)}</b></div>${gate?`<div class="row small"><span>Last home game</span><b>${n0(gate.total)}</b></div>`:''}<div class="row small"><span>Expected gate per home game</span><b>${k1((a.terrace*pr.terrace+a.seated*pr.seated)/1000)}</b></div></div>`
+  body+=priceImpact(id);
+  return body}
+function clubSheet(id){
+  const c=CL(id),sg=groundSignals(id),sq=S.squads[id].slice().sort((a,b)=>b.q-a.q),r=S.tbl[id],ev=eventsFor(id).filter(e=>e.t!=='Match'&&e.t!=='Command').slice(-5).reverse();
+  return overlayShell(c.name,`<div class="panel"><div class="row"><span>${TIER_NAME[c.tier]}</span><b>${ord(posOf(id))} · ${r.pts} pts</b></div><div class="row small"><span>Form</span><b>${r.form.join('')||'—'}</b></div><div class="row small"><span>Squad</span><b>${Math.round(teamStrength(id))} · ${strWord(id)}</b></div>
+  <div class="row small"><span>Reputation</span><b>${repWord(c.rep)}</b></div><div class="row small"><span>Club identity</span><b>${esc(c.identity||'Community club')}</b></div><div class="row small"><span>Youth development culture</span><b>${c.devCulture??45}/100</b></div><div class="row small"><span>Support · capacity</span><b>${n0(c.support)} · ${n0(sg.capacity)}</b></div><div class="row small"><span>Money (from the papers)</span><b>${moneyWord(id)}</b></div><div class="row small"><span>Training · academy</span><b>${sg.training} · ${sg.academy}</b></div></div>
+  ${c.heritage?`<div class="panel"><p class="eyebrow">Club heritage</p><div class="row small"><span>Top-division titles · cup wins</span><b>${c.heritage.titles} · ${c.heritage.cups}</b></div><div class="row small"><span>Promotions · relegations</span><b>${c.heritage.promotions} · ${c.heritage.relegations}</b></div><div class="row small"><span>Highest division reached</span><b>${TIER_NAME[c.heritage.bestTier]}</b></div></div>`:''}
+  ${c.hist.length?`<div class="panel"><p class="eyebrow">Recent seasons</p>${c.hist.slice(-6).reverse().map(h=>`<div class="row small"><span>S${h.s} · ${TIER_NAME[h.tier]}</span><b>${ord(h.pos)} · ${h.pts} pts</b></div>`).join('')}</div>`:''}
+  <div class="panel"><p class="eyebrow">Best players</p>${sq.slice(0,4).map(p=>`<div class="row small"><span>${esc(p.name)} <span class="muted">${p.pos}, ${p.age}</span></span>${qbar(p.q)}</div>`).join('')}</div>
+  ${ev.length?`<div class="panel"><p class="eyebrow">Lately</p><ul class="log">${ev.map(e=>`<li><span class="num">S${e.s} W${e.w}</span> ${esc(e.text)}</li>`).join('')}</ul></div>`:''}
+  <p class="small muted">Rivals: ${nm(c.rival)}. Founded ${c.founded}.</p>`);
+}
+/* World inspection is read-only. Scouting quality and the director's shortlist
+   are not bypassed by opening a foreign player's public career profile. */
+function foreignClubSheet(id){
+  const f=S.foreign,c=f?.clubs[id];
+  if(!c)return overlayShell('Foreign club','<p class="small muted">Club no longer available.</p>');
+  const country=f.countries[c.country],season=f.current?.leagues?.[c.country];
+  const table=season?foreignRank(season.rows):country.tables.slice(-1)[0]?.rows||[];
+  const row=table.find(x=>x.id===id),position=table.findIndex(x=>x.id===id)+1;
+  const sq=(f.squads[id]||[]).slice().sort((a,b)=>b.q-a.q),ledger=c.ledger;
+  const recent=(f.market?.log||[]).filter(m=>m.from===id||m.to===id).slice(-6).reverse();
+  return overlayShell(c.name,`<div class="panel">
+    <p class="eyebrow">${esc(country.name)} · ${esc(country.divisions[0].name)}</p>
+    <div class="row small"><span>League position</span><b>${position?ord(position):'—'} ${row?(' · '+row.pts+' points'):''}</b></div>
+    <div class="row small"><span>Squad strength</span><b>${Math.round(foreignStrength(id))}</b></div>
+    <div class="row small"><span>Reputation · academy</span><b>${c.rep} · level ${c.academy||1}</b></div>
+    <div class="row small"><span>Cash · debt (£k)</span><b>£${n0(c.budget)}k · £${n0(c.debt||0)}k</b></div>
+    <div class="row small"><span>Weekly player wages</span><b>£${foreignWageWeek(id)}k</b></div>
+    ${c.adminSeason===S.season?'<p class="inj">Club in administration this season.</p>':''}
+  </div>
+  ${ledger?`<div class="panel"><p class="eyebrow">Season cash movements · £k</p>
+    <div class="row small"><span>Opening balance</span><b>${n0(ledger.start??0)}</b></div>
+    <div class="row small"><span>Revenue · wages</span><b>${n0(ledger.income)} · ${n0(ledger.wages)}</b></div>
+    <div class="row small"><span>Facilities and costs</span><b>${n0(ledger.other)}</b></div>
+    <div class="row small"><span>Transfers · financing</span><b>${n0(ledger.transfers||0)} · ${n0(ledger.financing||0)}</b></div>
+  </div>`:''}
+  <div class="panel"><p class="eyebrow">Squad · ${sq.length} players</p>${sq.slice(0,18).map(p=>`<button class="row small" data-act="worldplayer" data-arg="${p.id}"><span>${esc(p.name)}<br><span class="muted">${p.pos} · ${p.age} · ${(p.nationality||'nmr').toUpperCase()}</span></span><b>${p.sApps||0} games</b></button>`).join('')}</div>
+  ${recent.length?`<div class="panel"><p class="eyebrow">Recent transfers</p>${recent.map(m=>`<p class="small">${esc(m.name)} · ${m.to===id?'Arrived':'Left'} · £${m.fee}k</p>`).join('')}</div>`:''}
+  ${c.history.length?`<div class="panel"><p class="eyebrow">Recent seasons</p>${c.history.slice(-8).reverse().map(h=>`<div class="row small"><span>Season ${h.season}</span><b>${ord(h.place)} · ${h.pts} points</b></div>`).join('')}</div>`:''}`);
+}
+function worldPlayerSheet(pid){
+  const result=findPlayer(pid);
+  if(!result)return overlayShell('Player archive','<p class="small muted">This player has retired or left the tracked professional leagues.</p>');
+  const p=result.p,id=result.club,home=S.clubs[id]?.name||S.foreign?.clubs?.[id]?.name||'Free agent';
+  const name=club=>S.clubs[club]?.name||S.foreign?.clubs?.[club]?.name||club||'Free agent';
+  const seasons=(p.history||[]).slice(-20).reverse();
+  return overlayShell(p.name,`<div class="panel"><p class="eyebrow">${esc(home)}</p>
+    <div class="row small"><span>Age · nationality</span><b>${p.age} · ${(p.nationality||'nmr').toUpperCase()}</b></div>
+    <div class="row small"><span>Position · style</span><b>${POS_ONE[p.pos]} · ${esc(p.style||'Balanced')}</b></div>
+    <div class="row small"><span>This season's league</span><b>${p.sApps||0} apps · ${p.sGoals||0} goals</b></div>
+    <div class="row small"><span>Europe</span><b>${p.eApps||0} apps · ${p.eGoals||0} goals</b></div>
+    <div class="row small"><span>Contract remaining</span><b>${p.contract||0} years</b></div>
+    <p class="small muted">Ability and potential are not displayed without your own scouting observations.</p></div>
+    ${seasons.length?`<div class="panel"><p class="eyebrow">Career</p>${seasons.map(h=>h.type?
+      `<p class="small">S${h.season} · ${h.type} · ${esc(name(h.from))} → ${esc(name(h.to))}`:
+      `<div class="row small"><span>S${h.season} · ${esc(name(h.club))}</span><b>${h.apps||0} apps · ${h.goals||0} goals</b></div>`).join('')}</div>`:''}
+    ${(p.honours||[]).length?`<div class="panel"><p class="eyebrow">Honours</p>${p.honours.slice(-8).map(h=>`<p class="small">Season ${h.season}: ${h.type==='cup'?'Cup winner':h.type==='europe'?'European champions':h.country?((S.foreign?.countries[h.country]?.name||h.country)+' champions'):'League champion'} · ${esc(name(h.club))}</p>`).join('')}</div>`:''}`);
+}
+function playerSheet(pid){
+  const p=S.squads[S.my].find(x=>x.id===pid);if(!p)return overlayShell('Player','<p class="muted">No longer at the club.</p>');
+  const cost=releaseCost(p),clubName=id=>S.clubs[id]?.name||S.foreign?.clubs?.[id]?.name||id;
+  const history=(p.history||[]).slice(-18).reverse();
+  return overlayShell(p.name,`<div class="panel"><div class="row"><span>${POS_ONE[p.pos]}, ${p.age} · ${(p.nationality||'nmr').toUpperCase()}</span>${qbar(p.q)}</div><div class="row small"><span>Level</span><b>${qWord(p.q-(S.qref-11.7))}</b></div><div class="row small"><span>Morale</span><b>${MORALE_WORD(p.morale)}</b></div>${p.susp>0?`<p class="inj">Banned for ${p.susp} match${p.susp>1?'es':''}.</p>`:''}${p.wantsOut?'<p class="inj">Has asked to leave. The director will sell if a fair offer comes.</p>':''}${p.loan?`<p class="small">On loan from ${nm(p.loan.from)}.</p>`:''}<div class="row small"><span>Bookings this season</span><b>${p.yel}</b></div><div class="row small"><span>Outlook</span><b>${potWord(p)}</b></div><div class="row small"><span>Playing style</span><b>${esc(p.style||'Balanced')}</b></div><div class="row small"><span>Ambition · loyalty</span><b>${p.ambition??60} · ${p.loyalty??60}</b></div>
+  <div class="row small"><span>This season</span><b>${p.sApps} apps · ${p.sGoals} goals${p.mixedStatsSeason===S.season?' · Legacy totals may include cup games':''}${p.cupApps?' · '+p.cupApps+' cup apps':''}${p.cupGoals?' · '+p.cupGoals+' cup goals':''}${p.eApps?' · '+p.eApps+' European apps':''}${p.eGoals?' · '+p.eGoals+' European goals':''}${Math.abs(p.grown)>=.05?` · ${p.grown>0?'+':''}${r1(p.grown)} quality`:''}</b></div><div class="row small"><span>Contract</span><b>${p.contract} yr${p.contract===1?'':'s'} · £${p.wage} a week</b></div><div class="row small"><span>Market value</span><b>${k1(playerValue(p))}</b></div>${p.inj?`<p class="inj">Injured: out for ${p.inj} week${p.inj>1?'s':''}.</p>`:''}<p class="small muted">${p.trait}${p.academy?' · academy graduate':''}</p></div>
+  ${(p.honours||[]).length?`<div class="panel"><p class="eyebrow">Honours</p>${p.honours.slice(-8).reverse().map(h=>`<p class="small">S${h.season} · ${h.type==='cup'?'National cup':h.type==='europe'?'European champions':h.country?((S.foreign?.countries[h.country]?.name||h.country)+' champions'):(TIER_NAME[h.tier]+' champions')} · ${esc(clubName(h.club))}</p>`).join('')}</div>`:''}
+  ${p.dev&&p.dev.length?`<div class="panel"><p class="eyebrow">Development · end of each season</p>${devLines(p)}</div>`:''}
+  ${history.length?`<div class="panel"><p class="eyebrow">Career by season and transfers</p>${history.map(h=>h.type==='transfer'||h.type==='free'?`<p class="small">S${h.season} · ${h.type==='free'?'Free transfer':'Transfer'}${h.from?' from '+esc(clubName(h.from)):''} to ${esc(clubName(h.to))}${h.fee?' · £'+h.fee+'k':''}</p>`:`<div class="row small"><span>S${h.season} · ${esc(clubName(h.club))} (${h.age})</span><b>${h.apps||0} apps · ${h.goals||0} goals${h.europe?' · '+h.europe+' Europe':''}${h.europeGoals?' · '+h.europeGoals+' European goals':''}</b></div>`).join('')}</div>`:p.career.length?`<div class="panel"><p class="eyebrow">Career</p>${p.career.slice(-8).map(x=>`<p class="small">${esc(x)}</p>`).join('')}</div>`:''}
+  ${UI.confirm===pid?`<div class="panel"><p>Release ${esc(p.name)}? It costs ${k1(cost)} in compensation.</p><button class="btn" data-act="release" data-arg="${pid}">Release him</button><button class="btn ghost" data-act="confirm" data-arg="">Keep him</button></div>`:`<button class="btn ghost" data-act="confirm" data-arg="${pid}">Release (${k1(cost)})</button>`}`);
+}
+
+/* ----- the season review ----- */
+function seasonAheadPanel(){
+  const id=S.my,m=M(id),b=F(id).budget,run=G(id).projects.filter(p=>p.phase!=='done'),sp=signals(id).filter(x=>x.lv>=2).slice(0,3);
+  return`<div class="panel"><p class="eyebrow">Season ${S.season} ahead</p>${m.goals.map(g=>`<p class="small">· ${esc(g.text)}</p>`).join('')}
+  ${b?`<div class="row small"><span>Planned income</span><b>${k1(b.income)}</b></div><div class="row small"><span>Wage limit for the season</span><b>${k1(b.wages)}</b></div>`:''}
+  ${run.length?`<p class="small">Still being built: ${run.map(p=>esc(p.label)).join(', ')}.</p>`:''}${sp.length?`<p class="small muted">Waiting for you: ${sp.map(x=>esc(x.text)).join('; ')}.</p>`:''}</div>`}
+function reviewView(){
+  const h=UI.review,s=h.s,id=h.agm?h.agm.club:S.my,last=CL(id).hist[CL(id).hist.length-1],mv=h.moves.find(m=>m.id===id),fh=F(id).hist[F(id).hist.length-1],out=h.agm&&h.agm.out;
+  const sev=UI.summerEv||[],ins=sev.filter(e=>(e.t==='Transfer'||e.t==='Signing')&&e.c===id),outs=sev.filter(e=>e.t==='Transfer'&&e.c2===id);
+  const kids=sev.filter(e=>e.t==='YouthIntake'&&e.c===id).pop();
+  return`<main class="scene" style="padding-top:28px"><p class="eyebrow">Season ${s} · ${esc(CL(id).name)}</p><h1>${out?'Voted out':ord(last.pos)}</h1>${h.agm?agmPanel(h.agm,id):''}
+  <p class="voice">${mv?(mv.to<mv.from?`Promoted to ${TIER_NAME[mv.to]}.`:`Relegated to ${TIER_NAME[mv.to]}.`):`Another season in ${TIER_NAME[last.tier]}.`}${h.cup===id?' And the cup is ours.':''}</p>
+  <div class="panel"><div class="row small"><span>Points</span><b>${last.pts}</b></div><div class="row small"><span>Operating result</span><b class="${operatingResult(fh.lines)<0?'down':'up'}">${k1(operatingResult(fh.lines))}</b></div><div class="row small"><span>Cash</span><b>${k1(F(id).cash)}</b></div><div class="row small"><span>Cup winners</span><b>${nm(h.cup)}</b></div></div>
+  <div class="panel"><p class="eyebrow">Around the Northmarch</p>${TIERS.map(t=>`<div class="row small"><span>${TIER_NAME[t]} champions</span><b>${nm(h.tables[t][0])}</b></div>`).join('')}${h.moves.filter(m=>m.to<m.from).map(m=>`<p class="small up">${nm(m.id)} go up to ${TIER_NAME[m.to]}.</p>`).join('')}</div>
+  ${h.awards?`<div class="panel"><p class="eyebrow">Season ${s} · on the pitch</p>${h.awards.topScorer?`<p class="small"><b>Golden Boot:</b> ${esc(h.awards.topScorer.name)} · ${h.awards.topScorer.goals} goals for ${nm(h.awards.topScorer.club)}</p>`:''}${h.awards.breakthrough?`<p class="small"><b>Breakthrough:</b> ${esc(h.awards.breakthrough.name)} · +${h.awards.breakthrough.delta} quality</p>`:''}${h.awards.europe?`<p class="small"><b>European champions:</b> ${esc(S.foreign?.clubs?.[h.awards.europe]?.name||S.clubs[h.awards.europe]?.name||h.awards.europe)}</p>`:''}</div>`:''}
+  <div class="panel"><p class="eyebrow">The summer</p>${kids?`<p class="small">${esc(kids.text)}</p>`:''}<p class="small muted">The transfer window opens with the new season's pre-season. You set the frame first; the director then signs and sells.</p></div>
+  ${h.agm&&h.agm.goals?`<div class="panel"><p class="eyebrow">Season targets</p>${h.agm.goals.map(g=>`<div class="row small"><span>${esc(g.text)}<br><span class="muted">${esc(g.now)}</span></span><span class="pill ${g.met?'good':'bad'}">${g.met?'Met':'Missed'}</span></div>`).join('')}</div>`:''}
+  ${!out&&S.my?devChangePanel():''}
+  ${!out&&S.my?seasonAheadPanel():''}
+  ${h.chairsOut&&h.chairsOut.length?`<div class="panel"><p class="eyebrow">Other AGMs</p>${h.chairsOut.slice(0,6).map(c=>`<p class="small">${nm(c)} vote their chairman out.</p>`).join('')}</div>`:''}
+  <button class="btn" data-act="startnext">${out?'Choose a new club':`Start season ${S.season}`}</button></main>`;
+}
+

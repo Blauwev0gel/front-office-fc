@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Northmarch V18.4 — Build Your Club</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=Literata:ital,opsz,wght@1,7..72,400;1,7..72,500&display=swap">
+<style>/* NORTHMARCH_CSS */</style>
+</head>
+<body>
+<div class="nm-test-tools" id="nm-test-tools" aria-label="Test controls">
+  <div class="nm-test-row nm-test-row-primary">
+    <button type="button" data-nm-tool="download"><b>↓ Download volledige game</b></button>
+    <button type="button" data-nm-tool="open">↗ Open apart</button>
+  </div>
+  <details><summary>Saves overzetten tussen versies</summary>
+    <div class="nm-test-row"><button type="button" data-nm-tool="export">Exporteer save</button>
+    <button type="button" data-nm-tool="import">Importeer save</button></div>
+  </details>
+  <p class="nm-test-note">De standalone HTML werkt zonder de embedded vensterranden. Open in je browser om prettig te testen. Downloaden kan door de embed worden geblokkeerd; open dan deze pagina eerst in Safari of Chrome.</p>
+  <input type="file" id="nm-save-import" accept=".json,application/json" style="display:none">
+  <p id="nm-tool-status" class="nm-test-error" role="status" aria-live="polite"></p>
+</div>
+<div id="app"></div>
+<script>/* NORTHMARCH_JS */</script>
+</body>
+</html>

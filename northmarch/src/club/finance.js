@@ -64,17 +64,23 @@ function weekLines(id,home,o={}){
   else if(o.away)L.travel=-(t===0?.5:t===1?.35:.2);
   if(o.weekly!==false){
     L.sponsors=sponsorWeekK(id);L.partners=partnersWeekK(id,form);L.naming=namingWeekK(id);L.rent=-rentWeekK(id);
-    L.merch=c.support/1000*.45*(1+g.shop*.15)*form;
-    L.events=g.shop*.08+g.events*.07;
+    // Retail and events scale with actual fan demand, but high-end upgrades have diminishing returns.
+    // Keep the same ledger lines so old saves, reports and forecasts remain compatible.
+    const retailGain=Math.log1p(Math.max(0,g.shop)) / Math.log(2);
+    const eventsGain=Math.log1p(Math.max(0,g.events)) / Math.log(2);
+    L.merch=c.support/1000*.45*(1+retailGain*.16)*form;
+    L.events=c.support/1000*(retailGain*.12+eventsGain*.10)*form;
     L.dues=S.members&&S.members[id]?S.members[id].count*S.members[id].dues/SEASON_WEEKS/1000:c.support*.4*40/SEASON_WEEKS/1000;
     L.tv=TV[t];
     L.wages=-wageBillK(id);L.staff=-staffWeekK(id);L.depts=-deptCost(id);
-// Upgraded facilities cost money every week, not just during construction.
-// Depreciation and staffing keep long-run investments from being free bonuses.
-const estate=G(id),complexLevels=estate.plots.reduce((sum,p)=>sum+(p.kind?Math.max(0,p.lv-1):0),0);
-const facilityLevels=Object.values(estate.fac).reduce((sum,p)=>sum+Math.max(0,p.lv-2),0);
-const standRings=Object.values(estate.sides).reduce((sum,p)=>sum+p.rings,0);
-L.upkeep=-(.15+g.capacity/12000+complexLevels*.035+facilityLevels*.012+standRings*.008);
+// Maintenance is a real weekly cash expense. Larger estates have recurring costs.
+    // Base upkeep covers existing stands; increments charge only *additional* development.
+    const estate=G(id);
+    const complexLevels=estate.plots.reduce((sum,p)=>sum+(p.kind?Math.max(0,p.lv-1):0),0);
+    const facilityLevels=Object.values(estate.fac).reduce((sum,p)=>sum+Math.max(0,p.lv-2),0);
+    const standRings=Object.values(estate.sides).reduce((sum,p)=>sum+Math.max(0,p.rings-1),0);
+    const complexBuildings=estate.plots.filter(p=>p.kind).length;
+    L.upkeep=-(.15+g.capacity/12000+complexBuildings*.012+complexLevels*.035+facilityLevels*.012+standRings*.008);
   }
   for(const k in L){L[k]=r2(L[k]);if(!L[k])delete L[k]}
   return L;

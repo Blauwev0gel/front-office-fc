@@ -664,3 +664,12 @@ main.withbar{padding-bottom:164px!important;min-width:0}
   .nm86-money-grid{gap:4px}
   .nm86-money-grid>div{padding:10px 3px}
 }
+
+/* Facility actions and staffing remain touch-friendly inside one department sheet. */
+.v187-facility,.v187-facility-confirm,.v187-ground-staff{min-width:0;overflow-wrap:normal;word-break:normal}
+.v187-facility .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.v187-facility-confirm{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.v187-facility-confirm p{flex-basis:100%;margin:4px 0 8px}
+.v187-facility .btn{max-width:100%;white-space:normal;min-height:44px}
+.v187-ground-staff summary,.v187-dept-reports summary{cursor:pointer;min-height:42px;padding:8px 0}
+.v187-ground-staff .seg,.v187-dept-reports .seg{margin:9px 0}

@@ -12,10 +12,12 @@ const strategies={
   youth:['academy','scouting']
 };
 const seeds=[1804,1805,1806,1807,1808];
+const seasonCount=Number(process.argv[4]||10);
+if(!Number.isInteger(seasonCount)||seasonCount<1||seasonCount>40)throw Error('Season count must be 1..40');
 function run(seed,strategy){
  g.newWorld(seed);g.chooseClub(g.getS().seats[0]);
  let investments=0,attempts=0,denied=0;const annual=[];
- for(let season=0;season<20;season++){
+ for(let season=0;season<seasonCount;season++){
   if(g.getS().phase==='choose')g.chooseClub(g.getS().seats[0]);
   const id=g.getS().my;
   if(!id)throw Error('No playable club in season '+season);
@@ -24,7 +26,7 @@ function run(seed,strategy){
    // One strategic investment per season, never bypass command validation.
    // Existing projects can run for multiple weeks; prices and permits are simulated.
    const plots=g.G(id).plots;
-   const candidate=options.find(o=>{if(o.busy)return false;const match=o.key.match(/^plot:(\\d+):/);if(!match)return false;const kind=plots[+match[1]]?.kind;return strategy.some(k=>kind===k||(kind==null&&o.key.endsWith(':'+k)));});
+   const candidate=options.find(o=>{if(o.busy)return false;const match=o.key.match(/^plot:(\d+):/);if(!match)return false;const kind=plots[+match[1]]?.kind;return strategy.some(k=>kind===k||(kind==null&&o.key.endsWith(':'+k)));});
    if(candidate){
     attempts++;
     const result=g.cmd('StartProject',id,{key:candidate.key,offer:'standard'});
@@ -36,6 +38,7 @@ function run(seed,strategy){
   annual.push({season:season+1,tier:c.tier,cash:f.cash,squad:g.teamStrength(id),training:sg.training,academy:sg.academy,scouting:sg.scouting,capacity:sg.capacity,projects:g.G(id).projects.length});
   g.closeSeason();
  }
+ if(strategy.length&&attempts===0)throw Error('No investments attempted; check project selection');
  const last=annual[annual.length-1];
  return {seed,strategy:strategy.join('+')||'control',investments,attempts,denied,final:last,annual};
 }
@@ -52,4 +55,4 @@ const summary=Object.keys(strategies).filter(name=>wanted==='all'||wanted===name
 console.table(summary);
 const outfile=process.argv[2];
 if(outfile)fs.writeFileSync(outfile,JSON.stringify({summary,runs:output},null,2));
-console.log('20 seasons x 5 seeds x 4 strategies completed; results are descriptive, not a controlled causal estimate.');
+console.log(`${seasonCount} seasons x ${seeds.length} seeds x ${summary.length} strategies completed; results are descriptive, not a controlled causal estimate.`);

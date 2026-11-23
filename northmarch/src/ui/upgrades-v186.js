@@ -50,11 +50,22 @@
    const busy=opt&&opt.busy;
    const cash=F(id).cash;
    const reserve=opt?cash-opt.cost:cash;
+   const estate=G(id),capacity=groundSignals(id).capacity;
+   const raw=Object.values(estate.sides).reduce((sum,stand)=>sum+sideCap(stand),0);
+   const licence=1400+estate.fac.access.lv*700+estate.fac.safety.lv*500;
+   let addedCapacity=null;
+   if(route.key==='fac:access')addedCapacity=Math.max(0,Math.min(raw,licence+700)-capacity);
+   else if(route.key==='fac:safety')addedCapacity=Math.max(0,Math.min(raw,licence+500)-capacity);
+   else if(route.key==='side:N:ring')addedCapacity=Math.max(0,Math.min(raw+RING[estate.sides.N.type],licence)-capacity);
+   const stadiumNote=addedCapacity===null?'':addedCapacity>0
+     ?'Current licensed capacity: '+capacity+'. This project can add '+addedCapacity+' usable places, but extra ticket income still needs fan demand.'
+     :'Current licensed capacity: '+capacity+'. This project adds no usable capacity immediately. Other stadium limits must change first; extra ticket revenue is not guaranteed.';
    return '<article class="nm86-upgrade">'+
     '<div class="nm86-section"><span class="nm86-route">'+esc(route.tag)+'</span><b>'+esc(route.name)+'</b></div>'+
     '<p>'+esc(route.why)+'</p>'+
     (opt?'<div class="nm86-price"><strong>'+money(opt.cost)+'</strong><span>'+opt.weeks+' weeks'+(opt.permit?' + permit':'')+'</span></div>'+
       '<p class="nm86-effect">Next: '+esc(opt.label)+' · '+esc(opt.effect)+'</p>'+
+      (stadiumNote?'<p class="nm86-footnote">'+esc(stadiumNote)+'</p>':'')+
       '<p class="nm86-footnote">Approx. '+money(opt.cost/Math.max(1,opt.weeks))+'/week during construction. Completed facilities add recurring upkeep; costs and benefits continue into future seasons. Possible delays and overruns.</p>'+
       (reserve<0?'<p class="nm86-risk">Cash after quoted cost: '+money(reserve)+' · review borrowing risk.</p>':'')+
       (busy?'<p class="nm86-muted">Work already under way at this location.</p>':

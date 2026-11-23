@@ -68,7 +68,13 @@ function weekLines(id,home,o={}){
     L.events=g.shop*.08+g.events*.07;
     L.dues=S.members&&S.members[id]?S.members[id].count*S.members[id].dues/SEASON_WEEKS/1000:c.support*.4*40/SEASON_WEEKS/1000;
     L.tv=TV[t];
-    L.wages=-wageBillK(id);L.staff=-staffWeekK(id);L.depts=-deptCost(id);L.upkeep=-(.15+g.capacity/12000);
+    L.wages=-wageBillK(id);L.staff=-staffWeekK(id);L.depts=-deptCost(id);
+// Upgraded facilities cost money every week, not just during construction.
+// Depreciation and staffing keep long-run investments from being free bonuses.
+const estate=G(id),complexLevels=estate.plots.reduce((sum,p)=>sum+(p.kind?Math.max(0,p.lv-1):0),0);
+const facilityLevels=Object.values(estate.fac).reduce((sum,p)=>sum+Math.max(0,p.lv-2),0);
+const standRings=Object.values(estate.sides).reduce((sum,p)=>sum+p.rings,0);
+L.upkeep=-(.15+g.capacity/12000+complexLevels*.035+facilityLevels*.012+standRings*.008);
   }
   for(const k in L){L[k]=r2(L[k]);if(!L[k])delete L[k]}
   return L;

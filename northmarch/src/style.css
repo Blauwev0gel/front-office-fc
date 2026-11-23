@@ -569,3 +569,40 @@ main.withbar{padding-bottom:164px!important;min-width:0}
 @media(max-width:390px){.v183-boardroom{padding:12px}.v183-budget-options{grid-template-columns:1fr 1fr}.v183-desk-options{gap:6px}}
 
 .build-head,.build-card{background:var(--paper,#fff);border:1px solid var(--line,#d8d8d8);border-radius:12px;padding:16px;margin-bottom:12px}.build-head h2{margin:4px 0 10px}.build-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0}.build-kpis>div{background:var(--wash,#f0f1f3);padding:12px;border-radius:8px;min-width:0}.build-kpis span,.build-progress span{display:block;font-size:12px;opacity:.7}.build-kpis b{font-size:19px}.build-filter{display:flex;gap:6px;overflow-x:auto;padding:8px 0 14px}.build-filter .on{font-weight:800;text-decoration:underline}.build-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:10px}.build-card .btn{margin-top:10px}.build-confirm{border-top:1px solid var(--line,#ddd);margin-top:10px;padding-top:10px}.build-confirm .row{flex-wrap:wrap;gap:6px}.build-progress{padding:10px 0;border-bottom:1px solid var(--line,#ddd)}
+
+
+/* Northmarch V18.5: lightweight mobile-first club home; no game-state logic */
+.nm85-home{max-width:780px;margin:0 auto;padding:4px 0 30px}
+.nm85-heading{padding:12px 4px 18px}
+.nm85-kicker{font-size:.67rem;letter-spacing:.11em;text-transform:uppercase;font-weight:750;opacity:.72}
+.nm85-heading h1{font-size:clamp(1.5rem,5vw,2.1rem);line-height:1.16;margin:7px 0}
+.nm85-heading p{margin:0;opacity:.75;font-size:.85rem}
+.nm85-score{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:0 0 14px}
+.nm85-score>div{background:var(--paper,#f1f4f7);border:1px solid var(--line,#c9d0d8);border-radius:9px;text-align:center;padding:10px 2px}
+.nm85-score small{display:block;font-size:.58rem;letter-spacing:.06em;opacity:.72}
+.nm85-score b{display:block;font-size:clamp(.83rem,3.2vw,1.25rem);margin-top:5px}
+.nm85-fixture{background:var(--navy,#173453);color:white;border-radius:12px;padding:17px 14px;margin-bottom:14px;text-align:center}
+.nm85-fixture h2{font-size:clamp(1.1rem,4vw,1.5rem);line-height:1.25;margin:12px 0 7px;color:inherit}
+.nm85-fixture h2 span{opacity:.55;font-weight:400}
+.nm85-fixture p{font-size:.78rem;opacity:.85;margin:0 0 15px}
+.nm85-fixture .nm85-primary{display:block;width:100%;min-height:47px;font-weight:800}
+.nm85-alert,.nm85-news{display:flex;flex-direction:column;gap:5px;text-align:left;width:100%;padding:12px 14px;border-radius:9px;margin:0 0 13px;border:1px solid var(--line,#c9d0d8);background:var(--paper,#fff);color:inherit}
+.nm85-alert{border-left:4px solid #b77916}
+.nm85-alert span,.nm85-news span:last-child{font-size:.78rem;opacity:.8}
+.nm85-alert em{font-size:.75rem;font-style:normal;font-weight:700}
+.nm85-section-title{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:15px 2px 10px}
+.nm85-section-title h3{font-size:1.05rem;margin:0}
+.nm85-section-title span{font-size:.75rem;opacity:.7}
+.nm85-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.nm85-tile{min-width:0;min-height:108px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;padding:9px 4px;border:1px solid #b5c9d8;border-radius:10px;background:#e7f0f7;color:#123653;cursor:pointer}
+.nm85-tile:focus-visible{outline:3px solid #b77916;outline-offset:2px}
+.nm85-icon{font-size:1.4rem;line-height:1.2}
+.nm85-label{font-size:.78rem;font-weight:750}
+.nm85-tile strong{font-size:.9rem}
+.nm85-tile small{font-size:.65rem;opacity:.78;line-height:1.2}
+.nm85-progress{padding:13px;margin:13px 0;border:1px solid var(--line,#c9d0d8);border-radius:10px}
+.nm85-progress p{font-size:.8rem;margin:6px 0}
+.nm85-news{margin:12px 0}
+.nm85-details{margin:14px 0}
+.nm85-details>summary{cursor:pointer;padding:12px;font-size:.8rem}
+@media(max-width:340px){.nm85-score{grid-template-columns:repeat(2,minmax(0,1fr))}.nm85-grid{gap:5px}.nm85-tile{min-height:101px}}

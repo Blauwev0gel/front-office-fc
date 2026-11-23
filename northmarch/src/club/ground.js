@@ -111,7 +111,7 @@ function projectCatalog(id){
   for(const k in FAC){const f=g.fac[k];if(f.lv<8)out.push({key:'fac:'+k,target:'fac:'+k,group:'Facilities',label:`${FAC[k].n} (to ${LV_NAME[f.lv+1]})`,cost:lvCost(FAC[k].c,f.lv),weeks:FAC[k].w,effect:FAC[k].sig})}
   g.plots.forEach((p,i)=>{
     if(!p.kind){for(const k in COMPLEX)if(!g.plots.some(q=>q.kind===k))out.push({key:'plot:'+i+':'+k,target:'plot:'+i,group:`Plot ${i+1} (empty)`,label:`Build: ${COMPLEX[k].n}`,cost:COMPLEX[k].c,weeks:COMPLEX[k].w,permit:true,effect:COMPLEX[k].sig})}
-    else if(p.lv<8)out.push({key:'plot:'+i+':up',target:'plot:'+i,group:'Club complex',label:`${COMPLEX[p.kind].n} (to ${LV_NAME[p.lv+1]})`,cost:p.kind==='commercial'?Math.round(COMPLEX[p.kind].c*Math.pow(1.28,p.lv)):lvCost(COMPLEX[p.kind].c,p.lv+1),weeks:Math.round(COMPLEX[p.kind].w*.7),effect:COMPLEX[p.kind].sig});
+    else if(p.lv<8)out.push({key:'plot:'+i+':up',target:'plot:'+i,group:'Club complex',label:`${COMPLEX[p.kind].n} (to ${LV_NAME[p.lv+1]})`,cost:['commercial','training','medical','academy'].includes(p.kind)?Math.round(COMPLEX[p.kind].c*Math.pow(p.kind==='commercial'?1.28:1.32,p.lv)):lvCost(COMPLEX[p.kind].c,p.lv+1),weeks:Math.round(COMPLEX[p.kind].w*.7),effect:COMPLEX[p.kind].sig});
   });
   for(const o of out)o.busy=!!building(id,o.target);
   return out;

@@ -54,3 +54,24 @@ Compare five seeds across twenty seasons, four strategies: control, sporting, co
 
 ## Decision
 Do not implement a UI redesign until the experiment script runs and the benefit pathways are measured. A hybrid dashboard is the leading **hypothesis**, not yet an accepted UI design.
+
+
+## Execution update — V18.5 prototype
+
+Implemented `src/ui/home-v185.js`, appended after the existing V18.3 UI in `manifest.json`. This is a presentation-only override of the **preview/home** stage. The existing full-time, newspaper and archive stages are left intact. Mobile CSS is in `src/style.css`.
+
+Nine real department links: Squad, Manager, Training, Youth, Scouting, Stadium, Finances, Commercial and Board. Primary CTA advances through the existing `play` action. Project and newspaper shortcuts use existing handlers. No invented facility ratings, budgets or match results.
+
+**Executed checks** (against original V18.4 JavaScript plus new V18.5 home module in a JavaScript runtime, not a browser):
+- V18.5 module syntax: PASS.
+- Experiment harness syntax: PASS.
+- Home contains nine tiles and a match button: PASS.
+- Existing full-time stage still renders: PASS.
+- Newspaper issue is generated after advancing one week and linked from the home stage: PASS.
+- One 20-season sporting run, seed 1804, using actual `plot:<index>:up` project keys: 13 successful construction orders out of 20 attempts, seven denied, final squad strength 60.99 and cash -3.05 (game units, thousands of GBP). This is **not** a causal estimate.
+- Earlier one-seed control run ended with squad strength 49.38 and cash 496.95; these two runs are illustrative and cannot establish the upgrade effect due to diverging random streams, investment spending, and possible club changes.
+
+**Not yet done**: execute the full 5-seed/4-strategy matrix, validate the new manifest build locally, manual mobile-browser playtest, promote branch to main, or deploy to Pages. The live game is unchanged.
+
+### Next validation gate
+Run `python3 northmarch/build.py && node northmarch/test/smoke.js`, then run each strategy separately with `node northmarch/test/progression.js /tmp/nm-control.json control` (and sporting, commercial, youth). Inspect denied investments and club changes. Do not merge or publish before checking build and browser navigation.

@@ -5,7 +5,7 @@
  const ledger=(id)=>{
    const f=F(id),lines=f.season||{},groups={};
    const entries=Object.entries(lines);
-   const income=entries.filter(([,v])=>v>0&&!['loanIn','groundSale'].includes(arguments[0])).reduce((s,[k,v])=>s+v,0);
+   const income=entries.filter(([k,v])=>v>0&&k!=='loanIn').reduce((s,[k,v])=>s+v,0);
    const outgo=entries.filter(([,v])=>v<0).reduce((s,[k,v])=>s-v,0);
    const construction=-(lines.build||0);
    const operating=operatingResult(lines);

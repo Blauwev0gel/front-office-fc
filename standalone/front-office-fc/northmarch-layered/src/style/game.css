@@ -35,3 +35,15 @@
 .g-nav button{min-height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:none;border:0;color:var(--muted);font:inherit;font-size:.75rem;font-weight:700;cursor:pointer}
 .g-nav button span{font-size:1.15rem;line-height:1}.g-nav button.on{color:var(--signal)}
 .nm-test-fold>summary{min-height:44px;display:flex;align-items:center;font-size:.8rem;color:var(--muted);cursor:pointer}
+.g-money{display:flex;flex-direction:column;gap:8px;text-align:left;font:inherit;color:var(--ink);cursor:pointer}
+.g-mrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g-mrow div{display:flex;flex-direction:column}.g-mrow b{font-size:1.35rem;font-variant-numeric:tabular-nums}.g-mrow b.good{color:var(--good)}.g-mrow b.bad{color:var(--bad)}.g-mrow span,.g-sub{font-size:.78rem;color:var(--muted)}
+.g-h{margin:2px 0 8px;font-size:1rem;display:flex;justify-content:space-between;align-items:baseline}.g-h small{font-weight:500;color:var(--muted);font-size:.75rem}
+.g-depts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g-dept{display:flex;flex-direction:column;gap:3px;align-items:flex-start;min-height:72px;padding:10px 12px;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.g-dept b{font-size:.9rem}.g-dots{color:var(--signal);letter-spacing:2px;font-size:.85rem}.g-dept small{color:var(--muted);font-size:.72rem}
+.g-links{display:flex;flex-direction:column;gap:8px}
+.g-link{display:flex;align-items:center;gap:12px;min-height:58px;padding:10px 12px;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.g-link>span:nth-child(2){flex:1;display:flex;flex-direction:column}.g-link small{color:var(--muted);font-size:.78rem}.g-link em{font-style:normal;color:var(--muted);font-size:1.2rem}
+.g-ic{width:34px;height:34px;border-radius:9px;background:var(--navy);color:var(--onnavy);display:grid;place-items:center;flex:none}
+.g-ft>.btn{min-height:54px;font-size:1.05rem;font-weight:800}
+.g-full{margin-top:16px}.g-full>summary{min-height:48px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--navy);cursor:pointer;border:1px solid var(--line);border-radius:12px;background:var(--card)}

@@ -65,8 +65,10 @@ function building(id,key){return G(id).projects.find(p=>p.target===key&&p.phase!
 /* ----- facility economy: annual operating cost per level, and the level a club can actually afford to run ----- */
 // Annual operating costs in £k; physical upkeep remains payable when downsized.
 const PRO_COST={"academy":[0,2,5,11,22,40,75,125,210],"training":[0,2,4,8,16,30,55,95,160],"medical":[0,1,3,6,12,23,43,75,130],"scouting":[0,1,3,6,12,22,40,70,120],"commercial":[0,1,2,5,10,18,34,60,100],"clubhouse":[0,1,2,4,8,15,28,48,80],"parking":[0,1,2,3,6,11,20,35,60]};
-function facilityAnnual(kind,lv){return PRO_COST[kind]?.[lv]||0}
-function facilityRun(id,p){return facilityAnnual(p.kind,p.lv)*.2+facilityAnnual(p.kind,operatingLevel(id,p))*.8}
+/* Running costs follow the division's income (TV, gates and sponsors differ ~30x between division 0 and 4), so a level that a top club shrugs off is a real burden lower down. */
+const FAC_SCALE=[1,.6,.3,.15,.08];
+function facilityAnnual(kind,lv,id){return r1((PRO_COST[kind]?.[lv]||0)*(id?FAC_SCALE[CL(id).tier]:1))}
+function facilityRun(id,p){return facilityAnnual(p.kind,p.lv,id)*.2+facilityAnnual(p.kind,operatingLevel(id,p),id)*.8}
 function operatingLevel(id,p){const d=G(id).depts[COMPLEX[p.kind].dept];return Math.min(p.lv,d.budget==='tight'?Math.max(1,d.staff):d.budget==='normal'?Math.max(2,d.staff+2):Math.max(3,d.staff+3))}
 function groundSignals(id){
   const g=G(id),df=d=>deptF(id,d),eff=(o,dept)=>o.lv*(.2+.8*o.cond/100)*(dept?df(dept):1),st=d=>g.depts[d].staff*.3*BUDGET_F[g.depts[d].budget];
@@ -118,7 +120,7 @@ function projectCatalog(id){
     if(!p.kind){for(const k in COMPLEX)if(!g.plots.some(q=>q.kind===k))out.push({key:'plot:'+i+':'+k,target:'plot:'+i,group:`Plot ${i+1} (empty)`,label:`Build: ${COMPLEX[k].n}`,cost:COMPLEX[k].c,weeks:COMPLEX[k].w,permit:true,effect:COMPLEX[k].sig})}
     else if(p.lv<8)out.push({key:'plot:'+i+':up',target:'plot:'+i,group:'Club complex',label:`${COMPLEX[p.kind].n} (to ${LV_NAME[p.lv+1]})`,cost:['commercial','training','medical','academy'].includes(p.kind)?Math.round(COMPLEX[p.kind].c*Math.pow(p.kind==='commercial'?1.28:p.kind==='academy'?1.22:1.32,p.lv)):lvCost(COMPLEX[p.kind].c,p.lv+1),weeks:Math.round(COMPLEX[p.kind].w*.7),effect:COMPLEX[p.kind].sig});
   });
-  for(const o of out){o.busy=!!building(id,o.target);const [type,a,b]=o.key.split(':');if(type==='plot'){const p=g.plots[+a],kind=b==='up'?p.kind:b,lv=b==='up'?p.lv+1:1;o.cost=Math.round(COMPLEX[kind].c*Math.pow(1.85,lv-1));o.annual=facilityAnnual(kind,lv);o.annualIncrease=o.annual-facilityAnnual(kind,lv-1);o.effect+=' · Full operation £'+o.annual+'k/year';}else if(type==='fac'||type==='pitch'){o.cost=Math.round(o.cost*1.25);}else if(type==='side'&&b==='ring'){o.cost=Math.round(o.cost*Math.pow(1.18,Math.max(0,g.sides[a].rings-1)));}}
+  for(const o of out){o.busy=!!building(id,o.target);const [type,a,b]=o.key.split(':');if(type==='plot'){const p=g.plots[+a],kind=b==='up'?p.kind:b,lv=b==='up'?p.lv+1:1;o.cost=Math.round(COMPLEX[kind].c*Math.pow(1.85,lv-1));o.annual=facilityAnnual(kind,lv,id);o.annualIncrease=o.annual-facilityAnnual(kind,lv-1,id);o.effect+=' · Full operation £'+o.annual+'k/year';}else if(type==='fac'||type==='pitch'){o.cost=Math.round(o.cost*1.25);}else if(type==='side'&&b==='ring'){o.cost=Math.round(o.cost*Math.pow(1.18,Math.max(0,g.sides[a].rings-1)));}}
   return out;
 }
 function startProject(id,key,offer){

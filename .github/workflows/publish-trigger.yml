@@ -1,0 +1,14 @@
+name: Publish trigger
+# Every push to slimline-main starts the Pages workflow on main, which builds slimline-main and publishes /northmarch/.
+on:
+  push:
+    branches: [slimline-main]
+permissions:
+  actions: write
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh workflow run pages.yml --ref main --repo "$GITHUB_REPOSITORY"
+        env:
+          GH_TOKEN: ${{ github.token }}

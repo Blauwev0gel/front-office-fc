@@ -68,6 +68,8 @@ function scoutWeek(id,salt=0){
   // urgent needs get more looks; the scouts rotate through the plan week by week
   const SCOUT_W={hole:3,upgrade:2,leaving:2,ageing:1,contract:1}; /* scouts follow where the director will search: gaps first, then upgrades and departures */
   const positions=needs.length?needs.flatMap(n=>Array(SCOUT_W[n.kind]||1).fill(n.pos)):[pick(POS)],n=scoutObservations(id);
+  /* only players who could matter: at least squad-player level for this club (no keepers of 8 for a squad of 12) */
+  const minQ=squadQuality(S.squads[id])-1.5;
   const others=Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1);
   const overseas=Object.keys(S.foreign?.squads||{});
   for(let k=0;k<n;k++){const pos=positions[(S.week*n+k+salt)%positions.length];
@@ -75,14 +77,14 @@ function scoutWeek(id,salt=0){
     // half the looks go back to players already on the list, the least-watched first: that is how estimates firm up
     const again=sl.filter(e=>e.status==='watching'&&e.pos===pos).sort((a,b)=>a.obs-b.obs)[0];
     if(again&&(S.week+k+salt)%2===1){const f=findPlayer(again.pid);if(f&&f.club!==id)cand={p:f.p,club:f.club}}
-    if(!cand&&rnd()<.35){const fa=S.fa.filter(p=>p.pos===pos);if(fa.length)cand={p:pick(fa),club:null}}
+    if(!cand&&rnd()<.35){const fa=S.fa.filter(p=>p.pos===pos&&p.q>=minQ);if(fa.length)cand={p:pick(fa),club:null}}
     /* scouts watch players who can be had: surplus at their club, a club in need of cash, or a player who wants out; and within reach of the budget.
        They try up to four clubs before the look is lost, so the department's effort turns into real observations */
     for(let t=0;!cand&&t<4&&others.length;t++){const o=pick(others),sq=S.squads[o],spare=sq.filter(p=>p.pos===pos).length>REQ[pos]||F(o).cash<0,bud=budgetFor(id);
-      const c=sq.filter(p=>p.pos===pos&&!p.loan&&(spare||p.wantsOut)&&playerValue(p)<=Math.max(5,bud*1.2));if(c.length)cand={p:pick(c),club:o}}
+      const c=sq.filter(p=>p.pos===pos&&p.q>=minQ&&!p.loan&&(spare||p.wantsOut)&&playerValue(p)<=Math.max(5,bud*1.2));if(c.length)cand={p:pick(c),club:o}}
     if(!cand&&overseas.length&&rnd()<.4){
       const from=pick(overseas),sq=S.foreign.squads[from];
-      const candidates=sq.filter(p=>p.pos===pos&&p.inj<=0&&p.contract>0&&sq.filter(x=>x.pos===pos).length>REQ[pos]&&playerAcceptsMove(p,from,id)&&askingFee(p,from)<=Math.max(5,budgetFor(id)*1.2));
+      const candidates=sq.filter(p=>p.pos===pos&&p.q>=minQ&&p.inj<=0&&p.contract>0&&sq.filter(x=>x.pos===pos).length>REQ[pos]&&playerAcceptsMove(p,from,id)&&askingFee(p,from)<=Math.max(5,budgetFor(id)*1.2));
       if(candidates.length)cand={p:pick(candidates),club:from};
     }
     if(!cand)continue;

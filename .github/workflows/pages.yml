@@ -2,7 +2,7 @@ name: Publish game versions
 
 on:
   push:
-    branches: [main, chatgpt, claude-game]
+    branches: [main, chatgpt, claude-game, slimline-main]
   workflow_dispatch:
 
 permissions:
@@ -72,8 +72,8 @@ jobs:
             if [ "$branch" = main ]; then target=site; fi
             cp "versions/$branch/dist/index.html" "$target/index.html"
           done
-          python versions/main/northmarch/build.py
-          cp versions/main/northmarch/dist/index.html site/northmarch/index.html
+          (cd versions/northmarch/standalone/front-office-fc/northmarch-layered && node build.js)
+          cp versions/northmarch/standalone/front-office-fc/northmarch-layered/dist/northmarch-layered.html site/northmarch/index.html
           touch site/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@v5

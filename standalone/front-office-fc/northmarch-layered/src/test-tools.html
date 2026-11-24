@@ -1,0 +1,13 @@
+<div class="nm-test-tools" id="nm-test-tools" aria-label="Test controls">
+  <div class="nm-test-row nm-test-row-primary">
+    <button type="button" data-nm-tool="download"><b>↓ Download volledige game</b></button>
+    <button type="button" data-nm-tool="open">↗ Open apart</button>
+  </div>
+  <details><summary>Saves overzetten tussen versies</summary>
+    <div class="nm-test-row"><button type="button" data-nm-tool="export">Exporteer save</button>
+    <button type="button" data-nm-tool="import">Importeer save</button></div>
+  </details>
+  <p class="nm-test-note">De standalone HTML werkt zonder de embedded vensterranden. Open in je browser om prettig te testen. Downloaden kan door de embed worden geblokkeerd; open dan deze pagina eerst in Safari of Chrome.</p>
+  <input type="file" id="nm-save-import" accept=".json,application/json" style="display:none">
+  <p id="nm-tool-status" class="nm-test-error" role="status" aria-live="polite"></p>
+</div>

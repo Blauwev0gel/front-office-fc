@@ -63,11 +63,23 @@ function weekLines(id,home,o={}){
   else if(o.away)L.travel=-(t===0?.5:t===1?.35:.2);
   if(o.weekly!==false){
     L.sponsors=sponsorWeekK(id);L.partners=partnersWeekK(id,form);L.naming=namingWeekK(id);L.rent=-rentWeekK(id);
-    L.merch=c.support/1000*.45*(1+g.shop*.15)*form;
-    L.events=g.shop*.08+g.events*.07;
+    // Retail and events scale with actual fan demand, but high-end upgrades have diminishing returns.
+    // Keep the same ledger lines so old saves, reports and forecasts remain compatible.
+    const retailGain=Math.log1p(Math.max(0,g.shop)) / Math.log(2);
+    const eventsGain=Math.log1p(Math.max(0,g.events)) / Math.log(2);
+    L.merch=c.support/1000*.45*(1+retailGain*.32)*form;
+    L.events=c.support/1000*(retailGain*.25+eventsGain*.10)*form;
     L.dues=S.members&&S.members[id]?S.members[id].count*S.members[id].dues/SEASON_WEEKS/1000:c.support*.4*40/SEASON_WEEKS/1000;
     L.tv=TV[t];
-    L.wages=-wageBillK(id);L.staff=-staffWeekK(id);L.depts=-deptCost(id);L.upkeep=-(.15+g.capacity/12000);
+    L.wages=-wageBillK(id);L.staff=-staffWeekK(id);L.depts=-deptCost(id);
+// Maintenance is a real weekly cash expense. Larger estates have recurring costs.
+    // Base upkeep covers existing stands; increments charge only *additional* development.
+    const estate=G(id);
+    const complexLevels=estate.plots.reduce((sum,p)=>sum+(p.kind?Math.max(0,p.lv-1):0),0);
+    const facilityLevels=Object.values(estate.fac).reduce((sum,p)=>sum+Math.max(0,p.lv-2),0);
+    const standRings=Object.values(estate.sides).reduce((sum,p)=>sum+Math.max(0,p.rings-1),0);
+    const complexBuildings=estate.plots.filter(p=>p.kind).length;
+    L.upkeep=-(.15+g.capacity/12000+estate.plots.filter(p=>p.kind).reduce((sum,p)=>sum+facilityRun(id,p)/SEASON_WEEKS,0)+Object.values(estate.fac).reduce((sum,p)=>sum+.012*Math.pow(1.65,Math.max(0,p.lv-2)),0)+Object.values(estate.sides).reduce((sum,p)=>sum+.008*Math.pow(1.18,Math.max(0,p.rings-1)),0));
   }
   for(const k in L){L[k]=r2(L[k]);if(!L[k])delete L[k]}
   return L;
@@ -88,7 +100,7 @@ function estSeasonIncome(id){
   const hold=c.support*.28*F(id).prices.season/1000;
   return Math.round(h*SEASON_WEEKS/2+reg*SEASON_WEEKS+hold+PRIZE[c.tier][0]*.6);
 }
-function wageCapK(id){return r2(estSeasonIncome(id)*wageRatio(id)/SEASON_WEEKS)}
+function wageCapK(id){const income=estSeasonIncome(id),wk=weekLines(id,false,{}),fixed=-((wk.staff||0)+(wk.depts||0)+(wk.upkeep||0)+(wk.rent||0))*SEASON_WEEKS;return r2(Math.max(0,Math.min(income*wageRatio(id),income*.95-fixed))/SEASON_WEEKS)}
 
 /* ----- the week for one club. matches: this week's games involving the club ----- */
 function financeWeek(id,matches){
@@ -134,7 +146,7 @@ function financeSeasonEnd(id,pos,tier){
 }
 function seasonTotals(id,s){const f=F(id),lines=s==null||s===S.season?f.season:(f.hist.find(h=>h.s===s)||{lines:{}}).lines,head={};
   for(const k in lines){const h=LINE[k][1];head[h]=r1((head[h]||0)+lines[k])}return{lines,head}}
-function operatingResult(lines){let t=0;for(const k in lines)if(!['loanIn','loanOut','groundSale'].includes(k))t+=lines[k];return r1(t)}
+function operatingResult(lines){let t=0;for(const k in lines)if(!['loanIn','loanOut','groundSale','build','feesIn','feesOut','interest'].includes(k))t+=lines[k];return r1(t)}
 /* 26-week forecast with a band */
 function cashForecast(id,weeks=26){
   const f=F(id),avg=(sumLines(weekLines(id,true,{}))+sumLines(weekLines(id,false,{away:true})))/2;

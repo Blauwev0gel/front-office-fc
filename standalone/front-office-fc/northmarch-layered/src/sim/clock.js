@@ -14,7 +14,7 @@ function allIds(){return Object.keys(S.clubs)}
 function summerWindow(){
   const ids=allIds();
   const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
-  for(const pass of [0,1])for(const id of order)squadManager(id,'summer');
+  for(const pass of [0,1])for(const id of order)squadManager(id,pass===0?'summer':'summerCover');
   if(S.my){tdClose();buildPlan(S.my)}
   for(const id of order)loanOut(id);
   youthReconcile();

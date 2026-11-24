@@ -1,6 +1,6 @@
 /* ================= Screens: title, choice of club, the week, tables and squad =================
    The UI only reads state and sends commands (cmd) or advanceWeek/closeSeason. No game rules live here. */
-const UI={tab:'week',over:null,arg:null,gt:'stadium',mt:'overview',tier:null,msg:null,review:null,lastEv:[],gsel:null,ly:5,confirm:null,title:true};
+const UI={tab:'week',buildGroup:'all',buildChoice:null,over:null,arg:null,gt:'stadium',mt:'overview',tier:null,msg:null,review:null,lastEv:[],gsel:null,ly:5,confirm:null,title:true};
 const n0=v=>Math.round(v).toLocaleString('en-GB');
 const k1=v=>(v<0?'−':'')+'£'+Math.abs(r1(v)).toLocaleString('en-GB')+'k';
 const crest=`<svg class="crest" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 L31 7 V17 C31 25 24 30 17 32 C10 30 3 25 3 17 V7 Z" fill="var(--navy)"/><path d="M8 22 L14 12 L18 18 L21 14 L26 22" stroke="var(--signal)" stroke-width="2.6" fill="none" stroke-linejoin="round"/></svg>`;
@@ -14,14 +14,14 @@ function pct(x){return Math.round(x*100)+'%'}
 function topBar(){
   const c=C();
   return`<header class="top">${crest}<div class="tg"><div class="club">${esc(c.name)}</div><div class="sub">Season ${S.season} · ${S.week?'Week '+S.week:'Pre-season'} · ${TIER_NAME[c.tier]}</div></div><span class="pill ${F(S.my).cash<0?'bad':''}">${k1(F(S.my).cash)}</span></header>
-  <nav class="nav" aria-label="Sections">${[['week','Week'],['club','Club'],['squad','Squad'],['money','Money'],['table','League']].map(([k,n])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-arg="${k}" aria-current="${UI.tab===k?'page':'false'}">${n}</button>`).join('')}</nav>`;
+  <nav class="nav" aria-label="Sections">${[['week','Week'],['build','Upgrades'],['club','Club'],['squad','Squad'],['money','Money'],['table','League']].map(([k,n])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-arg="${k}" aria-current="${UI.tab===k?'page':'false'}">${n}</button>`).join('')}</nav>`;
 }
 function render(){
   if(!HAS_DOM)return;const app=document.getElementById('app');let h='';
   if(!S||UI.title)h=titleView();
   else if(UI.review)h=reviewView();
   else if(S.phase==='choose')h=chooseView();
-  else{const body=UI.tab==='table'?tableView():UI.tab==='squad'?squadView():UI.tab==='club'?clubView():UI.tab==='money'?moneyView():weekView();h=topBar()+`<main class="withbar">${body}</main>`+actionBar()}
+  else{const body=UI.tab==='table'?tableView():UI.tab==='squad'?squadView():UI.tab==='club'?clubView():UI.tab==='money'?moneyView():UI.tab==='build'?buildView():weekView();h=topBar()+`<main class="withbar">${body}</main>`+actionBar()}
   if(S&&UI.over)h+=overlayView();
   app.innerHTML=h;
   document.body.style.overflow=UI.over?'hidden':'';

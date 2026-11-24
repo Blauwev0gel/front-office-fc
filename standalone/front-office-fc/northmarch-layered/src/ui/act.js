@@ -8,6 +8,9 @@ function act(a,arg){
     case'quit':save();UI.title=true;UI.over=null;break;
     case'choose':chooseClub(arg);UI.tier=null;break;
     case'boardjump':UI.tab='club';UI.ct={members:'members',staff:'football',departments:'depts'}[arg]||'overview';UI.over=null;break; // kept for old links
+    case'buildgroup':UI.buildGroup=arg;UI.buildChoice=null;break;
+    case'buildpick':UI.buildChoice=UI.buildChoice===arg?null:arg;break;
+    case'buildgo':{const opt=projectCatalog(S.my).find(o=>o.key===arg);if(!opt||opt.busy){UI.msg={err:true,text:'This upgrade is no longer available.'};break}const r=cmd('StartProject',S.my,{key:arg,offer:'standard'});say(r,'Upgrade ordered. Follow its progress here.');if(r.ok)UI.buildChoice=null;break}
     case'improve':UI.improve=UI.improve===arg?null:arg;break;
     case'hubmoney':UI.tab='money';UI.mt=arg;UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
     case'hubprojects':UI.tab='club';UI.ct='projects';UI.over=null;if(HAS_DOM)window.scrollTo(0,0);break;
@@ -68,10 +71,5 @@ function act(a,arg){
     default:featureAction(a,arg);break;
   }
   if(S&&!UI.title&&(S.phase!=='choose'||S.career.length))save();
-  render();
-}
-if(HAS_DOM){
-  document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;act(b.dataset.act,b.dataset.arg)});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&UI.over){UI.over=null;render()}});
   render();
 }

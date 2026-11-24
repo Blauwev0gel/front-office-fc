@@ -9,6 +9,15 @@ function opsInit(){return{plan:{s:0,w:0,needs:[],ready:[],next:1},shortlist:[],s
 function OPS(){if(!S.ops)S.ops=opsInit();return S.ops}
 function recruitStrategy(id){return F(id).policy.recruit||'balanced'}
 /* how a strategy colours the director's choice (used for every club in shopFor) */
+/* what a candidate is worth to the director: quality and potential against the yearly cost (fee over three years plus wages) relative to income */
+function recruitValue(id,p,seen,fee,wage,sl){
+  const uncertainty=sl&&sl.obs?scoutRange(id,sl.obs):eyeRange(id);
+  const annualCost=fee/3+wage*SEASON_WEEKS;
+  const income=Math.max(1,estSeasonIncome(id));
+  return seen+(p.age<=24?Math.max(0,p.pa-p.q)*.18:0)-(p.age>=32?.4:0)-annualCost/income*4+(tdYouth(id)&&p.age<=21?.5:0)+recruitBias(id,p,fee)-.5*uncertainty;
+}
+/* how many upgrade attempts the director makes in the summer: more scouting means more looks */
+function upgradeAttempts(id){return clamp(1+Math.floor(groundSignals(id).scouting/2),1,5)}
 function recruitBias(id,p,fee){
   const st=recruitStrategy(id);
   // A strategy should change the director's ranking of comparable affordable players,

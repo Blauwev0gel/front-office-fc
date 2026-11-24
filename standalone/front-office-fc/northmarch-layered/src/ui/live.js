@@ -72,4 +72,4 @@ function liveAct(arg){
   if(arg==='pp')L.playing=!L.playing;else if(arg==='skip'){L.min=L.end;L.hold=0}else if(/^s\d$/.test(arg))L.speed=+arg.slice(1)
 }
 UI.autoLive=HAS_DOM?liveAutoGet():false;
-if(HAS_DOM)setInterval(liveTick,75);
+if(HAS_DOM)setInterval(()=>{if(UI.over==='live')liveTick()},120);

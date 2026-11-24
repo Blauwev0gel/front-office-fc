@@ -65,10 +65,13 @@ function clubHub(){
   const id=S.my,m=M(id),f=F(id),run=G(id).projects.filter(p=>p.phase!=='done').length;
   return`<div class="hubhead"><p class="eyebrow">The chairman's office</p><h2>Run your club</h2><p class="small muted">Choose a responsibility. Every department and board decision is one tap away.</p></div>
   <div class="panel hubstatus"><div class="row small"><span>League position</span><b>${S.week?ord(posOf(id)):'Pre-season'}</b></div><div class="row small"><span>Cash</span><b>${k1(f.cash)}</b></div><div class="row small"><span>Members' confidence</span><b>${Math.round(m.conf)}/100</b></div>${run?`<p class="small muted">${run} building project${run===1?'':'s'} running</p>`:''}</div>
+  <div class="panel"><h3>Grow your club</h3><p class="small muted">Real levels, costs, build times and effects.</p><button class="btn" data-act="tab" data-arg="build">Open club upgrades</button></div>
   ${improvementRoutes()}
   ${CLUB_HUB_GROUPS.map(([title,items])=>`<section class="hubsection"><h3>${title}</h3><div class="hubtiles">${items.map(clubHubTile).join('')}</div></section>`).join('')}
   <button class="btn ghost" data-act="ctab" data-arg="overview">Detailed board overview</button>`;
 }
+
+/* V18.4 upgrade dashboard: read existing project catalog; use existing StartProject command. */
 function clubView(){
   const t=UI.ct||'hub';
   if(t==='hub')return clubHub();

@@ -4,8 +4,7 @@ name: Slimline CI
 on:
   pull_request:
     branches: [slimline-main]
-  push:
-    branches: [slimline-main]
+  workflow_dispatch:   # the browser playtest is started by hand (Actions tab)
 
 defaults:
   run:
@@ -26,6 +25,7 @@ jobs:
   mobile-browser:
     name: mobile-browser
     needs: build-and-test
+    if: github.event_name == 'workflow_dispatch'
     # Playwright 1.56 supports Ubuntu 24.04, not the current ubuntu-latest (26.04).
     runs-on: ubuntu-24.04
     steps:

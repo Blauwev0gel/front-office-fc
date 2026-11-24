@@ -57,7 +57,31 @@
  }
  function weekScreen(){
    const id=S.my;
-   return`<div class="g-week">${statusStrip(id)}${nextMatch(id)}${decisions(id)}${lastWeek()}</div>`;
+   return`<div class="g-week">${statusStrip(id)}${S.week===0?preSeason(id):''}${nextMatch(id)}${S.week===0?'':decisions(id)}${lastWeek()}</div>`;
+ }
+
+
+ /* ----- PRE-SEASON: what it is, what the director will do, what you control ----- */
+ function preSeason(id){
+   const ops=S.ops||{plan:{needs:[]},shortlist:[]},needs=(ops.plan.needs||[]).filter(n=>n.status==='open').slice(0,4);
+   const watch=(ops.shortlist||[]).filter(e=>e.status==='watching').sort((a,b)=>b.est-a.est).slice(0,5),strat=recruitStrategy(id);
+   const needList=needs.length?needs.map(n=>`<li><b>${esc(POS_ONE[n.pos]||n.pos)}</b> · ${esc(n.why)}</li>`).join(''):'<li>No gaps: the squad is complete.</li>';
+   const watchList=watch.length?watch.map(e=>`<li><span><b>${esc(e.name)}</b> · ${esc(POS_ONE[e.pos]||e.pos)}, ${e.age}${e.from?' · '+nm(e.from):' · free agent'}</span><em>${r1(e.est)} ±${scoutRange(id,e.obs)}</em></li>`).join(''):'<li>The scouts have not reported yet.</li>';
+   return`<section class="g-card g-pre"><small class="g-k">PRE-SEASON · THE TRANSFER WINDOW IS OPEN</small>
+   <h2>Your director will shop when you start</h2><p>You set the frame below. Pressing Start closes the window: the director signs and sells for you, and the season begins.</p>
+   <h3>What the squad needs</h3><ul class="g-list">${needList}</ul>
+   <h3>Being scouted <small>quality estimate ± doubt</small></h3><ul class="g-list g-scout">${watchList}</ul>
+   <p class="g-hint">Better scouting staff see more players and doubt less. Your squad's average quality is ${r1(squadQuality(S.squads[id]))}.</p>
+   <h3>Your frame</h3><div class="g-frame"><div><small>Transfer budget</small><b>${k1(budgetFor(id))}</b></div><div><small>Wage limit</small><b>${k1(wageCapK(id))}/wk</b></div></div>
+   <div class="g-seg" role="group" aria-label="Recruitment strategy">${Object.keys(RECRUIT).map(k=>`<button class="${strat===k?'on':''}" data-act="recruit" data-arg="${k}" aria-pressed="${strat===k}">${esc(RECRUIT[k].n)}</button>`).join('')}</div>
+   <p class="g-hint">${esc(RECRUIT[strat].d)}. Budget and wages are set under Club → Money.</p></section>`;
+ }
+ /* deals done since the last press of Play: shown at full time, so the window has a visible result */
+ function dealsCard(evs){
+   const id=S.my,ins=evs.filter(e=>(e.t==='Transfer'||e.t==='Signing')&&e.c===id),outs=evs.filter(e=>e.t==='Transfer'&&e.c2===id),rel=evs.filter(e=>e.t==='Released'&&e.c===id);
+   if(!ins.length&&!outs.length&&!rel.length)return'';
+   const li=(e,k)=>`<li><span class="g-tag ${k}">${{in:'IN',out:'OUT',rel:'LET GO'}[k]}</span> ${esc(e.text)}</li>`;
+   return`<section class="g-card"><h3>Transfers this week</h3><ul class="g-news g-deals">${ins.map(e=>li(e,'in')).join('')}${outs.map(e=>li(e,'out')).join('')}${rel.map(e=>li(e,'rel')).join('')}</ul></section>`;
  }
 
  /* ----- FULL TIME: the payoff of a week ----- */
@@ -71,7 +95,7 @@
    <small class="g-k">FULL TIME · WEEK ${is.w}</small><p class="g-res">${word}</p>
    ${m?`<div class="g-score"><span>${esc(m.home)}</span><b>${m.hg}–${m.ag}</b><span>${esc(m.away)}</span></div><h2>${esc(m.headline)}</h2>`:'<h2>No match for us this week</h2>'}
    <section class="g-delta"><div><small>Table</small><b>${now?ord(now):'—'}</b><span>${move>0?'▲ up '+move:move<0?'▼ down '+(-move):'No change'}</span></div><div><small>This week</small><b class="${is.net<0?'bad':'good'}">${signed(is.net)}</b><span>net</span></div><div><small>Cash</small><b>${k1(is.cash)}</b><span>in the bank</span></div></section>
-   ${news?`<section class="g-card"><h3>At the club</h3><ul class="g-news">${news}</ul></section>`:''}
+   ${dealsCard(UI.gEv||[])}${news?`<section class="g-card"><h3>At the club</h3><ul class="g-news">${news}</ul></section>`:''}
    <div class="g-more">${m?'<button class="btn ghost" data-act="watch" data-arg="0">▶ Watch the match</button>':''}<button class="btn ghost" data-act="v183paper" data-arg="${esc(is.key)}">Read the Echo</button></div></div>`;
  }
 
@@ -92,10 +116,10 @@
      <div class="g-mrow"><div><b>${k1(f.cash)}</b><span>in the bank${dbt?' · '+k1(dbt)+' debt':''}</span></div><div><b class="${net<0?'bad':'good'}">${signed(net)}</b><span>this season</span></div></div>
      <div class="bar" role="img" aria-label="Wages against the limit"><i style="width:${Math.min(100,Math.round(wb/Math.max(.01,cap)*100))}%"></i></div><span class="g-sub">Wages ${k1(wb)} of ${k1(cap)} a week · Finances ›</span></button>`;
    const dots=n=>'●'.repeat(n)+'○'.repeat(5-n);
-   const depts=Object.keys(DEPT).map(k=>{const d=g.depts[k];return`<button class="g-dept" data-act="dept" data-arg="${k}"><b>${esc(DEPT[k].n)}</b><span class="g-dots" aria-label="${d.staff} of 5 staff">${dots(d.staff)}</span><small>${d.hiring?'Hiring…':esc(d.budget)+' budget'}</small></button>`}).join('');
+   const depts=Object.keys(DEPT).map(k=>{const d=g.depts[k];return`<button class="g-dept" data-act="dept" data-arg="${k}"><b>${esc(DEPT[k].n)}</b><small class="g-does">${esc(DEPT[k].does.split('. ').slice(1).join('. ').replace(/\.$/,'')||DEPT[k].does)}</small><span class="g-dots" aria-label="${d.staff} of 5 staff">${dots(d.staff)}</span><small>${d.hiring?'Hiring…':esc(d.budget)+' budget'}</small></button>`}).join('');
    const link=(t,sub,a,arg,i)=>`<button class="g-link" data-act="${a}" data-arg="${arg}"><span class="g-ic" aria-hidden="true">${i}</span><span><b>${t}</b><small>${sub}</small></span><em aria-hidden="true">›</em></button>`;
    return`<div class="g-week">${money}
-   <section><h3 class="g-h">Departments <small>people and budget</small></h3><div class="g-depts">${depts}</div></section>
+   <section><h3 class="g-h">Departments</h3><p class="g-hint">Each department has three dials: staff (●), budget and a focus. Tap one to change them and to see what it delivers.</p><div class="g-depts">${depts}</div></section>
    <section class="g-links">${link('Football','Head coach, director, playing style','ctab','football','⚽')}${link('Transfers','Needs, shortlist, window','ctab','window','⇄')}${link('Stadium & facilities','Build, repair, capacity','ctab','ground','▥')}${link('Members & board','Confidence, prices, goals','ctab','members','♜')}${link('History','Past seasons and club growth','ctab','development','⌛')}</section></div>`;
  }
  const oldClub=clubView;
@@ -122,8 +146,9 @@
 
  const oldAct=act;
  act=function(a,arg){
-   if((a==='play'||a==='playn')&&S&&S.my)UI.gPos=S.week?posOf(S.my):null;
+   const mark=S&&S.evn||0;if((a==='play'||a==='playn')&&S&&S.my)UI.gPos=S.week?posOf(S.my):null;
    const r=oldAct(a,arg);
+   if(a==='play'||a==='playn'){UI.gEv=S?eventsSince(mark):[];render()}
    if(a==='cont'&&inGame()){UI.v183Stage='preview';UI.tab='week';render()}
    return r;
  };

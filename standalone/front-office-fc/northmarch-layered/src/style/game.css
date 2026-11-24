@@ -47,3 +47,13 @@
 .g-ic{width:34px;height:34px;border-radius:9px;background:var(--navy);color:var(--onnavy);display:grid;place-items:center;flex:none}
 .g-ft>.btn{min-height:54px;font-size:1.05rem;font-weight:800}
 .g-full{margin-top:16px}.g-full>summary{min-height:48px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--navy);cursor:pointer;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.g-pre h3{margin:14px 0 6px;font-size:.95rem;display:flex;justify-content:space-between;align-items:baseline}.g-pre h3 small{font-weight:500;color:var(--muted);font-size:.72rem}
+.g-pre>p{margin:4px 0 0;color:var(--muted)}
+.g-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:.88rem;color:var(--ink)}
+.g-list li{padding:8px 10px;border-radius:10px;background:var(--chip)}.g-scout li{display:flex;justify-content:space-between;gap:8px}.g-scout em{font-style:normal;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+.g-hint{margin:8px 0 0;font-size:.78rem;color:var(--muted)}
+.g-frame{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g-frame div{display:flex;flex-direction:column;padding:8px 10px;border:1px solid var(--line);border-radius:10px}.g-frame small{font-size:.7rem;color:var(--muted);text-transform:uppercase}.g-frame b{font-size:1.1rem}
+.g-seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}.g-seg button{min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;font-size:.8rem;font-weight:700;cursor:pointer}.g-seg button.on{background:var(--navy);color:var(--onnavy);border-color:var(--navy)}
+.g-does{color:var(--muted);font-size:.72rem;line-height:1.25}
+.g-tag{display:inline-block;font-size:.65rem;font-weight:800;padding:2px 6px;border-radius:6px;margin-right:4px;background:var(--chip);color:var(--ink)}.g-tag.in{background:var(--good);color:var(--onnavy)}.g-tag.out{background:var(--signal);color:var(--onnavy)}
+.g-deals{list-style:none;padding-left:0}

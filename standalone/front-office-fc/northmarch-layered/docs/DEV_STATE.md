@@ -1,7 +1,7 @@
 # DEV_STATE: gedeelde status (GitHub is de waarheid, niet een gesprek)
 Beide ontwikkelaars werken dit bestand bij **bij elke afgeronde werksessie**, in dezelfde pull request als de code. CI faalt als het niet is bijgewerkt. Protocol: `docs/DEV_PROTOCOL.md`.
 
-Laatst bijgewerkt: 2026-11-22 (distributie opgeschoond: dist/ niet meer gevolgd, herkomst van artifact en preview vastgelegd) · door: Claude
+Laatst bijgewerkt: 2026-11-24 (V19 teruggebracht in de modulaire bron; balansonderzoek gestart) · door: Claude
 
 ## Officiële basis
 OFFICIAL_BRANCH: slimline-main
@@ -24,6 +24,18 @@ ARTIFACT_VERSION: 16
 ARTIFACT_SHA: 02d2eaa
 Gelijkheid: een verse build van `02d2eaa` en van `d7d705c` geeft dezelfde checksum (`3e029ee71f0c38ab…`) en onder `src/` en `build.js` verschilt geen enkel bestand. De spelcode van V16 en van de preview is dus identiek. De bytes van V16 zelf zijn niet bewaard: de gelijkheid volgt uit de deterministische build, niet uit een meting van het gepubliceerde bestand. De eerdere stand `1234d0e` / V15 is vervangen.
 Het eerder opgeslagen `dist/northmarch-layered.html` was verouderd (zonder weekoverzicht, mét L3) en is daarom uit Git gehaald.
+
+## V19 teruggebracht in slimline-main (lokaal voorbereid, NIET gepusht, geen pull request)
+Besluit eigenaar: één centrale ontwikkelbranch (`slimline-main`); de publicatiebranch alleen voor gevalideerde versies. Details en bewijs: `docs/V19_PORT.md`.
+- V19 bleek een superset van `slimline-main`: 24 engineonderdelen gewijzigd en 6 economiefuncties nieuw (kosten per niveau, fysiek v. operating level, wervingswaarde), 8 UI-lagen en de Upgrades-tab, 476 CSS-regels, een testbalk. Alles staat nu als module in `src/` (zie de tabel in `docs/V19_PORT.md`).
+- **Bewijs:** het script van de build bevat precies dezelfde 4.554 regels als V19 (0 verschil). Dezelfde seed, twee seizoenen: de volledige opgeslagen staat is identiek (SHA over 4,58 miljoen tekens). `department-ownership-test`, `v19-smoke-test` (20 seizoenen) en de nieuwe `playtest.js` (390 px, licht en donker) slagen.
+- **Rood, en dat is de economie van V19 zelf, niet de port:** `tests/sim-test.js` faalt op de gezondheidsgrenzen: 39 administraties (grens 33) en 163 weggestemde voorzitters (grens 133). Vóór de port zat `slimline-main` op 14–21 administraties en 71–86 weggestemd. Per divisie: boven ruim voldoende geld (divisie 0 groeit naar £1,6M), maar de mediane club in divisie 3 en 4 heeft £1–15k cash (was £10–40k). De sim duurt ook ±110 s tegenover ±40 s.
+- Gevolg: **deze port mag niet naar `slimline-main` zolang de snelle suite rood is.** De balansfix is de volgende stap; zie "Balans".
+- Correctie op een eerdere bewering: de regel over de transferreserve in `V19_BALANCE_HANDOVER.md` klopt (hij beschrijft `budgetFor`: max(6 weken loon, 6 weken terugkerende uitgaven)); de functie `reserveK` is een andere.
+
+## Balans (gestart, lokaal)
+- Onderzoeksgereedschap: `tests/balance-roi.js` (gepaarde werelden, één afdeling op niveau 1 of 5). Eerste meting op de oude economie van `slimline-main` (3 divisies, 3 seeds, 5 seizoenen) staat in de scratchpad; uitwerking volgt.
+- Vaststellingen tot nu toe: afdelingsstaf kost ±1% van het inkomen per niveau en levert veel op (geen echte keuze); bovenin stapelt geld zich op zonder bestemming; onderin is de buffer te dun.
 
 ## Werkgebieden (één ontwikkelaar per gebied tegelijk)
 | Ontwikkelaar | Werkbranch | Gebied | Status |
@@ -70,12 +82,16 @@ Overlap vermijden: raak je een bestand van het andere gebied (`world/`, `footbal
 | CI (`build-and-test`, zonder browser) op de officiële basis | ccceb42 (+ docs) | **rood**: build, pyramid-, foreign-world-, save-, ux-, smoke-test groen; `l25-test` faalde op een te kleine steekproef (testfout); `youth-`, `story-`, `slimline-`, `l3-test` en sim niet bereikt | 2026-11-22 | GitHub Actions, runs 1 en 2 |
 | `l25-test` na herstel van die check | ccceb42 + testfix | groen (alleen deze test lokaal gedraaid) | 2026-11-22 | Claude |
 | Basisspel V1: build (40 basismodules), `base-briefing-`, `base-isolation-`, `layer-isolation-test`, 390 px browsercheck licht+donker, L3-variant | 02d2eaa | groen (gerichte tests, lokaal) | 2026-11-22 | Claude |
+| Port van V19: build (49 modules), base-briefing-, base-isolation-, layer-isolation-, smoke-, save-, ux-, l25-, youth-, story-, l3-, pyramid-, foreign-world-, department-ownership-test | lokaal, na port op `slimline-main` 13bebbb | groen | 2026-11-24 | Claude |
+| `v19-smoke-test` (20 seizoenen) en nieuwe `playtest.js` (390 px, licht+donker) | idem | groen | 2026-11-24 | Claude |
+| `sim-test` (20 seizoenen, 80 clubs) na de port | idem | **rood**: 39 administraties (grens 33), 163 weggestemd (grens 133); economie van V19 zelf | 2026-11-24 | Claude |
 | CI op de pull request met `02d2eaa` en deze statuscorrectie | | in afwachting | | GitHub Actions |
 | CI op pull request 4 (testfix, kop `b82dac5`), daarna gemerged tot `1234d0e` | b82dac5 | **groen** (build en alle snelle engine-tests, zonder browser) | 2026-11-22 | GitHub Actions, run 3 |
 | Lange gates (`slimline-test 10`, `policy-test`, volledige playtest licht+donker) | 717c019 (deels eerder) | groen op de toen actuele stand | 2026-11-22 | Claude |
 Regel: een resultaat geldt alleen voor de genoemde SHA. Nieuwe SHA = opnieuw vermelden of "niet gedraaid".
 
 ## Wijzigingslog (nieuwste bovenaan)
+- 2026-11-24 Claude: V19 teruggebracht in de modulaire bron (lokaal, niet gepusht); `tests/playtest.js` herschreven voor de V19-flow; `department-ownership-test` in de snelle suite; `tests/v19-smoke-test.js` en `tests/balance-roi.js` toegevoegd; bevinding: de economie van V19 laat de sim-test falen (administraties en weggestemde voorzitters boven de grens), balansfix volgt. `docs/V19_PORT.md` beschrijft de overzetting.
 - 2026-11-22 Claude: distributie opgeschoond: `dist/` in `.gitignore` en met `git rm --cached` uit Git gehaald (lokale bestanden blijven); herkomst van artifact V16 (bron `02d2eaa`) en de preview (bron `d7d705c`, zelfde checksum) vastgelegd met buildvariant en SHA-256; `preview/README.md` en `docs/DEV_PROTOCOL.md` bijgewerkt. Alleen lokaal voorbereid en getest; nog niet gepusht, geen pull request, geen CI.
 - 2026-11-22 Claude: weekoverzicht (`02d2eaa`, ChatGPT) lokaal getest en samen met deze statuscorrectie aangeboden als pull request naar `slimline-main`; artifact V16 gepubliceerd op de eigen link; geen workflows gewijzigd.
 - 2026-11-22 ChatGPT: `mobile-browser` CI-job toegevoegd aan Slimline workflow: installeert Playwright/Chromium en bouwt/doorloopt de standaard L1/L2 standalone HTML op 390px in licht en donker. SHA f40b092 engine+base-isolation CI groen, zie run 45039214254. Browserjob nog niet afgetekend.

@@ -4,9 +4,9 @@
    History: per-season records on CL(id).hist and S.records[id]. Signals: what needs the chairman's attention. */
 const STADIUM_SIZE={compact:{n:'Compact new ground',f:1.4,min:1500,weeks:40},standard:{n:'New stadium',f:2,min:2500,weeks:55},grand:{n:'Grand new stadium',f:3,min:4000,weeks:70}};
 const PLOT_MAX=9;
-function plotPrice(id){const g=G(id),extra=Math.max(0,g.plots.length-6);return Math.round([90,60,40][CL(id).tier]*Math.pow(1.3,extra))}
+function plotPrice(id){const g=G(id),extra=Math.max(0,g.plots.length-6);return Math.round([90,60,40,30,22][CL(id).tier]*Math.pow(1.3,extra))}
 function stadiumPlan(id,size){const sg=groundSignals(id),z=STADIUM_SIZE[size],cap=Math.round(Math.max(sg.capacity*z.f,sg.capacity+z.min)/100)*100;
-  return{size,cap,cost:Math.round(cap*[.16,.12,.09][CL(id).tier]),weeks:z.weeks,deposit:Math.round(cap*[.16,.12,.09][CL(id).tier]*.15),label:z.n}}
+  return{size,cap,cost:Math.round(cap*[.16,.12,.09,.075,.06][CL(id).tier]),weeks:z.weeks,deposit:Math.round(cap*[.16,.12,.09,.075,.06][CL(id).tier]*.15),label:z.n}}
 function stadiumProject(id){return G(id).projects.find(p=>p.key.startsWith('stadium:')&&p.phase!=='done')}
 function startStadium(id,size){
   const g=G(id),pl=stadiumPlan(id,size);book(id,'build',-pl.deposit);

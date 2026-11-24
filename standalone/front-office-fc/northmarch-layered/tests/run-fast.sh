@@ -8,6 +8,7 @@ run node tests/pyramid-test.js
 run node tests/foreign-world-test.js
 run node tests/save-test.js
 run node tests/ux-test.js
+run node tests/department-ownership-test.js
 run node tests/base-briefing-test.js
 run node tests/smoke-test.js
 run node tests/l25-test.js

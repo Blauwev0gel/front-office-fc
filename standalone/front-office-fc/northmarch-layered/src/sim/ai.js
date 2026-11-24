@@ -25,13 +25,13 @@ function aiBoardWeek(id){
     if(a.fill>.95&&pr.terrace<ref.terrace*1.6){cmd('SetPrice',id,{kind:'terrace',delta:1},'ai');cmd('SetPrice',id,{kind:'seated',delta:1},'ai')}
     else if((a.fill<.55||M(id).conf<40)&&pr.terrace>ref.terrace*.7){cmd('SetPrice',id,{kind:'terrace',delta:-1},'ai');cmd('SetPrice',id,{kind:'seated',delta:-1},'ai')}}}
   // repairs before anything falls apart
-  if(w%5===3){for(const r of repairList(id).filter(x=>x.cond<45))if(f.cash-r.cost>res)cmd('Repair',id,{key:r.key},'ai')}
+  if(w%5===3){for(const r of repairList(id).filter(x=>x.cond<65))if(f.cash-r.cost>res)cmd('Repair',id,{key:r.key},'ai')}
   // one building project at a time, only with money to spare
   const running=g.projects.filter(p=>p.phase!=='done').length;
   if((w===4||w===14||w===24)&&(running===0||(running<3&&f.cash>estSeasonIncome(id)*.6))){
     const o=aiPickProject(id);
     if(o){const offer=v==='money'?'cheap':v==='glory'?'premium':'standard',cost=o.cost*OFFER[offer].p;
-      if(f.cash-cost>res*(v==='glory'?.8:1.3))cmd('StartProject',id,{key:o.key,offer},'ai')}}
+      if(f.cash-cost>res*(v==='glory'?.8:1.3)&&(!o.annual||o.annual<estSeasonIncome(id)*.12)&&(!o.annualIncrease||o.annualIncrease<Math.max(0,sumLines(weekLines(id,false,{}))*SEASON_WEEKS+estSeasonIncome(id)*.25)))cmd('StartProject',id,{key:o.key,offer},'ai')}}
 }
 function aiPickProject(id){
   const cat=projectCatalog(id).filter(o=>!o.busy),f=F(id),sg=groundSignals(id),g=G(id),has=k=>g.plots.some(p=>p.kind===k);

@@ -66,7 +66,7 @@ function closeSeason(){
   devRecord(); /* the season's final picture of the club, before the AGM and the new season */
   foreignSeasonEnd();
   const awards=worldSeasonAwards();
-  const outIds=holdAGMs(),agm=S.my?{...M(S.my).agm,club:S.my}:null;legacySeasonEnd();afterAGMs(outIds);if(!S.votedOut){familySeasonEnd();familySuccession()}
+  const outIds=holdAGMs(),agm=S.my?{...M(S.my).agm,club:S.my}:null;legacySeasonEnd();afterAGMs(outIds);agmTermLimit();if(!S.votedOut){familySeasonEnd();familySuccession()}
   for(const t of TIERS){tables[t]=standings(t);tables[t].forEach((id,i)=>{financeSeasonEnd(id,i+1,t);CL(id).hist.push({s,tier:t,pos:i+1,pts:S.tbl[id].pts,top:topScorer(id),cup:cupReached(id),you:id===S.my})})}
   // support grows with success, promotion and the clubhouse; shrinks with failure
   for(const id of ids){const c=CL(id),pos=posOf(id),exp=c.expect||8,sg=groundSignals(id);

@@ -88,3 +88,7 @@
 .g-gem>div{flex:1}.g-gem .btn{width:auto!important;max-width:40%}
 .g-mb{display:flex;justify-content:space-between;gap:8px;align-items:center}.g-mb>div{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}.g-mb span{font-size:.76rem;color:var(--muted)}.g-mb em{font-style:normal;font-weight:800;white-space:nowrap}.g-mb em.good{color:var(--good)}.g-mb em.bad{color:var(--bad)}.g-mb .g-tag{font-style:normal}
 .g-why{color:var(--signal)!important;font-weight:600}
+.g-deal{display:flex;justify-content:space-between;gap:8px;align-items:center}.g-deal>div{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}.g-deal span{font-size:.76rem;color:var(--muted)}
+.g-deal em{font-style:normal;font-size:.72rem;font-weight:800;padding:4px 8px;border-radius:8px;background:var(--card);white-space:nowrap}
+.g-deal em.live{color:var(--signal)}.g-deal em.good{background:var(--good);color:var(--onnavy)}.g-deal em.bad{background:var(--bad);color:var(--onnavy)}.g-deal em.warn{background:var(--signal);color:var(--onnavy)}.g-deal em.off{color:var(--muted)}
+.g-deal .g-tag{font-style:normal}

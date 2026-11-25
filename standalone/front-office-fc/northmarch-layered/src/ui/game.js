@@ -115,7 +115,7 @@
  }
  function tickerCard(P_){
    const weeks=[...new Set(P_.ticker.map(t=>t.wk))].sort((a,b)=>b-a),label=w=>w===winWeeks(P_)?'Deadline day':P_.kind==='winter'?'Window week '+w:'Pre-season week '+w;
-   return`<section class="g-card"><small class="g-k">THE TICKER · ${esc(P_.brief.dirName.toUpperCase())} AT WORK</small>${weeks.map((w,i)=>`<h3 class="g-h">${label(w)}</h3><ul class="g-tick">${P_.ticker.filter(t=>t.wk===w).sort((a,b)=>a.d-b.d).map(t=>`<li class="${t.kind}"><b>${DAYS[t.d]}</b><span>${esc(t.t)}</span></li>`).join('')}</ul>`).slice(0,2).join('')}${weeks.length>2?'<p class="g-hint">Older weeks are in the Echo.</p>':''}</section>`;
+   return`<section class="g-card"><small class="g-k">THE TICKER · ${esc(P_.brief.dirName.toUpperCase())} AT WORK</small>${weeks.map((w,i)=>`<h3 class="g-h">${label(w)}</h3><ul class="g-tick">${P_.ticker.filter(t=>t.wk===w).sort((a,b)=>a.d-b.d).map(t=>`<li class="${t.kind}"><b>${t.d<0?'Brief':DAYS[t.d]||''}</b><span>${esc(t.t)}</span></li>`).join('')}</ul>`).slice(0,2).join('')}${weeks.length>2?'<p class="g-hint">Older weeks are in the Echo.</p>':''}</section>`;
  }
  function briefCard(P_,id){const res=briefJudge(id,P_);return`<section class="g-card g-promise"><small class="g-k">THE ${P_.kind==='winter'?'WINTER':'SUMMER'} BRIEF · ${esc(BUDGET_LV[P_.brief.budget].n.toUpperCase())} BUDGET</small><ul>${res.map(r=>`<li class="${r.met?'on':''}"><div><b>${esc(r.t)}</b><span>${esc(r.how)}</span></div></li>`).join('')}</ul></section>`}
  function escCards(P_){const o=P_.offer,r=P_.record;
@@ -133,17 +133,27 @@
    if(closed){const E=summerEdition();return`<section class="g-card g-echo"><small class="g-k">THE NORTHMARCH ECHO · SUMMER EDITION</small><h2>${esc(E.head)}</h2>
      <p>In: ${E.ins.length?esc(E.ins.map(d=>`${d.name}${d.fee?' £'+d.fee+'k':' (free)'}`).join(', ')):'nobody'}. Out: ${E.outs.length?esc(E.outs.map(s=>`${s.name} £${s.fee}k`).join(', ')):'nobody'}. Spent £${E.spent}k, raised £${E.raised}k.</p>
      ${E.world.length?`<ul class="g-news">${E.world.map(t=>`<li>${esc(t.t)}</li>`).join('')}</ul>`:''}<p class="g-hint">The window shuts when the season starts. The director is judged on the brief after four weeks.</p></section>${briefCard(P_,id)}`}
-   const needs=preTargets(id).map(n=>`<button class="${P_.prio===n.pos?'on':''}" data-act="preprio" data-arg="${n.pos}" aria-pressed="${P_.prio===n.pos}">${esc(POS_ONE[n.pos])}</button>`).join('');
-   const live=P_.deals.filter(d=>['bid','countered','record'].includes(d.stage));
-   return`${esc2}${P_.ticker.length>1?tickerCard(P_):`<section class="g-quiet"><b>The brief is signed.</b> Play the first pre-season week and the market opens.</section>`}
-   ${briefCard(P_,id)}
-   <section class="g-card"><small class="g-k">YOUR LEVERS · ${P_.wk===PRE_WEEKS?'DEADLINE DAY NEXT':'WEEK '+P_.wk+' OF '+PRE_WEEKS}</small>
-   ${live.length?`<p>Live: ${esc(live.map(d=>`${d.name} (£${d.fee}k)`).join(', '))}.</p>`:''}
-   ${needs?`<p class="g-hint">Priority: what should the director go for first?</p><div class="g-seg" role="group" aria-label="Priority">${needs}</div>`:''}
-   <div class="g-frame" style="margin-top:10px"><div><small>Transfer budget</small><b>${k1(budgetFor(id))}</b></div><div><small>Wage room</small><b>${k1(wageCapK(id)-wageBillK(id))}/wk</b></div></div>
-   <button class="btn ghost" data-act="prebudget" style="margin-top:8px">Free up more money (+10% of cash)</button>
-   <p class="g-hint">Recommend players from your scouting dossier: the director weighs them first.</p></section>`;
+   return`${esc2}${interestCard(P_)}${moneyCard(P_,id)}${boardCard(P_,id)}${P_.ticker.length>1?tickerCard(P_):`<section class="g-quiet"><b>The brief is signed.</b> Play the first ${P_.kind==='winter'?'window':'pre-season'} week and the market opens.</section>`}
+   ${briefCard(P_,id)}${listCard(P_,id)}`;
  }
+ /* the money, live */
+ function moneyCard(P_,id){const spent=P_.deals.filter(d=>d.stage==='signed').reduce((a,d)=>a+d.fee,0),raised=P_.sold.reduce((a,x)=>a+x.fee,0),dl=P_.wk===winWeeks(P_);
+   return`<section class="g-card"><small class="g-k">THE MONEY · ${dl?'DEADLINE DAY NEXT':(P_.kind==='winter'?'WINDOW':'PRE-SEASON')+' WEEK '+P_.wk+' OF '+winWeeks(P_)} · ${esc(({bold:'A BOLD',careful:'A CAREFUL',steady:'A STEADY'})[P_.style||'steady'])} DIRECTOR</small>
+   <section class="g-delta"><div><small>Spent</small><b>£${spent}k</b><span>on fees</span></div><div><small>Raised</small><b>£${raised}k</b><span>from sales</span></div><div><small>Left</small><b>${k1(budgetFor(id))}</b><span>to spend</span></div></section>
+   <p class="g-hint">Wage room ${k1(wageCapK(id)-wageBillK(id))} a week.</p>
+   <div class="g-acts2"><button class="btn ghost" data-act="prebudget">Free up 10% more cash</button>${dl&&!P_.loan?'<button class="btn ghost" data-act="preloan">Deadline money (a loan)</button>':''}</div></section>`}
+ /* the targets board: who the director is after, per need */
+ function boardCard(P_,id){const T=P_.targets||{},pos=Object.keys(T).filter(k=>T[k]&&T[k].length);const live={};for(const d of P_.deals)live[d.pid]=d;
+   const ST={bid:'Bid in',countered:'Haggling',record:'Needs you',signed:'Signed ✓',walked:'Walked away',hijacked:'Hijacked',gone:'Gone'};
+   const rows=pos.map(k=>`<h3 class="g-h">${esc(POS_ONE[k])}${P_.base&&P_.base[k]&&P_.base[k].name?` <small>to beat: ${esc(P_.base[k].name)} (${P_.base[k].q})</small>`:''}</h3><ul class="g-list g-gems">${T[k].map((c,i)=>{const d=live[c.pid];return`<li class="g-gem"><div><b>${i===0&&!d?'▶ ':''}${esc(c.name)}</b>${c.chair?' <i class="g-tag in">YOUR FIND</i>':''} <small class="muted">${c.age} · ${c.from?nm(c.from):'free agent'}</small><span><i class="g-tag ${c.type==='For the future'?'in':''}">${esc((c.type||'').toUpperCase())}</i> ~${c.est} ±${c.doubt}${c.type==='For the future'?` · ceiling ~${c.ceil}`:''} · £${c.fee}k · £${c.wage}/wk · ${c.starter?'would start':'squad player'}</span></div>${d?`<em>${esc(ST[d.stage]||d.stage)}</em>`:(P_.fav&&P_.fav[k]===c.pid?'<em>You rate him</em>':`<button class="btn ghost" data-act="prefav" data-arg="${esc(c.pid)}">Rate him</button>`)}</li>`}).join('')}</ul>`).join('');
+   const done=P_.deals.filter(d=>d.stage==='signed');
+   return`<section class="g-card"><small class="g-k">THE TARGETS · ${esc((P_.brief.dirName||'the director').toUpperCase())}'S BOARD</small>${rows||`<p>${done.length?'Every need is covered.':'The director draws up his board in the first week.'}</p>`}<p class="g-hint">“Rate him” is a recommendation: the director goes for him first if the money allows. He still decides.</p></section>`}
+ /* interest from other clubs */
+ function interestCard(P_){const x=P_.interest;if(!x||(P_.list||[]).includes(x.pid))return'';return`<section class="g-card g-lb"><small class="g-k">INTEREST</small><p>${esc(CL(x.by).name)} are asking about ${esc(x.name)} (around £${x.fee}k).</p><button class="btn ghost" data-act="prelist" data-arg="${esc(x.pid)}">Make him available</button></section>`}
+ /* the transfer list */
+ function listCard(P_,id){const keep=new Set(topThree(id).map(p=>p.id)),L=P_.list||[],sq=S.squads[id].filter(p=>!p.loan&&!keep.has(p.id)).sort((a,b)=>a.q-b.q).slice(0,10);
+   return`<details class="g-close"><summary>Transfer list · ${L.length} available</summary><section class="g-card"><p class="g-hint">Players you make available are sold by the director for a fair bid (at least 85% of their value). Your three best are never listed: bids for them come to you.</p><ul class="g-list g-gems">${sq.map(p=>`<li class="g-gem"><div><b>${esc(p.name)}</b> <small class="muted">${esc(POS_ONE[p.pos])}, ${p.age}</small><span>Quality ${r1(p.q)} · worth ~£${Math.round(askingFee(p,id))}k · ${p.sApps||0} games</span></div><button class="btn ghost" data-act="prelist" data-arg="${esc(p.id)}">${L.includes(p.id)?'Take off':'Make available'}</button></li>`).join('')}</ul></section></details>`}
+
  function debriefCard(){
    if(!debriefDue())return'';const P_=debriefTarget(),res=briefJudge(S.my,P_),met=res.filter(r=>r.met).length;
    return`<article class="g-moment"><small class="g-k">THE ${P_.kind==='winter'?'WINTER':'SUMMER'} DEBRIEF · ${esc(P_.brief.dirName.toUpperCase())}</small><h2>${met} of ${res.length} goals met</h2>
@@ -315,7 +325,7 @@
    if(!inWinter())return'';const P_=preState();if(P_.kind!=='winter')return'';
    if(!P_.brief)return S.week>=WINTER_WEEK-3&&S.week<=WINTER_WEEK-2?meetingCard(id):'';
    if(P_.wk<=winWeeks(P_)&&P_.ticker.length<=1)return`<section class="g-quiet"><b>The winter brief is signed.</b> The window opens in week ${WINTER_WEEK-1}; the director acts after the matches.</section>${briefCard(P_,id)}`;
-   if(S.week<=WINTER_WEEK)return`${tickerCard(P_)}${briefCard(P_,id)}`;
+   if(S.week<=WINTER_WEEK)return`${moneyCard(P_,id)}${boardCard(P_,id)}${tickerCard(P_)}${briefCard(P_,id)}${listCard(P_,id)}`;
    if(S.week<=WINTER_WEEK+3){const E=summerEdition(P_);return`<section class="g-card g-echo"><small class="g-k">THE NORTHMARCH ECHO · WINTER EDITION</small><h2>${esc(E.head)}</h2><p>In: ${E.ins.length?esc(E.ins.map(d=>`${d.name}${d.fee?' £'+d.fee+'k':' (free)'}`).join(', ')):'nobody'}. Out: ${E.outs.length?esc(E.outs.map(x=>`${x.name} £${x.fee}k`).join(', ')):'nobody'}.</p><p class="g-hint">The director is judged on the winter brief in week ${WINTER_WEEK+4}.</p></section>`}
    return'';
  }
@@ -349,6 +359,9 @@
    if(a==='briefrecruit'&&S&&S.my){briefPick(S.my).recruit=arg;render();return}
    if(a==='briefsign'&&S&&S.my){const b=briefPick(S.my),r=signBrief(S.my,b.goals,b.budget,b.recruit);UI.msg=r.ok===false?{err:true,text:r.err}:{text:'The summer brief is signed. The market opens.'};save();render();if(HAS_DOM)window.scrollTo(0,0);return}
    if(a==='debrief'&&S&&S.my){const r=debriefChoose(arg==='back');UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
+   if(a==='prefav'&&S&&S.my){const r=preFavour(arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
+   if(a==='prelist'&&S&&S.my){const r=preListToggle(arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.on?'Available: the director will sell for a fair bid.':'Taken off the list.'};save();render();return}
+   if(a==='preloan'&&S&&S.my){const r=preDeadlineLoan();UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
    if(a==='prenext'&&S&&S.my){const r=preWeek();if(r.ok===false)UI.msg={err:true,text:r.err};save();render();if(HAS_DOM)window.scrollTo(0,0);return}
    if(a==='preoffer'&&S&&S.my){const r=preOffer(arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
    if(a==='prerecord'&&S&&S.my){const r=preRecord(arg==='yes');UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}

@@ -23,6 +23,24 @@ Het spel is **niet**: een goedkeuringsspel, een spreadsheet, een stamboomscherm,
 | **Seizoen** | 30 weken + zomer + winter | Zomer met brief en ticker, manifest, winterstop, ALV | Een eindpositie, beloftes gehouden of gebroken, spelers die doorbraken |
 | **Carrière / dynastie** | Tientallen seizoenen | Reputatie, clubboek, familie, opvolging, legendes uit eigen academie | Een eigen geschiedenis: "Grandfather built the academy; Morgan sold its best boy for a record" |
 
+## 3b. De rode draad en de lagen
+**De rode draad is de jaarlijkse stemming.** Je bent gekozen; elk seizoen eindigt met een ALV waar de leden over je stemmen (D6). Verlies je, dan ben je weg bij deze club en neem je je reputatie mee naar een volgende (D7). Alles in de lus voedt die stemming via het bestaande ledenvertrouwen, niet via nieuwe meters:
+- prestaties tegenover de verwachting, promotie en degradatie;
+- je manifest: gehouden en gebroken beloftes (bold weegt zwaarder);
+- prijzen, schuld, grondverkoop, naamrecht;
+- eigen jeugd in het eerste, een ster verkocht of behouden;
+- familiezaken: favoritisme, nepotisme, de opvolger die zich kandidaat stelt.
+
+**De lagen blijven de bouwvolgorde en de architectuur.** Elke laag is een module die op de laag eronder bouwt en zonder de laag erboven werkt (`docs/LAYER_CONTRACT.md`).
+| Laag | Wat het in de lus doet | Staat nu |
+|---|---|---|
+| **L1 Wereld** | De wereld draait vanzelf: wedstrijden, rivalen, transfers, buitenland | Gevalideerd |
+| **L2 Clubmanagement** | Afdelingen, stadion, geld, sponsors, leden en ALV als stemming | Speelbaar; economie nog niet in balans |
+| **L2.5 Cluborganisatie** | Werving, jeugdcyclus, staf die het dagelijkse zelf doet | Getest |
+| **L3 Autonomie** | Mandaten, escalaties (D-L3-2b), de directeur als persoon met verantwoording: zomerbrief, ticker, debrief | Deels; M1 bouwt de kern |
+| **L4 Bestuur en politiek** | Ledengroepen, oppositie, moties, tegenkandidaat; de ALV als gespeeld moment met toespraak en telling per groep | Ontwerp (referentie: `voorzitter/northmarch.html`) |
+| **L5 Dynastie** | Familie, erfgenaam die zelf gekozen moet worden, reputatie, clubboek, legendes | Eerste slice staat |
+
 ## 4. Het seizoensritme
 | Fase | Weken | Inhoud |
 |---|---|---|
@@ -95,6 +113,7 @@ Zonder deze voorwaarden werkt geen enkele lus; dit is geen bijzaak.
 | M1 | **Transferzomer** (§6) + economie zodat er 2–4 deals mogelijk zijn | Een speler beleeft de zomer als verhaal; elke pre-season-week heeft minstens 4 tickerregels; debrief rekent af op de brief |
 | M2 | **Weekstructuur** (§5): onderwerp, één escalatie, jouw week, inzet, afsluiting met Looking back | Geen lege week in 10 gespeelde weken; elke week één echte keuze |
 | M3 | **Momenten en afspraken** (§8) incl. familiemomenten in hetzelfde systeem | ±5 momenten per seizoen, elk met zichtbaar gevolg |
+| M3b | **De ALV als gespeeld moment** (begin L4): jaarverslag, je beloftes, een korte toespraak met keuzes, telling per ledengroep, opvolging van de familie | De stemming voelt als de climax van elk seizoen |
 | M4 | **Winterstop** op de zomermachinerie | — |
 | M5 | **Partnerclubs, filosofie, rivaliteit om spelers** | — |
 | M6 | **Bestuurslaag**: ledengroepen, moties, tegenkandidaat | — |

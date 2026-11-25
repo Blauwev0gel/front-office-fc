@@ -360,7 +360,7 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 | NM-003 | Auditkandidaat | TD-planactualisatie, budgetvalidatie en deadlinebeslissingen: causale keten en behoud van state controleren. |
 | NM-004 | Open validatie | V19-economie en strategieverschillen: eerst scope en baseline, geen ongevraagde zware sims. |
 | NM-005 | Open validatie | Menselijke spelbeleving van de eerste zomer en L1/L2: prototype en playtest. |
-| NM-006 | Operationeel | Laatste Pages-run mislukt na herstart (gemelde oorzaak: dubbele artifactnaam). Niet nodig voor documentatiewerk. |
+| NM-006 | Operationeel, open | Sinds 25-11 20:10 faalt elke Pages-run (454–456) in `deploy-pages`: het artefact wordt geüpload, maar de deploy vindt het niet ("No artifacts named github-pages"). Build en upload slagen. Niet blijven herstarten; eigenaar kijkt naar Pages-instellingen en GitHub-status. |
 | NM-007 | Wacht op eigenaar | `CLAUDE.md` en `AGENTS.md` verwijzen nog naar *The Front Office*. Voorstellen voor MB-11 liggen klaar; de eigenaar past ze zelf toe of geeft Claude daar expliciet opdracht toe. |
 | NM-009 | Test verouderd | `department-ownership-test` verwacht het oude homescherm (13 tegels) en faalt sinds de nieuwe schil; bijwerken of vervangen. |
 | NM-010 | Balans | `sim-test`: administratie komt te vaak voor (39–41 tegen een limiet van 33 in 20 seizoenen). Voor de balansronde (ChatGPT). |
@@ -370,7 +370,7 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 - 25-11-2026 · V1.1 — documentatie geconsolideerd op `slimline-main` `7147f23` en `main` `cc4c5db` (identieke blob `ecb6ad3`).
 - 25-11-2026 · V1.2 — charter, workflow, kwaliteitstoets, roadmap en registers toegevoegd (`b69ea16`, branch `docs/master-bible-v1-2`, niet geïntegreerd).
 - 25-11-2026 · V1.3 — herstructurering in vier delen, één besluitenregister, feitelijke correcties; open vragen beslist (MB-11–MB-16). Geen spelwijziging.
-- 25-11-2026 · Spel — herziening van de opening en de transferzomer (MB-17, MB-18), gepubliceerd op `/northmarch/` vanaf `slimline-main`.
+- 25-11-2026 · Spel — herziening van de opening en de transferzomer (MB-17, MB-18) op `slimline-main` `f45310e`. Publicatie op `/northmarch/` mislukt (NM-006); speelbaar als privépagina op claude.ai.
 
 **Current work**
 - **Afgerond:** herziening van de opening en de transferzomer (fase 1). NM-001 is opgelost.

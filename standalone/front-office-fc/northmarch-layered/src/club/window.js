@@ -38,12 +38,12 @@ function summerMeeting(id){
     cash:Math.round(F(id).cash),room:r1(wageCapK(id)-wageBillK(id)),needs,style,dir:d?d.name:'The director',plan};
 }
 /* the goals the chairman can put in the brief */
-function squadSaleValue(id){const keep=new Set(topThree(id).map(p=>p.id));return S.squads[id].filter(p=>!p.loan&&!keep.has(p.id)).reduce((a,p)=>a+askingFee(p,id),0)}
+function squadSaleValue(id){const keep=new Set(topThree(id).map(p=>p.id)),sq=S.squads[id],spare=sq.filter(p=>!p.loan&&!keep.has(p.id)&&sq.filter(x=>x.pos===p.pos&&!x.loan).length>REQ[p.pos]).map(p=>askingFee(p,id)).sort((a,b)=>b-a);return spare.slice(0,2).reduce((a,v)=>a+v,0)}
 function briefOptions(id){
   const out=preTargets(id).map(n=>{const w=weakestAt(id,n.pos);return{k:'sign:'+n.pos,t:`Sign a starting ${POS_ONE[n.pos]}`,why:w.name?`Better than ${w.name} (${w.q}) · ${n.why}`:n.why}});
   out.push({k:'keep3',t:'Keep our three best players',why:topThree(id).map(p=>p.name).join(', ')});
   out.push({k:'young',t:'Sign players aged 23 or younger',why:'Buy for growth and a resale value'});
-  out.push({k:'sales',t:`Raise £${Math.max(25,Math.round((budgetFor(id)*.6+squadSaleValue(id)*.25)/5)*5)}k from sales`,why:'Sell what we do not need'});
+  out.push({k:'sales',t:`Raise £${Math.max(15,Math.round(squadSaleValue(id)*.8/5)*5)}k from sales`,why:'Sell what we do not need'});
   out.push({k:'cap',t:`Spend no more than £${Math.max(10,Math.round(budgetFor(id)*.6/5)*5)}k`,why:'Protect the cash for the season'});
   return out;
 }

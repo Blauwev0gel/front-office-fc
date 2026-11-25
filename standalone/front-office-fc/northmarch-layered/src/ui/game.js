@@ -27,6 +27,7 @@
    const P_=pre?PRE():null;
    if(UI.tab==='week'&&stage==='preview'&&P_&&!P_.brief)play=`<button class="btn g-play" data-act="briefsign">✍ Sign the summer brief</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.wk<=PRE_WEEKS)play=`<button class="btn g-play" data-act="prenext">${P_.wk===PRE_WEEKS?'▶ Deadline day':'▶ Pre-season week '+P_.wk}</button>`;
+   else if(UI.tab==='week'&&stage==='preview'&&over){const st=UI.agmStep||0;play=`<button class="btn g-play" data-act="${st>=3?'close':'agmnext'}">${['Go to the floor ›','To your speech ›','To the vote ›','Call the vote'][st]}</button>`}
    else if(UI.tab==='week'&&stage==='preview')play=`<button class="btn g-play" data-act="${over?'close':'play'}">${over?'Finish the season ›':pre?'▶ Start the season':'▶ Play week '+(S.week+1)}</button>`;
    else if(UI.tab==='week'&&stage!=='preview')play=`<button class="btn g-play" data-act="v183ready">Next week ›</button>`;
    const nav=TABS.map(([k,n,i])=>`<button class="${tabOf(UI.tab)===k?'on':''}" data-act="${k==='week'?'nm85home':'tab'}" data-arg="${k}" aria-current="${tabOf(UI.tab)===k?'page':'false'}"><span aria-hidden="true">${i}</span>${n}</button>`).join('');
@@ -90,6 +91,7 @@
    const id=S.my;
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
    if(S.week===0)return`<div class="g-week">${msg}${momentCard()}${statusStrip(id)}${preSeason(id)}${promises(id)}${nextMatch(id)}${yourWeek(id)}</div>`;
+   if(seasonOver())return`<div class="g-week">${msg}${topicBanner(id)}${agmView(id)}</div>`;
    return`<div class="g-week">${msg}${topicBanner(id)}${escalation()}${statusStrip(id)}${nextMatch(id)}${yourWeek(id)}${tableCard()}${lookBackCard(id)}${promisesCompact(id)}${weekClose(id)}</div>`;
  }
 
@@ -282,6 +284,27 @@
  function tableCard(){const open=(S.pacts||[]).filter(p=>p.status==='open');if(!open.length)return'';
    return`<section class="g-card g-pacts"><small class="g-k">ON THE TABLE · YOUR AGREEMENTS</small><ul>${open.map(p=>`<li><b>${esc(p.label)}</b> <span class="muted">with ${esc(p.who)}</span><span>${esc(pactProgress(p))}</span></li>`).join('')}</ul></section>`}
 
+
+ /* ----- M3b: the AGM, played: report → the floor and a motion → your speech → the vote ----- */
+ function agmView(id){
+   const P_=AGMP(),st=UI.agmStep||0,R=agmReport(id);
+   const steps=['The annual report','The floor','Your speech','The vote'].map((t,i)=>`<li class="${i===st?'on':i<st?'done':''}">${t}</li>`).join('');
+   let body='';
+   if(st===0)body=`<section class="g-card"><small class="g-k">THE ANNUAL REPORT · SEASON ${S.season}</small><h2>${ord(R.pos)} in ${esc(TIER_NAME[R.tier])} · ${R.pts} points</h2>
+     <p>Operating result ${k1(R.op)}. Agreements this season: ${R.kept} kept, ${R.broken} broken.</p>
+     <h3>Your promises</h3><ul class="g-news">${R.goals.map(g=>`<li>${g.met?'✓':'✗'} ${esc(g.t)} · <span class="muted">${esc(g.text)}</span></li>`).join('')}</ul>
+     <h3>What the members weigh</h3><ul class="g-news">${R.reasons.map(([w,d])=>`<li>${esc(w)} <b class="${d<0?'bad':'good'}">${d>0?'+':''}${d}</b></li>`).join('')}</ul>
+     <p class="g-hint">Before the hall speaks, ${R.forecast}% would vote for you. The floor and your speech can still move it.</p>${S.family&&S.family.retire?`<p class="g-hint">You step down tonight: after the vote your heir stands for election.</p>`:''}</section>`;
+   if(st===1){const fl=agmFloor(id),mo=P_.motion;body=`<section class="g-card"><small class="g-k">THE FLOOR · WHO IS IN THE HALL</small><ul class="g-floor">${fl.map(g=>`<li class="${g.stance==='For you'?'on':g.stance==='Against you'?'off':''}"><b>${esc(g.n)}</b> <span class="muted">${g.share}% of members</span><span>${esc(g.stance)} (~${g.pct}%) · wants: ${esc(g.wants)}</span></li>`).join('')}</ul></section>
+     ${mo?`<article class="g-moment"><small class="g-k">A MOTION FROM THE FLOOR · ${esc((ARCH[mo.k]?.n||'the members').toUpperCase())}</small><h2>“${esc(mo.t)}”</h2><p>${P_.motionDone?(P_.pass?'The motion passed. It binds the club.':'The motion fell.'):mo.t===TERM_LIMIT?'If it passes, you must step down after two seasons in the chair. An heir may stand in your place.':'If it passes it binds the club. Your word carries weight in the hall.'}</p>
+       ${P_.motionDone?'':`<button class="g-opt" data-act="agmmotion" data-arg="yes"><b>Support it</b><span>${esc(agmGroupName(id,{k:mo.k}))} cheer${mo.against?`; the ${esc(agmGroupName(id,{k:mo.against}))} do not`:''}${mo.cost?` · costs £${mo.cost}k`:''}</span></button><button class="g-opt g-leave" data-act="agmmotion" data-arg="no"><b>Oppose it</b><span>They will remember; it may pass anyway if they are many and you are weak</span></button>`}</article>`:'<p class="g-hint">No motion this year.</p>'}`}
+   if(st===2)body=`<section class="g-card"><small class="g-k">YOUR SPEECH · ONE THEME</small>${P_.speech?`<p>You spoke: <b>${esc(SPEECH[P_.speech].n)}</b>.</p>`:Object.entries(SPEECH).map(([k,v])=>`<button class="g-opt" data-act="agmspeech" data-arg="${k}"><b>${esc(v.n)}</b><span>${esc(v.d)} Pleases ${esc(Object.entries(v.fx).filter(([,d])=>d>0).map(([g])=>ARCH[g]?.n||'the workers').join(', '))}${Object.entries(v.fx).some(([,d])=>d<0)?`; costs ${esc(Object.entries(v.fx).filter(([,d])=>d<0).map(([g])=>ARCH[g]?.n||g).join(', '))}`:''}.</span></button>`).join('')}</section>`;
+   if(st===3)body=`<section class="g-card"><small class="g-k">THE VOTE</small><h2>The hall decides</h2><p>Members' confidence ${Math.round(M(id).conf)}. Before tonight ${R.forecast}% were with you.</p><p class="g-hint">Call the vote: the result and the tally per group follow.</p></section>`;
+   return`<ol class="g-steps">${steps}</ol>${body}`;
+ }
+ function tallyCard(){const id=UI.review&&UI.review.agm?UI.review.agm.club:S.my;if(!id||!M(id).agm)return'';const rows=agmTally(id);
+   return`<section class="g-card"><small class="g-k">THE TALLY · PER GROUP</small><ul class="g-floor">${rows.map(r=>`<li class="${r.pct>=50?'on':'off'}"><b>${esc(r.n)}</b> <span class="muted">${r.share}% of members</span><span>${r.pct}% for you</span></li>`).join('')}</ul></section>`}
+
  const oldClub=clubView;
  clubView=function(){if(inGame()&&UI.ct==='legacy')return legacyView();if(inGame()&&UI.ct==='dossier')return dossierView();if(inGame()&&(!UI.ct||UI.ct==='hub'))return clubHome();return oldClub()};
 
@@ -301,7 +324,7 @@
    <h2>${ord(last.pos)} in ${esc(TIER_NAME[last.tier])}${h.cup===id?' · cup winners':''}</h2>
    <section class="g-delta"><div><small>Points</small><b>${last.pts}</b><span>league</span></div><div><small>Money</small><b class="${op<0?'bad':'good'}">${signed(op)}</b><span>operating result</span></div><div><small>Members</small><b>${h.agm?h.agm.for+'%':'—'}</b><span>${h.agm?'voted for you':'no vote'}</span></div></section>
    ${goals.length?`<section class="g-card"><h3>Targets: ${met} of ${goals.length} met</h3><ul class="g-news">${goals.map(g=>`<li>${g.met?'✓':'✗'} ${esc(g.text)}</li>`).join('')}</ul></section>`:''}
-   ${btn}</div><details class="g-full"><summary>Full season review</summary>${full.replace(/^<main[^>]*>|<\/main>\s*$/g,'')}</details></main>`;
+   ${tallyCard()}${btn}</div><details class="g-full"><summary>Full season review</summary>${full.replace(/^<main[^>]*>|<\/main>\s*$/g,'')}</details></main>`;
  };
 
  const oldAct=act;
@@ -322,6 +345,10 @@
      UI.pickRegion=false;if(r.ok===false)UI.msg={err:true,text:r.err};else UI.trip={...r,kind:{chairtrip:'trip',chairtour:'tour',chairdata:'data',chairhome:'home'}[a],w:scNow()};save();render();return}
    if(a==='chairrec'&&S&&S.my){const r=chairRecommend(S.my,arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:`Recommended. The director will weigh him when he looks for a ${POS_ONE[r.pos]}.`};save();render();return}
    if(a==='chairinvite'&&S&&S.my){const r=chairInvite(S.my,arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:'Invited. He will decide next summer.'};save();render();return}
+   if(a==='agmnext'&&S&&S.my){const P_=AGMP(),st=UI.agmStep||0;if(st===1&&P_.motion&&!P_.motionDone){UI.msg={err:true,text:'Decide on the motion first.'}}else if(st===2&&!P_.speech){UI.msg={err:true,text:'Give your speech first.'}}else UI.agmStep=st+1;render();if(HAS_DOM)window.scrollTo(0,0);return}
+   if(a==='agmmotion'&&S&&S.my){const r=agmMotionVote(S.my,arg==='yes');UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
+   if(a==='agmspeech'&&S&&S.my){const r=agmSpeech(S.my,arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
+   if(a==='close')UI.agmStep=0;
    if(a==='momchoose'&&S&&S.my){const r=momentChoose(+arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.note};save();render();return}
    if(a==='famchoose'&&S&&S.my){const r=familyChoose(+arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.note||'Decided.'};save();render();return}
    if(a==='manifest'&&S&&S.my){const [k,n]=String(arg).split(':');const r=cmd('SetManifest',S.my,{k,lv:+n});if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}

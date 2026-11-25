@@ -52,8 +52,8 @@ function setGoals(id){
     {k:'youth',target:ya,text:`Academy players make ${ya} appearances between them`,w:MANIFEST_W.youth[mf.youth],lv:mf.youth}
   ];m.goalsSeason=S.season;
 }
-defCommand('SetManifest',{check:(id,a)=>S.week!==0?'Promises are made in the pre-season':!['league','money','youth'].includes(a.k)||![0,1,2].includes(a.lv)?'Unknown promise':null,
-  run:(id,a)=>{const m=M(id),cur=manifestOf(id);m.manifest={...cur,[a.k]:a.lv,s:S.season};setGoals(id)}});
+defCommand('SetManifest',{check:(id,a)=>S.week!==0?'Promises are made in the pre-season':M(id).manifest&&M(id).manifest.s===S.season&&M(id).manifest.locked===a.k&&a.lv<2?'You promised the AGM a bold season':!['league','money','youth'].includes(a.k)||![0,1,2].includes(a.lv)?'Unknown promise':null,
+  run:(id,a)=>{const m=M(id),cur=manifestOf(id);m.manifest={...cur,[a.k]:a.lv,s:S.season,locked:m.manifest?.s===S.season?m.manifest.locked:undefined};setGoals(id)}});
 function setGoalsAll(){for(const id in S.clubs)if(S.members[id])setGoals(id)}
 function goalProgress(id,gl){
   if(gl.k==='league'){const p=posOf(id);return{now:p,met:p<=gl.target,text:`${ord(p)} now`}}

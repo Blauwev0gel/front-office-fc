@@ -1,5 +1,5 @@
 # L4 — Bestuur, politiek en verhalen
-**Status:** Ontwerp; eerste mijlpaal M3b (de ALV als gespeeld moment). Referentiespel: `voorzitter/northmarch.html` (ALV, verkiezingen, momenten). In de gelaagde build bestaan al personen (`S.P`), ledengroepen, statuten en rivaliteiten.
+**Status:** In aanbouw: momenten en afspraken (M3) en de ALV als gespeeld moment (M3b) staan; oppositiekandidaat en meerdere moties volgen (M6). Referentiespel: `voorzitter/northmarch.html` (ALV, verkiezingen, momenten). In de gelaagde build bestaan al personen (`S.P`), ledengroepen, statuten en rivaliteiten.
 
 ## Wat we besproken hebben (D-G1, D-G5)
 - **Elk seizoen een stemming** is de rode draad van het spel. Nu is de ALV een berekening met een balk in het seizoensrapport; in L4 wordt het het hoogtepunt van het seizoen.
@@ -15,3 +15,9 @@
 - Gevolgen alleen via bestaande hefbomen: ledenvertrouwen, loyaliteit van de persoon, wil-weg, loon, reputatie, ontslag van de trainer, sponsorgeld.
 - Eén moment tegelijk, gedeeld met familiemomenten; minstens 5 weken ertussen. Gemeten over 5 werelden: 2–5 momenten per seizoen.
 - Gesloten afspraken komen terug in *Looking back* (gehouden of gebroken, met de reden).
+
+## Gebouwd: de ALV als gespeeld moment (M3b, 2026-11-25, `club/agm.js`)
+- Na week 30 vier stappen: **jaarverslag** (positie, geld, beloftes, gehouden/gebroken afspraken, wat de leden meewegen, en een voorspelling van de stemming) → **de zaal** (elke ledengroep met aandeel, verwachte steun en wens; de ongelukkigste groep dient haar motie in: steunen of bestrijden) → **je toespraak** (vier thema's: fouten erkennen, een gedurfde visie, de leden bedanken, de trainer de schuld geven; elk met winst en verlies per groep) → **de stemming**, met de telling per groep in het seizoensrapport.
+- Alles beweegt de stemming van groepen en, gewogen naar hun aandeel, het bestaande ledenvertrouwen dat de stemming bepaalt. De houding in de zaal en de telling gebruiken dezelfde berekening.
+- **Een aangenomen motie bindt:** een statuut waar dat bestaat (zoals "Ticket prices are set by the members"), anders een vastgelegde verplichting, met eventuele kosten. De **termijnlimiet** van de Old Guard werkt echt: na twee seizoenen moet je aftreden; een volwassen erfgenaam mag zich kandidaat stellen (L5), anders zoek je een andere club.
+- **De gedurfde visie** legt de competitiebelofte van het volgende seizoen vast op Bold.

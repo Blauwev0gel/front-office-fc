@@ -6,7 +6,7 @@ const ENGINE=[
   'world/world.js','world/league.js','world/foreign.js','world/awards.js','world/rivalry.js',                                  // world: clubs, people, divisions, cup
   'football/players.js','football/match.js','football/market.js','football/life.js',      // football: squads, matches, market
   'club/ground.js','club/finance.js','club/members.js','club/staff.js','club/commercial.js','club/projects.js','club/journal.js','club/recruitment.js','club/youth.js','club/legacy.js',                                  // club: ground and money
-  'sim/ai.js','sim/clock.js','club/staffops.js','club/family.js','club/chairtrips.js','club/window.js','club/weekly.js','club/moments.js','sim/commentary.js',
+  'sim/ai.js','sim/clock.js','club/staffops.js','club/family.js','club/chairtrips.js','club/window.js','club/weekly.js','club/moments.js','club/agm.js','sim/commentary.js',
   'layers/autonomy/director-deals.js','layers/autonomy/director-accountability.js','core/save.js'                            // simulation: boards, the clock; saves
 ];
 const UI=['ui/week-brief.js','ui/render.js','ui/club.js','ui/depts.js','ui/members.js','ui/staff.js','ui/commercial.js','ui/history.js','ui/board.js','ui/decide.js','ui/recruit.js','layers/autonomy/director-deals-ui.js','layers/autonomy/director-accountability-ui.js','ui/youth.js','ui/live.js','ui/upgrades.js','ui/act.js','ui/ext-v17-journey.js','ui/ext-v18-club-ux.js','ui/ext-v181-decisions.js','ui/ext-v182-open-sim.js','ui/ext-v183-matchday-echo.js','ui/ext-test-tools.js','ui/ext-v185-home.js','ui/ext-v187-upgrades.js','ui/game.js'];

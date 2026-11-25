@@ -22,3 +22,8 @@ Intended logic: maintenance-only holds ground; moderate investment pays; reckles
    `cut` slowly stagnates; no strategy dominates in all divisions; division 3–4 median cash > £15k.
 3. Report per division: cash, points, position, injury weeks per strategy. If the factors are wrong, tune only `FAC_SCALE`.
 Do not claim balance is proven from a small sample.
+
+## Balance update 2 (with the weekly agenda, untested by Claude)
+- Staff weigh more in every department signal: `groundSignals` staff term `staff*.3*budget` → `staff*.45*budget` (`src/club/ground.js`).
+  Goal: hiring a coach, physio or scout has a felt effect within weeks, so agenda choices matter. Applies to AI clubs too.
+- To test: does an extra staff level now give a measurable effect (growth, injury weeks, scouting looks) inside 5–10 weeks; does sim-test move.

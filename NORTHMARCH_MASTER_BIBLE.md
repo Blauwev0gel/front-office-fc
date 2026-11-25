@@ -1,399 +1,386 @@
 # NORTHMARCH — MASTER GAME DESIGN BIBLE
-**Versie 1.1 — Master Game Design Bible | 25 november 2026**
+**Versie 1.3 — 25 november 2026** · herziening van V1.2 (`b69ea16`); open vragen V1–V6 beslist door de game director (MB-11–MB-16)
 
-Status: geconsolideerde ontwerpbaseline. MB-01–03 zijn door de game director gekozen; MB-04 en verder zijn ontwerpbesluiten van de lead designer op basis van gedelegeerde ontwerpverantwoordelijkheid. Dit document beschrijft het beoogde product, niet uitsluitend de huidige build. Het is geen releasecertificering. Bij strijdigheid met een expliciet eigenaarbesluit geldt dat eigenaarbesluit, tenzij dit later uitdrukkelijk is vervangen. Historische bronnen blijven als archief bewaard.
+## 0. Hoe je dit document leest
+Dit is het enige actieve ontwerpdocument van Northmarch. Het beschrijft het **beoogde spel**, niet per se de huidige build; de broncode en tests zijn de waarheid over wat er nu werkt.
 
-## 1. Het spel dat we maken
-Northmarch is een football club chairman & dynasty game. Je bent de gekozen voorzitter van een voetbalclub in een autonome, fictieve voetbalwereld. Je bouwt een club op, ontdekt talent, investeert, kiest richting, maakt belangrijke bestuurlijke beslissingen en ontwikkelt een netwerk. Je medewerkers runnen de dagelijkse operatie. Je draagt de gevolgen van hun handelen en jouw keuzes. Elk seizoen moet je opnieuw het vertrouwen van de leden verdienen. Uiteindelijk bouw je een persoonlijke en familiale nalatenschap op, die meerdere clubs en generaties kan omvatten.
-
-De speler moet denken: **dit is mijn club, ik heb deze ontwikkeling mogelijk gemaakt en ik wil weten wat er hierna gebeurt.**
-
-### Bindende succesfantasie — MB-01 (25 november 2026)
-De game director kiest D: een hiërarchische combinatie. **Club Builder is de dagelijkse gameplay; Chairman is de rol en manier van spelen; Dynasty is de langetermijnbeloning.** Deze drie zijn geen concurrerende spelmodi. De speler bouwt een club door bestuurlijke invloed, niet door coachwerk. De ALV bepaalt of hij bij deze club mag doorgaan; dynastie geeft betekenis aan de carrière over clubs en generaties. L1/L2 moeten zelfstandig plezier bieden zonder L3–L5. Spelersontwikkeling blijft de emotionele motor (D-G4).
-
-### Wat het niet is
-Geen Football Manager waarin je opstellingen, tactiek en contractonderhandelingen uitvoert. Geen passieve simulator, spreadsheet, routinegoedkeuringsspel, willekeurige kaartjesmachine of stamboomsimulator. Geen verzameling upgrades die allemaal automatisch de juiste keuze zijn.
-
-### De vier ervaringsdoelen
-1. Mijn keuzes doen ertoe.
-2. Mijn club en de wereld leven, ook zonder mij.
-3. Ik kan verliezen; succes is verdiend.
-4. Ik voel dat ik de voorzitter ben.
-
-## 2. De fantasie en de bevoegdheden
-| Voorzitter | Technisch directeur | Trainer |
+| Deel | Inhoud | Verandert |
 |---|---|---|
-| Clubrichting, financiële kaders, strategische investeringen, personeelsbeleid, aanbevelingen, netwerk, uitzonderlijke transfers, leden | Selectieplanning, scouting, aankopen, verkopen, contracten, voetbalbeleid binnen kaders | Opstelling, tactiek, wedstrijdcoaching en sportieve voorbereiding |
+| I — Het spel (§1–9) | Wat Northmarch is en niet is, rollen, plezier, ritme, systemen, UX, balans | Zelden; alleen via een besluit |
+| II — Besluiten (§10–11) | Het enige bindende register en de open vragen | Bij elk besluit |
+| III — Werkwijze (§12–14) | Beslisrechten, werkcyclus, kwaliteitstoets, tests, kosten | Zelden |
+| IV — Roadmap en status (§15–16) | Fasen, exit gates, actuele status, bekende problemen | Elke sessie |
 
-De voorzitter ontdekt spelers maar tekent ze niet zelf. De TD kan een aanbeveling naast zich neerleggen. De twee expliciete uitzonderingen op volledige transferdelegatie zijn een bod op een van de drie beste spelers en een aankoop boven het clubrecord (D-L3-2b). Routinezaken gaan niet langs de voorzitter. Eigenaarsfantasie betekent bestuurlijke invloed, niet operationele omnipotentie.
+**Statuslabels:** ✅ besluit van de game director (bindend) · 🔷 gedelegeerd besluit van een developer (bindend tot herzien; nooit presenteren als eigenaarbesluit) · ❓ open, alleen de eigenaar beslist · ~~doorgehaald~~ vervangen.
+**Voorrang:** een recenter ✅-besluit gaat altijd voor; daarna 🔷; daarna de lopende tekst. Tekst die botst met het register is een fout in de tekst.
 
-### Initiatief en invloed — MB-03 (goedgekeurd)
-De voorzitter is zowel proactief als situationeel. Hij kan zelf bestuurlijke initiatieven starten, zoals investeringen onderzoeken, samenwerkingen zoeken, clubs bezoeken, relaties onderhouden en talent ontdekken. Tegelijkertijd ontstaan kansen, problemen en uitzonderlijke beslissingen uit de autonome wereld, zonder dat de speler ze hoeft uit te lokken. De speler is dus nooit uitsluitend afhankelijk van een inbox. Initiatief blijft binnen de voorzittersrol: de TD beheert de selectie en onderhandelt, de trainer coacht, en routinezaken blijven gedelegeerd. Initiatieven kunnen mislukken of pas later resultaat opleveren. Geen verplichte wekelijkse keuzes of generiek actiepuntensysteem. Activiteiten worden begrensd door natuurlijke kosten, beschikbaarheid en reistijd (MB-04), niet door een generiek aantal acties.
+---
 
-## 3. Waar het plezier vandaan komt
-**Spelers zijn de emotionele motor (D-G4); de club is het middel en de nalatenschap is de langetermijnbeloning.**
+# DEEL I — HET SPEL
 
-- Ontdekking: onbekend talent vinden voordat rivalen het vinden; informatie is onvolledig en kansen kunnen verdwijnen.
-- Groei: een speler uit eigen jeugd zien doorbreken, een aankoop zien slagen, een club zien stijgen.
-- Afweging: investeren of reserveren, een ster behouden of verkopen, nu presteren of later sterker worden.
-- Autonomie: de juiste mensen aanstellen en zien hoe hun keuzes uitpakken.
-- Spanning: wedstrijden, rivalen, transferdeadline en herverkiezing.
-- Eigenaarschap: herkenbare clubidentiteit, eigen beslissingen, geschiedenis en familie.
+## 1. Pitch en succesfantasie
+**Northmarch is een football club chairman & dynasty game.** Je bent de gekozen voorzitter van een ledenclub in een fictieve voetbalwereld die zonder jou doordraait. Je ontdekt talent, investeert, geeft richting en bouwt een netwerk; je mensen runnen de dagelijkse operatie en jij draagt de gevolgen. Elk seizoen moet je de leden opnieuw overtuigen. Op lange termijn bouw je een nalatenschap over clubs en generaties.
 
-Een keuze is alleen gameplay als er een betekenisvol alternatief bestaat. De speler moet begrijpen wat hij kan bereiken, opgeven of riskeren. Gevolgen kunnen later optreden, maar moeten terugvindbaar zijn. Niet elk besluit hoeft een succes te worden.
+De speler moet denken: **"Dit is mijn club, ik heb dit mogelijk gemaakt, en ik wil weten wat er hierna gebeurt."**
 
-### Clubidentiteit en ambitie — MB-02 (goedgekeurd)
-Elke club heeft bij aanvang een bestaande identiteit, gevormd door historie, omgeving, supporters en voetbaltraditie. De voorzitter begint niet met een blanco canvas. Hij kan de identiteit versterken of geleidelijk veranderen. Via het jaarlijkse manifest geeft hij aan welke richting hij nastreeft; daadwerkelijk beleid en resultaten bepalen of die verandering slaagt. Identiteit, ambitie en gerealiseerde ontwikkeling zijn onderscheiden: een gekozen ambitie verandert de identiteit niet onmiddellijk. Identiteit verandert door herhaald gedrag over seizoenen; het manifest is een intentie, geen onmiddellijke wijziging. Gebruik bestaande ledenverwachtingen en observeerbare clubstatistieken; kalibreer de exacte gewichten met tests.
+**Hiërarchie (MB-01 ✅):** *Club Builder* is de dagelijkse gameplay, *Chairman* is de rol en de manier van spelen, *Dynasty* is de langetermijnbeloning. Het zijn geen aparte modi. L1/L2 moeten zonder L3–L5 een compleet en leuk spel zijn. **Spelers zijn de emotionele motor** (D-G4 ✅).
 
-## 4. Het kernritme
+## 2. Ervaringsdoelen en ontwerpregels
+Elke feature versterkt minstens één ervaringsdoel en breekt er geen.
+
+| # | Ervaringsdoel | Ontwerpregel die eruit volgt |
+|---|---|---|
+| E1 | **Mijn keuzes doen ertoe.** | Een keuze heeft een verdedigbaar alternatief, een prijs en een terugvindbaar gevolg. Geen dominante gratis optie. |
+| E2 | **Mijn club en de wereld leven, ook zonder mij.** | Rivalen, spelers en staf handelen zelf, met dezelfde regels als de speler. Niets verandert de wereld buiten de regels om. |
+| E3 | **Ik kan verliezen; succes is verdiend.** | De ALV is de seizoensgebonden verliesconditie; een passieve voorzitter doet het aantoonbaar slechter, een actieve heeft geen garantie. |
+| E4 | **Ik voel dat ik de voorzitter ben.** | Invloed loopt via richting, geld, mensen, netwerk en uitzonderingen; nooit via opstelling, tactiek of contractonderhandeling. |
+| E5 | **Ik geef om mijn spelers.** (D-G4) | Een ontdekte of opgeleide speler blijft volgbaar: groei, prestaties, waarde en de verkoop aan het eind. |
+
+## 3. Wat het spel IS NIET
+- Geen manager-game: je maakt geen opstellingen, tactiek, trainingsschema's of contractonderhandelingen.
+- Geen goedkeuringsspel (D-G1, D-L3-2 ✅): routinezaken handelt de staf af; geen stapels kaarten om af te tikken.
+- Geen actiepunten of generiek weekquotum als schaarste; schaarste komt uit geld, tijd en gelegenheid (MB-03, MB-04 ✅).
+- Geen passieve simulator, spreadsheet, willekeurige kaartjesmachine of losse stamboomsimulator.
+- Geen lineaire upgradegrind waarin elke investering vanzelf de juiste is (MB-08 🔷).
+- Geen gescripte crises los van de wereld, geen verborgen tweede markt of economie.
+- Geen dagelijkse loginbeloning, kunstmatige stamina of real-time wachttijd.
+- Geen echte spelers, clubs of merken; geen kopie van een bestaand spel.
+
+## 4. Rollen en bevoegdheden
+| Voorzitter (jij) | Technisch directeur (TD) | Trainer |
+|---|---|---|
+| Clubrichting en manifest, financiële kaders, investeringen, personeelsbeleid, netwerk, talent ontdekken en aanbevelen, uitzonderlijke transfers, leden | Selectieplanning, scouting, aan- en verkopen, contracten, voetbalbeleid binnen jouw kaders | Opstelling, tactiek, wedstrijdcoaching, sportieve voorbereiding |
+
+- Je **ontdekt** spelers maar tekent ze niet. Een aanbeveling geeft extra gewicht op de shortlist van de TD; de TD mag haar naast zich neerleggen (D-S1 ✅).
+- De TD doet elke transfer zelf, met **twee uitzonderingen** die bij jou komen: een bod op een van de drie beste spelers van de club en een aankoop boven het clubrecord (D-L3-2b ✅).
+- Je bent **proactief én situationeel** (MB-03 ✅): je start zelf initiatieven (reizen, onderzoek, partnerclubs, relaties) en de wereld brengt kansen en problemen. Je bent nooit alleen van een inbox afhankelijk. Initiatieven kunnen mislukken of pas later renderen.
+
+## 5. Waar het plezier vandaan komt
+| Bron | Wat de speler voelt | Waar het in het spel zit |
+|---|---|---|
+| Ontdekking | "Ik zag hem eerder dan de rest." | Scouting met onzekerheid, netwerk, jeugdtoernooien |
+| Groei | "Die jongen heb ik binnengehaald." | Spelersprofiel, academie, speelminuten, verhuur |
+| Afweging | "Verkopen of houden? Nu of later?" | Geld, investeringen, uitzonderlijke transfers |
+| Autonomie | "Ik koos de juiste mensen." | TD en staf die zelf handelen binnen kaders |
+| Spanning | "Dit seizoen staat alles op het spel." | Wedstrijden, rivalen, deadline, ALV |
+| Eigenaarschap | "Dit is míjn club geworden." | Identiteit, clubboek, geschiedenis, later familie |
+
+**Clubidentiteit (MB-02 ✅).** Elke club begint met een bestaande identiteit uit historie, omgeving, supporters en voetbaltraditie; geen blanco canvas. Het jaarlijkse **manifest** is je intentie; identiteit verandert pas door herhaald gedrag over seizoenen (jeugdgebruik, werving, prijzen, lokale binding, investeringen, resultaten). Identiteit, ambitie en gerealiseerde ontwikkeling zijn drie gescheiden dingen. Gewichten worden met tests gekalibreerd.
+
+## 6. Het ritme
 **Ontdekken → richting geven → delegeren → beleven → evalueren → opnieuw ontdekken.**
 
-Moment: één herkenbare kans, afweging of probleem. Week: inspecteer, handel vrijwillig, beleef wedstrijd en nieuws. Seizoen: zomer, competitie, winter, finale, ALV. Carrière: clubontwikkeling, reputatie, andere clubs, opvolging en generaties.
+| Schaal | Inhoud |
+|---|---|
+| Moment | Eén herkenbare kans, afweging of probleem. |
+| Week | Kijk wat er speelt, handel als je wilt, speel de week, lees de Echo. |
+| Seizoen | Zomer → competitie → winterwindow → run-in → ALV. |
+| Carrière | Clubontwikkeling, reputatie, andere clubs, later opvolging en generaties. |
 
-### Week
-Open op de actuele situatie van de club. Toon volgende wedstrijd en inzet, urgente bestuurlijke zaken indien aanwezig, eigen activiteiten, recente gevolgen. Speler kan afdelingen bezoeken, investeren, scouting doen, talent volgen en beleid veranderen. Medewerkers lossen routine op. Speel de week; toon uitslag, financieel resultaat, club- en wereldnieuws. Een rustige week is geldig. Geen kunstmatig opgelegde kaartjes of straf voor niet klikken.
+### De week
+Elke week is een eigen stap met wedstrijdverslag; geen doorspoelen en geen versneld spelen dat weken overslaat (D4, MB-13 ✅). De week wordt sneller, niet korter. De week opent op de situatie van de club: volgende wedstrijd en inzet, eventueel een urgente zaak, je lopende initiatieven en recente gevolgen. Je kunt afdelingen bezoeken, investeren, scouten, talent volgen of beleid aanpassen. Daarna speel je de week en lees je in de Echo de uitslag (met oorzaak), het geld en het club- en wereldnieuws.
 
-### Seizoen
-Zomer: analyse, plan, markt, voorbereiding. Competitie: volgen, ontwikkelen, kansen benutten. Winter: kortere speelbare transfermarkt. Run-in: sportieve en bestuurlijke spanning. ALV: beoordeling van prestaties, beloftes, financiën en ledenvertrouwen. Verlies betekent vertrek uit de club, niet noodzakelijk einde carrière (D6/D7/D-G5).
+**Een rustige week is geldig, maar nooit leeg.** D4 eist dat elke week iets te lezen of te beslissen biedt en snel af te handelen is. Daarom toont elke week minstens één echt gevolg uit de wereld (uitslag met reden, ontwikkeling van een gevolgde speler, projectvoortgang, rivaal- of marktnieuws) en is doorgaan altijd één tik. Geen kunstmatige kaarten om de week te vullen en geen straf voor niets doen.
 
-## 5. Opening — ontwerpdoel
-De eerste minuten moeten betrokkenheid creëren, niet uitleg stapelen. De speler krijgt een echte club met herkenbare identiteit, een sportieve uitdaging, mensen en middelen. Historisch goedgekeurd openingconcept (keuze 69, voorzitter-fundering): clubdossiers, verborgen bijzonderheid, benoeming, speech en eerste situatie. Dit is een bron voor het ontwerp, niet automatisch de definitieve Northmarch-flow.
+*Voorbeeld (illustratief):* week 8, Pell United staat zesde. De Echo meldt dat de 17-jarige spits die je in de zomer aanbeval zijn eerste basisplaats kreeg. Een jeugdtoernooi in het noorden is volgende week; de reis kost geld en bezet je voor die week. Je gaat, of je bewaart het geld voor de tribune. Je drukt op *Play week 8*.
 
-Definitieve ontwerpflow (MB-05): kies club → begrijp uitdaging en belangrijkste spelers → stel koers en financiële kaders → bespreek zomerplan met TD → betreed speelbare markt → eerste wedstrijd. Geen aparte tutorial waar de speler alleen maar op Next drukt. Introductie van afdelingen gebeurt wanneer ze relevant zijn. Eerste echte keuze moet vroeg vallen; timing moet menselijk worden getest.
+### Het seizoen
+Zomer: analyse, plan, speelbare markt, voorbereiding (§7.2). Competitie: volgen, ontwikkelen, kansen benutten. Winter: kortere speelbare markt op dezelfde engine. Run-in: sportieve en bestuurlijke spanning. **ALV:** beoordeling van beloftes, resultaten, financiën en ledenvertrouwen (D6, D-G5 ✅). Verlies betekent vertrek uit de club, niet het einde van je carrière (D7 ✅).
 
-## 6. Transferzomer
-De zomer is een speelbare periode, niet een achtergrondberekening (D-G6).
-1. TD presenteert selectie, sterke/zwakke posities, contracten, budget en alternatieven.
-2. Voorzitter geeft richting: doelen, wervingsprofiel, financiële kaders. Brief is vastgelegd voor latere evaluatie.
-3. Vier pre-season-weken: markt beweegt, rivalen handelen, deals hebben status en alternatieven. Voorzitter kan ontdekken, aanbevelen, prioriteiten bespreken en financiële ruimte wijzigen.
-4. Deadline: daadwerkelijke tijdsdruk en uitzonderlijke beslissingen; geen gefabriceerde crisissen.
-5. Zomereditie: in/uit, geld, veranderingen in selectie, rivalen en eerste wedstrijd.
-6. Debrief: doelen versus resultaat, later ook prestaties van aankopen. Winter gebruikt dezelfde engine met korter ritme.
+### De sessie
+Een sessie begint op de clubhub en eindigt bij een natuurlijk resultaat: een wedstrijd, een transfer, een bouwmijlpaal of een ALV. Vrijwillige verdieping mag langer duren; de verplichte route per week blijft kort.
 
-De TD blijft verantwoordelijk. Een aanbeveling is invloed, geen gegarandeerde aankoop. Een mislukte transfer is mogelijk en heeft gevolgen. De markt mag na sluiting geen verborgen tweede zomer uitvoeren die eerdere keuzes ongedaan maakt.
+## 7. Systemen
+Elk systeem heeft één eigenaar-module en één bron van waarheid. Wat hieronder staat is het doelmodel; wat al in code bestaat staat in §16.
 
-## 7. Talent, scouting en netwerk
-D-S1: voorzitter kan reizen, toernooien bezoeken, dataonderzoek doen en spelers aanbevelen. Scouting schat kwaliteit en potentieel met onzekerheid. Het dossier volgt talent door de jaren heen; Moneyball toont aankoop/verkoop, groei en opbrengst. Jeugd kan via opleiding, speelminuten en verhuur doorgroeien. Verkoop kan geld vrijmaken voor nieuwe talenten en infrastructuur, maar verzwakt soms de huidige selectie.
+### 7.1 Opening — de eerste zomer is de tutorial (MB-05 🔷)
+Geen aparte tutorial waarin je alleen op Next drukt; afdelingen worden uitgelegd zodra ze ertoe doen. De eerste echte keuze valt vroeg.
 
-Netwerk (MB-06): relaties met andere voorzitters, clubs, scouts, oud-spelers en zakelijke contacten bieden toegang tot informatie en kansen. De voorzitter bouwt toegang op, niet een tweede transferengine. L2 kan eenvoudige contacten en kansen bevatten; L3/L4 voegen menselijke voorkeuren, vertrouwen en wederkerigheid toe; L5 kan het netwerk over generaties laten voortbestaan. Geen gegarandeerde beloning voor elk bezoek.
+| Moment | Speler ziet | Speler doet | Beloning |
+|---|---|---|---|
+| Clubkeuze | Drie open voorzittersstoelen: wapen, historie, middelen, uitdaging | Club kiezen, dossiers vergelijken | Een eigen startverhaal |
+| Eerste dag | Drie herkenbare spelers, identiteit, belangrijkste sportieve en financiële opgave | Manifest en koers bepalen | Persoonlijke inzet voor het seizoen |
+| TD-vergadering | Gaten in de selectie, mogelijke vertrekkers, budget, plan A/B | Prioriteit en kaders kiezen of het plan aanvaarden | Een begrijpelijk plan |
+| Marktweken | Echte kandidaten, rivalen die handelen | Onderzoeken, aanbevelen, ruimte vrijmaken, afwachten | Een vondst of concreet resultaat |
+| Deadline | Open deals, alternatieven | Een uitzonderlijk besluit als dat nodig is | Definitieve selectie en zomerkrant |
+| Eerste wedstrijd | Nieuwe spelers, tegenstander, inzet | Beleven, gevolgen lezen | Eerste sportieve payoff |
 
-## 8. Clubmanagement
-Elke afdeling is een herkenbaar onderdeel van de club, met eigen informatie, acties, investeringen en gevolgen. De UI van die afdeling bevat haar upgrades; geen aparte schermen die dezelfde verantwoordelijkheid dupliceren.
+Geen verplichte geheime schuld of crisis bij elke start; een bijzonderheid mag alleen uit de gegenereerde clubstaat komen. Identiteit en financiën zijn vóór de benoeming begrijpelijk genoeg om bewust te kiezen.
+
+### 7.2 Transfermarkt (D-G6, MB-14 ✅)
+De markt hoort bij **L2**: ze werkt volledig zonder hogere lagen. Alleen de persoonlijkheid en het mandaat van de TD zijn L3. De markt is een verhaal over weken, niet één klik: **TD-vergadering → zomerbrief → ticker met wekelijkse updates (ook rivalen) → deadline → zomerkrant → debrief.** De winter gebruikt dezelfde engine met een korter ritme.
+
+- **Dealstatus (doelmodel):** `identified → shortlisted → enquiry → offer → negotiation → agreed → signed`, met eindstatussen `rejected / withdrawn / hijacked / expired`. Elke deal heeft club, speler, herkomst, behoefte, voorwaarden, geldigheid en statusreden.
+- **Plan en brief:** het TD-plan bevat geprioriteerde behoeften en haalbare alternatieven. Je kunt prioriteiten, wervingsprofiel en financiële ruimte wijzigen; het plan past zich aan, de oorspronkelijke brief blijft bewaard voor de debrief.
+- **Regels:** elke club volgt dezelfde budget- en loonregels. Een aanbeveling is invloed, geen garantie. Een mislukte transfer is mogelijk en heeft gevolgen. Een tekort mag blijven bestaan; alleen noodzakelijke veiligheidsregels grijpen in, transparant en voor alle clubs gelijk.
+- **Na sluiting:** geen onzichtbare tweede markt die eerdere keuzes ongedaan maakt. Openstaande uitzonderingen blijven bewaard tot ze zijn beslist.
+
+### 7.3 Talent, scouting en netwerk
+- **Scouting (D-S1 ✅):** reizen, toernooien en dataonderzoek leveren spelers op, met kwaliteit en potentieel als **schatting** met onzekerheid. Een volglijst houdt ook spelers bij die niet tekenen.
+- **Dossier en Moneyball:** het dossier volgt talent door de jaren; per speler zie je aankoop, groei, verkoop en sportieve bijdrage. Een verkoop is geen winst als de sportieve en financiële kosten de opbrengst overtreffen.
+- **Persoonlijke tijd (MB-04, MB-12 ✅):** dit vervangt de regel "één activiteit per week" uit D-S1. Elke activiteit heeft haar eigen beperking; reizen sluiten elkaar uit. een reis heeft een bestemming, kosten en bezette tijd; een toernooi een datum; een partnerclub benader je pas opnieuw als er iets te bespreken is. Telefoneren, dossiers lezen en beleid wijzigen kosten niets. Herhaald klikken levert geen onbeperkte vondsten, vertrouwen of geld op. Geen agenda- of urenboekhouding.
+- **Netwerk (MB-06 🔷):** contacten (voorzitters, scouts, oud-spelers, zakenrelaties) hebben een identiteit, rol, regio, bron van kennismaking en laatste betekenisvolle interactie. Ze geven **toegang** tot informatie en kansen (spelers, toernooien, oefenwedstrijden, partnerclubs, sponsors), nooit directe transfercontrole. Contacten kunnen verhuizen of stoppen. Geen relatiegrind en geen straf voor niet dagelijks onderhouden. L3/L4 voegen vertrouwen en wederkerigheid toe; L5 laat het netwerk generaties overleven.
+
+### 7.4 Spelers
+Elke speler heeft een stabiele identiteit, positie, leeftijd, herkomst, contract, clubhistorie, speelminuten, prestaties, waarde en ontwikkeling. Er is één canonieke profielpagina, ongeacht de ingang: waarom deze speler relevant is, wat we weten en wat er veranderd is. Legendes ontstaan uit echte prestaties en dienstjaren. Je geeft geen trainingsopdrachten, basisplaatsen of speelminutengaranties.
+
+### 7.5 Clubmanagement en investeringen
+Elke afdeling is een herkenbaar deel van de club met eigen informatie, acties, investeringen en gevolgen. **De upgrades van een afdeling zitten in haar eigen tile**; geen apart upgradescherm.
 
 | Domein | Voorzittersvraag | Gevolg |
 |---|---|---|
 | Geld | Wat kunnen we ons veroorloven? | Kas, schuld, loonruimte, risico |
-| Voetbal/werving | Waar moet de selectie naartoe? | Selectiekwaliteit, leeftijd, kosten, verkoopwaarde |
-| Training | Hoe ontwikkelen we spelers? | Groei en sportieve kwaliteit |
-| Academie | Hoe bouwen we onze eigen pijplijn? | Instroom, doorbraak, verkoop, identiteit |
-| Medisch | Hoe houden we de selectie inzetbaar? | Blessures en herstel |
-| Stadion/terreinen | Welke capaciteit en voorzieningen zijn nodig? | Inkomsten, onderhoud, thuisvoordeel |
-| Commercie/wedstrijdorganisatie | Hoe vergroten we duurzame inkomsten? | Sponsors, recettes, kosten |
-| Leden | Waarom steunen mensen ons? | Vertrouwen, verwachtingen en herverkiezing |
+| Voetbal/werving | Waar moet de selectie heen? | Kwaliteit, leeftijd, kosten, verkoopwaarde |
+| Training | Hoe ontwikkelen we spelers? | Groei, sportieve kwaliteit |
+| Academie | Hoe bouwen we een eigen pijplijn? | Instroom, doorbraak, verkoop, identiteit |
+| Medisch | Hoe houden we de selectie fit? | Blessures, herstel |
+| Stadion/terreinen | Welke capaciteit en voorzieningen? | Inkomsten, onderhoud, thuisvoordeel |
+| Commercie/wedstrijddag | Hoe groeien inkomsten duurzaam? | Sponsors, recettes, kosten |
+| Leden | Waarom steunen mensen ons? | Vertrouwen, verwachtingen, herverkiezing |
 
-Dit is een functionele indeling, niet een definitieve lijst van acht technische afdelings-ID's. De broncode bepaalt de huidige exacte afdelingen.
+Dit is een functionele indeling; de code bepaalt de exacte afdelingen (nu acht, T7).
 
-Investeringen moeten een afweging bieden: geld, terugverdientijd, onderhoud, alternatieve besteding, risico en effect. Niet elke upgrade moet beschikbaar zijn of dezelfde optimale volgorde hebben. Faciliteiten moeten niet alleen een hogere meter geven maar een waarneembaar verschil in de wereld. Historische ideeën zoals beperkte kavels en identiteitssynergie zijn ontwerpbronnen, niet allemaal verplicht voor L2.
+**Investeringen (MB-08 🔷)** concurreren om dezelfde middelen. Een investeringskaart toont huidige toestand, kosten nu en per week, oplevering, effect, onderhoud en risico. Geen project zonder betaalbaarheidstoets. Een faciliteit levert een waarneembaar verschil in de wereld, niet alleen een hogere meter.
 
-## 9. De levende voetbalwereld
-Fictieve clubs en personen, vijf divisies als huidige productrichting, beker, Europese en buitenlandse wereld. Iedere club heeft een eigen selectie, economie, identiteit en ontwikkeling. Rivalen handelen zonder de speler; spelers verouderen, ontwikkelen, raken geblesseerd, wisselen van club en stoppen. De speler ziet relevante wereldgebeurtenissen in de Echo. Dezelfde regels gelden voor de speler en AI-clubs waar hun rol gelijk is. Geen extra verborgen valuta of parallelle markt die de spelwereld onverklaarbaar verandert.
+**Financiën:** één grootboek. Kas, beschikbaar budget, toekomstige verplichtingen en winst zijn gescheiden begrippen. Geld is een bruikbare maar niet dominante hefboom.
 
-## 10. Mensen, politiek en nalatenschap
-L3: medewerkers worden zelfstandige personen met competenties, richting, mandaten en verantwoording. Zij voeren echt handelingen uit; geen tekstuele schijnautonomie. Routine blijft gedelegeerd, uitzonderingen zichtbaar.
+### 7.6 De levende wereld
+Fictieve clubs en personen: vijf divisies van zestien (80 clubs) met een nationale beker en een buitenlandse wereld (MB-15 ✅). Elke club heeft een eigen selectie, economie, identiteit en ontwikkeling en beslist met dezelfde commando's als de speler (D1 ✅). Spelers verouderen, groeien, raken geblesseerd, wisselen van club en stoppen. Relevante wereldgebeurtenissen verschijnen in de Echo.
 
-L4: gebeurtenissen komen voort uit bestaande feiten en relaties. Politieke groepen, oppositie, afspraken en ALV maken de gevolgen van clubbeleid persoonlijk. Geen willekeurige verhalen die buiten de regels de wereld veranderen.
+### 7.7 ALV, carrière en falen (MB-09 🔷)
+Het jaarrapport bevat beloftes, resultaten, financiën, clubontwikkeling en vertrouwen. L2 gebruikt de mechanische stemming (D6 ✅); L4 voegt debat, groepen, moties en oppositie toe **op dezelfde meter**, zonder tweede stemmodel. Sportief, financieel en menselijk succes vormen geen samengestelde highscore. Weggestemd? De wereld blijft, je reputatie bepaalt je nieuwe kansen: drie open stoelen (D7 ✅). Geen game-over door één tegenvaller.
 
-L5: de voorzitter is een persoon met familie, kinderen, generatieontwikkeling en opvolging. Een ledenclub is niet erfelijk bezit; een opvolger moet worden gekozen. Clubboek (legendes, resultaten, tijdperk) is onderscheiden van dynastieboek (familie, generaties en nalatenschap). Het verlies van een voorzittersstoel beëindigt de club niet.
+**Waar speel je naartoe? (MB-16 ✅)** Er is geen eindscherm en geen winconditie. Het doel op lange termijn is je **reputatie**, je **prijzen** en het **clubboek** dat je achterlaat. Mijlpalen maken voortgang zichtbaar, zoals *eerste promotie*, *eigen jeugd in de basis*, *schuldenvrij*, *een beker* of *een recordverkoop*. Ze komen uit echte gebeurtenissen, staan in het clubboek en tellen mee voor je reputatie; ze geven geen bonussen.
 
-## 11. Architectuur en ontwikkelvolgorde
-| Laag | Eigen verantwoordelijkheid |
-|---|---|
-| L1 | Zelfstandige voetbalwereld, tijd, spelers, competities en markt |
-| L2 | Speelbare clubontwikkeling, geld, beleid, basispersoneel en bestuurlijke acties |
-| L2.5 | Operationele organisatie, scouting en jeugd als onderdeel van de basis; geen extra productfase |
-| L3 | Autonome medewerkers, individuele mandaten, evaluatie |
-| L4 | Verhalen, relaties, politiek en dramatisering |
-| L5 | Dynastie, opvolging en persoonlijke nalatenschap |
+### 7.8 Hogere lagen (L3–L5)
+- **L3 — mensen met mandaten (D-L3-1 ✅):** staf zijn personen met competenties, richting en verantwoording. Een mandaat is een grens: daarbinnen beslist de staf, daarbuiten komt een voorstel. Ze voeren echt handelingen uit; geen tekstuele schijnautonomie.
+- **L4 — verhalen en politiek:** situaties ontstaan uit bestaande feiten en relaties. Groepen, oppositie en afspraken maken de gevolgen van beleid persoonlijk.
+- **L5 — dynastie (D-G3 ✅):** de voorzitter is een persoon met partner en kinderen die opgroeien, eigenschappen erven en een pad kiezen. Een ledenclub is geen erfelijk bezit: een opvolger wordt via de ALV gekozen. Het clubboek (legendes, resultaten, tijdperken) staat los van het dynastieboek (familie en nalatenschap).
 
-L1/L2 moeten zonder hogere lagen een compleet spel vormen. Hogere lagen voegen diepte toe. Eén eigenaar per domein, één centrale klok, één economie, één gecontroleerde command-route, lifecycle-events en optionele hooks. Geen duplicatie van selectie of budget. Geen UI-wrapper bovenop UI-wrapper als duurzame architectuur. Save-migraties en determinisme bewaken. De recente ontwikkeling van L4/L5-slices vormt geen bewijs dat de basisgate is gehaald.
+## 8. UX: een spel, geen dashboard
+Mobile-first (390 px, licht en donker), Engelse interface, tekstgerichte retro voetbalpresentatie. Informatie begint met *wat er speelt, waarom het telt en wat je kunt doen*; diepere cijfers op verzoek. Tikdoelen ≥ 44 px, WCAG AA, korte tekstblokken.
 
-## 12. UX: spel, geen dashboard
-Mobile-first, Engelse UI, tekstgerichte retro voetbalpresentatie. Informatie begint met wat er speelt, waarom het relevant is en wat de voorzitter kan doen. Diepere cijfers op verzoek. Eén herkenbare weekflow, afdelingstegels met eigen bediening, consistente terugnavigatie en een duidelijke voortgangsactie. Wedstrijden zijn emotionele momenten zonder dat de voorzitter de coach wordt. De Echo is de terugkoppeling van de wereld: uitslag, gevolgen, geld, talent en rivalen. Geen onnodige modals of dubbele navigatie. 390 px en beide thema's testen.
+**Informatiearchitectuur (MB-07 🔷):** één clubhub met een vaste voortgangsknop. Maximaal vier primaire bestemmingen: **Club** (afdelingen, geld, staf), **World** (selectie, competitie, markt), **Network** (contacten, scoutingdossier), **Echo** (nieuws, geschiedenis). Tijdens een transferwindow is het Transfer Centre dominant op de hub. Dit is een doel-IA, geen opdracht om de huidige tabs blind te vervangen. Een urgente uitzondering mag prominent zijn; geen reeks modals.
 
-Referentiewireframe (structuur, geen pixelontwerp):
-```
-NORTHMARCH     PELL UNITED     SUMMER 2/4
-Cash / wage room / ambition / members
-TODAY: TD is pursuing a striker
-TRANSFER CENTRE: targets, deals, rivals
-YOUR CLUB: football | finance | academy | ground
-YOUR WEEK: discover / network / review
-ECHO: what changed and why
-[Advance time]
-```
-
-## 13. Balans en bewijs van plezier
-Een goede economische keuze heeft opportuniteitskosten; geld moet een bruikbare maar niet dominante hefboom zijn. Actieve en vaardige voorzitters moeten betekenisvol kunnen verschillen van passieve spelers zonder garantie op succes. Verschillende clubstrategieën moeten haalbaar zijn, afhankelijk van context. De lagere divisies moeten levensvatbaar blijven. Een stabiele ledger of een groene CI bewijst geen gameplayplezier.
-
-Releasegate: gecontroleerde meerjarige simulatie (10–20 seizoenen volgens bestaande contracten), budget- en squad-invarianten, gepaarde beleidsvergelijkingen, save/load, mobiele end-to-end test en menselijke speeltest. Meet echte causaliteit waar mogelijk; toen/nu is niet automatisch bewijs. Geen onnodig dure GitHub Actions; volg kostenprotocol.
-
-## 14. Besluitcanon en herkomst
-- `BIBLE.md` (claude-game): mensen managen, geen coachwerk, gevolgen, geen actiepunten; historische CEO-context niet automatisch overnemen.
-- `standalone-research/CONCEPT-VOORZITTER-2026-11-18.md`, `KERN-VOORZITTER.md`, `ERVARING-VOORZITTER.md`: gekozen voorzitter, Bouwer met beslismomenten, club die leeft, inzet en eigenaarsgevoel.
-- `standalone-research/PAPIER-TRANSFERZOMER.md`, `TD-VOORZITTER.md`, `ONDERZOEK-TD-VOORZITTER.md`: selectieplanning, vertrouwen, prioriteiten en transferverloop.
-- `standalone/front-office-fc/docs/GAME_BIBLE.md`: historische standalone vertical slice, geen actuele productscope.
-- `standalone/front-office-fc/northmarch-layered/docs/DECISIONS.md`: D-S1, D-L3-2b, D-G1–D-G6, P-1 zijn recente expliciete besluiten. D5 en D-L3-2 zijn gedeeltelijk vervangen door de nieuwere uitzonderingen.
-- `.../docs/LAYER_CONTRACT.md`: bindende fasevolgorde en modulegrenzen.
-- `.../docs/CORE_LOOP.md`: voorstel 25 november, geen volledig goedgekeurde canon.
-- `.../docs/L1_L2_PLAYTEST_REPORT.md`, `SLIMLINE_COMPLETENESS_AUDIT.md`, `DEV_STATE.md`, `V19_PORT.md`: historische technische evidence en beperkingen.
-- `loopsim-handover/`: 37.760 gerapporteerde runs; resultaten vóór reparatie, M7 achteraf ontworpen; richtinggevend tegen opvulkaarten, geen bewijs van menselijk plezier.
-
-Repository: https://github.com/Blauwev0gel/front-office-fc . Huidige officiële ontwikkelbranch volgens DEV_STATE: slimline-main. Dit document consolideert de beschikbare lezing; niet alle branches of bestanden zijn volledig geaudit. De actuele livebuild en huidige teststatus zijn niet onafhankelijk vastgesteld.
-
-## 15. Besluitenregister Master Bible
-| ID | Datum | Status | Besluit |
-|---|---|---|---|
-| MB-01 | 2026-11-25 | Goedgekeurd door game director | D: hiërarchische combinatie. Clubontwikkeling is de dagelijkse gameplay, voorzitterschap bepaalt hoe je speelt en dynastie is de uiteindelijke langetermijnbeloning. |
-| MB-02 | 2026-11-25 | Goedgekeurd door game director | C: identiteit én ambitie. Bestaande clubidentiteit, jaarlijkse richting via manifest, organische verandering door gedrag en resultaten. |
-| MB-03 | 2026-11-25 | Goedgekeurd door game director | C: proactief én situationeel. Vrije bestuurlijke initiatieven naast organische kansen en dilemma’s uit de wereld, binnen de voorzittersbevoegdheden. |
-
-| MB-04 | 2026-11-25 | Lead designer | Natuurlijke activiteitsspecifieke beperkingen; geen universeel weekquotum als einddoel. Vervangt het voorgestelde gebruik van D-S1 als permanente UX-limiet; bestaande implementatie blijft tot migratie. |
-| MB-05 | 2026-11-25 | Lead designer | Eerste zomer is de introductie: identiteit, uitdaging, plan, actieve markt en eerste wedstrijd. Geen afzonderlijke tutorialcampagne. |
-| MB-06 | 2026-11-25 | Lead designer | Persistent persoonlijk netwerk met concrete toegang tot informatie en zakelijke/sportieve kansen, niet tot directe transfercontrole. |
-| MB-07 | 2026-11-25 | Lead designer | Eén clubhub, vaste voortgangsactie, afdelingsgebonden bediening, Echo als primair weekverslag. |
-| MB-08 | 2026-11-25 | Lead designer | Geen lineaire upgradegrind: investeringen concurreren om middelen en hebben meetbare effecten en onderhoud. |
-| MB-09 | 2026-11-25 | Lead designer | ALV is de seizoensgebonden verliesconditie; sportieve, financiële en menselijke successen zijn geen enkele samengestelde highscore. |
-| MB-10 | 2026-11-25 | Lead designer | Eerst een causale, plezierige verticale slice van de basis; geen nieuwe hogere-laagmechaniek als reparatie voor een zwakke basis. |
-
-### Consequenties voor featureselectie
-- L1/L2: iedere kernfeature draagt bij aan clubontwikkeling, ontdekking, sportieve of financiële afwegingen en zichtbare gevolgen.
-- L3/L4: versterken de voorzittersrol met delegatie, relaties en bestuurlijke spanning; geen routinegoedkeuringsspel.
-- L5: verbindt bestaande prestaties en relaties aan carrière en generaties; geen verplichte dynastie om het basisspel leuk te maken.
-- Ledenvertrouwen is de seizoensgebonden legitimiteit en verliesvoorwaarde, niet de enige maatstaf voor succes.
-
-
-## 16. Speelbare productervaring — van start tot dynastie
-### De eerste tien minuten (ontwerp, geen gemeten tijd)
-| Moment | Speler ziet | Speler kan doen | Beloning |
-|---|---|---|---|
-| Clubkeuze | Drie beschikbare voorzittersstoelen, badge, historie, middelen, uitdaging | Club kiezen; dossier vergelijken | Een eigen startverhaal |
-| Eerste dag | Drie herkenbare spelers, clubidentiteit, belangrijkste sportieve en financiële opgave | Manifest en koers bepalen | Persoonlijke inzet voor het seizoen |
-| TD-vergadering | Selectiegaten, mogelijke vertrekkers, budget, plan A/B | Prioriteit, kader en financiële risico's bepalen of plan aanvaarden | Een begrijpelijk plan |
-| Eerste marktweek | Werkelijke kandidaten, ontwikkelingen bij rivalen | Talent onderzoeken, aanbevelen, ruimte vrijmaken of afwachten | Een vondst of concreet marktresultaat |
-| Sluiting | Open onderhandelingen, alternatieven, deadline | Uitzonderlijk besluit indien nodig; anders tijd laten verlopen | Definitieve selectie en zomerkrant |
-| Eerste wedstrijd | Nieuwe spelers, tegenstander, inzet | Wedstrijd beleven, daarna gevolgen bekijken | Eerste sportieve payoff |
-
-Geen verplichte geheime schuld of crisis bij elke start. Een verborgen bijzonderheid uit het oudere openingsprototype is alleen bruikbaar als die uit de gegenereerde clubstaat komt, geen onvermijdelijke scripted verrassing. Bestaande clubidentiteit en financiën moeten vóór benoeming voldoende begrijpelijk zijn om geïnformeerd te kiezen.
-
-### De normale sessie
-Een sessie begint op de clubhub en eindigt bij een natuurlijk resultaat: een wedstrijd, een transfer, een bouwmijlpaal of een ALV. Weken blijven afzonderlijke simstappen; versneld spelen mag rustige weken verkorten zonder gebeurtenissen te wissen of uitzonderingen ongemerkt te beslissen. Dit is een ontwerpuitwerking; D4 verbiedt momenteel doorspoelen, dus automatisch meerdere weken overslaan blijft buiten scope tot expliciete herziening. Vrijwillige verdieping mag langer duren. Geen dagelijkse loginbeloning, kunstmatige stamina of real-time wachttijd.
-
-### Voorbeeld van een carrière (illustratief)
-Seizoen 1: een club met bescheiden middelen investeert in scouting in plaats van een dure spits. Een aanbevolen jongere wordt door de TD gekocht. Seizoen 2: de speler groeit, maar het team mist promotie. De voorzitter houdt vertrouwen doordat zijn manifest realistisch was. Seizoen 3: een grote verkoop financiert de academie en een tribune, maar een vervanger blijkt minder goed. Seizoen 5: de club promoveert dankzij een combinatie van voetbalbeleid en infrastructuur. Later kan de voorzitter vertrekken, elders opnieuw beginnen of in L5 een familielid voorbereiden op een verkiezing. Niets in deze reeks is gegarandeerd of vooraf gescript.
-
-## 17. Mechanieken: spelregels en terugkoppeling
-### 17.1 Initiatief en persoonlijke tijd
-MB-04: telefoongesprekken, dossiers bekijken en beleidswijzigingen verbruiken geen kunstmatig actiepunt. Een reis heeft een bestemming, reiskosten en bezette tijd; een toernooi heeft een datum; een partnerclub kan pas opnieuw worden benaderd als er iets nieuws te bespreken is. Reisroutes en agenda blijven abstract: geen kalender-managementgame. Herhaald klikken mag geen onbeperkte vondsten, vertrouwen of geld opleveren. De bestaande één-activiteit-per-week-regel is een tijdelijke implementatie, geen doelarchitectuur. Begin met simpele cooldowns en exclusieve reizen, niet een complexe urenboekhouding.
-
-### 17.2 Netwerk en ontdekking
-Een contact heeft identiteit, rol, club/regio, bron van kennismaking, laatste betekenisvolle interactie en beschikbare kansen. Een relatie ontstaat door een bezoek, samenwerking of wereldgebeurtenis. Contacten kunnen verhuizen, stoppen of bij een concurrent werken. Basis: toegang tot concrete bestaande spelers, jeugdtoernooien, vriendschappelijke wedstrijden, partnerclubs en sponsorintroducties; L3/L4: vertrouwen, belangen, wederdiensten en conflicten; L5: contacten die over carrières/generaties doorwerken wanneer logisch. De TD beoordeelt aangeboden spelers op behoefte, haalbaarheid en kwaliteit. De speler mag een kans missen zonder dat het systeem hem bestraft voor niet dagelijks onderhouden. Geen generieke relatiegrind.
-
-### 17.3 Transfermarkt als toestandsmachine
-`identified → shortlisted → enquiry → offer → negotiation → agreed → signed` met alternatieve eindstatussen `rejected / withdrawn / hijacked / expired`. Dit is een doelmodel, geen bewering dat elke status al in code bestaat. Elke deal heeft een club, speler, herkomst, behoefte, financiële voorwaarden, geldigheid en statusreden. Een plan bevat geprioriteerde behoeften en haalbare alternatieven. Gewijzigde koers actualiseert het plan; een vastgelegde evaluatiebaseline blijft apart bewaard. Iedere onderhandeling respecteert dezelfde budget- en loonregels. De voorzitter kan prioriteiten, wervingsprofiel en beschikbare ruimte wijzigen, spelers aanbevelen en de twee goedgekeurde uitzonderingen behandelen. Geen handmatige contractonderhandeling. Deadline in afzonderlijke voortgangsmomenten met behoud van openstaande uitzonderingen; na sluiting geen onzichtbare tweede markt. Winter hergebruikt dezelfde toestandsmachine. Een tekort kan blijven bestaan en heeft sportieve gevolgen; alleen noodzakelijke veiligheidsregels mogen buiten de markt ingrijpen, transparant en voor alle clubs gelijk.
-
-### 17.4 Spelers en emotionele binding
-Iedere speler heeft een stabiele identiteit, positie, leeftijd, herkomst, contract, clubhistorie, speelminuten, prestaties, waarde en ontwikkeling. Kwaliteit/potentieel worden getoond als inschattingen waar onzekerheid bestaat. Profiel toont waarom de speler relevant is, wat we weten en wat er veranderd is. Volglijst volgt ook spelers die niet tekenen. Talent ontdekken is pas een betekenisvolle loop als de speler later te volgen is; een transferwinst toont kosten, opbrengst en sportieve bijdrage. Legendes volgen uit echte prestaties en duur van dienstverband, niet uit willekeurige labels. Geen individuele trainingsopdrachten, basisplaatsen of speelminutengaranties door de voorzitter.
-
-### 17.5 Investeringen, financiën en identiteit
-Een investeringskaart toont huidige toestand, kosten nu/per week, verwachte oplevering, invloed op operationele signalen, onderhoud en risico. Besluiten zijn omkeerbaar als dat realistisch is; bouw en langlopende financiering hebben blijvende consequenties. Geen project zonder betaalbaarheidstoets en inzicht in cashflow. Gebruik één grootboek, onderscheid kas, beschikbaar budget, toekomstige verplichtingen en winst. Een verkoop is geen winst als de financiële en sportieve kosten de opbrengst overtreffen. Clubidentiteit wordt beïnvloed door feitelijk jeugdgebruik, werving, prijzen, lokale betrokkenheid, investeringen en resultaten. Het manifest geeft ambities en leden beoordelen de voortgang. Simpele basisregels eerst; L4 maakt de reactie van groepen persoonlijk.
-
-### 17.6 ALV, carrière en falen
-Het jaarlijkse rapport bevat beloften, resultaten, financiën, clubontwikkeling en vertrouwen. L2 gebruikt de bestaande mechanische stemming; L4 voegt debat, groepen, moties en oppositie toe zonder een tweede stemmodel. Geen automatische overwinning vanwege één goede score. Bij verlies wordt de voorzitter niet langer bestuurder van die club, maar de wereld blijft intact en reputatie bepaalt nieuwe kansen. L5 maakt opvolging mogelijk via verkiezing; familie is geen eigendomsbewijs. Geen game-over door één tegenvaller tenzij de gekozen spelregels werkelijk geen vervolgmogelijkheden bieden.
-
-## 18. UX-referentie — schermen en beslissingen
-### Schermhiërarchie
-Eén primaire Club/Week-hub met een permanente tijdactie. Vier functionele bestemmingen: Club (afdelingen, geld, staf), Football/World (selectie, competitie, markt), Network (contacten, scoutingdossier), Echo (nieuws, geschiedenis). Dit is een doel-IA (MB-07), geen instructie om de huidige vier tabs blind te vervangen. Valideer navigatie op 390 px en houd maximaal vier primaire bestemmingen zichtbaar. Tijdens transfers is het Transfer Centre via de hub dominant; buiten de markt blijft dezelfde navigatie intact. Een spelersprofiel of project heeft één canonieke detailpagina, ongeacht de ingang.
+Een beslissing toont altijd: situatie, alternatief, kosten, onzekerheid, bevestiging en waar je het gevolg later terugvindt.
 
 ```text
-┌──────────────────────────────┐
-│ PELL UNITED         WEEK 08  │
-│ £118k cash | 6th | Trust 64%  │
-│ NEXT: Ravensby (H)           │
-│ Win to move into top four    │
-│                              │
-│ YOUR CLUB                    │
-│ [Football]   [Finance]       │
-│ [Academy]    [Training]      │
-│ [Medical]    [Ground]        │
-│ [Commercial] [Members]       │
-│                              │
-│ YOUR OPPORTUNITIES           │
-│ Scout report: 2 new players  │
-│ Partner club invitation      │
-│                              │
-│ THE ECHO — Last week         │
-│ 2–1 win · +£3k · Youth debut │
-│ [Play week 08]               │
-│ Club | World | Network | Echo│
-└──────────────────────────────┘
+┌──────────────────────────────┐   ┌──────────────────────────────┐
+│ PELL UNITED         WEEK 08  │   │ TRANSFER CENTRE    WEEK 2/4  │
+│ £118k cash | 6th | Trust 64% │   │ £36k available | £900/w room │
+│ NEXT: Ravensby (H)           │   │ TD plan: striker, then LB    │
+│ Win to move into top four    │   │ ST  Reed     Offer rejected  │
+│ YOUR CLUB                    │   │ ST  Vos      Alternative     │
+│ [Football]   [Finance]       │   │ LB  North    Enquiry         │
+│ [Academy]    [Training]      │   │ [Review priorities]          │
+│ [Medical]    [Ground]        │   │ [Recommend from dossier]     │
+│ [Commercial] [Members]       │   │ [Review funding]             │
+│ YOUR OPPORTUNITIES           │   │ MARKET NEWS                  │
+│ Scout report: 2 new players  │   │ Rival signs young winger     │
+│ THE ECHO — Last week         │   │                              │
+│ 2–1 win · +£3k · Youth debut │   │                              │
+│ [Play week 08]               │   │ [Advance market week]        │
+│ Club | World | Network | Echo│   │                              │
+└──────────────────────────────┘   └──────────────────────────────┘
 ```
+Namen en getallen zijn illustratief; elke echte kaart komt uit de engine.
 
-```text
-┌──────────────────────────────┐
-│ TRANSFER CENTRE    WEEK 2/4  │
-│ £36k available | £900/w room │
-│ TD plan: striker, then LB    │
-│ ST  Reed     Offer rejected  │
-│ ST  Vos      Alternative     │
-│ LB  North    Enquiry         │
-│ [Review priorities]          │
-│ [Recommend from dossier]     │
-│ [Review funding]             │
-│ MARKET NEWS                  │
-│ Rival signs young winger     │
-│ [Advance market week]        │
-└──────────────────────────────┘
-```
+## 9. Balans en bewijs van plezier
+- Een goede economische keuze heeft opportuniteitskosten; geen strategie domineert in elke context.
+- Een actieve, vaardige voorzitter verschilt aantoonbaar van een passieve, zonder garantie op succes.
+- Verschillende clubstrategieën zijn haalbaar, afhankelijk van de club. Lagere divisies blijven levensvatbaar.
+- **Een stabiele ledger, een groene CI of een simulatie bewijst geen plezier.** Plezier vraagt een menselijke playtest.
+- **Releasegate:** begrensde meerjarige simulatie (10–20 seizoenen), budget- en selectie-invarianten, gepaarde beleidsvergelijkingen met dezelfde seeds, save/load, mobiele end-to-end test en een menselijke speeltest.
 
-```text
-┌──────────────────────────────┐
-│ ACADEMY                      │
-│ Level 2 | 8 prospects        │
-│ 2 first-team debuts this year│
-│ Your project: pitch upgrade  │
-│ ███████░░░  70%              │
-│ Cost remaining: £12k         │
-│ [Review academy investment]  │
-│ PROSPECTS                    │
-│ Owen 17 · High potential     │
-│ [View player]                │
-│ [Back to club]               │
-└──────────────────────────────┘
-```
-Alle getallen en namen in deze wireframes zijn illustratief, geen actuele speldata. Iedere echte kaart moet uit de bestaande engine komen. Informatie en bediening blijven binnen het betreffende domein; geen duplicerende upgrades-tab. Een uitzonderlijke urgente keuze mag prominent zijn, maar geen onverwachte reeks modals. Ontwerp beslissingen met situatie, alternatief, kosten, onzekerheid, bevestiging en terugvindbare gevolgen.
+---
 
-## 19. Ontwikkelcontract en acceptatie
-| Fase | Eerst bewijzen | Niet toevoegen als omweg |
+# DEEL II — BESLUITEN
+
+## 10. Besluitenregister (enige bindende bron)
+Historische ID's (D/T/P) komen uit `DECISIONS.md` op commit `3157b3a`; MB/DEV zijn van 25-11-2026. Technische besluiten T1–T15 staan alleen in het archief (§17) en zijn implementatiedetails, geen ontwerpcanon.
+
+| ID | Datum | Status | Besluit | Vervangt / opmerking |
+|---|---|---|---|---|
+| D1 | 21-11 | ✅ | Alle clubs volledig gesimuleerd; AI-clubs gebruiken dezelfde commando's als de speler. Geen verborgen tweede economie. | |
+| D3 | 21-11 | ~~✅~~ | ~~3 divisies van 16 (48 clubs) + beker.~~ | Vervangen door MB-15. |
+| D4 | 21-11 | ✅ | Elke week is een eigen stap met wedstrijdverslag; geen doorspoelen. Elke week biedt iets te lezen of te beslissen en is snel af te handelen. | |
+| D5 | 21-11 | ~~✅~~ | ~~Voorzitter zet alleen kaders; geen veto, geen eigen opdrachten.~~ | Deels vervangen door D-S1 en D-L3-2b. Kaders blijven. |
+| D6 | 21-11 | ✅ | Ledenvertrouwen (mechanisch) + jaarlijkse ALV als verliesconditie. L4 dramatiseert dezelfde meter. | |
+| D7 | 21-11 | ✅ | Na wegstemmen kies je een van drie open stoelen in dezelfde wereld; carrière en reputatie lopen door. | |
+| D-L3-1 | 22-11 | ✅ | L3 = staf als mensen én mandaten. | |
+| D-L3-2 | 22-11 | ✅ | De voorzitter keurt nooit losse spelers, opstellingen of verlengingen goed. | Uitzonderingen: D-L3-2b. |
+| D-G1 | 24-11 | ✅ | Een spel, geen goedkeuringsspel; routinezaken doet de staf. | |
+| D-G2 | 24-11 | ✅ | De afdelingen vormen de basislaag; eerst moeten keuzes voelbaar zijn en moet de week een ritme hebben. | |
+| P-1 | 24-11 | ✅ | Claude ontwerpt en bouwt als game developer en test licht; ChatGPT test balans en regressie. Geen lange runs zonder vraag. | |
+| D-S1 | 25-11 | ✅ | De voorzitter reist en beveelt spelers aan; aanbevolen spelers krijgen extra gewicht bij de TD. ~~Eén activiteit per week.~~ | "Eén per week" vervangen door MB-12. |
+| D-L3-2b | 25-11 | ✅ | Twee uitzonderingen bij de voorzitter: bod op een top-3-speler, aankoop boven het clubrecord. | Wijzigt D-L3-2. |
+| D-G3 | 25-11 | ✅ | Dynastie = familie; opvolging via de ALV, de club is geen erfelijk bezit. | |
+| D-G4 | 25-11 | ✅ | Spelers zijn de motor van het plezier: vinden, opleiden, zien groeien, verkopen (Moneyball). | |
+| D-G5 | 25-11 | ✅ | Elk seizoen moet de voorzitter een stemming winnen; de ALV is de climax. | |
+| D-G6 | 25-11 | ✅ | De transfermarkt is een speelbaar verhaal over weken (vergadering → brief → ticker → deadline → krant → debrief). | Laag gewijzigd van L3 naar L2: MB-14. |
+| MB-01 | 25-11 | ✅ | Club Builder = gameplay, Chairman = rol, Dynasty = langetermijnbeloning. L1/L2 zijn zelfstandig leuk. | |
+| MB-02 | 25-11 | ✅ | Bestaande clubidentiteit + jaarlijks manifest; verandering door gedrag en resultaten. | |
+| MB-03 | 25-11 | ✅ | Proactief én situationeel, binnen de voorzittersrol; geen actiepunten. | |
+| MB-04 | 25-11 | ✅ | Natuurlijke, activiteitsgebonden beperkingen in plaats van een universeel weekquotum. | Door de eigenaar bevestigd via MB-12. |
+| MB-05 | 25-11 | 🔷 | De eerste zomer is de introductie; geen aparte tutorialcampagne. | |
+| MB-06 | 25-11 | 🔷 | Persistent netwerk met toegang tot informatie en kansen, niet tot transfercontrole. | |
+| MB-07 | 25-11 | 🔷 | Eén clubhub, vaste voortgangsknop, bediening in de afdeling, Echo als weekverslag. | |
+| MB-08 | 25-11 | 🔷 | Geen lineaire upgradegrind; investeringen concurreren en hebben onderhoud en meetbaar effect. | |
+| MB-09 | 25-11 | 🔷 | ALV is de verliesconditie; geen samengestelde highscore. | |
+| MB-10 | 25-11 | 🔷 | Eerst een causale, leuke verticale slice van de basis; geen hogere laag als reparatie. | |
+| DEV-01 | 25-11 | ✅ | Ontwikkelcharter, werkcyclus, kwaliteitstoets, roadmap, documentatieprotocol en gedelegeerde autonomie (deel III–IV) zijn goedgekeurd. | Vervangt geen kosten- of laaggrenzen. |
+| MB-11 | 25-11 | ✅ | **Northmarch is het actieve spel.** Deze bijbel is de enige canon voor alle developers, ook Claude; `slimline-main` is de officiële branch. *The Front Office* (`BIBLE.md`, `claude-game`) is archief. | `CLAUDE.md` en `AGENTS.md` moeten hierop worden aangepast (NM-007). |
+| MB-12 | 25-11 | ✅ | Persoonlijke activiteiten hebben elk hun eigen beperking (kosten, datum, bezette tijd, wachttijd tot er iets nieuws is); reizen sluiten elkaar uit. Geen vast aantal per week. | Vervangt "één activiteit per week" (D-S1); bevestigt MB-04. |
+| MB-13 | 25-11 | ✅ | Geen versneld spelen dat weken overslaat; D4 blijft. Rustige weken worden sneller (één tik), niet weggelaten. | Bevestigt D4. |
+| MB-14 | 25-11 | ✅ | De speelbare transfermarkt hoort bij L2 en werkt zonder hogere lagen. Alleen persoonlijkheid en mandaat van de TD zijn L3. | Wijzigt de laag van D-G6 en T5. |
+| MB-15 | 25-11 | ✅ | De wereld heeft vijf divisies van zestien (80 clubs) plus de nationale beker. | Vervangt D3. |
+| MB-16 | 25-11 | ✅ | Geen eindscherm of winconditie. Het doel is reputatie, prijzen en het clubboek; mijlpalen uit echte gebeurtenissen maken voortgang zichtbaar, zonder bonussen. | |
+
+## 11. Open vragen voor de game director ❓
+Hier neemt geen developer een besluit over. Een nieuwe vraag krijgt een nummer, de reden waarom het knelt en een advies; na het besluit verhuist ze naar §10.
+
+**Er zijn nu geen open vragen.** V1–V6 uit het V1.3-concept zijn op 25-11-2026 beslist volgens het advies van de developer:
+
+| # | Vraag | Besluit |
 |---|---|---|
-| A — L1/L2 | Leuke start, actieve markt, clubgroei, herkenbare spelers, stabiele economie, volledige seizoensloop | Complexe gesprekken, politieke verhalen, dynastie |
-| B — L3 | Stafkwaliteit en mandaten leiden aantoonbaar tot verschillend gedrag; uitschakelbare module | Routinegoedkeuringen of tweede transferengine |
-| C — L4 | Situaties komen uit echte feiten, gevolgen via bestaande regels | Scripted crises los van de wereld |
-| D — L5 | Carrière, familie en opvolging behouden bestaande club- en wereldhistorie | Een losstaande familiemin game |
+| V1 | Welk spel is actief en welke werkafspraken gelden voor Claude? | MB-11 |
+| V2 | Vervangt MB-04 "één activiteit per week"? | MB-12 |
+| V3 | Mag versneld spelen weken overslaan? | MB-13 |
+| V4 | Hoort de transfermarkt bij L2? | MB-14 |
+| V5 | Vijf of drie divisies? | MB-15 |
+| V6 | Wat is "winnen" in L1/L2? | MB-16 |
 
-### Definition of done voor iedere feature
-- Past bij één expliciet ervaringsdoel en één domeineigenaar; geen dubbele bron van waarheid.
-- Heeft een echte spelersactie of duidelijke feedbackfunctie, met betekenisvolle alternatieven indien het een keuze betreft.
-- Verandert daadwerkelijk de relevante state en toont het gevolg op het juiste moment.
-- Werkt met oude saves, bij ontbrekende hogere modules en op mobiel.
-- Is getoetst met passende, zo goedkoop mogelijke lokale tests; vermeld exacte SHA, scope, uitkomst en beperkingen.
-- Heeft een menselijke playtest voor gameplayclaims. Geen claim dat een sim plezier bewijst.
-- Documenteer afwijkingen van deze Bible en publiceer alleen via de overeengekomen officiële route. Geen ongevraagde zware CI.
+---
 
-### Eerstvolgende productmijlpaal: The First Summer
-1. Verifieer officiële bron versus livebuild en maak een zuivere baseline.
-2. Controleer en herstel dubbele zomermarkt, summer clock, planactualisatie, budgetvalidatie en behoud van deadlinebeslissingen. Dit zijn auditkandidaten, niet allemaal onafhankelijk gereproduceerde bugs.
-3. Maak de eerste club, de TD-brief en de transferperiode één doorlopende UX; toon kandidaten en echte beslismogelijkheden vóór het doorspelen.
-4. Verbind scouting, aanbevelingen, spelerprofielen, eerste wedstrijd en de Echo met dezelfde feiten en uitkomsten.
-5. Speel minimaal verschillende startclubs en budgetcontexten; toets een actieve voorzitter tegen een passieve route. Controleer of de speler zonder hogere lagen begrijpt wat hij kan doen en waarom het telt.
-6. Pas na een geslaagde verticale slice: uitbouwen van netwerk en afdelingsstrategieën; daarna de afgesproken hogere lagen.
+# DEEL III — WERKWIJZE
 
-## 20. Bronnen en status van de canon
-Deze bijbel is een productontwerp, geen inventaris van elke historische feature. De historische documentatie blijft beschikbaar. Voor een wijziging raadpleeg je het relevante bronbesluit en de actuele module. Onderzoek is niet automatisch canon. De drie goedgekeurde MB-besluiten en recente expliciete D-besluiten zijn eigenaarbesluiten. De overige MB-besluiten zijn gedelegeerde lead-designerkeuzes; deze mogen na playtests worden aangescherpt zonder ze als letterlijk door de eigenaar goedgekeurd te presenteren.
+## 12. Beslisrechten en samenwerking
+- **Game director:** bepaalt productfantasie, bevoegdheden, laagvolgorde, harde grenzen, kosten en publicatiemomenten.
+- **Developer (Claude, ChatGPT):** beslist zelf over ontwerpdetails, alternatieven, UX, implementatie, testaanpak en techniek, en registreert dat als 🔷. Vraag de eigenaar alleen bij een conflict met een ✅-besluit, een onomkeerbare wijziging, een ontbrekende randvoorwaarde of kosten. Verandert een inzicht de kernvisie: maak het conflict expliciet en leg een gerichte keuze voor (§11).
+- **Werkgebieden** (tenzij de eigenaar anders bepaalt): Claude — kern, scouting, clubmanagement; ChatGPT — wereld, balans/regressie, documentconsolidatie.
+- Werkbranches blijven van hun eigenaar: geen force-push, geen stille merges, geen wijziging in andermans gebied zonder afstemming. Stem af via commits en §16 *Current work*, niet via losse documenten.
+- Communiceer in het Nederlands; de interface van het spel is Engels.
 
-Belangrijke bronlocaties:
-- [Actuele Northmarch-besluiten](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/DECISIONS.md)
-- [Lagencontract](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/LAYER_CONTRACT.md)
-- [Core loop](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/CORE_LOOP.md)
-- [Historische CEO-bijbel](https://github.com/Blauwev0gel/front-office-fc/blob/claude-game/BIBLE.md)
-- [Voorzitter-onderzoeksleeswijzer](https://github.com/Blauwev0gel/front-office-fc/blob/voorzitter-fundering/standalone-research/LEESWIJZER-VOORZITTER.md)
-- [Loop-simulatie en voorbehouden](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/loopsim-handover/HANDOVER-CHATGPT.md)
-- [Technische status](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/DEV_STATE.md)
+## 13. Werkcyclus per feature
+Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of prototype, een nieuwe kernloop wel. Het is één cyclus, geen tien goedkeuringsmomenten.
 
-**Open validatie, geen open productvisie:** precieze economische curves, tijdsbeslag per reis, invloed van aanbevelingen, identiteitsgewichten, optimale schermindeling en menselijke pleziermetingen. Deze worden door prototyping en tests bepaald. Niet alle historische branches en bestanden zijn integraal onderzocht; de synthese is gebaseerd op de reeds geïnspecteerde bronnen. Geen nieuwe tests of livepublicatie uitgevoerd voor deze documentversie.
+1. **Synchroniseren** — lees deze bijbel, controleer branch, HEAD en de officiële tip; draai `standalone/front-office-fc/northmarch-layered/scripts/sync-check.sh` vóór codewerk.
+2. **Begrijpen** — reproduceer het probleem; volg de route van UI-actie naar command, state, simulatie en feedback in de echte code.
+3. **Ontwerpen** — welk ervaringsdoel (§2)? Vergelijk bij belangrijke keuzes twee à drie echt verschillende oplossingen. Leg vast: spelersactie → systeemverandering → gevolg → feedback, met domeineigenaar en acceptatiecriteria.
+4. **Prototypen** — alleen bij nieuwe kernmechaniek of UX: wireframe, papieren flow of kleine simulatie, vóór de grote bouw.
+5. **Uitdagen** — toets aan §14; zoek misbruik, saaie routes en ongewenste gevolgen. Uitkomst: go, revise of reject.
+6. **Bouwen** — kleinste complete verticale slice in bestaande modules: echte state, centrale klok, seeded RNG, events en commands.
+7. **Valideren** — passende lokale tests (testladder hieronder) en de relevante route spelen; vergelijk met de baseline.
+8. **Vastleggen** — werk §10 en §16 bij met commit-SHA, bevindingen en volgende stap.
+9. **Integreren** — alleen via de afgesproken route en met toestemming waar kosten of publicatie dat vragen.
+
+**Technische regels**
+- Wijzig broncode, nooit gegenereerde output (`dist/` blijft ongevolgd). Nieuwe modules expliciet in de buildconfiguratie.
+- Alle toeval via de seeded RNG. Nieuwe savevelden krijgen een veilige default of migratie plus regressietest.
+- De standaard L1/L2-build mag niet afhankelijk zijn van hogere lagen; test die grens.
+- Eén eigenaar per domein, één klok, één economie, één command-route. Geen dubbele selectie- of budgetstate, geen UI-wrapper op UI-wrapper.
+- Build: `node build.js` in `standalone/front-office-fc/northmarch-layered/`; hogere autonomie via `NORTHMARCH_BUILD_MODE=autonomy`.
+
+**Testladder** — statische controle → gerichte unit-/integratietest → lokale build en korte smoke-test → gerichte save-/laag-/UX-regressie → alleen bij balanswijzigingen een vooraf begrensde meerseizoenssimulatie → menselijke playtest voor elke plezierclaim. Geen volledige suite voor een tekstwijziging. Vermeld bij elk resultaat de exacte SHA, wat wel en wat niet is getest.
+
+**Kosten en publicatie** — geen CI-triggerende push, PR, merge, workflowwijziging of herstart zonder specifieke toestemming. Een push naar `slimline-main` start publicatie (`publish-trigger.yml`); een PR naar `slimline-main` start CI. Werk daarom op een eigen, niet-publicerende branch. Een documentwijziging is geen toestemming voor een Pages-run. Mislukte run: niet automatisch herstarten.
+
+## 14. Kwaliteitstoets en definition of done
+**Toets voor elke nieuwe mechaniek** — noteer per relevante dimensie *pass*, *revise* of *n.v.t.* met een concreet voorbeeld. Geen totaalscore.
+
+| Dimensie | Vraag |
+|---|---|
+| Agency | Kan de speler doelgericht, ook proactief, een uitkomst beïnvloeden? |
+| Causaliteit | Komt de verandering echt door de actie, en is dat terug te lezen? |
+| Afweging | Zijn meerdere keuzes verdedigbaar, zonder gratis dominante optie? |
+| Ontdekking | Ontstaan onverwachte maar geloofwaardige kansen of inzichten? |
+| Binding | Groeit de band met club, spelers, mensen of wereld? |
+| Herspeelbaarheid | Leiden andere clubs en strategieën tot andere carrières? |
+| Rolzuiverheid | Is dit werk van een voorzitter, niet van de TD of trainer? |
+| Integratie | Versterkt het bestaande systemen zonder losse minigame of tweede engine? |
+
+**Afwijzingsgronden:** schijnkeuzes, verplichte routinegoedkeuringen, actiepunten als kunstmatige schaarste, informatie zonder doel, automatisch doorspelen zonder invloed, klikbeloningen zonder afweging, lineaire upgrades, en systemen die de onderliggende laag afhankelijk maken.
+
+**Definition of done**
+- Dient één ervaringsdoel en heeft één domeineigenaar; geen dubbele bron van waarheid.
+- Heeft een echte spelersactie of een duidelijke feedbackfunctie; verandert de state en toont het gevolg op het juiste moment.
+- Werkt met oude saves, zonder hogere modules, op 390 px in licht en donker.
+- Getest met de goedkoopste passende lokale tests; SHA, scope, uitkomst en beperkingen vastgelegd.
+- Plezierclaims alleen na een menselijke playtest; een bot-playtest heet ook zo.
+- Deze bijbel klopt nog met wat het spel doet.
+
+---
+
+# DEEL IV — ROADMAP EN STATUS
+
+## 15. Lagen en roadmap
+**Lagen** — L1 wereld, tijd, spelers, competities en markt · L2 speelbare clubontwikkeling, de speelbare transfermarkt (MB-14), geld, beleid, basispersoneel, bestuurlijke acties, scouting en jeugd (het vroegere "L2.5" hoort hierbij) · L3 autonome staf en mandaten · L4 verhalen, relaties en politiek · L5 dynastie en opvolging. L1/L2 vormen zonder hogere lagen een compleet spel; bestaande L4/L5-slices bewijzen niet dat de basis klaar is (MB-10).
+
+| Fase | Mijlpaal | Exit gate | Niet als omweg toevoegen |
+|---|---|---|---|
+| 0 | Consolidatie en baseline | Eén canon; bron, modulegrenzen en blockers bekend | — |
+| **1** | **The First Summer** | Clubkeuze, manifest, TD-plan, interactieve zomer, deadline en eerste wedstrijd vormen één loop; geen verborgen dubbele markt; beslissingen aantoonbaar causaal | Complexe gesprekken, politiek, dynastie |
+| 2 | Wekelijkse gameplay | Proactieve en situationele acties, rustige maar niet lege weken, wekelijkse Echo; meerdere weken speelbaar zonder hogere lagen | Kaarten om weken te vullen |
+| 3 | Netwerk en talent | Netwerk levert concrete kansen; aanbevelingen bereiken de TD; profielen en volglijst creëren binding | Directe transfercontrole |
+| 4 | Clubontwikkeling | Afdelingstiles, projecten, alternatieve groeistrategieën, betaalbare cashflow | Lineaire upgrades |
+| 5 | Seizoensboog | Wedstrijden, rivaliteit, winter, nieuws, eindstand en ALV vormen een herkenbare boog | Tweede stemmodel |
+| 6 | L1/L2-balans | Representatieve clubs, actieve/passieve strategieën, meerdere seeds; menselijke playtest ondersteunt de kernervaring | — |
+| 7 | L3 staf | Mandaten, kwaliteit en vertrouwen veranderen aantoonbaar gedrag; uitschakelbaar | Routinegoedkeuringen, tweede transferengine |
+| 8 | L4 verhalen en politiek | Situaties uit echte feiten met causale gevolgen | Gescripte crises |
+| 9 | L5 dynastie | Opvolging en familie bouwen voort op bestaande club- en wereldhistorie | Losse familie-minigame |
+| 10 | Productkwaliteit | Samenhang, performance, toegankelijkheid, saves, langetermijnbalans, playtests | — |
+
+**Volgend werkpakket — fase 1, The First Summer**
+1. Bron versus livebuild vergelijken; zuivere baseline vastleggen.
+2. Auditkandidaten NM-001–003 reproduceren vóór een fix wordt gekozen.
+3. Eerste club, TD-brief en transferperiode tot één doorlopende flow maken; kandidaten en echte keuzes tonen vóór doorspelen.
+4. Scouting, aanbevelingen, profielen, eerste wedstrijd en Echo op dezelfde feiten laten rusten.
+5. Meerdere startclubs en budgetten spelen; actieve tegen passieve voorzitter toetsen.
+6. Pas daarna fase 2. Geen L3/L4/L5-uitbreiding in deze sprint.
+
+## 16. Living record
+*Werk dit bij aan het eind van elke sessie, zodat iedereen vanuit GitHub verder kan zonder chatgeschiedenis. Statuswoorden: Designed · Implemented · Tested · Playtested (mens of bot vermelden) · Validated · Released, plus Partial / Blocked / Not tested / Superseded. Geen groen label zonder bewijs; een test op een oude commit telt niet voor een nieuwe.*
+
+**Officiële bron:** `slimline-main` @ `7147f23` (consolidatie; geen spelrelease). Publicatie: https://blauwev0gel.github.io/front-office-fc/northmarch/ · laatst gerapporteerde succesvolle livebron `3157b3a`; pariteit niet opnieuw gemeten.
+
+**Implementatiestatus (uitgangspositie)** — L1/L2 bestaan als speelbare bronbuild volgens historische documentatie, niet integraal tegen deze bijbel gevalideerd. Opening/zomer, netwerk, weekflow, upgrades en seizoensboog: implementaties aanwezig, audit nodig. L3 deels aanwezig als opt-in. L4/L5 niet vrijgegeven. Actualiseer per feature na inspectie, niet op naam van een module.
+
+**Test evidence** — Geen game-, browser- of simulatietests uitgevoerd voor V1.2 of V1.3 (documentatie). Historisch bewijs via §17.
+
+**Bekende problemen**
+| ID | Status | Probleem / volgende actie |
+|---|---|---|
+| NM-001 | Auditkandidaat | Dubbele zomermarkt: zomerafsluiting en eerste week traceren, reproduceren vóór fix. |
+| NM-002 | Auditkandidaat | Summer clock en persoonlijke activiteiten: beschikbaarheid per zomerweek toetsen. |
+| NM-003 | Auditkandidaat | TD-planactualisatie, budgetvalidatie en deadlinebeslissingen: causale keten en behoud van state controleren. |
+| NM-004 | Open validatie | V19-economie en strategieverschillen: eerst scope en baseline, geen ongevraagde zware sims. |
+| NM-005 | Open validatie | Menselijke spelbeleving van de eerste zomer en L1/L2: prototype en playtest. |
+| NM-006 | Operationeel | Laatste Pages-run mislukt na herstart (gemelde oorzaak: dubbele artifactnaam). Niet nodig voor documentatiewerk. |
+| NM-007 | Wacht op eigenaar | `CLAUDE.md` en `AGENTS.md` verwijzen nog naar *The Front Office*. Voorstellen voor MB-11 liggen klaar; de eigenaar past ze zelf toe of geeft Claude daar expliciet opdracht toe. |
+| NM-008 | Implementatie | De code volgt nog "één activiteit per week" (D-S1). Omzetten naar MB-12 in fase 2 of 3, met savemigratie. |
+
+**Release history**
+- 25-11-2026 · V1.1 — documentatie geconsolideerd op `slimline-main` `7147f23` en `main` `cc4c5db` (identieke blob `ecb6ad3`).
+- 25-11-2026 · V1.2 — charter, workflow, kwaliteitstoets, roadmap en registers toegevoegd (`b69ea16`, branch `docs/master-bible-v1-2`, niet geïntegreerd).
+- 25-11-2026 · V1.3 — herstructurering in vier delen, één besluitenregister, feitelijke correcties; open vragen beslist (MB-11–MB-16). Geen spelwijziging.
+
+**Current work**
+- **Actief:** V1.3 vastgesteld op `claude/loving-goodall-uv00vn`; integratie in `slimline-main` wacht op toestemming van de eigenaar (start publicatie).
+- **Wacht op eigenaar:** geen open ontwerpvragen.
+- **Volgende producttaak:** fase 1, The First Summer (§15).
+- **Niet actief:** hogere lagen, ongevraagde balanssimulaties, Pages-herstarts, releasewerk.
+
+---
+
+## 17. Bronnen en archief (read-only)
+Historische documenten zijn geen actieve canon; onderzoek is input, geen besluit. Alle 65 Markdown-bestanden van vóór de consolidatie staan ongewijzigd op commit [`3157b3a`](https://github.com/Blauwev0gel/front-office-fc/tree/3157b3ac9293397ee73fb2b846418199412eb7a7). De belangrijkste:
+
+- [DECISIONS.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/DECISIONS.md) — volledige tekst van D-, T- en P-besluiten.
+- [LAYER_CONTRACT.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/LAYER_CONTRACT.md) — modulegrenzen per laag.
+- [CORE_LOOP.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/CORE_LOOP.md) — voorstel van 25-11, geen canon.
+- [DEV_STATE.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/DEV_STATE.md) — technische status vóór consolidatie (niet onafhankelijk geverifieerd).
+- [loopsim-handover](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/loopsim-handover/HANDOVER-CHATGPT.md) — 37.760 gesimuleerde runs; richtinggevend tegen opvulkaarten, geen bewijs van plezier.
+- [Voorzitter-onderzoek](https://github.com/Blauwev0gel/front-office-fc/tree/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research) — concept, kern, ervaring, transferzomer, TD, ALV, familie.
+- [BIBLE.md (The Front Office)](https://github.com/Blauwev0gel/front-office-fc/blob/claude-game/BIBLE.md) — *The Front Office*, CEO-variant op `claude-game`; archief sinds MB-11.
 
 **North star:** bouw een club die je herkent, ontdek spelers om wie je geeft, neem beslissingen die ertoe doen en laat een geschiedenis achter die zonder jou niet hetzelfde zou zijn.
-
-## 21. Eén canon, ontwikkelprotocol en actuele status
-
-**Consolidatiebesluit 25 november 2026:** dit bestand is het enige actieve Markdown-document op de geconsolideerde Northmarch-branch. De oude documenten zijn geen concurrerende instructies meer. Ze blijven ongewijzigd raadpleegbaar in de hieronder vastgepinde Git-geschiedenis en in historische branches. De broncode en tests blijven de waarheid over implementatie. Bij een botsing gaat een recenter expliciet besluit van de game director voor. Historische tests zijn geen bewijs voor een nieuwere SHA.
-
-- Officiële ontwikkelbranch: `slimline-main`. Werk in eigen werkbranch; synchroniseer vóór codewerk met `scripts/sync-check.sh`. Geen stilzwijgende overschrijvingen. Lever code via pull request, publiceer uitsluitend vanaf de officiële tip met schone werkboom.
-- Lees deze Bible aan het begin van iedere sessie. Geen afzonderlijke spelbijbels, promptdocumenten of beslisregisters als actieve canon aanmaken. Werk dit bestand bij wanneer het ontwerp, de technische status of de afspraken wijzigen.
-- Geen CI-kosten zonder specifieke toestemming voor een CI-/publicatiemoment. Geen ongevraagde zware simulaties, browserjobs, workflowherstarts of parallelle runs. Test lokaal wanneer mogelijk; vermeld exacte SHA, scope, resultaat en beperkingen. Documentatieconsolidatie is geen nieuwe release.
-- Standaardbuild: `node build.js` vanuit `standalone/front-office-fc/northmarch-layered/`; hogere autonomie opt-in via `NORTHMARCH_BUILD_MODE=autonomy`. `dist/` blijft gegenereerd en niet gevolgd. Publicatie-URL: https://blauwev0gel.github.io/front-office-fc/northmarch/.
-- Leg bij iedere release bron-SHA, buildvariant, artifactversie en SHA-256 vast in deze sectie; controleer live versus bron voordat je gelijkheid claimt. De oude previewgegevens zijn historisch, niet opnieuw gemeten.
-
-OFFICIAL_BRANCH: slimline-main
-OFFICIAL_SHA: 3157b3ac9293397ee73fb2b846418199412eb7a7
-
-**Status bij consolidatie:** bovenstaand is de gecontroleerde officiële parent-SHA, niet de SHA van een nieuwe spelrelease. Geen engine-, gameplay-, save- of buildwijzigingen in de consolidatie. Geen tests opnieuw uitgevoerd. De laatste historische status en open issues staan in [DEV_STATE vóór consolidatie](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/DEV_STATE.md); de status daarin is niet onafhankelijk geverifieerd. V19-balans, bron/live-pariteit, en menselijke speelbaarheid blijven expliciete validatiepunten. Werkgebieden: Claude kern/scouting/clubmanagement; ChatGPT wereld, balans/regressie en documentconsolidatie, tenzij de eigenaar anders bepaalt. Raadpleeg de actuele werkbranches alvorens code te wijzigen.
-
-## 22. Historisch bronnenarchief (read-only)
-
-Alle 65 Markdown-bestanden van de officiële bron vóór consolidatie zijn hieronder op een onveranderlijke commit vastgepind. Dit archief behoudt ook onderzoek dat nog niet integraal is geanalyseerd. Historische bestanden gelden niet als actieve canon. Andere branches blijven behouden.
-
-- [AGENTS.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/AGENTS.md)
-- [BIBLE.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/BIBLE.md)
-- [CLAUDE.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/CLAUDE.md)
-- [CODEMAP.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/CODEMAP.md)
-- [README.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/README.md)
-- [loopsim-handover/HANDOVER-CHATGPT.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/loopsim-handover/HANDOVER-CHATGPT.md)
-- [loopsim-handover/PREREG.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/loopsim-handover/PREREG.md)
-- [loopsim-handover/results/metrics.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/loopsim-handover/results/metrics.md)
-- [loopsim-handover/results/stories.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/loopsim-handover/results/stories.md)
-- [standalone-research/AFSPRAAK-VOORZITTER.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research/AFSPRAAK-VOORZITTER.md)
-- [standalone-research/ALV-VOORZITTER.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research/ALV-VOORZITTER.md)
-- [standalone-research/CLUBS-VOORZITTER.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research/CLUBS-VOORZITTER.md)
-- [standalone-research/CONCEPT-VOORZITTER-2026-11-18.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research/CONCEPT-VOORZITTER-2026-11-18.md)
-- [standalone-research/FAMILIE-VOORZITTER.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research/FAMILIE-VOORZITTER.md)
-- [standalone-research/GESPREK-VOORZITTER.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research/GESPREK-VOORZITTER.md)
-- [standalone-research/HANDOVER-2026-11-18.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research/HANDOVER-2026-11-18.md)
-- [standalone-research/MOMENT-VOORZITTER.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research/MOMENT-VOORZITTER.md)
-- [standalone-research/OPPOSITIE-VOORZITTER.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research/OPPOSITIE-VOORZITTER.md)
-- [standalone-research/PERSONEN-VOORZITTER.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research/PERSONEN-VOORZITTER.md)
-- [standalone-research/PROMPT-FUNDERING-VOORZITTER.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research/PROMPT-FUNDERING-VOORZITTER.md)
-- [standalone-research/PROMPT-WERELD-VOORZITTER.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research/PROMPT-WERELD-VOORZITTER.md)
-- [standalone-research/REGELSET-VOORZITTER.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research/REGELSET-VOORZITTER.md)
-- [standalone-research/WERELD-VOORZITTER.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research/WERELD-VOORZITTER.md)
-- [standalone/front-office-fc/README.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/README.md)
-- [standalone/front-office-fc/docs/ARCHITECTURE.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/docs/ARCHITECTURE.md)
-- [standalone/front-office-fc/docs/BACKLOG.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/docs/BACKLOG.md)
-- [standalone/front-office-fc/docs/CURRENT_STATE.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/docs/CURRENT_STATE.md)
-- [standalone/front-office-fc/docs/DECISIONS.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/docs/DECISIONS.md)
-- [standalone/front-office-fc/docs/DEVELOPMENT_HISTORY.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/docs/DEVELOPMENT_HISTORY.md)
-- [standalone/front-office-fc/docs/DEVELOPMENT_WORKFLOW.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/docs/DEVELOPMENT_WORKFLOW.md)
-- [standalone/front-office-fc/docs/GAME_BIBLE.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/docs/GAME_BIBLE.md)
-- [standalone/front-office-fc/docs/HANDOVER.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/docs/HANDOVER.md)
-- [standalone/front-office-fc/docs/RESEARCH_TRACEABILITY.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/docs/RESEARCH_TRACEABILITY.md)
-- [standalone/front-office-fc/docs/UX_DESIGN_SYSTEM.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/docs/UX_DESIGN_SYSTEM.md)
-- [standalone/front-office-fc/northmarch-layered/README.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/README.md)
-- [standalone/front-office-fc/northmarch-layered/docs/ARCHITECTURE.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/ARCHITECTURE.md)
-- [standalone/front-office-fc/northmarch-layered/docs/BALANCE_UPDATE_1.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/BALANCE_UPDATE_1.md)
-- [standalone/front-office-fc/northmarch-layered/docs/BASE_GAME_V1.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/BASE_GAME_V1.md)
-- [standalone/front-office-fc/northmarch-layered/docs/CODE_REUSE_LEDGER.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/CODE_REUSE_LEDGER.md)
-- [standalone/front-office-fc/northmarch-layered/docs/CORE_LOOP.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/CORE_LOOP.md)
-- [standalone/front-office-fc/northmarch-layered/docs/DECISIONS.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/DECISIONS.md)
-- [standalone/front-office-fc/northmarch-layered/docs/DEV_PROTOCOL.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/DEV_PROTOCOL.md)
-- [standalone/front-office-fc/northmarch-layered/docs/DEV_STATE.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/DEV_STATE.md)
-- [standalone/front-office-fc/northmarch-layered/docs/GITHUB_ACTIONS_KOSTENPROTOCOL.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/GITHUB_ACTIONS_KOSTENPROTOCOL.md)
-- [standalone/front-office-fc/northmarch-layered/docs/L1_L2_ACTION_MATRIX.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/L1_L2_ACTION_MATRIX.md)
-- [standalone/front-office-fc/northmarch-layered/docs/L1_L2_PLAYTEST_REPORT.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/L1_L2_PLAYTEST_REPORT.md)
-- [standalone/front-office-fc/northmarch-layered/docs/L1_L2_SCREEN_INVENTORY.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/L1_L2_SCREEN_INVENTORY.md)
-- [standalone/front-office-fc/northmarch-layered/docs/L1_L2_UX_ARCHITECTURE.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/L1_L2_UX_ARCHITECTURE.md)
-- [standalone/front-office-fc/northmarch-layered/docs/L1_L2_UX_AUDIT.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/L1_L2_UX_AUDIT.md)
-- [standalone/front-office-fc/northmarch-layered/docs/LAYER_CONTRACT.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/LAYER_CONTRACT.md)
-- [standalone/front-office-fc/northmarch-layered/docs/LAYER_INDEX.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/LAYER_INDEX.md)
-- [standalone/front-office-fc/northmarch-layered/docs/PROMPT_L1_L2_AFRONDEN.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/PROMPT_L1_L2_AFRONDEN.md)
-- [standalone/front-office-fc/northmarch-layered/docs/SLIMLINE_COMPLETENESS_AUDIT.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/SLIMLINE_COMPLETENESS_AUDIT.md)
-- [standalone/front-office-fc/northmarch-layered/docs/SLIMLINE_WORLD_ROADMAP.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/SLIMLINE_WORLD_ROADMAP.md)
-- [standalone/front-office-fc/northmarch-layered/docs/TEST_EVIDENCE.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/TEST_EVIDENCE.md)
-- [standalone/front-office-fc/northmarch-layered/docs/V19_PORT.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/V19_PORT.md)
-- [standalone/front-office-fc/northmarch-layered/docs/WORK_LOG.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/WORK_LOG.md)
-- [standalone/front-office-fc/northmarch-layered/docs/layers/L1-SIMULATION.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/layers/L1-SIMULATION.md)
-- [standalone/front-office-fc/northmarch-layered/docs/layers/L2-CLUB-MANAGEMENT.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/layers/L2-CLUB-MANAGEMENT.md)
-- [standalone/front-office-fc/northmarch-layered/docs/layers/L2_5_OPERATIONAL_CLUB.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/layers/L2_5_OPERATIONAL_CLUB.md)
-- [standalone/front-office-fc/northmarch-layered/docs/layers/L3-STAFF.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/layers/L3-STAFF.md)
-- [standalone/front-office-fc/northmarch-layered/docs/layers/L4-STORY-POLITICS.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/layers/L4-STORY-POLITICS.md)
-- [standalone/front-office-fc/northmarch-layered/docs/layers/L5-DYNASTY.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/layers/L5-DYNASTY.md)
-- [standalone/front-office-fc/northmarch-layered/preview/README.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/preview/README.md)
-- [standalone/front-office-fc/tests/README.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/tests/README.md)

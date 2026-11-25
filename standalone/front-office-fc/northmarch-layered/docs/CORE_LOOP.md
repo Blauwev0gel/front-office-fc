@@ -110,8 +110,8 @@ Zonder deze voorwaarden werkt geen enkele lus; dit is geen bijzaak.
 ## 11. Mijlpalen en toetsing
 | # | Mijlpaal | Klaar als |
 |---|---|---|
-| M1 | **Transferzomer** (§6) + economie zodat er 2–4 deals mogelijk zijn | Een speler beleeft de zomer als verhaal; elke pre-season-week heeft minstens 4 tickerregels; debrief rekent af op de brief |
-| M2 | **Weekstructuur** (§5): onderwerp, één escalatie, jouw week, inzet, afsluiting met Looking back | Geen lege week in 10 gespeelde weken; elke week één echte keuze |
+| M1 ✅ (2026-11-25) | **Transferzomer** (§6) + economie zodat er 2–4 deals mogelijk zijn | Een speler beleeft de zomer als verhaal; elke pre-season-week heeft minstens 4 tickerregels; debrief rekent af op de brief |
+| M2 ✅ (2026-11-25) | **Weekstructuur** (§5): onderwerp, één escalatie, jouw week, inzet, afsluiting met Looking back | Geen lege week in 10 gespeelde weken; elke week één echte keuze |
 | M3 | **Momenten en afspraken** (§8) incl. familiemomenten in hetzelfde systeem | ±5 momenten per seizoen, elk met zichtbaar gevolg |
 | M3b | **De ALV als gespeeld moment** (begin L4): jaarverslag, je beloftes, een korte toespraak met keuzes, telling per ledengroep, opvolging van de familie | De stemming voelt als de climax van elk seizoen |
 | M4 | **Winterstop** op de zomermachinerie | — |

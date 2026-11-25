@@ -99,3 +99,7 @@ Ontwerp ◐ · Code ◐ · Geïntegreerd ✓ (wat er is) · Speelbaar ✓ · Gev
 - **Het clubboek** (`club/legacy.js`): jouw tijdperk per seizoen, erebord, clublegendes (ook na vertrek bewaard), academie-opbrengst; reputatie volgt gehouden beloftes en prijzen.
 - **Staf telt zwaarder** in afdelingssignalen (×1,5) en faciliteitskosten schalen met de divisie (`FAC_SCALE`): ongetest, zie `BALANCE_UPDATE_1.md`.
 - **Open:** de economie moet de lus dragen (`CORE_LOOP.md` §9): budget voor 2–4 deals per zomer, geld dat sport koopt, verkopen als inkomstenbron, overleefbare onderste divisies.
+
+## 14. De week (M2, 2026-11-25, `club/weekly.js`)
+- Vaste volgorde op het weekscherm: **onderwerp van de week** (uit de wereld: beker, derby, topduel, zespunter, winterwindow, aanloop naar de ALV, vorm, blessures, achterstand op een belofte; in rustige weken een debuut, de topscorer, een jeugdspeler, de vorm van de tegenstander, onrust bij de leden, de afstand tot de top of de veilige zone) → **hooguit één escalatie** (debrief of familiemoment) → stand → **wedstrijd met inzet** (vanaf week 4: hoe hoog of laag je kunt eindigen) → **jouw week** → **Looking back** (een besluit van minstens vier weken terug met meting toen en nu: beslissingen uit het logboek, aankopen, gekaapte vondsten, familiezaken) → je beloftes kort → **deze week op de club** achter één tik (staf, signalen, wereldnieuws, vorige uitslag).
+- Getoetst: 12 gespeelde weken, elke week een onderwerp en een keuze (jouw week); generieke onderwerpen zeldzaam.

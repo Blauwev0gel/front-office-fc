@@ -94,3 +94,18 @@ Standaard voor een nieuwe club: Deals Medium. Een oude save zonder mandaat behou
 ## Gebouwd: de winterstop (M4, 2026-11-25)
 - Dezelfde machinerie als de zomer (`club/window.js` kiest zelf zomer of winter op basis van de week; `S.win` naast `S.pre`): wintervergadering in week 12–13 met **één doel** en een budgetniveau; wie niet tekent, krijgt het eigen plan van de directeur. Window-week 14 en deadline day 15 spelen zich af ná de wedstrijden, met dezelfde ticker, kapingen, verkopen, rivalen (15% van de clubs per week) en escalaties. Wintereditie van de Echo in week 16–18; debrief in week 19.
 - De oude winterronde van alle clubs in week 15 draait nog en vult noodgaten.
+
+## Analyse en verbetering van de transferzomer (2026-11-25)
+**Analyse (6 werelden, vóór):** de voorzitter had tijdens de markt bijna niets te doen (0,7 beslissing per zomer); geen alternatieven of kwaliteitsvergelijking zichtbaar; 46% van de aankopen speelde na 10 weken nog geen minuut (5 van 13 in de basis); briefdoelen 89% gehaald; geen verkoopkant behalve noodverkoop; directeur zonder onderhandelingskarakter; deadline day alleen een hogere kans; geen voetbal in de pre-season.
+
+**Verbeteringen:**
+- **Targetsbord:** per behoefte drie kandidaten met een profiel (*Ready now*, *For the future* met geschat plafond, *Bargain*), schatting ± twijfel, vraagprijs, loon en wat hij betekent ("would start" tegenover de zwakste basisspeler). Mislukt een deal, dan zichtbaar **Plan B**. De voorzitter kan één kandidaat **"Rate him"** geven (aanbeveling, D-S1). De brief bepaalt welk profiel eerst gaat (jong → toekomst; plafond/verkoop → koopje).
+- **Onderhandelingsstijl:** bold opent op 95% en verhoogt 20% tot drie keer; steady 85%/15%/twee keer; careful 78%/10%/één keer. Een waarschuwing in de debrief maakt hem voorzichtig; steun maakt een ambitieuze directeur gedurfd.
+- **Strengere doelen:** "Sign a starting …" is pas gehaald als de nieuwe speler beter is dan de zwakste basisspeler op die plek bij het tekenen van de brief; het verkoopdoel is een serieus bedrag.
+- **Transferlijst:** de voorzitter stelt spelers beschikbaar (niet de top-3); de directeur verkoopt bij een bod van minstens 85% van de waarde. Interesse van andere clubs verschijnt met een knop "Make him available".
+- **Geldpaneel:** uitgegeven, opgehaald, over, loonruimte; extra kas vrijmaken; op deadline day **deadline money** (een lening van 15% van het seizoensinkomen).
+- **Deadline day** in drie rondes (09:00, 15:00, 22:00).
+- **Oefenwedstrijden** in de ticker, waarin nieuwe spelers zich laten zien.
+
+**Gemeten (zelfde 6 werelden, ná):** 9 van 12 aankopen in de basis en geen enkele zonder minuten (zonder steun voor jongeren); 67% van de doelen gehaald; ongeveer 3,7 beslissingen per zomer; Plan B 10–12 keer; 7–9 verkopen via de lijst. Kandidaten per profiel: 16 nu, 13 toekomst, 14 koopje.
+**Open (balans):** de directeur kiest standaard vaak 32–33-jarigen (oud is goedkoop en goed); dat hoort ChatGPT te wegen tegen de bedoeling (talent en doorverkoop).

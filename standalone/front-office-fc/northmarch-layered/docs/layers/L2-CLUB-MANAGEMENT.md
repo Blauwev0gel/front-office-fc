@@ -91,3 +91,11 @@ Ontbreekt nog: meerseizoens-strategietest met menselijk speeloordeel.
 
 ## 12. Bouwstatus
 Ontwerp ◐ · Code ◐ · Geïntegreerd ✓ (wat er is) · Speelbaar ✓ · Gevalideerd ✗
+
+## 13. Besproken en gebouwd, 24–25 november (D-G1, D-G2, D-G5)
+- **De basislaag is af** (D-G2): de afdelingen bestaan. Wat ontbrak was ritme en voelbare gevolgen, niet meer systemen.
+- **De staf doet het dagelijkse** (D-G1, `club/staffops.js`): terreinbeheer repareert wat onder 55% zakt (met vier weken loon als buffer), de kaartverkoop stelt prijzen bij binnen 80–125%, commercie tekent een hoofdsponsor als die ontbreekt. Zichtbaar als "Done by your staff". De eerdere weekagenda met goedkeuringskaarten is verwijderd.
+- **Het manifest** (D-G5): de voorzitter kiest in de pre-season per belofte (competitie, geld, jeugd) Safe/Steady/Bold; bolder weegt zwaarder op de ALV (6/10/16 · 4/6/10 · 3/5/8). Computerclubs blijven Steady.
+- **Het clubboek** (`club/legacy.js`): jouw tijdperk per seizoen, erebord, clublegendes (ook na vertrek bewaard), academie-opbrengst; reputatie volgt gehouden beloftes en prijzen.
+- **Staf telt zwaarder** in afdelingssignalen (×1,5) en faciliteitskosten schalen met de divisie (`FAC_SCALE`): ongetest, zie `BALANCE_UPDATE_1.md`.
+- **Open:** de economie moet de lus dragen (`CORE_LOOP.md` §9): budget voor 2–4 deals per zomer, geld dat sport koopt, verkopen als inkomstenbron, overleefbare onderste divisies.

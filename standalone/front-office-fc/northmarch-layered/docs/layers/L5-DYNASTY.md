@@ -1,5 +1,11 @@
 # L5 — Dynastie en generaties
-**Status:** Eerste slice gebouwd (2026-11-25). Ontwerp: `standalone-research/FAMILIE-VOORZITTER.md` (keuze 76, Crusader Kings als bron, alleen wat beslismomenten oplevert).
+**Status:** Eerste slice gebouwd (2026-11-25). Besluit eigenaar D-G3: dynastie = familie, naar Crusader Kings. Achtergrond: `standalone-research/FAMILIE-VOORZITTER.md` (onderzoek uit De Voorzitter); waar Northmarch afwijkt, geldt dit document.
+
+## Wat we besproken hebben
+- Clubhistorie en legendes zijn het **clubboek** (L2); de **dynastie** is de familie.
+- De opvolger moet **zelf gekozen worden** op de ALV: zo raakt L5 de rode draad (D-G5).
+- Familiemomenten zijn schaars en hebben echte gevolgen (vertrouwen, eigenschappen van kinderen, een eigen kind als jeugdspeler).
+- Je reputatie gaat mee naar een volgende club en naar je erfgenaam (×0,8).
 
 ## Gebouwd
 - `club/family.js` (`S.family`): jij als personage (leeftijd, 2 eigenschappen), partner, 1–3 kinderen die elk seizoen ouder worden en een eigenschap erven.

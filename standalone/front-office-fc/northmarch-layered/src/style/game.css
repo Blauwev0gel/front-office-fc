@@ -69,3 +69,7 @@
 .g-promise li>div:first-child{display:flex;flex-direction:column;gap:2px}.g-promise li span{font-size:.78rem;color:var(--muted)}.g-promise>p{margin:4px 0 0;font-size:.85rem;color:var(--muted)}
 .g-promise .g-seg3{display:grid;grid-template-columns:repeat(3,1fr);margin-top:0}
 .g-done li{font-size:.88rem}
+.g-era{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.g-era li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--chip);font-size:.86rem}
+.g-era li b{color:var(--signal)}.g-era li em{font-style:normal;font-weight:700;font-size:.78rem;white-space:nowrap}.g-era .g-tag{font-style:normal}
+.g-world p{margin:6px 0 4px;color:var(--ink)}

@@ -71,7 +71,7 @@ function facilityAnnual(kind,lv,id){return r1((PRO_COST[kind]?.[lv]||0)*(id?FAC_
 function facilityRun(id,p){return facilityAnnual(p.kind,p.lv,id)*.2+facilityAnnual(p.kind,operatingLevel(id,p),id)*.8}
 function operatingLevel(id,p){const d=G(id).depts[COMPLEX[p.kind].dept];return Math.min(p.lv,d.budget==='tight'?Math.max(1,d.staff):d.budget==='normal'?Math.max(2,d.staff+2):Math.max(3,d.staff+3))}
 function groundSignals(id){
-  const g=G(id),df=d=>deptF(id,d),eff=(o,dept)=>o.lv*(.2+.8*o.cond/100)*(dept?df(dept):1),st=d=>g.depts[d].staff*.3*BUDGET_F[g.depts[d].budget];
+  const g=G(id),df=d=>deptF(id,d),eff=(o,dept)=>o.lv*(.2+.8*o.cond/100)*(dept?df(dept):1),st=d=>g.depts[d].staff*.45*BUDGET_F[g.depts[d].budget];
   const cap={terrace:0,seated:0};
   for(const k in g.sides){const s=g.sides[k],pr=building(id,'side:'+k);cap[s.type]+=sideCap(s,pr&&pr.phase==='build'?.3:0)}
   const business=Math.round(40*eff(g.fac.business)+(g.sides.W.type==='seated'?0:-40));

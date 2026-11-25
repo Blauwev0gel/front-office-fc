@@ -138,3 +138,11 @@ Verification of ChatGPT's commits (`60b1f460`, `8f68df64`, `6683cdf1`, `d8538283
 - [ ] A3 integration and the owner's playtest.
 
 No PLAYABLE or RELEASED claim until the playtest is green and the owner has played it.
+
+## Besproken en gebouwd, 25 november (D-S1, D-G4)
+- **Spelers zijn de motor** (D-G4): vinden, opleiden, zien groeien, verkopen; de voorzitter struint de wereld af.
+- **De week van de voorzitter** (`club/chairtrips.js`, D-S1): één activiteit per week. Scoutingreis naar één van acht regio's (eigen profiel, reiskosten, leegvissen per seizoen), jeugdtoernooi (uitnodigen → volgende zomer academie), data-dag (spelers die beter zijn dan hun prijs) of op de club.
+- **Dossier en aanbevelen:** vondsten met schatting en twijfel; aanbevolen spelers komen op de shortlist van de directeur met extra gewicht; het dossier toont waarde toen → nu en waarom de directeur een aanbeveling (nog) niet tekende.
+- **Moneyball-bord** (`S.mb`): elke speler in en uit met fee, groei en wedstrijden; hit rate en beste deal.
+- **Scouting volgt alleen spelers die ertoe doen** (vanaf selectieniveau − 1,5).
+- **Open:** partnerclubs, regio's die opengaan met reputatie, clubfilosofie, rivalen die meedingen (mijlpaal M5); de balans van fees en budgetten (zie L2 §13).

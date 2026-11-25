@@ -1,5 +1,5 @@
 # L3 — Staff, mandaten en autonomie
-**Status:** IN PROGRESS (ontwerp vastgelegd 2026-11-22, gecorrigeerd door D-L3-2; S3.1 en S3.2 optionele modules, engine-regressie op f40b092 groen; mobiele browserrevalidatie open; S3.3–S3.6 uitgesteld tot Basisspel V1). Besluit eigenaar: **mandaten zijn een deel van L3** (D-L3-1).
+**Status:** IN PROGRESS (ontwerp vastgelegd 2026-11-22, gecorrigeerd door D-L3-2; S3.1 en S3.2 optionele modules, engine-regressie op f40b092 groen; mobiele browserrevalidatie open; S3.3–S3.6 uitgesteld tot Basisspel V1). Besluit eigenaar: **mandaten zijn een deel van L3** (D-L3-1). Aangevuld op 2026-11-25 door D-L3-2b (twee escalaties) en D-G6 (speelbare transfermarkt).
 
 ## Doel
 Nu zijn de directeur (TD) en de trainer één cijfer plus een specialiteit, en doen ze alles binnen het kader dat de voorzitter via beleid zet. L3 maakt van hen mensen die **zelf beslissen binnen een mandaat** en **zelf iets voorstellen als het buiten dat mandaat valt**. De voorzitter kiest nog steeds nooit spelers of opstellingen; hij bepaalt hoeveel vrijheid de staf krijgt en beoordeelt wat ze ermee doen.
@@ -76,3 +76,17 @@ Standaard voor een nieuwe club: Deals Medium. Een oude save zonder mandaat behou
 - `tests/l3-s32-test.js` test vensters, bewijsdrempel, identiteitswisseling, seizoensreset en save/load; opgenomen in `tests/run-fast.sh`.
 
 **Grenzen en controlepunten:** De metriek meet scoutingbetrouwbaarheid bij daadwerkelijk gebruikte spelers, niet direct winstpunten, transferwinst of het totale niveau van de technisch directeur. Spelers met te weinig optredens blijven zonder oordeel. Werkelijke end-to-end browserreview is niet uitgevoerd. CI en testuitslag moeten op de PR vastgelegd worden voordat S3.2 als getest geldt.
+
+## Besproken en besloten, 24–25 november (D-G1, D-L3-2b, D-G6)
+- **Autonomie is het antwoord op het goedkeuringsprobleem** (D-G1): de staf beslist binnen zijn bevoegdheid; de voorzitter krijgt alleen escalaties en verantwoording.
+- **Twee escalaties** (D-L3-2b): een bod op een van de drie beste spelers (accepteren · meer vragen · niet te koop) en een aankoop boven het clubrecord. Computerclubs kunnen je top-3 niet kopen zonder jou.
+- **De transfermarkt is een verhaal over weken** (D-G6), met de directeur als persoon die verantwoording aflegt:
+  1. zomervergadering (selectie, geld, behoeften; de directeur doet een voorstel naar zijn eigen neiging);
+  2. zomerbrief met maximaal drie doelen, getekend;
+  3. ticker per pre-season-week (bod, tegenbod, akkoord, kaping, geruchten, deals van rivalen; ook zonder budget gebeurt er iets);
+  4. deadline day;
+  5. zomereditie van de krant;
+  6. debrief na week 4 waarin de directeur wordt afgerekend op de brief;
+  7. winterstop op dezelfde machinerie, korter.
+- **Tussenstap die er nu staat** (`club/window.js`): vier pre-season-weken met een transferbord en de twee escalaties. Bekende fout: met budget £0 gebeurt er niets en ontbreekt de uitleg. Wordt vervangen in mijlpaal M1.
+- **De week van de voorzitter** (D-S1) raakt L3: aanbevolen spelers komen op de shortlist van de directeur met extra gewicht; hij beslist en zegt waarom niet.

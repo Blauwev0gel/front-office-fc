@@ -9,6 +9,8 @@ function weekTopic(id){
   const opp=fx?CL(fx.opp):null,op=fx&&S.week?posOf(fx.opp):null,inj=S.squads[id].filter(p=>p.inj>0).length;
   const m=M(id),lg=(m.goals||[]).find(g=>g.k==='league');
   if(seasonOver())return{k:'agm',t:`The season is over. The members vote at the AGM: confidence ${Math.round(m.conf)}.`};
+  if(typeof inWinter==='function'&&inWinter()&&S.week<=WINTER_WEEK-2&&!(S.win&&S.win.s===S.season&&S.win.brief))return{k:'window',t:`The winter window opens in week ${WINTER_WEEK-1}. The director wants your winter brief.`};
+  if(typeof inWinter==='function'&&(S.week===WINTER_WEEK-1))return{k:'window',t:'Deadline day is next week. The director is working the winter market.'};
   if(cup)return{k:'cup',t:`Cup week: a tie on top of the league game. A run is worth money and goodwill.`};
   if(opp&&(opp.town===c.town||opp.rival===id||c.rival===fx.opp))return{k:'derby',t:`Derby week against ${opp.name}. The town talks about nothing else.`};
   if(S.week>=3&&pos<=3&&op<=3)return{k:'top',t:`Top of the table: ${ord(pos)} against ${ord(op)}. A title race takes shape.`};

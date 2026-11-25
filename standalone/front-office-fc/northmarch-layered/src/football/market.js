@@ -46,7 +46,7 @@ function scoutPool(id,pos,n,quiet){
   const reach=Math.max(4,6+Math.round(2*groundSignals(id).scouting+(pq(tdOf(id))-10)/2)),out=[];
   const fa=S.fa.filter(p=>(!pos||p.pos===pos)&&!(p.left&&p.left.club===id&&p.left.s>=S.season-1)); // a player who just left does not come back
   for(const p of pickN(fa,Math.ceil(reach*.6)))out.push({p,from:null});
-  const others=shuffle(Object.keys(S.clubs).filter(i=>i!==id&&Math.abs(CL(i).tier-CL(id).tier)<=1));
+  const others=shuffle(Object.keys(S.clubs).filter(i=>i!==id&&aiMarketOpen(i)&&Math.abs(CL(i).tier-CL(id).tier)<=1)); // the chairman's players leave only through the chairman's window
   // Scout players a selling club could actually spare. Sampling random protected starters
   // produced reports that could never turn into transfers.
   const budget=budgetFor(id),cap=wageCapK(id),bill=wageBillK(id);
@@ -155,6 +155,9 @@ function shopFor(id,pos,minQ,o={}){
 /* the director's work in a window: fill holes, upgrade the weakest starter, trim the squad to the wage cap */
 /* a player may only leave if his position stays covered: the full requirement normally, at least one (two keepers) in a wage crisis */
 function canSpare(sq,p,crisis){const n=sq.filter(x=>x.pos===p.pos&&!x.loan).length;return n>(crisis?(p.pos==='GK'?2:1):REQ[p.pos])}
+/* the player's club buys only through its own director in the window the chairman plays: other clubs' surplus sales and
+   transfer requests never land there behind the chairman's back (no hidden second market, bible §7.2) */
+function aiMarketOpen(i){return !(S.my&&i===S.my&&(summerPlayed()||!!(S.win&&S.win.s===S.season&&S.win.brief)))}
 function squadManager(id,phase){
   const sq=S.squads[id];
   // over the wage cap or too big: let the least useful players go
@@ -164,12 +167,12 @@ function squadManager(id,phase){
       const xi=pickXI(sq).map(x=>x.p);
       const pool=sq.filter(p=>!p.loan&&(crisis||!xi.includes(p))&&!(p.age<=20&&p.pa>p.q+1.5)&&canSpare(sq,p,crisis));
       const p=pool.sort((a,b)=>crisis?(b.wage/Math.max(1,b.q)-a.wage/Math.max(1,a.q)):(a.q-a.wage/400)-(b.q-b.wage/400))[0];if(!p)break;
-      const fee=playerValue(p),buyers=Object.keys(S.clubs).filter(i=>i!==id&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX);
+      const fee=playerValue(p),buyers=Object.keys(S.clubs).filter(i=>i!==id&&aiMarketOpen(i)&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX);
       if(buyers.length)transfer(p,id,pick(buyers),fee,'surplus');
       else if(!xi.includes(p)||sq.length>SQUAD_MIN+3)release(id,p,'released to cut the wage bill');else break}};
   trim();
   // players who asked to leave are sold if someone pays a fair price
-  for(const p of sq.filter(x=>x.wantsOut&&!x.loan&&canSpare(sq,x,false))){const fee=Math.round(playerValue(p)*.9),buyers=Object.keys(S.clubs).filter(i=>i!==id&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX&&CL(i).rep>=CL(id).rep-10);
+  for(const p of sq.filter(x=>x.wantsOut&&!x.loan&&canSpare(sq,x,false))){const fee=Math.round(playerValue(p)*.9),buyers=Object.keys(S.clubs).filter(i=>i!==id&&aiMarketOpen(i)&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX&&CL(i).rep>=CL(id).rep-10);
     if(buyers.length&&sq.length>SQUAD_MIN){p.wantsOut=false;p.morale=70;transfer(p,id,pick(buyers),fee,'request')}}
   // holes: below the minimum per position (in winter only real emergencies: injuries leave the position bare)
   for(const pos of POS){let guard=3;

@@ -10,11 +10,14 @@ function onSeason(f){HOOKS.seasonClosed.push(f)}
 function clearHooks(){HOOKS.weekClosed.length=0;HOOKS.seasonClosed.length=0}
 function allIds(){return Object.keys(S.clubs)}
 /* the summer transfer window: open through the pre-season (week 0), closed when the new season's first week is played.
-   The director of every club signs, sells and loans in one go; the chairman's strategy and frame are what count by then. */
+   The director of every club signs, sells and loans in one go; the chairman's strategy and frame are what count by then.
+   The player's club played its summer week by week (club/window.js): after deadline day there is no second market for it,
+   only the league's safety rule that applies to every club (two keepers, one player per position), shown in the Echo. */
 function summerWindow(){
-  const ids=allIds();
+  const ids=allIds(),played=summerPlayed();
   const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
-  for(const pass of [0,1])for(const id of order)squadManager(id,pass===0?'summer':'summerCover');
+  for(const pass of [0,1])for(const id of order){if(played&&id===S.my)continue;squadManager(id,pass===0?'summer':'summerCover')}
+  if(played)summerSafety(S.my);
   if(S.my){tdClose();buildPlan(S.my)}
   for(const id of order)loanOut(id);
   youthReconcile();

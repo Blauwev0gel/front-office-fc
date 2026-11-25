@@ -35,13 +35,36 @@ function titleView(){
   <div class="stack">${hasSave()?`<button class="btn" data-act="cont">Continue</button>`:''}<button class="btn ${hasSave()?'ghost':''}" data-act="new">New game</button></div>
   <p class="note">Layer 1–2 build: the living world and club management. Stories, staff and dynasties are switched off in this version.</p></main>`;
 }
+/* ----- the dossiers: the club as it is (MB-02), the job, three names; read the file, then stand for election ----- */
+function keyPlayers(id){
+  const sq=S.squads[id].filter(p=>!p.loan),used=new Set(),take=(arr,role)=>{const p=arr.find(x=>!used.has(x.id));if(p){used.add(p.id);return{p,role}}return null};
+  return[take(sq.slice().sort((a,b)=>b.q-a.q),'the best player'),
+    take(sq.filter(p=>p.age<=21).sort((a,b)=>b.pa-a.pa),'the biggest talent'),
+    take(sq.filter(p=>p.age>=29).sort((a,b)=>b.q-a.q),'the old head')||take(sq.slice().sort((a,b)=>b.wage-a.wage),'the top earner')].filter(Boolean);
+}
+function clubChallenge(id){
+  const c=CL(id),ids=tierIds(c.tier).sort((x,y)=>teamStrength(y)-teamStrength(x)),n=ids.length,e=ids.indexOf(id)+1,lg=TIER_NAME[c.tier],bottom=c.tier===TIERS.length-1;
+  const sport=e<=3?(c.tier===0?`Win ${lg}: the squad is among the best.`:`Go up: the squad is among the best in ${lg}.`):e>=n-3?(bottom?`Climb: the squad is among the weakest in the pyramid.`:`Stay up: the squad is among the weakest in ${lg}.`):`Build: a mid-table squad in ${lg}.`;
+  const d=debt(id),mw=moneyWord(id);
+  return sport+(mw==='In the red'||mw==='Stretched'?` Money is tight${d?` and there is £${Math.round(d)}k debt`:''}.`:d?` There is £${Math.round(d)}k debt.`:'');
+}
+function clubVoice(id){const c=CL(id),g=c.groups.slice().sort((a,b)=>b.share-a.share)[0],a=g&&ARCH[g.k];return g?`${a&&a.n||'The workers'} are the loudest voice (${g.share}%): “${a?a.wants:''}”`:''}
 function chooseView(){
+  if(UI.seat&&S.seats.includes(UI.seat))return dossierView(UI.seat);
   const again=S.career.length>0,last=again?S.career[S.career.length-1]:null;
-  const probs=S.seats.map(id=>`${strWord(id)} in ${TIER_NAME[CL(id).tier]}; ${moneyWord(id).toLowerCase()} finances.`);
   return`<main class="scene" style="padding-top:28px"><p class="eyebrow">${again?`Season ${S.season} · after ${esc(CL(last.club).name)}`:`${S.seats.length} open chairs`}</p><h2>${again?`${S.seats.length} clubs want you`:'Where do you stand for election?'}</h2>
-  <p class="muted">${again?`${esc(last.why||'Your term ended')}. The world kept turning; pick your next club.`:'Each club is a real club in the same world. Pick the one whose problem you want.'}</p>
-  <div class="stack">${S.seats.map((id,i)=>{const c=CL(id),sg=groundSignals(id),f=F(id);return`<button class="deal" data-act="choose" data-arg="${id}"><span class="dt">${esc(c.name)}</span><span class="small muted">${probs[i]}</span>
-    <dl><dt>Division</dt><dd>${TIER_NAME[c.tier]}</dd><dt>Squad</dt><dd>${strWord(id)}</dd><dt>Support</dt><dd>${n0(c.support)} · ground holds ${n0(sg.capacity)}</dd><dt>Money</dt><dd>${k1(f.cash)} in the bank${debt(id)?` · ${k1(debt(id))} debt`:''}</dd></dl></button>`}).join('')}</div></main>`;
+  <p class="muted">${again?`${esc(last.why||'Your term ended')}. The world kept turning; pick your next club.`:'Every club has its own story and its own problem. Open a file to read it.'}</p>
+  <div class="stack">${S.seats.map(id=>{const c=CL(id);return`<button class="deal" data-act="seat" data-arg="${id}"><span class="dt">${esc(c.name)}</span><span class="small muted">${esc(TIER_NAME[c.tier])} · ${esc(TOWNS[c.town].n)} · founded ${c.founded}</span><span class="small">${esc(clubChallenge(id))}</span><span class="small muted">Read the file ›</span></button>`}).join('')}</div></main>`;
+}
+function dossierView(id){
+  const c=CL(id),sg=groundSignals(id),f=F(id),ks=keyPlayers(id),r=c.rival&&CL(c.rival);
+  return`<main class="scene" style="padding-top:28px"><p class="eyebrow">The file · ${esc(TIER_NAME[c.tier])}</p><h2>${esc(c.name)}</h2>
+  <p class="muted">${esc(TOWNS[c.town].n)} · founded ${c.founded} · ${esc(c.ground)}</p>
+  <section class="g-card"><small class="g-k">THE JOB</small><p>${esc(clubChallenge(id))}</p></section>
+  <section class="g-card"><small class="g-k">WHO THEY ARE</small><p>${esc(clubVoice(id))}</p><p class="small muted">Legend: ${esc(c.legend)}. The scar: ${esc(c.scar)}.${r?` Rivals: ${esc(r.name)}, since ${esc(c.rivalWhy)}.`:''}</p></section>
+  <section class="g-card"><small class="g-k">THREE NAMES TO KNOW</small><ul class="g-list">${ks.map(k=>`<li><b>${esc(k.p.name)}</b> · ${esc(k.role)} <span class="small muted">(${esc(POS_ONE[k.p.pos])}, ${k.p.age})</span></li>`).join('')}</ul></section>
+  <section class="g-card"><small class="g-k">MONEY AND SUPPORT</small><ul class="g-list"><li><b>Bank:</b> ${k1(f.cash)}${debt(id)?` · ${k1(debt(id))} debt`:''}</li><li><b>Support:</b> ${n0(c.support)} · the ground holds ${n0(sg.capacity)}</li><li><b>Squad:</b> ${esc(strWord(id).toLowerCase())} in the division</li></ul></section>
+  <div class="stack"><button class="btn" data-act="choose" data-arg="${id}">Stand for election here</button><button class="btn ghost" data-act="seatback">Back to the open chairs</button></div></main>`;
 }
 
 /* ----- the week ----- */

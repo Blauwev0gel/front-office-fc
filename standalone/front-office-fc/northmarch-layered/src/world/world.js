@@ -56,7 +56,7 @@ function newWorld(seed){
   const towns=Object.keys(TOWNS);
   const pot=names.map((tn,i)=>({tn,i,v:rnd()}));pot.sort((a,b)=>b.v-a.v);
   const need=[15,14,16,16,16]; // harrow fills tier 0; pell and corden tier 1
-  let k=0;for(const tier of TIERS)for(let j=0;j<need[tier];j++){const x=pot[k++];mkClub('c'+x.i,x.tn+(rnd()<.85?' '+pick(SUFFIX):''),pick(towns),tier)}
+  let k=0;for(const tier of TIERS)for(let j=0;j<need[tier];j++){const x=pot[k++];const sx=rnd()<.85?pick(SUFFIX):'';mkClub('c'+x.i,x.tn+(sx&&!x.tn.endsWith(sx)?' '+sx:''),pick(towns),tier)}
   const ids=Object.keys(S.clubs);
   ids.forEach(i=>{const c=CL(i);if(c.rival)return;const cands=ids.filter(j=>j!==i&&CL(j).tier===c.tier&&!CL(j).rival);const r=cands.length?pick(cands):pick(ids.filter(j=>j!==i));c.rival=r;if(!CL(r).rival){CL(r).rival=i;CL(r).rivalWhy=c.rivalWhy}});
   ids.forEach(i=>castClub(CL(i)));

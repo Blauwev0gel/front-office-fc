@@ -12,6 +12,7 @@ run node tests/department-ownership-test.js
 run node tests/base-briefing-test.js
 run node tests/smoke-test.js
 run node tests/l25-test.js
+run node tests/first-summer-test.js
 run node tests/youth-test.js
 run node tests/story-test.js
 run node tests/slimline-test.js 4 101 202

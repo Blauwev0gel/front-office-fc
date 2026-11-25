@@ -4,7 +4,8 @@
    (up to three goals, a budget level, a profile) → 3 the ticker: dated news each pre-season week (our bids, counters,
    hijacks, sales, rival clubs' real deals) → 4 deadline day → 5 the summer edition of the Echo → 6 the debrief in week 4,
    where every goal of the brief is judged with names. Two escalations come to the chairman: a bid for one of the three
-   best players, and a fee above the club record. The season start still runs the normal window, which fills any gap left.
+   best players, and a fee above the club record. After deadline day there is no second market for the player's club: the season
+   start only applies the league's safety rule (summerSafety), the same for every club, and reports it.
    Owns S.pre = {s, wk, brief, deals[], ticker[], offer, record, prio, top3[], sold[], debrief} for the player's club. No DOM. */
 const PRE_WEEKS=4,DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun',,,,'09:00','15:00','22:00'],BUDGET_LV={cautious:{n:'Cautious',spend:.35,d:'Keep money back for the season'},normal:{n:'Normal',spend:.6,d:'A fair share of the cash'},allin:{n:'All-in',spend:.9,d:'Spend almost everything we have'}};
 /* M4: the same machinery runs the winter window. Winter: meeting two weeks before WINTER_WEEK, a brief with ONE goal,
@@ -16,6 +17,15 @@ function mkWin(kind){return{kind,s:S.season,wk:1,brief:null,deals:[],ticker:[],o
 function preState(){
   if(S.my&&S.week>0&&inWinter()){if(!S.win||S.win.s!==S.season)S.win=mkWin('winter');return S.win}
   if(!S.pre||S.pre.s!==S.season)S.pre=mkWin('summer');if(!S.pre.ticker)S.pre.ticker=[];if(!S.pre.sold)S.pre.sold=[];if(!S.pre.kind)S.pre.kind='summer';return S.pre}
+/* the player's summer was played (a brief was signed): the market for this club closed on deadline day */
+function summerPlayed(){const P_=S.pre;return !!(S.my&&P_&&P_.s===S.season&&P_.brief&&P_.kind!=='winter')}
+/* after the deadline only the league's safety rule may add a player, the same rule as for every club; it is reported */
+function summerSafety(id){
+  const mark=S.evn||0;coverAll(id);
+  const got=eventsSince(mark).filter(e=>(e.t==='Transfer'||e.t==='Signing')&&e.c===id);
+  if(S.pre)S.pre.safety=got.map(e=>e.text);
+  return got.length;
+}
 function preTick(t,kind){const P_=preState(),wk=P_.after?Math.min(winWeeks(P_),P_.wk-1):P_.wk,d=P_.after?6:P_.round!=null?10+P_.round:ri(0,6);P_.ticker.push({wk,d,t,kind:kind||'news'});if(P_.ticker.length>80)P_.ticker.shift()}
 function preLog(t){preTick(t,'us')}
 function topThree(id){return S.squads[id].filter(p=>!p.loan).slice().sort((a,b)=>b.q-a.q).slice(0,3)}
@@ -34,6 +44,10 @@ function summerMeeting(id){
   const expiring=sq.filter(p=>p.contract<=1&&p.q>=q-.5).map(p=>p.name),surplus=sq.filter(p=>sq.filter(x=>x.pos===p.pos).length>REQ[p.pos]&&!topThree(id).includes(p)).sort((a,b)=>a.q-b.q).slice(0,3);
   const style=dirStyle(id),d=tdOf(id),needs=preTargets(id);
   const plan=style==='bold'?{budget:'allin',goals:needs.slice(0,2).map(n=>'sign:'+n.pos).concat(['keep3'])}:style==='careful'?{budget:'cautious',goals:['keep3',needs[0]?'sign:'+needs[0].pos:'young'].concat(['sales'])}:{budget:'normal',goals:needs.slice(0,1).map(n=>'sign:'+n.pos).concat(['keep3','young'])};
+  /* the director reads the chairman's manifest: a bold league promise asks for a bigger budget, a safe one for a smaller */
+  const lv=manifestOf(id).league,BL=['cautious','normal','allin'],bi=BL.indexOf(plan.budget),nb=BL[clamp(bi+lv-1,0,2)];
+  if(nb!==plan.budget){plan.why=lv===2?'You promised the members a bold season, so the plan spends more.':'You promised the members a safe season, so the plan keeps more money back.';plan.budget=nb}
+  if(lv===2&&style==='careful'&&needs[0])plan.goals=plan.goals.map(k=>k==='sales'?(needs[1]?'sign:'+needs[1].pos:'young'):k);
   return{strong:order[0],weak:order[2],avg:{defence:avg('defence'),midfield:avg('midfield'),attack:avg('attack')},expiring,surplus:surplus.map(p=>({name:p.name,pos:p.pos,value:Math.round(playerValue(p))})),
     cash:Math.round(F(id).cash),room:r1(wageCapK(id)-wageBillK(id)),needs,style,dir:d?d.name:'The director',plan};
 }
@@ -205,14 +219,14 @@ function debriefChoose(back){
   if(d){d.loy=clamp((d.loy??50)+(back?6:-8)+(met-res.length/2)*4,0,100);d.mem=d.mem||[];d.mem.push({s:S.season,t:back?'backed after the window':'warned after the window',met})}
   const warnings=(d&&d.mem||[]).filter(m=>m.t==='warned after the summer'||m.t==='warned after the window').length;
   emit('Club',id,`${P_.kind==='winter'?'Winter':'Summer'} debrief: ${met} of ${res.length} goals met. You ${back?'back':'warn'} ${P_.brief.dirName}.`);
-  return{ok:true,text:back?`You back ${P_.brief.dirName}. ${met} of ${res.length} goals met.`:`You warn ${P_.brief.dirName}.${warnings>=2?' A second warning: you can replace him under Club → Football.':''}`};
+  return{ok:true,text:back?`You back ${P_.brief.dirName}. ${met} of ${res.length} goals met.`:`You warn ${P_.brief.dirName}.${warnings>=2?' A second warning: you can replace the director under Club → Football.':''}`};
 }
 
 /* the winter window runs inside the season: the director acts in the two window weeks, after the matches.
    If the chairman has not signed a winter brief by then, the director works to his own proposal. */
 function winterWeek(){
   if(!S.my||S.phase!=='season')return;if(S.week!==WINTER_WEEK-1&&S.week!==WINTER_WEEK)return;const P_=preState();if(P_.kind!=='winter')return;
-  if(!P_.brief){const m=summerMeeting(S.my),ok=briefOptions(S.my).map(o=>o.k),g=m.plan.goals.find(k=>ok.includes(k))||ok[0];signBrief(S.my,[g],m.plan.budget);preTick('You did not meet the director: he works to his own winter plan.','off')}
+  if(!P_.brief){const m=summerMeeting(S.my),ok=briefOptions(S.my).map(o=>o.k),g=m.plan.goals.find(k=>ok.includes(k))||ok[0];signBrief(S.my,[g],m.plan.budget);preTick('You did not meet the director, who works to their own winter plan.','off')}
   if(P_.wk<=winWeeks(P_))preWeek();
 }
 onWeek(winterWeek);

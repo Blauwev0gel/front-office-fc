@@ -98,9 +98,9 @@ Geen aparte tutorial waarin je alleen op Next drukt; afdelingen worden uitgelegd
 
 | Moment | Speler ziet | Speler doet | Beloning |
 |---|---|---|---|
-| Clubkeuze | Drie open voorzittersstoelen: wapen, historie, middelen, uitdaging | Club kiezen, dossiers vergelijken | Een eigen startverhaal |
-| Eerste dag | Drie herkenbare spelers, identiteit, belangrijkste sportieve en financiële opgave | Manifest en koers bepalen | Persoonlijke inzet voor het seizoen |
-| TD-vergadering | Gaten in de selectie, mogelijke vertrekkers, budget, plan A/B | Prioriteit en kaders kiezen of het plan aanvaarden | Een begrijpelijk plan |
+| Clubkeuze | Open stoelen als dossiers: de opgave in één zin; per dossier identiteit (stad, luidste supportersgroep), legende, litteken, rivaal, drie namen, geld en steun | Dossiers lezen en vergelijken, dan *Stand for election* | Een eigen startverhaal |
+| Eerste dag | Welkom, de opgave en drie namen om te kennen | Het manifest kiezen en **tekenen** (Safe/Steady/Bold per belofte) | Persoonlijke inzet; de doelen staan vast tot de ALV (MB-17) |
+| TD-vergadering | Gaten in de selectie, budget, het plan van de TD, dat je manifest volgt | Het plan aanvaarden of wijzigen | Een begrijpelijk plan |
 | Marktweken | Echte kandidaten, rivalen die handelen | Onderzoeken, aanbevelen, ruimte vrijmaken, afwachten | Een vondst of concreet resultaat |
 | Deadline | Open deals, alternatieven | Een uitzonderlijk besluit als dat nodig is | Definitieve selectie en zomerkrant |
 | Eerste wedstrijd | Nieuwe spelers, tegenstander, inzet | Beleven, gevolgen lezen | Eerste sportieve payoff |
@@ -114,6 +114,7 @@ De markt hoort bij **L2**: ze werkt volledig zonder hogere lagen. Alleen de pers
 - **Plan en brief:** het TD-plan bevat geprioriteerde behoeften en haalbare alternatieven. Je kunt prioriteiten, wervingsprofiel en financiële ruimte wijzigen; het plan past zich aan, de oorspronkelijke brief blijft bewaard voor de debrief.
 - **Regels:** elke club volgt dezelfde budget- en loonregels. Een aanbeveling is invloed, geen garantie. Een mislukte transfer is mogelijk en heeft gevolgen. Een tekort mag blijven bestaan; alleen noodzakelijke veiligheidsregels grijpen in, transparant en voor alle clubs gelijk.
 - **Na sluiting:** geen onzichtbare tweede markt die eerdere keuzes ongedaan maakt. Openstaande uitzonderingen blijven bewaard tot ze zijn beslist.
+- **Alleen via je eigen window (MB-18 🔷):** zolang jij het window speelt, kopen of verkopen andere clubs niet buiten je TD om bij jouw club. Na de deadline mag alleen de veiligheidsregel die voor elke club geldt (twee keepers en één speler per positie) een speler toevoegen, en dat staat er dan bij.
 
 ### 7.3 Talent, scouting en netwerk
 - **Scouting (D-S1 ✅):** reizen, toernooien en dataonderzoek leveren spelers op, met kwaliteit en potentieel als **schatting** met onzekerheid. Een volglijst houdt ook spelers bij die niet tekenen.
@@ -235,6 +236,8 @@ Historische ID's (D/T/P) komen uit `DECISIONS.md` op commit `3157b3a`; MB/DEV zi
 | MB-14 | 25-11 | ✅ | De speelbare transfermarkt hoort bij L2 en werkt zonder hogere lagen. Alleen persoonlijkheid en mandaat van de TD zijn L3. | Wijzigt de laag van D-G6 en T5. |
 | MB-15 | 25-11 | ✅ | De wereld heeft vijf divisies van zestien (80 clubs) plus de nationale beker. | Vervangt D3. |
 | MB-16 | 25-11 | ✅ | Geen eindscherm of winconditie. Het doel is reputatie, prijzen en het clubboek; mijlpalen uit echte gebeurtenissen maken voortgang zichtbaar, zonder bonussen. | |
+| MB-17 | 25-11 | 🔷 | Het manifest wordt op de eerste dag van elke zomer getekend, vóór het TD-plan. Daarna liggen de doelen vast tot de ALV: een goede zomer maakt een belofte makkelijker, de lat schuift niet mee. | Ingevuld door Claude op verzoek van de eigenaar (herziening eerste zomer). |
+| MB-18 | 25-11 | 🔷 | Zolang de voorzitter het window speelt, handelen andere clubs niet buiten de TD om met de club van de speler. Na de deadline geldt alleen de veiligheidsregel voor elke club, zichtbaar gemeld. | Lost NM-001 op; voert §7.2 uit. |
 
 ## 11. Open vragen voor de game director ❓
 Hier neemt geen developer een besluit over. Een nieuwe vraag krijgt een nummer, de reden waarom het knelt en een advies; na het besluit verhuist ze naar §10.
@@ -341,33 +344,38 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 ## 16. Living record
 *Werk dit bij aan het eind van elke sessie, zodat iedereen vanuit GitHub verder kan zonder chatgeschiedenis. Statuswoorden: Designed · Implemented · Tested · Playtested (mens of bot vermelden) · Validated · Released, plus Partial / Blocked / Not tested / Superseded. Geen groen label zonder bewijs; een test op een oude commit telt niet voor een nieuwe.*
 
-**Officiële bron:** `slimline-main` @ `7147f23` (consolidatie; geen spelrelease). Publicatie: https://blauwev0gel.github.io/front-office-fc/northmarch/ · laatst gerapporteerde succesvolle livebron `3157b3a`; pariteit niet opnieuw gemeten.
+**Officiële bron:** `slimline-main` (zie de release history hieronder voor de laatste SHA). Publicatie: https://blauwev0gel.github.io/front-office-fc/northmarch/ · laatst gerapporteerde succesvolle livebron `3157b3a`; pariteit niet opnieuw gemeten.
 
 **Implementatiestatus (uitgangspositie)** — L1/L2 bestaan als speelbare bronbuild volgens historische documentatie, niet integraal tegen deze bijbel gevalideerd. Opening/zomer, netwerk, weekflow, upgrades en seizoensboog: implementaties aanwezig, audit nodig. L3 deels aanwezig als opt-in. L4/L5 niet vrijgegeven. Actualiseer per feature na inspectie, niet op naam van een module.
 
-**Test evidence** — Geen game-, browser- of simulatietests uitgevoerd voor V1.2 of V1.3 (documentatie). Historisch bewijs via §17.
+**Implementatiestatus eerste zomer (25-11)** — Opening en transferzomer herzien: Implemented, Tested, Playtested (bot, Playwright, 390 px licht en donker). Menselijke playtest nog niet gedaan.
+
+**Test evidence (25-11, herziening eerste zomer)** — Lokaal: `node build.js` slaagt; nieuw `tests/first-summer-test.js` slaagt (manifest vast, plan volgt manifest, geen verborgen transfers in 10 werelden, save/load). Groen gebleven: pyramid, foreign-world, save, ux, base-briefing, smoke, l25, youth, story, slimline (4 seizoenen, 3 seeds), l3, l3-s32, layer-isolation, base-isolation. Browser-playtest (`tests/playtest.js`) bijgewerkt naar de huidige flow en groen in licht en donker. Rood, en al rood vóór deze wijziging: `department-ownership-test` (verwacht het oude homescherm met 13 tegels) en `sim-test` (administratie te vaak: 39 tegen een limiet van 33; vóór de wijziging 41). Geen CI gedraaid.
 
 **Bekende problemen**
 | ID | Status | Probleem / volgende actie |
 |---|---|---|
-| NM-001 | Auditkandidaat | Dubbele zomermarkt: zomerafsluiting en eerste week traceren, reproduceren vóór fix. |
+| NM-001 | Opgelost (25-11) | Dubbele zomermarkt: bij de start van het seizoen draaide de directeur van de eigen club nog een volledige ronde en dumpten andere clubs spelers bij de speler. Nu geldt MB-18; test `first-summer-test`. |
 | NM-002 | Auditkandidaat | Summer clock en persoonlijke activiteiten: beschikbaarheid per zomerweek toetsen. |
 | NM-003 | Auditkandidaat | TD-planactualisatie, budgetvalidatie en deadlinebeslissingen: causale keten en behoud van state controleren. |
 | NM-004 | Open validatie | V19-economie en strategieverschillen: eerst scope en baseline, geen ongevraagde zware sims. |
 | NM-005 | Open validatie | Menselijke spelbeleving van de eerste zomer en L1/L2: prototype en playtest. |
 | NM-006 | Operationeel | Laatste Pages-run mislukt na herstart (gemelde oorzaak: dubbele artifactnaam). Niet nodig voor documentatiewerk. |
 | NM-007 | Wacht op eigenaar | `CLAUDE.md` en `AGENTS.md` verwijzen nog naar *The Front Office*. Voorstellen voor MB-11 liggen klaar; de eigenaar past ze zelf toe of geeft Claude daar expliciet opdracht toe. |
+| NM-009 | Test verouderd | `department-ownership-test` verwacht het oude homescherm (13 tegels) en faalt sinds de nieuwe schil; bijwerken of vervangen. |
+| NM-010 | Balans | `sim-test`: administratie komt te vaak voor (39–41 tegen een limiet van 33 in 20 seizoenen). Voor de balansronde (ChatGPT). |
 | NM-008 | Implementatie | De code volgt nog "één activiteit per week" (D-S1). Omzetten naar MB-12 in fase 2 of 3, met savemigratie. |
 
 **Release history**
 - 25-11-2026 · V1.1 — documentatie geconsolideerd op `slimline-main` `7147f23` en `main` `cc4c5db` (identieke blob `ecb6ad3`).
 - 25-11-2026 · V1.2 — charter, workflow, kwaliteitstoets, roadmap en registers toegevoegd (`b69ea16`, branch `docs/master-bible-v1-2`, niet geïntegreerd).
 - 25-11-2026 · V1.3 — herstructurering in vier delen, één besluitenregister, feitelijke correcties; open vragen beslist (MB-11–MB-16). Geen spelwijziging.
+- 25-11-2026 · Spel — herziening van de opening en de transferzomer (MB-17, MB-18), gepubliceerd op `/northmarch/` vanaf `slimline-main`.
 
 **Current work**
-- **Actief:** V1.3 vastgesteld op `claude/loving-goodall-uv00vn`; integratie in `slimline-main` wacht op toestemming van de eigenaar (start publicatie).
+- **Afgerond:** herziening van de opening en de transferzomer (fase 1). NM-001 is opgelost.
 - **Wacht op eigenaar:** geen open ontwerpvragen.
-- **Volgende producttaak:** fase 1, The First Summer (§15).
+- **Volgende producttaak:** menselijke playtest van de eerste zomer (NM-005), daarna NM-002 en NM-003 en fase 2 (wekelijkse gameplay).
 - **Niet actief:** hogere lagen, ongevraagde balanssimulaties, Pages-herstarts, releasewerk.
 
 ---

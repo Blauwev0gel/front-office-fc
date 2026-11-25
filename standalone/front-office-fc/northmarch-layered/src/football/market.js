@@ -33,12 +33,13 @@ function transfer(p,from,to,fee,why,premium){
   p.history=p.history||[];p.history.push({season:S.season,week:S.week,type:'transfer',from,to,fee});
   p.wage=Math.round(moveWage(p,to)*(premium?1.3:1)/5)*5;p.contract=ri(2,3);p.club=to;p.joined=S.season;S.squads[to].push(p);
   emit('Transfer',to,`${p.name} joins ${CL(to).name} from ${CL(from).name}${fee?` for £${fee}k`:''}.`,{c2:from,pid:p.id,fee,why});
+  if(typeof mbRecord==='function')mbRecord(p,from,to,fee);
 }
 function signFree(p,to){S.fa.splice(S.fa.indexOf(p),1);p.history=p.history||[];p.history.push({season:S.season,week:S.week,type:'free',to});p.wage=moveWage(p,to);p.contract=ri(1,2);p.club=to;p.joined=S.season;S.squads[to].push(p);
-  emit('Signing',to,`${CL(to).name} sign free agent ${p.name} (${POS_ONE[p.pos]}).`,{pid:p.id})}
+  emit('Signing',to,`${CL(to).name} sign free agent ${p.name} (${POS_ONE[p.pos]}).`,{pid:p.id});if(typeof mbRecord==='function')mbRecord(p,null,to,0)}
 /* releasing a player costs a quarter of what is left on his contract */
 function releaseCost(p){return r1(p.wage*SEASON_WEEKS*Math.max(0,p.contract)/1000*.25)}
-function release(id,p,why){const sq=S.squads[id];playerCloseStint(p,id);const pay=releaseCost(p);if(pay)book(id,'wages',-pay);sq.splice(sq.indexOf(p),1);youthLeft(p,'released');faAdd(p,why||'released',id);if(id===S.my)emit('Released',id,`${p.name} is released.`,{pid:p.id})}
+function release(id,p,why){const sq=S.squads[id];playerCloseStint(p,id);const pay=releaseCost(p);if(pay)book(id,'wages',-pay);sq.splice(sq.indexOf(p),1);youthLeft(p,'released');faAdd(p,why||'released',id);if(id===S.my&&typeof mbRecord==='function')mbRecord(p,id,null,0);if(id===S.my)emit('Released',id,`${p.name} is released.`,{pid:p.id})}
 
 /* the players a club's director can see: free agents and players at other clubs, wider with a better scouting office */
 function scoutPool(id,pos,n,quiet){

@@ -136,7 +136,7 @@
    const link=(t,sub,a,arg,i)=>`<button class="g-link" data-act="${a}" data-arg="${arg}"><span class="g-ic" aria-hidden="true">${i}</span><span><b>${t}</b><small>${sub}</small></span><em aria-hidden="true">›</em></button>`;
    return`<div class="g-week">${money}
    <section><h3 class="g-h">Departments</h3><p class="g-hint">Each department has three dials: staff (●), budget and a focus. Tap one to change them and to see what it delivers.</p><div class="g-depts">${depts}</div></section>
-   <section class="g-links">${link('Football','Head coach, director, playing style','ctab','football','⚽')}${link('Scouting dossier','Players you found around the world','ctab','dossier','✈')}${link('Transfers','Needs, shortlist, window','ctab','window','⇄')}${link('Stadium & facilities','Build, repair, capacity','ctab','ground','▥')}${link('Members & board','Confidence, prices, goals','ctab','members','♜')}${link('Family & legacy','Your family, heir, era, legends','ctab','legacy','★')}${link('History & growth','Season by season, records, money','ctab','development','⌛')}</section></div>`;
+   <section class="g-links">${link('Football','Head coach, director, playing style','ctab','football','⚽')}${link('Scouting & Moneyball','Your finds, transfers in and out, hit rate','ctab','dossier','✈')}${link('Transfers','Needs, shortlist, window','ctab','window','⇄')}${link('Stadium & facilities','Build, repair, capacity','ctab','ground','▥')}${link('Members & board','Confidence, prices, goals','ctab','members','♜')}${link('Family & legacy','Your family, heir, era, legends','ctab','legacy','★')}${link('History & growth','Season by season, records, money','ctab','development','⌛')}</section></div>`;
  }
 
  /* ----- LEGACY: the dynasty, what lasts ----- */
@@ -202,10 +202,17 @@
    return`<section class="g-card"><small class="g-k">${R.kind==='data'?'THE ANALYST’S LIST':'SCOUTING TRIP · '+esc(R.region.toUpperCase())}</small>${gems.length?`<ul class="g-list g-gems">${gems.map(g=>gemLine(g,true)).join('')}</ul>`:(R.none?'<p>Nobody good enough and affordable here right now.</p>':'<p>Nobody new worth reporting. This region has been fished out for now.</p>')}${R.thin&&gems.length?'<p class="g-hint">You have been here before this season: fewer new names.</p>':''}<p class="g-hint">Estimates come from your scouting department: better scouts, less doubt.</p></section>`;
  }
  function dossierView(){
-   const A=S.scout||{gems:[],prospects:[]},gems=A.gems.slice().reverse();
+   const A=S.scout||{gems:[],prospects:[]},gems=A.gems.slice().reverse(),B=mbBoard();
    const pros=A.prospects.filter(p=>p.status!=='seen').slice().reverse();
-   return`<div class="hubback"><button class="tbtn" data-act="ctab" data-arg="hub">← Club</button></div><div class="g-week">
-   <section class="g-card"><small class="g-k">YOUR DOSSIER · PLAYERS YOU FOUND</small>${gems.length?`<ul class="g-list g-gems">${gems.map(g=>gemLine(g,true)).join('')}</ul>`:'<p class="g-hint">Empty. Go on a scouting trip or spend a day with the data analyst.</p>'}</section>
+   const net=B.received-B.spent,cell=(k,v,w,c)=>`<div><small>${k}</small><b class="${c||''}">${v}</b><span>${esc(w)}</span></div>`;
+   const rows=B.rows.filter(r=>r.s!=null||r.so!=null).slice().reverse().slice(0,12).map(r=>`<li class="g-mb"><div><b>${esc(r.name)}</b>${r.found?' <i class="g-tag in">YOUR FIND</i>':''}${r.academy?' <i class="g-tag">ACADEMY</i>':''}<span>${r.s!=null?`In S${r.s} for £${r.in}k`:'Own player'}${r.so!=null?` · out S${r.so}${r.to?' to '+nm(r.to):' (released)'} for £${r.out}k`:r.here?` · worth ~£${r.worth}k now`:' · left the club'}${r.grew!=null?` · quality ${r.grew>=0?'+':''}${r.grew}`:''} · ${r.apps} apps</span></div><em class="${r.profit>0?'good':r.profit<0?'bad':''}">${r.profit>0?'+':''}${k1(r.profit)}</em></li>`).join('');
+   const board=`<section class="g-card"><small class="g-k">MONEYBALL BOARD · IN AND OUT</small>
+     <section class="g-delta">${cell('Spent','£'+B.spent+'k','on fees')}${cell('Received','£'+B.received+'k','from sales')}${cell('Hit rate',B.judged?Math.round(B.hits/B.judged*100)+'%':'—',B.judged?B.hits+' of '+B.judged+' signings':'too early')}</section>
+     <p class="g-hint">Net transfer result ${k1(net)}. ${B.found} signing${B.found===1?'':'s'} came from your own scouting.${B.best&&B.best.profit>0?` Best deal: ${esc(B.best.name)}, +${k1(B.best.profit)}.`:''} A hit is a profit on a sale, a player who grew, or thirty games for the club.</p>
+     ${rows?`<ul class="g-list">${rows}</ul>`:'<p class="g-hint">No transfers yet. They appear here from the first window.</p>'}</section>`;
+   const glist=gems.map(g=>{const now=gemNow(g),why=gemWhy(g);return gemLine(g,true).replace('</span></div>',`</span>${now?`<span>Value then £${g.fee}k → now ~£${now.value}k${now.club&&now.club!==g.from&&now.club!==S.my?' · at '+nm(now.club):''}</span>`:''}${why?`<span class="g-why">Director: ${esc(why)}</span>`:''}</div>`)}).join('');
+   return`<div class="hubback"><button class="tbtn" data-act="ctab" data-arg="hub">← Club</button></div><div class="g-week">${board}
+   <section class="g-card"><small class="g-k">YOUR DOSSIER · PLAYERS YOU FOUND</small>${gems.length?`<ul class="g-list g-gems">${glist}</ul>`:'<p class="g-hint">Empty. Go on a scouting trip or spend a day with the data analyst.</p>'}</section>
    ${pros.length?`<section class="g-card"><small class="g-k">ACADEMY INVITATIONS</small><ul class="g-news">${pros.map(p=>`<li>${esc(p.name)} (${esc(POS_ONE[p.pos])}) · ${esc({invited:'invited for the summer',joined:'joined the academy ✓',declined:'chose another academy'}[p.status]||p.status)}</li>`).join('')}</ul></section>`:''}</div>`;
  }
 

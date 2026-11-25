@@ -25,7 +25,8 @@
    const stage=UI.v183Stage||'preview',over=seasonOver(),pre=S.week===0;
    let play='';
    const P_=pre?PRE():null;
-   if(UI.tab==='week'&&stage==='preview'&&P_&&!P_.brief)play=`<button class="btn g-play" data-act="briefsign">✍ Sign the summer brief</button>`;
+   if(UI.tab==='week'&&stage==='preview'&&P_&&preStep()==='welcome')play=`<button class="btn g-play" data-act="prewelcome">Meet your director ›</button>`;
+   else if(UI.tab==='week'&&stage==='preview'&&P_&&!P_.brief)play=`<button class="btn g-play" data-act="briefsign">✍ Agree the plan</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.wk<=PRE_WEEKS)play=`<button class="btn g-play" data-act="prenext">${P_.wk===PRE_WEEKS?'▶ Deadline day':'▶ Pre-season week '+P_.wk}</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&over){const st=UI.agmStep||0;play=`<button class="btn g-play" data-act="${st>=3?'close':'agmnext'}">${['Go to the floor ›','To your speech ›','To the vote ›','Call the vote'][st]}</button>`}
    else if(UI.tab==='week'&&stage==='preview')play=`<button class="btn g-play" data-act="${over?'close':'play'}">${over?'Finish the season ›':pre?'▶ Start the season':'▶ Play week '+(S.week+1)}</button>`;
@@ -90,7 +91,7 @@
  function weekScreen(){
    const id=S.my;
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
-   if(S.week===0)return`<div class="g-week">${msg}${momentCard()}${statusStrip(id)}${preSeason(id)}${promises(id)}${nextMatch(id)}${yourWeek(id)}</div>`;
+   if(S.week===0)return preSeasonScreen(id,msg);
    if(seasonOver())return`<div class="g-week">${msg}${topicBanner(id)}${agmView(id)}</div>`;
    return`<div class="g-week">${msg}${topicBanner(id)}${escalation()}${winterCard(id)}${statusStrip(id)}${nextMatch(id)}${yourWeek(id)}${tableCard()}${lookBackCard(id)}${promisesCompact(id)}${weekClose(id)}</div>`;
  }
@@ -99,19 +100,32 @@
  /* ----- PRE-SEASON: what it is, what the director will do, what you control ----- */
  /* ----- THE TRANSFER SUMMER (M1): meeting → brief → ticker → deadline day → summer edition ----- */
  function briefPick(id){const kind=preState().kind,max=kind==='winter'?1:3;if(!UI.brief||UI.brief.s!==S.season||UI.brief.kind!==kind){const m=summerMeeting(id);const ok=new Set(briefOptions(id).map(o=>o.k));UI.brief={s:S.season,kind,max,goals:m.plan.goals.filter(k=>ok.has(k)).slice(0,max),budget:m.plan.budget,recruit:recruitStrategy(id)}}return UI.brief}
+ /* the meeting: the director's plan first (one tap to agree); the full brief only if you want to change it */
  function meetingCard(id){
-   const m=summerMeeting(id),b=briefPick(id),opts=briefOptions(id),word={bold:'a bold',careful:'a careful',steady:'a steady'}[m.style];
-   const lineW=k=>`${k} ${m.avg[k]}`;
-   return`<section class="g-card g-pre"><small class="g-k">${b.kind==='winter'?'WEEK '+S.week+' · THE WINTER MEETING':'PRE-SEASON · THE SUMMER MEETING'}</small><h2>${esc(m.dir)} sets out the ${b.kind}</h2>
-   <ul class="g-list"><li><b>The squad.</b> Strongest in ${esc(m.strong)}, weakest in ${esc(m.weak)} (${['defence','midfield','attack'].map(lineW).join(' · ')}).${m.expiring.length?` Contracts ending: ${esc(m.expiring.slice(0,3).join(', '))}.`:''}</li>
-   <li><b>The money.</b> ${k1(m.cash)} in the bank, ${k1(m.room)} a week of wage room.${m.surplus.length?` We could sell ${esc(m.surplus.map(x=>x.name).join(', '))}.`:''}</li>
-   <li><b>What we need.</b> ${m.needs.length?esc(m.needs.map(n=>POS_ONE[n.pos]).join(', ')):'Nothing urgent.'}</li></ul>
-   <p class="g-hint">${esc(m.dir)} is ${word} director: he proposes the goals ticked below. ${b.kind==='winter'?'Choose one goal for the winter window (weeks '+(WINTER_WEEK-1)+'–'+WINTER_WEEK+').':'Choose up to three; he signs what you sign.'}</p>
-   <h3>The ${b.kind} brief</h3><div class="g-goals">${opts.map(o=>`<button class="g-opt ${b.goals.includes(o.k)?'on':''}" data-act="briefgoal" data-arg="${esc(o.k)}" aria-pressed="${b.goals.includes(o.k)}"><b>${b.goals.includes(o.k)?'✓ ':''}${esc(o.t)}</b><span>${esc(o.why)}</span></button>`).join('')}</div>
-   <h3>Budget</h3><div class="g-seg g-seg3" role="group" aria-label="Budget">${Object.entries(BUDGET_LV).map(([k,v])=>`<button class="${b.budget===k?'on':''}" data-act="briefbudget" data-arg="${k}" aria-pressed="${b.budget===k}">${v.n}</button>`).join('')}</div>
-   <p class="g-hint">${esc(BUDGET_LV[b.budget].d)}.</p>
-   <h3>Profile</h3><div class="g-seg" role="group" aria-label="Recruitment profile">${Object.keys(RECRUIT).map(k=>`<button class="${b.recruit===k?'on':''}" data-act="briefrecruit" data-arg="${k}" aria-pressed="${b.recruit===k}">${esc(RECRUIT[k].n)}</button>`).join('')}</div>
-   <p class="g-hint">${b.goals.length} of ${b.max} goal${b.max>1?'s':''} chosen.${b.kind==='winter'?' If you do not sign, the director works to his own plan.':' Sign the brief to open the market.'}</p>${b.kind==='winter'?'<button class="btn" data-act="briefsign">✍ Sign the winter brief</button>':''}</section>`;
+   const m=summerMeeting(id),b=briefPick(id),opts=briefOptions(id),winter=b.kind==='winter',word={bold:'bold',careful:'careful',steady:'steady'}[m.style];
+   const plan=b.goals.map(k=>(opts.find(o=>o.k===k)||{t:k}).t);
+   const head=winter?`<small class="g-k">WEEK ${S.week} · THE WINTER MEETING</small>`:'';
+   const summary=`<ul class="g-list"><li><b>Squad:</b> strong in ${esc(m.strong)}, weak in ${esc(m.weak)}.</li><li><b>Money:</b> ${k1(m.cash)} in the bank.</li><li><b>Needs:</b> ${m.needs.length?esc(m.needs.map(n=>POS_ONE[n.pos]).join(', ')):'nothing urgent'}.</li></ul>`;
+   const planCard=`<div class="g-plan"><small class="g-k">HIS PLAN · ${esc(BUDGET_LV[b.budget].n.toUpperCase())} BUDGET · ${esc(RECRUIT[b.recruit].n.toUpperCase())}</small><ul class="g-news">${plan.map(t=>`<li>${esc(t)}</li>`).join('')||'<li>No goals chosen</li>'}</ul></div>`;
+   const edit=UI.briefEdit?`<h3>Goals <small>${b.goals.length} of ${b.max}</small></h3><div class="g-goals">${opts.map(o=>`<button class="g-opt ${b.goals.includes(o.k)?'on':''}" data-act="briefgoal" data-arg="${esc(o.k)}" aria-pressed="${b.goals.includes(o.k)}"><b>${b.goals.includes(o.k)?'✓ ':''}${esc(o.t)}</b><span>${esc(o.why)}</span></button>`).join('')}</div>
+     <h3>Budget</h3><div class="g-seg g-seg3" role="group" aria-label="Budget">${Object.entries(BUDGET_LV).map(([k,v])=>`<button class="${b.budget===k?'on':''}" data-act="briefbudget" data-arg="${k}" aria-pressed="${b.budget===k}">${v.n}</button>`).join('')}</div><p class="g-hint">${esc(BUDGET_LV[b.budget].d)}.</p>
+     <h3>Profile</h3><div class="g-seg" role="group" aria-label="Recruitment profile">${Object.keys(RECRUIT).map(k=>`<button class="${b.recruit===k?'on':''}" data-act="briefrecruit" data-arg="${k}" aria-pressed="${b.recruit===k}">${esc(RECRUIT[k].n)}</button>`).join('')}</div><p class="g-hint">${esc(RECRUIT[b.recruit].d)}.</p>`
+     :`<button class="btn ghost" data-act="briefedit">Change the plan</button>`;
+   return`<section class="g-card g-pre">${head}<h2>${esc(m.dir)} has a plan</h2><p class="g-hint">Your ${word} director buys and sells for you. Agree his plan, or change it; then he goes to work.</p>
+   ${summary}${planCard}${edit}${winter?'<button class="btn" data-act="briefsign">✍ Agree the winter plan</button>':''}</section>`;
+ }
+ /* the pre-season as steps: welcome (first season) → the plan → the market → the season ahead */
+ function preStep(){const P_=PRE();if(!P_)return null;if(!S.welcomed&&S.season===S.career[0]?.from&&S.career.length===1)return'welcome';if(!P_.brief)return'plan';if(P_.wk<=winWeeks(P_))return'market';return'ahead'}
+ function preSteps(st){const L=[['plan','The plan'],['market','The market'],['ahead','The season']];const k=L.findIndex(x=>x[0]===st);return`<ol class="g-steps g-steps3">${L.map(([,t],i)=>`<li class="${i===k?'on':i<k?'done':''}">${t}</li>`).join('')}</ol>`}
+ function welcomeCard(id){const c=C(),d=tdOf(id);return`<section class="g-card g-welcome"><small class="g-k">WELCOME, CHAIRMAN</small><h2>${esc(c.name)} is yours</h2>
+   <ul class="g-list"><li><b>You do not pick the team.</b> ${esc(d?d.name:'Your director')} buys and sells; the head coach picks the side.</li><li><b>You set the course.</b> The plan, the money, the people, the promises.</li><li><b>The members vote every summer.</b> Lose the vote and you are gone.</li></ul>
+   <p class="g-hint">First up: the summer transfer window. Your director has a plan.</p></section>`}
+ function preSeasonScreen(id,msg){
+   const st=preStep(),P_=PRE();
+   if(st==='welcome')return`<div class="g-week">${msg}${welcomeCard(id)}</div>`;
+   if(st==='plan')return`<div class="g-week">${msg}${preSteps(st)}${meetingCard(id)}</div>`;
+   if(st==='market')return`<div class="g-week">${msg}${preSteps(st)}${momentCard()}${preSeason(id)}${yourWeek(id)}</div>`;
+   return`<div class="g-week">${msg}${preSteps(st)}${momentCard()}${preSeason(id)}${promises(id)}${nextMatch(id)}</div>`;
  }
  function tickerCard(P_){
    const weeks=[...new Set(P_.ticker.map(t=>t.wk))].sort((a,b)=>b-a),label=w=>w===winWeeks(P_)?'Deadline day':P_.kind==='winter'?'Window week '+w:'Pre-season week '+w;
@@ -133,7 +147,7 @@
    if(closed){const E=summerEdition();return`<section class="g-card g-echo"><small class="g-k">THE NORTHMARCH ECHO · SUMMER EDITION</small><h2>${esc(E.head)}</h2>
      <p>In: ${E.ins.length?esc(E.ins.map(d=>`${d.name}${d.fee?' £'+d.fee+'k':' (free)'}`).join(', ')):'nobody'}. Out: ${E.outs.length?esc(E.outs.map(s=>`${s.name} £${s.fee}k`).join(', ')):'nobody'}. Spent £${E.spent}k, raised £${E.raised}k.</p>
      ${E.world.length?`<ul class="g-news">${E.world.map(t=>`<li>${esc(t.t)}</li>`).join('')}</ul>`:''}<p class="g-hint">The window shuts when the season starts. The director is judged on the brief after four weeks.</p></section>${briefCard(P_,id)}`}
-   return`${esc2}${interestCard(P_)}${moneyCard(P_,id)}${boardCard(P_,id)}${P_.ticker.length>1?tickerCard(P_):`<section class="g-quiet"><b>The brief is signed.</b> Play the first ${P_.kind==='winter'?'window':'pre-season'} week and the market opens.</section>`}
+   return`${esc2}${interestCard(P_)}${moneyCard(P_,id)}${boardCard(P_,id)}${P_.ticker.length>1?tickerCard(P_):''}
    ${briefCard(P_,id)}${listCard(P_,id)}`;
  }
  /* the money, live */
@@ -354,10 +368,12 @@
 
  const oldAct=act;
  act=function(a,arg){
+   if(a==='prewelcome'&&S){S.welcomed=true;save();render();if(HAS_DOM)window.scrollTo(0,0);return}
+   if(a==='briefedit'){UI.briefEdit=true;render();return}
    if(a==='briefgoal'&&S&&S.my){const b=briefPick(S.my);const i=b.goals.indexOf(arg);if(i>=0)b.goals.splice(i,1);else if(b.max===1)b.goals=[arg];else if(b.goals.length<b.max)b.goals.push(arg);else UI.msg={err:true,text:'Three goals at most: untick one first.'};render();return}
    if(a==='briefbudget'&&S&&S.my){briefPick(S.my).budget=arg;render();return}
    if(a==='briefrecruit'&&S&&S.my){briefPick(S.my).recruit=arg;render();return}
-   if(a==='briefsign'&&S&&S.my){const b=briefPick(S.my),r=signBrief(S.my,b.goals,b.budget,b.recruit);UI.msg=r.ok===false?{err:true,text:r.err}:{text:'The summer brief is signed. The market opens.'};save();render();if(HAS_DOM)window.scrollTo(0,0);return}
+   if(a==='briefsign'&&S&&S.my){const b=briefPick(S.my),r=signBrief(S.my,b.goals,b.budget,b.recruit);UI.briefEdit=false;UI.msg=r.ok===false?{err:true,text:r.err}:{text:'Plan agreed. Play the first week and the market opens.'};save();render();if(HAS_DOM)window.scrollTo(0,0);return}
    if(a==='debrief'&&S&&S.my){const r=debriefChoose(arg==='back');UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
    if(a==='prefav'&&S&&S.my){const r=preFavour(arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
    if(a==='prelist'&&S&&S.my){const r=preListToggle(arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.on?'Available: the director will sell for a fair bid.':'Taken off the list.'};save();render();return}

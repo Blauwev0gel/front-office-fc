@@ -1,0 +1,370 @@
+<title>The First Summer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=Literata:ital,opsz,wght@1,7..72,400;1,7..72,600&display=swap">
+<style>
+/* Layout: one scene per screen, like turning the pages of a matchday programme; the club's colours carry everything. */
+:root{
+  --bg:#e9eeed; --paper:#f8faf9; --ink:#13232a; --muted:#52666b; --line:#cfd9d8;
+  --kit:#0e5a61; --kit-ink:#ffffff; --amber:#c98a12; --amber-soft:#f6e6c2;
+  --bad:#b8392a; --good:#2f7d46; --pitch:#2d6a3b; --pitch2:#2a6237; --chalk:rgba(255,255,255,.75);
+  --shadow:0 1px 0 rgba(19,35,42,.06),0 8px 24px rgba(19,35,42,.08);
+  --f-display:'Big Shoulders Display','Arial Narrow',Impact,sans-serif;
+  --f-body:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,sans-serif;
+  --f-voice:'Literata',Georgia,'Times New Roman',serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b1416; --paper:#122027; --ink:#e6eeed; --muted:#9fb3b5; --line:#24363d;
+  --kit:#4fb0ad; --kit-ink:#06201f; --amber:#f0b84a; --amber-soft:#3a2f17;
+  --bad:#ef7564; --good:#6fc58a; --pitch:#1f4d2a; --pitch2:#1c4626; --chalk:rgba(255,255,255,.55);
+  --shadow:0 1px 0 rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b1416; --paper:#122027; --ink:#e6eeed; --muted:#9fb3b5; --line:#24363d;
+  --kit:#4fb0ad; --kit-ink:#06201f; --amber:#f0b84a; --amber-soft:#3a2f17;
+  --bad:#ef7564; --good:#6fc58a; --pitch:#1f4d2a; --pitch2:#1c4626; --chalk:rgba(255,255,255,.55);
+  --shadow:0 1px 0 rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-size:16px;line-height:1.45;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 120px}
+.wrap{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+/* the club bar: who you are and the three things that move */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-left,0px));background:var(--kit);color:var(--kit-ink);display:flex;align-items:center;gap:10px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--kit)}
+.bar .id{flex:1;min-width:0;overflow:hidden}
+.bar b{font-family:var(--f-display);font-weight:800;font-size:1.05rem;letter-spacing:.02em;display:block;line-height:1;white-space:nowrap}
+.bar small{font-size:.66rem;opacity:.85;letter-spacing:.06em;text-transform:uppercase;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meters{display:flex;gap:4px;flex:none}
+.meter{background:rgba(255,255,255,.14);border-radius:8px;padding:4px 6px;text-align:center;min-width:42px;position:relative}
+:root[data-theme="dark"] .meter{background:rgba(0,0,0,.18)}
+.meter span{display:block;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+.meter em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums;font-size:.86rem}
+.pop{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:4px;font-size:.75rem;font-weight:700;padding:2px 6px;border-radius:6px;background:var(--paper);color:var(--ink);box-shadow:var(--shadow);white-space:nowrap;animation:pop 1.8s forwards}
+.pop.up{color:var(--good)}.pop.down{color:var(--bad)}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-4px)}12%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0}}
+
+/* the scene */
+.kicker{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-top:18px}
+h1{font-family:var(--f-display);font-weight:900;font-size:2.4rem;line-height:.95;margin:0;text-transform:uppercase;text-wrap:balance;letter-spacing:.01em}
+h2{font-family:var(--f-display);font-weight:800;font-size:1.5rem;line-height:1;margin:0;text-transform:uppercase;letter-spacing:.02em}
+p{margin:0}
+.lede{font-size:1.02rem;color:var(--ink)}
+.muted{color:var(--muted)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fact{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center}
+.fact b{display:block;font-family:var(--f-display);font-size:1.6rem;line-height:1;font-weight:800}
+.fact span{font-size:.7rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+
+/* a voice: a person speaks */
+.voice{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:start}
+.face{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:1.05rem;background:var(--kit);color:var(--kit-ink)}
+.face.rival{background:#7a1f2b;color:#fff}.face.amber{background:var(--amber);color:#1b1306}.face.grey{background:var(--muted);color:var(--paper)}
+.voice .who{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.voice q{display:block;font-family:var(--f-voice);font-style:italic;font-size:1.06rem;line-height:1.4;quotes:"“" "”"}
+
+/* choices: what you can do and what it will cost */
+.choices{display:flex;flex-direction:column;gap:8px}
+.choice{display:flex;flex-direction:column;gap:2px;text-align:left;background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:12px 14px;min-height:56px;cursor:pointer;transition:border-color .15s,transform .1s}
+.choice:hover{border-color:var(--kit)}.choice:active{transform:scale(.99)}
+.choice b{font-size:1rem}.choice span{font-size:.84rem;color:var(--muted)}
+.choice.on{border-color:var(--kit);background:color-mix(in srgb,var(--kit) 10%,var(--paper))}
+.choice[disabled]{opacity:.45;cursor:not-allowed}
+.next{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:linear-gradient(to top,var(--bg) 70%,transparent)}
+.next button{display:block;width:100%;max-width:460px;margin:0 auto;min-height:54px;border:0;border-radius:14px;background:var(--ink);color:var(--paper);font-family:var(--f-display);font-weight:800;font-size:1.3rem;letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+.next button[disabled]{opacity:.35;cursor:not-allowed}
+
+/* the posters: the open chairs */
+.poster{position:relative;border-radius:16px;overflow:hidden;color:#fff;padding:18px 16px 16px;display:flex;flex-direction:column;gap:6px;min-height:190px;text-align:left;border:0;cursor:pointer;box-shadow:var(--shadow)}
+.poster .stripe{position:absolute;inset:0;opacity:.18;background:repeating-linear-gradient(90deg,#fff 0 18px,transparent 18px 36px)}
+.poster *{position:relative}
+.poster .tag{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;opacity:.9;font-weight:700}
+.poster h2{font-size:2rem}
+.poster p{font-family:var(--f-voice);font-style:italic;font-size:1rem;opacity:.95}
+.poster .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.poster .row span{background:rgba(0,0,0,.25);border-radius:999px;padding:4px 10px;font-size:.78rem;font-weight:600}
+.poster.locked{filter:saturate(.35);cursor:default}
+
+/* the vote */
+.vote{height:28px;border-radius:8px;background:var(--line);overflow:hidden;display:flex}
+.vote i{display:block;height:100%;background:var(--kit);width:0;transition:width 2.2s cubic-bezier(.2,.8,.2,1)}
+.vote i.no{background:var(--bad);opacity:.7}
+
+/* the whiteboard pitch */
+.pitch{width:100%;max-width:100%;aspect-ratio:68/88;border-radius:14px;display:block}
+.pitch .p-name{font-family:var(--f-body);font-weight:600;font-size:3.1px;fill:#fff;paint-order:stroke;stroke:rgba(0,0,0,.5);stroke-width:.6px}
+.pitch .p-rt{font-family:var(--f-display);font-weight:800;font-size:4.3px;fill:#13232a}
+
+/* meters inside a scene */
+.cheer{height:12px;border-radius:999px;background:var(--line);overflow:hidden}
+.cheer i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--good));transition:width .6s}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg button{min-height:48px;border-radius:10px;border:2px solid var(--line);background:var(--paper);font-weight:600;font-size:.86rem;cursor:pointer;padding:4px}
+.seg button.on{border-color:var(--kit);background:var(--kit);color:var(--kit-ink)}
+
+/* the phone: a call comes in */
+.call{border-radius:16px;background:var(--ink);color:var(--paper);padding:16px;display:flex;flex-direction:column;gap:10px}
+.call .ring{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);font-weight:700;display:flex;align-items:center;gap:8px}
+.call .ring::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--amber);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.2}}
+.call q{font-family:var(--f-voice);font-style:italic;font-size:1.08rem;quotes:"“" "”"}
+.call .who{font-weight:700}
+
+/* the ticker and the clock */
+.ticker{display:flex;flex-direction:column;gap:6px;font-size:.88rem}
+.ticker li{list-style:none;display:grid;grid-template-columns:52px 1fr;gap:8px;padding:8px 10px;border-radius:10px;background:var(--paper);border:1px solid var(--line)}
+.ticker li b{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:700}
+.ticker li.us{border-left:4px solid var(--kit)}.ticker li.rival{border-left:4px solid #7a1f2b}
+.ticker ul,.ticker{margin:0;padding:0}
+.clock{font-family:var(--f-display);font-weight:900;font-size:4.2rem;line-height:.9;font-variant-numeric:tabular-nums;color:var(--bad);letter-spacing:.02em}
+
+/* the paper */
+.paper{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px;box-shadow:var(--shadow)}
+.paper .mast{display:flex;justify-content:space-between;border-bottom:3px double var(--ink);padding-bottom:6px;margin-bottom:8px;font-family:var(--f-display);font-weight:800;letter-spacing:.08em}
+.paper h1{font-size:2rem}
+
+/* the match */
+.score{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center}
+.score b{font-family:var(--f-display);font-weight:900;font-size:3.4rem;line-height:1;font-variant-numeric:tabular-nums}
+.score span{font-weight:700;font-size:.95rem}
+.feed{display:flex;flex-direction:column;gap:6px;margin:0;padding:0}
+.feed li{list-style:none;display:grid;grid-template-columns:40px 1fr;gap:8px;padding:9px 10px;border-radius:10px;background:var(--paper);border:1px solid var(--line);animation:in .35s both}
+.feed li b{font-family:var(--f-display);font-weight:800;font-size:1.1rem;color:var(--muted)}
+.feed li.goal{border-color:var(--kit);border-width:2px}.feed li.goal.them{border-color:#7a1f2b}
+.feed li .you{display:block;font-size:.78rem;color:var(--amber);font-weight:700;margin-top:2px}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.chain{display:flex;flex-direction:column;gap:8px;margin:0;padding:0}
+.chain li{list-style:none;padding:10px 12px;border-radius:12px;background:var(--paper);border:1px solid var(--line);font-size:.92rem}
+.chain li b{display:block}
+.note{font-size:.78rem;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 14px;border-radius:10px;font-size:.88rem;z-index:20;max-width:90%;animation:pop 2.6s forwards}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap" id="app" aria-live="polite"></div>
+<div class="next"><button id="go" type="button">Begin</button></div>
+
+<script>
+/* ------- The First Summer: a playable prototype of Northmarch's opening, Pell United. Not wired to the engine. ------- */
+const $=s=>document.querySelector(s);
+const st={scene:0,cash:140,mood:54,room:60,budget:0,plan:null,prio:'LB',told:null,promise:{league:1,money:1,youth:1},
+  vos:null,cole:'here',lb:null,dl:null,log:[],signed:[],sold:[]};
+const R=q=>Math.round(q); /* ratings shown on a 40–80 scale, the way fans read them */
+const XI=[
+ {pos:'GK',n:'Boyce',r:61,x:34,y:80},
+ {pos:'LB',n:'Petit',r:52,x:10,y:64,weak:1},{pos:'CB',n:'Cole',r:66,x:26,y:68,cap:1},{pos:'CB',n:'Lomax',r:61,x:42,y:68},{pos:'RB',n:'Ormerod',r:59,x:58,y:64},
+ {pos:'LM',n:'Illingworth',r:60,x:10,y:44},{pos:'CM',n:'Midgley',r:63,x:26,y:47},{pos:'CM',n:'Garside',r:55,x:42,y:47,kid:1},{pos:'RM',n:'Tetley',r:61,x:58,y:44},
+ {pos:'ST',n:'Dunleavy',r:67,x:24,y:22},{pos:'ST',n:'Thackeray',r:53,x:44,y:22,weak:1}];
+const BUD={careful:{n:'Careful',v:40,d:'£40k. Money in the bank if things go wrong.'},normal:{n:'Normal',v:70,d:'£70k. A fair share of the cash.'},allin:{n:'All-in',v:110,d:'£110k. Almost everything we have.'}};
+
+function bump(k,v,label){if(!v)return;st[k]+=v;st.log.push({k,v,label});flash(k,v)}
+function flash(k,v){const m=document.querySelector(`[data-m="${k}"]`);if(!m)return;const e=document.createElement('i');e.className='pop '+(v>0?'up':'down');e.textContent=(v>0?'+':'')+(k==='cash'||k==='budget'?'£'+v+'k':v);m.appendChild(e);setTimeout(()=>e.remove(),1900)}
+function toast(t){const e=document.createElement('div');e.className='toast';e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),2700)}
+function bar(day){return`<header class="bar"><svg width="26" height="30" viewBox="0 0 34 38" aria-hidden="true"><path d="M17 1 32 6v13c0 9-7 15-15 18C9 34 2 28 2 19V6z" fill="var(--amber)"/><path d="M17 9v18M11 13h12M10 22c2 4 5 5 7 5s5-1 7-5" stroke="#13232a" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+ <div class="id"><b>PELL UNITED</b><small>${day}</small></div>
+ <div class="meters"><div class="meter" data-m="budget"><span>Budget</span><em>£${st.budget}k</em></div><div class="meter" data-m="mood"><span>Members</span><em>${st.mood}</em></div><div class="meter" data-m="room"><span>Squad</span><em>${st.room}</em></div></div></header>`}
+const face=(i,c='')=>`<span class="face ${c}" aria-hidden="true">${i}</span>`;
+const voice=(i,who,q,c)=>`<div class="voice">${face(i,c)}<div><span class="who">${who}</span><q>${q}</q></div></div>`;
+
+/* the whiteboard: a pitch with the eleven, weak spots marked, new faces in amber */
+function pitch(xi,note){
+ const dots=xi.map(p=>{const col=p.nw?'var(--amber)':p.weak?'var(--bad)':'#fff';return`<g transform="translate(${(11+(p.x-10)*1.17).toFixed(1)},${p.y})">${p.weak&&!p.nw?'<circle r="6" fill="none" stroke="var(--bad)" stroke-width="1"><animate attributeName="r" values="4.6;7;4.6" dur="1.6s" repeatCount="indefinite"/></circle>':''}<circle r="4.3" fill="${col}"/><text class="p-rt" text-anchor="middle" y="1.5">${p.r}</text><text class="p-name" text-anchor="middle" y="8.2">${p.n}${p.cap?' (C)':''}</text></g>`}).join('');
+ return`<svg class="pitch" viewBox="0 0 78 92" role="img" aria-label="${note}"><defs><pattern id="st" width="78" height="11.5" patternUnits="userSpaceOnUse"><rect width="78" height="5.75" fill="var(--pitch)"/><rect y="5.75" width="78" height="5.75" fill="var(--pitch2)"/></pattern></defs>
+ <rect width="78" height="92" rx="4" fill="url(#st)"/><g fill="none" stroke="var(--chalk)" stroke-width=".5"><rect x="3" y="3" width="72" height="86"/><line x1="3" y1="46" x2="75" y2="46"/><circle cx="39" cy="46" r="8"/><rect x="21" y="3" width="36" height="13"/><rect x="21" y="76" width="36" height="13"/></g>${dots}</svg>`}
+function currentXI(){return XI.map(p=>{
+ if(p.n==='Thackeray'&&st.vos==='signed')return{...p,n:'Vos',r:66,weak:0,nw:1};
+ if(p.n==='Petit'&&st.lb)return{...p,n:st.lb==='mensah'?'Mensah':'Hart',r:st.lb==='mensah'?64:57,weak:0,nw:1};
+ if(p.n==='Cole'&&st.cole==='sold')return st.dl==='archer'?{...p,n:'Archer',r:63,cap:0,nw:1}:{...p,n:'Wade',r:50,cap:0,weak:1};
+ return p})}
+const strength=()=>R(currentXI().reduce((a,p)=>a+p.r,0)/11);
+
+/* ------- the scenes ------- */
+const S=[];
+/* 0 the open chairs */
+S.push({day:'Summer · the open chairs',btn:null,render:()=>`
+ <p class="kicker">June · three clubs need a chairman</p><h1>Where will you stand?</h1>
+ <p class="lede">Every club here has a story. You are choosing the one you want to finish.</p>
+ <button class="poster" style="background:#0e5a61" data-act="pell"><i class="stripe"></i><span class="tag">Northmarch One · Harbour town · 1891</span><h2>Pell United</h2><p>“They sold our captain to Corden on deadline day. Never again.”</p><div class="row"><span>11th last season</span><span>£140k in the bank</span><span>Dock Road · 2,100</span></div></button>
+ <button class="poster locked" style="background:#6b4a1f" data-act="locked" aria-disabled="true"><i class="stripe"></i><span class="tag">Northmarch Three · Mill town · 1882</span><h2>Stonegill</h2><p>“The mill closed. The club is all we have left.”</p><div class="row"><span>15th last season</span><span>£25k debt</span></div></button>
+ <button class="poster locked" style="background:#3b3f74" data-act="locked" aria-disabled="true"><i class="stripe"></i><span class="tag">Northmarch Premier · Cathedral city · 1874</span><h2>Ravensby Town</h2><p>“Champions in 1962. We have been waiting ever since.”</p><div class="row"><span>9th last season</span><span>£310k in the bank</span></div></button>
+ <p class="note">Prototype: Pell United is the playable club.</p>`});
+/* 1 election night */
+S.push({day:'Election night · Dock Road clubhouse',btn:'Take the chair',render:()=>`
+ <p class="kicker">Election night · the clubhouse bar</p><h1>The count</h1>
+ <p class="lede">612 members in a room built for 400. The old chairman resigned after the fans threw tennis balls at the directors' box.</p>
+ <div class="card"><div class="vote" aria-label="58 percent for you"><i id="v1"></i><i class="no" id="v2"></i></div><p><b id="vt">Counting…</b></p></div>
+ ${voice('MD','Mags Doyle · the Dockers, 40% of the members','We didn\'t vote for you. We voted against selling the club off bit by bit. Don\'t make us regret it.','amber')}
+ ${voice('SG','Sailor Garside’s widow, in the front row','Jack scored 212 goals at Dock Road. His grandson is in the youth team now. Remember that.','grey')}`,
+ after:()=>{setTimeout(()=>{const a=$('#v1'),b=$('#v2');if(a){a.style.width='58%';b.style.width='42%'}},120);setTimeout(()=>{const t=$('#vt');if(t)t.textContent='58% for. You are chairman of Pell United.'},2300)}});
+/* 2 monday morning: the people and the first word you give */
+S.push({day:'Day 1 · Monday morning',btn:'Go to the members’ meeting',need:()=>st.told,render:()=>`
+ <p class="kicker">Day 1 · your office above the main stand</p><h1>Three people at your door</h1>
+ <div class="facts"><div class="fact"><b>11th</b><span>last season</span></div><div class="fact"><b>${strength()}</b><span>squad rating</span></div><div class="fact"><b>£140k</b><span>in the bank</span></div></div>
+ ${voice('AW','Aisha Wragg · director of football','Our left side leaks goals and Thackeray couldn\'t score in an empty net. And Corden are sniffing round Danny.')}
+ ${voice('TE','Tom Ellery · head coach','Give me a left-back who can run and a striker who finishes. I\'ll keep us in the top half.')}
+ ${voice('DC','Danny Cole · captain, 31','The lads read the papers. Are you going to sell me to them like the last lot sold Murray?','')}
+ <h2>What do you tell your captain?</h2>
+ <div class="choices">
+  <button class="choice ${st.told==='nobody'?'on':''}" data-act="tell" data-arg="nobody"><b>“Nobody leaves without my say. Least of all to Corden.”</b><span>The dressing room and the members will love it. They will also remember it.</span></button>
+  <button class="choice ${st.told==='price'?'on':''}" data-act="tell" data-arg="price"><b>“Everyone has a price, Danny. Even you.”</b><span>Honest, and it keeps your hands free. Nobody will cheer.</span></button>
+ </div>`});
+/* 3 the manifest as a speech */
+const PR={league:[['Stay up','Nobody will cheer, nobody will boo'],['Top half','What the members expect'],['Push for promotion','The room will roar. Then they will hold you to it']],
+ money:[['Spend what we need','Results first'],['No loss this year','Sensible'],['A profit','For the new stand, one day']],
+ youth:[['Buy experience','The kids wait'],['Give the kids a chance','Owen Garside, 17, and two more'],['Build on the academy','Ten starts for the youngsters at least']]};
+S.push({day:'Day 1 · the members’ meeting',btn:'Sign the manifest',render:()=>{const lv=st.promise,cheer=Math.min(100,30+lv.league*22+lv.youth*12+(lv.money===0?6:0));return`
+ <p class="kicker">Day 1, 8 pm · the members’ meeting</p><h1>Your manifest</h1>
+ <p class="lede">Three promises. The members vote on you next May, and they keep the receipts.</p>
+ ${['league','money','youth'].map(k=>`<div class="card"><b>${{league:'On the pitch',money:'The money',youth:'Our own'}[k]}</b><div class="seg">${PR[k].map((o,i)=>`<button class="${lv[k]===i?'on':''}" data-act="promise" data-arg="${k}:${i}" aria-pressed="${lv[k]===i}">${o[0]}</button>`).join('')}</div><p class="note">${PR[k][lv[k]][1]}.</p></div>`).join('')}
+ <div class="card"><b>The room</b><div class="cheer"><i style="width:${cheer}%"></i></div><p class="note">${cheer>80?'They are on their feet.':cheer>55?'Warm applause.':'Polite. Somebody coughs.'}</p></div>`}});
+/* 4 the whiteboard */
+S.push({day:'Day 2 · the director’s whiteboard',btn:'Shake on it',need:()=>st.plan,render:()=>{const bold=st.promise.league===2,sug=bold?'allin':st.promise.league===0?'careful':'normal';return`
+ <p class="kicker">Day 2 · Aisha’s whiteboard</p><h1>Where it hurts</h1>
+ ${pitch(currentXI(),'Pell United line-up, left-back and second striker marked weak')}
+ ${voice('AW','Aisha Wragg',`Red rings are where we lose games. ${bold?'You promised them promotion, so I\'ve gone for the big budget. Your call.':'I\'ve planned for a normal summer. Your call.'}`)}
+ <h2>How much can she spend?</h2>
+ <div class="choices">${Object.entries(BUD).map(([k,b])=>`<button class="choice ${st.plan===k?'on':''}" data-act="plan" data-arg="${k}"><b>${b.n}${k===sug?' · her plan':''}</b><span>${b.d}</span></button>`).join('')}</div>
+ <h2>First priority</h2>
+ <div class="seg" style="grid-template-columns:1fr 1fr"><button class="${st.prio==='LB'?'on':''}" data-act="prio" data-arg="LB">Left-back</button><button class="${st.prio==='ST'?'on':''}" data-act="prio" data-arg="ST">Striker</button></div>`}});
+/* 5 market week 1: the agent */
+S.push({day:'Pre-season · week 1 of 3',btn:'Next week',need:()=>st.vos,render:()=>`
+ <p class="kicker">Pre-season week 1 · Tuesday, 9:12</p><h1>The phone rings</h1>
+ <div class="call"><span class="ring">Incoming · unknown number</span><span class="who">Gary Pike · players’ agent</span><q>My lad Ryan Vos. Twenty-four, Holbeck City reserves, nineteen goals last year. Holbeck want eighteen grand and he wants to play. Corden have asked about him.</q></div>
+ <div class="choices">
+  <button class="choice" data-act="vos" data-arg="scout"><b>Drive up to Holbeck and watch him</b><span>Costs your week. You will know what he really is.</span></button>
+  <button class="choice" data-act="vos" data-arg="rec"><b>Tell Aisha you rate him</b><span>She goes for him first. Reserves goals can lie.</span></button>
+  <button class="choice" data-act="vos" data-arg="pass"><b>“Not for us, Gary.”</b><span>Corden might take him.</span></button></div>
+ <ul class="ticker"><li class="rival"><b>Mon</b><span>Corden Town sign a centre-back from Kestle for £45k.</span></li><li class="us"><b>Mon</b><span>Aisha starts calling left-backs.</span></li></ul>`});
+/* 6 market week 2: the bid for the captain */
+S.push({day:'Pre-season · week 2 of 3',btn:'Next week',need:()=>st.coleDone,render:()=>`
+ ${st.vosNote?`<div class="card">${st.vosNote}</div>`:''}
+ <p class="kicker">Pre-season week 2 · Thursday, 16:40 · a fax from Corden</p><h1>They want Danny</h1>
+ <p class="lede">£60k for Danny Cole. It happened once before: 1987, Bobby Murray, on deadline day. Dock Road still sings about it.</p>
+ ${voice('AW','Aisha Wragg','He is 31. Sixty grand buys a younger centre-back and a striker. But it is your decision: he is one of our best three.')}
+ ${st.told==='nobody'?voice('DC','Danny Cole','You gave me your word on Monday.',''):''}
+ <div class="choices">
+  <button class="choice" data-act="cole" data-arg="sell"><b>Accept £60k</b><span>The money goes into Aisha’s budget.${st.told==='nobody'?' You promised him.':''}</span></button>
+  <button class="choice" data-act="cole" data-arg="more"><b>Ask for £85k</b><span>They may pay. They may walk away.</span></button>
+  <button class="choice" data-act="cole" data-arg="keep"><b>“Not for sale. Not to them.”</b><span>He stays. Corden won’t forget either.</span></button></div>`});
+/* 7 market week 3: the left-back */
+S.push({day:'Pre-season · week 3 of 3',btn:'Deadline day',need:()=>st.lb||st.lbSkip,render:()=>{const cash=st.budget;return`
+ ${st.coleNote?`<div class="card">${st.coleNote}</div>`:''}
+ <p class="kicker">Pre-season week 3 · Aisha’s shortlist</p><h1>Left-back</h1>
+ ${voice('AW','Aisha Wragg',`Two I like. ${cash<24?'We can only afford the kid unless you find money.':'We can afford either.'}`)}
+ <div class="choices">
+  <button class="choice" data-act="lb" data-arg="mensah" ${cash<24?'disabled':''}><b>Kai Mensah · 29 · rating 64 · £24k</b><span>Ready now. Ellery wants him. No resale value.</span></button>
+  <button class="choice" data-act="lb" data-arg="hart" ${cash<6?'disabled':''}><b>Leo Hart · 19 · rating 57, could reach 72 · £6k</b><span>Quick, raw, will make mistakes. Sell-on value in three years.</span></button>
+  <button class="choice" data-act="lb" data-arg="none"><b>Stay with Petit</b><span>Keep the money. The red ring stays red.</span></button></div>
+ ${pitch(currentXI(),'Pell United line-up so far')}`}});
+/* 8 deadline day */
+S.push({day:'Deadline day',btn:'The window shuts',need:()=>st.dl,render:()=>{const d=deadlineCase();return`
+ <p class="kicker">Deadline day · the window shuts at 23:00</p>
+ <div class="clock" id="clk">22:14</div>
+ <ul class="ticker">${d.tick.map(t=>`<li class="${t[2]||''}"><b>${t[0]}</b><span>${t[1]}</span></li>`).join('')}</ul>
+ <div class="call"><span class="ring">${d.ring}</span><span class="who">${d.who}</span><q>${d.q}</q></div>
+ <div class="choices">${d.opts.map(o=>`<button class="choice" data-act="dl" data-arg="${o[0]}" ${o[3]?'disabled':''}><b>${o[1]}</b><span>${o[2]}</span></button>`).join('')}</div>`},
+ after:()=>{let m=14;const t=setInterval(()=>{const c=$('#clk');if(!c||m>=59){clearInterval(t);return}m++;c.textContent='22:'+String(m).padStart(2,'0')},900)}});
+/* 9 the summer edition */
+S.push({day:'The morning after',btn:'To Dock Road: the derby',render:()=>{const ins=st.signed,outs=st.sold;return`
+ <div class="paper"><div class="mast"><span>THE NORTHMARCH ECHO</span><span>SUMMER EDITION</span></div>
+ <h1>${headline()}</h1>
+ <p class="muted" style="margin-top:6px">In: ${ins.length?ins.join(', '):'nobody'}. Out: ${outs.length?outs.join(', '):'nobody'}.</p></div>
+ ${pitch(currentXI(),'Pell United line-up for the opening day')}
+ <div class="facts"><div class="fact"><b>${strength()}</b><span>squad rating</span></div><div class="fact"><b>£${st.budget}k</b><span>left</span></div><div class="fact"><b>${st.mood}</b><span>members</span></div></div>
+ ${voice('TE','Tom Ellery',strength()>=62?'That is a team. Bring on Corden.':'We\'ll fight. Don\'t expect miracles.')}`}});
+/* 10 the derby */
+S.push({day:'Opening day · Pell United v Corden Town',btn:'Full time',render:()=>`
+ <p class="kicker">Opening day · Dock Road · 2,100 sold out</p><h1>The derby</h1>
+ <div class="card"><div class="score"><span>Pell United</span><b id="sc">0–0</b><span>Corden Town</span></div></div>
+ <ol class="feed" id="feed"></ol>`,after:playMatch});
+/* 11 your fingerprints */
+S.push({day:'After the match',btn:'Play again',render:()=>{const m=st.match;return`
+ <p class="kicker">Full time · ${m.h}–${m.a}</p><h1>${m.h>m.a?'Dock Road is singing':m.h===m.a?'A point, and a story':'A long walk home'}</h1>
+ <p class="lede">This is what your summer did.</p>
+ <ul class="chain">${fingerprints().map(c=>`<li><b>${c[0]}</b>${c[1]}</li>`).join('')}</ul>
+ <div class="card"><b>Your promise: ${PR.league[st.promise.league][0].toLowerCase()}</b><p class="note">One game in. The members are at ${st.mood}. They vote in May.</p></div>
+ <p class="note">End of the prototype. In the full game the season goes on from here.</p>`}});
+
+/* ------- the rules behind the choices ------- */
+function deadlineCase(){
+ const tick=[['10:02','Corden Town sign Ryan Vos’s strike partner from Holbeck.','rival'],['16:30','Aisha has three phones on her desk.','us']];
+ if(st.vos!=='signed'){const rec=28,can=st.budget>=32;return{tick,ring:'22:14 · Holbeck City on the line',who:'Holbeck City secretary',q:`Ryan Vos is yours for £32k, tonight. That beats your club record of £${rec}k, so Aisha says she needs your word.`,
+  opts:[['vos32','Approve the record fee',can?'£32k. He signs before eleven.':'Not enough money left.',!can],['no','Too much','Aisha walks away. Thackeray starts on Saturday.']]}}
+ if(st.cole!=='sold')return{tick,ring:'22:14 · a fax from Corden',who:'Corden Town chairman',q:'Final offer for Cole: £90k. It expires at eleven.',opts:[['cole90','Take the £90k','The record sale. Corden get their man.'],['no','Let it expire','He stays. The fax goes in the bin.']]};
+ return{tick,ring:'22:14 · Aisha',who:'Aisha Wragg',q:'We need a centre-back now Danny’s gone. Ben Archer, 30, £40k. Club record. Yes or no?',opts:[['archer','Yes, sign Archer',st.budget>=40?'£40k. A proper centre-back.':'Not enough money left.',st.budget<40],['no','No','Young Wade plays. He is eighteen.']]};
+}
+function headline(){
+ if(st.cole==='sold'&&st.told==='nobody')return'Pell sell their captain to Corden. Again.';
+ if(st.cole==='sold')return'Cole crosses to Corden';
+ if(st.vos==='signed'&&st.dl==='vos32')return'Record night: Vos signs at 22:51';
+ if(st.vos==='signed')return'Vos arrives as Pell rebuild';
+ if(st.coleKept)return'Pell tell Corden: not for sale';
+ return'A quiet summer at Dock Road';
+}
+function playMatch(){
+ const xi=currentXI(),ev=[],has=n=>xi.some(p=>p.n===n);
+ let h=0,a=0;const youth=st.promise.youth>=1;
+ ev.push([1,'Kick-off. Dock Road is full and loud.']);
+ if(st.cole==='sold'){ev.push([23,'Danny Cole, in Corden blue, heads in from a corner. He does not celebrate. Nobody believes him.','them',1]);a++}
+ else ev.push([23,'Cole wins every header. The captain is everywhere.',null,0,st.coleKept?'You kept him in the summer.':'']);
+ if(st.lb==='mensah')ev.push([38,'Mensah clears off the line. Ellery punches the air.',null,0,'Your left-back pick.']);
+ else if(st.lb==='hart'){ev.push([38,'Hart is beaten for pace. Corden score.','them',1,'The kid you backed. He will learn.']);a++}
+ else{ev.push([38,'Petit is turned inside out again. Corden score.','them',1,'You kept the money.']);a++}
+ if(youth)ev.push([61,'Owen Garside comes on. Seventeen. His grandmother stands up in the main stand.',null,0,'Your manifest: give the kids a chance.']);
+ if(has('Vos')){ev.push([67,`Vos! Left foot, bottom corner. 1,800 people lose their minds.`,'us',1,st.vosHow]);h++}
+ else ev.push([67,'Thackeray blazes over from six yards. A groan you can hear in Corden.',null,0,'No striker came in.']);
+ if(youth&&strength()>=60){ev.push([84,'Garside skips past two and squares it: Dunleavy scores!','us',1,'The kid you promised a chance.']);h++}
+ else if(strength()>=63){ev.push([84,'Dunleavy curls one in from the edge.','us',1,'']);h++}
+ ev.push([90,'Full time.']);
+ st.match={h,a};bump('mood',h>a?8:h===a?2:-6,'the derby');
+ const feed=$('#feed'),sc=$('#sc');let i=0,gh=0,ga=0;
+ const step=()=>{if(!feed||i>=ev.length){$('#go').disabled=false;return}const [m,t,side,g,you]=ev[i++];if(g){side==='us'?gh++:ga++;sc.textContent=gh+'–'+ga}
+  const li=document.createElement('li');if(g)li.className='goal'+(side==='them'?' them':'');li.innerHTML=`<b>${m}′</b><span>${t}${you?`<span class="you">${you}</span>`:''}</span>`;feed.appendChild(li);li.scrollIntoView({block:'nearest',behavior:'smooth'});setTimeout(step,matchMedia('(prefers-reduced-motion:reduce)').matches?150:1300)};
+ $('#go').disabled=true;setTimeout(step,500);
+}
+function fingerprints(){const c=[];
+ c.push(['Day 1: '+(st.told==='nobody'?'“Nobody leaves without my say.”':'“Everyone has a price.”'),st.cole==='sold'&&st.told==='nobody'?' Then you sold him. The members have not forgotten.':st.coleKept?' You kept your word. The dressing room noticed.':' It gave you room to deal.']);
+ if(st.vos==='signed')c.push(['Ryan Vos',` ${st.vosHow} He ${st.match.h?'scored in the derby':'started the derby'}.`]);else c.push(['Ryan Vos',' You let him go. Thackeray started.']);
+ c.push(['Left-back',st.lb==='mensah'?' Mensah kept a goal out.':st.lb==='hart'?' Hart was caught out. He is nineteen and could be worth five times his fee.':' Petit stayed. Corden went down his side.']);
+ if(st.promise.youth>=1)c.push(['The manifest',' You promised the kids a chance. Owen Garside played.']);
+ c.push(['The money',` You finished the summer with £${st.budget}k to spend${st.sold.length?' after selling '+st.sold.join(', '):''}.`]);
+ return c}
+
+/* ------- actions ------- */
+function act(a,arg){
+ if(a==='locked'){toast('Prototype: Pell United is the playable club.');return}
+ if(a==='pell'){go(1);return}
+ if(a==='tell'){if(st.told===arg)return;st.told=arg;if(arg==='nobody'){bump('room',12);bump('mood',6)}else{bump('room',-6)}draw();return}
+ if(a==='promise'){const [k,i]=arg.split(':');st.promise[k]=+i;draw();return}
+ if(a==='plan'){const old=st.plan?BUD[st.plan].v:0;st.plan=arg;const d=BUD[arg].v-old;st.budget+=d;flash('budget',d);draw();return}
+ if(a==='prio'){st.prio=arg;draw();return}
+ if(a==='vos'){if(st.vos)return;
+  if(arg==='scout'){st.vos='signed';st.vosHow='You drove to Holbeck and saw him play; Aisha signed him for £18k.';st.vosNote='<b>Holbeck, Tuesday night.</b> Vos is the real thing: rating 66. Aisha signs him on Wednesday for £18k.';spend(18,'Vos')}
+  else if(arg==='rec'){st.vos='signed';st.vosHow='You took the agent’s call and told Aisha; she signed him for £18k.';st.vosNote='<b>Wednesday.</b> Aisha trusts your tip and signs Vos for £18k. Nobody has seen him play.';spend(18,'Vos')}
+  else{st.vos='passed';st.vosNote='<b>Friday.</b> Gary Pike stops calling. Word is Corden had a look.'}
+  go(st.scene+1);return}
+ if(a==='cole'){if(st.coleDone)return;st.coleDone=1;
+  if(arg==='sell'){sell(60);if(st.told==='nobody'){bump('mood',-14);bump('room',-18);st.coleNote='<b>Saturday.</b> Cole is a Corden player. Someone has sprayed MURRAY on the club shop.'}else{bump('mood',-6);bump('room',-6);st.coleNote='<b>Saturday.</b> Cole is a Corden player. Aisha has £60k more to spend.'}}
+  else if(arg==='more'){if(st.told==='price'){sell(85);bump('mood',-4);st.coleNote='<b>Saturday.</b> Corden pay £85k. Aisha can barely believe it.'}else{st.cole='here';st.coleKept=1;bump('room',4);st.coleNote='<b>Saturday.</b> Corden walk away. Danny heard you asked for more.'}}
+  else{st.coleKept=1;bump('mood',8);bump('room',8);st.coleNote='<b>Saturday.</b> “NOT FOR SALE” is on the front of the Echo. Mags Doyle buys a round.'}
+  go(st.scene+1);return}
+ if(a==='lb'){if(st.lb||st.lbSkip)return;if(arg==='none'){st.lbSkip=1}else{st.lb=arg;spend(arg==='mensah'?24:6,arg==='mensah'?'Mensah':'Hart')}draw();return}
+ if(a==='dl'){if(st.dl)return;st.dl=arg;
+  if(arg==='vos32'){st.vos='signed';st.vosHow='You approved a club-record £32k at 22:51 on deadline day.';spend(32,'Vos')}
+  if(arg==='cole90'){sell(90);bump('mood',-10);bump('room',-10)}
+  if(arg==='archer')spend(40,'Archer');
+  if(arg==='no'&&st.cole!=='sold')st.coleKept=st.coleKept||0;
+  draw();return}
+}
+function spend(v,name){st.budget-=v;flash('budget',-v);st.signed.push(name)}
+function sell(v){st.cole='sold';st.budget+=v;flash('budget',v);st.sold.push('Cole')}
+function go(n){st.scene=n;draw();window.scrollTo(0,0)}
+function draw(){const s=S[st.scene];$('#app').innerHTML=bar(s.day)+s.render();
+ const b=$('#go');b.parentElement.hidden=!s.btn;b.textContent=s.btn||'';b.disabled=!!(s.need&&!s.need());
+ if(s.after)s.after()}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(t&&!t.disabled)act(t.dataset.act,t.dataset.arg)});
+$('#go').addEventListener('click',()=>{if(st.scene===S.length-1){location.reload();return}go(st.scene+1)});
+draw();
+</script>

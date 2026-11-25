@@ -1,5 +1,5 @@
 # NORTHMARCH — MASTER GAME DESIGN BIBLE
-**Versie 1.1 — Master Game Design Bible | 25 november 2026**
+**Versie 1.2 — Master Game Design Bible | 25 november 2026**
 
 Status: geconsolideerde ontwerpbaseline. MB-01–03 zijn door de game director gekozen; MB-04 en verder zijn ontwerpbesluiten van de lead designer op basis van gedelegeerde ontwerpverantwoordelijkheid. Dit document beschrijft het beoogde product, niet uitsluitend de huidige build. Het is geen releasecertificering. Bij strijdigheid met een expliciet eigenaarbesluit geldt dat eigenaarbesluit, tenzij dit later uitdrukkelijk is vervangen. Historische bronnen blijven als archief bewaard.
 
@@ -324,9 +324,9 @@ Belangrijke bronlocaties:
 - Leg bij iedere release bron-SHA, buildvariant, artifactversie en SHA-256 vast in deze sectie; controleer live versus bron voordat je gelijkheid claimt. De oude previewgegevens zijn historisch, niet opnieuw gemeten.
 
 OFFICIAL_BRANCH: slimline-main
-OFFICIAL_SHA: 3157b3ac9293397ee73fb2b846418199412eb7a7
+OFFICIAL_SHA: 7147f23089c36ad9c68f814814d0eb6467bd703b
 
-**Status bij consolidatie:** bovenstaand is de gecontroleerde officiële parent-SHA, niet de SHA van een nieuwe spelrelease. Geen engine-, gameplay-, save- of buildwijzigingen in de consolidatie. Geen tests opnieuw uitgevoerd. De laatste historische status en open issues staan in [DEV_STATE vóór consolidatie](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/DEV_STATE.md); de status daarin is niet onafhankelijk geverifieerd. V19-balans, bron/live-pariteit, en menselijke speelbaarheid blijven expliciete validatiepunten. Werkgebieden: Claude kern/scouting/clubmanagement; ChatGPT wereld, balans/regressie en documentconsolidatie, tenzij de eigenaar anders bepaalt. Raadpleeg de actuele werkbranches alvorens code te wijzigen.
+**Status bij consolidatie:** bovenstaand is de gecontroleerde officiële baseline-SHA bij voorbereiding van V1.2, niet de SHA van een nieuwe spelrelease. Geen engine-, gameplay-, save- of buildwijzigingen in de consolidatie. Geen tests opnieuw uitgevoerd. De laatste historische status en open issues staan in [DEV_STATE vóór consolidatie](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/DEV_STATE.md); de status daarin is niet onafhankelijk geverifieerd. V19-balans, bron/live-pariteit, en menselijke speelbaarheid blijven expliciete validatiepunten. Werkgebieden: Claude kern/scouting/clubmanagement; ChatGPT wereld, balans/regressie en documentconsolidatie, tenzij de eigenaar anders bepaalt. Raadpleeg de actuele werkbranches alvorens code te wijzigen.
 
 ## 22. Historisch bronnenarchief (read-only)
 
@@ -397,3 +397,143 @@ Alle 65 Markdown-bestanden van de officiële bron vóór consolidatie zijn hiero
 - [standalone/front-office-fc/northmarch-layered/docs/layers/L5-DYNASTY.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/layers/L5-DYNASTY.md)
 - [standalone/front-office-fc/northmarch-layered/preview/README.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/preview/README.md)
 - [standalone/front-office-fc/tests/README.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/tests/README.md)
+
+## 23. AI Game Development Charter — bindende werkinstructie
+
+**Opdracht:** opereer op het niveau van een uitzonderlijk sterke, ervaren gameontwikkelaar en creatieve game designer. De maatstaf is het geleverde werk, niet een claim over eigen expertise. Northmarch is een game, geen technisch demonstratiemodel. De Game Director bewaakt de productvisie; de developer neemt zelfstandig verantwoordelijkheid voor de beste uitvoering.
+
+Combineer zes disciplines in iedere relevante opdracht:
+- **Lead Game Designer:** bedenk originele, systemische gameplay; formuleer de spelersfantasie, keuzes, gevolgen, spanning en herspeelbaarheid.
+- **Senior Game Developer:** begrijp bestaande architectuur, hergebruik bewezen code, bewaak modulegrenzen, saves, performance en één bron van waarheid.
+- **UX Designer:** ontwerp vanuit de concrete taak van de speler; maak waar nodig mobiele wireframes en interactieve prototypes; vermijd overbodige schermen, knoppen en informatie.
+- **Simulation Engineer:** ontwerp geloofwaardige voetbal- en economische systemen met transparante oorzaken, reproduceerbare randomness en betekenisvolle verschillen tussen strategieën.
+- **QA Engineer:** probeer het eigen ontwerp te breken; toets normale routes, edge cases, regressies, save/load en laagisolatie; bewijs alleen wat daadwerkelijk getest is.
+- **Technical Producer:** bepaal prioriteiten en afhankelijkheden, lever volledige verticale slices, beheer de voortgang en bewaak release- en testkosten.
+
+**Creatieve norm:** zoek het onderliggende spelersprobleem, niet alleen de letterlijke gevraagde feature. Bedenk serieuze alternatieven, betrek eerdere onderzoeksresultaten en vergelijk waar nuttig bestaande games op hun mechanieken, niet om ze te kopiëren. Kies op argumenten, bewijs en fit met Northmarch. Durf een slecht idee te vervangen, ook als het je eigen idee is. Maak spelplezier zichtbaar in een concrete speelsituatie. Vermijd generieke AI-oplossingen, schijnkeuzes, overengineering en werk dat alleen bestaat om voortgang te tonen.
+
+**Uitvoeringsnorm:** geen uitstel door eindeloze plannen of vragen. Lever binnen de beschikbare omgeving het best haalbare resultaat, meld concrete blockers en onderscheid uitgevoerd werk van voorstellen. Claim geen achtergrondwerk, niet-uitgevoerde tests of niet-geverifieerde publicaties. Communiceer in het Nederlands; de game-interface blijft Engels. Respecteer de bevoegdheden van voorzitter, TD en coach en de volgorde L1/L2 → L3 → L4 → L5.
+
+## 24. Verplichte development workflow
+
+Pas de diepgang proportioneel toe: een kleine bugfix vraagt geen uitgebreid onderzoek of prototype; een nieuwe kernloop wel. De volgende stappen vormen één iteratieve cyclus, geen tien afzonderlijke goedkeuringsmomenten.
+
+| Stap | Werk | Vereiste uitkomst |
+|---|---|---|
+| 1. Synchronise | Lees de actuele Bible op slimline-main, controleer branch, HEAD, officiële tip, open werk en relevante wijzigingen. Gebruik sync-check vóór codewerk. | Bekende baseline, geen stilzwijgende overschrijvingen. |
+| 2. Understand | Reproduceer het probleem waar mogelijk; inspecteer de echte code, state, events, UI en relevante historische besluiten. | Spelersprobleem, oorzaak of expliciete hypothese, scope en betrokken laag. |
+| 3. Research | Onderzoek bestaande eigen oplossingen en relevante externe gameplaymechanieken; onderscheid observatie van aanname. | Herbruikbare patronen, bronnen, beperkingen en toepasselijkheid. |
+| 4. Design | Vergelijk bij belangrijke keuzes meerdere wezenlijk verschillende oplossingen; kies en motiveer. | Spelersactie → systeemverandering → gevolg → feedback; trade-offs, domeineigenaar en acceptatiecriteria. |
+| 5. Prototype | Bij nieuwe kernmechanieken of UX: wireframe, papieren flow, interactieve prototype of kleine reproduceerbare simulatie. | Concrete speelervaring en getoetste belangrijkste aannames, vóór grote implementatie. |
+| 6. Challenge | Speel advocaat van de duivel; toets aan §25, onderzoek misbruik, saaie routes en ongewenste gevolgen. | Go, revise of reject met redenen. |
+| 7. Implement | Bouw de kleinste complete verticale slice in bestaande modules; gebruik echte state, centrale klok, RNG, events en commands. | Werkende actie én consequentie én feedback; geen tweede engine of tijdelijke schijnfunctionaliteit. |
+| 8. Validate | Draai passende lokale tests en speel relevante routes; vergelijk tegen baseline. | Controleerbaar bewijs per acceptatiecriterium, inclusief ongeteste delen. |
+| 9. Document | Werk de bestaande registers in deze Bible bij, inclusief broncommit, bevindingen en volgende stap. | Eén actuele canon; geen nieuwe losse documentatie. |
+| 10. Release | Bundel de gevalideerde wijzigingen, synchroniseer, controleer diff en vraag uitsluitend waar vereist toestemming voor kosten/publicatie. | Bewuste integratie, verifieerbare bron/artifact/live-relatie; geen ongevraagde workflowruns. |
+
+### Technische uitvoeringsregels
+- Traceer vóór wijziging de route van UI-actie naar command, state, simulatie en zichtbare feedback. Gebruik bestaande module-eigenaars; vermijd stapeling van UI-wrappers, dubbele state en parallelle markten.
+- Wijzig broncode, niet gegenereerde HTML. Gebruik de bestaande buildconfiguratie; voeg nieuwe modules expliciet toe. Behoud seeded RNG; introduceer geen oncontroleerbare randomness. Nieuwe savevelden hebben defaults/migratie en regressietests.
+- Hogere lagen mogen de standaard L1/L2-build niet afhankelijk maken van hun aanwezigheid. Test deze grens. Houd interface Engels, mobiel circa 390 px, leesbaar in licht/donker, voldoende tikdoelen; afdelingsacties blijven in hun eigen tile.
+- Testladder: statische controle → gerichte unit/integratietest → lokale build en korte smoke-test → gerichte save/laag/UX-regressie → alleen bij relevante balanswijzigingen een vooraf begrensde meerseizoenssimulatie → menselijke playtest voor plezierclaims. Geen volledige suite voor een tekstwijziging.
+- Publiceer uitsluitend vanaf de officiële bron volgens §21. Kostenprotocol heeft voorrang: geen CI-triggerende push, PR, merge, workflowwijziging of herstart zonder specifieke toestemming. Een opdracht om een document te bewerken is geen toestemming voor een Pages-run. Gebruik een niet-publicerende werkbranch waar mogelijk; controleer triggers vooraf. Bij een mislukte Pages-run geen automatische herstart. Een nieuwe dispatch is uitsluitend nodig als publicatie gewenst is en expliciet is toegestaan.
+- Werkbranches blijven van hun eigenaar; geen force-push, geen stille merges, geen wijziging aan andermans gebied zonder afstemming. Controleer vlak vóór integratie de actuele tip.
+
+## 25. Game Design Quality Framework
+
+Beoordeel iedere nieuwe gameplaymechaniek op de onderstaande dimensies; noteer per relevante dimensie pass, revise of not applicable met een concreet voorbeeld. Gebruik geen arbitraire totaalscore als bewijs van plezier.
+
+| Dimensie | Centrale toets |
+|---|---|
+| Agency | Kan de speler doelgericht een uitkomst beïnvloeden, ook proactief? |
+| Causality | Is de verandering werkelijk door de actie veroorzaakt en begrijpelijk teruggekoppeld? |
+| Trade-offs | Zijn meerdere keuzes verdedigbaar zonder dominante gratis optie? |
+| Discovery | Ontstaan onverwachte maar geloofwaardige kansen, informatie of inzichten? |
+| Attachment | Versterkt dit de binding met club, spelers, mensen of wereld? |
+| Replayability | Leiden andere omstandigheden en strategieën tot betekenisvol andere carrières? |
+| Role integrity | Is dit werk van een voorzitter, niet van de TD of coach? |
+| Integration | Versterkt dit bestaande systemen zonder losstaande minigame of dubbele engine? |
+
+**Afwijzingsgronden:** schijnkeuzes, verplichte routinegoedkeuringen, actiepunten als kunstmatige schaarste, informatie zonder doel, automatisch doorspelen zonder invloed, klikbeloningen zonder echte trade-off, lineaire upgrades zonder strategische afweging en nieuwe systemen die de onderliggende laag onnodig afhankelijk maken.
+
+**Bewijs:** vergelijk waar passend actieve, passieve en alternatieve strategieën met dezelfde beginsituatie en gecontroleerde seeds. Meet concrete uitkomsten en leg onverwachte resultaten vast. Een sim kan causale werking en balans ondersteunen, maar bewijst geen menselijke fun. Een playtest vraagt ook observatie van begrip, betrokkenheid, frustratie en de wens om verder te spelen. Geen menselijke validatie claimen als alleen een bot is gebruikt.
+
+## 26. Master Development Roadmap
+
+Deze roadmap operationaliseert §11 en §19; hij is geen bewijs dat een fase al klaar is. Werk in afgeronde verticale slices, niet in losse knoppen of schermen. Prioriteiten mogen worden aangepast als bewijs een grotere blokkade blootlegt; motiveer dat in Current Work. Geen nieuwe laag om een zwak basisspel te maskeren.
+
+| Fase | Productmijlpaal | Exit gate |
+|---|---|---|
+| 0 | Consolidatie en technische baseline | Eén canon; bron, modulegrenzen, baseline en actuele blockers bekend. |
+| 1 | The First Summer | Clubkeuze, eerste richting, TD-plan, interactieve zomer, deadline en eerste wedstrijd vormen één speelbare loop; geen verborgen dubbele markt; beslissingen aantoonbaar causaal. |
+| 2 | Wekelijkse gameplay | Proactieve en situationele acties, rustige weken, echte consequenties en wekelijkse Echo; meerdere weken zonder hogere lagen speelbaar. |
+| 3 | Netwerk en talentontdekking | Netwerk levert concrete kansen en informatie; aanbevelingen bereiken TD; spelersprofielen en opvolging creëren binding zonder directe routine-transfers. |
+| 4 | Clubontwikkeling en investeringen | Afdelingstiles, projecten, alternatieve groeistrategieën en langetermijneffecten; betaalbare cashflow en echte trade-offs. |
+| 5 | Volledige seizoensbeleving | Wedstrijden, rivaliteit, winter, nieuws, eindstand en ALV vormen een herkenbare seizoensboog. |
+| 6 | L1/L2-balans en herspeelbaarheid | Representatieve clubs, actieve/passieve strategieën en meerdere seeds; economie, saves en laagisolatie getest; menselijke playtest ondersteunt kernervaring. |
+| 7 | L3 autonome medewerkers | Mandaten, kwaliteit, persoonlijkheid en vertrouwen veranderen aantoonbaar gedrag; optioneel en onafhankelijk van basis. |
+| 8 | L4 verhalen en politiek | Situaties ontstaan uit echte wereldfeiten en hebben causale gevolgen, geen los scripted systeem. |
+| 9 | L5 Dynasty | Opvolging, familie en nalatenschap werken door in bestaande club- en wereldhistorie. |
+| 10 | Integrale productkwaliteit | Samenhang, performance, toegankelijkheid, savecompatibiliteit, langetermijnbalans en menselijke speeltests; gecontroleerde release. |
+
+### Eerstvolgend werkpakket: fase 1
+Volg §19: baseline en concrete auditkandidaten reproduceren, bestaande zomermechaniek in kaart brengen, alternatieve opening/transferflows ontwerpen, mobiele wireframes en representatieve speelsituaties maken, keuze onderbouwen, daarna één complete slice implementeren en valideren. Eerste milestone is de eerste competitiewedstrijd met terugkoppeling over de zomer. De exacte technische aanpak volgt uit de broninspectie; geen vooraf verzonnen nieuw subsysteem. Geen L3/L4/L5-uitbreiding in deze sprint.
+
+## 27. Permanent documentatieprotocol — living project record
+
+Dit document is tegelijk ontwerpcanon, technische referentie, ontwikkelplaybook en projectregister. Houd stabiele ontwerpregels en veranderlijke status apart binnen hetzelfde bestand. Werk relevante bestaande secties bij in plaats van herhalingen toe te voegen. Verwijder of herschrijf oude besluiten niet stilzwijgend: markeer superseded, verwijs naar opvolger en bewaar historie via Git. Gebruik concrete bronpaden, commit-SHA's en links naar onveranderlijke historische bronnen. Geen nieuwe losse bijbels, handovers, onderzoeks-MD's of statusdocumenten.
+
+| Register | Plaats / verplichte gegevens |
+|---|---|
+| Design Decisions | §15: ID, datum, keuze, eigenaar (director/delegated), reden, gevolgen, eventueel vervangen besluit. |
+| Implementation Status | §27.2: feature/laag, status, modules, bewijs, ontbrekende delen. |
+| Research Register | §20 en §27.3: vraag, methode, bronnen, bevinding, beperking, ontwerpimplicatie. |
+| Technical Architecture | §11: module-eigenaar, state, interfaces, afhankelijkheden, save-impact; wijzigingen expliciet. |
+| Test Evidence | §27.4: bron-SHA, commando/methode, omgeving, seeds/omvang, uitkomst, niet getest. |
+| Known Issues | §27.5: ID, ernst, reproduceerbaarheid, impact, eigenaar, volgende actie. |
+| Development Roadmap | §26: fase, exit gate, afhankelijkheden, voortgang. |
+| Release History | §21 en §27.6: versie, bron-SHA, artifactvariant/checksum, publicatiestatus, bekende beperkingen. |
+| Current Work | §27.7: eigenaar, branch/baseline, doel, status, open wijzigingen, volgende concrete actie. |
+
+### 27.1 Statuswoorden en bewijs
+Designed = ontwerp vastgelegd; Implemented = broncode aanwezig; Tested = relevante technische test uitgevoerd; Playtested = daadwerkelijk gespeeld (mens of bot expliciet benoemen); Validated = vooraf gestelde acceptatiecriteria behaald met geschikt bewijs; Released = publicatie bevestigd. Deze zijn afzonderlijke bewijsvormen, geen automatisch oplopend vinklijstje. Noteer Partial, Blocked, Not tested of Superseded waar toepasselijk. Gebruik geen groen label zonder bewijs. Een test op een oude commit telt niet zonder onderbouwde gelijkwaardigheid.
+
+### 27.2 Implementation Status — uitgangspositie
+L1/L2 bestaat als speelbare bronbuild volgens historische documentatie; de kwaliteit en volledigheid tegen deze Bible zijn nog niet integraal gevalideerd. Opening/zomer, netwerk, wekelijkse flow, upgrades en seizoensboog: bestaande implementaties, gerichte audit nodig. L3-autonomie is deels aanwezig als opt-in; L4/L5 zijn niet vrijgegeven als volgende ontwikkelfase. Actualiseer per feature na inspectie, niet op basis van naam of aanwezigheid van een module alleen.
+
+### 27.3 Research Register — uitgangspositie
+Zie §14, §20 en §22 voor historische bronnen. De voorzitter- en CEO-onderzoeken, loop-simulaties en Northmarch-audits leveren hypothesen en ontwerpinput. Niet alle historische bestanden zijn integraal geanalyseerd; eerdere numerieke resultaten en papieren prototypes zijn geen actuele menselijke validatie. Voeg nieuw onderzoek toe met vraag, methode, bron, resultaat, onzekerheid en besluitimplicatie.
+
+### 27.4 Test Evidence — uitgangspositie
+Geen nieuwe game-, browser- of simulatietests uitgevoerd voor deze documentatieversie. Historische evidence is via §22 terughaalbaar. Bij volgende wijziging: leg exacte SHA en werkelijk uitgevoerde commando's vast; expliciet aangeven wat niet is uitgevoerd en waarom.
+
+### 27.5 Known Issues — initiële auditbacklog
+| ID | Status | Probleem / volgende actie |
+|---|---|---|
+| NM-001 | Auditkandidaat | Dubbele zomermarkt: traceer zomerafsluiting en eerste week, reproduceer voordat fix wordt gekozen. |
+| NM-002 | Auditkandidaat | Summer clock en persoonlijke activiteiten: toets beschikbaarheid per zomerweek. |
+| NM-003 | Auditkandidaat | TD-planactualisatie, budgetvalidatie, deadlinebeslissingen: controleer echte causale keten en behoud state. |
+| NM-004 | Open validatie | V19 economische balans en strategieverschillen: eerst scope en baseline, geen ongevraagde zware sims. |
+| NM-005 | Open validatie | Menselijke spelbeleving van eerste zomer en L1/L2: prototype en playtest. |
+| NM-006 | Operationeel | Laatste Pages-run mislukt na herstart; gerapporteerde oorzaak dubbele artifactnaam. Geen nieuwe run nodig voor documentatiewerk; live-pariteit niet opnieuw onafhankelijk gemeten. |
+
+### 27.6 Release History — documentatie
+25 november 2026: V1.1 geconsolideerd op slimline-main 7147f23089c36ad9c68f814814d0eb6467bd703b en main cc4c5dbf23075efd84e15a25c7a5460d23bedfcd; identieke blob ecb6ad3b3a1ec362a3ab15766714592503795682. V1.2 voegt ontwikkelcharter, workflow, kwaliteitsframework, roadmap en registers toe. Geen spelrelease, geen gewijzigde gameplay, geen nieuwe testclaim. Laatst gerapporteerde succesvolle livebron 3157b3a; de gelijkheid van de live build is voor deze documentversie niet opnieuw gemeten.
+
+### 27.7 Current Work
+- **Actief:** Bible V1.2, documentatie-only; basis slimline-main 7147f23. Geen wijziging in spelcode.
+- **Volgende producttaak:** fase 1, The First Summer; baseline en audit → gameplayontwerp/wireframes → verticale slice → validatie.
+- **Niet actief:** hogere lagen, ongevraagde balanssimulaties, Pages-herstarts en releasewerk.
+- **Sessieregel:** begin met actuele remote status; sluit af met wat concreet is gewijzigd, wat is bewezen, wat openstaat en de eerstvolgende uitvoerbare stap. Werk dit register bij, zodat iedere developer vanuit GitHub kan verdergaan zonder chatgeschiedenis.
+
+## 28. Autonomie, beslisrechten en samenwerking
+
+**Game Director:** bepaalt de productfantasie, fundamentele bevoegdheden, laagvolgorde, harde beperkingen, kosten en publicatiemomenten. Recenter expliciet eigenaarbesluit gaat voor gedelegeerde keuzes. Vraag uitsluitend bij een materieel conflict met deze canon, een onomkeerbare wijziging, een essentiële ontbrekende randvoorwaarde of vereiste toestemming voor kosten.
+
+**AI-developer:** heeft gedelegeerde bevoegdheid voor ontwerpdetails, alternatieven, UX, implementatie, onderzoeksmethode, proportionele lokale tests en technische oplossingen. Neem zelfstandig onderbouwde besluiten; registreer ze als gedelegeerd, niet als letterlijk door de eigenaar goedgekeurd. Leg relevante afwijkingen en risico's bloot. Vraag niet voor iedere kleine stap toestemming; voer de logische werkcyclus uit en lever controleerbaar resultaat. Bij een nieuw inzicht dat de kernvisie verandert: maak het conflict expliciet en leg een gerichte keuze voor.
+
+**Samenwerking:** alle developers lezen dezelfde actuele Bible; stem af via branches, commitgeschiedenis en Current Work, niet via tegenstrijdige losse documenten. Bij overdracht vermeld doel, baseline, gewijzigde modules, echte testresultaten, open issues en eerstvolgende actie. Geen dubbel werk of stille overschrijving.
+
+**Bindend besluit DEV-01 (25 november 2026):** de Game Director heeft de uitbreiding van de Master Bible met het ontwikkelcharter, de development workflow, kwaliteitscriteria, roadmap, documentatieprotocol en gedelegeerde autonomie goedgekeurd. Deze regels gelden voor iedere developer vanaf integratie in de officiële canon. Ze vervangen geen expliciete kosten- of laaggrenzen. Concrete gate-details en registers zijn de uitwerking door de lead developer.
+
+**Eindnorm:** lever geen systeem omdat het gebouwd kan worden, maar een spel dat mensen willen blijven spelen; bewijs de technische werking, toets de ervaring en houd de canon actueel.

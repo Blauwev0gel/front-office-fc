@@ -35,15 +35,25 @@ function membersOnEvents(evs){for(const e of evs){const r=CONF_EVENT[e.t];if(r&&
 
 /* ----- season targets: league position, money and the academy ----- */
 function academyApps(id){return S.squads[id].filter(p=>p.academy).reduce((a,p)=>a+p.sApps,0)}
+/* the manifest: the player's club chooses how bold each of its three promises is (0 safe · 1 steady · 2 bold).
+   A bolder promise is worth more confidence at the AGM when met, and costs as much when missed. AI clubs keep steady. */
+const MANIFEST_W={league:[6,10,16],money:[4,6,10],youth:[3,5,8]},MANIFEST_WORD=['Safe','Steady','Bold'];
+function manifestOf(id){const m=M(id);return id===S.my&&m.manifest&&m.manifest.s===S.season?m.manifest:{league:1,money:1,youth:1}}
 function setGoals(id){
-  const c=CL(id),m=M(id),exp=c.expect||8,f=F(id),inc=estSeasonIncome(id);
-  const pos=c.tier>0&&exp<=3?2:clamp(exp+2,1,14);
+  const c=CL(id),m=M(id),exp=c.expect||8,f=F(id),inc=estSeasonIncome(id),mf=manifestOf(id);
+  const pos=[clamp(exp+4,1,15),c.tier>0&&exp<=3?2:clamp(exp+2,1,14),c.tier>0?Math.min(2,Math.max(1,exp-3)):clamp(exp-3,1,14)][mf.league];
+  const yt=[30,45,60,70,80][c.tier],ya=Math.round(yt*[.6,1,1.6][mf.youth]);
+  const money=[{k:'money',target:-Math.round(inc*.2),text:`Keep any operating loss under £${Math.round(inc*.2)}k`},
+    f.cash<inc*.3?{k:'money',target:0,text:'No operating loss this season'}:{k:'money',target:-Math.round(inc*.1),text:`Keep any operating loss under £${Math.round(inc*.1)}k`},
+    {k:'money',target:Math.round(inc*.1),text:`Make an operating profit of £${Math.round(inc*.1)}k`}][mf.money];
   m.goals=[
-    {k:'league',target:pos,text:c.tier>0&&pos<=2?`Promotion: finish in the top two of ${TIER_NAME[c.tier]}`:`Finish ${ord(pos)} or higher in ${TIER_NAME[c.tier]}`,w:10},
-    f.cash<inc*.3?{k:'money',target:0,text:'No operating loss this season',w:6}:{k:'money',target:-Math.round(inc*.1),text:`Keep any operating loss under £${Math.round(inc*.1)}k`,w:6},
-    {k:'youth',target:[30,45,60,70,80][c.tier],text:`Academy players make ${[30,45,60,70,80][c.tier]} appearances between them`,w:5}
+    {k:'league',target:pos,text:c.tier>0&&pos<=2?`Promotion: finish in the top two of ${TIER_NAME[c.tier]}`:pos===1?`Win ${TIER_NAME[c.tier]}`:`Finish ${ord(pos)} or higher in ${TIER_NAME[c.tier]}`,w:MANIFEST_W.league[mf.league],lv:mf.league},
+    {...money,w:MANIFEST_W.money[mf.money],lv:mf.money},
+    {k:'youth',target:ya,text:`Academy players make ${ya} appearances between them`,w:MANIFEST_W.youth[mf.youth],lv:mf.youth}
   ];m.goalsSeason=S.season;
 }
+defCommand('SetManifest',{check:(id,a)=>S.week!==0?'Promises are made in the pre-season':!['league','money','youth'].includes(a.k)||![0,1,2].includes(a.lv)?'Unknown promise':null,
+  run:(id,a)=>{const m=M(id),cur=manifestOf(id);m.manifest={...cur,[a.k]:a.lv,s:S.season};setGoals(id)}});
 function setGoalsAll(){for(const id in S.clubs)if(S.members[id])setGoals(id)}
 function goalProgress(id,gl){
   if(gl.k==='league'){const p=posOf(id);return{now:p,met:p<=gl.target,text:`${ord(p)} now`}}

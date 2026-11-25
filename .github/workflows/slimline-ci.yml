@@ -1,5 +1,5 @@
 name: Slimline CI
-# Required status checks for the official Slimline branch (see standalone/front-office-fc/northmarch-layered/docs/DEV_PROTOCOL.md).
+# Required status checks for the official Slimline branch (see NORTHMARCH_MASTER_BIBLE.md).
 # Leaves .github/workflows/pages.yml untouched.
 on:
   pull_request:
@@ -53,12 +53,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: docs/DEV_STATE.md must be updated in every pull request
+      - name: NORTHMARCH_MASTER_BIBLE.md must be updated in every pull request
         run: |
           git fetch -q origin "${{ github.base_ref }}"
-          if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -q 'northmarch-layered/docs/DEV_STATE.md$'; then
-            echo "DEV_STATE.md updated"
+          if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -q '^NORTHMARCH_MASTER_BIBLE\.md$'; then
+            echo "Master Bible updated"
           else
-            echo "::error::Update standalone/front-office-fc/northmarch-layered/docs/DEV_STATE.md (official SHA, work areas, open changes, test status, artifact SHA) in this pull request."
+            echo "::error::Update NORTHMARCH_MASTER_BIBLE.md (official SHA, work areas, open changes, test status, artifact SHA) in this pull request."
             exit 1
           fi

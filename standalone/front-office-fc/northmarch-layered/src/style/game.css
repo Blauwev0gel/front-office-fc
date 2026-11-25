@@ -63,3 +63,9 @@
 .g-opt span{font-size:.78rem;color:var(--muted)}.g-leave{border-color:var(--line);border-style:dashed}
 .g-fu{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--chip);border-left:5px solid var(--muted)}.g-fu.up{border-left-color:var(--good)}.g-fu.down{border-left-color:var(--bad)}.g-fu span{font-size:.85rem;color:var(--ink)}
 .g-msg{margin:0;padding:10px 12px;border-radius:10px;background:var(--good);color:var(--onnavy);font-weight:700;font-size:.9rem}.g-msg.err{background:var(--bad)}
+.g-promise ul{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.g-promise li{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:10px;background:var(--chip);border-left:4px solid var(--muted)}
+.g-promise li.on{border-left-color:var(--good)}.g-promise li.off{border-left-color:var(--bad)}
+.g-promise li>div:first-child{display:flex;flex-direction:column;gap:2px}.g-promise li span{font-size:.78rem;color:var(--muted)}.g-promise>p{margin:4px 0 0;font-size:.85rem;color:var(--muted)}
+.g-promise .g-seg3{display:grid;grid-template-columns:repeat(3,1fr);margin-top:0}
+.g-done li{font-size:.88rem}

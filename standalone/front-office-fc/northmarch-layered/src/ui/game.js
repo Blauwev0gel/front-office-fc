@@ -46,16 +46,25 @@
    return`<section class="g-card g-match"><small class="g-k">NEXT MATCH · WEEK ${w}${cup?' · CUP TIE TOO':''}</small>
    <h2>${fx.home?'vs':'at'} ${esc(CL(opp).name)}</h2><p>${fx.home?'Home':'Away'} · ${esc(odds)} · ${ord(posOf(opp))} in the table</p><div class="g-form" aria-label="Last five results">${form}</div></section>`;
  }
+ /* what the staff did this week, and what to keep an eye on (no approvals: the staff act within their authority) */
  function decisions(id){
-   const items=agendaItems(id),fu=agendaFollowups(id);
-   const report=fu.map(x=>`<div class="g-fu ${x.good===true?'up':x.good===false?'down':''}"><small class="g-k">RESULT · WEEK ${x.e.w} CHOICE</small><b>${esc(x.e.label)}</b><span>${esc(x.label)}: ${x.e.before} → ${x.now}</span></div>`).join('');
-   const cards=items.map(it=>`<article class="g-agenda lv${it.lv}"><small class="g-k">${esc(it.from.toUpperCase())}</small><p>${esc(it.text)}</p>
-     ${it.opts.map((o,i)=>`<button class="g-opt" data-act="agenda" data-arg="${it.theme}:${i}"><b>${esc(o.label)}</b><span>${esc(o.sub)}</span></button>`).join('')}
-     <button class="g-opt g-leave" data-act="agenda" data-arg="${it.theme}:-1"><b>Leave it</b><span>Nothing changes; we will see how it goes</span></button></article>`).join('');
-   const watch=signals(id).filter(x=>!items.length||x.lv>=3).sort((a,b)=>b.lv-a.lv).slice(0,items.length?1:3);
+   const notes=staffWeekNotes(id,S.season,S.week);
+   const done=notes.length?`<section class="g-card g-done"><h3>Done by your staff</h3><ul class="g-news">${notes.map(n=>`<li>${esc(n.text)}${n.cost?` <span class="muted">£${n.cost}k</span>`:''}</li>`).join('')}</ul></section>`:'';
+   const watch=signals(id).sort((a,b)=>b.lv-a.lv).slice(0,2);
    const sig=watch.map(x=>`<button class="g-dec lv${x.lv}" data-act="${esc(x.act)}"${x.arg!=null?` data-arg="${esc(String(x.arg))}"`:''}><span class="g-dot" aria-hidden="true"></span><span>${esc(x.text)}</span><b aria-hidden="true">›</b></button>`).join('');
-   if(!cards&&!sig&&!report)return`<section class="g-quiet"><b>A quiet week.</b> Your people have nothing for you. Play on, or look around the club.</section>`;
-   return`<section class="g-decide">${report}${cards?`<h3>Your agenda</h3>${cards}`:''}${sig?`<h3>Keep an eye on</h3>${sig}`:''}</section>`;
+   return`${promises(id)}${done}${sig?`<section class="g-decide"><h3>Keep an eye on</h3>${sig}</section>`:''}`;
+ }
+ /* the manifest: three promises, chosen in the pre-season, judged at the AGM */
+ function promiseOdds(id,g){
+   if(g.k==='league'){const e=CL(id).expect||8;return g.target>=e+2?'Likely':g.target>=e?'Even chance':'Long shot'}
+   return['Likely','Even chance','Long shot'][g.lv??1];
+ }
+ function promises(id){
+   const m=M(id);if(!m.goals)return'';const pre=S.week===0;
+   const rows=m.goals.map(g=>{const pr=goalProgress(id,g),lv=g.lv??1;
+     const pick=pre?`<div class="g-seg g-seg3" role="group" aria-label="${esc(g.k)} promise">${MANIFEST_WORD.map((w,i)=>`<button class="${lv===i?'on':''}" data-act="manifest" data-arg="${g.k}:${i}" aria-pressed="${lv===i}">${w}</button>`).join('')}</div>`:'';
+     return`<li class="${pre?'':pr.met?'on':'off'}"><div><b>${esc(g.text)}</b><span>${pre?`${promiseOdds(id,g)} · met +${g.w} confidence, missed −${g.w}`:`${esc(pr.text)} · ${pr.met?'on track':'behind'}`}</span></div>${pick}</li>`}).join('');
+   return`<section class="g-card g-promise"><small class="g-k">${pre?'YOUR MANIFEST · CHOOSE HOW BOLD':'YOUR PROMISES TO THE MEMBERS'}</small>${pre?'<p>The members judge you on these at the AGM. Bolder promises win more trust, and cost as much when missed.</p>':''}<ul>${rows}</ul></section>`;
  }
  function lastWeek(){
    const is=issues().at(-1);if(!is||!is.matches?.length)return'';const m=is.matches[0];
@@ -64,7 +73,7 @@
  function weekScreen(){
    const id=S.my;
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
-   return`<div class="g-week">${msg}${statusStrip(id)}${S.week===0?preSeason(id):''}${nextMatch(id)}${S.week===0?'':decisions(id)}${lastWeek()}</div>`;
+   return`<div class="g-week">${msg}${statusStrip(id)}${S.week===0?promises(id)+preSeason(id):''}${nextMatch(id)}${S.week===0?'':decisions(id)}${lastWeek()}</div>`;
  }
 
 
@@ -153,8 +162,7 @@
 
  const oldAct=act;
  act=function(a,arg){
-   if(a==='agenda'&&S&&S.my){const [t,n]=String(arg).split(':');const r=agendaChoose(S.my,t,+n);UI.msg=r.ok===false?{err:true,text:r.err}:r.left?null:{text:r.label+'. Your staff get on with it.'};save();render();return}
-   if((a==='play'||a==='playn')&&S&&S.my)agendaMarkReported(S.my);
+   if(a==='manifest'&&S&&S.my){const [k,n]=String(arg).split(':');const r=cmd('SetManifest',S.my,{k,lv:+n});if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}
    const mark=S&&S.evn||0;if((a==='play'||a==='playn')&&S&&S.my)UI.gPos=S.week?posOf(S.my):null;
    const r=oldAct(a,arg);
    if(a==='play'||a==='playn'){UI.gEv=S?eventsSince(mark):[];render()}

@@ -47,7 +47,7 @@
    const odds=d>2?'You should win this':d>.5?'Slight favourites':d>-.5?'Too close to call':d>-2?'They are favourites':'A hard afternoon';
    const form=(S.tbl[id]?.form||[]).slice(-5).map(r=>`<i class="f${r}">${r}</i>`).join('')||'<span class="muted">No games yet</span>';
    return`<section class="g-card g-match"><small class="g-k">NEXT MATCH · WEEK ${w}${cup?' · CUP TIE TOO':''}</small>
-   <h2>${fx.home?'vs':'at'} ${esc(CL(opp).name)}</h2><p>${fx.home?'Home':'Away'} · ${esc(odds)} · ${ord(posOf(opp))} in the table</p><div class="g-form" aria-label="Last five results">${form}</div></section>`;
+   <h2>${fx.home?'vs':'at'} ${esc(CL(opp).name)}</h2><p>${fx.home?'Home':'Away'} · ${esc(odds)} · ${ord(posOf(opp))} in the table</p><div class="g-form" aria-label="Last five results">${form}</div>${(()=>{const st=matchStakes(id);return st?`<p class="g-stakes">${esc(st.text)}</p>`:''})()}</section>`;
  }
  /* what the staff did this week, and what to keep an eye on (no approvals: the staff act within their authority) */
  function decisions(id){
@@ -73,10 +73,24 @@
    const is=issues().at(-1);if(!is||!is.matches?.length)return'';const m=is.matches[0];
    return`<button class="g-last" data-act="v183paper" data-arg="${esc(is.key)}"><small class="g-k">LAST WEEK</small><span><b>${esc(m.home)} ${m.hg}–${m.ag} ${esc(m.away)}</b></span><span class="muted">Read the Echo ›</span></button>`;
  }
+ /* ----- the week (M2): topic · one escalation · match and stakes · your week · promises · looking back · the close ----- */
+ function topicBanner(id){const t=weekTopic(id);return`<p class="g-topic t-${t.k}" role="note">${esc(t.t)}</p>`}
+ function escalation(){return debriefCard()||momentCard()}
+ function promisesCompact(id){const m=M(id);if(!m.goals)return'';return`<section class="g-card g-pc"><small class="g-k">YOUR PROMISES · JUDGED AT THE AGM</small><ul>${m.goals.map(g=>{const pr=goalProgress(id,g);return`<li class="${pr.met?'on':'off'}"><b>${pr.met?'✓':'…'}</b><span>${esc(g.text)}</span><em>${esc(pr.text)}</em></li>`}).join('')}</ul></section>`}
+ function lookBackCard(id){const c=lookingBack(id);if(!c)return'';return`<section class="g-card g-lb ${c.good===true?'up':c.good===false?'down':''}"><small class="g-k">LOOKING BACK</small><p>${esc(c.t)}</p></section>`}
+ function weekClose(id){
+   const notes=staffWeekNotes(id,S.season,S.week),sig=signals(id).sort((a,b)=>b.lv-a.lv).slice(0,3),world=worldCard(id),last=lastWeek();
+   const n=notes.length+sig.length+(world?1:0);
+   return`<details class="g-close"><summary>This week at the club${n?` · ${n} item${n>1?'s':''}`:''}</summary>
+   ${notes.length?`<section class="g-card g-done"><h3>Done by your staff</h3><ul class="g-news">${notes.map(x=>`<li>${esc(x.text)}${x.cost?` <span class="muted">£${x.cost}k</span>`:''}</li>`).join('')}</ul></section>`:'<p class="g-hint">Your staff had nothing to report.</p>'}
+   ${sig.length?`<section class="g-decide"><h3>Keep an eye on</h3>${sig.map(x=>`<button class="g-dec lv${x.lv}" data-act="${esc(x.act)}"${x.arg!=null?` data-arg="${esc(String(x.arg))}"`:''}><span class="g-dot" aria-hidden="true"></span><span>${esc(x.text)}</span><b aria-hidden="true">›</b></button>`).join('')}</section>`:''}
+   ${world}${last}</details>`;
+ }
  function weekScreen(){
    const id=S.my;
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
-   return`<div class="g-week">${msg}${debriefCard()}${momentCard()}${statusStrip(id)}${S.week===0?preSeason(id)+promises(id):''}${nextMatch(id)}${yourWeek(id)}${S.week===0?'':decisions(id)}${worldCard(id)}${lastWeek()}</div>`;
+   if(S.week===0)return`<div class="g-week">${msg}${momentCard()}${statusStrip(id)}${preSeason(id)}${promises(id)}${nextMatch(id)}${yourWeek(id)}</div>`;
+   return`<div class="g-week">${msg}${topicBanner(id)}${escalation()}${statusStrip(id)}${nextMatch(id)}${yourWeek(id)}${lookBackCard(id)}${promisesCompact(id)}${weekClose(id)}</div>`;
  }
 
 
@@ -296,7 +310,7 @@
    if(a==='chairinvite'&&S&&S.my){const r=chairInvite(S.my,arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:'Invited. He will decide next summer.'};save();render();return}
    if(a==='famchoose'&&S&&S.my){const r=familyChoose(+arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.note||'Decided.'};save();render();return}
    if(a==='manifest'&&S&&S.my){const [k,n]=String(arg).split(':');const r=cmd('SetManifest',S.my,{k,lv:+n});if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}
-   const mark=S&&S.evn||0;if((a==='play'||a==='playn')&&S&&S.my)UI.gPos=S.week?posOf(S.my):null;
+   const mark=S&&S.evn||0;if((a==='play'||a==='playn')&&S&&S.my){UI.gPos=S.week?posOf(S.my):null;lookingBackSeen()}
    const r=oldAct(a,arg);
    if(a==='play'||a==='playn'){UI.gEv=S?eventsSince(mark):[];render()}
    if(a==='cont'&&inGame()){UI.v183Stage='preview';UI.tab='week';render()}

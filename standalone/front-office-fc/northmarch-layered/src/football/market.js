@@ -120,7 +120,7 @@ function shopFor(id,pos,minQ,o={}){
     const cheap=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000,coverOk=bill+wage<=cap||wage<=cheap; /* emergency cover: within the wage limit, or a cheap basic contract. A strict ceiling alone leaves a club on its limit with no way to field a squad */
     let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':fee>capDeal&&!o.mustHave?'Above my mandate':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee,id)?'Selling club unwilling':'Considered';
     if(reason==='Considered'){
-      const v=o.mustHave?-wage*1000-fee:recruitValue(id,p,seen,fee,wage,sl); /* the director trusts what has been watched */
+      const v0=o.mustHave?-wage*1000-fee:recruitValue(id,p,seen,fee,wage,sl),v=sl&&sl.chair&&!o.mustHave?v0+Math.abs(v0)*.25:v0; /* the director trusts what has been watched; a player the chairman recommended gets a quarter more weight */
       if(v>bv){bv=v;best={...c,fee,seen};}
     }
     if(id===S.my)evaluated.push({pid:p.id,name:p.name,pos:p.pos,age:p.age,from:c.from?marketClubName(c.from):'Free agent',estimate:r1(seen),fee,reason});

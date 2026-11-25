@@ -93,7 +93,7 @@ function scoutWeek(id,salt=0){
     e.est=r1((e.est*e.obs+look)/(e.obs+1));e.obs++;e.last=[S.season,S.week];ops.looks.list.push({pid:e.pid,name:e.name,pos:e.pos,est:e.est,obs:e.obs,isNew,club:cand.club});if(e.status!=='watching'&&e.status!=='signed')e.status='watching';
   }
   // a full list drops the weakest prospect still being watched
-  const watching=sl.filter(e=>e.status==='watching');if(watching.length>SHORTLIST_MAX){const drop=watching.sort((a,b)=>(a.est-scoutRange(id,a.obs))-(b.est-scoutRange(id,b.obs))).slice(0,watching.length-SHORTLIST_MAX); /* keep the best cautious estimates */for(const d of drop)sl.splice(sl.indexOf(d),1)}
+  const watching=sl.filter(e=>e.status==='watching'&&!e.chair);if(watching.length>SHORTLIST_MAX){const drop=watching.sort((a,b)=>(a.est-scoutRange(id,a.obs))-(b.est-scoutRange(id,b.obs))).slice(0,watching.length-SHORTLIST_MAX); /* keep the best cautious estimates */for(const d of drop)sl.splice(sl.indexOf(d),1)}
   if(sl.length>30)sl.splice(0,sl.length-30);
 }
 /* how far off an estimate can be: one look with the director's own eye, or the scouts' refined average */

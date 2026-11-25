@@ -24,7 +24,9 @@
    if(!inGame())return oldActionBar();
    const stage=UI.v183Stage||'preview',over=seasonOver(),pre=S.week===0;
    let play='';
-   if(UI.tab==='week'&&stage==='preview')play=`<button class="btn g-play" data-act="${over?'close':'play'}">${over?'Finish the season ›':pre?'▶ Start the season':'▶ Play week '+(S.week+1)}</button>`;
+   const P_=pre?PRE():null;
+   if(UI.tab==='week'&&stage==='preview'&&P_&&P_.wk<=PRE_WEEKS)play=`<button class="btn g-play" data-act="prenext">${P_.wk===PRE_WEEKS?'▶ Deadline day':'▶ Pre-season week '+P_.wk}</button>`;
+   else if(UI.tab==='week'&&stage==='preview')play=`<button class="btn g-play" data-act="${over?'close':'play'}">${over?'Finish the season ›':pre?'▶ Start the season':'▶ Play week '+(S.week+1)}</button>`;
    else if(UI.tab==='week'&&stage!=='preview')play=`<button class="btn g-play" data-act="v183ready">Next week ›</button>`;
    const nav=TABS.map(([k,n,i])=>`<button class="${tabOf(UI.tab)===k?'on':''}" data-act="${k==='week'?'nm85home':'tab'}" data-arg="${k}" aria-current="${tabOf(UI.tab)===k?'page':'false'}"><span aria-hidden="true">${i}</span>${n}</button>`).join('');
    return`<div class="g-bottom">${play}<nav class="g-nav" aria-label="Sections">${nav}</nav></div>`;
@@ -73,24 +75,31 @@
  function weekScreen(){
    const id=S.my;
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
-   return`<div class="g-week">${msg}${momentCard()}${statusStrip(id)}${S.week===0?promises(id)+preSeason(id):''}${nextMatch(id)}${yourWeek(id)}${S.week===0?'':decisions(id)}${worldCard(id)}${lastWeek()}</div>`;
+   return`<div class="g-week">${msg}${momentCard()}${statusStrip(id)}${S.week===0?preSeason(id)+promises(id):''}${nextMatch(id)}${yourWeek(id)}${S.week===0?'':decisions(id)}${worldCard(id)}${lastWeek()}</div>`;
  }
 
 
  /* ----- PRE-SEASON: what it is, what the director will do, what you control ----- */
  function preSeason(id){
-   const ops=S.ops||{plan:{needs:[]},shortlist:[]},needs=(ops.plan.needs||[]).filter(n=>n.status==='open').slice(0,4);
-   const watch=(ops.shortlist||[]).filter(e=>e.status==='watching').sort((a,b)=>b.est-a.est).slice(0,5),strat=recruitStrategy(id);
-   const needList=needs.length?needs.map(n=>`<li><b>${esc(POS_ONE[n.pos]||n.pos)}</b> · ${esc(n.why)}</li>`).join(''):'<li>No gaps: the squad is complete.</li>';
-   const watchList=watch.length?watch.map(e=>`<li><span><b>${esc(e.name)}</b> · ${esc(POS_ONE[e.pos]||e.pos)}, ${e.age}${e.from?' · '+nm(e.from):' · free agent'}</span><em>${r1(e.est)} ±${scoutRange(id,e.obs)}</em></li>`).join(''):'<li>The scouts have not reported yet.</li>';
-   return`<section class="g-card g-pre"><small class="g-k">PRE-SEASON · THE TRANSFER WINDOW IS OPEN</small>
-   <h2>Your director will shop when you start</h2><p>You set the frame below. Pressing Start closes the window: the director signs and sells for you, and the season begins.</p>
-   <h3>What the squad needs</h3><ul class="g-list">${needList}</ul>
-   <h3>Being scouted <small>quality estimate ± doubt</small></h3><ul class="g-list g-scout">${watchList}</ul>
-   <p class="g-hint">Better scouting staff see more players and doubt less. Your squad's average quality is ${r1(squadQuality(S.squads[id]))}.</p>
-   <h3>Your frame</h3><div class="g-frame"><div><small>Transfer budget</small><b>${k1(budgetFor(id))}</b></div><div><small>Wage limit</small><b>${k1(wageCapK(id))}/wk</b></div></div>
+   const P_=PRE();if(!P_)return'';const strat=recruitStrategy(id),deadline=P_.wk===PRE_WEEKS,closed=P_.wk>PRE_WEEKS;
+   const ST={bid:['Bid in','live'],countered:['Haggling','live'],record:['Needs you','warn'],signed:['Signed ✓','good'],walked:['Walked away','off'],hijacked:['Hijacked','bad'],gone:['Gone','off']};
+   const deals=P_.deals.slice().reverse().map(d=>{const st=ST[d.stage]||[d.stage,''];return`<li class="g-deal"><div><b>${esc(d.name)}</b>${d.chair?' <i class="g-tag in">YOUR FIND</i>':''}<span>${esc(POS_ONE[d.pos])}, ${d.age} · ${d.from?nm(d.from):'free agent'} · £${d.fee}k${d.stage==='hijacked'&&d.rival?' · to '+nm(d.rival):''}</span></div><em class="${st[1]}">${st[0]}</em></li>`}).join('');
+   const needs=preTargets(id).map(n=>`<button class="${P_.prio===n.pos?'on':''}" data-act="preprio" data-arg="${n.pos}" aria-pressed="${P_.prio===n.pos}">${esc(POS_ONE[n.pos])}</button>`).join('');
+   const o=P_.offer,r=P_.record;
+   const offer=o?`<article class="g-moment"><small class="g-k">A BID FOR YOUR PLAYER · YOUR DECISION</small><h2>${esc(CL(o.by).name)} want ${esc(o.name)}</h2><p>£${o.fee}k for your ${esc(POS_ONE[o.pos])} (${o.age}), one of your three best players. The director cannot sell him without you.</p>
+     <button class="g-opt" data-act="preoffer" data-arg="accept"><b>Accept £${o.fee}k</b><span>The money is yours; the director looks for a replacement</span></button>${o.asked?'':`<button class="g-opt" data-act="preoffer" data-arg="more"><b>Ask for more</b><span>They may raise it by a fifth, or walk away</span></button>`}<button class="g-opt g-leave" data-act="preoffer" data-arg="no"><b>Not for sale</b><span>He stays, but he may be unhappy</span></button></article>`:'';
+   const rec=r?`<article class="g-moment"><small class="g-k">A CLUB RECORD · YOUR DECISION</small><h2>£${r.fee}k for ${esc(r.name)}?</h2><p>The selling club has said yes. It would beat the club record${r.rec?` of £${r.rec}k`:''}; the director needs your word.</p>
+     <button class="g-opt" data-act="prerecord" data-arg="yes"><b>Approve the record fee</b><span>He signs today</span></button><button class="g-opt g-leave" data-act="prerecord" data-arg="no"><b>Too much</b><span>The director walks away and looks elsewhere</span></button></article>`:'';
+   const log=P_.log.slice(-4).reverse().map(x=>`<li>${esc(x.t)}</li>`).join('');
+   return`${offer}${rec}<section class="g-card g-pre"><small class="g-k">PRE-SEASON · ${closed?'WINDOW CLOSING':deadline?'DEADLINE DAY':'WEEK '+P_.wk+' OF '+PRE_WEEKS} · THE TRANSFER BOARD</small>
+   <h2>${closed?'The window shuts when the season starts':deadline?'Last chance: deals close today':'The director is working the market'}</h2>
+   ${deals?`<ul class="g-list">${deals}</ul>`:'<p>No deals yet. Play the first pre-season week and the director starts bidding.</p>'}
+   ${log?`<h3>This week</h3><ul class="g-news">${log}</ul>`:''}
+   ${closed?'':`<h3>Your levers</h3>${needs?`<p class="g-hint">Priority: what should the director go for first?</p><div class="g-seg" role="group" aria-label="Priority">${needs}</div>`:''}
+   <div class="g-frame" style="margin-top:10px"><div><small>Transfer budget</small><b>${k1(budgetFor(id))}</b></div><div><small>Wage limit</small><b>${k1(wageCapK(id))}/wk</b></div></div>
+   <button class="btn ghost" data-act="prebudget" style="margin-top:8px">Free up more money (+10% of cash)</button>
    <div class="g-seg" role="group" aria-label="Recruitment strategy">${Object.keys(RECRUIT).map(k=>`<button class="${strat===k?'on':''}" data-act="recruit" data-arg="${k}" aria-pressed="${strat===k}">${esc(RECRUIT[k].n)}</button>`).join('')}</div>
-   <p class="g-hint">${esc(RECRUIT[strat].d)}. Budget and wages are set under Club → Money.</p></section>`;
+   <p class="g-hint">${esc(RECRUIT[strat].d)}. Recommend players from your scouting dossier and the director weighs them first.</p>`}</section>`;
  }
  /* deals done since the last press of Play: shown at full time, so the window has a visible result */
  function dealsCard(evs){
@@ -240,6 +249,11 @@
 
  const oldAct=act;
  act=function(a,arg){
+   if(a==='prenext'&&S&&S.my){const r=preWeek();if(r.ok===false)UI.msg={err:true,text:r.err};save();render();if(HAS_DOM)window.scrollTo(0,0);return}
+   if(a==='preoffer'&&S&&S.my){const r=preOffer(arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
+   if(a==='prerecord'&&S&&S.my){const r=preRecord(arg==='yes');UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
+   if(a==='preprio'&&S&&S.my){prePrio(arg);save();render();return}
+   if(a==='prebudget'&&S&&S.my){const r=preBudget();UI.msg=r&&r.ok===false?{err:true,text:r.err}:{text:`Transfer budget now ${k1(budgetFor(S.my))}.`};save();render();return}
    if(a==='chairpick'){UI.pickRegion=true;render();return}
    if(a==='chairback'){UI.pickRegion=false;render();return}
    if(['chairtrip','chairtour','chairdata','chairhome'].includes(a)&&S&&S.my){const id=S.my,r=a==='chairtrip'?chairTrip(id,arg):a==='chairtour'?chairTournament(id):a==='chairdata'?chairData(id):chairHome(id);

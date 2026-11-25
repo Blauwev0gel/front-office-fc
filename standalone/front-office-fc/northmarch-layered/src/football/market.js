@@ -101,6 +101,7 @@ function sellerAgrees(p,from,fee,to=null){
     return !!sq&&sq.includes(p)&&sq.filter(x=>x.pos===p.pos).length>REQ[p.pos]&&(!to||playerAcceptsMove(p,from,to))&&fee>=askingFee(p,from)*.85;
   }
   if(S.squads[from].length<=SQUAD_MIN)return false;
+  if(from===S.my&&!S._chairSale&&typeof topThree==='function'&&topThree(from).includes(p))return false; /* D-L3-2: a bid for one of the three best players goes to the chairman */
   const need=S.squads[from].filter(x=>x.pos===p.pos).length<=REQ[p.pos];
   if(need&&F(from).cash>=0&&!p.wantsOut)return false;
   if(!canSpare(S.squads[from],p,true))return false; /* even a club in need of cash keeps its last players in a position */

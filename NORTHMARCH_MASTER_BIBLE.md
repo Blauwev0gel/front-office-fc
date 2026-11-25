@@ -1,5 +1,5 @@
 # NORTHMARCH — MASTER GAME DESIGN BIBLE
-**Versie 1.3 (concept) — 25 november 2026** · herziening van V1.2 (`b69ea16`, branch `docs/master-bible-v1-2`)
+**Versie 1.3 — 25 november 2026** · herziening van V1.2 (`b69ea16`); open vragen V1–V6 beslist door de game director (MB-11–MB-16)
 
 ## 0. Hoe je dit document leest
 Dit is het enige actieve ontwerpdocument van Northmarch. Het beschrijft het **beoogde spel**, niet per se de huidige build; de broncode en tests zijn de waarheid over wat er nu werkt.
@@ -39,7 +39,7 @@ Elke feature versterkt minstens één ervaringsdoel en breekt er geen.
 ## 3. Wat het spel IS NIET
 - Geen manager-game: je maakt geen opstellingen, tactiek, trainingsschema's of contractonderhandelingen.
 - Geen goedkeuringsspel (D-G1, D-L3-2 ✅): routinezaken handelt de staf af; geen stapels kaarten om af te tikken.
-- Geen actiepunten of generiek weekquotum als schaarste; schaarste komt uit geld, tijd en gelegenheid (MB-03 ✅, MB-04 ❓ zie §11).
+- Geen actiepunten of generiek weekquotum als schaarste; schaarste komt uit geld, tijd en gelegenheid (MB-03, MB-04 ✅).
 - Geen passieve simulator, spreadsheet, willekeurige kaartjesmachine of losse stamboomsimulator.
 - Geen lineaire upgradegrind waarin elke investering vanzelf de juiste is (MB-08 🔷).
 - Geen gescripte crises los van de wereld, geen verborgen tweede markt of economie.
@@ -78,7 +78,7 @@ Elke feature versterkt minstens één ervaringsdoel en breekt er geen.
 | Carrière | Clubontwikkeling, reputatie, andere clubs, later opvolging en generaties. |
 
 ### De week
-Elke week is een eigen stap met wedstrijdverslag; geen doorspoelen (D4 ✅). De week opent op de situatie van de club: volgende wedstrijd en inzet, eventueel een urgente zaak, je lopende initiatieven en recente gevolgen. Je kunt afdelingen bezoeken, investeren, scouten, talent volgen of beleid aanpassen. Daarna speel je de week en lees je in de Echo de uitslag (met oorzaak), het geld en het club- en wereldnieuws.
+Elke week is een eigen stap met wedstrijdverslag; geen doorspoelen en geen versneld spelen dat weken overslaat (D4, MB-13 ✅). De week wordt sneller, niet korter. De week opent op de situatie van de club: volgende wedstrijd en inzet, eventueel een urgente zaak, je lopende initiatieven en recente gevolgen. Je kunt afdelingen bezoeken, investeren, scouten, talent volgen of beleid aanpassen. Daarna speel je de week en lees je in de Echo de uitslag (met oorzaak), het geld en het club- en wereldnieuws.
 
 **Een rustige week is geldig, maar nooit leeg.** D4 eist dat elke week iets te lezen of te beslissen biedt en snel af te handelen is. Daarom toont elke week minstens één echt gevolg uit de wereld (uitslag met reden, ontwikkeling van een gevolgde speler, projectvoortgang, rivaal- of marktnieuws) en is doorgaan altijd één tik. Geen kunstmatige kaarten om de week te vullen en geen straf voor niets doen.
 
@@ -107,8 +107,8 @@ Geen aparte tutorial waarin je alleen op Next drukt; afdelingen worden uitgelegd
 
 Geen verplichte geheime schuld of crisis bij elke start; een bijzonderheid mag alleen uit de gegenereerde clubstaat komen. Identiteit en financiën zijn vóór de benoeming begrijpelijk genoeg om bewust te kiezen.
 
-### 7.2 Transfermarkt (D-G6 ✅)
-De markt is een verhaal over weken, niet één klik: **TD-vergadering → zomerbrief → ticker met wekelijkse updates (ook rivalen) → deadline → zomerkrant → debrief.** De winter gebruikt dezelfde engine met een korter ritme.
+### 7.2 Transfermarkt (D-G6, MB-14 ✅)
+De markt hoort bij **L2**: ze werkt volledig zonder hogere lagen. Alleen de persoonlijkheid en het mandaat van de TD zijn L3. De markt is een verhaal over weken, niet één klik: **TD-vergadering → zomerbrief → ticker met wekelijkse updates (ook rivalen) → deadline → zomerkrant → debrief.** De winter gebruikt dezelfde engine met een korter ritme.
 
 - **Dealstatus (doelmodel):** `identified → shortlisted → enquiry → offer → negotiation → agreed → signed`, met eindstatussen `rejected / withdrawn / hijacked / expired`. Elke deal heeft club, speler, herkomst, behoefte, voorwaarden, geldigheid en statusreden.
 - **Plan en brief:** het TD-plan bevat geprioriteerde behoeften en haalbare alternatieven. Je kunt prioriteiten, wervingsprofiel en financiële ruimte wijzigen; het plan past zich aan, de oorspronkelijke brief blijft bewaard voor de debrief.
@@ -118,7 +118,7 @@ De markt is een verhaal over weken, niet één klik: **TD-vergadering → zomerb
 ### 7.3 Talent, scouting en netwerk
 - **Scouting (D-S1 ✅):** reizen, toernooien en dataonderzoek leveren spelers op, met kwaliteit en potentieel als **schatting** met onzekerheid. Een volglijst houdt ook spelers bij die niet tekenen.
 - **Dossier en Moneyball:** het dossier volgt talent door de jaren; per speler zie je aankoop, groei, verkoop en sportieve bijdrage. Een verkoop is geen winst als de sportieve en financiële kosten de opbrengst overtreffen.
-- **Persoonlijke tijd (MB-04 ❓):** een reis heeft een bestemming, kosten en bezette tijd; een toernooi een datum; een partnerclub benader je pas opnieuw als er iets te bespreken is. Telefoneren, dossiers lezen en beleid wijzigen kosten niets. Herhaald klikken levert geen onbeperkte vondsten, vertrouwen of geld op. Geen agenda- of urenboekhouding.
+- **Persoonlijke tijd (MB-04, MB-12 ✅):** dit vervangt de regel "één activiteit per week" uit D-S1. Elke activiteit heeft haar eigen beperking; reizen sluiten elkaar uit. een reis heeft een bestemming, kosten en bezette tijd; een toernooi een datum; een partnerclub benader je pas opnieuw als er iets te bespreken is. Telefoneren, dossiers lezen en beleid wijzigen kosten niets. Herhaald klikken levert geen onbeperkte vondsten, vertrouwen of geld op. Geen agenda- of urenboekhouding.
 - **Netwerk (MB-06 🔷):** contacten (voorzitters, scouts, oud-spelers, zakenrelaties) hebben een identiteit, rol, regio, bron van kennismaking en laatste betekenisvolle interactie. Ze geven **toegang** tot informatie en kansen (spelers, toernooien, oefenwedstrijden, partnerclubs, sponsors), nooit directe transfercontrole. Contacten kunnen verhuizen of stoppen. Geen relatiegrind en geen straf voor niet dagelijks onderhouden. L3/L4 voegen vertrouwen en wederkerigheid toe; L5 laat het netwerk generaties overleven.
 
 ### 7.4 Spelers
@@ -145,10 +145,12 @@ Dit is een functionele indeling; de code bepaalt de exacte afdelingen (nu acht, 
 **Financiën:** één grootboek. Kas, beschikbaar budget, toekomstige verplichtingen en winst zijn gescheiden begrippen. Geld is een bruikbare maar niet dominante hefboom.
 
 ### 7.6 De levende wereld
-Fictieve clubs en personen: vijf divisies van zestien (80 clubs) met een nationale beker en een buitenlandse wereld (de code; D3 ❓ zie §11). Elke club heeft een eigen selectie, economie, identiteit en ontwikkeling en beslist met dezelfde commando's als de speler (D1 ✅). Spelers verouderen, groeien, raken geblesseerd, wisselen van club en stoppen. Relevante wereldgebeurtenissen verschijnen in de Echo.
+Fictieve clubs en personen: vijf divisies van zestien (80 clubs) met een nationale beker en een buitenlandse wereld (MB-15 ✅). Elke club heeft een eigen selectie, economie, identiteit en ontwikkeling en beslist met dezelfde commando's als de speler (D1 ✅). Spelers verouderen, groeien, raken geblesseerd, wisselen van club en stoppen. Relevante wereldgebeurtenissen verschijnen in de Echo.
 
 ### 7.7 ALV, carrière en falen (MB-09 🔷)
 Het jaarrapport bevat beloftes, resultaten, financiën, clubontwikkeling en vertrouwen. L2 gebruikt de mechanische stemming (D6 ✅); L4 voegt debat, groepen, moties en oppositie toe **op dezelfde meter**, zonder tweede stemmodel. Sportief, financieel en menselijk succes vormen geen samengestelde highscore. Weggestemd? De wereld blijft, je reputatie bepaalt je nieuwe kansen: drie open stoelen (D7 ✅). Geen game-over door één tegenvaller.
+
+**Waar speel je naartoe? (MB-16 ✅)** Er is geen eindscherm en geen winconditie. Het doel op lange termijn is je **reputatie**, je **prijzen** en het **clubboek** dat je achterlaat. Mijlpalen maken voortgang zichtbaar, zoals *eerste promotie*, *eigen jeugd in de basis*, *schuldenvrij*, *een beker* of *een recordverkoop*. Ze komen uit echte gebeurtenissen, staan in het clubboek en tellen mee voor je reputatie; ze geven geen bonussen.
 
 ### 7.8 Hogere lagen (L3–L5)
 - **L3 — mensen met mandaten (D-L3-1 ✅):** staf zijn personen met competenties, richting en verantwoording. Een mandaat is een grens: daarbinnen beslist de staf, daarbuiten komt een voorstel. Ze voeren echt handelingen uit; geen tekstuele schijnautonomie.
@@ -200,7 +202,7 @@ Historische ID's (D/T/P) komen uit `DECISIONS.md` op commit `3157b3a`; MB/DEV zi
 | ID | Datum | Status | Besluit | Vervangt / opmerking |
 |---|---|---|---|---|
 | D1 | 21-11 | ✅ | Alle clubs volledig gesimuleerd; AI-clubs gebruiken dezelfde commando's als de speler. Geen verborgen tweede economie. | |
-| D3 | 21-11 | ❓ | ~~3 divisies van 16 (48 clubs) + beker.~~ | Code heeft 5 × 16 = 80 clubs. Zie §11 V5. |
+| D3 | 21-11 | ~~✅~~ | ~~3 divisies van 16 (48 clubs) + beker.~~ | Vervangen door MB-15. |
 | D4 | 21-11 | ✅ | Elke week is een eigen stap met wedstrijdverslag; geen doorspoelen. Elke week biedt iets te lezen of te beslissen en is snel af te handelen. | |
 | D5 | 21-11 | ~~✅~~ | ~~Voorzitter zet alleen kaders; geen veto, geen eigen opdrachten.~~ | Deels vervangen door D-S1 en D-L3-2b. Kaders blijven. |
 | D6 | 21-11 | ✅ | Ledenvertrouwen (mechanisch) + jaarlijkse ALV als verliesconditie. L4 dramatiseert dezelfde meter. | |
@@ -210,16 +212,16 @@ Historische ID's (D/T/P) komen uit `DECISIONS.md` op commit `3157b3a`; MB/DEV zi
 | D-G1 | 24-11 | ✅ | Een spel, geen goedkeuringsspel; routinezaken doet de staf. | |
 | D-G2 | 24-11 | ✅ | De afdelingen vormen de basislaag; eerst moeten keuzes voelbaar zijn en moet de week een ritme hebben. | |
 | P-1 | 24-11 | ✅ | Claude ontwerpt en bouwt als game developer en test licht; ChatGPT test balans en regressie. Geen lange runs zonder vraag. | |
-| D-S1 | 25-11 | ✅ | De voorzitter reist en beveelt spelers aan; aanbevolen spelers krijgen extra gewicht bij de TD. Eén activiteit per week. | "Eén per week": zie MB-04 / §11 V2. |
+| D-S1 | 25-11 | ✅ | De voorzitter reist en beveelt spelers aan; aanbevolen spelers krijgen extra gewicht bij de TD. ~~Eén activiteit per week.~~ | "Eén per week" vervangen door MB-12. |
 | D-L3-2b | 25-11 | ✅ | Twee uitzonderingen bij de voorzitter: bod op een top-3-speler, aankoop boven het clubrecord. | Wijzigt D-L3-2. |
 | D-G3 | 25-11 | ✅ | Dynastie = familie; opvolging via de ALV, de club is geen erfelijk bezit. | |
 | D-G4 | 25-11 | ✅ | Spelers zijn de motor van het plezier: vinden, opleiden, zien groeien, verkopen (Moneyball). | |
 | D-G5 | 25-11 | ✅ | Elk seizoen moet de voorzitter een stemming winnen; de ALV is de climax. | |
-| D-G6 | 25-11 | ✅ | De transfermarkt is een speelbaar verhaal over weken (vergadering → brief → ticker → deadline → krant → debrief). | Laag: zie §11 V4. |
+| D-G6 | 25-11 | ✅ | De transfermarkt is een speelbaar verhaal over weken (vergadering → brief → ticker → deadline → krant → debrief). | Laag gewijzigd van L3 naar L2: MB-14. |
 | MB-01 | 25-11 | ✅ | Club Builder = gameplay, Chairman = rol, Dynasty = langetermijnbeloning. L1/L2 zijn zelfstandig leuk. | |
 | MB-02 | 25-11 | ✅ | Bestaande clubidentiteit + jaarlijks manifest; verandering door gedrag en resultaten. | |
 | MB-03 | 25-11 | ✅ | Proactief én situationeel, binnen de voorzittersrol; geen actiepunten. | |
-| MB-04 | 25-11 | 🔷 ❓ | Natuurlijke, activiteitsgebonden beperkingen in plaats van een universeel weekquotum. | Raakt D-S1 (✅). Wacht op de eigenaar, §11 V2. Tot dan geldt D-S1. |
+| MB-04 | 25-11 | ✅ | Natuurlijke, activiteitsgebonden beperkingen in plaats van een universeel weekquotum. | Door de eigenaar bevestigd via MB-12. |
 | MB-05 | 25-11 | 🔷 | De eerste zomer is de introductie; geen aparte tutorialcampagne. | |
 | MB-06 | 25-11 | 🔷 | Persistent netwerk met toegang tot informatie en kansen, niet tot transfercontrole. | |
 | MB-07 | 25-11 | 🔷 | Eén clubhub, vaste voortgangsknop, bediening in de afdeling, Echo als weekverslag. | |
@@ -227,18 +229,26 @@ Historische ID's (D/T/P) komen uit `DECISIONS.md` op commit `3157b3a`; MB/DEV zi
 | MB-09 | 25-11 | 🔷 | ALV is de verliesconditie; geen samengestelde highscore. | |
 | MB-10 | 25-11 | 🔷 | Eerst een causale, leuke verticale slice van de basis; geen hogere laag als reparatie. | |
 | DEV-01 | 25-11 | ✅ | Ontwikkelcharter, werkcyclus, kwaliteitstoets, roadmap, documentatieprotocol en gedelegeerde autonomie (deel III–IV) zijn goedgekeurd. | Vervangt geen kosten- of laaggrenzen. |
+| MB-11 | 25-11 | ✅ | **Northmarch is het actieve spel.** Deze bijbel is de enige canon voor alle developers, ook Claude; `slimline-main` is de officiële branch. *The Front Office* (`BIBLE.md`, `claude-game`) is archief. | `CLAUDE.md` en `AGENTS.md` moeten hierop worden aangepast (NM-007). |
+| MB-12 | 25-11 | ✅ | Persoonlijke activiteiten hebben elk hun eigen beperking (kosten, datum, bezette tijd, wachttijd tot er iets nieuws is); reizen sluiten elkaar uit. Geen vast aantal per week. | Vervangt "één activiteit per week" (D-S1); bevestigt MB-04. |
+| MB-13 | 25-11 | ✅ | Geen versneld spelen dat weken overslaat; D4 blijft. Rustige weken worden sneller (één tik), niet weggelaten. | Bevestigt D4. |
+| MB-14 | 25-11 | ✅ | De speelbare transfermarkt hoort bij L2 en werkt zonder hogere lagen. Alleen persoonlijkheid en mandaat van de TD zijn L3. | Wijzigt de laag van D-G6 en T5. |
+| MB-15 | 25-11 | ✅ | De wereld heeft vijf divisies van zestien (80 clubs) plus de nationale beker. | Vervangt D3. |
+| MB-16 | 25-11 | ✅ | Geen eindscherm of winconditie. Het doel is reputatie, prijzen en het clubboek; mijlpalen uit echte gebeurtenissen maken voortgang zichtbaar, zonder bonussen. | |
 
 ## 11. Open vragen voor de game director ❓
-Hier neemt geen developer een besluit over. Elke vraag heeft een advies; de eigenaar kiest.
+Hier neemt geen developer een besluit over. Een nieuwe vraag krijgt een nummer, de reden waarom het knelt en een advies; na het besluit verhuist ze naar §10.
 
-| # | Vraag | Waarom het knelt | Advies |
-|---|---|---|---|
-| V1 | **Welke werkafspraken gelden voor Claude?** | `CLAUDE.md` op `claude-game` zegt: werk op `claude-game`, bron is `BIBLE.md` (The Front Office, CEO-spel), preview `/claude/`. Deze bijbel zegt: `slimline-main`, Northmarch, `/northmarch/`. Beide kunnen niet tegelijk de enige canon zijn. | Kies één product als actief. Als dat Northmarch is: `CLAUDE.md` en `AGENTS.md` naar deze bijbel laten verwijzen en `BIBLE.md` als archief markeren. |
-| V2 | **Vervangt MB-04 de regel "één activiteit per week" uit D-S1?** | Een gedelegeerd besluit (MB-04) kan een eigenaarbesluit (D-S1) niet opzijzetten; V1.2 deed dat wel. | Ja, vervangen: losse cooldowns per activiteit en reizen die elkaar uitsluiten zijn rijker dan één slot per week en passen beter bij "geen actiepunten" (MB-03). |
-| V3 | **Mag versneld spelen rustige weken inkorten?** | V1.2 noemde het als ontwerp, maar D4 verbiedt doorspoelen. | Nee, D4 houden. Maak de week liever sneller (één tik, §6) dan weken over te slaan. |
-| V4 | **Hoort de transfermarkt bij L2 in plaats van L3?** | D-G6 en T5 plaatsen de rijke markt in L3, maar fase 1 (*The First Summer*) moet zonder hogere lagen werken (MB-01, MB-10). | Ja, naar L2. Alleen de persoonlijkheid van de TD (L3-mandaten) blijft L3. |
-| V5 | **Vijf divisies (80 clubs) of drie (48)?** | D3 zegt drie, de code en V1.2 zeggen vijf. | Vijf bevestigen als nieuw besluit; D3 doorhalen. |
-| V6 | **Wat is "winnen" in L1/L2?** | Verliezen is scherp (ALV); een doel op lange termijn zonder L5 ontbreekt. | Geen eindscherm: reputatie, prijzen en het clubboek als doel, met mijlpalen ("eerste promotie", "eigen jeugd in de basis") als zichtbare erkenning. |
+**Er zijn nu geen open vragen.** V1–V6 uit het V1.3-concept zijn op 25-11-2026 beslist volgens het advies van de developer:
+
+| # | Vraag | Besluit |
+|---|---|---|
+| V1 | Welk spel is actief en welke werkafspraken gelden voor Claude? | MB-11 |
+| V2 | Vervangt MB-04 "één activiteit per week"? | MB-12 |
+| V3 | Mag versneld spelen weken overslaan? | MB-13 |
+| V4 | Hoort de transfermarkt bij L2? | MB-14 |
+| V5 | Vijf of drie divisies? | MB-15 |
+| V6 | Wat is "winnen" in L1/L2? | MB-16 |
 
 ---
 
@@ -304,7 +314,7 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 # DEEL IV — ROADMAP EN STATUS
 
 ## 15. Lagen en roadmap
-**Lagen** — L1 wereld, tijd, spelers, competities en markt · L2 speelbare clubontwikkeling, geld, beleid, basispersoneel, bestuurlijke acties, scouting en jeugd (het vroegere "L2.5" hoort hierbij) · L3 autonome staf en mandaten · L4 verhalen, relaties en politiek · L5 dynastie en opvolging. L1/L2 vormen zonder hogere lagen een compleet spel; bestaande L4/L5-slices bewijzen niet dat de basis klaar is (MB-10).
+**Lagen** — L1 wereld, tijd, spelers, competities en markt · L2 speelbare clubontwikkeling, de speelbare transfermarkt (MB-14), geld, beleid, basispersoneel, bestuurlijke acties, scouting en jeugd (het vroegere "L2.5" hoort hierbij) · L3 autonome staf en mandaten · L4 verhalen, relaties en politiek · L5 dynastie en opvolging. L1/L2 vormen zonder hogere lagen een compleet spel; bestaande L4/L5-slices bewijzen niet dat de basis klaar is (MB-10).
 
 | Fase | Mijlpaal | Exit gate | Niet als omweg toevoegen |
 |---|---|---|---|
@@ -346,16 +356,17 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 | NM-004 | Open validatie | V19-economie en strategieverschillen: eerst scope en baseline, geen ongevraagde zware sims. |
 | NM-005 | Open validatie | Menselijke spelbeleving van de eerste zomer en L1/L2: prototype en playtest. |
 | NM-006 | Operationeel | Laatste Pages-run mislukt na herstart (gemelde oorzaak: dubbele artifactnaam). Niet nodig voor documentatiewerk. |
-| NM-007 | Documentatie | Werkafspraken in `CLAUDE.md`/`AGENTS.md` op `claude-game` botsen met deze bijbel (§11 V1). |
+| NM-007 | Wacht op eigenaar | `CLAUDE.md` en `AGENTS.md` verwijzen nog naar *The Front Office*. Voorstellen voor MB-11 liggen klaar; de eigenaar past ze zelf toe of geeft Claude daar expliciet opdracht toe. |
+| NM-008 | Implementatie | De code volgt nog "één activiteit per week" (D-S1). Omzetten naar MB-12 in fase 2 of 3, met savemigratie. |
 
 **Release history**
 - 25-11-2026 · V1.1 — documentatie geconsolideerd op `slimline-main` `7147f23` en `main` `cc4c5db` (identieke blob `ecb6ad3`).
 - 25-11-2026 · V1.2 — charter, workflow, kwaliteitstoets, roadmap en registers toegevoegd (`b69ea16`, branch `docs/master-bible-v1-2`, niet geïntegreerd).
-- 25-11-2026 · V1.3 (concept) — herstructurering in vier delen, één besluitenregister, feitelijke correcties, open vragen §11. Geen spelwijziging.
+- 25-11-2026 · V1.3 — herstructurering in vier delen, één besluitenregister, feitelijke correcties; open vragen beslist (MB-11–MB-16). Geen spelwijziging.
 
 **Current work**
-- **Actief:** V1.3-concept ter review door de game director; documentatie, geen spelcode.
-- **Wacht op eigenaar:** §11 V1–V6.
+- **Actief:** V1.3 vastgesteld op `claude/loving-goodall-uv00vn`; integratie in `slimline-main` wacht op toestemming van de eigenaar (start publicatie).
+- **Wacht op eigenaar:** geen open ontwerpvragen.
 - **Volgende producttaak:** fase 1, The First Summer (§15).
 - **Niet actief:** hogere lagen, ongevraagde balanssimulaties, Pages-herstarts, releasewerk.
 
@@ -370,6 +381,6 @@ Historische documenten zijn geen actieve canon; onderzoek is input, geen besluit
 - [DEV_STATE.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/DEV_STATE.md) — technische status vóór consolidatie (niet onafhankelijk geverifieerd).
 - [loopsim-handover](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/loopsim-handover/HANDOVER-CHATGPT.md) — 37.760 gesimuleerde runs; richtinggevend tegen opvulkaarten, geen bewijs van plezier.
 - [Voorzitter-onderzoek](https://github.com/Blauwev0gel/front-office-fc/tree/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone-research) — concept, kern, ervaring, transferzomer, TD, ALV, familie.
-- [BIBLE.md (The Front Office)](https://github.com/Blauwev0gel/front-office-fc/blob/claude-game/BIBLE.md) — CEO-variant op `claude-game`; zie §11 V1.
+- [BIBLE.md (The Front Office)](https://github.com/Blauwev0gel/front-office-fc/blob/claude-game/BIBLE.md) — *The Front Office*, CEO-variant op `claude-game`; archief sinds MB-11.
 
 **North star:** bouw een club die je herkent, ontdek spelers om wie je geeft, neem beslissingen die ertoe doen en laat een geschiedenis achter die zonder jou niet hetzelfde zou zijn.

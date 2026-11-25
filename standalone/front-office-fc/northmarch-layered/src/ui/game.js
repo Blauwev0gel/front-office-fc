@@ -73,7 +73,7 @@
  function weekScreen(){
    const id=S.my;
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
-   return`<div class="g-week">${msg}${statusStrip(id)}${S.week===0?promises(id)+preSeason(id):''}${nextMatch(id)}${S.week===0?'':decisions(id)}${worldCard(id)}${lastWeek()}</div>`;
+   return`<div class="g-week">${msg}${momentCard()}${statusStrip(id)}${S.week===0?promises(id)+preSeason(id):''}${nextMatch(id)}${S.week===0?'':decisions(id)}${worldCard(id)}${lastWeek()}</div>`;
  }
 
 
@@ -136,7 +136,7 @@
    const link=(t,sub,a,arg,i)=>`<button class="g-link" data-act="${a}" data-arg="${arg}"><span class="g-ic" aria-hidden="true">${i}</span><span><b>${t}</b><small>${sub}</small></span><em aria-hidden="true">›</em></button>`;
    return`<div class="g-week">${money}
    <section><h3 class="g-h">Departments</h3><p class="g-hint">Each department has three dials: staff (●), budget and a focus. Tap one to change them and to see what it delivers.</p><div class="g-depts">${depts}</div></section>
-   <section class="g-links">${link('Football','Head coach, director, playing style','ctab','football','⚽')}${link('Transfers','Needs, shortlist, window','ctab','window','⇄')}${link('Stadium & facilities','Build, repair, capacity','ctab','ground','▥')}${link('Members & board','Confidence, prices, goals','ctab','members','♜')}${link('Legacy','Your era, honours, legends, your career','ctab','legacy','★')}${link('History & growth','Season by season, records, money','ctab','development','⌛')}</section></div>`;
+   <section class="g-links">${link('Football','Head coach, director, playing style','ctab','football','⚽')}${link('Transfers','Needs, shortlist, window','ctab','window','⇄')}${link('Stadium & facilities','Build, repair, capacity','ctab','ground','▥')}${link('Members & board','Confidence, prices, goals','ctab','members','♜')}${link('Family & legacy','Your family, heir, era, legends','ctab','legacy','★')}${link('History & growth','Season by season, records, money','ctab','development','⌛')}</section></div>`;
  }
 
  /* ----- LEGACY: the dynasty, what lasts ----- */
@@ -153,7 +153,7 @@
    const ay=typeof academyYield==='function'&&S.youth?academyYield(10):null;
    const acad=ay&&ay.n?`<section class="g-card"><small class="g-k">YOUR ACADEMY</small><p>${ay.n} graduates, ${ay.regulars} became regulars, £${ay.fees}k in fees.</p></section>`:'';
    const career=`<section class="g-card"><small class="g-k">YOUR CAREER</small><p><b>${esc(repWord())}</b> · promises kept ${L.kept} of ${L.made}</p><ul class="g-news">${S.career.map(cr=>`<li>${nm(cr.club)} · S${cr.from}${cr.to?'–'+cr.to:'–now'}${cr.why?` · <span class="muted">${esc(cr.why)}</span>`:''}</li>`).join('')}</ul><p class="g-hint">Your reputation follows you: a chairman who keeps his word gets better clubs and more patience.</p></section>`;
-   return`<div class="hubback"><button class="tbtn" data-act="ctab" data-arg="hub">← Club</button></div><div class="g-week">${eraCard}${honoursCard}${legCard}${acad}${career}</div>`;
+   return`<div class="hubback"><button class="tbtn" data-act="ctab" data-arg="hub">← Club</button></div><div class="g-week">${familyCard()}${eraCard}${honoursCard}${legCard}${acad}${career}</div>`;
  }
  /* ----- the living world: what happened elsewhere this week ----- */
  function worldCard(id){
@@ -162,6 +162,23 @@
    const race=S.week?(lead===id?`You lead ${esc(TIER_NAME[t])}.`:`${nm(lead)} lead ${esc(TIER_NAME[t])}, ${gap} point${gap===1?'':'s'} ahead of you.`):'';
    if(!race&&!news.length)return'';
    return`<section class="g-card g-world"><small class="g-k">AROUND THE NORTHMARCH</small>${race?`<p><b>${race}</b></p>`:''}${news.length?`<ul class="g-news">${news.map(n=>`<li>${esc(n.text)}</li>`).join('')}</ul>`:''}</section>`;
+ }
+
+
+ /* ----- the family moment: the story asks you, once in a while ----- */
+ function momentCard(){
+   const F_=S.family,mo=F_&&F_.moment;if(!mo)return'';const left=MOMENT_DEADLINE-(famNow()-mo.at),d=mo.dflt<0?mo.opts.length-1:mo.dflt;
+   return`<article class="g-moment"><small class="g-k">A FAMILY MOMENT · ${esc(mo.who.toUpperCase())}</small><h2>${esc(mo.title)}</h2><p>${esc(mo.text)}</p>
+   ${mo.opts.map((o,i)=>`<button class="g-opt" data-act="famchoose" data-arg="${i}"><b>${esc(o.label)}</b><span>${esc(o.sub)}</span></button>`).join('')}
+   <p class="g-hint">If you say nothing for ${left} more week${left===1?'':'s'}: “${esc(mo.opts[d].label)}”.</p></article>`;
+ }
+ function familyCard(){
+   if(!S.family)return'';const F_=S.family,heir=F_.heir;
+   const face=m=>`<li class="${m.rel==='you'?'me':''}"><span class="g-face" aria-hidden="true">${esc(m.first[0])}</span><span><b>${esc(m.first)} ${esc(F_.surname)}</b>${m.id===heir?' <i class="g-tag in">HEIR</i>':''}<br><small class="muted">${esc({you:'You, the chairman',partner:'Partner',child:'Child',elder:'Former chairman'}[m.rel]||m.rel)} · ${m.age} · ${esc(m.traits.join(', '))}${m.job?' · runs '+esc(m.job):m.path==='academy'?' · in the academy':m.path==='business'?' · in business':m.path==='away'?' · away from the club':''}</small></span></li>`;
+   const book=F_.book.map(b=>`<li><b>G${b.gen}</b><span>${esc(b.first)} ${esc(F_.surname)}</span><em>S${b.from}${b.to?'–'+b.to:'–now'}${b.why?' · '+esc(b.why):''}</em></li>`).join('');
+   const log=F_.log.slice(-4).reverse().map(x=>`<li>S${x.s} W${x.w} · ${esc(x.text)}</li>`).join('');
+   return`<section class="g-card"><small class="g-k">THE ${esc(F_.surname.toUpperCase())} FAMILY · GENERATION ${F_.gen}</small><ul class="g-fam">${F_.members.filter(m=>m.alive).map(face).join('')}</ul>
+   <h3 class="g-h">Dynasty book</h3><ul class="g-era">${book}</ul>${log?`<h3 class="g-h">Lately</h3><ul class="g-news">${log}</ul>`:''}</section>`;
  }
 
  const oldClub=clubView;
@@ -188,6 +205,7 @@
 
  const oldAct=act;
  act=function(a,arg){
+   if(a==='famchoose'&&S&&S.my){const r=familyChoose(+arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.note||'Decided.'};save();render();return}
    if(a==='manifest'&&S&&S.my){const [k,n]=String(arg).split(':');const r=cmd('SetManifest',S.my,{k,lv:+n});if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}
    const mark=S&&S.evn||0;if((a==='play'||a==='playn')&&S&&S.my)UI.gPos=S.week?posOf(S.my):null;
    const r=oldAct(a,arg);

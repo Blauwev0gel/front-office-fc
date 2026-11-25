@@ -7,9 +7,16 @@
    best players, and a fee above the club record. The season start still runs the normal window, which fills any gap left.
    Owns S.pre = {s, wk, brief, deals[], ticker[], offer, record, prio, top3[], sold[], debrief} for the player's club. No DOM. */
 const PRE_WEEKS=4,DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],BUDGET_LV={cautious:{n:'Cautious',spend:.35,d:'Keep money back for the season'},normal:{n:'Normal',spend:.6,d:'A fair share of the cash'},allin:{n:'All-in',spend:.9,d:'Spend almost everything we have'}};
-function PRE(){if(!S.my||S.week!==0)return null;return preState()}
-function preState(){if(!S.pre||S.pre.s!==S.season)S.pre={s:S.season,wk:1,brief:null,deals:[],ticker:[],offer:null,record:null,prio:null,top3:[],sold:[],debrief:null,log:[]};if(!S.pre.ticker)S.pre.ticker=[];if(!S.pre.sold)S.pre.sold=[];return S.pre}
-function preTick(t,kind){const P_=preState(),wk=P_.after?Math.min(PRE_WEEKS,P_.wk-1):P_.wk,d=P_.after?6:ri(0,6);P_.ticker.push({wk,d,t,kind:kind||'news'});if(P_.ticker.length>80)P_.ticker.shift()}
+/* M4: the same machinery runs the winter window. Winter: meeting two weeks before WINTER_WEEK, a brief with ONE goal,
+   two window weeks played inside the season (WINTER_WEEK-1 and WINTER_WEEK = deadline day), the winter edition, a debrief four weeks on. */
+function inWinter(){return !!S.my&&S.week>=WINTER_WEEK-3&&S.week<=WINTER_WEEK+5}
+function winWeeks(P_){return P_&&P_.kind==='winter'?2:PRE_WEEKS}
+function PRE(){if(!S.my)return null;if(S.week===0||inWinter())return preState();return null}
+function mkWin(kind){return{kind,s:S.season,wk:1,brief:null,deals:[],ticker:[],offer:null,record:null,prio:null,top3:[],sold:[],debrief:null,log:[]}}
+function preState(){
+  if(S.my&&S.week>0&&inWinter()){if(!S.win||S.win.s!==S.season)S.win=mkWin('winter');return S.win}
+  if(!S.pre||S.pre.s!==S.season)S.pre=mkWin('summer');if(!S.pre.ticker)S.pre.ticker=[];if(!S.pre.sold)S.pre.sold=[];if(!S.pre.kind)S.pre.kind='summer';return S.pre}
+function preTick(t,kind){const P_=preState(),wk=P_.after?Math.min(winWeeks(P_),P_.wk-1):P_.wk,d=P_.after?6:ri(0,6);P_.ticker.push({wk,d,t,kind:kind||'news'});if(P_.ticker.length>80)P_.ticker.shift()}
 function preLog(t){preTick(t,'us')}
 function topThree(id){return S.squads[id].filter(p=>!p.loan).slice().sort((a,b)=>b.q-a.q).slice(0,3)}
 function clubRecordFee(id){return Math.max(0,...(S.mb||[]).filter(r=>r.s!=null).map(r=>r.in))}
@@ -38,11 +45,11 @@ function briefOptions(id){
   return out;
 }
 function signBrief(id,goals,budget,recruit){
-  const P_=preState();if(P_.brief)return{ok:false,err:'The brief is already signed'};if(!goals.length||goals.length>3)return{ok:false,err:'Choose one to three goals'};if(!BUDGET_LV[budget])return{ok:false,err:'Choose a budget'};
+  const P_=preState();if(P_.brief)return{ok:false,err:'The brief is already signed'};const maxG=P_.kind==='winter'?1:3;if(!goals.length||goals.length>maxG)return{ok:false,err:maxG===1?'Choose one goal':'Choose one to three goals'};if(!BUDGET_LV[budget])return{ok:false,err:'Choose a budget'};
   const opts=briefOptions(id);F(id).policy.spend=BUDGET_LV[budget].spend;if(recruit&&RECRUIT[recruit])F(id).policy.recruit=recruit;
   P_.top3=topThree(id).map(p=>({pid:p.id,name:p.name}));
   P_.brief={goals:goals.map(k=>{const o=opts.find(x=>x.k===k)||{t:k};const n=+(o.t.match(/£(\d+)k/)||[])[1]||0;return{k,t:o.t,n}}),budget,recruit:recruitStrategy(id),dir:tdOf(id)?.id||null,dirName:tdOf(id)?.name||'The director',startBudget:budgetFor(id)};
-  preTick(`${P_.brief.dirName} signs the summer brief: ${P_.brief.goals.map(g=>g.t.toLowerCase()).join('; ')}.`,'us');return{ok:true};
+  preTick(`${P_.brief.dirName} signs the ${P_.kind} brief: ${P_.brief.goals.map(g=>g.t.toLowerCase()).join('; ')}.`,'us');return{ok:true};
 }
 
 /* ----- 3. the ticker: one pre-season week of the market ----- */
@@ -67,8 +74,8 @@ function preSell(id){
 }
 /* the wider market: a share of the other clubs does its business this week, and the ticker shows the biggest deals */
 function preRivals(id){
-  const mark=S.evn||0,others=shuffle(allIds().filter(c=>c!==id)).slice(0,Math.ceil(allIds().length*.2));
-  for(const c of others)squadManager(c,'summer');
+  const mark=S.evn||0,winter=preState().kind==='winter',others=shuffle(allIds().filter(c=>c!==id)).slice(0,Math.ceil(allIds().length*(winter?.15:.2)));
+  for(const c of others)squadManager(c,winter?'winter':'summer');
   const deals=eventsSince(mark).filter(e=>e.t==='Transfer'&&e.c!==id&&e.c2!==id&&e.fee).sort((a,b)=>b.fee-a.fee),tier=CL(id).tier;
   const near=deals.filter(e=>Math.abs(CL(e.c).tier-tier)<=1).slice(0,3);for(const e of near)preTick(e.text,'world');
   if(!near.length&&deals[0])preTick(deals[0].text,'world');
@@ -76,7 +83,7 @@ function preRivals(id){
 function briefWants(goal){const P_=preState();return !!(P_.brief&&P_.brief.goals.some(g=>g.k===goal))}
 function spentThisSummer(){return preState().deals.filter(d=>d.stage==='signed').reduce((a,d)=>a+d.fee,0)}
 function preWeek(){
-  const id=S.my,P_=PRE();if(!P_||P_.wk>PRE_WEEKS)return{ok:false,err:'The window is closed'};if(!P_.brief)return{ok:false,err:'Sign the summer brief first'};P_.after=false;const deadline=P_.wk===PRE_WEEKS;
+  const id=S.my,P_=PRE();if(!P_||P_.wk>winWeeks(P_))return{ok:false,err:'The window is closed'};if(!P_.brief)return{ok:false,err:'Sign the brief first'};P_.after=false;const deadline=P_.wk===winWeeks(P_);
   if(P_.offer){preTick(`You let the bid for ${P_.offer.name} lapse.`,'us');P_.offer=null}
   if(P_.record){const d=P_.deals.find(x=>x.pid===P_.record.pid);if(d)d.stage='walked';preTick(`The record deal for ${P_.record.name} falls through.`,'bad');P_.record=null}
   if(deadline)preTick('⏰ Deadline day: the window shuts tonight.','news');
@@ -131,14 +138,14 @@ function prePrio(pos){const P_=PRE();if(!P_)return{ok:false,err:'The window is c
 function preBudget(){const f=F(S.my),cur=f.policy.spend??.5;if(cur>=1)return{ok:false,err:'The whole budget is already free'};return cmd('SetSquadPolicy',S.my,{spend:r2(Math.min(1,cur+.1))})}
 
 /* ----- 5. the summer edition: the headline of the window ----- */
-function summerEdition(){
-  const P_=S.pre;if(!P_||P_.s!==S.season)return null;const ins=P_.deals.filter(d=>d.stage==='signed'),outs=P_.sold,big=ins.slice().sort((a,b)=>b.fee-a.fee)[0],star=outs.find(s=>s.star);
-  const head=star?`${star.name} leaves for £${star.fee}k`:big&&big.fee?`${big.name} arrives for £${big.fee}k`:ins.length?`${ins.length} new face${ins.length>1?'s':''}, little money spent`:outs.length?'A summer of selling':'A quiet summer at the club';
+function summerEdition(P_){
+  P_=P_||S.pre;if(!P_||P_.s!==S.season)return null;const ins=P_.deals.filter(d=>d.stage==='signed'),outs=P_.sold,big=ins.slice().sort((a,b)=>b.fee-a.fee)[0],star=outs.find(s=>s.star);
+  const head=star?`${star.name} leaves for £${star.fee}k`:big&&big.fee?`${big.name} arrives for £${big.fee}k`:ins.length?`${ins.length} new face${ins.length>1?'s':''}, little money spent`:outs.length?`A ${P_.kind||'summer'} of selling`:`A quiet ${P_.kind||'summer'} at the club`;
   return{head,ins,outs,spent:ins.reduce((a,d)=>a+d.fee,0),raised:outs.reduce((a,s)=>a+s.fee,0),world:P_.ticker.filter(t=>t.kind==='world').slice(-3)};
 }
 /* ----- 6. the debrief: four weeks in, the brief is judged with names ----- */
-function briefJudge(id){
-  const P_=S.pre;if(!P_||!P_.brief)return[];const ins=P_.deals.filter(d=>d.stage==='signed'),spent=ins.reduce((a,d)=>a+d.fee,0),raised=P_.sold.reduce((a,s)=>a+s.fee,0);
+function briefJudge(id,P_){
+  P_=P_||debriefTarget()||S.pre;if(!P_||!P_.brief)return[];const ins=P_.deals.filter(d=>d.stage==='signed'),spent=ins.reduce((a,d)=>a+d.fee,0),raised=P_.sold.reduce((a,s)=>a+s.fee,0);
   return P_.brief.goals.map(g=>{
     if(g.k.startsWith('sign:')){const pos=g.k.slice(5),who=ins.find(d=>d.pos===pos||NEAR[pos]?.includes(d.pos));return{t:g.t,met:!!who,how:who?`${who.name} signed`:'Nobody signed'}}
     if(g.k==='keep3'){const gone=P_.top3.filter(x=>{const f=findPlayer(x.pid);return!f||f.club!==id});return{t:g.t,met:!gone.length,how:gone.length?`${gone.map(x=>x.name).join(', ')} left`:P_.top3.map(x=>x.name).join(', ')+' stayed'}}
@@ -148,12 +155,22 @@ function briefJudge(id){
     return{t:g.t,met:false,how:''};
   });
 }
-function debriefDue(){const P_=S.pre;return !!(S.my&&P_&&P_.s===S.season&&P_.brief&&!P_.debrief&&S.week>=4)}
+function debriefTarget(){if(!S.my)return null;const w=S.win,p=S.pre;if(w&&w.s===S.season&&w.brief&&!w.debrief&&S.week>=WINTER_WEEK+4)return w;if(p&&p.s===S.season&&p.brief&&!p.debrief&&S.week>=4)return p;return null}
+function debriefDue(){return !!debriefTarget()}
 function debriefChoose(back){
-  const id=S.my,P_=S.pre;if(!debriefDue())return{ok:false,err:'Nothing to judge'};const res=briefJudge(id),met=res.filter(r=>r.met).length,d=tdOf(id);
+  const id=S.my,P_=debriefTarget();if(!P_)return{ok:false,err:'Nothing to judge'};const res=briefJudge(id,P_),met=res.filter(r=>r.met).length,d=tdOf(id);
   P_.debrief={met,total:res.length,back:!!back,s:S.season};
-  if(d){d.loy=clamp((d.loy??50)+(back?6:-8)+(met-res.length/2)*4,0,100);d.mem=d.mem||[];d.mem.push({s:S.season,t:back?'backed after the summer':'warned after the summer',met})}
-  const warnings=(d&&d.mem||[]).filter(m=>m.t==='warned after the summer').length;
-  emit('Club',id,`Summer debrief: ${met} of ${res.length} goals met. You ${back?'back':'warn'} ${P_.brief.dirName}.`);
+  if(d){d.loy=clamp((d.loy??50)+(back?6:-8)+(met-res.length/2)*4,0,100);d.mem=d.mem||[];d.mem.push({s:S.season,t:back?'backed after the window':'warned after the window',met})}
+  const warnings=(d&&d.mem||[]).filter(m=>m.t==='warned after the summer'||m.t==='warned after the window').length;
+  emit('Club',id,`${P_.kind==='winter'?'Winter':'Summer'} debrief: ${met} of ${res.length} goals met. You ${back?'back':'warn'} ${P_.brief.dirName}.`);
   return{ok:true,text:back?`You back ${P_.brief.dirName}. ${met} of ${res.length} goals met.`:`You warn ${P_.brief.dirName}.${warnings>=2?' A second warning: you can replace him under Club → Football.':''}`};
 }
+
+/* the winter window runs inside the season: the director acts in the two window weeks, after the matches.
+   If the chairman has not signed a winter brief by then, the director works to his own proposal. */
+function winterWeek(){
+  if(!S.my||S.phase!=='season')return;if(S.week!==WINTER_WEEK-1&&S.week!==WINTER_WEEK)return;const P_=preState();if(P_.kind!=='winter')return;
+  if(!P_.brief){const m=summerMeeting(S.my),ok=briefOptions(S.my).map(o=>o.k),g=m.plan.goals.find(k=>ok.includes(k))||ok[0];signBrief(S.my,[g],m.plan.budget);preTick('You did not meet the director: he works to his own winter plan.','off')}
+  if(P_.wk<=winWeeks(P_))preWeek();
+}
+onWeek(winterWeek);

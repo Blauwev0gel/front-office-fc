@@ -86,3 +86,5 @@
 .g-gems li.g-gem{display:flex;align-items:center;gap:8px;justify-content:space-between}.g-gem>div{display:flex;flex-direction:column;gap:2px;min-width:0}.g-gem span{font-size:.78rem;color:var(--muted)}
 .g-gem .btn{min-height:44px;padding:0 10px;font-size:.8rem;flex:none}.g-gem em{font-style:normal;font-size:.75rem;font-weight:700;white-space:nowrap}
 .g-gem>div{flex:1}.g-gem .btn{width:auto!important;max-width:40%}
+.g-mb{display:flex;justify-content:space-between;gap:8px;align-items:center}.g-mb>div{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}.g-mb span{font-size:.76rem;color:var(--muted)}.g-mb em{font-style:normal;font-weight:800;white-space:nowrap}.g-mb em.good{color:var(--good)}.g-mb em.bad{color:var(--bad)}.g-mb .g-tag{font-style:normal}
+.g-why{color:var(--signal)!important;font-weight:600}

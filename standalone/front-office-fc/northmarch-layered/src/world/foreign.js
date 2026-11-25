@@ -170,6 +170,7 @@ function foreignMove(p,from,to,fee,reason){
   const move={season:S.season,week:S.week,pid:p.id,name:p.name,from,to,fee,reason};
   f.market.log.push(move);
   emit('InternationalTransfer',toDom?to:fromDom?from:null,text,{pid:p.id,fee,reason,from,to});
+  if(typeof mbRecord==='function')mbRecord(p,from,to,fee);
   return true;
 }
 /* Recruitment follows sporting deficits and finances rather than random full-squad

@@ -79,3 +79,29 @@ function chairDossierUpdate(){
     if(!f){g.status='gone';continue}if(f.club===S.my){g.status='signed';g.signedS=S.season}else if(f.club!==g.from){g.status='gone';g.to=f.club}}
 }
 onWeek(chairDossierUpdate);
+/* ----- the Moneyball ledger: every player in and out of the player's club, with fees, growth and appearances ----- */
+function MB(){if(!S.mb)S.mb=[];return S.mb}
+function mbRecord(p,from,to,fee){
+  if(!S.my||(to!==S.my&&from!==S.my))return;const L=MB();
+  if(to===S.my){L.push({pid:p.id,name:p.name,pos:p.pos,age:p.age,in:fee||0,from,s:S.season,w:S.week,q0:r1(p.q),found:!!(S.scout&&S.scout.gems.some(g=>g.pid===p.id)),out:null,to:null,so:null});if(L.length>80)L.shift();return}
+  let r=L.slice().reverse().find(x=>x.pid===p.id&&x.so==null);
+  if(!r){r={pid:p.id,name:p.name,pos:p.pos,age:p.age,in:0,from:null,s:null,q0:null,academy:!!(p.career&&p.career[0]==='Academy'),found:false,out:null,to:null,so:null};L.push(r)}
+  r.out=fee||0;r.to=to;r.so=S.season;r.qOut=r1(p.q);
+}
+function mbRow(r){const f=findPlayer(r.pid),here=!!f&&(f.club===S.my||f.p.loan?.from===S.my),lc=S.legacy&&S.legacy.clubs[S.my],apps=lc&&lc.players[r.pid]?lc.players[r.pid].apps:0;
+  const worth=r.so!=null?r.out:here?Math.round(playerValue(f.p)):0,profit=worth-r.in,qNow=here?r1(f.p.q):r.qOut??null;
+  return{...r,here,apps:apps+(here?(f.p.sApps||0):0),worth,profit,qNow,grew:r.q0!=null&&qNow!=null?r1(qNow-r.q0):null,hit:r.s!=null&&(r.so!=null?r.out>r.in:qNow!=null&&qNow-r.q0>=.5||apps>=30)}}
+function mbBoard(){
+  const rows=MB().map(mbRow),bought=rows.filter(r=>r.s!=null),sold=rows.filter(r=>r.so!=null);
+  const judged=bought.filter(r=>r.so!=null||S.season>r.s),hits=judged.filter(r=>r.hit).length;
+  const best=rows.filter(r=>r.s!=null||r.academy).sort((a,b)=>b.profit-a.profit)[0]||null;
+  return{rows,spent:bought.reduce((a,r)=>a+r.in,0),received:sold.reduce((a,r)=>a+r.out,0),hits,judged:judged.length,best,found:bought.filter(r=>r.found).length};
+}
+/* why the director has not signed a recommended player (yet) */
+function gemWhy(g){
+  if(g.status!=='recommended')return null;const e=S.ops&&S.ops.shortlist.find(x=>x.pid===g.pid);
+  if(e&&e.reason&&e.reason!=='Considered')return({'Below target':'Not good enough in my view','Outside transfer budget':'Too expensive for the budget','Above my mandate':'Above my mandate','Outside wage limit':'His wages do not fit','Selling club unwilling':'His club will not sell'})[e.reason]||e.reason;
+  const need=S.ops&&S.ops.plan.needs.some(n=>n.status==='open'&&(n.pos===g.pos||NEAR[g.pos]?.includes(n.pos)));
+  return need?'Waiting for the next window':`No need for a ${POS_ONE[g.pos]} right now`;
+}
+function gemNow(g){const f=findPlayer(g.pid);return f?{value:Math.round(playerValue(f.p)),age:f.p.age,club:f.club}:null}

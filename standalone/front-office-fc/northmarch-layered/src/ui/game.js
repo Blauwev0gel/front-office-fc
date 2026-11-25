@@ -73,7 +73,7 @@
  function weekScreen(){
    const id=S.my;
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
-   return`<div class="g-week">${msg}${statusStrip(id)}${S.week===0?promises(id)+preSeason(id):''}${nextMatch(id)}${S.week===0?'':decisions(id)}${lastWeek()}</div>`;
+   return`<div class="g-week">${msg}${statusStrip(id)}${S.week===0?promises(id)+preSeason(id):''}${nextMatch(id)}${S.week===0?'':decisions(id)}${worldCard(id)}${lastWeek()}</div>`;
  }
 
 
@@ -136,10 +136,36 @@
    const link=(t,sub,a,arg,i)=>`<button class="g-link" data-act="${a}" data-arg="${arg}"><span class="g-ic" aria-hidden="true">${i}</span><span><b>${t}</b><small>${sub}</small></span><em aria-hidden="true">›</em></button>`;
    return`<div class="g-week">${money}
    <section><h3 class="g-h">Departments</h3><p class="g-hint">Each department has three dials: staff (●), budget and a focus. Tap one to change them and to see what it delivers.</p><div class="g-depts">${depts}</div></section>
-   <section class="g-links">${link('Football','Head coach, director, playing style','ctab','football','⚽')}${link('Transfers','Needs, shortlist, window','ctab','window','⇄')}${link('Stadium & facilities','Build, repair, capacity','ctab','ground','▥')}${link('Members & board','Confidence, prices, goals','ctab','members','♜')}${link('History','Past seasons and club growth','ctab','development','⌛')}</section></div>`;
+   <section class="g-links">${link('Football','Head coach, director, playing style','ctab','football','⚽')}${link('Transfers','Needs, shortlist, window','ctab','window','⇄')}${link('Stadium & facilities','Build, repair, capacity','ctab','ground','▥')}${link('Members & board','Confidence, prices, goals','ctab','members','♜')}${link('Legacy','Your era, honours, legends, your career','ctab','legacy','★')}${link('History & growth','Season by season, records, money','ctab','development','⌛')}</section></div>`;
  }
+
+ /* ----- LEGACY: the dynasty, what lasts ----- */
+ function legacyView(){
+   const id=S.my,c=C(),lc=S.legacy&&S.legacy.clubs[id],era=lc?lc.era:[],hon=honours(id),L=S.legacy||{kept:0,made:0};
+   const best=era.length?era.slice().sort((a,b)=>a.tier-b.tier||a.pos-b.pos)[0]:null,troph=era.filter(e=>e.champs||e.cup).length,ups=era.filter(e=>e.promoted).length;
+   const cell=(k,v,w)=>`<div><small>${k}</small><b>${v}</b><span>${esc(w)}</span></div>`;
+   const eraCard=`<section class="g-card"><small class="g-k">YOUR ERA AT ${esc(c.name.toUpperCase())}</small>
+     <section class="g-delta">${cell('Seasons',era.length,era.length?'S'+era[0].s+'–S'+era[era.length-1].s:'first season')}${cell('Best',best?ord(best.pos):'—',best?TIER_NAME[best.tier]:'not yet')}${cell('Trophies',troph,ups?ups+' promotion'+(ups>1?'s':''):'none yet')}</section>
+     ${era.length?`<ul class="g-era">${era.slice().reverse().map(e=>`<li><b>S${e.s}</b><span>${ord(e.pos)} · ${esc(TIER_NAME[e.tier])}${e.champs?' · 🏆 champions':e.promoted?' · ▲ promoted':e.relegated?' · ▼ relegated':''}${e.cup?' · 🏆 cup':''}</span><em>${e.met}/${e.total} promises</em></li>`).join('')}</ul>`:'<p class="g-hint">Your first season is still being written. Every season you finish is kept here.</p>'}</section>`;
+   const honoursCard=`<section class="g-card"><small class="g-k">HONOURS BOARD · ALL TIME</small>${hon.titles.length||hon.cups.length?`<ul class="g-news">${hon.titles.map(t=>`<li>🏆 ${esc(TIER_NAME[t.tier])} champions, season ${t.s}</li>`).join('')}${hon.cups.map(x=>`<li>🏆 ${esc(CUP_NAME)}, season ${x}</li>`).join('')}</ul>`:'<p class="g-hint">The board is empty. The first name on it could be yours.</p>'}</section>`;
+   const lg=legends(id);
+   const legCard=`<section class="g-card"><small class="g-k">CLUB LEGENDS · MOST APPEARANCES</small>${lg.length?`<ul class="g-era">${lg.map((r,i)=>`<li><b>${i+1}</b><span>${esc(r.name)}${r.academy?' <i class="g-tag in">ACADEMY</i>':''}<br><small class="muted">${esc(POS_ONE[r.pos]||r.pos)} · S${r.first}–S${r.last}</small></span><em>${r.apps} apps · ${r.goals} goals</em></li>`).join('')}</ul>`:'<p class="g-hint">Legends are made over seasons: appearances are counted from the end of your first season.</p>'}</section>`;
+   const ay=typeof academyYield==='function'&&S.youth?academyYield(10):null;
+   const acad=ay&&ay.n?`<section class="g-card"><small class="g-k">YOUR ACADEMY</small><p>${ay.n} graduates, ${ay.regulars} became regulars, £${ay.fees}k in fees.</p></section>`:'';
+   const career=`<section class="g-card"><small class="g-k">YOUR CAREER</small><p><b>${esc(repWord())}</b> · promises kept ${L.kept} of ${L.made}</p><ul class="g-news">${S.career.map(cr=>`<li>${nm(cr.club)} · S${cr.from}${cr.to?'–'+cr.to:'–now'}${cr.why?` · <span class="muted">${esc(cr.why)}</span>`:''}</li>`).join('')}</ul><p class="g-hint">Your reputation follows you: a chairman who keeps his word gets better clubs and more patience.</p></section>`;
+   return`<div class="hubback"><button class="tbtn" data-act="ctab" data-arg="hub">← Club</button></div><div class="g-week">${eraCard}${honoursCard}${legCard}${acad}${career}</div>`;
+ }
+ /* ----- the living world: what happened elsewhere this week ----- */
+ function worldCard(id){
+   const t=CL(id).tier,tbl=standings(t),lead=tbl[0],gap=S.week?S.tbl[lead].pts-S.tbl[id].pts:0;
+   const news=(S.worldLog||[]).filter(x=>x.s===S.season&&x.w===S.week&&x.c!==id).sort((a,b)=>b.priority-a.priority).slice(0,3);
+   const race=S.week?(lead===id?`You lead ${esc(TIER_NAME[t])}.`:`${nm(lead)} lead ${esc(TIER_NAME[t])}, ${gap} point${gap===1?'':'s'} ahead of you.`):'';
+   if(!race&&!news.length)return'';
+   return`<section class="g-card g-world"><small class="g-k">AROUND THE NORTHMARCH</small>${race?`<p><b>${race}</b></p>`:''}${news.length?`<ul class="g-news">${news.map(n=>`<li>${esc(n.text)}</li>`).join('')}</ul>`:''}</section>`;
+ }
+
  const oldClub=clubView;
- clubView=function(){if(inGame()&&(!UI.ct||UI.ct==='hub'))return clubHome();return oldClub()};
+ clubView=function(){if(inGame()&&UI.ct==='legacy')return legacyView();if(inGame()&&(!UI.ct||UI.ct==='hub'))return clubHome();return oldClub()};
 
 
  /* ----- SEASON END: a report card first, the full review folded below ----- */

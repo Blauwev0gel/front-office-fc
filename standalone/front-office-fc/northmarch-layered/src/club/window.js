@@ -109,7 +109,8 @@ function preWeek(){
   const salesGoal=(P_.brief.goals.find(g=>g.k==='sales')||{}).n||0,raised=P_.sold.reduce((a,s)=>a+s.fee,0);
   if((budget<5&&!P_.sold.length)||(salesGoal&&raised<salesGoal&&rnd()<.6))preSell(id);
   /* a bid for one of our best players: the chairman decides */
-  if(!P_.offer&&rnd()<(deadline?.4:.25)){const p=pick(topThree(id)),rich=p?allIds().filter(c=>c!==id&&CL(c).tier<=CL(id).tier&&F(c).cash>askingFee(p,id)*1.6):[];
+  const promised=typeof pactReleasePid==='function'?pactReleasePid():null,promisedP=promised&&S.squads[id].find(x=>x.id===promised);
+  if(!P_.offer&&(promisedP||rnd()<(deadline?.4:.25))){const p=promisedP||pick(topThree(id)),rich=p?allIds().filter(c=>c!==id&&CL(c).tier<=CL(id).tier&&F(c).cash>askingFee(p,id)*1.6):[];
     if(p&&rich.length){const by=pick(rich);P_.offer={pid:p.id,name:p.name,pos:p.pos,age:p.age,by,fee:Math.round(askingFee(p,id)*(1.1+rnd()*.35)),asked:false};preTick(`❗ ${CL(by).name} bid £${P_.offer.fee}k for ${p.name}.`,'warn')}}
   P_.wk++;P_.after=true;return{ok:true};
 }
@@ -118,6 +119,7 @@ function preOffer(choice){
   const id=S.my,P_=PRE(),o=P_&&P_.offer;if(!o)return{ok:false,err:'No bid on the table'};const f=findPlayer(o.pid);
   if(!f||f.club!==id){P_.offer=null;return{ok:false,err:'He is no longer here'}}
   if(choice==='more'&&!o.asked){o.asked=true;if(rnd()<.5){o.fee=Math.round(o.fee*1.2);preTick(`${CL(o.by).name} raise their bid for ${o.name} to £${o.fee}k.`,'warn');return{ok:true,text:`They raised it to £${o.fee}k. Now decide.`}}P_.offer=null;preTick(`${CL(o.by).name} walk away from ${o.name}.`,'off');return{ok:true,text:'They walked away.'}}
+  if(typeof pactRelease==='function'&&choice!=='more')pactRelease(o.pid,choice==='accept');
   if(choice==='accept'){S._chairSale=true;transfer(f.p,id,o.by,o.fee,'sold by the chairman');S._chairSale=false;P_.sold.push({pid:o.pid,name:o.name,fee:o.fee,to:o.by,star:true});P_.offer=null;preTick(`→ You sell ${o.name} to ${CL(o.by).name} for £${o.fee}k.`,'us');confLog(id,o.fee>playerValue(f.p)*1.3?1:-3,o.fee>playerValue(f.p)*1.3?'A big fee for a star':'A star sold');return{ok:true,text:`${o.name} is sold for £${o.fee}k. The director will look for a replacement.`}}
   P_.offer=null;if(rnd()<.35){f.p.wantsOut=true;preTick(`You turn down the bid. ${o.name} is unhappy and wants to talk.`,'bad');return{ok:true,text:`Bid rejected. ${o.name} is unhappy.`}}
   preTick(`You turn down the bid for ${o.name}. He stays.`,'us');return{ok:true,text:'Bid rejected. He stays.'};

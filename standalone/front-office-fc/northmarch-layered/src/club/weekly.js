@@ -49,6 +49,7 @@ function lookingBack(id){
     cand.push({k,s:r.s,w:r.w||0,t:`${r.name}, signed ${r.in?`for £${r.in}k`:'on a free'} in season ${r.s}: ${apps?apps+' game'+(apps===1?'':'s'):'has not played yet'}, quality ${r1(f.p.q-r.q0)>=0?'+':''}${r1(f.p.q-r.q0)} since${r.found?' — one of your own finds':''}.`,good:apps?f.p.q>=r.q0:null})}
   for(const g of (S.scout&&S.scout.gems||[]).filter(g=>g.status==='gone'&&g.to)){const k='gem'+g.pid;if(age(g.s,g.w)<4||used(k))continue;const f=findPlayer(g.pid);
     cand.push({k,s:g.s,w:g.w,t:`${g.name}, whom you found in season ${g.s}, joined ${marketClubName(g.to)}${f?`: worth ~£${Math.round(playerValue(f.p))}k now`:''}.`,good:false})}
+  for(const p of (S.pacts||[]).filter(p=>p.status!=='open'&&p.closed)){const k='pact'+p.s+'.'+p.w+p.key;if(age(p.closed[0],p.closed[1])<1||used(k))continue;cand.push({k,s:p.closed[0],w:p.closed[1],t:`${p.status==='kept'?'Kept':'Broken'}: “${p.label}” with ${p.who} (week ${p.w}). ${p.why}`,good:p.status==='kept'})}
   for(const e of (S.family&&S.family.log||[])){const k='fam'+e.s+'.'+e.w;if(age(e.s,e.w)<6||used(k))continue;cand.push({k,s:e.s,w:e.w,t:`Season ${e.s}, week ${e.w}: ${e.text}`,good:null})}
   if(!cand.length)return null;const pickC=cand.sort((a,b)=>(a.s*100+a.w)-(b.s*100+b.w))[S.week%cand.length];
   if(L.lastW!==now){L.lastW=now;L.cur=pickC.k;}const c=cand.find(x=>x.k===L.cur)||pickC;return c;

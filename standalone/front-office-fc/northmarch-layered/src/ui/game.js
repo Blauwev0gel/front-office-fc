@@ -75,7 +75,7 @@
  }
  /* ----- the week (M2): topic · one escalation · match and stakes · your week · promises · looking back · the close ----- */
  function topicBanner(id){const t=weekTopic(id);return`<p class="g-topic t-${t.k}" role="note">${esc(t.t)}</p>`}
- function escalation(){return debriefCard()||momentCard()}
+ function escalation(){return debriefCard()||clubMomentCard()||momentCard()}
  function promisesCompact(id){const m=M(id);if(!m.goals)return'';return`<section class="g-card g-pc"><small class="g-k">YOUR PROMISES · JUDGED AT THE AGM</small><ul>${m.goals.map(g=>{const pr=goalProgress(id,g);return`<li class="${pr.met?'on':'off'}"><b>${pr.met?'✓':'…'}</b><span>${esc(g.text)}</span><em>${esc(pr.text)}</em></li>`}).join('')}</ul></section>`}
  function lookBackCard(id){const c=lookingBack(id);if(!c)return'';return`<section class="g-card g-lb ${c.good===true?'up':c.good===false?'down':''}"><small class="g-k">LOOKING BACK</small><p>${esc(c.t)}</p></section>`}
  function weekClose(id){
@@ -90,7 +90,7 @@
    const id=S.my;
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
    if(S.week===0)return`<div class="g-week">${msg}${momentCard()}${statusStrip(id)}${preSeason(id)}${promises(id)}${nextMatch(id)}${yourWeek(id)}</div>`;
-   return`<div class="g-week">${msg}${topicBanner(id)}${escalation()}${statusStrip(id)}${nextMatch(id)}${yourWeek(id)}${lookBackCard(id)}${promisesCompact(id)}${weekClose(id)}</div>`;
+   return`<div class="g-week">${msg}${topicBanner(id)}${escalation()}${statusStrip(id)}${nextMatch(id)}${yourWeek(id)}${tableCard()}${lookBackCard(id)}${promisesCompact(id)}${weekClose(id)}</div>`;
  }
 
 
@@ -268,6 +268,20 @@
    ${pros.length?`<section class="g-card"><small class="g-k">ACADEMY INVITATIONS</small><ul class="g-news">${pros.map(p=>`<li>${esc(p.name)} (${esc(POS_ONE[p.pos])}) · ${esc({invited:'invited for the summer',joined:'joined the academy ✓',declined:'chose another academy'}[p.status]||p.status)}</li>`).join('')}</ul></section>`:''}</div>`;
  }
 
+
+ /* ----- M3: a moment with a person, ending in an agreement (You give · They give · Tested · If it fails) ----- */
+ function clubMomentCard(){
+   const mo=S.moment;if(!mo)return'';const left=MOM_DEADLINE-(momNow()-mo.at);
+   return`<article class="g-moment"><small class="g-k">A MOMENT · ${esc(mo.role.toUpperCase())}</small><h2>${esc(mo.title)}</h2><p>${esc(mo.text)}</p>
+   ${mo.opts.map((o,i)=>`<button class="g-opt g-deal-opt" data-act="momchoose" data-arg="${i}"><b>${esc(o.label)}</b>${o.test!=='—'?`<dl><dt>You give</dt><dd>${esc(o.give)}</dd><dt>They give</dt><dd>${esc(o.get)}</dd><dt>Tested</dt><dd>${esc(o.test)}</dd><dt>If it fails</dt><dd>${esc(o.fail)}</dd></dl>`:`<span>${esc(o.get!=='Nothing'?o.get:o.fail)}</span>`}</button>`).join('')}
+   <p class="g-hint">Say nothing for ${left} more week${left===1?'':'s'} and it becomes “${esc(mo.opts[mo.dflt].label)}”.</p></article>`;
+ }
+ function pactProgress(p){const id=S.my,gone=S.week-p.w0,pts=ptsNow(id)-p.pts0;
+   return p.kind==='points'?`${pts} of ${p.need} points · ${Math.max(0,p.weeks-gone)} games left`:p.kind==='wins'?`${(S.tbl[id]?.form||[]).slice(-Math.max(1,gone)).filter(r=>r==='W').length} of ${p.need} wins · ${Math.max(0,p.weeks-gone)} games left`
+   :p.kind==='conf'?`Confidence ${Math.round(M(id).conf)} (must stay above ${p.min})`:p.kind==='homewin'?(p.hw?`Next home game: week ${p.hw}`:'No home game left'):p.kind==='keep'?'Keep him through the winter window':p.kind==='release'?'Next summer: accept the first fair bid':p.kind==='cash'?`${p.bad||0} loss-making month${(p.bad||0)===1?'':'s'} so far (two breaks it)`:p.kind==='nosale'?'No first-team sale in the winter window':p.kind==='apps'?'10 games for him before the season ends':p.kind==='sellwinter'?'Sell him in the winter window':p.kind==='finish'?`Finish ${ord(p.pos)} or higher (now ${ord(posOf(S.my))})`:''}
+ function tableCard(){const open=(S.pacts||[]).filter(p=>p.status==='open');if(!open.length)return'';
+   return`<section class="g-card g-pacts"><small class="g-k">ON THE TABLE · YOUR AGREEMENTS</small><ul>${open.map(p=>`<li><b>${esc(p.label)}</b> <span class="muted">with ${esc(p.who)}</span><span>${esc(pactProgress(p))}</span></li>`).join('')}</ul></section>`}
+
  const oldClub=clubView;
  clubView=function(){if(inGame()&&UI.ct==='legacy')return legacyView();if(inGame()&&UI.ct==='dossier')return dossierView();if(inGame()&&(!UI.ct||UI.ct==='hub'))return clubHome();return oldClub()};
 
@@ -308,6 +322,7 @@
      UI.pickRegion=false;if(r.ok===false)UI.msg={err:true,text:r.err};else UI.trip={...r,kind:{chairtrip:'trip',chairtour:'tour',chairdata:'data',chairhome:'home'}[a],w:scNow()};save();render();return}
    if(a==='chairrec'&&S&&S.my){const r=chairRecommend(S.my,arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:`Recommended. The director will weigh him when he looks for a ${POS_ONE[r.pos]}.`};save();render();return}
    if(a==='chairinvite'&&S&&S.my){const r=chairInvite(S.my,arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:'Invited. He will decide next summer.'};save();render();return}
+   if(a==='momchoose'&&S&&S.my){const r=momentChoose(+arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.note};save();render();return}
    if(a==='famchoose'&&S&&S.my){const r=familyChoose(+arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.note||'Decided.'};save();render();return}
    if(a==='manifest'&&S&&S.my){const [k,n]=String(arg).split(':');const r=cmd('SetManifest',S.my,{k,lv:+n});if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}
    const mark=S&&S.evn||0;if((a==='play'||a==='playn')&&S&&S.my){UI.gPos=S.week?posOf(S.my):null;lookingBackSeen()}

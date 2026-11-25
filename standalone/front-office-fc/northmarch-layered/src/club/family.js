@@ -45,7 +45,7 @@ const FAM_MOMENTS={
 function familyWeek(){
   if(!S.my||S.phase!=='season')return;const F_=FAM();
   if(F_.moment){if(famNow()-F_.moment.at>=MOMENT_DEADLINE){const d=F_.moment.dflt;familyChoose(d<0?F_.moment.opts.length-1:d,true)}return}
-  if(famNow()-F_.last<FAM_GAP)return;
+  if(S.moment)return;if(famNow()-Math.max(F_.last,S.momentLast??-99)<FAM_GAP)return;
   F_.seen=F_.seen||{};
   for(const key of ['health','retire','succession','path','family_player','job']){if(F_.seen[key]&&famNow()-F_.seen[key]<100)continue;const who=FAM_MOMENTS[key].when();if(who){F_.seen[key]=famNow();
     const m=FAM_MOMENTS[key].make(who);F_.moment={key,at:famNow(),...m,fid:who.id};F_.last=famNow();emit('FamilyMoment',S.my,m.title);return}}

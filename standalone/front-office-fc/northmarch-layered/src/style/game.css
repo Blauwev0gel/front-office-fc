@@ -92,3 +92,8 @@
 .g-deal em{font-style:normal;font-size:.72rem;font-weight:800;padding:4px 8px;border-radius:8px;background:var(--card);white-space:nowrap}
 .g-deal em.live{color:var(--signal)}.g-deal em.good{background:var(--good);color:var(--onnavy)}.g-deal em.bad{background:var(--bad);color:var(--onnavy)}.g-deal em.warn{background:var(--signal);color:var(--onnavy)}.g-deal em.off{color:var(--muted)}
 .g-deal .g-tag{font-style:normal}
+.g-goals{display:flex;flex-direction:column;gap:6px}.g-opt.on{background:var(--navy);color:var(--onnavy)}.g-opt.on span{color:var(--onnavy);opacity:.85}
+.g-tick{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
+.g-tick li{display:grid;grid-template-columns:38px 1fr;gap:8px;padding:7px 10px;border-radius:9px;background:var(--chip);font-size:.86rem;border-left:4px solid var(--line)}
+.g-tick li b{color:var(--muted);font-size:.74rem}.g-tick li.good{border-left-color:var(--good)}.g-tick li.bad{border-left-color:var(--bad)}.g-tick li.warn{border-left-color:var(--signal)}.g-tick li.us{border-left-color:var(--navy)}.g-tick li.world{background:transparent;border:1px dashed var(--line)}.g-tick li.off{opacity:.75}
+.g-echo{border-top:4px solid var(--ink)}.g-echo h2{font-size:1.4rem}

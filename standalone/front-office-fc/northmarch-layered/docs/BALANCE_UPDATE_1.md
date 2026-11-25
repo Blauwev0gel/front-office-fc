@@ -27,3 +27,8 @@ Do not claim balance is proven from a small sample.
 - Staff weigh more in every department signal: `groundSignals` staff term `staff*.3*budget` → `staff*.45*budget` (`src/club/ground.js`).
   Goal: hiring a coach, physio or scout has a felt effect within weeks, so agenda choices matter. Applies to AI clubs too.
 - To test: does an extra staff level now give a measurable effect (growth, injury weeks, scouting looks) inside 5–10 weeks; does sim-test move.
+
+## Balance update 3 (M1, untested by Claude)
+- Transfer reserve in `budgetFor` lowered from 6 to 4 weeks of wages/outflows (all clubs), and the summer brief's budget level sets the player's `policy.spend` (0.35 / 0.6 / 0.9).
+- Each pre-season week 20% of the other clubs run `squadManager(c,'summer')` early, so rival deals appear in the ticker; the normal summer window still runs at the season start.
+- To test: number of deals per club per summer (target 2–4 for an average club), cash after the window by division, whether early AI shopping changes the market or sim-test.

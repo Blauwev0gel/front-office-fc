@@ -9,22 +9,26 @@ function onWeek(f){HOOKS.weekClosed.push(f)}
 function onSeason(f){HOOKS.seasonClosed.push(f)}
 function clearHooks(){HOOKS.weekClosed.length=0;HOOKS.seasonClosed.length=0}
 function allIds(){return Object.keys(S.clubs)}
-/* the summer transfer window: open through the pre-season (week 0), closed when the new season's first week is played.
-   The director of every club signs, sells and loans in one go; the chairman's strategy and frame are what count by then. */
-function summerWindow(){
+/* Interactive market settlement runs before the Echo; retain the legacy headless route for callers without a signed brief. */
+function summerWindow(interactive=false){
   const ids=allIds();
   const order=shuffle(ids.slice()).sort((a,b)=>F(b).cash-F(a).cash);
-  for(const pass of [0,1])for(const id of order)squadManager(id,pass===0?'summer':'summerCover');
-  if(S.my){tdClose();buildPlan(S.my)}
+  for(const pass of [0,1])for(const id of order)if(!interactive||id!==S.my)squadManager(id,pass===0?'summer':'summerCover');
+  if(interactive&&S.my){
+    // Only minimum free emergency cover, not a second discretionary recruitment pass.
+    coverAll(S.my);
+    const sq=S.squads[S.my];while(sq.length<SQUAD_MIN){if(!shopFor(S.my,pick(POS),0,{mustHave:true,budget:0}))break}
+  }
   for(const id of order)loanOut(id);
   youthReconcile();
   foreignTransferWindow();
+  if(S.my){buildPlan(S.my);tdClose()}
   for(const t of TIERS)tierIds(t).slice().sort((x,y)=>teamStrength(y)-teamStrength(x)).forEach((id,i)=>CL(id).expect=i+1);
   setGoalsAll();
 }
 function advanceWeek(){
   if(S.phase!=='season'||S.week>=SEASON_WEEKS)return null;
-  if(S.week===0)summerWindow();
+  if(S.week===0){if(interactiveSummer()){if(!S.pre.finalized)return null}else summerWindow()}
   S.week++;const w=S.week,ids=allIds();
   const mark=S.evn||0;
   // Continental games in the previous week affect availability and performance this week.
@@ -51,7 +55,7 @@ function advanceWeek(){
    at the end of the season, and when the club is in trouble */
 function playWeeks(max){
   const mark=S.evn||0;let n=0,why='';
-  while(n<max&&!seasonOver()){advanceWeek();n++;
+  while(n<max&&!seasonOver()){if(advanceWeek()===null){why='Finish the summer window first.';break}n++;
     if(eventsSince(mark).some(e=>e.c===S.my&&['CashCrisis','ForcedSale','Administration','SafetyClosure'].includes(e.t))){why='Trouble at the club: have a look.';break}
     if(S.week===WINTER_WEEK-1){why='The winter window opens next week.';break}
     if(S.week===RENEW_WEEK-1){why='Contract renewals are next week.';break}}
@@ -99,5 +103,5 @@ function closeSeason(){
 }
 /* run the world without a human: the test harness and the 'simulate' tool */
 /* one full season; a chairman who was voted out takes the first open chair (test harness and simulations) */
-function playSeason(){if(S.phase==='choose')chooseClub(S.seats[0]);while(!seasonOver())advanceWeek();return closeSeason()}
+function playSeason(){if(S.phase==='choose')chooseClub(S.seats[0]);while(!seasonOver()){if(advanceWeek()===null)return null}return closeSeason()}
 function simulateSeasons(n){for(let i=0;i<n;i++)playSeason()}

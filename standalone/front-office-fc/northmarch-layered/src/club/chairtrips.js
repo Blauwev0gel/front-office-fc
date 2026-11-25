@@ -16,8 +16,8 @@ const REGIONS={
 };
 const GEMS_MAX=40;
 function SC(){if(!S.scout)S.scout={used:null,visits:{},gems:[],prospects:[],seasonV:S.season};if(S.scout.seasonV!==S.season){S.scout.visits={};S.scout.seasonV=S.season}return S.scout}
-const scNow=()=>S.season*100+S.week;
-function chairBusy(){return SC().used===scNow()}
+const scNow=()=>S.season*100+(S.week===0?-(5-(S.pre?.wk||1)):S.week);
+function chairBusy(){const A=SC();if(S.week===0&&S.pre?.wk>4)return true;return A.used===scNow()||(S.week===0&&(S.pre?.wk||1)===1&&A.used===S.season*100)}
 function regionPool(id,r){
   if(r==='fa')return S.fa.map(p=>({p,from:null}));
   if(r==='low'){const t=CL(id).tier,out=[];for(const c of allIds())if(c!==id&&CL(c).tier>=Math.min(4,t+1))for(const p of S.squads[c])if(!p.loan)out.push({p,from:c});return out}

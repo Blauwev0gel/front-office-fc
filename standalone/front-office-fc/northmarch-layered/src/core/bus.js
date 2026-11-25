@@ -8,6 +8,7 @@ function emit(type,club,text,data){
   const e={n:S.evn,t:type,c:club||null,s:S.season,w:S.week,text:text||'',...(data||{})};
   S.ev.push(e);if(S.ev.length>EV_KEEP)S.ev.splice(0,S.ev.length-EV_KEEP);
   if(typeof worldNewsRecord==='function')worldNewsRecord(e);
+  if(typeof noteSummerMovement==='function')noteSummerMovement(e);
   return e;
 }
 function eventsSince(n){return S.ev.filter(e=>e.n>n)}

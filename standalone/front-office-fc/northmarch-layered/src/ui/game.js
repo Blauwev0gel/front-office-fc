@@ -28,6 +28,7 @@
    if(UI.tab==='week'&&stage==='preview'&&P_&&preStep()==='welcome')play=`<button class="btn g-play" data-act="prewelcome">Meet your director ›</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&P_&&!P_.brief)play=`<button class="btn g-play" data-act="briefsign">✍ Agree the plan</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.wk<=PRE_WEEKS)play=`<button class="btn g-play" data-act="prenext">${P_.wk===PRE_WEEKS?'▶ Deadline day':'▶ Pre-season week '+P_.wk}</button>`;
+   else if(UI.tab==='week'&&stage==='preview'&&P_&&!P_.finalized)play=P_.offer||P_.record?`<button class="btn g-play" disabled>Resolve the outstanding decision</button>`:`<button class="btn g-play" data-act="preclose">Close the transfer window ›</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&over){const st=UI.agmStep||0;play=`<button class="btn g-play" data-act="${st>=3?'close':'agmnext'}">${['Go to the floor ›','To your speech ›','To the vote ›','Call the vote'][st]}</button>`}
    else if(UI.tab==='week'&&stage==='preview')play=`<button class="btn g-play" data-act="${over?'close':'play'}">${over?'Finish the season ›':pre?'▶ Start the season':'▶ Play week '+(S.week+1)}</button>`;
    else if(UI.tab==='week'&&stage!=='preview')play=`<button class="btn g-play" data-act="v183ready">Next week ›</button>`;
@@ -115,7 +116,7 @@
    ${summary}${planCard}${edit}${winter?'<button class="btn" data-act="briefsign">✍ Agree the winter plan</button>':''}</section>`;
  }
  /* the pre-season as steps: welcome (first season) → the plan → the market → the season ahead */
- function preStep(){const P_=PRE();if(!P_)return null;if(!S.welcomed&&S.season===S.career[0]?.from&&S.career.length===1)return'welcome';if(!P_.brief)return'plan';if(P_.wk<=winWeeks(P_))return'market';return'ahead'}
+ function preStep(){const P_=PRE();if(!P_)return null;if(!S.welcomed&&S.season===S.career[0]?.from&&S.career.length===1)return'welcome';if(!P_.brief)return'plan';if(!P_.finalized)return'market';return'ahead'}
  function preSteps(st){const L=[['plan','The plan'],['market','The market'],['ahead','The season']];const k=L.findIndex(x=>x[0]===st);return`<ol class="g-steps g-steps3">${L.map(([,t],i)=>`<li class="${i===k?'on':i<k?'done':''}">${t}</li>`).join('')}</ol>`}
  function welcomeCard(id){const c=C(),d=tdOf(id);return`<section class="g-card g-welcome"><small class="g-k">WELCOME, CHAIRMAN</small><h2>${esc(c.name)} is yours</h2>
    <ul class="g-list"><li><b>You do not pick the team.</b> ${esc(d?d.name:'Your director')} buys and sells; the head coach picks the side.</li><li><b>You set the course.</b> The plan, the money, the people, the promises.</li><li><b>The members vote every summer.</b> Lose the vote and you are gone.</li></ul>
@@ -144,9 +145,10 @@
    if(!P_.brief)return meetingCard(id);
    const closed=P_.wk>winWeeks(P_),o=P_.offer,r=P_.record;
    const esc2=escCards(P_);
+   if(closed&&!P_.finalized)return`${esc2}<section class="g-card"><h2>Deadline decisions</h2><p>${o||r?'Resolve the remaining decision before the window closes.':'All decisions resolved. Close the window for the final report.'}</p></section>${tickerCard(P_)}`;
    if(closed){const E=summerEdition();return`<section class="g-card g-echo"><small class="g-k">THE NORTHMARCH ECHO · SUMMER EDITION</small><h2>${esc(E.head)}</h2>
      <p>In: ${E.ins.length?esc(E.ins.map(d=>`${d.name}${d.fee?' £'+d.fee+'k':' (free)'}`).join(', ')):'nobody'}. Out: ${E.outs.length?esc(E.outs.map(s=>`${s.name} £${s.fee}k`).join(', ')):'nobody'}. Spent £${E.spent}k, raised £${E.raised}k.</p>
-     ${E.world.length?`<ul class="g-news">${E.world.map(t=>`<li>${esc(t.t)}</li>`).join('')}</ul>`:''}<p class="g-hint">The window shuts when the season starts. The director is judged on the brief after four weeks.</p></section>${briefCard(P_,id)}`}
+     ${E.world.length?`<ul class="g-news">${E.world.map(t=>`<li>${esc(t.t)}</li>`).join('')}</ul>`:''}${E.other.length?`<ul class="g-news">${E.other.map(x=>`<li>${esc(x.text)}</li>`).join('')}</ul>`:''}<p class="g-hint">The window is closed. The director is judged on the brief after four weeks.</p></section>${briefCard(P_,id)}`}
    return`${esc2}${interestCard(P_)}${moneyCard(P_,id)}${boardCard(P_,id)}${P_.ticker.length>1?tickerCard(P_):''}
    ${briefCard(P_,id)}${listCard(P_,id)}`;
  }
@@ -378,6 +380,7 @@
    if(a==='prefav'&&S&&S.my){const r=preFavour(arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
    if(a==='prelist'&&S&&S.my){const r=preListToggle(arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.on?'Available: the director will sell for a fair bid.':'Taken off the list.'};save();render();return}
    if(a==='preloan'&&S&&S.my){const r=preDeadlineLoan();UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
+   if(a==='preclose'&&S&&S.my){const r=finalizeSummer();if(!r.ok)UI.msg={err:true,text:r.err};save();render();return}
    if(a==='prenext'&&S&&S.my){const r=preWeek();if(r.ok===false)UI.msg={err:true,text:r.err};save();render();if(HAS_DOM)window.scrollTo(0,0);return}
    if(a==='preoffer'&&S&&S.my){const r=preOffer(arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
    if(a==='prerecord'&&S&&S.my){const r=preRecord(arg==='yes');UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}

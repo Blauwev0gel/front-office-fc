@@ -4,7 +4,7 @@
    (up to three goals, a budget level, a profile) → 3 the ticker: dated news each pre-season week (our bids, counters,
    hijacks, sales, rival clubs' real deals) → 4 deadline day → 5 the summer edition of the Echo → 6 the debrief in week 4,
    where every goal of the brief is judged with names. Two escalations come to the chairman: a bid for one of the three
-   best players, and a fee above the club record. The season start still runs the normal window, which fills any gap left.
+   best players, and a fee above the club record. The interactive summer owns the human club's market; finalisation occurs before the Echo.
    Owns S.pre = {s, wk, brief, deals[], ticker[], offer, record, prio, top3[], sold[], debrief} for the player's club. No DOM. */
 const PRE_WEEKS=4,DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun',,,,'09:00','15:00','22:00'],BUDGET_LV={cautious:{n:'Cautious',spend:.35,d:'Keep money back for the season'},normal:{n:'Normal',spend:.6,d:'A fair share of the cash'},allin:{n:'All-in',spend:.9,d:'Spend almost everything we have'}};
 /* M4: the same machinery runs the winter window. Winter: meeting two weeks before WINTER_WEEK, a brief with ONE goal,
@@ -20,6 +20,34 @@ function preTick(t,kind){const P_=preState(),wk=P_.after?Math.min(winWeeks(P_),P
 function preLog(t){preTick(t,'us')}
 function topThree(id){return S.squads[id].filter(p=>!p.loan).slice().sort((a,b)=>b.q-a.q).slice(0,3)}
 function clubRecordFee(id){return Math.max(0,...(S.mb||[]).filter(r=>r.s!=null).map(r=>r.in))}
+/* Persisted interactive summer lifecycle and actual movement ledger. */
+function interactiveSummer(){return !!(S.my&&S.week===0&&S.pre&&S.pre.s===S.season&&S.pre.brief)}
+function summerLedger(P_){
+  if(!P_.movements)P_.movements={ins:P_.deals.filter(d=>d.stage==='signed').map(d=>({...d})),outs:P_.sold.map(d=>({...d})),other:[]};
+  return P_.movements;
+}
+function noteSummerMovement(e){
+  if(!interactiveSummer()||S.pre.finalized||!['Transfer','Signing','InternationalTransfer','Released','Loan'].includes(e.t))return;
+  const id=S.my,from=e.t==='InternationalTransfer'?e.from:e.t==='Transfer'?e.c2:e.t==='Released'||e.t==='Loan'?e.c:null,to=e.t==='InternationalTransfer'?e.to:e.t==='Loan'?e.c2:e.t==='Released'?null:e.c;
+  if(from!==id&&to!==id)return;
+  const L=summerLedger(S.pre),f=findPlayer(e.pid),p=f&&f.p;
+  const row={pid:e.pid,name:p?p.name:e.text,pos:p&&p.pos,age:p&&p.age,fee:e.fee||0,from,to,stage:'signed',event:e.n,text:e.text};
+  if(e.t==='Loan'||e.t==='Released'){L.other.push(row);return}
+  if(to===id)L.ins.push(row);else L.outs.push({...row,star:!!S._chairSale});
+}
+function finalizeSummer(){
+  if(!interactiveSummer())return{ok:false,err:'No signed summer brief'};
+  const P_=S.pre;
+  if(P_.finalized)return{ok:true};
+  if(P_.wk<=PRE_WEEKS)return{ok:false,err:'The market is still open'};
+  if(P_.offer||P_.record)return{ok:false,err:'Resolve the outstanding decision first'};
+  summerLedger(P_);
+  for(const d of P_.deals)if(['bid','countered','record'].includes(d.stage)){d.stage='walked';preTick(`The window closes without a deal for ${d.name}.`,'off')}
+  summerWindow(true);
+  P_.finalized=true;
+  preTick('The summer window is closed.','news');
+  return{ok:true};
+}
 function preTargets(id){const P_=preState(),needs=openNeeds().slice().sort((a,b)=>(b.pos===P_.prio)-(a.pos===P_.prio)||b.prio-a.prio);const seen=new Set();return needs.filter(n=>!seen.has(n.pos)&&seen.add(n.pos)).slice(0,3)}
 function preMinQ(id,n){const sq=squadQuality(S.squads[id]);return n.kind==='hole'?sq-2.5:sq-1}
 
@@ -52,14 +80,17 @@ function signBrief(id,goals,budget,recruit){
   const opts=briefOptions(id);F(id).policy.spend=BUDGET_LV[budget].spend;if(recruit&&RECRUIT[recruit])F(id).policy.recruit=recruit;
   P_.top3=topThree(id).map(p=>({pid:p.id,name:p.name}));P_.base={};for(const n of preTargets(id))P_.base[n.pos]=weakestAt(id,n.pos);P_.style=dirStyle(id);P_.targets={};P_.list=P_.list||[];
   P_.brief={goals:goals.map(k=>{const o=opts.find(x=>x.k===k)||{t:k};const n=+(o.t.match(/£(\d+)k/)||[])[1]||0;return{k,t:o.t,n}}),budget,recruit:recruitStrategy(id),dir:tdOf(id)?.id||null,dirName:tdOf(id)?.name||'The director',startBudget:budgetFor(id)};
+  if(P_.kind==='summer')summerLedger(P_);
   preTick(`${P_.brief.dirName} signs the ${P_.kind} brief: ${P_.brief.goals.map(g=>g.t.toLowerCase()).join('; ')}.`,'us');P_.ticker[P_.ticker.length-1].d=-1;return{ok:true};
 }
 
 /* ----- 3. the ticker: one pre-season week of the market ----- */
 function preFinish(id,d){
   const f=findPlayer(d.pid);if(!f||f.club!==d.from){d.stage='gone';preTick(`${d.name} is no longer available.`,'bad');return false}
+  const cap=(preState().brief.goals.find(g=>g.k==='cap')||{}).n||Infinity;
+  if(d.fee>budgetFor(id)||spentThisSummer()+d.fee>cap){d.stage='walked';preTick(`The fee for ${d.name} no longer fits the budget.`,'off');return false}
   if(d.from&&foreignSeller(d.from)){if(!foreignMove(f.p,d.from,id,d.fee,'director scouting')){d.stage='walked';return false}}else if(d.from)transfer(f.p,d.from,id,d.fee,'buy',d.premium);else signFree(f.p,id);
-  recordDecision(id,d.pos,{p:f.p,from:d.from,fee:d.fee,seen:d.est},[],false);d.stage='signed';d.age=f.p.age;
+  recordDecision(id,d.pos,{p:f.p,from:d.from,fee:d.fee,seen:d.est},[],false);d.stage='signed';d.age=f.p.age;buildPlan(id);
   preTick(d.fee?`✍ ${d.name} signs from ${marketClubName(d.from)} for £${d.fee}k.`:`✍ ${d.name} joins on a free transfer.`,'good');return true;
 }
 function preHijack(d){
@@ -113,14 +144,14 @@ function preListWeek(id){const P_=preState();P_.list=P_.list||[];
 function preFriendly(id){const P_=preState();if(P_.kind!=='summer')return;const opp=pick(allIds().filter(c=>c!==id&&CL(c).tier>=CL(id).tier));const d=teamStrength(id)-teamStrength(opp)+3,gf=Math.min(5,Math.max(0,Math.round(1.3+d/12+rnd()*2-1))),ga=Math.min(5,Math.max(0,Math.round(1+(-d)/12+rnd()*2-1)));
   const nu=P_.deals.filter(x=>x.stage==='signed'),star=nu.length&&gf?pick(nu).name:null;preTick(`Friendly: ${CL(id).name} ${gf}–${ga} ${CL(opp).name}.${star?` ${star} scores on his first outing.`:''}`,'news')}
 function briefWants(goal){const P_=preState();return !!(P_.brief&&P_.brief.goals.some(g=>g.k===goal))}
-function spentThisSummer(){return preState().deals.filter(d=>d.stage==='signed').reduce((a,d)=>a+d.fee,0)}
+function spentThisSummer(){const P_=preState();return (P_.movements?P_.movements.ins:P_.deals.filter(d=>d.stage==='signed')).reduce((a,d)=>a+d.fee,0)}
 function preWeek(){
   const id=S.my,P_=PRE();if(!P_||P_.wk>winWeeks(P_))return{ok:false,err:'The window is closed'};if(!P_.brief)return{ok:false,err:'Sign the brief first'};P_.after=false;const deadline=P_.wk===winWeeks(P_);
   P_.targets=P_.targets||{};P_.tried=P_.tried||[];P_.list=P_.list||[];const ST=STYLE[P_.style||dirStyle(id)];
   if(P_.offer){preTick(`You let the bid for ${P_.offer.name} lapse.`,'us');P_.offer=null}
   if(P_.record){const d=P_.deals.find(x=>x.pid===P_.record.pid);if(d)d.stage='walked';preTick(`The record deal for ${P_.record.name} falls through.`,'bad');P_.record=null}
   P_.interest=null;
-  preRivals(id);preFriendly(id);preListWeek(id);
+  preRivals(id);preFriendly(id);preListWeek(id);buildPlan(id);
   const cap=(P_.brief.goals.find(g=>g.k==='cap')||{}).n||Infinity;
   /* deadline day is three rounds: 09:00, 15:00, 22:00 */
   const rounds=deadline?3:1;
@@ -130,7 +161,7 @@ function preWeek(){
     if(rnd()<(deadline?.12:.12)&&preHijack(d)){P_.tried.push(d.pid);continue}
     const f=findPlayer(d.pid);if(!f){d.stage='gone';P_.tried.push(d.pid);continue}
     const ask=d.from?askingFee(f.p,d.from):0,accept=d.fee>=ask*.95||rnd()<(d.stage==='countered'?.5:.25);
-    if(accept){const rec=clubRecordFee(id);if(d.fee>rec&&d.fee>=Math.max(20,P_.brief.startBudget*.5)&&!d.approved){P_.record={pid:d.pid,name:d.name,fee:d.fee,from:d.from,rec};d.stage='record';preTick(`${marketClubName(d.from)} accept £${d.fee}k for ${d.name}: a club record, the director needs your word.`,'warn');continue}preFinish(id,d);continue}
+    if(accept){const rec=clubRecordFee(id);if(d.fee>rec&&d.fee>=Math.max(20,P_.brief.startBudget*.5)&&!d.approved){if(P_.record)continue;P_.record={pid:d.pid,name:d.name,fee:d.fee,from:d.from,rec};d.stage='record';preTick(`${marketClubName(d.from)} accept £${d.fee}k for ${d.name}: a club record, the director needs your word.`,'warn');continue}preFinish(id,d);continue}
     const next=Math.round(d.fee*(1+ST.raise));
     if(next<=budgetFor(id)&&spentThisSummer()+next<=cap&&d.tries<ST.tries+(deadline?1:0)){d.fee=next;d.tries++;d.stage='countered';preTick(`${d.from?marketClubName(d.from):'His agent'} want more for ${d.name}: the director raises to £${next}k.`,'us')}
     else{d.stage='walked';P_.tried.push(d.pid);preTick(`The director walks away from ${d.name}: ${next>budgetFor(id)?'the money is not there':'not at that price'}.`,'off')}
@@ -138,7 +169,7 @@ function preWeek(){
   /* each open need: a board of candidates; the director goes for the best (or the one you rate), Plan B after a failure */
   const budget=budgetFor(id);
   for(const n of preTargets(id).sort((a,b)=>briefWants('sign:'+b.pos)-briefWants('sign:'+a.pos))){
-    if(P_.deals.some(d=>d.pos===n.pos&&['bid','countered','record','signed'].includes(d.stage)))continue;
+    if(P_.deals.some(d=>d.pos===n.pos&&(['bid','countered','record'].includes(d.stage)||(d.stage==='signed'&&n.kind!=='hole'))))continue;
     const cands=preCandidates(id,n);P_.targets[n.pos]=cands;
     const c=cands[0];
     if(!c){if(!deadline||r===0)preTick(budget<3?`No money for a ${POS_ONE[n.pos]}: the director looks at free agents only.`:`The director finds no ${POS_ONE[n.pos]} worth the money yet.`,'off');continue}
@@ -159,7 +190,7 @@ function preWeek(){
   const promised=typeof pactReleasePid==='function'?pactReleasePid():null,promisedP=promised&&S.squads[id].find(x=>x.id===promised);
   if(!P_.offer&&(promisedP||rnd()<(deadline?.45:.3))){const p=promisedP||pick(topThree(id)),rich=p?allIds().filter(c=>c!==id&&CL(c).tier<=CL(id).tier&&F(c).cash>askingFee(p,id)*1.6):[];
     if(p&&rich.length){const by=pick(rich);P_.offer={pid:p.id,name:p.name,pos:p.pos,age:p.age,by,fee:Math.round(askingFee(p,id)*(1.1+rnd()*.35)),asked:false};preTick(`❗ ${CL(by).name} bid £${P_.offer.fee}k for ${p.name}.`,'warn')}}
-  P_.wk++;P_.after=true;return{ok:true};
+  buildPlan(id);P_.wk++;P_.after=true;return{ok:true};
 }
 /* deadline money: a short loan the chairman can release on deadline day */
 function preDeadlineLoan(){const P_=PRE();if(!P_||P_.wk!==winWeeks(P_))return{ok:false,err:'Only on deadline day'};if(P_.loan)return{ok:false,err:'Already released'};const amt=Math.max(10,Math.min(maxNewLoan(S.my),Math.round(estSeasonIncome(S.my)*.15/5)*5));if(amt<5)return{ok:false,err:'The bank will not lend more'};const r=cmd('TakeLoan',S.my,{amount:amt,years:3});if(r.ok===false)return r;P_.loan=amt;F(S.my).policy.spend=Math.min(1,(F(S.my).policy.spend||.5)+.15);preTick(`The chairman releases £${amt}k of deadline money (a three-year loan).`,'us');return{ok:true,text:`£${amt}k released for deadline day.`}}
@@ -169,7 +200,7 @@ function preOffer(choice){
   if(!f||f.club!==id){P_.offer=null;return{ok:false,err:'He is no longer here'}}
   if(choice==='more'&&!o.asked){o.asked=true;if(rnd()<.5){o.fee=Math.round(o.fee*1.2);preTick(`${CL(o.by).name} raise their bid for ${o.name} to £${o.fee}k.`,'warn');return{ok:true,text:`They raised it to £${o.fee}k. Now decide.`}}P_.offer=null;preTick(`${CL(o.by).name} walk away from ${o.name}.`,'off');return{ok:true,text:'They walked away.'}}
   if(typeof pactRelease==='function'&&choice!=='more')pactRelease(o.pid,choice==='accept');
-  if(choice==='accept'){S._chairSale=true;transfer(f.p,id,o.by,o.fee,'sold by the chairman');S._chairSale=false;P_.sold.push({pid:o.pid,name:o.name,fee:o.fee,to:o.by,star:true});P_.offer=null;preTick(`→ You sell ${o.name} to ${CL(o.by).name} for £${o.fee}k.`,'us');confLog(id,o.fee>playerValue(f.p)*1.3?1:-3,o.fee>playerValue(f.p)*1.3?'A big fee for a star':'A star sold');return{ok:true,text:`${o.name} is sold for £${o.fee}k. The director will look for a replacement.`}}
+  if(choice==='accept'){S._chairSale=true;transfer(f.p,id,o.by,o.fee,'sold by the chairman');S._chairSale=false;buildPlan(id);P_.sold.push({pid:o.pid,name:o.name,fee:o.fee,to:o.by,star:true});P_.offer=null;preTick(`→ You sell ${o.name} to ${CL(o.by).name} for £${o.fee}k.`,'us');confLog(id,o.fee>playerValue(f.p)*1.3?1:-3,o.fee>playerValue(f.p)*1.3?'A big fee for a star':'A star sold');return{ok:true,text:`${o.name} is sold for £${o.fee}k. The director will look for a replacement.`}}
   P_.offer=null;if(rnd()<.35){f.p.wantsOut=true;preTick(`You turn down the bid. ${o.name} is unhappy and wants to talk.`,'bad');return{ok:true,text:`Bid rejected. ${o.name} is unhappy.`}}
   preTick(`You turn down the bid for ${o.name}. He stays.`,'us');return{ok:true,text:'Bid rejected. He stays.'};
 }
@@ -181,13 +212,13 @@ function preBudget(){const f=F(S.my),cur=f.policy.spend??.5;if(cur>=1)return{ok:
 
 /* ----- 5. the summer edition: the headline of the window ----- */
 function summerEdition(P_){
-  P_=P_||S.pre;if(!P_||P_.s!==S.season)return null;const ins=P_.deals.filter(d=>d.stage==='signed'),outs=P_.sold,big=ins.slice().sort((a,b)=>b.fee-a.fee)[0],star=outs.find(s=>s.star);
+  P_=P_||S.pre;if(!P_||P_.s!==S.season)return null;const L=P_.movements,ins=L?L.ins:P_.deals.filter(d=>d.stage==='signed'),outs=L?L.outs:P_.sold,big=ins.slice().sort((a,b)=>b.fee-a.fee)[0],star=outs.find(s=>s.star);
   const head=star?`${star.name} leaves for £${star.fee}k`:big&&big.fee?`${big.name} arrives for £${big.fee}k`:ins.length?`${ins.length} new face${ins.length>1?'s':''}, little money spent`:outs.length?`A ${P_.kind||'summer'} of selling`:`A quiet ${P_.kind||'summer'} at the club`;
-  return{head,ins,outs,spent:ins.reduce((a,d)=>a+d.fee,0),raised:outs.reduce((a,s)=>a+s.fee,0),world:P_.ticker.filter(t=>t.kind==='world').slice(-3)};
+  return{head,ins,outs,other:P_.movements?.other||[],spent:ins.reduce((a,d)=>a+d.fee,0),raised:outs.reduce((a,s)=>a+s.fee,0),world:P_.ticker.filter(t=>t.kind==='world').slice(-3)};
 }
 /* ----- 6. the debrief: four weeks in, the brief is judged with names ----- */
 function briefJudge(id,P_){
-  P_=P_||debriefTarget()||S.pre;if(!P_||!P_.brief)return[];const ins=P_.deals.filter(d=>d.stage==='signed'),spent=ins.reduce((a,d)=>a+d.fee,0),raised=P_.sold.reduce((a,s)=>a+s.fee,0);
+  P_=P_||debriefTarget()||S.pre;if(!P_||!P_.brief)return[];const ins=P_.movements?P_.movements.ins:P_.deals.filter(d=>d.stage==='signed'),spent=ins.reduce((a,d)=>a+d.fee,0),raised=(P_.movements?P_.movements.outs:P_.sold).reduce((a,s)=>a+s.fee,0);
   return P_.brief.goals.map(g=>{
     if(g.k.startsWith('sign:')){const pos=g.k.slice(5),base=(P_.base&&P_.base[pos]||{q:0}).q,at=ins.filter(d=>d.pos===pos||NEAR[pos]?.includes(d.pos)).map(d=>({d,f:findPlayer(d.pid)})),best=at.filter(x=>x.f).sort((a,b)=>b.f.p.q-a.f.p.q)[0],ok=best&&best.f.p.q>=base+.2;return{t:g.t,met:!!ok,how:best?`${best.d.name} (${r1(best.f.p.q)}) ${ok?'is better than':'is not better than'} the old starter (${base})`:'Nobody signed'}}
     if(g.k==='keep3'){const gone=P_.top3.filter(x=>{const f=findPlayer(x.pid);return!f||f.club!==id});return{t:g.t,met:!gone.length,how:gone.length?`${gone.map(x=>x.name).join(', ')} left`:P_.top3.map(x=>x.name).join(', ')+' stayed'}}

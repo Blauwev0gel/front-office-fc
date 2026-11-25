@@ -384,3 +384,9 @@ Historische documenten zijn geen actieve canon; onderzoek is input, geen besluit
 - [BIBLE.md (The Front Office)](https://github.com/Blauwev0gel/front-office-fc/blob/claude-game/BIBLE.md) — *The Front Office*, CEO-variant op `claude-game`; archief sinds MB-11.
 
 **North star:** bouw een club die je herkent, ontdek spelers om wie je geeft, neem beslissingen die ertoe doen en laat een geschiedenis achter die zonder jou niet hetzelfde zou zijn.
+
+### Werknotitie — Canonieke transferzomer (25 november 2026)
+- Baseline `69aee45930cd81e2c550681e7dfa3c2b59ac2eca`; werkbranch `canonical-transfer-summer-chatgpt`. Scope NM-001 en eerste correcties NM-002/003; expliciet verzoek om codeopschoning vóór runtime-audit.
+- Interactieve zomer is leidend voor de spelersclub. Na week vier blijven openstaande beslissingen zichtbaar; expliciete afsluiting voert resterende wereldmarkt, minimale gratis nooddekking, verhuur en reconciliatie uit vóór de definitieve Echo. De eerste competitieweek draait die markt niet opnieuw. De oude automatische route blijft voor headless/legacy-aanroepen zonder getekende brief; volledige convergentie is open.
+- Persistente ledger registreert feitelijke transfers, vrije signings, verhuur en releases; Echo en debrief gebruiken deze waar aanwezig. Normale AI-markt mag niet buiten de interactieve route direct handelen met de spelersclub. Herberekening selectieplan, heropening van behoeften, aparte zomerweektijd en feehercontrole. MB-12 natuurlijke activiteitslimieten blijven NM-008.
+- Niet af: runtime-reproductie, browser/saves, economische balans, volledige salaris- en budgetvalidatie, afzonderlijke deadline-uren, wintermarktconvergentie en legacy/headless-pariteit. Geen claim dat NM-001–003 gevalideerd zijn. Geen simulaties, CI of publicatie; volgende stap gerichte lokale build en acceptatietests vóór integratie.

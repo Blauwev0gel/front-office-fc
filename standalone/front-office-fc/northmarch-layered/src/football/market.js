@@ -100,6 +100,7 @@ function sellerAgrees(p,from,fee,to=null){
     const sq=S.foreign.squads[from];
     return !!sq&&sq.includes(p)&&sq.filter(x=>x.pos===p.pos).length>REQ[p.pos]&&(!to||playerAcceptsMove(p,from,to))&&fee>=askingFee(p,from)*.85;
   }
+  if(from===S.my&&!S._chairSale&&typeof interactiveSummer==='function'&&interactiveSummer())return false;
   if(S.squads[from].length<=SQUAD_MIN)return false;
   if(from===S.my&&!S._chairSale&&typeof topThree==='function'&&topThree(from).includes(p))return false; /* D-L3-2: a bid for one of the three best players goes to the chairman */
   const need=S.squads[from].filter(x=>x.pos===p.pos).length<=REQ[p.pos];
@@ -164,12 +165,12 @@ function squadManager(id,phase){
       const xi=pickXI(sq).map(x=>x.p);
       const pool=sq.filter(p=>!p.loan&&(crisis||!xi.includes(p))&&!(p.age<=20&&p.pa>p.q+1.5)&&canSpare(sq,p,crisis));
       const p=pool.sort((a,b)=>crisis?(b.wage/Math.max(1,b.q)-a.wage/Math.max(1,a.q)):(a.q-a.wage/400)-(b.q-b.wage/400))[0];if(!p)break;
-      const fee=playerValue(p),buyers=Object.keys(S.clubs).filter(i=>i!==id&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX);
+      const fee=playerValue(p),buyers=Object.keys(S.clubs).filter(i=>i!==id&&!(i===S.my&&typeof interactiveSummer==='function'&&interactiveSummer())&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX);
       if(buyers.length)transfer(p,id,pick(buyers),fee,'surplus');
       else if(!xi.includes(p)||sq.length>SQUAD_MIN+3)release(id,p,'released to cut the wage bill');else break}};
   trim();
   // players who asked to leave are sold if someone pays a fair price
-  for(const p of sq.filter(x=>x.wantsOut&&!x.loan&&canSpare(sq,x,false))){const fee=Math.round(playerValue(p)*.9),buyers=Object.keys(S.clubs).filter(i=>i!==id&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX&&CL(i).rep>=CL(id).rep-10);
+  for(const p of sq.filter(x=>x.wantsOut&&!x.loan&&canSpare(sq,x,false))){const fee=Math.round(playerValue(p)*.9),buyers=Object.keys(S.clubs).filter(i=>i!==id&&!(i===S.my&&typeof interactiveSummer==='function'&&interactiveSummer())&&budgetFor(i)>=fee&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i)&&S.squads[i].length<SQUAD_MAX&&CL(i).rep>=CL(id).rep-10);
     if(buyers.length&&sq.length>SQUAD_MIN){p.wantsOut=false;p.morale=70;transfer(p,id,pick(buyers),fee,'request')}}
   // holes: below the minimum per position (in winter only real emergencies: injuries leave the position bare)
   for(const pos of POS){let guard=3;

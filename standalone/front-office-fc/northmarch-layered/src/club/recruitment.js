@@ -37,7 +37,7 @@ function buildPlan(id){
   for(const x of xi.filter(x=>x.p.age>=32))want.push({key:'ageing:'+x.p.id,pos:x.p.pos,kind:'ageing',prio:1,pid:x.p.id,why:`${x.p.name} is ${x.p.age}: a successor will be needed`});
   const weak=xi.slice().sort((a,b)=>a.p.q-b.p.q)[0];if(weak&&weak.p.q<sqQ-.8)want.push({key:'upgrade:'+weak.slot,pos:weak.slot,kind:'upgrade',prio:1,pid:weak.p.id,why:`${weak.p.name} (${r1(weak.p.q)}) is the weakest starter`});
   // merge: keep status and history of needs that still exist; close what has been solved
-  const old=Object.fromEntries(pl.needs.map(n=>[n.key,n])),keys=new Set(want.map(w=>w.key));
+  const old=Object.fromEntries(pl.needs.slice().sort((a,b)=>(a.status==='open')-(b.status==='open')).map(n=>[n.key,n])),keys=new Set(want.map(w=>w.key));
   /* a need that disappears is not always a success: say whether it was solved, or the player simply left */
   for(const n of pl.needs)if(!keys.has(n.key)&&n.status==='open'){
     const player=n.pid&&sq.find(p=>p.id===n.pid);
@@ -48,7 +48,7 @@ function buildPlan(id){
     n.closed=[S.season,S.week];
   }
   pl.needs=pl.needs.filter(n=>n.status!=='open'||keys.has(n.key)).filter(n=>!(n.closed&&n.closed[0]<S.season-1));
-  for(const w of want){if(!old[w.key])pl.needs.push({...w,id:pl.next++,status:'open',since:[S.season,S.week]});else Object.assign(old[w.key],{why:w.why,prio:w.prio})}
+  for(const w of want){if(!old[w.key])pl.needs.push({...w,id:pl.next++,status:'open',since:[S.season,S.week]});else if(old[w.key].status!=='open'){pl.needs.push({...w,id:pl.next++,status:'open',since:[S.season,S.week]})}else Object.assign(old[w.key],{why:w.why,prio:w.prio})}
   pl.needs.sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||b.prio-a.prio);
   pl.ready=sq.filter(p=>p.age<=21&&!xiP.includes(p)).filter(p=>{const s=xi.find(x=>x.slot===p.pos||NEAR[p.pos].includes(x.slot));return s&&p.q>=s.p.q-.3}).map(p=>({pid:p.id,name:p.name,pos:p.pos,q:r1(p.q)}));
   pl.s=S.season;pl.w=S.week;
@@ -132,9 +132,9 @@ function windowInfo(){
   const id=S.my,ev=S.ev.filter(e=>(e.c===id&&(e.t==='Transfer'||e.t==='Signing'))||(e.c2===id&&e.t==='Transfer')||(e.t==='InternationalTransfer'&&(e.from===id||e.to===id)));
   const open=openNeeds().filter(n=>n.kind==='hole'||n.prio>=2),summerDone=S.week>=1&&S.week<=5,winterDone=S.week>=WINTER_WEEK&&S.week<=WINTER_WEEK+5;
   const report=(s,w)=>{const x=ev.filter(e=>e.s===s&&e.w===w);return{ins:x.filter(e=>e.t==='InternationalTransfer'?e.to===id:e.c===id),outs:x.filter(e=>e.t==='InternationalTransfer'?e.from===id:e.c2===id)}};
-  if(S.week===0)return{k:'open',name:'Summer window',when:'Open through the pre-season. The scouts watch players for the director while it runs. Set your strategy and your money frame now: the director signs and sells when you start the season.',open};
+  if(S.week===0)return{k:'open',name:'Summer window',when:'Open through the pre-season. The scouts watch players for the director while it runs. Set your strategy and money frame: the director signs and sells during the pre-season.',open};
   if(seasonOver())return{k:'summer-next',name:'Summer window',when:'Opens after the season is closed, with the new pre-season: contracts end and the academy brings in new players.',open};
-  if(summerDone)return{k:'done',name:'Summer window',when:'Closed when the season started.',...report(S.season,0),open};
+  if(summerDone)return{k:'done',name:'Summer window',when:'Closed before the first match.',...report(S.season,0),open};
   if(winterDone)return{k:'done',name:'Winter window',when:`Closed in week ${WINTER_WEEK}.`,...report(S.season,WINTER_WEEK),open};
   if(S.week===WINTER_WEEK-1)return{k:'next',name:'Winter window',when:`Opens next week (week ${WINTER_WEEK}). The director acts on this plan.`,open};
   if(S.week<WINTER_WEEK-1)return{k:'upcoming',name:'Winter window',when:`Week ${WINTER_WEEK}, in ${WINTER_WEEK-1-S.week} week${WINTER_WEEK-1-S.week===1?'':'s'}. The scouts are preparing the list.`,open};

@@ -85,6 +85,7 @@ function closeSeason(){
   commercialSeasonEnd();
   returnLoans();
   for(const id of ids)playersSeasonEnd(id);
+  if(S.my)chairIntake(S.my);
   S.qref=r2(Math.max(11.7,S.qref*.7+worldQuality()*.3)); /* the wage scale follows a richer world up (no wage inflation) but never falls below the calibration level: a world that gets weaker must not make contracts dearer */
   faSummer();
   setBudgetsAll(s+1);

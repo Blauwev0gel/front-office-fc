@@ -148,6 +148,50 @@
    return`<section class="g-card g-heads"><small class="g-k">YOUR DEPARTMENT HEADS · £${investRoom(id)}k TO INVEST</small>${Object.keys(HEAD_ROLE).map(k=>{const a=asks.find(x=>x.k===k),fac=deptFacility(id,k),lv=fac&&fac.have?fac.have.lv:0,busy=fac&&fac.busy;
      return`<div class="g-head"><div class="g-ph"><span class="g-face" aria-hidden="true">${esc(deptHead(id,k).split(' ').map(w=>w[0]).join(''))}</span><div><b>${esc(deptHead(id,k))}</b><small>${esc(HEAD_ROLE[k])} · ${esc(COMPLEX[DEPT[k].fac].n)}: ${lv?LV_NAME[lv]:'not built'}</small></div><button class="btn ghost g-mini" data-act="dept" data-arg="${k}">Open</button></div>
      ${busy?`<p class="g-hint">Building work under way.</p>`:a?askButton(id,a,true):'<p class="g-hint">Nothing more to build here.</p>'}</div>`}).join('')}</section>`}
+ /* ----- THE INBOX: people who talk to you. Decisions that are yours, advice from your staff, reports. No routine approvals
+    (D-G1): the staff handle routine; and never only an inbox (MB-03): you can always start something yourself below it. ----- */
+ const ini2=n=>String(n||'?').split(' ').map(w=>w[0]).join('').slice(0,2);
+ const snoozed=k=>((S.inboxSnooze||{})[k]||0)>S.season*100+S.week;
+ function ibMsg(o){return`<article class="ib-msg ib-${o.kind}${o.open?' open':''}"><details ${o.open?'open':''}><summary><span class="g-face" aria-hidden="true">${esc(ini2(o.from))}</span><span class="ib-head"><small>${esc(o.from)} · ${esc(o.role)}</small><b>${esc(o.subject)}</b></span><i class="ib-tag">${{decision:'DECIDE',advice:'ADVICE',report:'REPORT'}[o.kind]}</i></summary><div class="ib-body">${o.body?`<p>${esc(o.body)}</p>`:''}${o.html||''}</div></details></article>`}
+ const ibBtns=(...b)=>`<div class="ib-acts">${b.filter(Boolean).join('')}</div>`;
+ const ibBtn=(label,act,arg,ghost)=>`<button class="btn${ghost?' ghost':''}" data-act="${act}"${arg!=null?` data-arg="${esc(arg)}"`:''}>${esc(label)}</button>`;
+ function inboxItems(id){const out=[],td=tdOf(id),co=coachOf(id),dn=td?td.name:'The director',now=S.season*100+S.week;
+   /* decisions: the moments, the debrief and window calls, each already a full card with its options */
+   const dec=escalation();if(dec)out.push({kind:'decision',from:S.moment?S.moment.who:'Your desk',role:S.moment?S.moment.role:'Waiting for you',subject:S.moment?S.moment.title:'A decision is waiting',html:dec,open:true});
+   /* reports: what your week turned up, the director's watch list, the coach after Saturday */
+   const fresh=(S.scout?S.scout.gems:[]).filter(g=>g.status==='found'&&g.s===S.season&&now-(g.s*100+g.w)<=2);
+   if(fresh.length)out.push({kind:'report',from:deptHead(id,'scouting'),role:'Chief scout',subject:`${fresh.length} player${fresh.length>1?'s':''} worth a look`,body:'Here is what we saw. Tap a name for the data; recommend the ones you want the director to weigh.',open:true,
+     html:`<ul class="ib-list">${fresh.map(g=>`<li><button class="pp-link" data-act="player" data-arg="${esc(g.pid)}">${esc(g.name)}</button> <small class="muted">${esc(POS_ONE[g.pos]||g.pos)}, ${g.age} · ~${Math.round(qualityToStr(g.est))} · ${g.fee?'£'+g.fee+'k':'free'}</small><button class="btn ghost g-mini" data-act="chairrec" data-arg="${esc(g.pid)}">Recommend to ${esc(dn)}</button></li>`).join('')}</ul>`});
+   const kids=(S.scout?S.scout.prospects:[]).filter(p=>p.status==='seen'&&p.s===S.season);
+   if(kids.length)out.push({kind:'report',from:deptHead(id,'academy'),role:'Academy manager',subject:`${kids.length} fifteen-year-olds from the tournament`,body:'Invite the ones you like; they decide next summer.',
+     html:`<ul class="ib-list">${kids.slice(-3).map(k=>`<li><b>${esc(k.name)}</b> <small class="muted">${esc(POS_ONE[k.pos]||k.pos)} · could reach ~${Math.round(qualityToStr(k.seen))}</small><button class="btn ghost g-mini" data-act="chairinvite" data-arg="${esc(k.id)}">Invite</button></li>`).join('')}</ul>`});
+   const m=myMatches()[0];if(S.week>0&&m&&co){const mine=m.h===id?[m.gh,m.ga]:[m.ga,m.gh];out.push({kind:'report',from:co.name,role:'Head coach',subject:mine[0]>mine[1]?'A good afternoon':mine[0]<mine[1]?'Not good enough on Saturday':'A point',body:`${mine[0]}–${mine[1]}. On the chances, ${xgWord(m)}.${S.squads[id].some(p=>p.inj>0)?` Out injured: ${S.squads[id].filter(p=>p.inj>0).slice(0,2).map(p=>p.name).join(', ')}.`:''}`})}
+   /* advice: your staff want something from you this week */
+   const needs=(typeof openNeeds==='function'?openNeeds():[]).slice().sort((a,b)=>(b.prio||0)-(a.prio||0)),n=needs[0];
+   if(n&&!chairWhyNot('trip')&&!snoozed('trip')){const reg=Object.entries(REGIONS).filter(([k,r])=>r.pos&&r.pos.includes(n.pos)).sort((a,b)=>a[1].cost-b[1].cost)[0]||['low',REGIONS.low],w=weakestAt(id,n.pos);
+     out.push({kind:'advice',from:deptHead(id,'scouting'),role:'Chief scout',subject:`Come with me to look at ${POS_ONE[n.pos]}s`,body:`${w.name?`${w.name} (${Math.round(qualityToStr(w.q))}) is our weak spot. `:''}I would go to ${reg[1].n}: ${reg[1].d} About £${reg[1].cost}k, and it takes your week.`,
+       html:ibBtns(ibBtn("Let's go",'chairtrip',reg[0]),ibBtn('Somewhere else','chairpick',null,true),ibBtn('Not this week','snooze','trip',true))})}
+   const yg=M(id).goals&&M(id).goals.find(g=>g.k==='youth');
+   if(!chairWhyNot('trip')&&!snoozed('tour'))out.push({kind:'advice',from:deptHead(id,'academy'),role:'Academy manager',subject:'The regional youth tournament is on',body:`${yg?`We promised the members ${yg.target} academy games; we have ${academyApps(id)}. `:''}Fifteen-year-olds who could join us next summer. About £1k; it takes your week.`,html:ibBtns(ibBtn("I'll come",'chairtour'),ibBtn('Not this week','snooze','tour',true))});
+   const g=CL(id).groups.slice().sort((a,b)=>a.mood-b.mood)[0];
+   if(g&&g.mood<58&&!chairWhyNot('home')&&!snoozed('home'))out.push({kind:'advice',from:deptHead(id,'community'),role:'Membership secretary',subject:`${groupName(id,g)} feel ignored`,body:`Their mood is ${Math.round(g.mood)} and they are ${g.share}% of the vote. What they want: ${ARCH[g.k]?ARCH[g.k].wants:''} A week among them would help.`,html:ibBtns(ibBtn('Spend the week with them','chairhome'),ibBtn('Not now','snooze','home',true))});
+   const ask=deptAsks(id).find(a=>!snoozed('ask:'+a.k)&&investRoom(id)>=a.cost);
+   if(ask)out.push({kind:'advice',from:ask.head,role:ask.role,subject:ask.label,body:`“${ask.ask}” £${ask.cost}k, ${ask.weeks} weeks${ask.annual?`, then £${ask.annual}k a season to run`:''}. We have £${investRoom(id)}k to invest.`,html:ibBtns(ibBtn('Approve the plan','invest',ask.key),ibBtn('Not now','snooze','ask:'+ask.k,true))});
+   if(!chairWhyNot('data')&&!snoozed('data'))out.push({kind:'advice',from:deptHead(id,'data'),role:'Data analyst',subject:'Players who play above their price',body:'Give me a day and I will show you who the numbers like, anywhere in the world. It fits alongside a trip.',html:ibBtns(ibBtn('Show me','chairdata'),ibBtn('Not now','snooze','data',true))});
+   return out}
+ function inboxCard(id){const it=inboxItems(id),done=weekDone(scNow()).map(r=>`<p class="g-did">✓ ${esc(r)}</p>`).join(''),nd=it.filter(x=>x.kind==='decision').length;
+   if(UI.pickRegion)return yourWeek(id);
+   return`<section class="ib"><div class="ib-top"><small class="g-k">YOUR INBOX</small><span class="ib-count">${it.length} message${it.length===1?'':'s'}${nd?` · ${nd} to decide`:''}</span></div>${done}${it.map(ibMsg).join('')||'<p class="g-clear">Nothing in your inbox. The club runs itself this week.</p>'}
+   <details class="ib-own"><summary>Start something yourself</summary>${['trip','tour','data','home'].map(k=>{const a={trip:['chairpick','A scouting trip'],tour:['chairtour','The youth tournament'],data:['chairdata','A day with the analyst'],home:['chairhome','A week at the club']}[k],why=chairWhyNot(k==='tour'?'trip':k);return`<button class="btn ghost" data-act="${a[0]}" ${why?'disabled':''}>${a[1]}${why?` · ${esc(why)}`:''}</button>`}).join('')}</details></section>`}
+ /* ----- THE NEWS TICKER: the world moves while you read ----- */
+ function tickerItems(id){const tier=CL(id).tier,out=[];
+   const ev=(S.ev||[]).filter(e=>e.s===S.season&&S.week-e.w<=1).slice(-60).reverse();
+   for(const e of ev){if(out.length>=10)break;if(e.t==='Transfer'&&e.fee>=15)out.push(e.text);else if(['StaffSacked','StaffPoached','StaffHired'].includes(e.t)&&e.c!==id)out.push(e.text);else if(['Promotion','CupWon','Administration'].includes(e.t))out.push(e.text)}
+   const ms=(S.matches||[]).filter(m=>m.comp!=='cup'&&CL(m.h)&&CL(m.h).tier===tier).slice(0,6);for(const m of ms)out.push(`${CL(m.h).name} ${m.gh}–${m.ga} ${CL(m.a).name}`);
+   if(S.week>0){const top=(S.tbl&&tierIds(tier).slice().sort((a,b)=>posOf(a)-posOf(b))[0]);if(top)out.push(`${CL(top).name} lead ${TIER_NAME[tier]}`)}
+   return out.length?out:[`${TIER_NAME[tier]}: the new season is close`]}
+ function newsTicker(id){const it=tickerItems(id),row=it.map(t=>`<span>${esc(t)}</span>`).join('<i aria-hidden="true">●</i>');
+   return`<div class="g-ticker" role="region" aria-label="News ticker"><b class="g-tk-label">NEWS</b><div class="g-tk-view"><div class="g-tk-track" style="--dur:${Math.max(25,it.length*6)}s">${row}<i aria-hidden="true">●</i><span aria-hidden="true" class="g-tk-dup">${row}</span></div></div></div>`}
  /* ----- THE WEEK (§6): the match and its stakes · what is on your desk · your plans, from the club's situation ·
     what you set running and how it stands · the club at a glance. One clear way on: Saturday. ----- */
  function deskCard(){const e=escalation();return e?`<section class="g-desk"><small class="g-k">ON YOUR DESK</small>${e}</section>`:`<p class="g-clear">Your desk is clear. The club runs itself this week.</p>`}
@@ -169,9 +213,9 @@
    <h3 class="g-h3">Build the club · £${investRoom(id)}k to invest</h3>${deptAsks(id).slice(0,2).map(x=>askButton(id,x)).join('')||'<p class="g-hint">Nothing to build right now.</p>'}<button class="btn ghost" data-act="tab" data-arg="club">All departments…</button></section>`}
  /* running: what the chairman set in motion, and where it stands; this is where a week's work pays off */
  function runningCard(id){const A=S.scout||{gems:[],prospects:[]},td=tdOf(id),dn=td?td.name:'The director',rows=[];
-   for(const g of A.gems.filter(g=>g.s===S.season&&g.status!=='gone').slice(-4).reverse()){const st=g.status==='signed'?'<em class="g-ok">Signed · plays for us now</em>':g.status==='recommended'?`<em>${esc(dn)} is watching him · ${esc(nextWindowWord())} decides</em>`:`<button class="btn ghost g-mini" data-act="chairrec" data-arg="${esc(g.pid)}">Recommend to ${esc(dn)}</button>`;
+   for(const g of A.gems.filter(g=>g.s===S.season&&!['gone','found'].includes(g.status)).slice(-4).reverse()){const st=g.status==='signed'?'<em class="g-ok">Signed · plays for us now</em>':g.status==='recommended'?`<em>${esc(dn)} is watching him · ${esc(nextWindowWord())} decides</em>`:`<button class="btn ghost g-mini" data-act="chairrec" data-arg="${esc(g.pid)}">Recommend to ${esc(dn)}</button>`;
      rows.push(`<li><span class="g-rk">FIND</span><div><button class="pp-link" data-act="player" data-arg="${esc(g.pid)}">${esc(g.name)}</button> <small class="muted">${esc(POS_ONE[g.pos]||g.pos)}, ${g.age} · ~${Math.round(qualityToStr(g.est))}${g.fee?` · £${g.fee}k`:' · free'}</small>${st}</div></li>`)}
-   for(const pr of A.prospects.filter(p=>p.s===S.season&&['seen','invited'].includes(p.status)).slice(-3).reverse())
+   for(const pr of A.prospects.filter(p=>p.s===S.season&&p.status==='invited').slice(-3).reverse())
      rows.push(`<li><span class="g-rk">YOUTH</span><div><b>${esc(pr.name)}</b> <small class="muted">${esc(POS_ONE[pr.pos]||pr.pos)}, 15</small>${pr.status==='invited'?'<em>Invited · decides next summer</em>':`<button class="btn ghost g-mini" data-act="chairinvite" data-arg="${esc(pr.id)}">Invite to the academy</button>`}</div></li>`);
    for(const p of pactsOpen())rows.push(`<li><span class="g-rk">WORD</span><div><b>${esc(p.label)}</b> <small class="muted">${esc(p.who)}</small><em>${esc(pactProgress(p))}</em></div></li>`);
    for(const p of G(id).projects.filter(x=>x.phase!=='done'))rows.push(`<li><span class="g-rk">BUILD</span><div><b>${esc(p.label||p.key)}</b><em>${p.phase==='permit'?'Waiting for the permit':`${p.left} weeks to go`}</em></div></li>`);
@@ -188,7 +232,7 @@
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
    if(S.week===0)return preSeasonScreen(id,msg);
    if(seasonOver())return`<div class="g-week">${msg}${topicBanner(id)}${agmView(id)}</div>`;
-   return`<div class="g-week">${msg}${topicBanner(id)}${nextMatch(id)}${deskCard()}${winterCard(id)}${growthCard(id)}${plansCard(id)}${runningCard(id)}${peopleCard(id)}${clubGlance(id)}</div>`;
+   return`<div class="g-week">${newsTicker(id)}${msg}${topicBanner(id)}${nextMatch(id)}${inboxCard(id)}${winterCard(id)}${growthCard(id)}${runningCard(id)}${peopleCard(id)}${clubGlance(id)}</div>`;
  }
 
 
@@ -570,6 +614,7 @@
    if(a==='prenew'&&S&&S.my){const r=cmd('RenewStaff',S.my,{role:arg});const p=P(CL(S.my).cast[arg]);if(r.ok!==false&&p){p.loy=clamp((p.loy??50)+8,0,100);(p.mem=p.mem||[]).push({s:S.season,t:'given a new contract'})}UI.msg=r.ok===false?{err:true,text:r.err}:{text:`${p.name} signs for two more seasons.`};save();render();return}
    if(a==='preplace'){UI.replace=arg||null;render();return}
    if(a==='phire'&&S&&S.my){const [role,pid]=String(arg).split(':');const old=P(CL(S.my).cast[role]),r=cmd('HireStaff',S.my,{role,pid});UI.replace=null;if(r.ok!==false){const n=P(pid);(n.mem=n.mem||[]).push({s:S.season,t:'appointed by you'});n.loy=Math.max(n.loy??50,60)}UI.msg=r.ok===false?{err:true,text:r.err}:{text:`${P(pid).name} is your new ${role==='coach'?'head coach':'director of football'}${old&&!old.pro.caretaker?`; ${old.name} leaves`:''}.`};save();render();return}
+   if(a==='snooze'&&S&&S.my){(S.inboxSnooze=S.inboxSnooze||{})[arg]=S.season*100+S.week+(String(arg).startsWith('ask:')?4:1);save();render();return}
    if(a==='invest'&&S&&S.my){const o=projectCatalog(S.my).find(x=>x.key===arg),r=cmd('StartProject',S.my,{key:arg,offer:'standard'});UI.msg=r.ok===false?{err:true,text:r.err}:{text:`Work starts: ${o?o.label:'the project'}. Follow it under Running.`};save();render();return}
    if(a==='sqsort'){UI.sqSort=arg;render();return}
    if(a==='briefedit'){UI.briefEdit=true;render();return}

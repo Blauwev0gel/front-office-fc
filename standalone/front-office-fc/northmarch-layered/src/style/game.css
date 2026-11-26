@@ -251,3 +251,18 @@ b.good{color:var(--good)}b.bad{color:var(--bad)}
 .g-tag.out{background:var(--bad);color:#fff}
 .pp-t .pp-spark{display:flex;align-items:flex-end;gap:3px;height:28px;margin-top:2px}
 .pp-t .pp-spark i{display:block;flex:none}
+
+/* ---- club builder: where the club is going, and the people who build it ---- */
+.g-grow{display:flex;flex-direction:column;gap:8px}
+.g-clubline{margin:0;font-size:.9rem;color:var(--muted)}.g-clubline b{color:var(--ink)}
+.g-ms{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.g-ms button{width:100%;display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);font:inherit;cursor:pointer;min-height:56px}
+.g-ms button span{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}.g-ms small{color:var(--muted);font-size:.8rem}
+.g-msbar{display:block;height:8px;border-radius:4px;background:var(--line);overflow:hidden}.g-msbar i{display:block;height:100%;background:var(--good);border-radius:4px}
+.g-ask{grid-template-columns:40px 1fr}.g-ask .g-face{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:var(--onnavy);font-family:var(--f-display);font-weight:800}
+.g-ask small i{font-style:normal;font-weight:600;color:var(--ink)}.g-ask .g-cost{color:var(--signal);font-weight:700}
+.g-h3{margin:8px 0 0;font-size:.95rem}
+.g-heads{display:flex;flex-direction:column;gap:10px}.g-head{display:flex;flex-direction:column;gap:6px;padding-top:10px;border-top:1px solid var(--line)}.g-head:first-of-type{border-top:0;padding-top:0}
+.g-head .g-ph{grid-template-columns:40px 1fr auto}
+.g-built p{margin:0}
+.g-ask.bare{grid-template-columns:1fr}

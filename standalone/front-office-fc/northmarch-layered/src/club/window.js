@@ -29,7 +29,10 @@ function summerSafety(id){
 function preTick(t,kind){const P_=preState(),wk=P_.after?Math.min(winWeeks(P_),P_.wk-1):P_.wk,d=P_.after?6:P_.round!=null?10+P_.round:ri(0,6);P_.ticker.push({wk,d,t,kind:kind||'news'});if(P_.ticker.length>80)P_.ticker.shift()}
 function preLog(t){preTick(t,'us')}
 function topThree(id){return S.squads[id].filter(p=>!p.loan).slice().sort((a,b)=>b.q-a.q).slice(0,3)}
-function clubRecordFee(id){return Math.max(0,...(S.mb||[]).filter(r=>r.s!=null).map(r=>r.in))}
+/* the club record: what the club paid before the chairman arrived (by division), or more if the chairman has broken it since.
+   Without a history every serious fee looked like a record and waited for the chairman (NM-011). Derived, nothing saved. */
+const RECORD_BASE=[150,80,45,25,12];
+function clubRecordFee(id){return Math.max(RECORD_BASE[CL(id).tier]??12,...(S.mb||[]).filter(r=>r.s!=null).map(r=>r.in))}
 function preTargets(id){const P_=preState(),needs=openNeeds().slice().sort((a,b)=>(b.pos===P_.prio)-(a.pos===P_.prio)||b.prio-a.prio);const seen=new Set();return needs.filter(n=>!seen.has(n.pos)&&seen.add(n.pos)).slice(0,3)}
 function preMinQ(id,n){const sq=squadQuality(S.squads[id]);return n.kind==='hole'?sq-2.5:sq-1}
 

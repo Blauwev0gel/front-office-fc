@@ -10,7 +10,8 @@ const calls=[['SetPrice',{kind:'terrace',delta:1}],['SetDues',{delta:1}],['SetDe
 let ran=0;for(const [n,a] of calls){const r=E.cmd(n,id,a);if(r.ok)ran++;else console.log(`     (${n} refused: ${r.err})`)}
 ok(ran>=12,`player commands run through cmd() (${ran}/${calls.length}; refusals above are valid rule checks)`);
 ok(S.journal.length>=10,'the decision journal records them');
-for(let s=0;s<2;s++){while(!E.seasonOver())E.advanceWeek();E.closeSeason()}
+/* the chairman wins these two votes (losing one is tested below): otherwise a seed that ends in a lost vote freezes the world in 'choose' */
+for(let s=0;s<2;s++){while(!E.seasonOver())E.advanceWeek();S.members[S.my].conf=90;E.closeSeason()}
 E.advanceWeek(); /* the summer window is open through the pre-season and closes when week 1 is played */
 ok(S.season===3&&S.phase==='season','two full seasons play through, AGMs included');
 let bad=[];for(const c in S.clubs){const f=S.fin[c];let sum=f.start;for(const h of f.hist)for(const k in h.lines)sum+=h.lines[k];for(const k in f.season)sum+=f.season[k];

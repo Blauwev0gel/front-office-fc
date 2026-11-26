@@ -24,11 +24,11 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     await tap('[data-act=seat] >> nth=1');await tap('[data-act=choose]');
     await page.evaluate(()=>{S.agmOff=true;M(S.my).conf=90}); /* this run tests the screens, not the members' vote */
     const steps=[];
-    for(let i=0;i<12&&!await count('[data-act=play]');i++){const b=page.locator('.g-play').first();if(!await b.count())break;steps.push((await b.innerText()).trim());
+    for(let i=0;i<24&&!await count('[data-act=play]');i++){const b=page.locator('.g-play').first();if(!await b.count())break;steps.push((await b.innerText()).trim());
       const bb=await b.boundingBox();if(i===0)ok(bb&&bb.height>=44,`${scheme}: the main button is at least 44px tall (${bb?Math.round(bb.height):'-'}px)`);
       await b.click();await wide('pre-season step '+(i+1))}
     ok(steps.some(t=>/manifest/i.test(t))&&steps.findIndex(t=>/manifest/i.test(t))<steps.findIndex(t=>/plan/i.test(t)),`${scheme}: the manifest is signed before the director's plan (${steps.join(' → ')})`);
-    ok(steps.some(t=>/Deadline day/.test(t)),`${scheme}: the summer has a deadline day`);
+    ok(await page.evaluate(()=>S.pre&&S.pre.ticker.some(t=>t.d>=10)),`${scheme}: the summer has a deadline day`);
     ok(await page.evaluate(()=>M(S.my).sealed===S.season),`${scheme}: the manifest is signed`);
     ok(await count('[data-act=play]')>=1,`${scheme}: one clear way to start the season`);
     console.log(`info ${scheme}: ${await small()} visible buttons are under 44px before the season (reported, not a failure)`);

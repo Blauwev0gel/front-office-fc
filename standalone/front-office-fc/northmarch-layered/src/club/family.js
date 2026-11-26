@@ -43,6 +43,8 @@ const FAM_MOMENTS={
       opts:[{label:'Retire at the AGM',sub:FAM().heir?'Your heir stands for election':'No heir named: the dynasty waits'},{label:'One more season',sub:'The members decide whether you stay'}],dflt:1})}
 };
 function familyWeek(){
+  /* L5 waits for its own step (MB-10, MB-19): in the L1/L2 game no family moments; an old save's pending one is dropped */
+  if(!(S.layers&&S.layers.dynasty)){if(S.family&&S.family.moment)S.family.moment=null;return}
   if(!S.my||S.phase!=='season')return;const F_=FAM();
   if(F_.moment){if(famNow()-F_.moment.at>=MOMENT_DEADLINE){const d=F_.moment.dflt;familyChoose(d<0?F_.moment.opts.length-1:d,true)}return}
   if(S.moment)return;if(famNow()-Math.max(F_.last,S.momentLast??-99)<FAM_GAP)return;

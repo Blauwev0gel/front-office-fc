@@ -105,12 +105,23 @@
    ${sig.length?`<section class="g-decide"><h3>Keep an eye on</h3>${sig.map(x=>`<button class="g-dec lv${x.lv}" data-act="${esc(x.act)}"${x.arg!=null?` data-arg="${esc(String(x.arg))}"`:''}><span class="g-dot" aria-hidden="true"></span><span>${esc(x.text)}</span><b aria-hidden="true">›</b></button>`).join('')}</section>`:''}
    ${world}${last}</details>`;
  }
+ /* ----- L3: YOUR PEOPLE. The director and the head coach as people: what they are good at, how they feel about you,
+    what they remember. The chairman decides about people (mandate, contract, who), never about players (D-L3-1, D-L3-2). ----- */
+ const loyText=l=>l>=65?'Trusts you':l>=40?'Loyal, for now':'Looking around';
+ function personRow(id,role){const p=P(CL(id).cast[role]);if(!p||!p.pro)return'';const est=staffEstimate(p.id)??p.pro.q,stars='★'.repeat(staffStars(est))+'☆'.repeat(5-staffStars(est)),last=(p.mem||[]).slice(-1)[0],loy=p.loy??50;
+   const ini=p.name.split(' ').map(w=>w[0]).join('').slice(0,2),r=role==='coach'?'Head coach':'Director of football',care=p.pro.caretaker;
+   const mand=role==='td'&&typeof MANDATE_DEALS!=='undefined'&&!care?`<div class="g-seg g-seg3" role="group" aria-label="Signing limit">${Object.entries(MANDATE_DEALS).map(([k,v])=>`<button class="${mandateOf(id).deals===k?'on':''}" data-act="pmandate" data-arg="${k}" aria-pressed="${mandateOf(id).deals===k}">${esc(v.n)}</button>`).join('')}</div><p class="g-hint">${esc({small:'Signs alone up to 40% of the budget a deal. Bigger targets are left on the table.',medium:'Signs alone up to 75% of the budget a deal. Only the biggest targets get away.',large:'Signs anyone within the budget. Fast, and on their judgement alone.'}[mandateOf(id).deals]||'')}</p>`:'';
+   const acts=care?`<button class="btn ghost" data-act="preplace" data-arg="${role}">Appoint a ${role==='coach'?'head coach':'director'}</button>`:`<div class="g-acts2">${p.pro.contract<=1?`<button class="btn ghost" data-act="prenew" data-arg="${role}">Renew the contract</button>`:''}<button class="btn ghost" data-act="preplace" data-arg="${role}">Replace…</button></div>`;
+   const cands=UI.replace===role?`<div class="g-cands"><h3>Who do you want?</h3>${staffCandidates(id,role).slice(0,3).map(c=>{const q=P(c.pid);return`<button class="g-opt" data-act="phire" data-arg="${role}:${esc(c.pid)}"><b>${esc(q.name)}, ${q.age}</b><span>${esc(STAFF_SPEC[role][q.pro.spec])} · ${'★'.repeat(staffStars(staffEstimate(c.pid)))} · £${q.pro.wage} a week${c.comp?` · £${c.comp}k to ${esc(CL(c.from).name)}`:' · free'}</span></button>`}).join('')||'<p class="g-hint">Nobody available right now.</p>'}<button class="btn ghost" data-act="preplace" data-arg="">Keep ${esc(p.name)}</button></div>`:'';
+   return`<li class="g-person"><div class="g-ph"><span class="g-face" aria-hidden="true">${esc(ini)}</span><div><b>${esc(p.name)}</b><small>${r}${care?' · caretaker':''} · ${esc(STAFF_SPEC[role][p.pro.spec]||'')}</small></div><span class="g-stars" aria-label="${staffStars(est)} of 5">${stars}</span></div>
+   ${care?'':`<p class="g-ploy ${loy>=65?'up':loy<40?'down':''}"><b>${loyText(loy)}</b>${last?` · remembers: ${esc(last.t)}`:''} · contract ${p.pro.contract} season${p.pro.contract===1?'':'s'}</p>`}${mand}${acts}${cands}</li>`}
+ function peopleCard(id){return`<section class="g-card g-people"><small class="g-k">YOUR PEOPLE</small><ul class="g-plist">${personRow(id,'td')}${personRow(id,'coach')}</ul></section>`}
  function weekScreen(){
    const id=S.my;
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
    if(S.week===0)return preSeasonScreen(id,msg);
    if(seasonOver())return`<div class="g-week">${msg}${topicBanner(id)}${agmView(id)}</div>`;
-   return`<div class="g-week">${msg}${topicBanner(id)}${escalation()}${winterCard(id)}${statusStrip(id)}${nextMatch(id)}${yourWeek(id)}${tableCard()}${lookBackCard(id)}${promisesCompact(id)}${weekClose(id)}</div>`;
+   return`<div class="g-week">${msg}${topicBanner(id)}${escalation()}${winterCard(id)}${statusStrip(id)}${nextMatch(id)}${peopleCard(id)}${yourWeek(id)}${tableCard()}${lookBackCard(id)}${promisesCompact(id)}${weekClose(id)}</div>`;
  }
 
 
@@ -372,7 +383,7 @@
  function clubMomentCard(){
    const mo=S.moment;if(!mo)return'';const left=MOM_DEADLINE-(momNow()-mo.at);
    return`<article class="g-moment"><small class="g-k">A MOMENT · ${esc(mo.role.toUpperCase())}</small><h2>${esc(mo.title)}</h2><p>${esc(mo.text)}</p>
-   ${mo.opts.map((o,i)=>`<button class="g-opt g-deal-opt" data-act="momchoose" data-arg="${i}"><b>${esc(o.label)}</b>${o.test!=='—'?`<dl><dt>You give</dt><dd>${esc(o.give)}</dd><dt>They give</dt><dd>${esc(o.get)}</dd><dt>Tested</dt><dd>${esc(o.test)}</dd><dt>If it fails</dt><dd>${esc(o.fail)}</dd></dl>`:`<span>${esc(o.get!=='Nothing'?o.get:o.fail)}</span>`}</button>`).join('')}
+   ${mo.opts.map((o,i)=>`<button class="g-opt g-deal-opt" data-act="momchoose" data-arg="${i}"><b>${esc(o.label)}</b>${o.test!=='—'?`<dl><dt>You give</dt><dd>${esc(o.give)}</dd><dt>They give</dt><dd>${esc(o.get)}</dd><dt>Tested</dt><dd>${esc(o.test)}</dd><dt>If it fails</dt><dd>${esc(o.fail)}</dd></dl>`:`<span>${esc([o.give,o.get].filter(x=>x&&x!=='Nothing').join(' · ')||o.fail)}</span>`}</button>`).join('')}
    <p class="g-hint">Say nothing for ${left} more week${left===1?'':'s'} and it becomes “${esc(mo.opts[mo.dflt].label)}”.</p></article>`;
  }
  function pactProgress(p){const id=S.my,gone=S.week-p.w0,pts=ptsNow(id)-p.pts0;
@@ -447,6 +458,10 @@
    if(a==='seatback'&&S){UI.seat=null;render();if(HAS_DOM)window.scrollTo(0,0);return}
    if(a==='choose')UI.seat=null;
    if(a==='sealmanifest'&&S&&S.my){const r=cmd('SealManifest',S.my,{});UI.msg=r.ok===false?{err:true,text:r.err}:{text:'Manifest signed. Now your director has a plan for the summer.'};save();render();if(HAS_DOM)window.scrollTo(0,0);return}
+   if(a==='pmandate'&&S&&S.my){const old=mandateOf(S.my).deals,r=cmd('SetMandate',S.my,{deals:arg});const d=tdOf(S.my),order=['small','medium','large'];if(r.ok!==false&&d&&old!==arg){const up=order.indexOf(arg)>order.indexOf(old);d.loy=clamp((d.loy??50)+(up?4:-6),0,100);(d.mem=d.mem||[]).push({s:S.season,t:up?'given more room to sign':'had the signing limit cut'})}UI.msg=r.ok===false?{err:true,text:r.err}:{text:`${d?d.name:'The director'}: ${order.indexOf(arg)>order.indexOf(old)?'“Thank you. I will use it.”':arg===old?'“Understood.”':'“If that is how you want it.”'}`};save();render();return}
+   if(a==='prenew'&&S&&S.my){const r=cmd('RenewStaff',S.my,{role:arg});const p=P(CL(S.my).cast[arg]);if(r.ok!==false&&p){p.loy=clamp((p.loy??50)+8,0,100);(p.mem=p.mem||[]).push({s:S.season,t:'given a new contract'})}UI.msg=r.ok===false?{err:true,text:r.err}:{text:`${p.name} signs for two more seasons.`};save();render();return}
+   if(a==='preplace'){UI.replace=arg||null;render();return}
+   if(a==='phire'&&S&&S.my){const [role,pid]=String(arg).split(':');const old=P(CL(S.my).cast[role]),r=cmd('HireStaff',S.my,{role,pid});UI.replace=null;if(r.ok!==false){const n=P(pid);(n.mem=n.mem||[]).push({s:S.season,t:'appointed by you'});n.loy=Math.max(n.loy??50,60)}UI.msg=r.ok===false?{err:true,text:r.err}:{text:`${P(pid).name} is your new ${role==='coach'?'head coach':'director of football'}${old&&!old.pro.caretaker?`; ${old.name} leaves`:''}.`};save();render();return}
    if(a==='briefedit'){UI.briefEdit=true;render();return}
    if(a==='briefgoal'&&S&&S.my){const b=briefPick(S.my);const i=b.goals.indexOf(arg);if(i>=0)b.goals.splice(i,1);else if(b.max===1)b.goals=[arg];else if(b.goals.length<b.max)b.goals.push(arg);else UI.msg={err:true,text:'Three goals at most: untick one first.'};render();return}
    if(a==='briefbudget'&&S&&S.my){briefPick(S.my).budget=arg;render();return}

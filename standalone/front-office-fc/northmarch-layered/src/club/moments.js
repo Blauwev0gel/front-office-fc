@@ -14,7 +14,40 @@ function ptsNow(id){return S.tbl[id]?S.tbl[id].pts:0}
 function homeNext(id){for(let w=S.week+1;w<=SEASON_WEEKS;w++){const f=fixtureOf(id,w);if(f&&f.home)return w}return null}
 
 /* ----- the catalogue: when a moment arises, and what can be agreed ----- */
+/* ----- L3: your people come to you. Decisions about people, never about players or selection (D-L3-1, D-L3-2) ----- */
+/* the L3 staff layer is loaded (autonomy modules): only then do staff come to the chairman (MB-01: the base build stays L1/L2) */
+const hasMandate=()=>typeof MANDATE_DEALS!=='undefined'&&typeof mandateOf==='function';
+const loyWord=l=>l>=65?'trusts you':l>=40?'is loyal, for now':'is looking around';
+function staffNote(p,t){if(!p)return;(p.mem=p.mem||[]).push({s:S.season,t});if(p.mem.length>12)p.mem.shift()}
 const MOMENTS={
+  /* the director lost a target above the limit you set, and asks for more room */
+  tdmandate:{when:id=>{if(!hasMandate()||S.week<1||(S.momentDone||{})['tdmandate'+S.season])return null;const m=mandateOf(id).deals,d=tdOf(id);if(m==='large'||!d||!d.pro||d.pro.caretaker)return null;
+      const lost=(S.ops&&S.ops.missed||[]).filter(p=>p.s===S.season&&['above','missed'].includes(p.status));return lost.length?{d,p:lost[lost.length-1]}:null},
+    make:(id,x)=>{const m=mandateOf(id).deals,next=m==='small'?'medium':'large';return{who:x.d.name,role:'Director of football',title:`${x.d.name} wants a bigger mandate`,
+      text:`“I lost ${x.p.name} because he was above my limit (£${x.p.fee}k). Let me do my job.” The limit now: ${MANDATE_DEALS[m].n.toLowerCase()}.`,
+      opts:[{label:`Raise it to ${MANDATE_DEALS[next].n.toLowerCase()}`,give:'More of the budget in their hands',get:'Faster, bolder deals, and a grateful director',test:'—',fail:'—',act:'mandateUp',next},
+        {label:'Keep the limit',give:'A disappointed director',get:'Big fees still come past you',test:'—',fail:'—',act:'mandateKeep'}],dflt:1}}},
+  /* a bigger club wants your coach or director: loyalty decides who is open to it */
+  poach:{when:id=>{if(!hasMandate()||S.week<8||S.week>24||(S.momentDone||{})['poach'+S.season])return null;
+      for(const role of ['coach','td']){const p=P(CL(id).cast[role]);if(!p||!p.pro||p.pro.caretaker||(p.loy??50)>=55||p.pro.q<STAFF_Q[CL(id).tier][0]+2)continue;
+        const big=Object.keys(S.clubs).filter(c=>c!==id&&(CL(c).tier<CL(id).tier||(CL(c).tier===CL(id).tier&&CL(c).rep>CL(id).rep+5)));if(big.length)return{role,p,by:pick(big)}}return null},
+    make:(id,x)=>{const r=x.role==='coach'?'head coach':'director of football',w=Math.round(x.p.pro.wage*1.25/5)*5,comp=compensation(x.p.id);return{who:x.p.name,role:x.role==='coach'?'Head coach':'Director of football',title:`${CL(x.by).name} want ${x.p.name}`,
+      text:`They have offered your ${r} a better job. ${x.p.name} ${loyWord(x.p.loy??50)} and wants to know where they stand by next week.`,
+      opts:[{label:'Match it: a new three-year deal',give:`£${w} a week, 25% more`,get:`${x.p.name} stays, and knows you fought for them`,test:'—',fail:'—',act:'keepStaff',role:x.role,wage:w},
+        {label:'Let them go',give:`Your ${r}`,get:`£${comp}k compensation, and you choose the successor`,test:'—',fail:'—',act:'releaseStaff',role:x.role,by:x.by}],dflt:1}}},
+  /* the director's summer signing does not play: coach and director fall out, and want you to choose */
+  clash:{when:id=>{if(!hasMandate()||S.week<8||S.week>WINTER_WEEK-2||(S.momentDone||{})['clash'+S.season])return null;const P_=S.pre;if(!P_||P_.s!==S.season)return null;
+      for(const d of P_.deals.filter(x=>x.stage==='signed')){const pl=S.squads[id].find(p=>p.id===d.pid);if(pl&&(pl.sApps||0)<S.week*.3)return pl}return null},
+    make:(id,pl)=>{const co=coachOf(id),td=tdOf(id),cn=co?co.name:'The coach',tn=td?td.name:'The director';return{who:`${cn} and ${tn}`,role:'Coach and director',title:`${tn} and ${cn} fall out over ${pl.name}`,
+      text:`${tn} signed ${pl.name} in the summer; he has played ${pl.sApps||0} games. “Not good enough,” says the coach. “Never given a chance,” says the director.`,
+      opts:[{label:'Back the coach: he picks the team',give:`${tn}'s trust`,get:`${pl.name} goes on the list for the winter window`,test:'—',fail:'—',act:'backCoach',pid:pl.id,loyFx:[[td&&td.id,-8],[co&&co.id,4]]},
+        {label:'Back the director: give him games',give:`${cn}'s trust`,get:'The coach is told to play him',test:`${pl.name} plays 6 more games`,fail:'The coach ignored you (−6 confidence)',pact:{key:'clash',kind:'apps',pid:pl.id,need:6,raise:0,failConf:-6,person:co?co.id:null},loyFx:[[co&&co.id,-8],[td&&td.id,4]]},
+        {label:'Stay out of it',give:'A little trust from both',get:'Nothing',test:'—',fail:'—',loyFx:[[co&&co.id,-3],[td&&td.id,-3]]}],dflt:2}}},
+  /* a vacancy: three people, each with their own way of working */
+  hire:{when:id=>{if(!hasMandate())return null;for(const role of ['coach','td']){const p=P(CL(id).cast[role]);if(p&&p.pro&&p.pro.caretaker){const c=staffCandidates(id,role).slice(0,3);if(c.length)return{role,c}}}return null},
+    make:(id,x)=>{const r=x.role==='coach'?'head coach':'director of football';return{who:'Your desk',role:'A vacancy',title:`${CL(id).name} need a new ${r}`,text:'A caretaker is in charge. Three names are on your desk, each with their own way of working.',
+      opts:[...x.c.map(c=>{const p=P(c.pid);return{label:`${p.name}, ${p.age}${c.from?' · '+CL(c.from).name:' · free'}`,give:c.comp?`£${c.comp}k compensation, £${p.pro.wage} a week`:`£${p.pro.wage} a week`,get:`${STAFF_SPEC[x.role][p.pro.spec]} · ${'★'.repeat(staffStars(staffEstimate(c.pid)))}`,test:'—',fail:'—',act:'hire',role:x.role,pid:c.pid}}),
+        {label:'Keep the caretaker for now',give:'Nothing',get:'Time to think',test:'—',fail:'—'}],dflt:x.c.length}}},
   /* the week before a derby: the rival chairman talks; win it and the town is yours for a week */
   derby:{when:id=>{if(S.week<2)return null;const fx=fixtureOf(id,S.week+1),c=CL(id);if(!fx)return null;return c.rival===fx.opp||CL(fx.opp).rival===id?{opp:fx.opp}:null},
     make:(id,x)=>{const r=CL(x.opp),rc=r.cast&&P(r.cast.chair),nm_=rc?rc.name:`The ${r.name} chairman`;return{who:nm_,role:`Chairman of ${r.name}`,title:`${r.name}'s chairman takes a swipe`,text:`“${CL(id).name} are a small club with a big mouth,” ${nm_} tells the papers before the derby. Rivals since ${CL(id).rivalWhy}.`,
@@ -70,10 +103,11 @@ function momentsWeek(){
   for(const p of pactsOpen())pactTest(id,p);
   if(S.moment){if(momNow()-S.moment.at>=MOM_DEADLINE)momentChoose(S.moment.dflt,true);return}
   if(S.family&&S.family.moment)return;if(momNow()-momLast()<MOM_GAP)return;
-  for(const key of ['derby','coach','star','opposition','group','youngster','investor','contract','captain','sponsor']){const who=MOMENTS[key].when(id);if(who){S.moment={key,at:momNow(),...MOMENTS[key].make(id,who)};S.momentLast=momNow();(S.momentDone=S.momentDone||{})[key+S.season]=true;emit('Moment',id,S.moment.title);return}}
+  for(const key of ['hire','derby','poach','clash','tdmandate','coach','star','opposition','group','youngster','investor','contract','captain','sponsor']){const who=MOMENTS[key].when(id);if(who){S.moment={key,at:momNow(),...MOMENTS[key].make(id,who)};S.momentLast=momNow();(S.momentDone=S.momentDone||{})[key+S.season]=true;emit('Moment',id,S.moment.title);return}}
 }
 function momentChoose(i,silent){
   const id=S.my,mo=S.moment;if(!mo)return{ok:false,err:'Nothing to decide'};const o=mo.opts[i];if(!o)return{ok:false,err:'Unknown option'};S.moment=null;let note=o.label;
+  for(const [pid,dl] of o.loyFx||[]){const pp=pid&&P(pid);if(pp)pp.loy=clamp((pp.loy??50)+dl,0,100)}
   if(o.pact){const p={...o.pact,title:mo.title,who:mo.who,give:o.give,get:o.get,test:o.test,fail:o.fail,label:o.label,pts0:ptsNow(id),w0:S.week};
     if(p.kind==='homewin')p.hw=homeNext(id);
     if(p.kind==='keep'){const pl=S.squads[id].find(x=>x.id===p.pid);if(pl){pl.wage=Math.round(pl.wage*(1+p.raise)/5)*5;pl.wantsOut=false;pl.contract=Math.max(pl.contract,3)}}
@@ -84,6 +118,12 @@ function momentChoose(i,silent){
     pactAdd(p);note=`Agreed: ${o.label}. Tested: ${o.test}.`}
   else if(o.act==='sack'){const r=cmd('SackStaff',id,{role:'coach'});note=r.ok===false?r.err:`${mo.who} is sacked. A caretaker takes over.`}
   else if(o.act==='ignore'){confLog(id,-3,'The opposition campaign grows');note='You ignore them. The campaign grows.'}
+  else if(o.act==='mandateUp'){const d=tdOf(id);cmd('SetMandate',id,{deals:o.next});if(d){d.loy=clamp((d.loy??50)+8,0,100);staffNote(d,'backed with a bigger mandate')}note=`${d?d.name:'The director'} can now sign more on their own.`}
+  else if(o.act==='mandateKeep'){const d=tdOf(id);if(d){d.loy=clamp((d.loy??50)-6,0,100);staffNote(d,'refused a bigger mandate')}note='The limit stays. The director is not pleased.'}
+  else if(o.act==='keepStaff'){const p=P(CL(id).cast[o.role]);if(p){p.pro.wage=o.wage;p.pro.contract=3;p.loy=clamp((p.loy??50)+12,0,100);staffNote(p,'kept with a new deal when another club came');emit('StaffRenewed',id,`${p.name} turns down the move and signs for three more seasons.`,{pid:p.id})}note='They stay.'}
+  else if(o.act==='releaseStaff'){const pid=CL(id).cast[o.role],p=P(pid);if(p){appoint(o.by,o.role,pid,'poached');note=`${p.name} leaves for ${CL(o.by).name}. A caretaker steps in.`}}
+  else if(o.act==='backCoach'){const pl=S.squads[id].find(x=>x.id===o.pid);if(pl){(S.sellNext=S.sellNext||[]).push(pl.id);note=`${pl.name} will be sold in the winter window.`}}
+  else if(o.act==='hire'){const r=cmd('HireStaff',id,{role:o.role,pid:o.pid});note=r.ok===false?r.err:`${P(o.pid).name} is your new ${o.role==='coach'?'head coach':'director of football'}.`;if(r.ok!==false)staffNote(P(o.pid),'appointed by you')}
   else if(o.act==='snub'){confLog(id,-3,`${mo.who} feel snubbed`);note=`You tell ${mo.who} the club comes first. They grumble.`}
   else if(o.act==='half'){book(id,'loanIn',o.sum);note=`£${o.sum}k in the bank, no strings.`}
   else if(o.act==='truth'){const c=P(CL(id).cast.captain);if(c)c.loy=clamp((c.loy??50)+3,0,100);note='The captain respects your honesty.'}

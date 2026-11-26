@@ -15,7 +15,7 @@ function winWeeks(P_){return P_&&P_.kind==='winter'?2:PRE_WEEKS}
 function PRE(){if(!S.my)return null;if(S.week===0||inWinter())return preState();return null}
 function mkWin(kind){return{kind,s:S.season,wk:1,brief:null,deals:[],ticker:[],offer:null,record:null,prio:null,top3:[],sold:[],debrief:null,log:[]}}
 function preState(){
-  if(S.my&&S.week>0&&inWinter()){if(!S.win||S.win.s!==S.season)S.win=mkWin('winter');return S.win}
+  if(S.my&&S.week>0&&inWinter()){if(!S.win||S.win.s!==S.season){S.win=mkWin('winter');if(S.sellNext&&S.sellNext.length){S.win.list=S.sellNext.slice();S.sellNext=[]}}return S.win}
   if(!S.pre||S.pre.s!==S.season)S.pre=mkWin('summer');if(!S.pre.ticker)S.pre.ticker=[];if(!S.pre.sold)S.pre.sold=[];if(!S.pre.kind)S.pre.kind='summer';return S.pre}
 /* the player's summer was played (a brief was signed): the market for this club closed on deadline day */
 function summerPlayed(){const P_=S.pre;return !!(S.my&&P_&&P_.s===S.season&&P_.brief&&P_.kind!=='winter')}

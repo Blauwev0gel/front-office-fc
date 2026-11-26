@@ -195,3 +195,12 @@ b.good{color:var(--good)}b.bad{color:var(--bad)}
 .g-verdict.in .g-vres{color:var(--good)}.g-verdict.out .g-vres{color:var(--bad)}
 @media (prefers-reduced-motion:reduce){.g-vres{animation:none}}
 .g-act[disabled]{opacity:.5;cursor:not-allowed}
+
+/* ---- L3: your people ---- */
+.g-plist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.g-person{display:flex;flex-direction:column;gap:8px;padding-top:10px;border-top:1px solid var(--line)}.g-person:first-child{border-top:0;padding-top:0}
+.g-ph{display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center}.g-ph .g-face{width:40px;height:40px}
+.g-ph b{display:block}.g-ph small{color:var(--muted);font-size:.78rem}
+.g-stars{color:var(--signal);letter-spacing:1px;font-size:.9rem}
+.g-ploy{margin:0;font-size:.85rem;color:var(--muted)}.g-ploy b{color:var(--ink)}.g-ploy.up b{color:var(--good)}.g-ploy.down b{color:var(--bad)}
+.g-cands{display:flex;flex-direction:column;gap:6px}.g-cands h3{margin:4px 0 0;font-size:.95rem}

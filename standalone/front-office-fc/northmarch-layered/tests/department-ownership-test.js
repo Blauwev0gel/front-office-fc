@@ -8,7 +8,8 @@ function game(){return vm.runInNewContext(js+';({newWorld,chooseClub,getS:()=>S,
 const g=game();
 g.newWorld(1804);g.chooseClub(g.getS().seats[0]);g.UI.title=false;g.UI.v183Stage='preview';g.UI.tab='week';
 const home=g.weekView();
-assert.equal((home.match(/class="nm85-tile"/g)||[]).length,13);
+/* the V19 home with thirteen tiles was replaced by the week screen (game shell): the club opens there, on election night */
+assert(home.includes('g-week')&&home.includes('is yours'),'The club opens on the week screen');
 assert(!home.includes('nm86-upgrade-cta'),'No generic upgrade CTA on home');
 assert(!home.includes('nm86-cash'),'Cashflow belongs in Finances');
 for(const k of ['training','medical','academy','scouting','commercial','community','matchday']){
@@ -39,7 +40,7 @@ assert.equal(g.UI.v183Stage,'result');
 g.act('v183paper');
 assert(g.weekView().includes('THE NORTHMARCH ECHO'));
 g.act('v183ready');
-assert(g.weekView().includes('nm85-home'));
+assert(g.weekView().includes('g-week'),'After the newspaper the week screen returns');
 const saved=g.serialize(),club=g.getS().my;
 g.deserialize(saved);assert.equal(g.getS().my,club);
 const css=fs.readFileSync(path.join(root,'src/style/main.css'),'utf8')+fs.readFileSync(path.join(root,'src/style/extensions.css'),'utf8');

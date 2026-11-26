@@ -349,6 +349,8 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 
 **Implementatiestatus (uitgangspositie)** — L1/L2 bestaan als speelbare bronbuild volgens historische documentatie, niet integraal tegen deze bijbel gevalideerd. Opening/zomer, netwerk, weekflow, upgrades en seizoensboog: implementaties aanwezig, audit nodig. L3 deels aanwezig als opt-in. L4/L5 niet vrijgegeven. Actualiseer per feature na inspectie, niet op naam van een module.
 
+**Stap 2, L1/L2-seizoen (26-11):** verkiezingsavond en de eerste ochtend met de eigen mensen van de club; bij elke wedstrijd het whiteboard met de waarschijnlijke elf (nieuwe spelers en academie gemarkeerd, blessures), de gevaarlijkste man van de tegenstander en de derby met de reden van de rivaliteit; bij het eindsignaal de doelpuntenmakers met hun herkomst (academie, deze zomer gehaald, jouw vondst) en waarom op basis van de kansen; de ALV-uitslag als onthulling (HERKOZEN of WEGGESTEMD tegen de 50%-lijn); je eigen week per activiteit (MB-12). Clubs hebben een historisch transferrecord (NM-011); L5-familiemomenten staan uit tot stap 5.
+
 **Stap 1, eerste zomer (26-11):** het transfercentrum in de echte engine. De week van de TD speelt dag voor dag af op een ticker; daarna verschijnt het bord met deals (stappen, SIGNED- en HIJACKED-stempels). Je praat met de TD over prioriteit en geld; de twee uitzonderingen verschijnen als BREAKING. Deadline day speelt op een klok en eindigt met WINDOW CLOSED. Het winterwindow gebruikt hetzelfde bord en dezelfde ticker. Prototype: `prototypes/first-summer.html`.
 
 **Implementatiestatus eerste zomer (25-11)** — Opening en transferzomer herzien: Implemented, Tested, Playtested (bot, Playwright, 390 px licht en donker). Menselijke playtest nog niet gedaan.
@@ -365,10 +367,11 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 | NM-005 | Open validatie | Menselijke spelbeleving van de eerste zomer en L1/L2: prototype en playtest. |
 | NM-006 | Operationeel, open | Sinds 25-11 20:10 faalt elke Pages-run (454–456) in `deploy-pages`: het artefact wordt geüpload, maar de deploy vindt het niet ("No artifacts named github-pages"). Build en upload slagen. Niet blijven herstarten; eigenaar kijkt naar Pages-instellingen en GitHub-status. |
 | NM-007 | Wacht op eigenaar | `CLAUDE.md` en `AGENTS.md` verwijzen nog naar *The Front Office*. Voorstellen voor MB-11 liggen klaar; de eigenaar past ze zelf toe of geeft Claude daar expliciet opdracht toe. |
-| NM-009 | Test verouderd | `department-ownership-test` verwacht het oude homescherm (13 tegels) en faalt sinds de nieuwe schil; bijwerken of vervangen. |
-| NM-010 | Balans | `sim-test`: administratie komt te vaak voor (39–41 tegen een limiet van 33 in 20 seizoenen). Voor de balansronde (ChatGPT). |
-| NM-011 | Gameplay | Een TD met een all-in budget sluit soms geen enkele deal ("A quiet summer"). Onderzoeken in `preCandidates`/`preWeek`. |
-| NM-008 | Implementatie | De code volgt nog "één activiteit per week" (D-S1). Omzetten naar MB-12 in fase 2 of 3, met savemigratie. |
+| NM-009 | Opgelost (26-11) | `department-ownership-test` controleert nu het weekscherm in plaats van het oude homescherm. |
+| NM-010 | Balans | `sim-test` over 3 seeds: administraties 29–40 (limiet 33; vóór stap 2: 39–48) en weggestemde AI-voorzitters 128–151 (limiet 133; vóór stap 2: 126–154). Ruis rond te krappe grenzen plus een echte balansvraag; samen met NM-012. |
+| NM-011 | Opgelost (26-11) | Het clubrecord stond bij een nieuwe voorzitter op £0, waardoor bijna elke aankoop op goedkeuring wachtte en verviel. Nu een historisch record per divisie (150/80/45/25/12k). 12 werelden: geen zomer meer zonder aankoop. |
+| NM-012 | Balans | De hoogste divisie maakt 30–50% van de omzet als winst (ook AI-clubs; een speler soms meer dan £1 mln per seizoen). Aan de top is geld geen afweging meer (§9). Fase 6, over meerdere seeds. |
+| NM-008 | Opgelost (26-11) | MB-12 in de code: een reis neemt de week en sluit de andere reis en een week op de club uit; een data-dag past ernaast, eens per week. Test in `first-summer-test`. |
 
 **Release history**
 - 25-11-2026 · V1.1 — documentatie geconsolideerd op `slimline-main` `7147f23` en `main` `cc4c5db` (identieke blob `ecb6ad3`).
@@ -379,7 +382,7 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 **Current work**
 - **Afgerond:** herziening van de opening en de transferzomer (fase 1). NM-001 is opgelost.
 - **Wacht op eigenaar:** geen open ontwerpvragen.
-- **Volgende producttaak:** stap 2 van MB-19: week en seizoen met de ALV als gespeelde climax; daarna de menselijke playtest (NM-005).
+- **Volgende producttaak:** L1/L2 afmaken met fase 3 en 6: het netwerk van contacten (MB-06) en de balans van de economie (NM-012, NM-010); daarna de menselijke playtest (NM-005) en stap 3 (L3 staf).
 - **Niet actief:** hogere lagen, ongevraagde balanssimulaties, Pages-herstarts, releasewerk.
 
 ---

@@ -258,7 +258,7 @@ function foreignFixtureRounds(ids){
 }
 function foreignGame(h,a,neutral=false){
   const [lh,la]=lambdas(foreignStrength(h),foreignStrength(a),!neutral);
-  return{h,a,gh:pois(lh,rnd),ga:pois(la,rnd)};
+  return{h,a,gh:pois(lh,rnd),ga:pois(la,rnd),lh,la};
 }
 /* Foreign leagues simulate actual XI appearances, scorers and squad availability.
    Only foreign squads are handled here; domestic games use playMatch/matchAftermath. */
@@ -305,6 +305,8 @@ function foreignPlayerMatch(m,comp='league'){
     }
     if(!m.scorers)m.scorers={};
     m.scorers[id]=scorers;
+    /* the same public data as at home (xG share, match rating), so foreign players can be judged on numbers too */
+    if(comp==='league'&&m.lh!=null)playerStats(xi,id===m.h?m.lh:m.la,goals,conceded,scorers.map(x=>({...x,side:'x'})),'x');
   }
 }
 function foreignRecord(rows,m){
@@ -388,9 +390,9 @@ function foreignPlayerSeasonEnd(){
       p.career=p.career||[];
       p.career.push(`${club.name} ${S.season}: ${p.sApps||0} apps, ${p.sGoals||0} goals`);
       p.history=p.history||[];
-      p.history.push({season:S.season,club:id,age:p.age,apps:p.sApps||0,goals:p.sGoals||0,europe:p.eApps||0,europeGoals:p.eGoals||0,quality:r1(p.q)});
+      p.history.push({season:S.season,club:id,age:p.age,apps:p.sApps||0,goals:p.sGoals||0,europe:p.eApps||0,europeGoals:p.eGoals||0,quality:r1(p.q),xg:r1(p.sXg||0),rating:p.sRn?r1(p.sRat/p.sRn):null});
       if(p.history.length>30)p.history.shift();
-      p.sApps=0;p.sGoals=0;p.eApps=0;p.eGoals=0;
+      p.sApps=0;p.sGoals=0;p.eApps=0;p.eGoals=0;p.sXg=0;p.sRat=0;p.sRn=0;
       if(p.career.length>12)p.career.shift();
       p.age++;p.contract--;p.inj=Math.max(0,(p.inj||0)-3);
       if(p.age>=35){

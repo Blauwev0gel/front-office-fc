@@ -138,7 +138,7 @@
  /* running: what the chairman set in motion, and where it stands; this is where a week's work pays off */
  function runningCard(id){const A=S.scout||{gems:[],prospects:[]},td=tdOf(id),dn=td?td.name:'The director',rows=[];
    for(const g of A.gems.filter(g=>g.s===S.season&&g.status!=='gone').slice(-4).reverse()){const st=g.status==='signed'?'<em class="g-ok">Signed · plays for us now</em>':g.status==='recommended'?`<em>${esc(dn)} is watching him · ${esc(nextWindowWord())} decides</em>`:`<button class="btn ghost g-mini" data-act="chairrec" data-arg="${esc(g.pid)}">Recommend to ${esc(dn)}</button>`;
-     rows.push(`<li><span class="g-rk">FIND</span><div><b>${esc(g.name)}</b> <small class="muted">${esc(POS_ONE[g.pos]||g.pos)}, ${g.age} · ~${Math.round(qualityToStr(g.est))}${g.fee?` · £${g.fee}k`:' · free'}</small>${st}</div></li>`)}
+     rows.push(`<li><span class="g-rk">FIND</span><div><button class="pp-link" data-act="player" data-arg="${esc(g.pid)}">${esc(g.name)}</button> <small class="muted">${esc(POS_ONE[g.pos]||g.pos)}, ${g.age} · ~${Math.round(qualityToStr(g.est))}${g.fee?` · £${g.fee}k`:' · free'}</small>${st}</div></li>`)}
    for(const pr of A.prospects.filter(p=>p.s===S.season&&['seen','invited'].includes(p.status)).slice(-3).reverse())
      rows.push(`<li><span class="g-rk">YOUTH</span><div><b>${esc(pr.name)}</b> <small class="muted">${esc(POS_ONE[pr.pos]||pr.pos)}, 15</small>${pr.status==='invited'?'<em>Invited · decides next summer</em>':`<button class="btn ghost g-mini" data-act="chairinvite" data-arg="${esc(pr.id)}">Invite to the academy</button>`}</div></li>`);
    for(const p of pactsOpen())rows.push(`<li><span class="g-rk">WORD</span><div><b>${esc(p.label)}</b> <small class="muted">${esc(p.who)}</small><em>${esc(pactProgress(p))}</em></div></li>`);
@@ -206,10 +206,13 @@
    return`<div class="g-week">${msg}${preSteps(st)}${P_&&P_.kind==='summer'?'<div class="tc-closed" role="status">WINDOW CLOSED</div>':''}${momentCard()}${preSeason(id)}${promises(id)}${nextMatch(id)}</div>`;
  }
  function briefCard(P_,id){const res=briefJudge(id,P_);return`<section class="g-card g-promise"><small class="g-k">THE ${P_.kind==='winter'?'WINTER':'SUMMER'} BRIEF · ${esc(BUDGET_LV[P_.brief.budget].n.toUpperCase())} BUDGET</small><ul>${res.map(r=>`<li class="${r.met?'on':''}"><div><b>${esc(r.t)}</b><span>${esc(r.how)}</span></div></li>`).join('')}</ul></section>`}
+ /* the numbers you need before saying yes: a data strip and a way to the full profile */
+ function quickData(pid){const f=findPlayer(pid);if(!f)return'';const p=f.p,K=knowOf(p,f.club),ar=avgR(p);
+   return`<div class="pp-strip"><span><small>Rating</small><b>${K.now==null?'?':(K.lo!=null?'~':'')+K.now}</b></span><span><small>Age</small><b>${p.age}</b></span><span><small>Avg</small><b>${ar??'—'}</b></span><span><small>Goals</small><b>${p.sGoals||0}</b></span><span><small>xG</small><b>${r1(p.sXg||0)}</b></span></div><button class="btn ghost" data-act="player" data-arg="${esc(pid)}">Full profile and data</button>`}
  function escCards(P_){const o=P_.offer,r=P_.record;
-   const offer=o?`<article class="g-moment"><small class="g-k">A BID FOR YOUR PLAYER · YOUR DECISION</small><h2>${esc(CL(o.by).name)} want ${esc(o.name)}</h2><p>£${o.fee}k for your ${esc(POS_ONE[o.pos])} (${o.age}), one of your three best players. The director cannot sell him without you.</p>
+   const offer=o?`<article class="g-moment"><small class="g-k">A BID FOR YOUR PLAYER · YOUR DECISION</small><h2>${esc(CL(o.by).name)} want ${esc(o.name)}</h2>${quickData(o.pid)}<p>£${o.fee}k for your ${esc(POS_ONE[o.pos])} (${o.age}), one of your three best players. The director cannot sell him without you.</p>
      <button class="g-opt" data-act="preoffer" data-arg="accept"><b>Accept £${o.fee}k</b><span>The money is yours; the director looks for a replacement</span></button>${o.asked?'':`<button class="g-opt" data-act="preoffer" data-arg="more"><b>Ask for more</b><span>They may raise it by a fifth, or walk away</span></button>`}<button class="g-opt g-leave" data-act="preoffer" data-arg="no"><b>Not for sale</b><span>He stays, but he may be unhappy</span></button></article>`:'';
-   const rec=r?`<article class="g-moment"><small class="g-k">A CLUB RECORD · YOUR DECISION</small><h2>£${r.fee}k for ${esc(r.name)}?</h2><p>The selling club has said yes. It would beat the club record${r.rec?` of £${r.rec}k`:''}; the director needs your word.</p>
+   const rec=r?`<article class="g-moment"><small class="g-k">A CLUB RECORD · YOUR DECISION</small><h2>£${r.fee}k for ${esc(r.name)}?</h2>${quickData(r.pid)}<p>The selling club has said yes. It would beat the club record${r.rec?` of £${r.rec}k`:''}; the director needs your word.</p>
      <button class="g-opt" data-act="prerecord" data-arg="yes"><b>Approve the record fee</b><span>He signs today</span></button><button class="g-opt g-leave" data-act="prerecord" data-arg="no"><b>Too much</b><span>The director walks away and looks elsewhere</span></button></article>`:'';
    return offer+rec;
  }
@@ -252,11 +255,11 @@
  function tcBoard(P_,id,wk){const T=P_.targets||{},cards=[],seen=new Set();
    const signedNow=new Set(tcItems(P_,wk).filter(t=>/✍/.test(t.t)).map(t=>t.t));
    for(const d of P_.deals){seen.add(d.pos+':'+d.pid);const out=['walked','hijacked','gone'].includes(d.stage),st=TC_ST[d.stage]??0,fresh=[...signedNow].some(t=>t.includes(d.name));
-     cards.push(`<article class="tc-deal ${out?'out '+d.stage:''} ${d.stage==='signed'?'done':''}"><div class="tc-top"><span class="tc-pos">${esc(d.pos)}</span><div class="tc-id"><b>${esc(d.name)}</b><span>${d.age} · ${d.from?esc(nm(d.from)):'free agent'} · ~${d.est}</span></div><span class="tc-fee">${d.fee?'£'+d.fee+'k':'free'}</span></div>
+     cards.push(`<article class="tc-deal ${out?'out '+d.stage:''} ${d.stage==='signed'?'done':''}"><div class="tc-top"><span class="tc-pos">${esc(d.pos)}</span><div class="tc-id"><button class="pp-link" data-act="player" data-arg="${esc(d.pid)}">${esc(d.name)}</button><span>${d.age} · ${d.from?esc(nm(d.from)):'free agent'} · ~${d.est}</span></div><span class="tc-fee">${d.fee?'£'+d.fee+'k':'free'}</span></div>
      <ol class="tc-rail" aria-label="${esc(TC_LBL[d.stage]||d.stage)}">${TC_STEPS.map((x,i)=>`<li class="${!out&&i<=st?'on':''}"></li>`).join('')}</ol><div class="tc-st">${esc(TC_LBL[d.stage]||d.stage)}${d.chair?' · <i>your find</i>':''}</div>
      ${d.stage==='signed'?`<span class="tc-stamp${fresh?' anim':''}">SIGNED</span>`:''}${d.stage==='hijacked'?'<span class="tc-stamp red">HIJACKED</span>':''}</article>`)}
    for(const pos of Object.keys(T)){if(P_.deals.some(d=>d.pos===pos&&['bid','countered','record','signed'].includes(d.stage)))continue;const c=(T[pos]||[])[0];if(!c)continue;
-     cards.push(`<article class="tc-deal"><div class="tc-top"><span class="tc-pos">${esc(pos)}</span><div class="tc-id"><b>${esc(c.name)}</b><span>${c.age} · ${c.from?esc(nm(c.from)):'free agent'} · ~${c.est} ±${c.doubt}</span></div><span class="tc-fee">£${c.fee}k</span></div><ol class="tc-rail">${TC_STEPS.map((x,i)=>`<li class="${i===0?'on':''}"></li>`).join('')}</ol><div class="tc-st">On the board · ${esc(c.type||'')}${c.chair?' · <i>your find</i>':''}</div></article>`)}
+     cards.push(`<article class="tc-deal"><div class="tc-top"><span class="tc-pos">${esc(pos)}</span><div class="tc-id"><button class="pp-link" data-act="player" data-arg="${esc(c.pid)}">${esc(c.name)}</button><span>${c.age} · ${c.from?esc(nm(c.from)):'free agent'} · ~${c.est} ±${c.doubt}</span></div><span class="tc-fee">£${c.fee}k</span></div><ol class="tc-rail">${TC_STEPS.map((x,i)=>`<li class="${i===0?'on':''}"></li>`).join('')}</ol><div class="tc-st">On the board · ${esc(c.type||'')}${c.chair?' · <i>your find</i>':''}</div></article>`)}
    return`<section class="tc-sec"><div class="tc-h"><b>${esc((P_.brief.dirName||'The director'))}’s board</b><span class="g-hint">The director does the deals. You set the frame.</span></div>${cards.join('')||'<p class="g-hint">The board fills up in the first week.</p>'}</section>`}
  /* talking to the director: priority and money, never a deal */
  function tcTalk(P_,id){if(P_.wk>winWeeks(P_))return'';const dir=P_.brief.dirName||'The director',needs=preTargets(id),live=P_.deals.filter(d=>['bid','countered'].includes(d.stage)),done=P_.deals.filter(d=>d.stage==='signed');
@@ -295,7 +298,7 @@
  /* who scored and where they came from: the chairman's fingerprints on the result */
  function ftScorers(id){const m=myMatches()[0];if(!m)return'';const side=m.h===id?'h':'a',ours=m.scorers.filter(x=>x.side===side),theirs=m.scorers.filter(x=>x.side!==side);
    const tag=pid=>{const p=S.squads[id].find(x=>x.id===pid);if(!p)return'';const w=whyHere(p,id);return w==='academy'?'<i class="g-tag in">ACADEMY</i>':w==='find'?'<i class="g-tag in">YOUR FIND</i>':w==='new'?'<i class="g-tag">SIGNED THIS SUMMER</i>':''};
-   const li=(x,us)=>`<li>${us?'⚽':'·'} <b>${esc(x.name)}</b> ${us?tag(x.pid):''}</li>`;
+   const li=(x,us)=>`<li>${us?'⚽':'·'} <button class="pp-link" data-act="player" data-arg="${esc(x.pid)}">${esc(x.name)}</button> ${us?tag(x.pid):''}</li>`;
    return`<section class="g-card"><h3>The goals</h3>${ours.length?`<ul class="g-news g-goals">${ours.map(x=>li(x,1)).join('')}</ul>`:'<p class="g-hint">We did not score.</p>'}${theirs.length?`<p class="g-hint">For them: ${esc(theirs.map(x=>x.name).join(', '))}.</p>`:''}<p class="g-hint">Why: ${esc(xgWord(m))}.</p></section>`}
  function fullTime(){
    const is=issues().at(-1);if(!is)return weekScreen();
@@ -486,6 +489,43 @@
  function tcStart(wk){const P_=S.pre;if(!P_||!HAS_DOM)return;const n=P_.ticker.filter(t=>t.wk===wk&&t.d>=0).length;UI.tcPlay={s:S.season,wk,shown:Math.min(1,n),total:n};clearTimeout(UI.tcTimer);
    const fast=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
    const tick=()=>{const p=UI.tcPlay;if(!p||p.shown>=p.total||!S||S.week!==0)return;p.shown++;render();UI.tcTimer=setTimeout(tick,fast?60:(wk===winWeeks(P_)?1300:950))};UI.tcTimer=setTimeout(tick,250)}
+ /* ----- PLAYERS (§7.3–7.4, D-G4, Moneyball): one profile for every player, ours or not. Public data is exact (apps, goals,
+    xG, match ratings, value, wage); ability is exact only for our own players and an estimate with a range for everyone else. ----- */
+ const rt=q=>Math.round(qualityToStr(q));
+ const avgR=p=>p.sRn?r1(p.sRat/p.sRn):null;
+ const spark=a=>`<span class="pp-spark" aria-label="Last ratings ${(a||[]).join(', ')}">${(a||[]).map(r=>`<i style="height:${Math.round((r-3.5)/6.3*100)}%" class="${r>=7?'hi':r<6?'lo':''}"></i>`).join('')||'<em>—</em>'}</span>`;
+ function knowOf(p,club){const id=S.my;if(club===id)return{own:true,now:rt(p.q),pot:rt(potentialSeen(id,p)),txt:'Exact: he is ours'};
+   const g=S.scout&&S.scout.gems.find(x=>x.pid===p.id),sl=typeof shortlistEntry==='function'&&shortlistEntry(p.id);
+   if(sl&&sl.obs){const r=scoutRange(id,sl.obs);return{now:rt(sl.est),lo:rt(sl.est-r),hi:rt(sl.est+r),pot:g?rt(g.pot):null,txt:`Scouted ${sl.obs} time${sl.obs>1?'s':''}`}}
+   if(g)return{now:rt(g.est),lo:rt(g.est-2*scoutNoise(id)),hi:rt(g.est+2*scoutNoise(id)),pot:rt(g.pot),txt:`Your ${g.how==='data'?'analyst':'trip'}, S${g.s} W${g.w}`};
+   return{now:null,txt:'Not scouted: you only have the data'}}
+ function profileSheet(pid){const f=findPlayer(pid);if(!f)return overlayShell('Player','<p class="muted">This player has left the game world.</p>');
+   const p=f.p,club=f.club,id=S.my,K=knowOf(p,club),own=club===id,cn=club?(S.clubs[club]?.name||S.foreign?.clubs?.[club]?.name||club):'Free agent';
+   const tile=(k,v,sub)=>`<div class="pp-t"><small>${k}</small><b>${v}</b>${sub?`<span>${sub}</span>`:''}</div>`,ar=avgR(p),gx=r1((p.sGoals||0)-(p.sXg||0));
+   const fee=!own&&club&&!String(club).startsWith('f_')?Math.round(askingFee(p,club)):!own&&club?Math.round(playerValue(p)):0;
+   const hist=(p.history||[]).filter(h=>h.apps!=null).slice(-6).reverse();
+   const g=S.scout&&S.scout.gems.find(x=>x.pid===pid),td=tdOf(id);
+   const act=own?(UI.confirm===pid?`<div class="panel"><p>Release ${esc(p.name)}? It costs ${k1(releaseCost(p))} in compensation.</p><button class="btn" data-act="release" data-arg="${pid}">Release him</button><button class="btn ghost" data-act="confirm" data-arg="">Keep him</button></div>`:`<button class="btn ghost" data-act="confirm" data-arg="${pid}">Release (${k1(releaseCost(p))})</button>`)
+     :g&&g.status==='found'?`<button class="btn" data-act="chairrec" data-arg="${pid}">Recommend to ${esc(td?td.name:'the director')}</button>`:g&&g.status==='recommended'?`<p class="g-hint">${esc(td?td.name:'The director')} is watching him.</p>`:'';
+   return overlayShell(p.name,`<div class="pp">
+   <p class="pp-id"><b>${esc(POS_ONE[p.pos]||p.pos)}</b> · ${p.age} · ${esc((p.nationality||'nmr').toUpperCase())} · ${esc(cn)}</p>
+   <p class="pp-tags"><i class="g-tag">${esc(p.style||'')}</i>${own||K.lo!=null?`<i class="g-tag">${esc(p.trait||'')}</i>`:''}${p.academy&&p.originClub===id?'<i class="g-tag in">ACADEMY</i>':''}${p.inj>0?`<i class="g-tag out">INJURED ${p.inj} WK</i>`:''}</p>
+   <section class="pp-sec"><small class="g-k">WHAT WE KNOW · ${esc(K.txt.toUpperCase())}</small><div class="pp-grid">${tile('Rating',K.now==null?'?':(K.lo!=null?'~':'')+K.now,K.lo!=null?`${K.lo}–${K.hi}`:own?'exact':'scout him')}${tile('Ceiling',K.pot==null?'?':'~'+K.pot,p.age<=23?'still growing':p.age>=31?'past his peak':'at his peak')}${tile('Form',spark(p.rLast),'last five')}</div></section>
+   <section class="pp-sec"><small class="g-k">THE DATA · SEASON ${S.season}</small><div class="pp-grid">${tile('Games',p.sApps||0)}${tile('Goals',p.sGoals||0)}${tile('xG',r1(p.sXg||0))}${tile('Goals − xG',(gx>0?'+':'')+gx,gx>=1?'finishes well':gx<=-1?'wasteful':'as expected')}${tile('Avg rating',ar==null?'—':ar,ar==null?'':ar>=7?'excellent':ar>=6.5?'good':ar>=6?'steady':'poor')}${tile('Career',`${p.apps||0} / ${p.goals||0}`,'games / goals')}</div></section>
+   <section class="pp-sec"><small class="g-k">THE MONEY</small><div class="pp-grid">${tile('Value',k1(playerValue(p)))}${tile('Wage',`£${n0(p.wage)}`,'a week')}${tile('Contract',`${p.contract} yr`,p.contract<=1?'ends this summer':'')}${fee?tile('Asking fee',k1(fee),ar?`£${Math.round(fee/Math.max(.5,ar-5))}k per rating point over 5`:''):''}</div></section>
+   ${hist.length?`<section class="pp-sec"><small class="g-k">SEASON BY SEASON</small><table class="pp-tab"><thead><tr><th>Season</th><th>Club</th><th>G</th><th>Gls</th><th>xG</th><th>Rtg</th></tr></thead><tbody>${hist.map(h=>`<tr><td>S${h.season}</td><td>${esc((S.clubs[h.club]?.name||S.foreign?.clubs?.[h.club]?.name||'—').split(' ')[0])}</td><td>${h.apps}</td><td>${h.goals}</td><td>${h.xg??'—'}</td><td>${h.rating??'—'}</td></tr>`).join('')}</tbody></table></section>`:''}
+   ${p.dev&&p.dev.length?`<section class="pp-sec"><small class="g-k">DEVELOPMENT</small>${devLines(p)}</section>`:''}
+   ${act}</div>`)}
+ playerSheet=function(pid){return profileSheet(pid)};
+ /* the squad as data: sort it the way a Moneyball office would */
+ const SQ_SORT={rating:['Rating',p=>-p.q],avg:['Avg',p=>-(avgR(p)??0)],goals:['Goals',p=>-(p.sGoals||0)],xg:['xG',p=>-(p.sXg||0)],value:['Value',p=>-playerValue(p)],wage:['Wage',p=>-p.wage],age:['Age',p=>p.age]};
+ const oldSquad=squadView;
+ squadView=function(){if(!inGame())return oldSquad();const id=S.my,k=UI.sqSort||'rating',sq=S.squads[id].slice().sort((a,b)=>SQ_SORT[k][1](a)-SQ_SORT[k][1](b));
+   return`<div class="g-week"><section class="g-card"><small class="g-k">THE SQUAD · ${sq.length} PLAYERS · SEASON ${S.season} DATA</small>
+   <div class="sq-sort" role="group" aria-label="Sort by">${Object.entries(SQ_SORT).map(([kk,v])=>`<button class="${k===kk?'on':''}" data-act="sqsort" data-arg="${kk}" aria-pressed="${k===kk}">${v[0]}</button>`).join('')}</div>
+   <div class="sq-wrap"><table class="sq-tab"><thead><tr><th>Player</th><th>Pos</th><th>Age</th><th>Rtg</th><th>Avg</th><th>G</th><th>Gls</th><th>xG</th><th>Value</th><th>£/wk</th></tr></thead><tbody>
+   ${sq.map(p=>`<tr class="${p.inj>0?'inj':''}"><td><button class="sq-name" data-act="player" data-arg="${p.id}">${esc(p.name)}</button>${p.academy&&p.originClub===id?' <i class="g-tag in">A</i>':''}</td><td>${esc(p.pos)}</td><td>${p.age}</td><td><b>${rt(p.q)}</b></td><td>${avgR(p)??'—'}</td><td>${p.sApps||0}</td><td>${p.sGoals||0}</td><td>${r1(p.sXg||0)}</td><td>${k1(playerValue(p))}</td><td>${n0(p.wage)}</td></tr>`).join('')}</tbody></table></div>
+   <p class="g-hint">Rtg is the player's level on the squad scale; Avg is his average match rating this season; xG the goals his chances were worth. Tap a name for the profile.</p></section></div>`};
  const oldAct=act;
  act=function(a,arg){
    if(a==='prewelcome'&&S){S.welcomed=true;save();render();if(HAS_DOM)window.scrollTo(0,0);return}
@@ -497,6 +537,7 @@
    if(a==='prenew'&&S&&S.my){const r=cmd('RenewStaff',S.my,{role:arg});const p=P(CL(S.my).cast[arg]);if(r.ok!==false&&p){p.loy=clamp((p.loy??50)+8,0,100);(p.mem=p.mem||[]).push({s:S.season,t:'given a new contract'})}UI.msg=r.ok===false?{err:true,text:r.err}:{text:`${p.name} signs for two more seasons.`};save();render();return}
    if(a==='preplace'){UI.replace=arg||null;render();return}
    if(a==='phire'&&S&&S.my){const [role,pid]=String(arg).split(':');const old=P(CL(S.my).cast[role]),r=cmd('HireStaff',S.my,{role,pid});UI.replace=null;if(r.ok!==false){const n=P(pid);(n.mem=n.mem||[]).push({s:S.season,t:'appointed by you'});n.loy=Math.max(n.loy??50,60)}UI.msg=r.ok===false?{err:true,text:r.err}:{text:`${P(pid).name} is your new ${role==='coach'?'head coach':'director of football'}${old&&!old.pro.caretaker?`; ${old.name} leaves`:''}.`};save();render();return}
+   if(a==='sqsort'){UI.sqSort=arg;render();return}
    if(a==='briefedit'){UI.briefEdit=true;render();return}
    if(a==='briefgoal'&&S&&S.my){const b=briefPick(S.my);const i=b.goals.indexOf(arg);if(i>=0)b.goals.splice(i,1);else if(b.max===1)b.goals=[arg];else if(b.goals.length<b.max)b.goals.push(arg);else UI.msg={err:true,text:'Three goals at most: untick one first.'};render();return}
    if(a==='briefbudget'&&S&&S.my){briefPick(S.my).budget=arg;render();return}

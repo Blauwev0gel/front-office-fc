@@ -33,6 +33,15 @@ function tacticalMatchup(h,a){
   const counter=as==='attacking'&&hs==='defensive'?.94:as==='defensive'&&hs==='attacking'?1.06:1;
   return[pressure,counter];
 }
+/* the public data of a league match, per player (Moneyball, §7.3–7.4): an expected-goals share from the team's chances and the
+   player's attacking role, and a match rating from his level, goals, the result and (for defenders) goals against. No dice:
+   the numbers follow from what the match engine decided. Season fields reset with sApps; old saves start at zero. */
+function playerStats(xi,lam,gf,ga,scorers,side){
+  const w=x=>SCORE_W[x.slot]??SCORE_W[x.p.pos]??.5,sum=xi.reduce((a,x)=>a+w(x),0)||1,res=gf>ga?.5:gf<ga?-.4:0;
+  for(const x of xi){const p=x.p,xg=lam*w(x)/sum,g=scorers.filter(s=>s.side===side&&s.pid===p.id).length,def=['GK','CB','FB','DM'].includes(x.slot);
+    const r=clamp(6+(qualityToStr(p.q)-50)/20+g*.9+res+(def?(ga===0?.6:-.25*ga):(xg-.2)*.8)+((p.form??65)-65)/40,3.5,9.8);
+    p.sXg=r2((p.sXg||0)+xg);p.sRat=r1((p.sRat||0)+r);p.sRn=(p.sRn||0)+1;p.xgC=r2((p.xgC||0)+xg);
+    (p.rLast=p.rLast||[]).push(r1(r));if(p.rLast.length>5)p.rLast.shift()}}
 function playMatch(h,a,o={}){
   const xh=pickXI(S.squads[h]),xa=pickXI(S.squads[a]);
   const sh=teamStrength(h)+coachEdge(h)+(o.neutral?0:homeEdge(h)),sa=teamStrength(a)+coachEdge(a);
@@ -41,5 +50,6 @@ function playMatch(h,a,o={}){
   for(const [xi,n,side] of [[xh,gh,'h'],[xa,ga,'a']]){
     for(const x of xi){x.p.apps++;if(o.comp==='cup')x.p.cupApps=(x.p.cupApps||0)+1;else x.p.sApps++}
     for(let i=0;i<n&&xi.length;i++){const p=scorerFrom(xi);p.goals++;if(o.comp==='cup')p.cupGoals=(p.cupGoals||0)+1;else p.sGoals++;scorers.push({side,pid:p.id,name:p.name})}}
+  if(o.comp!=='cup'){playerStats(xh,lh,gh,ga,scorers,'h');playerStats(xa,la,ga,gh,scorers,'a')}
   return{xiH:xh.map(x=>x.p.id),xiA:xa.map(x=>x.p.id),comp:o.comp||'league',tier:o.tier,round:o.round,h,a,gh,ga,sh:r1(sh),sa:r1(sa),lh:r2(lh),la:r2(la),xh:r2(xpts(lh,la)),xa:r2(xpts(la,lh)),scorers,styles:{home:hs,away:as},neutral:!!o.neutral};
 }

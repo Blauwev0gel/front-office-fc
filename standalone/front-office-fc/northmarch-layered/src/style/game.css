@@ -115,3 +115,54 @@ b.good{color:var(--good)}b.bad{color:var(--bad)}
 .g-plan{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--chip)}.g-plan .g-news{margin-top:6px}
 .g-pre>.btn,.g-pre>button.btn{margin-top:10px;width:100%}
 .g-welcome h2{font-size:1.5rem}.g-welcome .g-list li{background:transparent;padding:6px 0;border-bottom:1px solid var(--line);border-radius:0}
+
+/* ---- The transfer centre (first summer v20): ticker, board, talk with the director, breaking decisions ---- */
+.tc{display:flex;flex-direction:column;gap:14px}
+.tc-head{display:flex;flex-direction:column;gap:8px}
+.tc-head h2{margin:0;font-family:var(--f-display);font-weight:800;font-size:1.6rem;line-height:1;text-transform:uppercase}
+.tc-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:0;padding:0}
+.tc-days li{list-style:none;text-align:center;font-size:.72rem;font-weight:700;padding:7px 0;border-radius:8px;background:var(--card);border:1px solid var(--line);color:var(--muted);transition:background .3s,transform .3s}
+.tc-days li.past{background:var(--chip);color:var(--ink)}
+.tc-days li.now{background:var(--signal);border-color:var(--signal);color:#fff;transform:translateY(-2px)}
+.tc-money{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tc-money span{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 8px;text-align:center}
+.tc-money small{display:block;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tc-money b{font-family:var(--f-display);font-weight:800;font-size:1.25rem;font-variant-numeric:tabular-nums}
+.tc-clock{font-family:var(--f-display);font-weight:800;font-size:4rem;line-height:.9;font-variant-numeric:tabular-nums;color:var(--signal)}
+.tc-clock.late{color:var(--bad);animation:tcblink 1s infinite}
+.tc-closed{font-family:var(--f-display);font-weight:800;font-size:2.2rem;text-align:center;color:#fff;background:var(--bad);border-radius:12px;padding:8px;letter-spacing:.06em;animation:tcslam .5s cubic-bezier(.2,1.6,.4,1) both}
+.tc-sec{display:flex;flex-direction:column;gap:8px}
+.tc-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.tc-h b{font-family:var(--f-display);font-weight:800;font-size:1.2rem;text-transform:uppercase;letter-spacing:.03em}
+.tc-skip{width:auto;min-height:44px;padding:0 14px}
+.tc-tk{display:flex;flex-direction:column;gap:6px;margin:0;padding:0}
+.tc-tk li{list-style:none;display:grid;grid-template-columns:48px 1fr;gap:8px;padding:9px 10px;border-radius:10px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);font-size:.9rem}
+.tc-tk li b{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:700;font-size:.8rem}
+.tc-tk li.fresh{animation:tcslide .45s ease-out both}
+.tc-tk .tk-us{border-left-color:var(--navy)}.tc-tk .tk-good{border-left-color:var(--good);font-weight:600}.tc-tk .tk-bad{border-left-color:var(--bad);font-weight:600}
+.tc-tk .tk-off,.tc-tk .tk-warn{border-left-color:var(--signal)}.tc-tk .tk-world{border-left-color:#7a1f2b}
+.tc-older summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--muted)}
+.tc-deal{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--navy);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.tc-top{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.tc-pos{font-family:var(--f-display);font-weight:800;font-size:1rem;background:var(--ink);color:var(--card);border-radius:6px;padding:4px 6px;min-width:36px;text-align:center}
+.tc-id{min-width:0}.tc-id b{display:block}.tc-id span{font-size:.78rem;color:var(--muted)}
+.tc-fee{font-family:var(--f-display);font-weight:800;font-size:1.3rem;font-variant-numeric:tabular-nums}
+.tc-rail{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:0;padding:0}
+.tc-rail li{list-style:none;height:6px;border-radius:3px;background:var(--line)}
+.tc-rail li.on{background:var(--navy)}.tc-deal.done .tc-rail li.on{background:var(--good)}
+.tc-st{font-size:.76rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.tc-st i{font-style:normal;color:var(--signal)}
+.tc-deal.out{opacity:.75}.tc-deal.out .tc-id b{text-decoration:line-through}.tc-deal.hijacked{border-left-color:var(--bad)}.tc-deal.done{border-left-color:var(--good)}
+.tc-stamp{position:absolute;right:10px;bottom:6px;font-family:var(--f-display);font-weight:800;font-size:1.45rem;letter-spacing:.08em;color:var(--good);border:3px solid var(--good);border-radius:6px;padding:0 8px;transform:rotate(-8deg);background:var(--card)}
+.tc-stamp.red{color:var(--bad);border-color:var(--bad)}.tc-stamp.anim{animation:tcstamp .45s cubic-bezier(.2,1.6,.4,1) both}
+.tc-chat{display:flex;flex-direction:column;gap:8px;background:var(--chip);border-radius:16px;padding:12px}
+.tc-bubble{display:flex;gap:8px;align-items:flex-end}.tc-bubble p{margin:0;padding:10px 12px;border-radius:14px 14px 14px 4px;background:var(--card);border:1px solid var(--line);font-size:.95rem}
+.tc-face{width:40px;height:40px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:var(--onnavy);font-family:var(--f-display);font-weight:800}
+.tc-opts{display:flex;flex-direction:column;gap:6px}
+.tc-breaking{border:3px solid var(--signal)!important;animation:tcshake .5s both}
+.tc-breaking .g-k{display:inline-block;background:var(--signal);color:#fff;padding:3px 8px;border-radius:6px;animation:tcblink 1s infinite}
+@keyframes tcslide{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+@keyframes tcstamp{from{transform:rotate(-8deg) scale(2.4);opacity:0}to{transform:rotate(-8deg) scale(1);opacity:1}}
+@keyframes tcslam{from{transform:scale(1.25);opacity:0}to{transform:none;opacity:1}}
+@keyframes tcblink{50%{opacity:.45}}
+@keyframes tcshake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+@media (prefers-reduced-motion:reduce){.tc *{animation:none!important;transition:none!important}}

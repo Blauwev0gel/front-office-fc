@@ -236,6 +236,7 @@ Historische ID's (D/T/P) komen uit `DECISIONS.md` op commit `3157b3a`; MB/DEV zi
 | MB-14 | 25-11 | ✅ | De speelbare transfermarkt hoort bij L2 en werkt zonder hogere lagen. Alleen persoonlijkheid en mandaat van de TD zijn L3. | Wijzigt de laag van D-G6 en T5. |
 | MB-15 | 25-11 | ✅ | De wereld heeft vijf divisies van zestien (80 clubs) plus de nationale beker. | Vervangt D3. |
 | MB-16 | 25-11 | ✅ | Geen eindscherm of winconditie. Het doel is reputatie, prijzen en het clubboek; mijlpalen uit echte gebeurtenissen maken voortgang zichtbaar, zonder bonussen. | |
+| MB-19 | 26-11 | ✅ | Het spel groeit laag voor laag naar een volledig speelbaar spel, in hoog tempo. Elke stap is een speelbare artifact op de echte engine: 1 eerste zomer · 2 week en seizoen met de ALV · 3 L3 staf · 4 L4 verhalen · 5 L5 dynastie. Geen handgeschreven nep-spel. | Uitvoering van §15; MB-10 blijft: de basis eerst. |
 | MB-17 | 25-11 | 🔷 | Het manifest wordt op de eerste dag van elke zomer getekend, vóór het TD-plan. Daarna liggen de doelen vast tot de ALV: een goede zomer maakt een belofte makkelijker, de lat schuift niet mee. | Ingevuld door Claude op verzoek van de eigenaar (herziening eerste zomer). |
 | MB-18 | 25-11 | 🔷 | Zolang de voorzitter het window speelt, handelen andere clubs niet buiten de TD om met de club van de speler. Na de deadline geldt alleen de veiligheidsregel voor elke club, zichtbaar gemeld. | Lost NM-001 op; voert §7.2 uit. |
 
@@ -348,6 +349,8 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 
 **Implementatiestatus (uitgangspositie)** — L1/L2 bestaan als speelbare bronbuild volgens historische documentatie, niet integraal tegen deze bijbel gevalideerd. Opening/zomer, netwerk, weekflow, upgrades en seizoensboog: implementaties aanwezig, audit nodig. L3 deels aanwezig als opt-in. L4/L5 niet vrijgegeven. Actualiseer per feature na inspectie, niet op naam van een module.
 
+**Stap 1, eerste zomer (26-11):** het transfercentrum in de echte engine. De week van de TD speelt dag voor dag af op een ticker; daarna verschijnt het bord met deals (stappen, SIGNED- en HIJACKED-stempels). Je praat met de TD over prioriteit en geld; de twee uitzonderingen verschijnen als BREAKING. Deadline day speelt op een klok en eindigt met WINDOW CLOSED. Het winterwindow gebruikt hetzelfde bord en dezelfde ticker. Prototype: `prototypes/first-summer.html`.
+
 **Implementatiestatus eerste zomer (25-11)** — Opening en transferzomer herzien: Implemented, Tested, Playtested (bot, Playwright, 390 px licht en donker). Menselijke playtest nog niet gedaan.
 
 **Test evidence (25-11, herziening eerste zomer)** — Lokaal: `node build.js` slaagt; nieuw `tests/first-summer-test.js` slaagt (manifest vast, plan volgt manifest, geen verborgen transfers in 10 werelden, save/load). Groen gebleven: pyramid, foreign-world, save, ux, base-briefing, smoke, l25, youth, story, slimline (4 seizoenen, 3 seeds), l3, l3-s32, layer-isolation, base-isolation. Browser-playtest (`tests/playtest.js`) bijgewerkt naar de huidige flow en groen in licht en donker. Rood, en al rood vóór deze wijziging: `department-ownership-test` (verwacht het oude homescherm met 13 tegels) en `sim-test` (administratie te vaak: 39 tegen een limiet van 33; vóór de wijziging 41). Geen CI gedraaid.
@@ -364,6 +367,7 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 | NM-007 | Wacht op eigenaar | `CLAUDE.md` en `AGENTS.md` verwijzen nog naar *The Front Office*. Voorstellen voor MB-11 liggen klaar; de eigenaar past ze zelf toe of geeft Claude daar expliciet opdracht toe. |
 | NM-009 | Test verouderd | `department-ownership-test` verwacht het oude homescherm (13 tegels) en faalt sinds de nieuwe schil; bijwerken of vervangen. |
 | NM-010 | Balans | `sim-test`: administratie komt te vaak voor (39–41 tegen een limiet van 33 in 20 seizoenen). Voor de balansronde (ChatGPT). |
+| NM-011 | Gameplay | Een TD met een all-in budget sluit soms geen enkele deal ("A quiet summer"). Onderzoeken in `preCandidates`/`preWeek`. |
 | NM-008 | Implementatie | De code volgt nog "één activiteit per week" (D-S1). Omzetten naar MB-12 in fase 2 of 3, met savemigratie. |
 
 **Release history**
@@ -375,7 +379,7 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 **Current work**
 - **Afgerond:** herziening van de opening en de transferzomer (fase 1). NM-001 is opgelost.
 - **Wacht op eigenaar:** geen open ontwerpvragen.
-- **Volgende producttaak:** menselijke playtest van de eerste zomer (NM-005), daarna NM-002 en NM-003 en fase 2 (wekelijkse gameplay).
+- **Volgende producttaak:** stap 2 van MB-19: week en seizoen met de ALV als gespeelde climax; daarna de menselijke playtest (NM-005).
 - **Niet actief:** hogere lagen, ongevraagde balanssimulaties, Pages-herstarts, releasewerk.
 
 ---

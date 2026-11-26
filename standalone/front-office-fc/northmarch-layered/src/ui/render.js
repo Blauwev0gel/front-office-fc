@@ -48,7 +48,7 @@ function clubChallenge(id){
   const d=debt(id),mw=moneyWord(id);
   return sport+(mw==='In the red'||mw==='Stretched'?` Money is tight${d?` and there is £${Math.round(d)}k debt`:''}.`:d?` There is £${Math.round(d)}k debt.`:'');
 }
-function clubVoice(id){const c=CL(id),g=c.groups.slice().sort((a,b)=>b.share-a.share)[0],a=g&&ARCH[g.k];return g?`${a&&a.n||'The workers'} are the loudest voice (${g.share}%): “${a?a.wants:''}”`:''}
+function clubVoice(id){const c=CL(id),g=c.groups.slice().sort((a,b)=>b.share-a.share)[0],a=g&&ARCH[g.k];return g?`${groupName(id,g)} are the loudest voice (${g.share}%): “${a?a.wants:''}”`:''}
 function chooseView(){
   if(UI.seat&&S.seats.includes(UI.seat))return dossierView(UI.seat);
   const again=S.career.length>0,last=again?S.career[S.career.length-1]:null;

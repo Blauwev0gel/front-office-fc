@@ -204,3 +204,22 @@ b.good{color:var(--good)}b.bad{color:var(--bad)}
 .g-stars{color:var(--signal);letter-spacing:1px;font-size:.9rem}
 .g-ploy{margin:0;font-size:.85rem;color:var(--muted)}.g-ploy b{color:var(--ink)}.g-ploy.up b{color:var(--good)}.g-ploy.down b{color:var(--bad)}
 .g-cands{display:flex;flex-direction:column;gap:6px}.g-cands h3{margin:4px 0 0;font-size:.95rem}
+
+/* ---- the week (§6): desk, plans, running ---- */
+.g-clear{margin:0;padding:12px 14px;border-radius:12px;background:var(--chip);color:var(--muted);font-size:.9rem}
+.g-desk{display:flex;flex-direction:column;gap:10px}
+.g-plans,.g-running{display:flex;flex-direction:column;gap:8px}
+.g-plan-opt{display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:start;text-align:left;width:100%;min-height:56px;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font:inherit}
+.g-plan-opt:hover{border-color:var(--navy)}.g-plan-opt[disabled]{opacity:.5;cursor:not-allowed}
+.g-plan-opt b{display:block;font-size:.98rem}.g-plan-opt small{display:block;color:var(--muted);font-size:.82rem;margin-top:2px;line-height:1.35}
+.g-pic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--chip);color:var(--signal);font-size:1.1rem}
+.g-run{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.g-run li{display:grid;grid-template-columns:54px 1fr;gap:8px;align-items:start;padding:8px 0;border-top:1px solid var(--line)}.g-run li:first-child{border-top:0}
+.g-run em{display:block;font-style:normal;font-size:.82rem;color:var(--muted);margin-top:2px}.g-run em.g-ok{color:var(--good);font-weight:600}
+.g-rk{font-size:.62rem;font-weight:800;letter-spacing:.1em;color:var(--signal);padding-top:3px}
+.g-mini{width:auto;min-height:44px;padding:0 12px;margin-top:6px;font-size:.85rem}
+.g-people summary{cursor:pointer;display:flex;flex-direction:column;gap:2px;min-height:44px;list-style:none}.g-people summary::-webkit-details-marker{display:none}
+.g-people summary span{font-size:.88rem;color:var(--muted)}
+.g-glance summary{font-weight:700}
+.g-recap p{margin:0}
+.g-did{margin:0;padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--good) 12%,var(--card));font-size:.88rem}

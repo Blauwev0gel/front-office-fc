@@ -59,6 +59,8 @@ defCommand('SetManifest',{check:(id,a)=>S.week!==0?'Promises are made in the pre
 function manifestSealed(id){return id===S.my&&M(id).sealed===S.season}
 defCommand('SealManifest',{check:id=>S.week!==0?'Promises are made in the pre-season':manifestSealed(id)?'Already signed':null,
   run:id=>{setGoals(id);M(id).sealed=S.season}});
+/* a members' group by its local name: the workers are 'The Docks', 'The Mill', ... (TOWNS[].wk) */
+function groupName(id,g){return (g&&ARCH[g.k]&&ARCH[g.k].n)||(TOWNS[CL(id).town]&&TOWNS[CL(id).town].wk)||'The workers'}
 function setGoalsAll(){for(const id in S.clubs)if(S.members[id]&&!manifestSealed(id))setGoals(id)}
 function goalProgress(id,gl){
   if(gl.k==='league'){const p=posOf(id);return{now:p,met:p<=gl.target,text:`${ord(p)} now`}}

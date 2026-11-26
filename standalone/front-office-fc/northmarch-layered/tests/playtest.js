@@ -35,6 +35,7 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     /* a full season by tapping: play, read the result, continue */
     let weeks=0,newspaper=false;
     for(let i=0;i<120&&!await count('[data-act=close]');i++){
+      if(await count('.overlay [data-act=ov]')){await tap('.overlay [data-act=ov]');continue} /* the match opens live after Play: close it */
       if(await count('[data-act=v183ready]')){
         if(!newspaper&&await count('[data-act=v183paper]')){await tap('[data-act=v183paper]');newspaper=(await page.locator('body').innerText()).toUpperCase().includes('THE NORTHMARCH ECHO');await wide('match newspaper')}
         await tap('[data-act=v183ready]');continue}

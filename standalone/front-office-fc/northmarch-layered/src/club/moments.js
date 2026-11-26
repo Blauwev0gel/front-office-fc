@@ -60,7 +60,7 @@ const MOMENTS={
         {label:'Leave it to the coach',give:'Nothing',get:'No pressure on the boy',test:'—',fail:'—'}],dflt:1}}},
   /* the unhappiest members' group asks for what it wants; they vote in May */
   group:{when:id=>{if(S.week<6||S.week>24||(S.momentDone||{})['group'+S.season])return null;const g=CL(id).groups.slice().sort((a,b)=>a.mood-b.mood)[0];return g&&g.mood<45&&ARCH[g.k]?g:null},
-    make:(id,g)=>{const a=ARCH[g.k],n=a.n||'The workers';return{who:n,role:`${g.share}% of the members`,title:`${n} want to be heard`,text:`Their mood is ${Math.round(g.mood)}. What they want: “${a.wants}” They will remember it at the AGM.`,
+    make:(id,g)=>{const a=ARCH[g.k],n=groupName(id,g);return{who:n,role:`${g.share}% of the members`,title:`${n} want to be heard`,text:`Their mood is ${Math.round(g.mood)}. What they want: “${a.wants}” They will remember it at the AGM.`,
       opts:[{label:'Meet them and promise to listen',give:'Your time and your word',get:'They calm down (+5 now)',test:'Confidence stays above 45 until the AGM',fail:'They feel used (−7)',pact:{key:'group',kind:'conf',min:45,nowConf:5,failConf:-7}},
         {label:'Tell them the club comes first',give:'Nothing',get:'Nothing',test:'—',fail:'They grumble (−3 now)',act:'snub'}],dflt:1}}},
   coach:{when:id=>{const lastC=(S.momentLog||[]).filter(x=>x.key==='coach'&&x.s===S.season);if(lastC.length>=2||lastC.length&&S.week-lastC[lastC.length-1].w<8)return null;const f=(S.tbl[id]?.form||[]).slice(-3).join(''),exp=CL(id).expect||8,c=P(CL(id).cast.coach);const f5=(S.tbl[id]?.form||[]).slice(-5);return c&&!c.pro?.caretaker&&S.week>=6&&S.week<=26&&(f==='LLL'||posOf(id)>=exp+3||f5.length===5&&f5.filter(r=>r==='W').length===0)&&!pactsOpen().some(p=>p.key==='coach')?c:null},

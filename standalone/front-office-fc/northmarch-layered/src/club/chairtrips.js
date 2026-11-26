@@ -63,7 +63,11 @@ function chairTournament(id){
   if(A.prospects.length>20)A.prospects.splice(0,A.prospects.length-20);
   return{ok:true,found,academy:ac};
 }
-function chairHome(id){const A=SC();{const w=chairWhyNot('home');if(w)return{ok:false,err:w}}chairMark('home');confLog(id,1,'The chairman was seen around the club');return{ok:true}}
+/* a week at the club: the chairman spends it with the unhappiest members' group, and they feel it */
+function chairHome(id){const A=SC();{const w=chairWhyNot('home');if(w)return{ok:false,err:w}}chairMark('home');
+  const g=CL(id).groups.slice().sort((a,b)=>a.mood-b.mood)[0],before=g?Math.round(g.mood):null;if(g)g.mood=clamp(g.mood+6,0,100);
+  confLog(id,1,g?`The chairman spent the week with ${groupName(id,g)}`:'The chairman was seen around the club');
+  return{ok:true,group:g?groupName(id,g):null,before,after:g?Math.round(g.mood):null}}
 /* recommend: the director adds him to the shortlist with extra weight; he still decides */
 function chairRecommend(id,pid){
   const g=SC().gems.find(x=>x.pid===pid);if(!g)return{ok:false,err:'Not in your dossier'};const f=findPlayer(pid);if(!f||f.club===id)return{ok:false,err:'He is no longer available'};

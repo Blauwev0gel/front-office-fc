@@ -2,9 +2,10 @@
    Tells the match that has already been played (sim/commentary.js matchStory). The chairman watches; he does not coach.
    The clock, ball, pressure strip, statistics and commentary run on a timer that redraws only the live blocks. */
 const LIVE_KEY='northmarch-layered-live';
-function liveAutoGet(){try{return localStorage.getItem(LIVE_KEY)==='1'}catch(e){return false}}
+/* the match is the payoff of the week: it opens live by default; one tick in the overlay turns that off (and is remembered) */
+function liveAutoGet(){try{return localStorage.getItem(LIVE_KEY)!=='0'}catch(e){return true}}
 function liveAutoSet(v){try{localStorage.setItem(LIVE_KEY,v?'1':'0')}catch(e){}}
-function liveOpen(i){const m=myMatches()[i];if(!m)return;const story=matchStory(m);UI.live={i,story,min:0,acc:0,hold:0,playing:true,speed:1,end:story.events[story.events.length-1].min};UI.over='live'}
+function liveOpen(i){const m=myMatches()[i];if(!m)return;const story=matchStory(m);UI.live={i,story,min:0,acc:0,hold:0,playing:true,speed:UI.autoLive?3:1,end:story.events[story.events.length-1].min};UI.over='live'}
 function liveMinLabel(e){return e.t==='start'?'KO':e.t==='half'?'HT':e.t==='end'?'FT':e.t==='pens'?'PEN':e.min>90?`90+${e.min-90}'`:`${e.min}'`}
 function liveClock(L){return L.min<=0?'Kick-off':L.min>=L.end?'Full time':L.min>90?`90+${L.min-90}'`:`${L.min}'`}
 function liveAt(L){

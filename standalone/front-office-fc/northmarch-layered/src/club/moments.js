@@ -5,7 +5,7 @@
    against the real season and are kept or broken, with consequences through existing levers only (members' confidence,
    a person's loyalty, wants-out, wages, reputation, the coach's job). One moment is open at a time, shared with family moments.
    Owns S.moment (the open club moment) and S.pacts[] (agreements). No DOM. */
-const MOM_GAP=5,MOM_DEADLINE=2;
+const MOM_GAP=3,MOM_DEADLINE=2; /* a moment every three weeks at most, when the season gives a reason */
 const momNow=()=>S.season*100+S.week;
 function momLast(){return Math.max(S.momentLast??-99,S.family?.last??-99)}
 function pactsOpen(){return(S.pacts||[]).filter(p=>p.status==='open')}
@@ -15,7 +15,22 @@ function homeNext(id){for(let w=S.week+1;w<=SEASON_WEEKS;w++){const f=fixtureOf(
 
 /* ----- the catalogue: when a moment arises, and what can be agreed ----- */
 const MOMENTS={
-  coach:{when:id=>{const f=(S.tbl[id]?.form||[]).slice(-3).join(''),exp=CL(id).expect||8,c=P(CL(id).cast.coach);const f5=(S.tbl[id]?.form||[]).slice(-5);return c&&!c.pro?.caretaker&&S.week>=6&&S.week<=26&&(f==='LLL'||posOf(id)>=exp+3||f5.length===5&&f5.filter(r=>r==='W').length===0)&&!pactsOpen().some(p=>p.key==='coach')?c:null},
+  /* the week before a derby: the rival chairman talks; win it and the town is yours for a week */
+  derby:{when:id=>{if(S.week<2)return null;const fx=fixtureOf(id,S.week+1),c=CL(id);if(!fx)return null;return c.rival===fx.opp||CL(fx.opp).rival===id?{opp:fx.opp}:null},
+    make:(id,x)=>{const r=CL(x.opp),rc=r.cast&&P(r.cast.chair),nm_=rc?rc.name:`The ${r.name} chairman`;return{who:nm_,role:`Chairman of ${r.name}`,title:`${r.name}'s chairman takes a swipe`,text:`“${CL(id).name} are a small club with a big mouth,” ${nm_} tells the papers before the derby. Rivals since ${CL(id).rivalWhy}.`,
+      opts:[{label:'Promise the fans a win',give:'A public promise',get:'The ground is rocking (+4 now)',test:'Win the derby',fail:'Humiliation in your own town (−7)',pact:{key:'derby',kind:'points',need:3,weeks:1,nowConf:4,okConf:5,failConf:-7}},
+        {label:'Rise above it',give:'Nothing',get:'Nothing',test:'—',fail:'—'}],dflt:1}}},
+  /* an academy boy breaks into the side: the coach wants the chairman's public backing (selection stays the coach's) */
+  youngster:{when:id=>{if(S.week<4||S.week>20)return null;return S.squads[id].find(p=>p.academy&&p.originClub===id&&p.age<=20&&(p.sApps||0)>=2&&!pactsOpen().some(x=>x.pid===p.id))||null},
+    make:(id,p)=>{const co=coachOf(id);return{who:co?co.name:'The head coach',role:'Head coach',title:`${co?co.name:'The coach'} wants to give ${p.name} a run`,text:`${p.name}, ${p.age}, came through our academy and has ${p.sApps} games this season. The coach wants your backing before the papers start asking.`,
+      opts:[{label:'Back the kid in public',give:'A first professional contract (10% more wages)',get:'The members see one of their own (+3 now)',test:`${p.name} plays 8 more games this season`,fail:'You backed a kid who disappeared (−4)',pact:{key:'youth',kind:'apps',pid:p.id,need:8,raise:.1,nowConf:3,okConf:3,failConf:-4}},
+        {label:'Leave it to the coach',give:'Nothing',get:'No pressure on the boy',test:'—',fail:'—'}],dflt:1}}},
+  /* the unhappiest members' group asks for what it wants; they vote in May */
+  group:{when:id=>{if(S.week<6||S.week>24||(S.momentDone||{})['group'+S.season])return null;const g=CL(id).groups.slice().sort((a,b)=>a.mood-b.mood)[0];return g&&g.mood<45&&ARCH[g.k]?g:null},
+    make:(id,g)=>{const a=ARCH[g.k],n=a.n||'The workers';return{who:n,role:`${g.share}% of the members`,title:`${n} want to be heard`,text:`Their mood is ${Math.round(g.mood)}. What they want: “${a.wants}” They will remember it at the AGM.`,
+      opts:[{label:'Meet them and promise to listen',give:'Your time and your word',get:'They calm down (+5 now)',test:'Confidence stays above 45 until the AGM',fail:'They feel used (−7)',pact:{key:'group',kind:'conf',min:45,nowConf:5,failConf:-7}},
+        {label:'Tell them the club comes first',give:'Nothing',get:'Nothing',test:'—',fail:'They grumble (−3 now)',act:'snub'}],dflt:1}}},
+  coach:{when:id=>{const lastC=(S.momentLog||[]).filter(x=>x.key==='coach'&&x.s===S.season);if(lastC.length>=2||lastC.length&&S.week-lastC[lastC.length-1].w<8)return null;const f=(S.tbl[id]?.form||[]).slice(-3).join(''),exp=CL(id).expect||8,c=P(CL(id).cast.coach);const f5=(S.tbl[id]?.form||[]).slice(-5);return c&&!c.pro?.caretaker&&S.week>=6&&S.week<=26&&(f==='LLL'||posOf(id)>=exp+3||f5.length===5&&f5.filter(r=>r==='W').length===0)&&!pactsOpen().some(p=>p.key==='coach')?c:null},
     make:(id,c)=>({who:c.name,role:'Head coach',title:`${c.name} is under pressure`,text:`${(S.tbl[id]?.form||[]).slice(-5).join(' ')||'Poor results'}: ${ord(posOf(id))} in the table. ${c.name} asks whether you still back him.`,
       opts:[{label:'Back him in public',give:'Your word, in public',get:'He keeps his job and his nerve',test:'7 points from the next 5 games',fail:'The members turn on you (−6 confidence)',pact:{key:'coach',kind:'points',need:7,weeks:5,okConf:3,failConf:-6,okLoy:10,person:c.id}},
         {label:'An ultimatum',give:'Nothing but time',get:'A last chance',test:'Win 2 of the next 4 games',fail:'He is sacked automatically',pact:{key:'coach',kind:'wins',need:2,weeks:4,failSack:true,person:c.id}},
@@ -55,7 +70,7 @@ function momentsWeek(){
   for(const p of pactsOpen())pactTest(id,p);
   if(S.moment){if(momNow()-S.moment.at>=MOM_DEADLINE)momentChoose(S.moment.dflt,true);return}
   if(S.family&&S.family.moment)return;if(momNow()-momLast()<MOM_GAP)return;
-  for(const key of ['coach','star','opposition','investor','contract','captain','sponsor']){const who=MOMENTS[key].when(id);if(who){S.moment={key,at:momNow(),...MOMENTS[key].make(id,who)};S.momentLast=momNow();(S.momentDone=S.momentDone||{})[key+S.season]=true;emit('Moment',id,S.moment.title);return}}
+  for(const key of ['derby','coach','star','opposition','group','youngster','investor','contract','captain','sponsor']){const who=MOMENTS[key].when(id);if(who){S.moment={key,at:momNow(),...MOMENTS[key].make(id,who)};S.momentLast=momNow();(S.momentDone=S.momentDone||{})[key+S.season]=true;emit('Moment',id,S.moment.title);return}}
 }
 function momentChoose(i,silent){
   const id=S.my,mo=S.moment;if(!mo)return{ok:false,err:'Nothing to decide'};const o=mo.opts[i];if(!o)return{ok:false,err:'Unknown option'};S.moment=null;let note=o.label;
@@ -69,10 +84,11 @@ function momentChoose(i,silent){
     pactAdd(p);note=`Agreed: ${o.label}. Tested: ${o.test}.`}
   else if(o.act==='sack'){const r=cmd('SackStaff',id,{role:'coach'});note=r.ok===false?r.err:`${mo.who} is sacked. A caretaker takes over.`}
   else if(o.act==='ignore'){confLog(id,-3,'The opposition campaign grows');note='You ignore them. The campaign grows.'}
+  else if(o.act==='snub'){confLog(id,-3,`${mo.who} feel snubbed`);note=`You tell ${mo.who} the club comes first. They grumble.`}
   else if(o.act==='half'){book(id,'loanIn',o.sum);note=`£${o.sum}k in the bank, no strings.`}
   else if(o.act==='truth'){const c=P(CL(id).cast.captain);if(c)c.loy=clamp((c.loy??50)+3,0,100);note='The captain respects your honesty.'}
   else note='No agreement.';
-  (S.momentLog=S.momentLog||[]).push({s:S.season,w:S.week,title:mo.title,choice:o.label,silent:!!silent});if(S.momentLog.length>40)S.momentLog.shift();
+  (S.momentLog=S.momentLog||[]).push({s:S.season,w:S.week,key:mo.key,title:mo.title,choice:o.label,silent:!!silent});if(S.momentLog.length>40)S.momentLog.shift();
   emit('MomentChoice',id,(silent?'You said nothing: ':'')+note);return{ok:true,note};
 }
 /* ----- an agreement is tested against the real season ----- */

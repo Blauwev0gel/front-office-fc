@@ -216,6 +216,12 @@ function briefJudge(id,P_){
 }
 function debriefTarget(){if(!S.my)return null;const w=S.win,p=S.pre;if(w&&w.s===S.season&&w.brief&&!w.debrief&&S.week>=WINTER_WEEK+4)return w;if(p&&p.s===S.season&&p.brief&&!p.debrief&&S.week>=4)return p;return null}
 function debriefDue(){return !!debriefTarget()}
+/* a debrief the chairman leaves unanswered lapses after three weeks, like a moment: the director notes the silence */
+function debriefLapse(){const P_=debriefTarget();if(!P_)return;const due=P_.kind==='winter'?WINTER_WEEK+4:4;if(S.week<due+3)return;
+  const res=briefJudge(S.my,P_),d=tdOf(S.my);P_.debrief={met:res.filter(r=>r.met).length,total:res.length,back:null,silent:true,s:S.season};
+  if(d){d.loy=clamp((d.loy??50)-2,0,100);(d.mem=d.mem||[]).push({s:S.season,t:'heard nothing after the window'})}
+  emit('Debrief',S.my,`You said nothing about ${P_.brief.dirName}'s ${P_.kind} window.`)}
+onWeek(debriefLapse);
 function debriefChoose(back){
   const id=S.my,P_=debriefTarget();if(!P_)return{ok:false,err:'Nothing to judge'};const res=briefJudge(id,P_),met=res.filter(r=>r.met).length,d=tdOf(id);
   P_.debrief={met,total:res.length,back:!!back,s:S.season};

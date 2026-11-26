@@ -17,8 +17,9 @@ const UI_WITHOUT_ACCOUNTABILITY=UI.filter(f=>!f.includes('director-accountabilit
 module.exports={ENGINE,UI,ENGINE_BASE,UI_BASE,ENGINE_WITHOUT_ACCOUNTABILITY,UI_WITHOUT_ACCOUNTABILITY};
 if(require.main===module){
   const S=p=>fs.readFileSync(path.join(__dirname,'src',p),'utf8');
-  // Basisspel V1 is the default artifact. L3 is an explicit opt-in development build.
-  const autonomy=process.env.NORTHMARCH_BUILD_MODE==='autonomy';
+  // MB-20: the playable game has every layer on (L3 staff, L4 stories, L5 dynasty). NORTHMARCH_BUILD_MODE=base builds L1/L2 alone,
+  // which must keep working on its own (MB-01, base-isolation-test).
+  const autonomy=process.env.NORTHMARCH_BUILD_MODE!=='base';
   const files=(autonomy?ENGINE:ENGINE_BASE).concat(autonomy?UI:UI_BASE);
   const CSS=S('style/main.css')+S('style/extensions.css')+S('style/game.css'); /* base rules first, V19 extensions after: the order is the cascade */
   const js=files.map(f=>`/* ---- ${f} ---- */\n`+S(f)).join('\n');

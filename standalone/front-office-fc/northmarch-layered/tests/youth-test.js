@@ -3,8 +3,11 @@ const {loadEngine}=require('./load.js');
 const E=loadEngine();let fails=0;const ok=(c,m)=>{console.log((c?'ok   ':'FAIL ')+m);if(!c)fails++};
 E.newWorld(5150);let S=E.__get();E.chooseClub('pell');S.agmOff=true;
 E.cmd('SetDeptStaff',S.my,{dept:'academy',level:5});
-for(let s=0;s<5;s++)E.playSeason();S=E.__get();const Y=S.youth,id=S.my,gs=Object.values(Y.grads);
-ok(Y.cohorts.length===5,`one cohort per summer (${Y.cohorts.length})`);
+for(let s=0;s<5;s++)E.playSeason();
+/* whether one of the first graduates has left after five seasons is chance: play on (at most three seasons) until one has */
+let played=5;while(played<8&&!Object.values(E.__get().youth.grads).some(g=>g.fate)){E.playSeason();played++}
+S=E.__get();const Y=S.youth,id=S.my,gs=Object.values(Y.grads);
+ok(Y.cohorts.length===played,`one cohort per summer (${Y.cohorts.length})`);
 ok(Y.cohorts.every(c=>c.ids.every(pid=>Y.grads[pid])),'every graduate of every cohort has a record');
 const left=gs.filter(g=>g.fate);
 ok(left.length>0&&left.every(g=>g.fate.how&&g.fate.s),`graduates who left keep their record, with how and when (${left.length})`);

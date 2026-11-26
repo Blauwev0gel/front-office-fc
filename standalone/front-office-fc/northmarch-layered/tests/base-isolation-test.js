@@ -1,9 +1,9 @@
-// L1/L2 release gate: the normal standalone game has NO L3 command, panel,
-// deal limit, staffing autonomy report or hidden mandate requirement.
+// L1/L2 gate: the base build (NORTHMARCH_BUILD_MODE=base) has NO L3 command, panel, deal limit, staffing autonomy report or
+// hidden mandate requirement, and plays on its own (MB-01). Since MB-20 the published game has every layer on.
 const fs=require('fs'),path=require('path'),vm=require('vm');
 const {ENGINE_BASE,UI_BASE,ENGINE,UI}=require('../build.js');
 const root=path.join(__dirname,'..','src');
-const shipped=fs.readFileSync(path.join(__dirname,'..','dist','northmarch-layered.html'),'utf8');
+const shipped=ENGINE_BASE.concat(UI_BASE).map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n'); /* the base build's code */
 
 let fails=0;
 function ok(c,msg){console.log((c?'ok   ':'FAIL ')+msg);if(!c)fails++}
@@ -14,11 +14,11 @@ function instance(files){
 }
 ok(!/function (tdScan|mandatePanel|directorTrust|directorReviewPanel)\s*\(/.test(shipped)
    && !shipped.includes('const MANDATE_DEALS='),
-  'real published HTML contains no S3.1 or S3.2 implementation');
+  'the base build contains no S3.1 or S3.2 implementation');
 ok(ENGINE_BASE.every(f=>!f.startsWith('layers/'))&&UI_BASE.every(f=>!f.startsWith('layers/')),
-  'published build has no autonomy-layer module');
+  'the base build has no autonomy-layer module');
 ok(ENGINE.length>ENGINE_BASE.length&&UI.length>UI_BASE.length,
-  'autonomy extensions are available only in explicitly selected alternate build');
+  'the layered build adds the autonomy modules on top of the base');
 const E=instance(ENGINE_BASE.concat(UI_BASE));
 E.newWorld(20261122);E.chooseClub(E.__get().seats[1]);
 let S=E.__get(),id=S.my;S.agmOff=true;

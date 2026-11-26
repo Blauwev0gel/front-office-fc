@@ -33,7 +33,7 @@ function titleView(){
   <p class="voice">Eighty clubs, five divisions, one national cup and a wider European football world. The world runs whether you act or not.</p>
   <p class="muted">You are the elected chairman. Build the ground, keep the books, set the frame for your director of football, and live with what follows.</p>
   <div class="stack">${hasSave()?`<button class="btn" data-act="cont">Continue</button>`:''}<button class="btn ${hasSave()?'ghost':''}" data-act="new">New game</button></div>
-  <p class="note">Layer 1–2 build: the living world and club management. Stories, staff and dynasties are switched off in this version.</p></main>`;
+  <p class="note">The whole game: a living world, your club, staff with their own mandate, stories that come from what happens, and a family that may one day take your chair.</p></main>`;
 }
 /* ----- the dossiers: the club as it is (MB-02), the job, three names; read the file, then stand for election ----- */
 function keyPlayers(id){

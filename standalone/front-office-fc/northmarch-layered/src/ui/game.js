@@ -93,7 +93,8 @@
  }
  /* ----- the week (M2): topic · one escalation · match and stakes · your week · promises · looking back · the close ----- */
  function topicBanner(id){const t=weekTopic(id);return`<p class="g-topic t-${t.k}" role="note">${esc(t.t)}</p>`}
- function escalation(){return debriefCard()||(inWinter()&&preState().kind==='winter'?escCards(preState()):'')||clubMomentCard()||momentCard()}
+ /* every open decision is shown, stacked: a pending debrief must never hide a moment (moments then lapsed unseen) */
+ function escalation(){return debriefCard()+(inWinter()&&preState().kind==='winter'?escCards(preState()):'')+clubMomentCard()+momentCard()}
  function promisesCompact(id){const m=M(id);if(!m.goals)return'';return`<section class="g-card g-pc"><small class="g-k">YOUR PROMISES · JUDGED AT THE AGM</small><ul>${m.goals.map(g=>{const pr=goalProgress(id,g);return`<li class="${pr.met?'on':'off'}"><b>${pr.met?'✓':'…'}</b><span>${esc(g.text)}</span><em>${esc(pr.text)}</em></li>`}).join('')}</ul></section>`}
  function lookBackCard(id){const c=lookingBack(id);if(!c)return'';return`<section class="g-card g-lb ${c.good===true?'up':c.good===false?'down':''}"><small class="g-k">LOOKING BACK</small><p>${esc(c.t)}</p></section>`}
  function weekClose(id){
@@ -233,7 +234,7 @@
    if(!debriefDue())return'';const P_=debriefTarget(),res=briefJudge(S.my,P_),met=res.filter(r=>r.met).length;
    return`<article class="g-moment"><small class="g-k">THE ${P_.kind==='winter'?'WINTER':'SUMMER'} DEBRIEF · ${esc(P_.brief.dirName.toUpperCase())}</small><h2>${met} of ${res.length} goals met</h2>
    <ul class="g-news">${res.map(r=>`<li>${r.met?'✓':'✗'} ${esc(r.t)} · <span class="muted">${esc(r.how)}</span></li>`).join('')}</ul>
-   <button class="g-opt" data-act="debrief" data-arg="back"><b>Back the director</b><span>More confidence and loyalty</span></button><button class="g-opt g-leave" data-act="debrief" data-arg="warn"><b>Warn the director</b><span>A second warning opens the door to replacing him</span></button></article>`;
+   <button class="g-opt" data-act="debrief" data-arg="back"><b>Back the director</b><span>More confidence and loyalty</span></button><button class="g-opt g-leave" data-act="debrief" data-arg="warn"><b>Warn the director</b><span>A second warning opens the door to replacing the director</span></button></article>`;
  }
  /* deals done since the last press of Play: shown at full time, so the window has a visible result */
  function dealsCard(evs){

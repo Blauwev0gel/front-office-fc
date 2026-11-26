@@ -166,3 +166,32 @@ b.good{color:var(--good)}b.bad{color:var(--bad)}
 @keyframes tcblink{50%{opacity:.45}}
 @keyframes tcshake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
 @media (prefers-reduced-motion:reduce){.tc *{animation:none!important;transition:none!important}}
+
+/* ---- the whiteboard and matchday context ---- */
+.g-wbd summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700}
+.wb{margin:4px 0 0;display:flex;flex-direction:column;gap:6px}
+.wb svg{width:100%;max-width:100%;aspect-ratio:78/92;border-radius:12px;display:block}
+.wb-rt{font-family:var(--f-display);font-weight:800;font-size:4.3px;fill:#151d24}
+.wb-nm{font-family:var(--f-body);font-weight:600;font-size:3.1px;fill:#fff;paint-order:stroke;stroke:rgba(0,0,0,.5);stroke-width:.6px}
+.wb figcaption{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.78rem;color:var(--muted)}
+.wb-k{display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid var(--signal);margin-right:4px;vertical-align:-1px}.wb-k.acad{border-color:var(--good)}
+.wb-out{color:var(--bad);font-weight:600}
+.g-derby{margin:0;padding:8px 10px;border-radius:10px;background:color-mix(in srgb,var(--bad) 12%,var(--card));font-size:.9rem}.g-derby b{color:var(--bad);letter-spacing:.08em;margin-right:6px}
+.g-goals li .g-tag{margin-left:4px}
+.g-night{background:linear-gradient(180deg,color-mix(in srgb,var(--navy) 16%,var(--card)),var(--card))}
+.g-vote{height:26px;border-radius:8px;background:color-mix(in srgb,var(--bad) 35%,var(--line));overflow:hidden}
+.g-vote i{display:block;height:100%;width:var(--v);background:var(--navy);animation:gvote 2s cubic-bezier(.2,.8,.2,1) both}
+@keyframes gvote{from{width:0}}
+.g-voice{display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:start;margin:8px 0}
+.g-voice .g-face{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:var(--onnavy);font-family:var(--f-display);font-weight:800}
+.g-voice small{display:block;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.g-voice q{display:block;font-family:'Literata',Georgia,serif;font-style:italic;font-size:1.02rem;line-height:1.4}
+@media (prefers-reduced-motion:reduce){.g-vote i{animation:none}}
+.g-verdict{position:relative;text-align:center}
+.g-vote.big{position:relative;height:34px;margin-top:6px}
+.g-vote.big i{animation-duration:2.6s}
+.g-half{position:absolute;left:50%;top:-4px;bottom:-4px;width:2px;background:var(--ink)}
+.g-vres{font-family:var(--f-display);font-weight:800;font-size:2.6rem;margin:8px 0 2px;letter-spacing:.04em;animation:tcslam .5s 2.4s cubic-bezier(.2,1.6,.4,1) both}
+.g-verdict.in .g-vres{color:var(--good)}.g-verdict.out .g-vres{color:var(--bad)}
+@media (prefers-reduced-motion:reduce){.g-vres{animation:none}}
+.g-act[disabled]{opacity:.5;cursor:not-allowed}

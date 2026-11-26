@@ -52,4 +52,16 @@ function summer(g,lv){
  assert.equal(g.cmd('SetManifest',id,{k:'league',lv:2}).ok,false,'still signed after loading');
  ok('a signed manifest is saved and loaded');}
 
+/* 6. your week (MB-12): a trip takes the week and excludes the other trip and a week at the club; a data day fits alongside, once */
+{const g=vm.runInNewContext(js+';({newWorld,chooseClub,getS:()=>S,chairTrip,chairTournament,chairData,chairHome,advanceWeek,REGIONS})');
+ g.newWorld(5150);g.chooseClub(g.getS().seats[1]);const id=g.getS().my,r=Object.keys(g.REGIONS)[0];
+ assert.notEqual(g.chairTrip(id,r).ok,false,'a trip is possible');
+ assert.equal(g.chairTournament(id).ok,false,'a second trip in the same week is not');
+ assert.equal(g.chairHome(id).ok,false,'nor a week at the club while away');
+ assert.notEqual(g.chairData(id).ok,false,'a data day fits alongside the trip');
+ assert.equal(g.chairData(id).ok,false,'but only once a week');
+ g.advanceWeek();assert.notEqual(g.chairHome(id).ok,false,'next week the chairman can stay at the club');
+ assert.equal(g.chairTrip(id,r).ok,false,'and then does not travel that week');
+ ok('your week: trips exclude each other and a week at the club; a data day fits alongside, once a week');}
+
 console.log('first-summer-test: all checks passed');

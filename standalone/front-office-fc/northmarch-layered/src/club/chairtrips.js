@@ -1,7 +1,7 @@
 /* ================= The chairman's week: where do you spend your time? =================
    Decision D-S1: the chairman may travel and recommend players to the director; he never signs or approves a deal.
-   One activity a week: a scouting trip to a region (with the head scout), a youth tournament, a day with the data analyst,
-   or a day at home. Finds go into the dossier; a recommended player joins the director's shortlist with extra weight.
+   Activities (MB-12): a scouting trip to a region (with the head scout) or a youth tournament takes the week; a day with the data
+   analyst can be added once a week; or a week at the club. Finds go into the dossier; a recommended player joins the director's shortlist with extra weight.
    A region visited often yields less until the next season. Youth prospects may join the academy at the next summer intake.
    Owns S.scout = {used, visits{region:n}, gems[], prospects[]} for the player's club. No DOM; old saves start empty. */
 const REGIONS={
@@ -17,7 +17,13 @@ const REGIONS={
 const GEMS_MAX=40;
 function SC(){if(!S.scout)S.scout={used:null,visits:{},gems:[],prospects:[],seasonV:S.season};if(S.scout.seasonV!==S.season){S.scout.visits={};S.scout.seasonV=S.season}return S.scout}
 const scNow=()=>S.season*100+S.week;
-function chairBusy(){return SC().used===scNow()}
+/* MB-12: each activity has its own limit. Travel (a scouting trip or a tournament) takes the week and excludes the other
+   trip and a week at the club; a data day can be done alongside, once a week. S.scout.did is new; a missing one means nothing done. */
+const chairAway=()=>SC().used===scNow();
+const chairDid=k=>((SC().did||{})[k])===scNow();
+function chairMark(k){const A=SC();(A.did=A.did||{})[k]=scNow()}
+function chairBusy(){return (chairAway()||chairDid('home'))&&chairDid('data')}
+function chairWhyNot(k){if(k==='data')return chairDid('data')?'The analysts need a week for new numbers':null;if(chairAway())return'You are away this week';if(chairDid('home'))return'You are spending this week at the club';return null}
 function regionPool(id,r){
   if(r==='fa')return S.fa.map(p=>({p,from:null}));
   if(r==='low'){const t=CL(id).tier,out=[];for(const c of allIds())if(c!==id&&CL(c).tier>=Math.min(4,t+1))for(const p of S.squads[c])if(!p.loan)out.push({p,from:c});return out}
@@ -28,7 +34,7 @@ function gemScore(id,c,r){const p=c.p,R=REGIONS[r],fee=c.from?askingFee(p,c.from
   return growth+value-Math.max(0,p.age-28)*.9+(R.pos&&R.pos.includes(p.pos)?1:0)+rnd()*1.5}
 /* a trip: the head scout and you watch a few games; the department's quality decides how sharp the read is */
 function chairTrip(id,r){
-  const A=SC(),R=REGIONS[r];if(!R)return{ok:false,err:'Unknown region'};if(chairBusy())return{ok:false,err:'You have already spent this week'};
+  const A=SC(),R=REGIONS[r];if(!R)return{ok:false,err:'Unknown region'};{const w=chairWhyNot('trip');if(w)return{ok:false,err:w}}
   const n=Math.max(0,3-(A.visits[r]||0)),sq=squadQuality(S.squads[id]),known=new Set(A.gems.map(g=>g.pid));
   const pool=regionPool(id,r).filter(c=>!known.has(c.p.id)&&c.p.q>=sq-2.5&&(!c.from||askingFee(c.p,c.from)<=Math.max(6,budgetFor(id)*1.5)));
   const picks=pool.map(c=>({c,s:gemScore(id,c,r)})).sort((a,b)=>b.s-a.s).slice(0,n).map(x=>x.c);
@@ -42,22 +48,22 @@ function gemRecord(id,c,r,noise,how){const p=c.p;
   g.pot=r1(Math.max(g.est,Math.max(p.q,p.pa)+(rnd()+rnd()-1)*2.5*noise));SC().gems.push(g);if(SC().gems.length>GEMS_MAX)SC().gems.shift();return g}
 /* the analyst: players whose output beats their price, across the whole world */
 function chairData(id){
-  const A=SC();if(chairBusy())return{ok:false,err:'You have already spent this week'};
+  const A=SC();{const w=chairWhyNot('data');if(w)return{ok:false,err:w}}
   const known=new Set(A.gems.map(g=>g.pid)),sq=squadQuality(S.squads[id]),all=[];
   for(const r of Object.keys(REGIONS))if(r!=='fa')for(const c of regionPool(id,r))if(!known.has(c.p.id)&&c.p.age>=20&&c.p.age<=28&&c.p.q>=sq-1){const fee=askingFee(c.p,c.from);all.push({c,r,ratio:(c.p.q-sq+3)/Math.max(1,fee)})}
-  const picks=all.sort((a,b)=>b.ratio-a.ratio).slice(0,3);A.used=scNow();
+  const picks=all.sort((a,b)=>b.ratio-a.ratio).slice(0,3);chairMark('data');
   const found=picks.map(x=>{const g=gemRecord(id,x.c,x.r,scoutNoise(id)*.8,'data');g.cheap=Math.round((1-g.fee/Math.max(1,playerValue(x.c.p)*1.6))*100);return g});
   return{ok:true,found};
 }
 /* a youth tournament: fifteen-year-olds who might join the academy next summer */
 function chairTournament(id){
-  const A=SC();if(chairBusy())return{ok:false,err:'You have already spent this week'};A.used=scNow();book(id,'travel',-.8);
+  const A=SC();{const w=chairWhyNot('trip');if(w)return{ok:false,err:w}}A.used=scNow();book(id,'travel',-.8);
   const ac=groundSignals(id).academy,base=11.5+(tierBaseStr(CL(id).tier)-50)/4,found=[];
   for(let i=0;i<3;i++){const q=base-4.5+rnd()*1.5,pa=q+2+rnd()*4.5;const pr={id:'yp'+(S.pc++),name:pname(),pos:pick(POS.slice(1)),age:15,q:r1(q),pa:r1(pa),seen:r1(pa+(rnd()+rnd()-1)*clamp(1.6-.25*G(id).depts.academy.staff,.3,1.6)),s:S.season,status:'seen'};A.prospects.push(pr);found.push(pr)}
   if(A.prospects.length>20)A.prospects.splice(0,A.prospects.length-20);
   return{ok:true,found,academy:ac};
 }
-function chairHome(id){const A=SC();if(chairBusy())return{ok:false,err:'You have already spent this week'};A.used=scNow();confLog(id,1,'The chairman was seen around the club');return{ok:true}}
+function chairHome(id){const A=SC();{const w=chairWhyNot('home');if(w)return{ok:false,err:w}}chairMark('home');confLog(id,1,'The chairman was seen around the club');return{ok:true}}
 /* recommend: the director adds him to the shortlist with extra weight; he still decides */
 function chairRecommend(id,pid){
   const g=SC().gems.find(x=>x.pid===pid);if(!g)return{ok:false,err:'Not in your dossier'};const f=findPlayer(pid);if(!f||f.club===id)return{ok:false,err:'He is no longer available'};

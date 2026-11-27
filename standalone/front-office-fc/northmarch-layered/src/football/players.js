@@ -149,6 +149,7 @@ function playersSeasonEnd(id){
   const kids=[];
   for(let i=0;i<n;i++){const q=base-3.8+.60*a+((c.devCulture??45)-45)*.009+rnd()*1.2;const k=newPlayer(pick(POS.slice(1)),{age:ri(16,17),q,pa:q+.6+.85*a+((c.devCulture??45)-45)*.015+rnd()*2.5,academy:true,contract:3,club:id,trait:sg.academyLocal&&rnd()<.4?'local hero':null});
     k.career.push('Academy');sq.push(k);kids.push(k)}
+  if(id===S.my&&typeof acadGraduate==='function')acadGraduate(id,kids); /* the academy's own seventeen-year-olds take these places */
   youthIntake(id,kids);
   S.stats[id].intake=kids.length;S.stats[id].intakeBest=r1(Math.max(...kids.map(k=>k.pa)));
   if(id===S.my){

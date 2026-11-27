@@ -15,7 +15,7 @@
  topBar=function(){
    if(!inGame())return oldTopBar();
    const c=C(),cash=F(S.my).cash;
-   return`<header class="g-top">${crest}<div class="g-id"><b>${esc(c.name)}</b><span>${S.week?'Week '+S.week+' of '+SEASON_WEEKS:'Pre-season'} · ${esc(TIER_NAME[c.tier])}</span></div><span class="g-cash ${cash<0?'bad':''}" aria-label="Cash">${k1(cash)}</span></header>`;
+   return`<header class="g-top">${crestSVG(S.my,30)}<div class="g-id"><b>${esc(c.name)}</b><span>${S.week?'Week '+S.week+' of '+SEASON_WEEKS:'Pre-season'} · ${esc(TIER_NAME[c.tier])}</span></div><span class="g-cash ${cash<0?'bad':''}" aria-label="Cash">${k1(cash)}</span></header>`;
  };
 
  /* ----- the bottom: one play button on the week screen, four tabs everywhere ----- */
@@ -66,7 +66,7 @@
    const odds=d>2?'You should win this':d>.5?'Slight favourites':d>-.5?'Too close to call':d>-2?'They are favourites':'A hard afternoon';
    const form=(S.tbl[id]?.form||[]).slice(-5).map(r=>`<i class="f${r}">${r}</i>`).join('')||'<span class="muted">No games yet</span>';
    return`<section class="g-card g-match"><small class="g-k">NEXT MATCH · WEEK ${w}${cup?' · CUP TIE TOO':''}</small>
-   <h2>${fx.home?'vs':'at'} ${esc(CL(opp).name)}</h2><p>${fx.home?'Home':'Away'} · ${esc(odds)} · ${ord(posOf(opp))} in the table</p><div class="g-form" aria-label="Last five results">${form}</div>${(()=>{const st=matchStakes(id);return st?`<p class="g-stakes">${esc(st.text)}</p>`:''})()}${oppContext(id,opp)}<details class="g-wbd"><summary>Your eleven</summary>${whiteboard(id,'Our likely eleven')}</details></section>`;
+   <h2 class="g-opp">${crestSVG(opp,26)} ${esc(CL(opp).name)}</h2><p>${fx.home?'Home':'Away'} · ${esc(odds)} · ${ord(posOf(opp))} in the table</p><div class="g-form" aria-label="Last five results">${form}</div>${(()=>{const st=matchStakes(id);return st?`<p class="g-stakes">${esc(st.text)}</p>`:''})()}${oppContext(id,opp)}<details class="g-wbd"><summary>Your eleven</summary>${whiteboard(id,'Our likely eleven')}</details></section>`;
  }
  /* what the staff did this week, and what to keep an eye on (no approvals: the staff act within their authority) */
  function decisions(id){
@@ -114,7 +114,7 @@
    const mand=role==='td'&&typeof MANDATE_DEALS!=='undefined'&&!care?`<div class="g-seg g-seg3" role="group" aria-label="Signing limit">${Object.entries(MANDATE_DEALS).map(([k,v])=>`<button class="${mandateOf(id).deals===k?'on':''}" data-act="pmandate" data-arg="${k}" aria-pressed="${mandateOf(id).deals===k}">${esc(v.n)}</button>`).join('')}</div><p class="g-hint">${esc({small:'Signs alone up to 40% of the budget a deal. Bigger targets are left on the table.',medium:'Signs alone up to 75% of the budget a deal. Only the biggest targets get away.',large:'Signs anyone within the budget. Fast, and on their judgement alone.'}[mandateOf(id).deals]||'')}</p>`:'';
    const acts=care?`<button class="btn ghost" data-act="preplace" data-arg="${role}">Appoint a ${role==='coach'?'head coach':'director'}</button>`:`<div class="g-acts2">${p.pro.contract<=1?`<button class="btn ghost" data-act="prenew" data-arg="${role}">Renew the contract</button>`:''}<button class="btn ghost" data-act="preplace" data-arg="${role}">Replace…</button></div>`;
    const cands=UI.replace===role?`<div class="g-cands"><h3>Who do you want?</h3>${staffCandidates(id,role).slice(0,3).map(c=>{const q=P(c.pid);return`<button class="g-opt" data-act="phire" data-arg="${role}:${esc(c.pid)}"><b>${esc(q.name)}, ${q.age}</b><span>${esc(STAFF_SPEC[role][q.pro.spec])} · ${'★'.repeat(staffStars(staffEstimate(c.pid)))} · £${q.pro.wage} a week${c.comp?` · £${c.comp}k to ${esc(CL(c.from).name)}`:' · free'}</span></button>`}).join('')||'<p class="g-hint">Nobody available right now.</p>'}<button class="btn ghost" data-act="preplace" data-arg="">Keep ${esc(p.name)}</button></div>`:'';
-   return`<li class="g-person"><div class="g-ph"><span class="g-face" aria-hidden="true">${esc(ini)}</span><div><b>${esc(p.name)}</b><small>${r}${care?' · caretaker':''} · ${esc(STAFF_SPEC[role][p.pro.spec]||'')}</small></div><span class="g-stars" aria-label="${staffStars(est)} of 5">${stars}</span></div>
+   return`<li class="g-person"><div class="g-ph">${faceSVG(p.name,{size:40,kit:clubKit(S.my).a})}<div><b>${esc(p.name)}</b><small>${r}${care?' · caretaker':''} · ${esc(STAFF_SPEC[role][p.pro.spec]||'')}</small></div><span class="g-stars" aria-label="${staffStars(est)} of 5">${stars}</span></div>
    ${care?'':`<p class="g-ploy ${loy>=65?'up':loy<40?'down':''}"><b>${loyText(loy)}</b>${last?` · remembers: ${esc(last.t)}`:''} · contract ${p.pro.contract} season${p.pro.contract===1?'':'s'}</p>`}${mand}${acts}${cands}</li>`}
  function peopleCard(id){const ps=['td','coach'].map(r=>P(CL(id).cast[r])).filter(Boolean),hot=ps.some(p=>!p.pro||p.pro.caretaker||p.pro.contract<=1||(p.loy??50)<40)||!!UI.replace;
    return`<details class="g-card g-people" ${hot?'open':''}><summary><small class="g-k">YOUR PEOPLE</small><span>${ps.map(p=>`${esc(p.name.split(' ')[0])}: ${p.pro&&p.pro.caretaker?'caretaker':loyText(p.loy??50).toLowerCase()}`).join(' · ')}</span></summary><ul class="g-plist">${personRow(id,'td')}${personRow(id,'coach')}</ul></details>`}
@@ -130,7 +130,7 @@
      out.push({k,key:o.key,cost:o.cost,weeks:o.weeks,annual:o.annual||0,lvNow:LV_NAME[lv]||'none',lvNext:LV_NAME[lv+1]||'',label:fac.have?`${COMPLEX[DEPT[k].fac].n} to ${LV_NAME[lv+1]}`:`Build ${/^[aeiou]/i.test(COMPLEX[DEPT[k].fac].n)?'an':'a'} ${COMPLEX[DEPT[k].fac].n.toLowerCase()}`,effect:COMPLEX[DEPT[k].fac].sig,head:deptHead(id,k),role:HEAD_ROLE[k],ask:HEAD_ASK[k]})}
    return out.sort((a,b)=>a.cost-b.cost)}
  function askButton(id,a,bare){const room=investRoom(id),can=room>=a.cost;
-   return`<button class="g-plan-opt g-ask${bare?' bare':''}" data-act="invest" data-arg="${esc(a.key)}" ${can?'':'disabled aria-disabled="true"'}>${bare?'':`<span class="g-face" aria-hidden="true">${esc(a.head.split(' ').map(w=>w[0]).join(''))}</span>`}<span><b>${esc(a.label)}</b><small>${bare?'':`<i>${esc(a.head)}, ${esc(a.role.toLowerCase())}:</i> `}“${esc(a.ask)}”</small><small class="g-cost">£${a.cost}k · ${a.weeks} weeks${a.annual?` · then £${a.annual}k a season to run`:''}${can?'':' · not enough money yet'}</small></span></button>`}
+   return`<button class="g-plan-opt g-ask${bare?' bare':''}" data-act="invest" data-arg="${esc(a.key)}" ${can?'':'disabled aria-disabled="true"'}>${bare?'':`${faceSVG(a.head,{size:40,kit:clubKit(S.my).a})}`}<span><b>${esc(a.label)}</b><small>${bare?'':`<i>${esc(a.head)}, ${esc(a.role.toLowerCase())}:</i> `}“${esc(a.ask)}”</small><small class="g-cost">£${a.cost}k · ${a.weeks} weeks${a.annual?` · then £${a.annual}k a season to run`:''}${can?'':' · not enough money yet'}</small></span></button>`}
  /* milestones: things to build towards, from the club as it is (MB-16); progress you can see */
  function milestones(id){const c=CL(id),g=G(id),sg=groundSignals(id),out=[],bar=(t,now,target,txt,act,arg)=>out.push({t,pct:clamp(Math.round(now/Math.max(1,target)*100),0,100),txt,act,arg});
    const cap=sg.capacity,next=Math.ceil((cap+1)/500)*500;bar(`A ${n0(next)}-place ground`,cap,next,`${n0(cap)} places now`,'ctab','ground');
@@ -147,7 +147,7 @@
  /* the department heads on the club page: who they are and what they want next */
  function headsCard(id){const asks=deptAsks(id);
    return`<section class="g-card g-heads"><small class="g-k">YOUR DEPARTMENT HEADS · £${investRoom(id)}k TO INVEST</small>${Object.keys(HEAD_ROLE).map(k=>{const a=asks.find(x=>x.k===k),fac=deptFacility(id,k),lv=fac&&fac.have?fac.have.lv:0,busy=fac&&fac.busy;
-     return`<div class="g-head"><div class="g-ph"><span class="g-face" aria-hidden="true">${esc(deptHead(id,k).split(' ').map(w=>w[0]).join(''))}</span><div><b>${esc(deptHead(id,k))}</b><small>${esc(HEAD_ROLE[k])} · ${esc(COMPLEX[DEPT[k].fac].n)}: ${lv?LV_NAME[lv]:'not built'}</small></div><button class="btn ghost g-mini" data-act="dept" data-arg="${k}">Open</button></div>
+     return`<div class="g-head"><div class="g-ph">${faceSVG(deptHead(id,k),{size:40,kit:clubKit(S.my).a})}<div><b>${esc(deptHead(id,k))}</b><small>${esc(HEAD_ROLE[k])} · ${esc(COMPLEX[DEPT[k].fac].n)}: ${lv?LV_NAME[lv]:'not built'}</small></div><button class="btn ghost g-mini" data-act="dept" data-arg="${k}">Open</button></div>
      ${busy?`<p class="g-hint">Building work under way.</p>`:a?askButton(id,a,true):'<p class="g-hint">Nothing more to build here.</p>'}</div>`}).join('')}</section>`}
  /* ----- THE DEPARTMENTS (27-11): each one is a person, their people and their building. One question per department:
     is it ahead of or behind the division, and what does the next step cost (a week, or once from the building pot)? ----- */
@@ -167,10 +167,83 @@
    return`<section class="g-card g-depts2"><small class="g-k">YOUR DEPARTMENTS · £${n0(deptCost(id)*1000)} A WEEK</small>
    <p class="g-hint">Each department is a head, their people (paid every week) and a building (paid once, from the building pot: £${room}k left).</p>
    ${ROOMS.map(([t,sub,ks])=>`<h3 class="dp-room">${esc(t)} <small>${esc(sub)}</small></h3>${ks.map(k=>{const x=deptState(id,k),[cls,word]=verdict(x.kp.good);
-     return`<button class="dp-row" data-act="dept" data-arg="${k}"><span class="g-face" aria-hidden="true">${esc(deptHead(id,k).split(' ').map(w=>w[0]).join(''))}</span>
+     return`<button class="dp-row" data-act="dept" data-arg="${k}">${faceSVG(deptHead(id,k),{size:40,kit:clubKit(S.my).a})}
      <span class="dp-main"><b>${esc(DEPT[k].n)}</b><small>${esc(x.kp.label)}: ${esc(x.kp.text)}</small>
      <span class="dp-chips"><i>People ${'●'.repeat(x.d.staff)}${'○'.repeat(5-x.d.staff)}</i>${x.building?`<i>${x.lv?esc(LV_NAME[x.lv])+' '+esc(x.building.toLowerCase()):'No '+esc(x.building.toLowerCase())}</i>`:''}${x.d.hiring?'<i>Hiring…</i>':''}${x.fac&&x.fac.busy?'<i>Building…</i>':''}</span></span>
      <span class="dp-v ${cls}">${esc(word.split(' ')[0])}</span></button>`}).join('')}`).join('')}</section>`}
+ /* ----- CLUB COLOURS AND THE HOME SCENE (MB-30): every club has a kit and a crest; the home screen shows your own
+    ground and town, drawn from the real ground (stands, roofs, floodlights), lit for the time of the season ----- */
+ const KITS=[['#0f4a32','#e3b23c'],['#7a1f2b','#f3f1ea'],['#173e8c','#ffffff'],['#c4252e','#ffffff'],['#151515','#f2c200'],['#5b2a86','#f3f1ea'],['#e0661c','#151515'],['#6aaee0','#13294b'],['#f3f1ea','#151515'],['#0a6b5a','#f3f1ea'],['#8b1a1a','#8fc9ec'],['#1f3a5f','#e3b23c']];
+ const KIT_PAT=['plain','stripes','hoops','halves','sash'];
+ function clubKit(id){let h=7;for(const ch of String(id))h=(h*31+ch.charCodeAt(0))>>>0;const [a,b]=KITS[h%KITS.length];return{a,b,pat:KIT_PAT[(h>>>6)%KIT_PAT.length]}}
+ globalThis.clubKit=clubKit;
+ function crestSVG(id,sz=40){const k=clubKit(id),n=(CL(id)?.name||'').split(' ')[0].slice(0,5).toUpperCase(),u='cr'+String(id).replace(/\W/g,'');
+   const pat={plain:'',stripes:`<path d="M13 0V60M26 0V60M39 0V60" stroke="${k.b}" stroke-width="6.5"/>`,hoops:`<path d="M0 24H52M0 38H52M0 52H52" stroke="${k.b}" stroke-width="6"/>`,halves:`<rect x="26" width="26" height="60" fill="${k.b}"/>`,sash:`<path d="M0 14 L52 58" stroke="${k.b}" stroke-width="10"/>`}[k.pat];
+   return`<svg class="crest2" width="${sz}" height="${Math.round(sz*1.15)}" viewBox="0 0 52 60" aria-hidden="true"><clipPath id="${u}"><path d="M26 2 L49 9 V30 C49 45 38 53 26 58 C14 53 3 45 3 30 V9 Z"/></clipPath><g clip-path="url(#${u})"><rect width="52" height="60" fill="${k.a}"/>${pat}<rect width="52" height="16" fill="${k.b}"/></g><path d="M26 2 L49 9 V30 C49 45 38 53 26 58 C14 53 3 45 3 30 V9 Z" fill="none" stroke="${k.b}" stroke-width="2.5"/><text x="26" y="12.5" text-anchor="middle" font-family="var(--f-display),Impact,sans-serif" font-weight="800" font-size="${n.length>4?8.5:10}" fill="${k.a}">${esc(n)}</text></svg>`}
+ globalThis.crestSVG=crestSVG;
+ /* the time of the season: summer afternoon, autumn, winter under the floodlights, spring */
+ function scenePhase(){const w=S.week;if(w===0)return{k:'summer',sky:['#7cc3f0','#d9effa'],sun:'#ffd75e',lit:false,txt:'Pre-season · a July afternoon'};if(seasonOver())return{k:'may',sky:['#f0a35c','#fbe1b7'],sun:'#ffb347',lit:false,txt:'The last day of the season'};
+   if(w<=10)return{k:'autumn',sky:['#8fb4cf','#e7d8c2'],sun:'#f6c35b',lit:false,txt:'Autumn · leaves on the terraces'};if(w<=20)return{k:'winter',sky:['#16233b','#3d4f73'],sun:'#e9eef7',lit:true,txt:'Winter · under the floodlights'};return{k:'spring',sky:['#9fd0ee','#eef7e6'],sun:'#ffe27a',lit:false,txt:'Spring · the run-in'}}
+ function townSilhouette(town,fill){
+   const base='M0 120 L0 96 L18 96 L18 88 L30 88 L30 96 L46 96 L46 84 L60 84 L60 96 L300 96 L300 86 L316 86 L316 96 L336 96 L336 90 L360 90 L360 120Z';
+   const icon={mill:'<rect x="70" y="58" width="9" height="40"/><rect x="82" y="78" width="40" height="20"/><path d="M82 78 l10-8 10 8 10-8 10 8"/>',mining:'<path d="M276 98 L290 56 L304 98 M282 80 H298 M286 66 H294"/><circle cx="290" cy="56" r="7" fill="none" stroke="'+fill+'" stroke-width="3"/>',
+     cathedral:'<path d="M286 98 V70 L292 40 L298 70 V98Z"/><rect x="266" y="74" width="20" height="24"/><rect x="298" y="74" width="20" height="24"/>',harbour:'<path d="M276 98 V48 H316 M310 48 V66 M276 60 L300 48"/><rect x="292" y="66" width="24" height="10"/>',
+     resort:'<circle cx="292" cy="68" r="24" fill="none" stroke="'+fill+'" stroke-width="3"/><path d="M292 44 V92 M268 68 H316 M275 51 L309 85 M309 51 L275 85" stroke="'+fill+'" stroke-width="1.5"/><path d="M280 98 L292 70 L304 98Z"/>',
+     newtown:'<rect x="270" y="50" width="14" height="48"/><rect x="288" y="62" width="14" height="36"/><rect x="306" y="44" width="12" height="54"/>'}[town]||'';
+   return`<g fill="${fill}" stroke="${fill}">${icon}</g><path d="${base}" fill="${fill}"/>`}
+ function sceneSVG(id){const g=G(id),ph=scenePhase(),k=clubKit(id),c=CL(id),sg=groundSignals(id);
+   const rings=Object.values(g.sides).reduce((a,s)=>a+s.rings,0),main=g.sides.W,end=g.sides.N,H=clamp(22+rings*2.2,30,62),roof=main.roof>0,lights=(g.fac.lights?.lv||0)>0;
+   const seat=main.type==='seated',fillPct=clamp((S.tbl[id]?.form?.length?.7:.55)+(ph.k==='winter'?-.05:0),.3,.95);
+   let crowd='';let h=11;for(let i=0;i<Math.round(90*fillPct);i++){h=(h*1103515245+12345)>>>0;const x=62+(h%236),y=124-H+6+((h>>>9)%Math.max(8,H-12));crowd+=`<rect x="${x}" y="${y}" width="2.4" height="2.4" fill="${i%5===0?k.b:i%3===0?k.a:'#3a3a3a'}" opacity=".85"/>`}
+   const night=ph.lit,town=townSilhouette(c.town,night?'#0d1626':'rgba(40,52,64,.32)');
+   const pylon=x=>lights?`<path d="M${x} 128 L${x} ${120-H-26}" stroke="${night?'#9aa6b8':'#6c7480'}" stroke-width="2"/><rect x="${x-7}" y="${116-H-30}" width="14" height="7" rx="1.5" fill="${night?'#fffbe6':'#9aa6b8'}"/>${night?`<path d="M${x-7} ${116-H-23} L${x-40} 150 L${x+40} 150 L${x+7} ${116-H-23}Z" fill="#fff6c8" opacity=".14"/>`:''}`:'';
+   return`<svg class="sc-svg" viewBox="0 0 360 170" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="skyg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${ph.sky[0]}"/><stop offset="1" stop-color="${ph.sky[1]}"/></linearGradient></defs>
+   <rect width="360" height="170" fill="url(#skyg)"/><circle cx="${night?300:66}" cy="${night?30:34}" r="${night?9:14}" fill="${ph.sun}" opacity="${night?.9:1}"/>${night?[[40,20],[120,14],[200,30],[250,12],[330,40],[160,44]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1" fill="#fff" opacity=".7"/>`).join(''):`<g fill="#fff" opacity=".75"><ellipse cx="150" cy="30" rx="26" ry="7"/><ellipse cx="170" cy="25" rx="18" ry="7"/><ellipse cx="270" cy="44" rx="20" ry="5"/></g>`}
+   <g transform="translate(0 6)">${town}</g>
+   ${pylon(48)}${pylon(312)}
+   <rect x="56" y="${124-H}" width="248" height="${H+4}" fill="${night?'#1d2533':'#5a626e'}"/>${seat?Array.from({length:Math.floor(H/6)},(_,i)=>`<rect x="60" y="${128-H+i*6}" width="240" height="3" fill="${k.a}" opacity="${night?.55:.85}"/>`).join(''):Array.from({length:Math.floor(H/5)},(_,i)=>`<rect x="58" y="${126-H+i*5}" width="244" height="1.5" fill="#8a929c" opacity=".6"/>`).join('')}
+   ${crowd}${roof?`<path d="M50 ${124-H} L310 ${124-H} L304 ${116-H} L56 ${116-H}Z" fill="${night?'#2b3446':'#3c4450'}"/><rect x="52" y="${124-H}" width="256" height="3" fill="${k.b}"/>`:''}
+   <path d="M180 ${114-H} V${96-H}" stroke="#444" stroke-width="1.5"/><path d="M180 ${96-H} h16 l-3 5 3 5 h-16Z" fill="${k.a}"/><path d="M180 ${101-H} h16" stroke="${k.b}" stroke-width="2"/>
+   <rect x="0" y="128" width="360" height="42" fill="${night?'#1d5a34':'#3f9a5c'}"/>${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${i*45}" y="128" width="22.5" height="42" fill="${night?'#1a5230':'#388f53'}"/>`).join('')}<path d="M0 131 H360 M180 128 V170" stroke="#fff" stroke-width="1.4" opacity=".75"/><ellipse cx="180" cy="160" rx="34" ry="9" fill="none" stroke="#fff" stroke-width="1.4" opacity=".75"/></svg>`}
+ /* the club in four numbers: every decision on this screen moves one of them */
+ function clubGauges(id){const f=F(id),lim=creditLimit(id),cash=f.cash,mem=agmForecastPct(id),ids=tierIds(CL(id).tier),rank=ids.slice().sort((a,b)=>teamStrength(b)-teamStrength(a)).indexOf(id)+1,w=S.week;
+   const g=(k,v,pct,sub,cls,line)=>`<div class="sc-g ${cls||''}"><small>${k}</small><b>${v}</b><i class="sc-m"><i style="width:${clamp(pct,3,100)}%"></i>${line!=null?`<em style="left:${line}%"></em>`:''}</i><span>${sub}</span></div>`;
+   return`<div class="sc-gauges">${g('Money',k1(cash),(cash+lim)/(lim*2+Math.max(1,Math.abs(cash)))*100,cash<0?'overdrawn':'in the bank',cash<0?'bad':'')}${g('Members',mem+'%',mem,'would vote for you',mem<50?'bad':'',50)}${g('Team',ord(rank),(ids.length-rank+1)/ids.length*100,'strongest of '+ids.length)}${g('Season',w?'Wk '+w:'July',w/SEASON_WEEKS*100,w?ord(posOf(id))+' in the table':'pre-season')}</div>`}
+ function clubScene(id){const c=CL(id),ph=scenePhase(),w=S.week+1,fx=!seasonOver()&&S.week>0||S.week===0?fixtureOf(id,Math.max(1,w)):null,G0=groundSignals(id);
+   const vs=fx?`<div class="sc-vs">${crestSVG(fx.home?id:fx.opp,38)}<div><b>${esc(fx.home?c.name:CL(fx.opp).name)}</b><small>v</small><b>${esc(fx.home?CL(fx.opp).name:c.name)}</b></div>${crestSVG(fx.home?fx.opp:id,38)}</div><p class="sc-ko">${S.week===0?'Opening day':'Saturday 15:00'} · ${esc(fx.home?c.ground:CL(fx.opp).ground)}${CL(id).rival===fx.opp?' · <b class="sc-derby">DERBY</b>':''}</p>`:'';
+   const at=fx&&!fx.home&&S.week>0?fx.opp:id;return`<section class="sc"><div class="sc-art">${sceneSVG(at)}<div class="sc-cap"><small>${at===id?esc(ph.txt):'Away day · '+esc(ph.txt.split(' · ')[0])}</small><span>${esc(CL(at).ground)} · ${n0(groundSignals(at).capacity)}</span></div></div>${vs?`<div class="sc-match">${vs}</div>`:''}${clubGauges(id)}</section>`}
+ /* ----- FACES (MB-29): a drawn portrait for every person, from a hash of their id. Kids look like kids. ----- */
+ const SKIN=['#f2d0b5','#e8b996','#d39b72','#b07a52','#8a5a3b','#5e3b26'],HAIR=['#1d1612','#3b2618','#6b4527','#a8742f','#d9b25c','#8f8f8f','#b5432a'];
+ function faceSVG(seed,o={}){let h=7;for(const ch of String(seed))h=(h*31+ch.charCodeAt(0))>>>0;const sz=o.size||44,kid=!!o.kid,sk=SKIN[h%SKIN.length],hc=HAIR[(h>>>4)%HAIR.length],hs=(h>>>8)%5,kit=o.kit||'var(--navy)';
+   const hy=kid?19:18,hr=kid?11.5:10.5,sh=kid?'M9 48 Q10 36 24 35 Q38 36 39 48Z':'M5 48 Q7 34 24 33 Q41 34 43 48Z';
+   const hair=[`<path d="M${24-hr} ${hy} Q24 ${hy-hr-6} ${24+hr} ${hy} Q${24+hr} ${hy-hr+1} 24 ${hy-hr-1} Q${24-hr} ${hy-hr+1} ${24-hr} ${hy}Z" fill="${hc}"/>`,
+     `<path d="M${24-hr-1} ${hy+2} Q${24-hr} ${hy-hr-3} 24 ${hy-hr-2} Q${24+hr} ${hy-hr-3} ${24+hr+1} ${hy+2} L${24+hr-2} ${hy-3} Q24 ${hy-6} ${24-hr+2} ${hy-3}Z" fill="${hc}"/>`,
+     `<path d="M${24-hr} ${hy-2} Q24 ${hy-hr-3} ${24+hr} ${hy-2} L${24+hr} ${hy-5} Q24 ${hy-hr-1} ${24-hr} ${hy-5}Z" fill="${hc}"/>`,
+     `<circle cx="24" cy="${hy-4}" r="${hr+1}" fill="${hc}"/>`,`<path d="M${24-hr+1} ${hy-4} Q24 ${hy-hr-1} ${24+hr-1} ${hy-4}" stroke="${hc}" stroke-width="3" fill="none"/>`][hs];
+   return`<svg class="face" width="${sz}" height="${sz}" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="var(--chip)"/><clipPath id="fc${h}"><circle cx="24" cy="24" r="24"/></clipPath><g clip-path="url(#fc${h})"><path d="${sh}" fill="${kit}"/><path d="M20 35 L24 39 L28 35" stroke="var(--onnavy)" stroke-width="1.6" fill="none"/>
+   <rect x="21" y="${hy+hr-4}" width="6" height="7" fill="${sk}"/>${hs===3?hair:''}<ellipse cx="24" cy="${hy}" rx="${hr}" ry="${hr+1}" fill="${sk}"/>${hs!==3?hair:''}
+   <circle cx="${24-hr*.38}" cy="${hy+1}" r="${kid?1.5:1.2}" fill="#1d1612"/><circle cx="${24+hr*.38}" cy="${hy+1}" r="${kid?1.5:1.2}" fill="#1d1612"/><path d="M${24-3} ${hy+5} Q24 ${hy+7.5} ${24+3} ${hy+5}" stroke="#7a3b2e" stroke-width="1.3" fill="none" stroke-linecap="round"/></g></svg>`}
+ globalThis.faceSVG=faceSVG;
+ /* ----- THE ACADEMY (MB-29): five age groups, a trial day, children with a history ----- */
+ const GROW_WORD={early:'Early developer',steady:'Steady grower',late:'Late bloomer',volatile:'Up and down'};
+ const stars=n=>`<span class="ac-stars" aria-label="${n} of 5 stars">${'★'.repeat(n)}<i>${'★'.repeat(5-n)}</i></span>`;
+ function acadPanel(id){const A=ACAD();if(!A)return'';const t=UI.acadT||'U18',T=A.trial,last=A.teams[S.season-1]||A.teams[S.season]||{},head=deptHead(id,'academy');
+   const kids=A.kids.filter(k=>acadTeamOf(k.age)===t).sort((a,b)=>acadStanding(id,b)-acadStanding(id,a)),rec=last[t];
+   const trial=T&&!T.done?`<section class="ac-trial"><small class="g-k">TRIAL DAY · ${T.kids.length} NINE-YEAR-OLDS · ${T.places} PLACES</small>
+     <div class="g-voice">${faceSVG(id+':academy')}<div><small>${esc(head)} · Academy manager</small><q>Six kids from the schools and Sunday clubs. We have room for ${T.places}. I have marked the ones I would take; it is your club.</q></div></div>
+     <div class="ac-grid">${T.kids.map(k=>{const on=T.picked.length?T.picked.includes(k.id):T.advice.includes(k.id);return`<button class="ac-kid ${on?'on':''}" data-act="acadpick" data-arg="${k.id}" aria-pressed="${on}">${faceSVG(k.id,{kid:true,size:52,kit:'#6b7d74'})}<b>${esc(k.name)}</b><small>${esc(POS_ONE[k.pos]||k.pos)} · ${esc(k.from.club)}</small>${stars(acadStars(id,k))}${T.advice.includes(k.id)?'<i class="ac-adv">Manager’s pick</i>':''}</button>`}).join('')}</div>
+     <p class="g-hint">${T.picked.length?`You picked ${T.picked.length} of ${T.places}.`:'Untouched, the manager’s picks join.'} The places are filled when the season starts.</p></section>`:'';
+   const tabs=`<div class="ac-tabs" role="tablist">${ACAD_TEAMS.map(([n])=>`<button role="tab" aria-selected="${n===t}" class="${n===t?'on':''}" data-act="acadt" data-arg="${n}">${n}<small>${A.kids.filter(k=>acadTeamOf(k.age)===n).length}</small></button>`).join('')}</div>`;
+   const team=`<div class="ac-team"><div class="ac-th"><b>${esc(CL(id).name)} ${t}s</b>${rec?`<span>${ord(rec.pos)} in the youth league · ${rec.w}W ${rec.d}D ${rec.l}L${rec.top?` · top scorer ${esc(rec.top.name)} (${rec.top.goals})`:''}</span>`:'<span>First season in the youth league</span>'}</div>
+     <div class="ac-list">${kids.map(k=>{const st=acadStanding(id,k),l=k.hist.filter(x=>x.apps).slice(-1)[0];return`<button class="ac-row" data-act="acadkid" data-arg="${k.id}">${faceSVG(k.id,{kid:k.age<15,size:46})}<span class="ac-m"><b>${esc(k.name)}</b><small>${k.age} · ${esc(POS_ONE[k.pos]||k.pos)} · ${esc(GROW_WORD[k.grow])}</small><span class="ac-bar" title="Standing in the age group"><i style="width:${st}%"></i></span><small class="ac-note">${esc(k.moment||(l?l.note:`From ${k.from.club}, ${k.from.where}`))}</small></span>${stars(acadStars(id,k))}</button>`}).join('')||'<p class="g-hint">Nobody in this age group.</p>'}</div></div>`;
+   const al=A.alumni.slice(-6).reverse();
+   const alumni=al.length?`<h3>Alumni</h3><ul class="g-news">${al.map(a=>`<li>${a.pid&&findPlayer(a.pid)?`<button class="g-linkbtn" data-act="player" data-arg="${a.pid}">${esc(a.name)}</button>`:esc(a.name)} · ${esc(a.why)}</li>`).join('')}</ul>`:'';
+   return`<section class="ac">${trial}<small class="g-k">THE AGE GROUPS · ${A.kids.length} CHILDREN</small>${tabs}${team}${alumni}</section>`}
+ function acadKidSheet(id,kid){const A=ACAD(),k=A&&A.kids.find(x=>x.id===kid);if(!k)return'';const tot=k.hist.reduce((a,x)=>({apps:a.apps+x.apps,goals:a.goals+x.goals}),{apps:0,goals:0});
+   return`<button class="btn ghost" data-act="acadkid" data-arg="">‹ The ${esc(acadTeamOf(k.age))}s</button>
+   <div class="ac-hero">${faceSVG(k.id,{kid:k.age<15,size:84})}<div><h2>${esc(k.name)}</h2><p>${k.age} · ${esc(POS_ONE[k.pos]||k.pos)} · ${k.foot==='both'?'two-footed':k.foot+'-footed'}</p>${stars(acadStars(id,k))}</div></div>
+   <ul class="g-list"><li><b>From:</b> ${esc(k.from.school)} and ${esc(k.from.club)}, ${esc(k.from.where)}.</li><li><b>With us since:</b> age ${k.joinAge} · ${tot.apps} games, ${tot.goals} goals.</li><li><b>How he grows:</b> ${esc(GROW_WORD[k.grow])}.</li></ul>
+   <h3>Year by year</h3><ol class="ac-time">${k.hist.slice().reverse().map(x=>`<li><span class="ac-tb">${esc(x.team)}</span><div><b>Age ${x.age}</b>${x.apps?` · ${x.apps} games, ${x.goals} goals · rating ${x.rat}`:''}<p>${esc(x.note)}</p></div></li>`).join('')}</ol>`}
  deptSheet=function(k){
    const id=S.my,D=DEPT[k],x=deptState(id,k),d=x.d,fac=x.fac,[cls,word]=verdict(x.kp.good),head=deptHead(id,k),wkv=v=>'£'+n0(Math.abs(v)*1000);
    const quote=x.kp.good===false?`We are behind the division. ${HEAD_ASK[k]||'More hands would make the difference.'}`:x.kp.good===true?'We are ahead of the division. Keep us there and it shows on Saturdays.':'We are where the division is. One step either way shows.';
@@ -194,9 +267,10 @@
    const tight=d.budget==='tight'?`<div class="dp-opt"><small class="g-k">RUNNING BUDGET · CUT BY THE TREASURER</small><p>The department works with 70% of its equipment and travel money.</p><button class="btn ghost" data-act="gdept" data-arg="${k}:normal">Restore it · +${wkv(deptWeekCost(id,k,null,'normal')-deptWeekCost(id,k))} a week</button></div>`:'';
    const course=`<h3>The way of working</h3><div class="g-goals">${D.courses.map(c=>{const on=(d.pending||d.course)===c;return`<button class="g-opt ${on?'on':''}" data-act="gcourse" data-arg="${k}:${c}" aria-pressed="${on}"><b>${on?'✓ ':''}${esc(c[0].toUpperCase()+c.slice(1))}</b><span>${esc(D.cd[c])}</span></button>`}).join('')}</div><p class="g-hint">${d.pending?`Switching to ${esc(d.pending)}: ${d.settle} weeks to settle.`:'A change costs nothing, but takes a season to settle.'}</p>`;
    const extra=departmentPipeline(k);
-   return overlayShell(D.n,`<div class="g-voice"><span class="g-face" aria-hidden="true">${esc(head.split(' ').map(w=>w[0]).join(''))}</span><div><small>${esc(head)} · ${esc(roleOf(k))}</small><q>${esc(quote)}</q></div></div>
+   if(k==='academy'&&UI.acadKid)return overlayShell(D.n,acadKidSheet(id,UI.acadKid));
+   return overlayShell(D.n,`<div class="g-voice">${faceSVG(head,{size:40,kit:clubKit(S.my).a})}<div><small>${esc(head)} · ${esc(roleOf(k))}</small><q>${esc(quote)}</q></div></div>
    <section class="dp-kpi ${cls}"><small>${esc(x.kp.label)}</small><b>${esc(x.kp.text)}</b><span>${esc(word)}</span></section>
-   <p class="g-hint">${esc(D.does)}</p>
+   <p class="g-hint">${esc(D.does)}</p>${k==='academy'?acadPanel(id):''}
    <h3>Make it stronger</h3>${people}${bld}${tight}
    ${cut?`<h3>Save money</h3>${cut}`:''}
    ${course}${extra?`<details class="g-close"><summary>Inside the department</summary>${extra}</details>`:''}`);
@@ -221,7 +295,7 @@
     (D-G1): the staff handle routine; and never only an inbox (MB-03): you can always start something yourself below it. ----- */
  const ini2=n=>String(n||'?').split(' ').map(w=>w[0]).join('').slice(0,2);
  const snoozed=k=>((S.inboxSnooze||{})[k]||0)>S.season*100+S.week;
- function ibMsg(o){return`<article class="ib-msg ib-${o.kind}${o.open?' open':''}"><details ${o.open?'open':''}><summary><span class="g-face" aria-hidden="true">${esc(ini2(o.from))}</span><span class="ib-head"><small>${esc(o.from)} · ${esc(o.role)}</small><b>${esc(o.subject)}</b></span><i class="ib-tag">${{decision:'DECIDE',advice:'ADVICE',report:'REPORT'}[o.kind]}</i></summary><div class="ib-body">${o.body?`<p>${esc(o.body)}</p>`:''}${o.html||''}</div></details></article>`}
+ function ibMsg(o){return`<article class="ib-msg ib-${o.kind}${o.open?' open':''}"><details ${o.open?'open':''}><summary>${faceSVG(o.from,{size:40,kit:clubKit(S.my).a})}<span class="ib-head"><small>${esc(o.from)} · ${esc(o.role)}</small><b>${esc(o.subject)}</b></span><i class="ib-tag">${{decision:'DECIDE',advice:'ADVICE',report:'REPORT'}[o.kind]}</i></summary><div class="ib-body">${o.body?`<p>${esc(o.body)}</p>`:''}${o.html||''}</div></details></article>`}
  const ibBtns=(...b)=>`<div class="ib-acts">${b.filter(Boolean).join('')}</div>`;
  const ibBtn=(label,act,arg,ghost)=>`<button class="btn${ghost?' ghost':''}" data-act="${act}"${arg!=null?` data-arg="${esc(arg)}"`:''}>${esc(label)}</button>`;
  function inboxItems(id){const out=[],td=tdOf(id),co=coachOf(id),dn=td?td.name:'The director',now=S.season*100+S.week;
@@ -257,6 +331,7 @@
  function tickerItems(id){const tier=CL(id).tier,out=[];
    const ev=(S.ev||[]).filter(e=>e.s===S.season&&S.week-e.w<=1).slice(-60).reverse();
    for(const e of ev){if(out.length>=10)break;if(e.t==='Transfer'&&e.fee>=15)out.push(e.text);else if(['StaffSacked','StaffPoached','StaffHired'].includes(e.t)&&e.c!==id)out.push(e.text);else if(['Promotion','CupWon','Administration'].includes(e.t))out.push(e.text)}
+   {const A=S.acad;if(A)for(const n of A.news.filter(n=>n.s===S.season&&S.week-n.w<=1).slice(-2))out.unshift('⚽ '+n.t)}
    const ms=(S.matches||[]).filter(m=>m.comp!=='cup'&&CL(m.h)&&CL(m.h).tier===tier).slice(0,6);for(const m of ms)out.push(`${CL(m.h).name} ${m.gh}–${m.ga} ${CL(m.a).name}`);
    if(S.week>0){const top=(S.tbl&&tierIds(tier).slice().sort((a,b)=>posOf(a)-posOf(b))[0]);if(top)out.push(`${CL(top).name} lead ${TIER_NAME[tier]}`)}
    return out.length?out:[`${TIER_NAME[tier]}: the new season is close`]}
@@ -302,7 +377,7 @@
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
    if(S.week===0)return preSeasonScreen(id,msg);
    if(seasonOver())return`<div class="g-week">${msg}${topicBanner(id)}${agmView(id)}</div>`;
-   return`<div class="g-week">${newsTicker(id)}${msg}${topicBanner(id)}${nextMatch(id)}${inboxCard(id)}${winterCard(id)}${booksCard(id)}${growthCard(id)}${runningCard(id)}${peopleCard(id)}${clubGlance(id)}</div>`;
+   return`<div class="g-week">${clubScene(id)}${newsTicker(id)}${msg}${topicBanner(id)}${nextMatch(id)}${inboxCard(id)}${winterCard(id)}${booksCard(id)}${growthCard(id)}${runningCard(id)}${peopleCard(id)}${clubGlance(id)}</div>`;
  }
 
 
@@ -332,7 +407,7 @@
  /* election night and the first morning: the club's own people, from the world the engine made (MB-02, §7.1) */
  function welcomeCard(id){const c=C(),d=tdOf(id),co=coachOf(id),fan=c.cast.fan&&P(c.cast.fan),g=c.groups.slice().sort((a,b)=>b.share-a.share)[0],grp=g&&ARCH[g.k];
    const vote=clamp(Math.round(24+.75*M(id).conf+6),51,90),m=summerMeeting(id),r=c.rival&&CL(c.rival);
-   const v=(i,who,q)=>`<div class="g-voice"><span class="g-face" aria-hidden="true">${esc(i)}</span><div><small>${esc(who)}</small><q>${esc(q)}</q></div></div>`;
+   const v=(i,who,q)=>`<div class="g-voice">${faceSVG(who.split(' · ')[0],{size:40,kit:clubKit(S.my).a})}<div><small>${esc(who)}</small><q>${esc(q)}</q></div></div>`;
    const ini=n=>n.split(' ').map(w=>w[0]).join('').slice(0,2);
    return`<section class="g-card g-welcome g-night"><small class="g-k">ELECTION NIGHT · THE ${esc(c.ground.toUpperCase())} CLUBHOUSE</small><h2>${esc(c.name)} is yours</h2>
    <div class="g-vote" aria-label="${vote} percent voted for you"><i style="--v:${vote}%"></i></div><p><b>${vote}% of the members voted for you.</b> Below 50% at any AGM and you are out.</p>
@@ -352,7 +427,7 @@
  function budgetScreen(id){
    const B=budOpen(id),u=B.unit,tot=budTotal(),ini=n=>String(n).split(' ').map(w=>w[0]).join('').slice(0,2);
    const row=k=>{const a=B.asks[k],have=B.pots[k]*u,met=have>=a.ask*.9,short=Math.max(0,a.ask-have),btn=k!=='bank';
-     return`<div class="bd-row bd-${k}"><div class="g-voice"><span class="g-face" aria-hidden="true">${esc(ini(a.who))}</span><div><small>${esc(a.who)} · ${esc(BUD_ROLE[k])}</small><q>${esc(a.why)}</q></div></div>
+     return`<div class="bd-row bd-${k}"><div class="g-voice">${faceSVG(a.who,{size:40,kit:clubKit(S.my).a})}<div><small>${esc(a.who)} · ${esc(BUD_ROLE[k])}</small><q>${esc(a.why)}</q></div></div>
      <div class="bd-ctl"><span class="bd-pot"><b>${esc(BUD_WHAT[k])}</b><span>£${have}k <small>${B.pots[k]} block${B.pots[k]===1?'':'s'}</small></span></span>
      ${btn?`<button class="bd-b" data-act="budmove" data-arg="${k}:-1" aria-label="One block less for ${esc(BUD_WHAT[k])}" ${B.pots[k]<1?'disabled':''}>−</button><button class="bd-b" data-act="budmove" data-arg="${k}:1" aria-label="One block more for ${esc(BUD_WHAT[k])}" ${B.pots.bank<1?'disabled':''}>+</button>`:'<span class="bd-rest">What you do not give away</span>'}</div>
      <p class="bd-ask ${met?'good':'bad'}">Asks £${a.ask}k · ${met?'✓ satisfied':`£${short}k short`}</p></div>`};
@@ -366,7 +441,7 @@
    const loan=B.loan?`<p class="g-hint">The bank lent £${B.loan}k over five years. The interest comes every season.</p>`:maxNewLoan(id)>=u*3?`<button class="g-opt" data-act="budloan"><b>Ask the bank for £${u*3}k</b><span>Three more blocks now. Five years of repayments and interest; the business members will not like it.</span></button>`:'';
    const tr=B.asks.bank.who;
    return`<section class="g-card g-board"><small class="g-k">THE BOARDROOM · THE FIRST MONDAY OF JULY</small><h2>£${tot*u}k to divide</h2>
-   <div class="g-voice"><span class="g-face" aria-hidden="true">${esc(ini(tr))}</span><div><small>${esc(tr)} · Treasurer</small><q>This is what we can move this season: ${tot} blocks of £${u}k. Every block goes to one place only. They will all ask for more than there is.</q></div></div>
+   <div class="g-voice">${faceSVG(tr,{size:40,kit:clubKit(S.my).a})}<div><small>${esc(tr)} · Treasurer</small><q>This is what we can move this season: ${tot} blocks of £${u}k. Every block goes to one place only. They will all ask for more than there is.</q></div></div>
    <div class="bd-strip" aria-label="${tot} blocks">${blocks}</div></section>
    <section class="g-card g-board">${['players','wages','build','bank'].map(row).join('')}${loan}</section>
    <section class="g-card"><small class="g-k">WHAT THIS MEANS FOR THE SEASON</small><ul class="g-list">${means.map(x=>`<li>${x}</li>`).join('')}</ul><p class="g-hint">The members hear about it. Business members want a full bank; the terraces want signings; families want something built. At the AGM you answer for every block.</p></section>`;
@@ -377,12 +452,12 @@
    return`<ul class="bd-left"><li><small>Players</small><b>£${pl}k</b><span>of £${a.players}k</span></li><li><small>Wages</small><b>+£${Math.round(a.wages/SEASON_WEEKS*1000).toLocaleString('en-GB')}</b><span>a week</span></li><li><small>Building</small><b>£${bl}k</b><span>of £${a.build}k</span></li><li><small>Kept back</small><b>£${a.bank}k</b><span>${S.bud.loan?`+ £${S.bud.loan}k loan`:'in July'}</span></li></ul>`}
  function preSeasonScreen(id,msg){
    const st=preStep(),P_=PRE();
-   if(st==='welcome')return`<div class="g-week">${msg}${welcomeCard(id)}</div>`;
+   if(st==='welcome')return`<div class="g-week">${clubScene(id)}${msg}${welcomeCard(id)}</div>`;
    if(st==='promise')return`<div class="g-week">${msg}${preSteps(st)}${promiseScreen(id)}</div>`;
    if(st==='budget')return`<div class="g-week">${msg}${preSteps(st)}${budgetScreen(id)}</div>`;
    if(st==='plan')return`<div class="g-week">${msg}${preSteps(st)}${meetingCard(id)}</div>`;
    if(st==='market')return`<div class="g-week">${msg}${preSteps(st)}${momentCard()}${preSeason(id)}</div>`;
-   return`<div class="g-week">${msg}${preSteps(st)}${P_&&P_.kind==='summer'?'<div class="tc-closed" role="status">WINDOW CLOSED</div>':''}${momentCard()}${preSeason(id)}${promises(id)}${nextMatch(id)}</div>`;
+   return`<div class="g-week">${clubScene(id)}${msg}${preSteps(st)}${P_&&P_.kind==='summer'?'<div class="tc-closed" role="status">WINDOW CLOSED</div>':''}${momentCard()}${preSeason(id)}${promises(id)}${nextMatch(id)}</div>`;
  }
  function briefCard(P_,id){const res=briefJudge(id,P_);return`<section class="g-card g-promise"><small class="g-k">THE ${P_.kind==='winter'?'WINTER':'SUMMER'} BRIEF · ${esc(BUDGET_LV[P_.brief.budget].n.toUpperCase())} BUDGET</small><ul>${res.map(r=>`<li class="${r.met?'on':''}"><div><b>${esc(r.t)}</b><span>${esc(r.how)}</span></div></li>`).join('')}</ul></section>`}
  /* the numbers you need before saying yes: a data strip and a way to the full profile */
@@ -552,7 +627,7 @@
  }
  function familyCard(){
    if(!S.family)return'';const F_=S.family,heir=F_.heir;
-   const face=m=>`<li class="${m.rel==='you'?'me':''}"><span class="g-face" aria-hidden="true">${esc(m.first[0])}</span><span><b>${esc(m.first)} ${esc(F_.surname)}</b>${m.id===heir?' <i class="g-tag in">HEIR</i>':''}<br><small class="muted">${esc({you:'You, the chairman',partner:'Partner',child:'Child',elder:'Former chairman'}[m.rel]||m.rel)} · ${m.age} · ${esc(m.traits.join(', '))}${m.job?' · runs '+esc(m.job):m.path==='academy'?' · in the academy':m.path==='business'?' · in business':m.path==='away'?' · away from the club':''}</small></span></li>`;
+   const face=m=>`<li class="${m.rel==='you'?'me':''}">${faceSVG(m.first+F_.surname,{size:40,kid:m.age!=null&&m.age<16})}<span><b>${esc(m.first)} ${esc(F_.surname)}</b>${m.id===heir?' <i class="g-tag in">HEIR</i>':''}<br><small class="muted">${esc({you:'You, the chairman',partner:'Partner',child:'Child',elder:'Former chairman'}[m.rel]||m.rel)} · ${m.age} · ${esc(m.traits.join(', '))}${m.job?' · runs '+esc(m.job):m.path==='academy'?' · in the academy':m.path==='business'?' · in business':m.path==='away'?' · away from the club':''}</small></span></li>`;
    const book=F_.book.map(b=>`<li><b>G${b.gen}</b><span>${esc(b.first)} ${esc(F_.surname)}</span><em>S${b.from}${b.to?'–'+b.to:'–now'}${b.why?' · '+esc(b.why):''}</em></li>`).join('');
    const log=F_.log.slice(-4).reverse().map(x=>`<li>S${x.s} W${x.w} · ${esc(x.text)}</li>`).join('');
    return`<section class="g-card"><small class="g-k">THE ${esc(F_.surname.toUpperCase())} FAMILY · GENERATION ${F_.gen}</small><ul class="g-fam">${F_.members.filter(m=>m.alive).map(face).join('')}</ul>
@@ -692,6 +767,7 @@
    <p class="pp-tags"><i class="g-tag">${esc(p.style||'')}</i>${own||K.lo!=null?`<i class="g-tag">${esc(p.trait||'')}</i>`:''}${p.academy&&p.originClub===id?'<i class="g-tag in">ACADEMY</i>':''}${p.inj>0?`<i class="g-tag out">INJURED ${p.inj} WK</i>`:''}</p>
    <section class="pp-sec"><small class="g-k">WHAT WE KNOW · ${esc(K.txt.toUpperCase())}</small><div class="pp-grid">${tile('Rating',K.now==null?'?':(K.lo!=null?'~':'')+K.now,K.lo!=null?`${K.lo}–${K.hi}`:own?'exact':'scout him')}${tile('Ceiling',K.pot==null?'?':'~'+K.pot,p.age<=23?'still growing':p.age>=31?'past his peak':'at his peak')}${tile('Form',spark(p.rLast),'last five')}</div></section>
    <section class="pp-sec"><small class="g-k">THE DATA · SEASON ${S.season}</small><div class="pp-grid">${tile('Games',p.sApps||0)}${tile('Goals',p.sGoals||0)}${tile('xG',r1(p.sXg||0))}${tile('Goals − xG',(gx>0?'+':'')+gx,gx>=1?'finishes well':gx<=-1?'wasteful':'as expected')}${tile('Avg rating',ar==null?'—':ar,ar==null?'':ar>=7?'excellent':ar>=6.5?'good':ar>=6?'steady':'poor')}${tile('Career',`${p.apps||0} / ${p.goals||0}`,'games / goals')}</div></section>
+   ${p.youth?`<section class="pp-sec"><small class="g-k">THE ACADEMY YEARS · FROM AGE ${p.youth.joinAge}</small><p class="g-hint">${esc(p.youth.from.school)} and ${esc(p.youth.from.club)}, ${esc(p.youth.from.where)}.</p><ol class="ac-time">${p.youth.hist.slice().reverse().filter(x=>x.apps||x.note).slice(0,8).map(x=>`<li><span class="ac-tb">${esc(x.team)}</span><div><b>Age ${x.age}</b>${x.apps?` · ${x.apps} games, ${x.goals} goals`:''}<p>${esc(x.note)}</p></div></li>`).join('')}</ol></section>`:''}
    <section class="pp-sec"><small class="g-k">THE MONEY</small><div class="pp-grid">${tile('Value',k1(playerValue(p)))}${tile('Wage',`£${n0(p.wage)}`,'a week')}${tile('Contract',`${p.contract} yr`,p.contract<=1?'ends this summer':'')}${fee?tile('Asking fee',k1(fee),ar?`£${Math.round(fee/Math.max(.5,ar-5))}k per rating point over 5`:''):''}</div></section>
    ${hist.length?`<section class="pp-sec"><small class="g-k">SEASON BY SEASON</small><table class="pp-tab"><thead><tr><th>Season</th><th>Club</th><th>G</th><th>Gls</th><th>xG</th><th>Rtg</th></tr></thead><tbody>${hist.map(h=>`<tr><td>S${h.season}</td><td>${esc((S.clubs[h.club]?.name||S.foreign?.clubs?.[h.club]?.name||'—').split(' ')[0])}</td><td>${h.apps}</td><td>${h.goals}</td><td>${h.xg??'—'}</td><td>${h.rating??'—'}</td></tr>`).join('')}</tbody></table></section>`:''}
    ${p.dev&&p.dev.length?`<section class="pp-sec"><small class="g-k">DEVELOPMENT</small>${devLines(p)}</section>`:''}
@@ -726,6 +802,9 @@
    if(a==='sqsort'){UI.sqSort=arg;render();return}
    if(a==='briefedit'){UI.briefEdit=true;render();return}
    if(a==='briefgoal'&&S&&S.my){const b=briefPick(S.my);const i=b.goals.indexOf(arg);if(i>=0)b.goals.splice(i,1);else if(b.max===1)b.goals=[arg];else if(b.goals.length<b.max)b.goals.push(arg);else UI.msg={err:true,text:'Three goals at most: untick one first.'};render();return}
+   if(a==='acadt'){UI.acadT=arg;UI.acadKid=null;render();return}
+   if(a==='acadkid'){UI.acadKid=arg||null;render();if(HAS_DOM){const o=document.querySelector('.overlay .inner');if(o)o.scrollTop=0}return}
+   if(a==='acadpick'&&S&&S.my){const r=cmd('AcademyPick',S.my,{kid:arg});if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}
    if(a==='budmove'&&S&&S.my){const [pot,d]=arg.split(':'),r=cmd('BudgetMove',S.my,{pot,d:+d});if(r.ok===false)UI.msg={err:true,text:r.err};render();return}
    if(a==='budloan'&&S&&S.my){const r=cmd('BudgetLoan',S.my,{});UI.msg=r.ok===false?{err:true,text:r.err}:{text:`The bank lends £${r.res.amount}k over five years. Three more blocks to divide.`};save();render();return}
    if(a==='budgetsign'&&S&&S.my){budOpen(S.my);const r=cmd('SignBudget',S.my,{});UI.brief=null;UI.msg=r.ok===false?{err:true,text:r.err}:{text:budSignLine(r.res.met)};save();render();if(HAS_DOM)window.scrollTo(0,0);return}

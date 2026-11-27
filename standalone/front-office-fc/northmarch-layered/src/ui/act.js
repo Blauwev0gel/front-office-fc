@@ -30,7 +30,7 @@ function act(a,arg){
     case'club':UI.over='club';UI.arg=arg;break;
     case'foreignclub':UI.over='foreignclub';UI.arg=arg;break;
     case'worldplayer':UI.over='worldplayer';UI.arg=arg;break;
-    case'dept':UI.over='dept';UI.arg=arg;UI.gsel=null;break;
+    case'dept':UI.over='dept';UI.arg=arg;UI.gsel=null;UI.acadKid=null;break;
     case'dstaff':{const [dept,lv]=arg.split(':');say(cmd('SetDeptStaff',S.my,{dept,level:+lv}));break}
     case'player':UI.over='player';UI.arg=arg;UI.confirm=null;break;
     case'gtab':UI.gt=arg;UI.gsel=null;break;

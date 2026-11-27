@@ -57,7 +57,7 @@ const statTile=(k,v,sub,cls)=>`<div class="st ${cls||''}"><small>${k}</small><b>
 function chooseView(){
   if(UI.seat&&S.seats.includes(UI.seat))return dossierView(UI.seat);
   const again=S.career.length>0,last=again?S.career[S.career.length-1]:null;
-  return`<main class="scene" style="padding-top:20px"><section class="rt"><div class="rt-bar"><b>${again?'CLUBS WANT YOU':'OPEN CHAIRS'}</b><span>${again?'SEASON '+S.season:'ELECTION SUMMER'}</span></div>
+  return`<main class="scene" style="padding-top:20px"><section class="rt"><div class="rt-bar"><b>${again?'CLUBS WANT YOU':'CLUBS LOOKING FOR A CHAIRMAN'}</b><span>${again?'SEASON '+S.season:'SUMMER'}</span></div>
   ${again?`<div class="rt-sub">${esc(last.why||'Your term ended')}.</div>`:''}
   ${S.seats.map(id=>{const c=CL(id),q=squadRank(id),sg=groundSignals(id);return`<button class="rt-file2" data-act="seat" data-arg="${id}"><span class="f-top"><b>${esc(c.name)}</b>${jobTag(id)}</span>
     <span class="f-chips"><i>${esc(['PREMIER','ONE','TWO','THREE','FOUR'][c.tier]||'')}</i><i>${k1(F(id).cash)}${debt(id)?' · debt '+k1(debt(id)):''}</i><i>squad ${q.r}/${q.n}</i><i>${n0(c.support)} fans</i></span></button>`}).join('')}
@@ -71,7 +71,7 @@ function dossierView(id){
   ${g&&ARCH[g.k]?`<div class="d-voice"><b>${g.share}%</b><span>${esc(groupName(id,g))}: “${esc(ARCH[g.k].wants)}”</span></div>`:''}
   <div class="rt-h">THREE NAMES</div><div class="d-names">${ks.map(k=>`<span><i>${esc(k.p.pos)}</i><b>${esc(k.p.name)}</b><small>${k.p.age} · ${esc(k.role.replace('the ',''))}</small></span>`).join('')}</div>
   <div class="d-lore"><span><b>LEGEND</b> ${esc(c.legend)}</span><span><b>SCAR</b> ${esc(c.scar)}</span>${r?`<span><b>RIVAL</b> ${esc(r.name)}</span>`:''}</div>
-  <div class="rt-btns"><button class="rt-btn on" data-act="choose" data-arg="${id}">Stand for election</button><button class="rt-btn" data-act="seatback">Other chairs</button></div></section></main>`;
+  <div class="rt-btns"><button class="rt-btn on" data-act="choose" data-arg="${id}">Take the chair</button><button class="rt-btn" data-act="seatback">Other chairs</button></div></section></main>`;
 }
 
 /* ----- the week ----- */

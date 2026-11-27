@@ -429,9 +429,9 @@
  const an=w=>/^[aeiou]/i.test(w)?'an '+w:'a '+w;
  const firstDay=()=>!S.welcomed&&S.career.length===1&&S.season===S.career[0]?.from;
  /* the first day: election night and the next morning in one page, then the manifest under it */
- function firstDayCard(id){const c=C(),d=tdOf(id),co=coachOf(id),vote=clamp(Math.round(24+.75*M(id).conf+6),51,90),m=summerMeeting(id),kit=clubKit(id).a;
-   return`<section class="rt">${rtBar('ELECTION NIGHT',esc(c.ground))}
-   <div class="fd-vote"><b>${vote}%</b><div><i class="bar big"><i style="width:${vote}%"></i><em style="left:50%"></em></i><span>voted for you · under 50% at an AGM and you are out</span></div></div>
+ function firstDayCard(id){const c=C(),d=tdOf(id),co=coachOf(id),vote=Math.round(M(id).conf),m=summerMeeting(id),kit=clubKit(id).a;
+   return`<section class="rt">${rtBar('YOUR FIRST DAY',esc(c.ground))}
+   <div class="fd-vote"><b>${vote}%</b><div><i class="bar big"><i style="width:${vote}%"></i><em style="left:50%"></em></i><span>of the members trust you today · the first AGM judges you; under 50% and you are out</span></div></div>
    <div class="d-job">${jobTag(id)}<span>${esc(jobLine(id))}</span></div>
    <div class="fd-people">${d?`<div>${faceSVG(d.name,{size:44,kit})}<span><small>DIRECTOR</small><b>${esc(d.name)}</b><em>“Weak in ${esc(m.weak)}. I sign, you set the frame.”</em></span></div>`:''}${co?`<div>${faceSVG(co.name,{size:44,kit})}<span><small>COACH</small><b>${esc(co.name)}</b><em>“I pick the side.”</em></span></div>`:''}</div></section>`}
  /* the TD meeting: holes in the squad, the money, the director's plan that follows your manifest; agree it or change it */

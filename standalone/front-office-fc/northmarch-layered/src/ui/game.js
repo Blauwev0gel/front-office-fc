@@ -31,7 +31,7 @@
    else if(UI.tab==='week'&&stage==='preview'&&P_&&!P_.brief)play=`<button class="btn g-play" data-act="briefsign">✍ Agree the plan · open the market</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.brief&&tcPlaying())play=`<button class="btn g-play" data-act="tcskip">Skip to the end of the week ›</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.brief&&P_.wk<=PRE_WEEKS&&UI.tcRun)play=`<button class="btn g-play tc-pause" data-act="tcpause">⏸ Pause the clock</button>`;
-   else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.wk<=PRE_WEEKS&&(P_.offer||P_.record))play=`<button class="btn g-play" data-act="prenext">Let it lapse · carry on ›</button>`;
+   else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.wk<=PRE_WEEKS&&(P_.offer||P_.record||P_.ask))play=`<button class="btn g-play" data-act="prenext">Let it lapse · carry on ›</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.wk<=PRE_WEEKS)play=`<button class="btn g-play" data-act="prenext">${!P_.day?'▶ Open the window':preDeadlineNow(P_)?'▶ Play deadline day':'▶ Continue'}</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&over){const st=UI.agmStep||0;play=`<button class="btn g-play" data-act="${st>=3?'close':'agmnext'}">${['Go to the floor ›','To your speech ›','To the vote ›','Call the vote'][st]}</button>`}
    else if(UI.tab==='week'&&stage==='preview')play=`<button class="btn g-play" data-act="${over?'close':'play'}">${over?'Finish the season ›':pre?'▶ Start the season':(()=>{const fx=fixtureOf(S.my,S.week+1);return fx?`▶ Saturday: ${fx.home?'vs':'at'} ${CL(fx.opp).name}`:'▶ Play week '+(S.week+1)})()}</button>`;
@@ -501,7 +501,8 @@
    /* the news: newest first, grouped by date */
    const items=P_.ticker.filter(t=>t.d>=0&&t.day!=null).slice().reverse(),groups=[];for(const t of items){const g=groups[groups.length-1],k=t.d>=10?'Deadline · '+DAYS[t.d]:preDayLabel(P_,t.day);if(g&&g.k===k)g.t.push(t);else groups.push({k,t:[t],fresh:t.day===day-1||t.day===day})}
    const news=groups.slice(0,UI.tcAll?99:2).map(g=>`<li class="${g.fresh?'fresh':''}"><b>${esc(g.k)}</b>${g.t.map(t=>`<span class="tk-${esc(t.kind||'news')}">${esc(t.t)}</span>`).join('')}</li>`).join('');
-   return`<div class="tc2">${esc2}${interestCard(P_)}
+   const ask=P_.ask?(()=>{const a=P_.ask,money=a.type==='money';return`<section class="rt cs-short">${rtBar(money?'THE DIRECTOR ASKS · MONEY':'A RIVAL BIDS',esc(preDayLabel(P_,day)))}<div class="ag-head">${faceSVG(dir,{size:40,kit:clubKit(id).a})}<span><small>DIRECTOR OF FOOTBALL</small><b>${money?`£${a.short}k more for ${esc(a.name)}`:`${esc(nm(a.rival))} want ${esc(a.name)} too`}</b></span></div><div class="ag-body"><p>“${money?`${esc(a.name)} (${esc(POS_ONE[a.pos])}, ${a.age}, ~${a.est}) would start for us. He costs about £${a.fee}k; we have £${Math.max(0,Math.round(budgetFor(id)))}k.`:`Our bid is £${a.fee}k. If we don't go higher, he goes to them.`}” <small>— ${esc(dir)}</small></p>${quickData(a.pid)}<button class="ag-opt" data-act="preask" data-arg="yes"><b>${money?`Release £${a.short}k`:`Go 15% higher (£${Math.round(a.fee*1.15)}k)`}</b><span>${money?'Less money left for the season':'More of the budget on one player'}</span></button><button class="ag-opt" data-act="preask" data-arg="no"><b>${money?'Stay within the budget':'Let him go'}</b><span>${money?'The director looks for someone cheaper':'He joins the rival'}</span></button></div></section>`})():'';
+   return`<div class="tc2">${ask}${esc2}${interestCard(P_)}
    <section class="rt tc3">${rtBar('TRANSFER CENTRE',esc(when))}${cal}${money}
    <div class="rt-quote">“${esc(say)}” <small>— ${esc(dir)}, director</small></div>
    <div class="rt-h">THE PLAN</div>${posList.map(needRow).join('')||'<p class="rt-note">No needs.</p>'}
@@ -854,10 +855,11 @@
    /* deciding the bid or the record is the chairman's: lapse it only when Continue is pressed */
    const r=preDay();if(r.ok===false){tcStop();UI.msg={err:true,text:r.err};return'error'}
    if(r.closed){tcStop();return'closed'}
-   if(P_.offer||P_.record){tcStop();return'decision'}
+   if(P_.offer||P_.record||P_.ask){tcStop();return'decision'}
    if(preDeadlineNow(P_)&&P_.round==null&&!P_.dlStop){P_.dlStop=true;tcStop();UI.msg={text:'Deadline day. The window shuts at 23:00: anything you want to change, change it now.'};return'deadline'}
    return'go'}
  function tcGo(){const P_=PRE();if(!P_)return;UI.tcPanel=null;
+   if(P_.ask)preAsk(false);
    if(P_.offer||P_.record){/* Continue lets a waiting decision lapse */if(P_.offer){preTick(`You let the bid for ${P_.offer.name} lapse.`,'us');P_.offer=null}if(P_.record){const d=P_.deals.find(x=>x.pid===P_.record.pid);if(d)d.stage='walked';preTick(`The record deal for ${P_.record.name} falls through.`,'bad');P_.record=null}}
    const reduce=HAS_DOM&&window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
    if(!HAS_DOM||reduce){let x='go',n=0;while(x==='go'&&n++<40)x=tcStep();save();render();return}
@@ -950,6 +952,7 @@
    if(a==='tcskip'){if(UI.tcPlay)UI.tcPlay.shown=UI.tcPlay.total;render();return}
    if(a==='preoffer'&&S&&S.my){const r=preOffer(arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
    if(a==='prerecord'&&S&&S.my){const r=preRecord(arg==='yes');UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
+   if(a==='preask'&&S&&S.my){const r=preAsk(arg==='yes');UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
    if(a==='tcpanel'){UI.tcPanel=UI.tcPanel===arg?null:arg;render();return}
    if(a==='prerecruit'&&S&&S.my){const r=cmd('SetSquadPolicy',S.my,{recruit:arg});UI.msg=r.ok===false?{err:true,text:r.err}:{text:`Profile: ${RECRUIT[arg].n}. The director looks for that from now on.`};save();render();return}
    if(a==='preprio'&&S&&S.my){prePrio(arg);save();render();return}

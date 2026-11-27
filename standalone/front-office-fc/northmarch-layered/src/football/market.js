@@ -111,7 +111,7 @@ function sellerAgrees(p,from,fee,to=null){
   if(from===S.my&&!S.auto)return fee>=playerValue(p)*1.5&&!isCore(from,p); // the player's director only sells surplus at a premium
   return fee>=askingFee(p,from)*.85;
 }
-function budgetFor(id){if(typeof budPlayersLeft==='function'){const b=budPlayersLeft(id);if(b!=null)return b}const f=F(id),wk=weekLines(id,false,{}),reserve=Math.max(wageBillK(id)*4,-sumLines(wk,-1)*4);return Math.max(0,Math.round((f.cash-reserve)*f.policy.spend))}
+function budgetFor(id){const xtra=id===S.my&&S.pre&&S.pre.s===S.season&&S.pre.extra?S.pre.extra:0;if(typeof budPlayersLeft==='function'){const b=budPlayersLeft(id);if(b!=null)return b+xtra}const f=F(id),wk=weekLines(id,false,{}),reserve=Math.max(wageBillK(id)*4,-sumLines(wk,-1)*4);return Math.max(0,Math.round((f.cash-reserve)*f.policy.spend))+xtra}
 
 /* buy the best affordable player for a position. Returns true if someone signed */
 function shopFor(id,pos,minQ,o={}){

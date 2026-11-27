@@ -122,15 +122,16 @@ function preCandidates(id,n){
   const P_=preState(),base=weakestAt(id,n.pos).q,minQ=preMinQ(id,n),budget=budgetFor(id),fav=P_.fav&&P_.fav[n.pos];
   const seen=new Set(),pool=[...shortlistCandidates(id,n.pos),...scoutPool(id,n.pos,undefined,true),...loanPool(id,n.pos)].filter(c=>c&&c.p&&!seen.has(c.p.id)&&seen.add(c.p.id));
   const room=wageCapK(id)*1.02-wageBillK(id);
-  const out=[];for(const c of pool){const p=c.p;if(P_.tried&&P_.tried.includes(p.id))continue;const fee=c.loan?0:c.from?askingFee(p,c.from):0;if(fee>Math.max(3,budget*1.3))continue;
+  let out=[];for(const c of pool){const p=c.p;if(P_.tried&&P_.tried.includes(p.id))continue;const fee=c.loan?0:c.from?askingFee(p,c.from):0;if(fee>Math.max(3,budget*1.6))continue;
     if(wageFor(p.q)*clubWageF(id)*(c.loan?.5:1)/1000>Math.max(room,wageFor(9)/1000))continue; /* the director only goes for players whose wages fit the wage limit */
     if(c.from&&!c.loan&&!foreignSeller(c.from)&&!sellerAgrees(p,c.from,fee,id))continue;if(c.from&&foreignSeller(c.from)&&!playerAcceptsMove(p,c.from,id))continue;
     const sl=shortlistEntry(p.id),est=r1(sl&&sl.obs?sl.est:p.q+(rnd()+rnd()-1)*1.2*scoutNoise(id)),doubt=sl&&sl.obs?scoutRange(id,sl.obs):r1(1.2*scoutNoise(id));if(est<minQ-(p.age<=23&&p.pa>=base?1.5:0))continue;
     const starter=est>=base+.2,ceil=r1(Math.max(est,p.pa+(rnd()+rnd()-1)*1.5*scoutNoise(id)));
-    out.push({pid:p.id,name:p.name,age:p.age,pos:n.pos,from:c.from,fee,wage:Math.round(wageFor(p.q)*clubWageF(id)),est,doubt,ceil,starter,base,chair:!!(sl&&sl.chair),premium:c.premium,loan:!!c.loan})}
+    out.push({pid:p.id,name:p.name,age:p.age,pos:n.pos,from:c.from,fee,wage:Math.round(wageFor(p.q)*clubWageF(id)),est,doubt,ceil,starter,base,chair:!!(sl&&sl.chair),premium:c.premium,loan:!!c.loan,over:fee>Math.max(3,budget)})}
   /* three profiles, so the choice means something: ready now, for the future, a bargain */
+  const all=out;out=out.filter(x=>!x.loan); /* the three profiles come from transfers and free agents; one loan is added as an alternative */
   const now=out.slice().sort((a,b)=>b.est-a.est)[0],fut=out.filter(x=>x.age<=23&&x!==now).sort((a,b)=>b.ceil-a.ceil)[0],bar=out.filter(x=>x!==now&&x!==fut).sort((a,b)=>(b.est-base+3)/(b.fee+5)-(a.est-base+3)/(a.fee+5))[0];
-  const ln=out.filter(x=>x.loan&&x!==now&&x!==fut&&x!==bar).sort((a,b)=>b.est-a.est)[0];
+  const ln=all.filter(x=>x.loan).sort((a,b)=>b.est-a.est)[0];
   const picks=[now&&{...now,type:now.loan?'Loan':'Ready now'},fut&&{...fut,type:fut.loan?'Loan':'For the future'},bar&&{...bar,type:bar.loan?'Loan':'Bargain'},ln&&{...ln,type:'Loan'}].filter(Boolean);
   const first=fav&&picks.find(x=>x.pid===fav)||(briefWants('young')&&picks.find(x=>x.type==='For the future'))||((briefWants('cap')||briefWants('sales'))&&picks.find(x=>x.type==='Bargain'))||picks.find(x=>x.chair)||picks[0];
   return first?[first,...picks.filter(x=>x!==first)]:picks;
@@ -181,7 +182,8 @@ function preDay(){
   /* live bids get their answer when it is due */
   for(const d of P_.deals.filter(x=>['bid','countered'].includes(x.stage))){
     if((d.due??day)>day&&!deadline)continue;
-    if(rnd()<(deadline?.08:.1)&&preHijack(d)){P_.tried.push(d.pid);continue}
+    if(!d.loan&&d.fee>0&&!d.rivalAsked&&!P_.ask&&rnd()<(deadline?.35:.25)){const f0=findPlayer(d.pid),riv=f0?allIds().filter(c=>c!==S.my&&c!==f0.club&&F(c).cash>d.fee*1.5&&Math.abs(CL(c).tier-CL(S.my).tier)<=1):[];
+      if(riv.length){const rv=pick(riv);d.rivalAsked=true;P_.ask={type:'rival',pid:d.pid,name:d.name,pos:d.pos,fee:d.fee,rival:rv,day};tick(`✗ ${CL(rv).name} have bid for ${d.name} too.`,'warn');continue}}
     const f=findPlayer(d.pid);if(!f){d.stage='gone';P_.tried.push(d.pid);continue}
     if(d.loan){if(rnd()<.75){preFinish(id,d)}else{d.stage='walked';P_.tried.push(d.pid);tick(`${marketClubName(d.from)} keep ${d.name}: no loan.`,'off')}continue}
     const ask=d.from?askingFee(f.p,d.from):0,accept=d.fee>=ask*.95||rnd()<(d.stage==='countered'?.5:.25);
@@ -195,7 +197,14 @@ function preDay(){
   for(const n of preTargets(id).sort((a,b)=>briefWants('sign:'+b.pos)-briefWants('sign:'+a.pos))){
     if(P_.deals.some(d=>d.pos===n.pos&&['bid','countered','record','signed'].includes(d.stage)))continue;
     const cands=preCandidates(id,n);P_.targets[n.pos]=cands;
-    const c=cands[0];
+    let c=cands[0];
+    const loans=P_.deals.filter(d=>d.loan&&['bid','signed'].includes(d.stage)).length;
+    const ovr=cands.find(x=>x.over&&x.starter&&!x.loan),okStarter=cands.find(x=>!x.over&&x.starter&&!x.loan);P_.askedPos=P_.askedPos||{};
+    /* the director's order: a starter we can afford, then the chairman's money for one just above it, then a loan (two a summer at most) */
+    const pickC=okStarter||(!ovr||P_.askedPos[n.pos]?(loans<2&&cands.find(x=>x.loan&&x.starter)):null)||cands.find(x=>!x.over&&!x.loan)||null;
+    if(ovr&&!okStarter&&!P_.ask&&!P_.askedPos[n.pos]){const c=ovr;P_.askedPos[n.pos]=1;P_.ask={type:'money',pid:c.pid,name:c.name,pos:n.pos,age:c.age,est:c.est,fee:c.fee,short:Math.max(1,Math.round(c.fee-budgetFor(id))),from:c.from,day};tick(`${P_.brief.dirName} wants ${c.name} (${POS_ONE[n.pos]}, ~${c.est}) for about £${c.fee}k: £${P_.ask.short}k more than the budget.`,'warn');continue}
+    if(!(ovr&&!okStarter&&!P_.askedPos[n.pos])){c=pickC}
+    if(c&&c.over){P_.tried.push(c.pid);continue}
     if(!c){if(!P_.noted||!P_.noted[n.pos]){(P_.noted=P_.noted||{})[n.pos]=1;tick(budget<3?`No money for ${/^[aeiou]/i.test(POS_ONE[n.pos])?'an':'a'} ${POS_ONE[n.pos]}: the director looks at free agents only.`:`The director finds no ${POS_ONE[n.pos]} worth the money yet.`,'off')}continue}
     const prospect=c.age<=21&&c.ceil>=c.base+.3&&!P_.deals.some(d=>d.stage==='signed'&&d.prospect); /* one for the future: a young player who will start in a year or two */
     if(prospect&&!c.starter)c.prospect=true;
@@ -292,3 +301,12 @@ function winterWeek(){
   if(P_.wk<=winWeeks(P_))preWeek();
 }
 onWeek(winterWeek);
+
+/* the chairman answers the director (MB-41): money for a target, or a fight with a rival club */
+function preAsk(yes){const id=S.my,P_=PRE(),a=P_&&P_.ask;if(!a)return{ok:false,err:'Nothing to answer'};P_.ask=null;
+  if(a.type==='money'){if(yes){P_.extra=(P_.extra||0)+a.short;preTick(`You release £${a.short}k: the director goes for ${a.name}.`,'us');return{ok:true,text:`£${a.short}k released. The director bids for ${a.name} tomorrow.`}}
+    P_.tried.push(a.pid);preTick(`You keep to the budget. The director looks elsewhere for a ${POS_ONE[a.pos]}.`,'off');return{ok:true,text:'The director looks for someone cheaper.'}}
+  const d=P_.deals.find(x=>x.pid===a.pid&&['bid','countered'].includes(x.stage));if(!d)return{ok:true,text:'The deal has gone.'};
+  if(yes){d.fee=Math.round(d.fee*1.15);d.due=(P_.day||0)+1;preTick(`You go 15% higher for ${a.name}: £${d.fee}k.`,'us');return{ok:true,text:`£${d.fee}k on the table. The answer comes tomorrow.`}}
+  const f=findPlayer(a.pid),fee=Math.max(1,Math.round(d.fee*1.1));if(f&&f.club){if(foreignSeller(f.club))foreignMove(f.p,f.club,a.rival,fee,'rival bid');else transfer(f.p,f.club,a.rival,fee,'buy')}
+  d.stage='hijacked';d.rival=a.rival;P_.tried.push(a.pid);preTick(`✗ You let ${a.name} go: he joins ${CL(a.rival).name} for £${fee}k.`,'bad');return{ok:true,text:`${a.name} goes to ${CL(a.rival).name}.`}}

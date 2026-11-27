@@ -1,5 +1,5 @@
 # NORTHMARCH — MASTER GAME DESIGN BIBLE
-**Versie 1.3 — 25 november 2026** · herziening van V1.2 (`b69ea16`); open vragen V1–V6 beslist door de game director (MB-11–MB-16)
+**Versie 1.4 — 28 november 2026** · nieuw §4a: het beroep van voorzitter (MB-44) · V1.3 van 25 november: open vragen V1–V6 beslist (MB-11–MB-16)
 
 ## 0. Hoe je dit document leest
 Dit is het enige actieve ontwerpdocument van Northmarch. Het beschrijft het **beoogde spel**, niet per se de huidige build; de broncode en tests zijn de waarheid over wat er nu werkt.
@@ -54,6 +54,64 @@ Elke feature versterkt minstens één ervaringsdoel en breekt er geen.
 - Je **ontdekt** spelers maar tekent ze niet. Een aanbeveling geeft extra gewicht op de shortlist van de TD; de TD mag haar naast zich neerleggen (D-S1 ✅).
 - De TD doet elke transfer zelf, met **twee uitzonderingen** die bij jou komen: een bod op een van de drie beste spelers van de club en een aankoop boven het clubrecord (D-L3-2b ✅).
 - Je bent **proactief én situationeel** (MB-03 ✅): je start zelf initiatieven (reizen, onderzoek, partnerclubs, relaties) en de wereld brengt kansen en problemen. Je bent nooit alleen van een inbox afhankelijk. Initiatieven kunnen mislukken of pas later renderen.
+
+## 4a. Het beroep: wat een voorzitter echt doet (MB-44)
+Dit is de maatstaf voor elke feature. Waar §4 de bevoegdheden afbakent, beschrijft deze sectie het **werk**: waar de tijd van een voorzitter, eigenaar of clubdirecteur heen gaat, welke besluiten echt van hem zijn en hoe hij wordt afgerekend. Een scherm dat niet in dit beeld past, is geen voorzitterswerk, hoe spannend het ook is.
+
+### De kern
+Een voorzitter **legt zich vast onder onzekerheid, werkt via mensen en wordt maanden later afgerekend** op dingen die hij niet zelf deed. Hij kiest een koers, maakt een begroting op verwachtingen, stelt mensen aan en geeft ze een mandaat. Daarna laat het seizoen zien of zijn verwachtingen klopten. Hij stuurt bij (verkopen, lenen, bezuinigen, iemand vervangen) en legt verantwoording af aan de leden.
+
+De kernspanning is **sportieve ambitie tegenover financieel overleven**. Daartussen staan de mensen die hij zelf koos. De vraag die hem 's nachts wakker houdt is zelden de opstelling. Het is: *halen we eind van de maand de salarissen, en wat moet ik doen als het niet zo is?*
+
+Een crisis (slechte resultaten, geldnood, onrust bij de fans) is bijna altijd een **symptoom van eerdere keuzes**: een te optimistische begroting, een verkeerde aanstelling, een belofte aan de leden. In het spel komt een crisis daarom voort uit de clubstaat en is de oorzaak terug te lezen (E1, E2).
+
+### De vijf werkvelden
+| Werkveld | Wat hij doet | Wat hij níet doet | §14-domein |
+|---|---|---|---|
+| **Mensen** | De TD en de trainer aanstellen, een mandaat en budget geven, beoordelen, vasthouden of vervangen. Zijn grootste hefboom. | Hun werk overnemen: makelaars bellen, spelers selecteren, opstellen, onderhandelen. | Sportief |
+| **Geld** | De begroting (inclusief **begrote transferinkomsten**), de kasstroom per maand, het loonplafond, de bank, leningen, de licentie bij de bond. | Per uitgave tekenen; routine handelt de staf af (D-G1). | Geld, Selectie en markt |
+| **Inkomsten en relaties** | De businessclub en de sponsors (bij kleinere clubs vaak het verschil tussen rond komen en niet), de seizoenkaartcampagne, gastvrijheid op de wedstrijddag. | Prijzen per wedstrijd zetten of elke sponsorafspraak zelf uitwerken. | Inkomsten |
+| **Leden en omgeving** | De leden en hun groepen, de supportersvereniging, de gemeente (vaak eigenaar of verhuurder van het stadion), de pers bij een crisis, de andere voorzitters, de bond. | Elke week met de pers praten of elke klacht persoonlijk afhandelen. | Mensen buiten de club |
+| **De toekomst** | Stadion, trainingscomplex en academie: besluiten van jaren, met financiering, vergunning en vaak instemming van de ALV. | Een project dat in een paar weken af is of zonder de leden doorgaat. | Infrastructuur |
+
+### Het jaar van een voorzitter
+De tijd van een voorzitter volgt de jaarcyclus van de club, niet de wedstrijdkalender. De grote besluiten vallen op vaste momenten; de weken daartussen gaan over bewaken, bijsturen en mensen spreken. Een feature hoort op een van deze momenten thuis.
+
+| Maand | Wat er speelt | Zijn besluit | Met wie | Waar het terugkomt |
+|---|---|---|---|---|
+| **Juni** | Nieuwe stoel of nieuw seizoen | De koers (MB-43) en de beloftes aan de leden; de begroting, inclusief hoeveel er uit verkopen moet komen | Penningmeester, TD, trainer | Elke maand in de kas; in mei op de ALV |
+| **Juli** | Het window, de voorbereiding | Het plan van de TD financieren of bijstellen; de twee uitzonderingen (D-L3-2b); een begroot verkoopgat dichten | TD, penningmeester | De selectie, de loonquote, de deadline |
+| **Augustus** | Start competitie | Weinig: kijken of de verwachtingen kloppen (eerste recettes, seizoenkaarten, eerste resultaten) | Penningmeester, commercieel | De prognose in *The books* |
+| **Sep–nov** | Het ritme van de weken | Bewaken: de trainer beoordelen, één persoon per week ontvangen (MB-36), de businessclub, de gemeente | Wisselend | Moraal, groepsstemming, kas |
+| **December** | Halfjaarcijfers | De begroting bijstellen; een plan voor de winter; de trainer evalueren tegen het doel | Penningmeester, TD | Het winterwindow |
+| **Januari** | Winterwindow | Verkopen om een gat te dichten of investeren voor de run-in | TD, bank | De run-in, de kas in mei |
+| **Feb–mrt** | Het volgende seizoen begint op papier | Seizoenkaartprijzen en -campagne; sponsorverlengingen; contracten van de staf; het licentiedossier | Commercieel, penningmeester, TD | De inkomsten van volgend seizoen |
+| **April** | De run-in | Scenario's voor promotie of degradatie; de begroting voor volgend jaar in concept | Penningmeester, trainer | Het oordeel en de nieuwe begroting |
+| **Mei** | Einde seizoen | De jaarrekening en het jaarverslag; verantwoording op de **ALV** | Leden | Herkozen of weggestemd (D6, D-G5) |
+
+### Hoe een voorzittersbesluit eruitziet
+Elk echt besluit heeft vier delen. Een feature die er een mist, is geen voorzitterswerk:
+1. **Vastleggen:** wat legt hij vast (geld, een belofte, een persoon, een mandaat), en wat kost het nu?
+2. **Uitvoeren door anderen:** wie voert het uit, met welke ruimte?
+3. **Vertraging en onthulling:** wanneer blijkt of het goed was, en wat bepaalt dat buiten zijn invloed?
+4. **Oordeel:** wie rekent hem erop af (leden, groepen, staf, bank, gemeente), en waar is dat terug te lezen?
+
+### Toetsvragen voor elke feature
+- Zou een echte voorzitter hier **zijn tijd** aan besteden, of is dit werk van de TD, de trainer of een medewerker?
+- **Waar in de jaarcyclus** hoort dit? Een besluit dat in de echte wereld één keer per seizoen valt, valt in het spel niet elke week.
+- Werkt het **via mensen**: kiest hij iemand, geeft hij een mandaat, beoordeelt hij?
+- Wat kost het aan **geld, steun of vertrouwen**, en wanneer?
+- Komt het **voort uit de clubstaat**, of is het een gescripte gebeurtenis?
+- Is het gevolg **vertraagd en terug te lezen**?
+
+### Anti-patronen (afgewezen door de eigenaar, 28-11)
+Uit de drie losse prototypes van 28-11 (§16), zodat niemand ze herhaalt:
+- De voorzitter als TD op deadline day: makelaars bellen, de speler opzoeken, tegenbiedingen doen. De voorzittersvraag is anders: *hebben we deze verkoop nodig voor de begroting, is het plan B van mijn TD geloofwaardig, en wat kost een verkoop aan de rivaal bij de leden en de businessclub?*
+- De ticketprijs voor één wedstrijd of een kwinkslag op een persconferentie als besluit van de voorzitter.
+- Een stadion in een half jaar, met concessies uit een menu en zonder de leden.
+- Besluiten die uitkomen op ‘+2 sterkte’: draaiknoppen in plaats van mensen (MB-28).
+- Gebeurtenissen op een vast tijdstip, los van de wereld (§3).
+- Een eigen wereld of mini-engine naast de echte (MB-19, §14 Integratie).
 
 ## 5. Waar het plezier vandaan komt
 | Bron | Wat de speler voelt | Waar het in het spel zit |
@@ -263,8 +321,11 @@ Historische ID's (D/T/P) komen uit `DECISIONS.md` op commit `3157b3a`; MB/DEV zi
 | MB-43 | 28-11 | ✅ | **Het concept van de eerste 15 minuten** (goedgekeurd door de eigenaar). Context komt van mensen, en elke stap volgt uit de vorige. (1) **De baan:** elke club is één herkenbaar verhaal (titelkandidaat, promotiekandidaat, degradatiekandidaat, club in het rood, middenmootproject) met een moeilijkheid. (2) **Dag 1, de bestuurskamer:** penningmeester, TD en trainer zeggen elk één zin over hoe het ervoor staat; je beslist nog niets. (3) **De koers:** één keuze (*Survive and get healthy / Build / Go for it*) die de drie beloftes, de financiering en het doel van de trainer bepaalt. Daaronder staat wat je de leden belooft en wat dat betekent. (4) **Het zomerplan:** de TD volgt je koers. Is er te weinig geld voor de basisspeler, dan financier jij het plan: een speler verkopen of lenen. (5) **Het window als telefoontjes:** de TD belt op dag 3, 10 en 17 en op deadline day, met context en een prijs. Het kan gaan om meer bieden, een bod op je ster (hooguit één per zomer), een verkoopvoorstel of een vrije speler; daarnaast geldverzoeken en rivalen. De rest regelt de TD en dat staat onder *Done so far*. Er is geen kalenderraster meer; nieuws en sturing zijn ingeklapt. Gemiddeld 2,5 telefoontjes per window (1–4) en 3,1 spelers binnen. (6) **Voorbeschouwing.** (7) **Week 1.** Het eerste besluit van MB-40 (een bod op dag 1) is vervallen. |
 | MB-17 | 25-11 | 🔷 | Het manifest wordt op de eerste dag van elke zomer getekend, vóór het TD-plan. Daarna liggen de doelen vast tot de ALV: een goede zomer maakt een belofte makkelijker, de lat schuift niet mee. | Ingevuld door Claude op verzoek van de eigenaar (herziening eerste zomer). |
 | MB-18 | 25-11 | 🔷 | Zolang de voorzitter het window speelt, handelen andere clubs niet buiten de TD om met de club van de speler. Na de deadline geldt alleen de veiligheidsregel voor elke club, zichtbaar gemeld. | Lost NM-001 op; voert §7.2 uit. |
+| MB-44 | 28-11 | ✅/🔷 | **Het beroep van voorzitter staat in §4a** en is de maatstaf voor elke feature: hij legt zich vast onder onzekerheid, werkt via mensen en wordt maanden later afgerekend; vijf werkvelden (mensen, geld, inkomsten en relaties, leden en omgeving, de toekomst); het jaar van een voorzitter per maand; elk besluit heeft vastleggen, uitvoeren door anderen, vertraging en oordeel; toetsvragen en anti-patronen. | ✅ dat het wordt vastgelegd (verzoek van de eigenaar); 🔷 de tekst, door Claude, tot de eigenaar die heeft getoetst. Zie V8. |
 
 ## 11. Open vragen voor de game director ❓
+
+**V8 (28-11) ❓ — Welk voorzittersbeeld: Nederlandse ledenclub of Engelse chairman?** In een Nederlandse ledenclub doet een directeur het dagelijkse werk en is de voorzitter bestuurder; een Engelse chairman runt de club en brengt vaak zelf geld in. De bijbel zegt ‘benoemde voorzitter van een ledenclub’ (§1, D-G3), maar kent geen directeur. Advies: houd de ledenclub (de ALV als oordeel, de club is geen bezit), en laat de voorzitter ook het werk van de directeur doen (een uitvoerend voorzitter), zoals §4a beschrijft. Eigen geld inbrengen past dan niet; een geldschieter of investeerder kan wel als zakelijke relatie, met een prijs bij de leden. Gevolg voor MB-36: de kaartprijzen als wekelijkse kwestie van de penningmeester passen niet in de jaarcyclus van §4a en zouden een seizoensbesluit in februari–maart worden.
 
 **V7 (27-11) ❓ — De getekende stadionscène op de clubhub (MB-30) tegenover §8 'tekstgerichte retro voetbalpresentatie'.** Advies: de hub ook als tekstpagina in dezelfde stijl als het Transfer Centre (MB-31), met de clubkleuren alleen in de balk, en de scène schrappen. De academie (MB-29) blijft, maar wordt in dezelfde tekststijl gezet.
 
@@ -345,6 +406,7 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 | Binding | Groeit de band met club, spelers, mensen of wereld? |
 | Herspeelbaarheid | Leiden andere clubs en strategieën tot andere carrières? |
 | Rolzuiverheid | Is dit werk van een voorzitter, niet van de TD of trainer? |
+| Voorzitterswerk (§4a) | Zou een echte voorzitter hier zijn tijd aan besteden, op dit moment in de jaarcyclus, via mensen, met een vertraagd en terug te lezen gevolg? |
 | Integratie | Versterkt het bestaande systemen zonder losse minigame of tweede engine? |
 
 **Afwijzingsgronden:** schijnkeuzes, verplichte routinegoedkeuringen, actiepunten als kunstmatige schaarste, informatie zonder doel, automatisch doorspelen zonder invloed, klikbeloningen zonder afweging, lineaire upgrades, en systemen die de onderliggende laag afhankelijk maken.
@@ -409,7 +471,7 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 
 **Week van de voorzitter (27-11, MB-36):** `src/club/agenda.js` en `agenda-test.js`. De volledige snelle suite inclusief de browser-playtest is groen. Nog niet door een mens gespeeld.
 
-**Drie prototype-slices (28-11, Designed, niet in de engine):** `design/slices/` met drie losse, seeded, speelbare lussen die elk een ✗-cel uit de toets proberen: *Deadline night* (Selectie en markt × gebeurtenis: de ster die weg wil, met makelaar, bluf en pers; tijd als enige schaarste), *The new stand* (Infrastructuur × gebeurtenis: vergunning bij de gemeente, overschrijding, naamsponsor en aandelenuitgifte), *As it stands* (de stand als race, de laatste speeldag live, tv- en prijzengeld zichtbaar; trainer, bonuspot, pers, ticketprijs). Prototype voor gevoel, geen handgeschreven nep-spel voor release (MB-19): wat de eigenaar goed vindt, gaat daarna in de echte engine. Bot-doorloop groen (3 seeds per slice, 390 px); nog niet door een mens gespeeld.
+**Drie prototype-slices (28-11, afgewezen door de eigenaar: ‘absurd slecht’, de voorzitter deed het werk van de TD; anti-patronen in §4a):** `design/slices/` met drie losse, seeded, speelbare lussen die elk een ✗-cel uit de toets proberen: *Deadline night* (Selectie en markt × gebeurtenis: de ster die weg wil, met makelaar, bluf en pers; tijd als enige schaarste), *The new stand* (Infrastructuur × gebeurtenis: vergunning bij de gemeente, overschrijding, naamsponsor en aandelenuitgifte), *As it stands* (de stand als race, de laatste speeldag live, tv- en prijzengeld zichtbaar; trainer, bonuspot, pers, ticketprijs). Prototype voor gevoel, geen handgeschreven nep-spel voor release (MB-19): wat de eigenaar goed vindt, gaat daarna in de echte engine. Bot-doorloop groen (3 seeds per slice, 390 px); nog niet door een mens gespeeld.
 
 **Toets volgens §14 (27-11, na stap 1):** Sportief: jaar ~, window ✓, week ✓ (de trainer en zijn status elke week bovenaan), gebeurtenis ✓ (druk, vertrouwensvraag, ontslag, shortlist). Selectie en markt: jaar ✗, window ✓, gebeurtenis ~ (transferverzoek ✗). Geld: jaar ~, window ✓, week ~, gebeurtenis ✓. Inkomsten: jaar ~ (tv- en prijzengeld ✗), week ~, gebeurtenis ~. Mensen buiten de club: jaar ✓, week ~, gebeurtenis ~ (pers ✗, gemeente ✗). Infrastructuur: jaar ~, week ✓, gebeurtenis ~. Seizoensspanning: ✗ (stap 2). `coachseat-test.js` en de volledige snelle suite inclusief de browser-playtest zijn groen. Nog niet door een mens gespeeld.
 

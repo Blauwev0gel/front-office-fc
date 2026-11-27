@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>As It Stands</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="slices.css">
+<style>
+:root{--club:#0f5c5a}
+.live{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.fx{display:grid;grid-template-columns:1fr 64px 1fr;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);align-items:center}
+.fx > *{min-width:0}
+.fx .sc{text-align:center;font:800 22px var(--display);font-variant-numeric:tabular-nums}
+.fx .a{text-align:right}
+.fx.mine{background:var(--panel)}
+.minute{font:800 44px/1 var(--display);font-variant-numeric:tabular-nums}
+table.t tr.up td{border-bottom:2px solid var(--good)}
+table.t tr.po td{border-bottom:2px dashed var(--gold)}
+.mv{font-size:11px}
+</style>
+</head><body>
+<div class="wrap">
+  <div class="bar"><b>Port Kerrin</b><span>Div One</span><span id="barCash" class="num"></span><span class="clock" id="barClock"></span></div>
+  <a class="back" href="./">← All slices</a>
+  <main id="app" class="stack" style="margin-top:14px"></main>
+</div>
+<script src="slices.js"></script>
+<script>
+const {rng,money,wait,clamp,xg,seedFromUrl,esc}=NM;
+let seed=seedFromUrl(),R,S;
+const app=document.getElementById('app');
+const TEAMS={
+  hal:{n:'Halden Athletic',s:74,p:55,gd:21},
+  you:{n:'Port Kerrin',s:71,p:52,gd:17},
+  mor:{n:'Morrow County',s:71,p:51,gd:14},
+  eas:{n:'Easterby',s:70,p:49,gd:12},
+  lin:{n:'Linwood',s:67,p:44,gd:6},
+};
+const FILL={bra:['Brackwell',64],til:['Tilbury',62],fen:['Fenwick',66],sal:['Saltmarsh',63],cor:['Corby Mills',61]};
+const FIX=[
+  [['bra','you'],['hal','fen'],['lin','mor'],['eas','til']],
+  [['you','til'],['lin','hal'],['mor','cor'],['sal','eas']],
+  [['eas','you'],['hal','bra'],['fen','mor'],['lin','cor']],
+  [['you','mor'],['eas','hal'],['til','lin']],
+  [['fen','you'],['hal','cor'],['mor','eas'],['lin','sal']],
+  [['you','sal'],['mor','hal'],['eas','lin']],
+];
+const SCORERS={hal:['Ndiaye','Fenn','Okoro'],you:['Rourke','Tavares','McAlpine','Lyle'],mor:['Cassidy','Brandt','Achebe'],eas:['Holm','Pryce'],lin:['Varga','Doyle'],bra:['Shaw'],til:['Kirk'],fen:['Moss','Ibe'],sal:['Penn'],cor:['Lowe']};
+const MERIT=[520000,460000,400000,360000,320000];
+const TV_UP=2700000;
+
+function init(){
+  R=rng(seed);
+  const T={};for(const k in TEAMS)T[k]={...TEAMS[k],k};
+  S={screen:'intro',wk:0,T,cash:310000,trust:58,coach:null,bonus:null,press:null,tickets:null,tvpick:null,
+    results:[],ledger:[],headline:null,playoff:null,lossesAfterBack:0};
+}
+const name=k=>TEAMS[k]?TEAMS[k].n:FILL[k][0];
+const str=k=>TEAMS[k]?S.T[k].s:FILL[k][1];
+
+/* the chairman's levers turned into strength, per week (1–6) */
+function youBoost(w,isHome){
+  let b=0;const why=[];
+  if(S.coach==='react'){if(w<=2){b+=2;why.push('reaction demanded +2');}else{b-=1;why.push('tense dressing room −1');}}
+  if(S.coach==='sack'){if(w<=2){b+=4;why.push('new-coach bounce +4');}}
+  if(S.bonus!=null&&w>=5){const v={0:-1,90000:1.5,200000:3}[S.bonus];b+=v;why.push(`bonus pot ${v>0?'+':''}${v}`);}
+  if(w===4&&S.press==='feeder'){b+=2;why.push('fired-up crowd +2');}
+  if(w===6&&S.tickets){const v={8:3,20:1.5,32:0}[S.tickets];b+=v;if(v)why.push(`${S.tickets===8?'packed':'full'} ground +${v}`);}
+  if(w===6&&S.tvpick==='yes'){b-=1.5;why.push('one day less rest −1.5');}
+  return {b,why};
+}
+function oppBoost(k,w){
+  if(k==='mor'&&w===4&&S.press==='feeder') return 2;
+  if(k==='sal'&&w===6) return 3; // fighting relegation
+  return 0;
+}
+
+/* desk: one real decision before some matchdays */
+function deskFor(w){
+  if(w===1&&!S.coach) return 'coach';
+  if(w===2&&S.bonus==null) return 'bonus';
+  if(w===4&&!S.press) return 'press';
+  if(w===5&&!S.tvpick) return 'tv';
+  if(w===6&&!S.tickets) return 'tickets';
+  return null;
+}
+
+/* ---------- live table ---------- */
+function table(live){
+  const rows=Object.values(S.T).map(t=>({...t}));
+  if(live) for(const m of live){
+    const [h,a]=m.f,gh=m.sh,ga=m.sa;
+    for(const [k,f,ag] of [[h,gh,ga],[a,ga,gh]]){const r=rows.find(x=>x.k===k);if(!r)continue;r.gd+=f-ag;r.p+=f>ag?3:f===ag?1:0;r.live=true;}
+  }
+  rows.sort((x,y)=>y.p-x.p||y.gd-x.gd||x.n.localeCompare(y.n));
+  return rows;
+}
+function tableHtml(rows,prev){
+  return `<div class="tablewrap"><table class="t"><tr><th>#</th><th>Club</th><th>GD</th><th>Pts</th><th>Worth</th></tr>
+   ${rows.map((t,i)=>{const was=prev?prev.findIndex(x=>x.k===t.k):i;const mv=was>i?'<span class="mv good">▲</span>':was<i?'<span class="mv bad">▼</span>':'';
+     return `<tr class="${t.k==='you'?'you':''} ${i===1?'up':''} ${i===3?'po':''}"><td>${i+1}</td><td>${t.n} ${mv}</td><td>${t.gd>0?'+':''}${t.gd}</td><td>${t.p}</td><td>${i<2?'<b class="good">UP</b>':i<4?'<span class="gold">play-off</span>':money(MERIT[i])}</td></tr>`;}).join('')}
+  </table></div><p class="muted" style="font-size:12px">Top two promoted. Third v fourth: one play-off final. Promotion is worth ${money(TV_UP)} more TV money next season.</p>`;
+}
+
+/* ---------- play a matchday live ---------- */
+async function playWeek(){
+  const w=S.wk, r=rng(seed*31+w);
+  const prev=table();
+  const ms=FIX[w-1].map(([h,a])=>{
+    let sh=str(h)+(h==='you'?youBoost(w,true).b:oppBoost(h,w)), sa=str(a)+(a==='you'?youBoost(w,false).b:oppBoost(a,w));
+    const lh=xg(sh,sa,3),la=xg(sa,sh,0);
+    const goals=[];
+    for(let i=0,n=r.poisson(lh);i<n;i++)goals.push({m:r.int(1,94),side:'h',who:r.pick(SCORERS[h])});
+    for(let i=0,n=r.poisson(la);i<n;i++)goals.push({m:r.int(1,94),side:'a',who:r.pick(SCORERS[a])});
+    goals.sort((x,y)=>x.m-y.m);
+    return {f:[h,a],goals,sh:0,sa:0};
+  });
+  S.live={ms,min:0,feed:[],prev};S.screen='live';render();
+  const step=w===6?140:85;
+  for(let m=1;m<=95;m++){
+    S.live.min=m;
+    for(const x of ms) for(const g of x.goals) if(g.m===m){
+      if(g.side==='h')x.sh++;else x.sa++;
+      S.live.feed.unshift(`${m}' ${g.who} · ${name(x.f[0])} ${x.sh}–${x.sa} ${name(x.f[1])}`);
+      S.live.flash=x.f.join();
+    }
+    if(m%3===0||ms.some(x=>x.goals.some(g=>g.m===m))) render();
+    await wait(S.skip?0:step);
+  }
+  // commit
+  for(const x of ms){
+    const [h,a]=x.f;
+    for(const [k,f,ag] of [[h,x.sh,x.sa],[a,x.sa,x.sh]]) if(S.T[k]){S.T[k].gd+=f-ag;S.T[k].p+=f>ag?3:f===ag?1:0;}
+    if(h==='you'||a==='you'){const us=h==='you'?x.sh:x.sa,th=h==='you'?x.sa:x.sh;S.results.push({w,opp:h==='you'?a:h,home:h==='you',us,th});
+      if(S.coach==='back'&&w<=3&&us<th) S.lossesAfterBack++;}
+  }
+  if(w===2||w===4||w===6){ // home gates
+    const g=w===6&&S.tickets?{8:78000,20:178000,32:205000}[S.tickets]:120000;
+    S.cash+=g;S.ledger.push([`Gate, matchday ${w}`,g]);
+  }
+  S.skip=false;S.screen='result';render();
+}
+
+async function playoffFinal(){
+  const rows=table();const pos=rows.findIndex(t=>t.k==='you');
+  const opp=rows[pos===2?3:2].k,r=rng(seed*77);
+  const sy=str('you')+youBoost(6).b*.5, so=str(opp);
+  let a=r.poisson(xg(sy,so,0)),b=r.poisson(xg(so,sy,0));
+  let pens=null; if(a===b){pens=r.chance(.5)?'won':'lost';}
+  const won=a>b||pens==='won';
+  S.playoff={opp,a,b,pens,won};
+  S.cash+=150000;S.ledger.push(['Play-off final, gate share',150000]);
+  S.screen='playoff';render();
+}
+
+/* ---------- the end ---------- */
+function finish(){
+  const rows=table(),pos=rows.findIndex(t=>t.k==='you');
+  const up=pos<2||(S.playoff&&S.playoff.won);
+  const L=[...S.ledger];
+  L.push([`Merit payment, ${pos+1}${['st','nd','rd','th','th'][pos]}`,MERIT[pos]]);
+  if(S.tvpick==='yes')L.push(['TV facility fee (Monday night)',60000]);
+  if(S.coach==='sack')L.push(['Coach compensation',-80000]);
+  if(up&&S.bonus)L.push(['Promotion bonus to the squad',-S.bonus]);
+  if(up)L.push(['Extra TV money next season',TV_UP]);
+  const lines=[];let tr=S.trust;
+  if(up){tr+=12;lines.push(['Everyone',pos<2?`"Promoted. ${pos===0?'Champions!':'Second, automatic.'}"`:'"Up through the play-offs. What a day at Wembury."',12]);}
+  else{tr-=4;lines.push(['Everyone',`"${pos+1}${['st','nd','rd','th','th'][pos]}. So close."`,-4]);}
+  if(S.coach==='back'&&S.lossesAfterBack>=2){tr-=4;lines.push(['Harbour End',`"You backed Moran publicly. Two more defeats followed."`,-4]);}
+  if(S.coach==='sack'){tr+=2;lines.push(['Harbour End','"Moran had to go. Tolland gave us a lift."',2]);}
+  const d=S.results.find(x=>x.w===4);
+  if(d){const v=d.us>d.th?5:d.us<d.th?-5:0;let txt=`"Derby: ${d.us}–${d.th} against Morrow."`;
+    if(S.press==='feeder'){const e=d.us>d.th?2:d.us<d.th?-3:0;txt+=e>0?' "Feeder club" — you were right.':e<0?' "Feeder club", and we lost. Embarrassing.':'';tr+=e;lines.push(['Harbour End',txt,v+e]);}else lines.push(['Harbour End',txt,v]);tr+=v;}
+  if(S.press==='guarantee'){const e=up?8:-10;tr+=e;lines.push(['The Kerrin Herald',up?'"He guaranteed it. He delivered."':'"\'Guaranteed.\' His word, matchday four."',e]);}
+  if(S.tickets===32){tr-=3;lines.push(['Season-ticket holders','"£32 for the last home game. Shameful."',-3]);}
+  if(S.tickets===8){tr+=2;lines.push(['Season-ticket holders','"Eight quid and a full house. That\'s our club."',2]);}
+  return {pos,up,L,lines,tr:clamp(tr,5,95),total:L.reduce((a,x)=>a+x[1],0)};
+}
+
+/* ---------- render ---------- */
+function bar(){document.getElementById('barCash').textContent=money(S.cash)+' cash';document.getElementById('barClock').textContent=S.wk?`Matchday ${24+S.wk} of 30`:'April';}
+function who(face,n,role,line){return `<div class="who"><div class="face">${face}</div><div><div class="name">${n}</div><div class="role">${role}</div>${line?`<q>${line}</q>`:''}</div></div>`;}
+function design(){return `<details class="design"><summary>Ontwerpnotitie (voor de eigenaar)</summary><p>Vult §14 stap 2 en 3 uit MB-37: <b>de stand als race en de laatste speeldag</b>, en <b>tv- en prijzengeld zichtbaar</b> (Inkomsten × jaar ✗→✓), plus <b>Sportief × gebeurtenis</b> (de trainer) en <b>Mensen buiten de club × gebeurtenis</b> (pers). Elke week hooguit één beslissing van de voorzitter, elk met een prijs. Je ziet bij de aftrap welke van jouw keuzes in de sterkte zitten. De laatste speeldag speelt alle wedstrijden tegelijk, met de stand live. Geen opstelling, geen tactiek.</p></details>`;}
+function fxLine(m,live){
+  const [h,a]=m.f,mine=h==='you'||a==='you';
+  return `<div class="fx ${mine?'mine':''} ${live&&S.live.flash===m.f.join()?'flash':''}"><span>${name(h)}</span><span class="sc">${live?`${m.sh}–${m.sa}`:'v'}</span><span class="a">${name(a)}</span></div>`;
+}
+function deskHtml(d){
+  if(d==='coach') return `<div class="sec"><h2 class="bad">On your desk</h2>${who('GM','Gil Moran','Head coach · 3 defeats in the last 5','The lads are tired, not finished. I need to hear that you are with me.')}
+   <div class="btns"><button class="btn" data-act="coach" data-arg="back">Back him in public <small>no change · if it goes wrong, it's on you</small></button>
+   <button class="btn" data-act="coach" data-arg="react">Demand a reaction, in private <small>+2 for two games, then tension</small></button>
+   <button class="btn" data-act="coach" data-arg="sack">Sack him · Ray Tolland (U21) as interim <small>£80k · +4 bounce for two games</small></button></div></div>`;
+  if(d==='bonus') return `<div class="sec"><h2 class="bad">On your desk</h2>${who('EP','Ewan Price','Captain','The lads want to know what promotion is worth to the club. Not for greed. To feel it.')}
+   <div class="btns"><button class="btn" data-act="bonus" data-arg="0">Nothing extra <small>−1 in the last two games</small></button>
+   <button class="btn" data-act="bonus" data-arg="90000">£90k pot <small>paid only if promoted · +1.5</small></button>
+   <button class="btn" data-act="bonus" data-arg="200000">£200k pot <small>paid only if promoted · +3</small></button></div></div>`;
+  if(d==='press') return `<div class="sec"><h2 class="bad">Derby week · press conference</h2>${who('KH','Rob Tennant','Kerrin Herald','Morrow say they are the real club of the harbour. Your answer?')}
+   <div class="btns"><button class="btn" data-act="press" data-arg="respect">"Good side. We respect them." <small>nothing changes</small></button>
+   <button class="btn" data-act="press" data-arg="feeder">"Morrow are our feeder club." <small>both sides +2 · fans love it if you win</small></button>
+   <button class="btn" data-act="press" data-arg="guarantee">"We will go up. I guarantee it." <small>+8 members if promoted · −10 if not</small></button></div></div>`;
+  if(d==='tv') return `<div class="sec"><h2 class="bad">On your desk</h2>${who('NB','Lena Faro','Broadcaster','We want Fenwick away on Monday night, live. £60k facility fee.')}
+   <div class="btns"><button class="btn" data-act="tv" data-arg="yes">Take the £60k <small>one day less rest before the final day · −1.5</small></button>
+   <button class="btn" data-act="tv" data-arg="no">Keep Saturday <small>no money, full rest</small></button></div></div>`;
+  if(d==='tickets') return `<div class="sec"><h2 class="bad">Last home game · ticket price</h2>${who('AD','Ade Dalca','Commercial','9,800 capacity. What do we charge for Saltmarsh?')}
+   <div class="btns"><button class="btn" data-act="tickets" data-arg="8">£8 · fill every seat <small>£78k gate · home +3</small></button>
+   <button class="btn" data-act="tickets" data-arg="20">£20 · normal <small>£178k gate · home +1.5</small></button>
+   <button class="btn" data-act="tickets" data-arg="32">£32 · cash in <small>£205k gate · −3 members</small></button></div></div>`;
+  return '';
+}
+function render(){
+  bar();
+  const s=S.screen;
+  if(s==='intro') app.innerHTML=`<p class="kicker">Slice C · The run-in</p><h1>As it stands</h1>
+   <p class="lead">Six games left. Second in Division One, three points behind Halden, one ahead of your harbour rivals Morrow. You pick no team. You decide what the club does around the team, and you watch.</p>
+   ${tableHtml(table())}
+   <div class="sec"><h3>What each place is worth</h3><div class="rows">${MERIT.map((m,i)=>`<div class="row"><span>${i+1}${['st','nd','rd','th','th'][i]}</span><span class="r">${money(m)} merit${i<2?` + ${money(TV_UP)} TV`:i<4?' + play-off':''}</span></div>`).join('')}</div></div>
+   <button class="btn primary" data-act="next">To matchday 25</button><p class="muted" style="font-size:12px">Season #${seed}.</p>`;
+  if(s==='week'){
+    const w=S.wk,d=deskFor(w),boost=youBoost(w),mine=FIX[w-1].find(f=>f.includes('you'));
+    const opp=mine[0]==='you'?mine[1]:mine[0];
+    app.innerHTML=`${tableHtml(table())}${d?deskHtml(d):''}
+     ${!d?`<div class="sec"><h3>Matchday ${24+w}${w===6?' · final day, all at 15:00':''}</h3>
+      <div class="live">${FIX[w-1].map(f=>fxLine({f})).join('')}</div>
+      <p>${name(opp)}${w===4?' · the harbour derby':''}${opp==='sal'?' · fighting relegation (+3)':''}. ${boost.why.length?`<span class="muted">Your decisions in the team: ${boost.why.join(', ')}.</span>`:''}</p>
+      <button class="btn primary" data-act="kick">Kick off</button></div>`:''}${design()}`;
+  }
+  if(s==='live'){
+    const L=S.live,rows=table(L.ms);
+    app.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:end"><span class="minute">${Math.min(90,L.min)}'${L.min>90?`+${L.min-90}`:''}</span><span class="kicker">${S.wk===6?'Final day':'Matchday '+(24+S.wk)}</span></div>
+     <div class="live">${L.ms.map(m=>fxLine(m,true)).join('')}</div>
+     <h3>As it stands</h3>${tableHtml(rows,L.prev)}
+     <div class="feed" style="max-height:140px">${L.feed.map(f=>`<div><span class="t">GOAL</span><span>${esc(f)}</span></div>`).join('')||'<div><span class="t"></span><span class="muted">No goals yet.</span></div>'}</div>
+     <button class="btn" data-act="skip">Skip to full time</button>`;
+  }
+  if(s==='result'){
+    const r=S.results[S.results.length-1],res=r.us>r.th?'WIN':r.us<r.th?'DEFEAT':'DRAW';
+    const head= r.w===4?(r.us>r.th?'The harbour is ours':r.us<r.th?'Morrow rule the harbour':'Honours even in the derby')
+      : r.w===6?'Full time on the final day' : res==='WIN'?`${r.us}–${r.th} and the race goes on`:res==='DEFEAT'?`Kerrin stumble at ${name(r.opp)}`:`A point at ${name(r.opp)}`;
+    const rows=table(),pos=rows.findIndex(t=>t.k==='you');
+    app.innerHTML=`<div class="echo"><div class="mast"><span>Kerrin Herald</span><span>Matchday ${24+r.w}</span></div><div class="head">${esc(head)}</div>
+      <p>Port Kerrin ${r.us}–${r.th} ${name(r.opp)} (${r.home?'home':'away'}). ${pos+1}${['st','nd','rd','th','th'][pos]} with ${6-r.w} to play.</p></div>
+     <div class="live">${S.live.ms.map(m=>fxLine(m,true)).join('')}</div>
+     ${tableHtml(rows,S.live.prev)}
+     <button class="btn primary" data-act="${S.wk<6?'next':pos===2||pos===3?'playoff':'end'}">${S.wk<6?`To matchday ${25+S.wk}`:pos===2||pos===3?'The play-off final':'The season in money'}</button>`;
+  }
+  if(s==='playoff'){const p=S.playoff;
+    app.innerHTML=`<div class="echo"><div class="mast"><span>Kerrin Herald</span><span>Play-off final · Wembury</span></div><div class="head ${p.won?'good':'bad'}">${p.won?'Kerrin go up!':'Heartbreak at Wembury'}</div>
+     <p>Port Kerrin ${p.a}–${p.b} ${name(p.opp)}${p.pens?`, penalties ${p.pens}`:''}.</p></div><button class="btn primary" data-act="end">The season in money</button>`;}
+  if(s==='end'){const f=finish(),pass=f.tr>=50;
+    app.innerHTML=`<p class="kicker">May · the books and the ALV</p><h1>${f.up?'Promoted':'Not this year'}</h1>
+     <div class="sec"><h3>What the run-in was worth</h3><div class="rows">${f.L.map(l=>`<div class="row"><span>${l[0]}</span><span class="r ${l[1]<0?'bad':''}">${l[1]<0?'':'+'}${money(l[1])}</span></div>`).join('')}
+      <div class="row"><span><b>Total</b></span><span class="r"><b>${money(f.total)}</b></span></div></div></div>
+     <div class="sec"><h3>The ALV</h3><div class="rows">${f.lines.map(l=>`<div class="row"><span><b>${l[0]}</b> ${esc(l[1])}</span><span class="r ${l[2]>0?'good':l[2]<0?'bad':'muted'}">${l[2]>0?'+':''}${l[2]}</span></div>`).join('')}</div>
+     <div class="echo"><div class="head ${pass?'good':'bad'}">${f.tr}% for · ${pass?'Re-elected':'Voted out'}</div></div></div>
+     <div class="btns"><button class="btn primary" data-act="again">Another season <small>new seed</small></button><button class="btn" data-act="replay">Replay season #${seed} with other choices</button></div>${design()}`;}
+}
+app.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
+  const a=b.dataset.act,arg=b.dataset.arg;
+  if(a==='next'){S.wk++;S.screen='week';render();scrollTo(0,0);return;}
+  if(a==='coach'){S.coach=arg;if(arg==='sack'){S.cash-=80000;}}
+  if(a==='bonus'){S.bonus=+arg;}
+  if(a==='press'){S.press=arg;}
+  if(a==='tv'){S.tvpick=arg;if(arg==='yes')S.cash+=60000;}
+  if(a==='tickets'){S.tickets=+arg;if(arg==='32')S.trust-=0;}
+  if(a==='kick'){playWeek();return;}
+  if(a==='skip'){S.skip=true;return;}
+  if(a==='playoff'){playoffFinal();return;}
+  if(a==='end'){S.screen='end';render();scrollTo(0,0);return;}
+  if(a==='again'){seed=Math.floor(Math.random()*99999)+1;location.hash='seed'+seed;init();render();return;}
+  if(a==='replay'){init();render();return;}
+  render();
+});
+init();render();
+</script>
+</body></html>

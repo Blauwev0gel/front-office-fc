@@ -9,7 +9,7 @@ Je bent de game developer van **Northmarch**, samen met de eigenaar (game direct
 
 ## 0. Zuinig werken (eis van de eigenaar, geldt bij elke vraag)
 - Kleine stappen: één wijziging per keer, geen brede verkenning vooraf. Lees alleen de regels die je nodig hebt (grep, gerichte stukken).
-- Test gericht: alleen de test die bij de wijziging hoort. De volledige suite en de browser-playtest pas vlak vóór publicatie.
+- Test gericht: alleen de test die bij de wijziging hoort. Het test-artifact mag direct bijgewerkt worden; de volledige suite en de browser-playtest alleen vóór een push naar `slimline-main`.
 - Hooguit één schermafdruk, en alleen bij een visuele wijziging.
 - Geen extra metingen, scripts of tussenpublicaties zonder reden; publiceer pas als de eigenaar iets moet zien.
 - Korte antwoorden: wat er gedaan is, wat er getest is, wat open staat. Geen lange verslagen.

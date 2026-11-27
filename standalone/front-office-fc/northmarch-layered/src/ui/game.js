@@ -326,8 +326,7 @@
    return out}
  function inboxCard(id){const it=inboxItems(id),done=weekDone(scNow()).map(r=>`<p class="g-did">✓ ${esc(r)}</p>`).join(''),nd=it.filter(x=>x.kind==='decision').length;
    if(UI.pickRegion)return yourWeek(id);
-   return`<section class="ib"><div class="ib-top"><small class="g-k">YOUR INBOX</small><span class="ib-count">${it.length} message${it.length===1?'':'s'}${nd?` · ${nd} to decide`:''}</span></div>${done}${it.map(ibMsg).join('')||'<p class="g-clear">Nothing in your inbox. The club runs itself this week.</p>'}
-   <details class="ib-own"><summary>Start something yourself</summary>${['trip','tour','data','home'].map(k=>{const a={trip:['chairpick','A scouting trip'],tour:['chairtour','The youth tournament'],data:['chairdata','A day with the analyst'],home:['chairhome','A week at the club']}[k],why=chairWhyNot(k==='tour'?'trip':k);return`<button class="btn ghost" data-act="${a[0]}" ${why?'disabled':''}>${a[1]}${why?` · ${esc(why)}`:''}</button>`}).join('')}</details></section>`}
+   return`<section class="ib"><div class="ib-top"><small class="g-k">YOUR INBOX</small><span class="ib-count">${it.length} message${it.length===1?'':'s'}${nd?` · ${nd} to decide`:''}</span></div>${done}${it.filter(x=>x.kind==='decision').map(ibMsg).join('')}${it.some(x=>x.kind!=='decision')?`<details class="ib-own"><summary>${it.filter(x=>x.kind!=='decision').length} notes from your staff</summary>${it.filter(x=>x.kind!=='decision').map(ibMsg).join('')}</details>`:''}</section>`}
  /* ----- THE NEWS TICKER: the world moves while you read ----- */
  function tickerItems(id){const tier=CL(id).tier,out=[];
    const ev=(S.ev||[]).filter(e=>e.s===S.season&&S.week-e.w<=1).slice(-60).reverse();
@@ -382,7 +381,7 @@
    const rows=A.met?'':ts.map(t=>{const on=open===t.k;return`<div class="ag-row ${on?'on':''} ${t.urgent?'urgent':''}"><button class="ag-head" data-act="agopen" data-arg="${esc(t.k)}" aria-expanded="${on}">${faceSVG(t.who,{size:40,kit:t.k==='fans'?'#6b7d74':kit})}<span><small>${esc(t.role.toUpperCase())}</small><b>${esc(t.title)}</b></span>${t.urgent?'<i class="ag-tag">URGENT</i>':'<i class="ag-arrow">›</i>'}</button>
      ${on?`<div class="ag-body"><p>“${esc(t.line)}” <small>— ${esc(t.who)}</small></p>${t.opts.map(o=>`<button class="ag-opt" data-act="agmeet" data-arg="${esc(t.k)}|${esc(o.k)}"><b>${esc(o.t)}</b><span>${esc(o.fx)}</span></button>`).join('')}</div>`:''}</div>`}).join('');
    const seat=A.seat?`<div class="ag-done"><span><small>SATURDAY · YOUR SEAT</small><b>${esc(A.seat.t)}</b></span></div>`:seats.length?`<div class="ag-seats">${seats.map(x=>`<button class="ag-seat" data-act="agseat" data-arg="${esc(x.k)}"><b>${esc(x.t)}</b><span>${esc(x.fx)}</span></button>`).join('')}</div>`:'<p class="rt-note">No match this Saturday.</p>';
-   return`<section class="rt ag">${rtBar('YOUR WEEK',A.met&&A.seat?'ALL SET':'TWO CHOICES')}
+   return`<section class="rt ag">${rtBar('YOUR WEEK',`${(A.met?1:0)+(A.seat?1:0)}/2 CHOSEN${A.met&&A.seat?' · READY':''}`)}
    <div class="rt-h">MIDWEEK · WHO DO YOU SEE? ${A.met?'':`<small>${ts.length} waiting · you see one</small>`}</div>${met}${rows}
    <div class="rt-h">SATURDAY · WHERE DO YOU SIT?</div>${seat}
    ${A.today&&A.today.length?`<ul class="rt-news">${A.today.map(t=>`<li><b>✓</b><span>${esc(t)}</span></li>`).join('')}</ul>`:''}</section>`}
@@ -413,7 +412,7 @@
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
    if(S.week===0)return preSeasonScreen(id,msg);
    if(seasonOver())return`<div class="g-week">${msg}${topicBanner(id)}${agmView(id)}</div>`;
-   return`<div class="g-week rt-season">${msg}${weekHead(id)}${vacancyCard(id)}${agendaCard(id)}${inboxCard(id)}${winterCard(id)}${nextMatch(id)}${clubRows(id)}${/Nothing running yet/.test(runningCard(id))?'':runningCard(id)}${weekNews(id)}</div>`;
+   return`<div class="g-week rt-season">${msg}${weekHead(id)}${vacancyCard(id)}${inboxCard(id)}${agendaCard(id)}${winterCard(id)}${nextMatch(id)}<details class="g-close wk-club"><summary>The club and the league</summary>${clubRows(id)}${/Nothing running yet/.test(runningCard(id))?'':runningCard(id)}${weekNews(id)}</details></div>`;
  }
 
 

@@ -1,5 +1,5 @@
 # NORTHMARCH — MASTER GAME DESIGN BIBLE
-**Versie 1.4 — 28 november 2026** · nieuw §4a: het beroep van voorzitter (MB-44) · V1.3 van 25 november: open vragen V1–V6 beslist (MB-11–MB-16)
+**Versie 1.4.1 — onderzoeksuitwerking van V1.4** · nieuw §4a: het beroep van voorzitter (MB-44) · V1.3 van 25 november: open vragen V1–V6 beslist (MB-11–MB-16)
 
 ## 0. Hoe je dit document leest
 Dit is het enige actieve ontwerpdocument van Northmarch. Het beschrijft het **beoogde spel**, niet per se de huidige build; de broncode en tests zijn de waarheid over wat er nu werkt.
@@ -112,6 +112,49 @@ Uit de drie losse prototypes van 28-11 (§16), zodat niemand ze herhaalt:
 - Besluiten die uitkomen op ‘+2 sterkte’: draaiknoppen in plaats van mensen (MB-28).
 - Gebeurtenissen op een vast tijdstip, los van de wereld (§3).
 - Een eigen wereld of mini-engine naast de echte (MB-19, §14 Integratie).
+
+## 4b. Het professionele voetbalbedrijf — van praktijk naar spel (MB-45 🔷)
+
+**Onderbouwing:** [Real-world football operating model](NORTHMARCH_REAL_WORLD_FOOTBALL_OPERATING_MODEL.md), met twaalf gedocumenteerde praktijkcases (R01–R12), bronlinks, functieprofielen, besluitcatalogus (G01–G14) en integratie-/validatievoorstellen. Het onderzoeksdocument onderscheidt feiten, interpretaties en spelontwerp. Het is een referentie, geen tweede canon. §10 blijft leidend; V7/V8 blijven open.
+
+### Besturen via de organisatie
+
+De voorzitter handelt namens de bestaande ledenclub, niet als onbeperkt financierende eigenaar. Eigendom, toezicht en uitvoering zijn onderscheiden verantwoordelijkheden; functies mogen in een kleine club gecombineerd zijn. De precieze invulling van de uitvoerende voorzittersrol blijft onderwerp van V8. Geen nieuwe CEO-laag vereist om deze werkverdeling te gebruiken.
+
+| Functie | Professionele uitvoering | Hefboom voorzitter | Oordeel |
+|---|---|---|---|
+| TD | Selectieplanning, recruitment, contracten en opvolging | Benoeming, financiële kaders, koers en canonieke uitzonderingen | Plan versus uitvoering, kosten, selectie |
+| Trainer | Training, tactiek, opstelling, sportieve voorbereiding | Benoeming, verwachtingen, middelen en beoordeling | Resultaten in context van de beschikbare selectie |
+| Scouting | Observeren, schatten, haalbaarheid onderzoeken | Onderzoekskader, capaciteit, aanbevelingen | Onzekerheid, kandidaten, recruitmentresultaat |
+| Academie | Opleiding, welzijn, instroom en doorstroming | Structurele middelen, organisatie en faciliteiten | Ontwikkeling van echte lichtingen en spelers |
+| Medisch/performance | Preventie, behandeling, belasting en herstel | Expertise, capaciteit en voorzieningen | Beschikbaarheid, blessuredagen en kosten |
+| Penningmeester | Begroting, liquiditeitsprognose, boekhouding en financiering | Begroting, reserves, schuld en besparingskader | Kas, verplichtingen en afwijkingen |
+| Commercie | Sponsors, seizoenkaarten, hospitality en partnerbeheer | Jaarbeleid, commerciële grenzen en investering | Contracten, verkopen en feitelijke inkomsten |
+| Terreinen | Onderhoud, veiligheid, voorbereiding en uitvoering bouw | Scope, financiering, toestemming en bijsturing | Kosten, capaciteit, gebruik en onderhoud |
+| Leden en omgeving | Raadpleging, ledenproces, externe relaties | Voorstellen, wezenlijke belangen en verantwoording | Draagvlak, toestemming en ALV |
+
+### De speelbare bestuurlijke cyclus
+
+De cases Partick Thistle en Exeter City laten zien waarom een eerder goedgekeurde begroting later tot sportieve en organisatorische interventies kan leiden. Brentford en Brighton laten zien waarom personeelsbeleid en opvolging meer zijn dan een kwaliteitsrating. Wimbledon, Motherwell, Exeter en Cambridge tonen dat financiering, eigendom, ledeninstemming en het afwijzen van investeringen betekenisvolle alternatieven zijn. Peterborough en Phil Giles onderbouwen selectieplanning als structureel proces. St. Pauli en Chelsea illustreren commerciële grenzen en seizoensbeleid. De historische details en bronnen staan in het referentiedocument.
+
+| Spelmechaniek | Vastleggen | Uitvoering en onzekerheid | Waar blijkt het resultaat? |
+|---|---|---|---|
+| Jaarbegroting (G01–02) | Loonplafond, begrote netto transferinkomsten, reserve | Penningmeester bewaakt kas; TD handelt binnen kader; verkoopinkomsten zijn onzeker | The Books: werkelijk versus begroot; winterreview; ALV |
+| Voetbalorganisatie (G03–05) | Koers, stafkeuze, middelen, eventueel opvolgingsprofiel | TD en trainer voeren eigen werk uit; kandidaten kunnen niet beschikbaar zijn; contractkosten blijven | Recruitmentplan, windowdebrief, resultaten, stafbeoordeling |
+| Spelersportfolio (G06) | Financiële afhankelijkheid van verkoop en opvolgingsprioriteit | TD maakt selectieplan en handelt; coach beoordeelt sportieve gevolgen | Contractrisico, minuten, transfers, netto-opbrengst en loon |
+| Financiering (G07) | Reserves, leningaanvraag of herfinancieringskader | Penningmeester en financier toetsen betaalbaarheid; geen gegarandeerd krediet | Rente, aflossingskalender en kasprognose |
+| Infrastructuur (G08–10) | Haalbaarheid, scope, financiering en go/no-go | Staf onderzoekt/bouwt; toestemming waar vereist; risico op vertraging of kostenstijging | Werkelijke mijlpalen, capaciteit, exploitatie en kas |
+| Ledenmandaat (G11, G14) | Voorstel binnen bestaande bevoegdheden en verantwoording | Leden kunnen weigeren; geen tweede stemmechaniek of eigenmachtige verkoop clubbezit | Bestaand ledenproces en ALV |
+| Commercie (G12) | Jaarlijkse commerciële en seizoenkaartkaders | Commercie voert campagne en acquisitie uit; vraag en partners zijn onzeker | Werkelijke verkopen, contractontvangsten en draagvlak |
+| Jeugd en medisch (G13) | Structurele middelen, organisatie en investeringen | Professionals voeren opleiding, preventie en herstel uit | Ontwikkeling van echte spelers, beschikbaarheid, kosten |
+
+**De jaarcyclus bepaalt de frequentie:** juni vastleggen, juli uitvoeren, competitie bewaken, december herijken, januari bijsturen, voorjaar inkomsten en nieuwe begroting voorbereiden, mei verantwoorden. Een wekelijkse observatie is geen wekelijkse beslisplicht. Alleen bij een werkelijke afwijking, kans of verplichting vraagt de situatie om ingrijpen. MB-43 blijft leidend voor de opening. Deze uitwerking introduceert geen nieuwe verplichte vergaderingen.
+
+**Implementatiecontract:** gebruik de bestaande engine, eigenaar-modules, klok, ledger, seeded RNG, save-state en command-routes. Maak het verband tussen besluit, uitvoerder, resultaat en oordeel persistent. Een prognose is geen ontvangst; een lening is geen winst; een contractbesparing ontstaat pas wanneer de verplichting verandert. Een investering heeft ook het alternatief niet investeren. Een projectvoorstel moet kunnen worden afgewezen. Structurele bouw kan meerdere seizoenen beslaan. Toon effecten op echte spelers, contracten, capaciteit, kosten, resultaten en ledengroepen; geen losse krachtbonussen. Geen gebeurtenis uitsluitend omdat de kalender een datum bereikt: een review mag kalendergebonden zijn, de aanleiding en inhoud volgen uit de werkelijke clubstaat.
+
+**Ontwerptoets:** vóór bouw wordt per mechaniek de relevante praktijkcase of professionele werkcyclus aangewezen, de rolzuivere spelershandeling gespecificeerd en het effect op bestaande systemen vastgelegd. Waar geen feitelijke bron beschikbaar is, wordt de aanname expliciet gemarkeerd. Realisme is noodzakelijk maar niet voldoende: §14 toetst agency, afweging, causale integratie en spelwaarde. Geen administratieve details zonder gameplayfunctie.
+
+**Nog geen implementatieclaim.** De besluitcatalogus is een ontwikkelkader. Bestaande code moet per mechaniek worden geaudit; ontbrekende of tegenstrijdige systemen worden niet stilzwijgend als opgelost gemarkeerd.
 
 ## 5. Waar het plezier vandaan komt
 | Bron | Wat de speler voelt | Waar het in het spel zit |
@@ -322,6 +365,7 @@ Historische ID's (D/T/P) komen uit `DECISIONS.md` op commit `3157b3a`; MB/DEV zi
 | MB-17 | 25-11 | 🔷 | Het manifest wordt op de eerste dag van elke zomer getekend, vóór het TD-plan. Daarna liggen de doelen vast tot de ALV: een goede zomer maakt een belofte makkelijker, de lat schuift niet mee. | Ingevuld door Claude op verzoek van de eigenaar (herziening eerste zomer). |
 | MB-18 | 25-11 | 🔷 | Zolang de voorzitter het window speelt, handelen andere clubs niet buiten de TD om met de club van de speler. Na de deadline geldt alleen de veiligheidsregel voor elke club, zichtbaar gemeld. | Lost NM-001 op; voert §7.2 uit. |
 | MB-44 | 28-11 | ✅/🔷 | **Het beroep van voorzitter staat in §4a** en is de maatstaf voor elke feature: hij legt zich vast onder onzekerheid, werkt via mensen en wordt maanden later afgerekend; vijf werkvelden (mensen, geld, inkomsten en relaties, leden en omgeving, de toekomst); het jaar van een voorzitter per maand; elk besluit heeft vastleggen, uitvoeren door anderen, vertraging en oordeel; toetsvragen en anti-patronen. | ✅ dat het wordt vastgelegd (verzoek van de eigenaar); 🔷 de tekst, door Claude, tot de eigenaar die heeft getoetst. Zie V8. |
+| MB-45 | 27/28-11 | 🔷 | Professioneel voetbalbedrijf (§4b): onderbouw voorzitterswerk met praktijkcases en werkcycli; vertaal het naar jaarbegroting, financiële bewaking, personeels- en selectieplanning, inkomsten, meerjarige projecten en ledenoordeel op de bestaande engine. | Onderzoeksreferentie: [Operating model](NORTHMARCH_REAL_WORLD_FOOTBALL_OPERATING_MODEL.md). Gedelegeerde ontwerpuitwerking op verzoek eigenaar; geen nieuwe bevoegdheden of oplossing van V7/V8; implementatie en tests nog open. |
 
 ## 11. Open vragen voor de game director ❓
 
@@ -331,7 +375,7 @@ Historische ID's (D/T/P) komen uit `DECISIONS.md` op commit `3157b3a`; MB/DEV zi
 
 Hier neemt geen developer een besluit over. Een nieuwe vraag krijgt een nummer, de reden waarom het knelt en een advies; na het besluit verhuist ze naar §10.
 
-**Er zijn nu geen open vragen.** V1–V6 uit het V1.3-concept zijn op 25-11-2026 beslist volgens het advies van de developer:
+**V7 en V8 blijven open.** V1–V6 uit het V1.3-concept zijn op 25-11-2026 beslist volgens het advies van de developer:
 
 | # | Vraag | Besluit |
 |---|---|---|
@@ -493,6 +537,8 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 
 **Implementatiestatus eerste zomer (25-11)** — Opening en transferzomer herzien: Implemented, Tested, Playtested (bot, Playwright, 390 px licht en donker). Menselijke playtest nog niet gedaan.
 
+**Onderzoek en ontwerp (V1.4.1):** [Real-world football operating model](NORTHMARCH_REAL_WORLD_FOOTBALL_OPERATING_MODEL.md), twaalf cases en veertien vertalingen, vastgelegd in commit `807a42691513bdcffd2f2fb1a52aa0c9cbb49d67`. §4b / MB-45: Designed; brononderzoek vastgelegd, geen codewijziging, geen tests of release. Volgende gameplayprototypes volgen §4a, §4b en §14; behoud de canonieke engine.
+
 **Test evidence (25-11, herziening eerste zomer)** — Lokaal: `node build.js` slaagt; nieuw `tests/first-summer-test.js` slaagt (manifest vast, plan volgt manifest, geen verborgen transfers in 10 werelden, save/load). Groen gebleven: pyramid, foreign-world, save, ux, base-briefing, smoke, l25, youth, story, slimline (4 seizoenen, 3 seeds), l3, l3-s32, layer-isolation, base-isolation. Browser-playtest (`tests/playtest.js`) bijgewerkt naar de huidige flow en groen in licht en donker. Rood, en al rood vóór deze wijziging: `department-ownership-test` (verwacht het oude homescherm met 13 tegels) en `sim-test` (administratie te vaak: 39 tegen een limiet van 33; vóór de wijziging 41). Geen CI gedraaid.
 
 **Bekende problemen**
@@ -527,6 +573,8 @@ Pas de diepgang aan op de omvang: een kleine fix vraagt geen onderzoek of protot
 ---
 
 ## 17. Bronnen en archief (read-only)
+
+- [Real-world football operating model](NORTHMARCH_REAL_WORLD_FOOTBALL_OPERATING_MODEL.md) — actuele onderzoeksreferentie voor §4a–4b: praktijkcases, functieprofielen, besluitcatalogus en gameplayvertalingen. Geen afzonderlijke canon.
 Historische documenten zijn geen actieve canon; onderzoek is input, geen besluit. Alle 65 Markdown-bestanden van vóór de consolidatie staan ongewijzigd op commit [`3157b3a`](https://github.com/Blauwev0gel/front-office-fc/tree/3157b3ac9293397ee73fb2b846418199412eb7a7). De belangrijkste:
 
 - [DECISIONS.md](https://github.com/Blauwev0gel/front-office-fc/blob/3157b3ac9293397ee73fb2b846418199412eb7a7/standalone/front-office-fc/northmarch-layered/docs/DECISIONS.md) — volledige tekst van D-, T- en P-besluiten.

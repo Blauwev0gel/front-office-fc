@@ -86,7 +86,7 @@
    const rows=m.goals.map(g=>{const pr=goalProgress(id,g),lv=g.lv??1;
      const pick=pre?`<div class="g-seg g-seg3" role="group" aria-label="${esc(g.k)} promise">${MANIFEST_WORD.map((w,i)=>`<button class="${lv===i?'on':''}" data-act="manifest" data-arg="${g.k}:${i}" aria-pressed="${lv===i}">${w}</button>`).join('')}</div>`:'';
      return`<li class="${pre||signedPre?'':pr.met?'on':'off'}"><div><b>${esc(g.text)}</b><span>${pre||signedPre?`${promiseOdds(id,g)} · met +${g.w} confidence, missed −${g.w}`:`${esc(pr.text)} · ${pr.met?'on track':'behind'}`}</span></div>${pick}</li>`}).join('');
-   return`<section class="g-card g-promise"><small class="g-k">${pre?'YOUR MANIFEST · CHOOSE HOW BOLD':signedPre?'YOUR SIGNED MANIFEST':'YOUR PROMISES TO THE MEMBERS'}</small>${pre?'<p>The members judge you on these at the AGM. Bolder promises win more trust and cost as much when missed. Once signed they stand, and your director plans the summer around them.</p>':''}<ul>${rows}</ul></section>`;
+   return`<section class="g-card g-promise"><small class="g-k">${pre?'YOUR MANIFEST · CHOOSE HOW BOLD':signedPre?'YOUR SIGNED MANIFEST':'YOUR PROMISES TO THE MEMBERS'}</small>${pre?'<p class="g-hint">Three promises. Bolder wins more trust, and falls harder.</p>':''}<ul>${rows}</ul></section>`;
  }
  function lastWeek(){
    const is=issues().at(-1);if(!is||!is.matches?.length)return'';const m=is.matches[0];
@@ -394,34 +394,27 @@
  const an=w=>/^[aeiou]/i.test(w)?'an '+w:'a '+w;
  const firstDay=()=>!S.welcomed&&S.career.length===1&&S.season===S.career[0]?.from;
  /* the first day: election night and the next morning in one page, then the manifest under it */
- function firstDayCard(id){const c=C(),d=tdOf(id),co=coachOf(id),g=c.groups.slice().sort((a,b)=>b.share-a.share)[0],vote=clamp(Math.round(24+.75*M(id).conf+6),51,90),m=summerMeeting(id),r=c.rival&&CL(c.rival);
-   return`<section class="rt">${rtBar('FIRST DAY · '+esc(c.name.toUpperCase()),esc(TIER_NAME[c.tier]))}
-   <div class="rt-big"><b>${vote}%</b><span>of the members voted for you last night. Below 50% at any AGM and you are out.</span></div>
-   ${rtRow('JOB','<b>'+esc(clubChallenge(id))+'</b>')}
-   ${g&&ARCH[g.k]?rtRow('VOICE',`${esc(groupName(id,g))} (${g.share}%): “${esc(ARCH[g.k].wants)}”`):''}
-   ${rtRow('PAST',`Legend ${esc(c.legend)}. Scar: ${esc(c.scar)}.`)}
-   ${r?rtRow('RIVAL',`${esc(r.name)}, since ${esc(c.rivalWhy)}.`):''}
-   <div class="rt-h">THREE NAMES TO KNOW</div>${keyPlayers(id).map(k=>rtRow(esc(k.p.pos),`<button class="pp-link" data-act="player" data-arg="${esc(k.p.id)}">${esc(k.p.name)}</button> · ${esc(k.role)}`,'age '+k.p.age)).join('')}
-   <div class="rt-h">YOUR PEOPLE</div>${d?rtRow('TD',`<b>${esc(d.name)}</b>: “Strong in ${esc(m.strong)}, weak in ${esc(m.weak)}. I buy and sell; you set the frame and the money.”`):''}${co?rtRow('COACH',`<b>${esc(co.name)}</b>: “I pick the side. Judge me on Saturdays.”`):''}
-   <p class="rt-note">First the manifest: what you promise the members. The director plans the summer around it.</p></section>`}
+ function firstDayCard(id){const c=C(),d=tdOf(id),co=coachOf(id),vote=clamp(Math.round(24+.75*M(id).conf+6),51,90),m=summerMeeting(id),kit=clubKit(id).a;
+   return`<section class="rt">${rtBar('ELECTION NIGHT',esc(c.ground))}
+   <div class="fd-vote"><b>${vote}%</b><div><i class="bar big"><i style="width:${vote}%"></i><em style="left:50%"></em></i><span>voted for you · under 50% at an AGM and you are out</span></div></div>
+   <div class="d-job">${jobTag(id)}<span>${esc(jobLine(id))}</span></div>
+   <div class="fd-people">${d?`<div>${faceSVG(d.name,{size:44,kit})}<span><small>DIRECTOR</small><b>${esc(d.name)}</b><em>“Weak in ${esc(m.weak)}. I sign, you set the frame.”</em></span></div>`:''}${co?`<div>${faceSVG(co.name,{size:44,kit})}<span><small>COACH</small><b>${esc(co.name)}</b><em>“I pick the side.”</em></span></div>`:''}</div></section>`}
  /* the TD meeting: holes in the squad, the money, the director's plan that follows your manifest; agree it or change it */
  function meetingCard(id){
-   const m=summerMeeting(id),b=briefPick(id),opts=briefOptions(id),winter=b.kind==='winter',word={bold:'bold',careful:'careful',steady:'steady'}[m.style];
-   const lines=['defence','midfield','attack'].map(k=>rtRow(k.slice(0,3).toUpperCase(),`${k[0].toUpperCase()+k.slice(1)} ${k===m.strong?'· strongest':k===m.weak?'· weakest':''}`,String(m.avg[k]),k===m.weak?'warn':''));
-   const needs=m.needs.map((n,i)=>{const w=weakestAt(id,n.pos);return rtRow(`${i+1}.`,`<b>${esc(POS_ONE[n.pos])}</b> · ${w.name?`better than ${esc(w.name)} (${w.q})`:esc(n.why)}`,esc(n.pos))}).join('')||rtRow('—','Nothing urgent','');
-   const plan=b.goals.map(k=>(opts.find(o=>o.k===k)||{t:k}).t);
-   const edit=UI.briefEdit?`<div class="rt-h">REVIEW PRIORITIES · ${b.goals.length} OF ${b.max}</div><div class="g-goals">${opts.map(o=>`<button class="g-opt ${b.goals.includes(o.k)?'on':''}" data-act="briefgoal" data-arg="${esc(o.k)}" aria-pressed="${b.goals.includes(o.k)}"><b>${b.goals.includes(o.k)?'✓ ':''}${esc(o.t)}</b><span>${esc(o.why)}</span></button>`).join('')}</div>
-     <div class="rt-h">REVIEW FUNDING</div><div class="g-seg g-seg3" role="group" aria-label="Funding">${Object.entries(BUDGET_LV).map(([k,v])=>`<button class="${b.budget===k?'on':''}" data-act="briefbudget" data-arg="${k}" aria-pressed="${b.budget===k}">${v.n}</button>`).join('')}</div><p class="rt-note">${esc(BUDGET_LV[b.budget].d)}: about £${Math.round(Math.max(0,(F(id).cash-Math.max(wageBillK(id)*4,0))*BUDGET_LV[b.budget].spend))}k for transfers.</p>
-     <div class="rt-h">RECRUITMENT PROFILE</div><div class="g-seg" role="group" aria-label="Recruitment profile">${Object.keys(RECRUIT).map(k=>`<button class="${b.recruit===k?'on':''}" data-act="briefrecruit" data-arg="${k}" aria-pressed="${b.recruit===k}">${esc(RECRUIT[k].n)}</button>`).join('')}</div><p class="rt-note">${esc(RECRUIT[b.recruit].d)}.</p>`
-     :`<div class="rt-btns"><button class="rt-btn" data-act="briefedit">Review priorities, funding and profile</button></div>`;
-   return`<section class="rt">${rtBar(winter?`WINTER MEETING · WEEK ${S.week}`:'TD MEETING · PRE-SEASON',esc(m.dir))}
-   <div class="rt-sub">${esc(money2(id))}</div>
-   <div class="rt-h">THE SQUAD · AVERAGE OF THE STARTERS</div>${lines.join('')}
-   <div class="rt-h">THE HOLES</div>${needs}
-   ${m.expiring.length?rtRow('NB',`Contracts ending: ${esc(m.expiring.slice(0,3).join(', '))}`):''}
-   <div class="rt-h">THE PLAN · ${esc(BUDGET_LV[b.budget].n.toUpperCase())} FUNDING · ${esc(RECRUIT[b.recruit].n.toUpperCase())}</div>
-   <div class="rt-quote">“${esc(m.dir)}, your ${word} director: ${m.plan.why&&!winter?esc(m.plan.why)+' ':''}This is how I would spend the summer.”</div>
-   ${plan.map((t,i)=>rtRow(`${i+1}.`,`<b>${esc(t)}</b>`)).join('')||rtRow('—','No goals chosen')}
+   const m=summerMeeting(id),b=briefPick(id),opts=briefOptions(id),winter=b.kind==='winter';
+   const lo=Math.min(m.avg.defence,m.avg.midfield,m.avg.attack)-1.5,hi=Math.max(m.avg.defence,m.avg.midfield,m.avg.attack)+.5;
+   const bars=['defence','midfield','attack'].map(k=>`<div class="tm-bar ${k===m.weak?'weak':''}"><small>${k.slice(0,3).toUpperCase()}</small><i><i style="width:${Math.round((m.avg[k]-lo)/(hi-lo)*100)}%"></i></i><b>${m.avg[k]}</b></div>`).join('');
+   const holes=m.needs.map(n=>{const w=weakestAt(id,n.pos);return`<span class="tm-hole"><b>${esc(n.pos)}</b>${w.name?`<small>now ${esc(w.name.split(' ').slice(-1)[0])} ${w.q}</small>`:''}</span>`}).join('')||'<span class="tm-hole"><b>—</b><small>no holes</small></span>';
+   const plan=b.goals.map(k=>(opts.find(o=>o.k===k)||{t:k}).t),bud=Math.max(0,Math.round(budgetFor(id)));
+   const edit=UI.briefEdit?`<div class="rt-h">PRIORITIES · ${b.goals.length}/${b.max}</div><div class="g-goals">${opts.map(o=>`<button class="g-opt ${b.goals.includes(o.k)?'on':''}" data-act="briefgoal" data-arg="${esc(o.k)}" aria-pressed="${b.goals.includes(o.k)}"><b>${b.goals.includes(o.k)?'✓ ':''}${esc(o.t)}</b><span>${esc(o.why)}</span></button>`).join('')}</div>
+     <div class="rt-h">FUNDING</div><div class="g-seg g-seg3" role="group" aria-label="Funding">${Object.entries(BUDGET_LV).map(([k,v])=>`<button class="${b.budget===k?'on':''}" data-act="briefbudget" data-arg="${k}" aria-pressed="${b.budget===k}">${v.n}</button>`).join('')}</div>
+     <div class="rt-h">PROFILE</div><div class="g-seg" role="group" aria-label="Recruitment profile">${Object.keys(RECRUIT).map(k=>`<button class="${b.recruit===k?'on':''}" data-act="briefrecruit" data-arg="${k}" aria-pressed="${b.recruit===k}">${esc(RECRUIT[k].n)}</button>`).join('')}</div>`
+     :`<div class="rt-btns"><button class="rt-btn" data-act="briefedit">Change the plan</button></div>`;
+   return`<section class="rt">${rtBar(winter?`WINTER MEETING · WEEK ${S.week}`:'TD MEETING',esc(m.dir))}
+   <div class="tm-top"><div class="tm-money"><small>TO SPEND</small><b>£${bud}k</b><span>£${n0(Math.max(0,(wageCapK(id)-wageBillK(id))*1000))}/w wage room${bud<3?' · free agents only':''}</span></div><div class="tm-bars">${bars}</div></div>
+   <div class="rt-h">THE HOLES</div><div class="tm-holes">${holes}</div>
+   <div class="rt-h">THE PLAN · ${esc(BUDGET_LV[b.budget].n.toUpperCase())} · ${esc(RECRUIT[b.recruit].n.toUpperCase())}</div>
+   <ol class="tm-plan">${plan.map(t=>`<li>${esc(t)}</li>`).join('')||'<li>No goals chosen</li>'}</ol>
    ${edit}${winter?'<div class="rt-btns"><button class="rt-btn on" data-act="briefsign">✍ Agree the winter plan</button></div>':''}</section>`;
  }
  /* the Transfer Centre: the director's board as a text page; one tap a market week */
@@ -448,7 +441,8 @@
      else if(c&&day>0){st='On the shortlist';cls='short';who=c}
      else{st=day?'No one found yet':'Searching';cls='short';who=null}
      const name=who?`<button class="pp-link" data-act="player" data-arg="${esc(who.pid)}">${esc(who.name)}</button> <small>${who.age} · ${who.from?esc(nm(who.from)):'free agent'}${who.est?` · ~${who.est}`:''}${who.chair?' · your find':''}</small>`:`<small>${esc(POS_ONE[pos]||pos)}</small>`;
-     return`<div class="tc-need s-${cls}"><span class="tc-np">${esc(pos)}</span><span class="tc-nb">${name}<em>${esc(st)}${fails.length?` <i>· ${fails.length} failed</i>`:''}</em></span></div>`};
+     const flash=who&&who.stage==='signed'&&who.sday!=null&&who.sday>=day-1;
+     return`<div class="tc-need s-${cls}${flash?' flash':''}"><span class="tc-np">${esc(pos)}</span>${flash?'<i class="tc-stamp2">SIGNED</i>':''}<span class="tc-nb">${name}<em>${esc(st)}${fails.length?` <i>· ${fails.length} failed</i>`:''}</em></span></div>`};
    const outs=[...P_.sold.map(x=>rtRow('OUT',`${esc(x.name)} <small>to ${esc(nm(x.to))}</small>`,`£${x.fee}k`,'s-good')),...(P_.list||[]).map(pid=>{const p=S.squads[id].find(x=>x.id===pid);return p?rtRow('LIST',`${esc(p.name)} <small>available · ~£${Math.round(askingFee(p,id))}k</small>`,'','s-short'):''})].join('');
    /* the director's line, from the state of the deals */
    const needs=preTargets(id),live=P_.deals.filter(d=>['bid','countered'].includes(d.stage)),done=P_.deals.filter(d=>d.stage==='signed');
@@ -463,14 +457,14 @@
    const lever=(k,t)=>`<button class="rt-btn ${pan===k?'on':''}" data-act="tcpanel" data-arg="${k}" aria-pressed="${pan===k}" ${run?'disabled':''}>${t}</button>`;
    /* the news: newest first, grouped by date */
    const items=P_.ticker.filter(t=>t.d>=0&&t.day!=null).slice().reverse(),groups=[];for(const t of items){const g=groups[groups.length-1],k=t.d>=10?'Deadline · '+DAYS[t.d]:preDayLabel(P_,t.day);if(g&&g.k===k)g.t.push(t);else groups.push({k,t:[t],fresh:t.day===day-1||t.day===day})}
-   const news=groups.slice(0,UI.tcAll?99:5).map(g=>`<li class="${g.fresh?'fresh':''}"><b>${esc(g.k)}</b>${g.t.map(t=>`<span class="tk-${esc(t.kind||'news')}">${esc(t.t)}</span>`).join('')}</li>`).join('');
+   const news=groups.slice(0,UI.tcAll?99:2).map(g=>`<li class="${g.fresh?'fresh':''}"><b>${esc(g.k)}</b>${g.t.map(t=>`<span class="tk-${esc(t.kind||'news')}">${esc(t.t)}</span>`).join('')}</li>`).join('');
    return`<div class="tc2">${esc2}${interestCard(P_)}
    <section class="rt tc3">${rtBar('TRANSFER CENTRE',esc(when))}${cal}${money}
    <div class="rt-quote">“${esc(say)}” <small>— ${esc(dir)}, director</small></div>
    <div class="rt-h">THE PLAN</div>${posList.map(needRow).join('')||'<p class="rt-note">No needs.</p>'}
    ${outs?`<div class="rt-h">OUTGOING</div>${outs}`:''}
    <div class="rt-btns">${lever('prio','Priority')}${lever('rec','Shortlist')}${lever('fund','Funding')}${lever('list','Transfer list')}</div>${panel}
-   <div class="rt-h">MARKET NEWS</div><ul class="tc-news" aria-live="polite">${news||'<li><b>'+esc(preDayLabel(P_,0))+'</b><span>The window opens today.</span></li>'}</ul>${groups.length>5&&!UI.tcAll?'<button class="rt-more" data-act="tcall">All market news ›</button>':''}
+   <div class="rt-h">MARKET NEWS</div><ul class="tc-news" aria-live="polite">${news||'<li><b>'+esc(preDayLabel(P_,0))+'</b><span>The window opens today.</span></li>'}</ul>${groups.length>2&&!UI.tcAll?`<button class="rt-more" data-act="tcall">All market news · ${items.length} ›</button>`:''}
    </section></div>`}
  /* the pre-season as steps: welcome (first season) → the plan → the market → the season ahead */
  function preStep(){const P_=PRE();if(!P_)return null;if(!P_.brief&&!manifestSealed(S.my))return'promise';if(!P_.brief)return'plan';if(P_.wk<=winWeeks(P_)||tcPlaying())return'market';return'ahead'}

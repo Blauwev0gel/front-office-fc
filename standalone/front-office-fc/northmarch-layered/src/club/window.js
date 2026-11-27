@@ -78,7 +78,7 @@ function signBrief(id,goals,budget,recruit){
 function preFinish(id,d){
   const f=findPlayer(d.pid);if(!f||f.club!==d.from){d.stage='gone';preTick(`${d.name} is no longer available.`,'bad');return false}
   if(d.from&&foreignSeller(d.from)){if(!foreignMove(f.p,d.from,id,d.fee,'director scouting')){d.stage='walked';return false}}else if(d.from)transfer(f.p,d.from,id,d.fee,'buy',d.premium);else signFree(f.p,id);
-  recordDecision(id,d.pos,{p:f.p,from:d.from,fee:d.fee,seen:d.est},[],false);d.stage='signed';d.age=f.p.age;
+  recordDecision(id,d.pos,{p:f.p,from:d.from,fee:d.fee,seen:d.est},[],false);d.stage='signed';d.sday=preState().day??0;d.age=f.p.age;
   preTick(d.fee?`✍ ${d.name} signs from ${marketClubName(d.from)} for £${d.fee}k.`:`✍ ${d.name} joins on a free transfer.`,'good');return true;
 }
 function preHijack(d){

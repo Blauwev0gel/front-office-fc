@@ -19,7 +19,7 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     await tap('[data-act=new]');await wide('choose');
     ok(await count('[data-act=seat]')>=3,`${scheme}: the open chairs are offered as files`);
     await tap('[data-act=seat] >> nth=1');await wide('club file');
-    ok((await page.locator('body').innerText()).toUpperCase().includes('THREE NAMES TO KNOW'),`${scheme}: the file names three players`);
+    ok((await page.locator('body').innerText()).toUpperCase().includes('THREE NAMES'),`${scheme}: the file names three players`);
     await tap('[data-act=seatback]');ok(await count('[data-act=seat]')>=3,`${scheme}: back from a file to the open chairs`);
     await tap('[data-act=seat] >> nth=1');await tap('[data-act=choose]');
     await page.evaluate(()=>{S.agmOff=true;M(S.my).conf=90}); /* this run tests the screens, not the members' vote */

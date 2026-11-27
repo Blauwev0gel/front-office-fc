@@ -189,7 +189,7 @@ function groundCondWorst(id){const g=G(id);const all=[...Object.entries(g.sides)
 
 /* ----- commands (player, AI clubs, later staff and story) ----- */
 defCommand('StartProject',{check:(id,a)=>{const o=projectCatalog(id).find(x=>x.key===a.key);if(!o)return'Nothing to build there';if(o.busy)return'Work is already under way there';if(!OFFER[a.offer||'standard'])return'Unknown builder';
-  const cost=Math.round(o.cost*OFFER[a.offer||'standard'].p);if(F(id).cash-cost<-creditLimit(id))return'The bank will not cover this';return null},run:(id,a)=>startProject(id,a.key,a.offer)});
+  const cost=Math.round(o.cost*OFFER[a.offer||'standard'].p);const pot=typeof budBuildLeft==='function'?budBuildLeft(id):null;if(pot!=null&&cost>pot)return`The building pot has £${pot}k left; this costs £${cost}k`;if(F(id).cash-cost<-creditLimit(id))return'The bank will not cover this';return null},run:(id,a)=>{const p=startProject(id,a.key,a.offer);if(p&&typeof budBuilt==='function')budBuilt(id,p.label,p.cost);return p}});
 defCommand('Repair',{check:(id,a)=>{const r=repairList(id).find(x=>x.key===a.key);if(!r)return'Nothing to repair';if(F(id).cash-r.cost<-creditLimit(id))return'The bank will not cover this';return null},run:(id,a)=>repair(id,a.key)});
 defCommand('SetDeptBudget',{check:(id,a)=>!G(id).depts[a.dept]||!BUDGET_F[a.level]?'Unknown department or level':null,run:(id,a)=>{G(id).depts[a.dept].budget=a.level;if(id===S.my)gLog(id,`${DEPT[a.dept].n} budget set to ${a.level}.`)}});
 /* staff: hiring takes three weeks and a recruitment fee (two weeks of the new cost); cutting staff costs four weeks' severance */

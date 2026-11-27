@@ -100,7 +100,7 @@ function estSeasonIncome(id){
   const hold=c.support*.28*F(id).prices.season/1000;
   return Math.round(h*SEASON_WEEKS/2+reg*SEASON_WEEKS+hold+PRIZE[c.tier][0]*.6);
 }
-function wageCapK(id){const income=estSeasonIncome(id),wk=weekLines(id,false,{}),fixed=-((wk.staff||0)+(wk.depts||0)+(wk.upkeep||0)+(wk.rent||0))*SEASON_WEEKS;return r2(Math.max(0,Math.min(income*wageRatio(id),income*.95-fixed))/SEASON_WEEKS)}
+function wageCapK(id){const income=estSeasonIncome(id),wk=weekLines(id,false,{}),fixed=-((wk.staff||0)+(wk.depts||0)+(wk.upkeep||0)+(wk.rent||0))*SEASON_WEEKS;return r2(Math.max(0,Math.min(income*wageRatio(id),income*.95-fixed))/SEASON_WEEKS+(typeof budWageExtraK==='function'?budWageExtraK(id):0))}
 
 /* ----- the week for one club. matches: this week's games involving the club ----- */
 function financeWeek(id,matches){

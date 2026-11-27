@@ -302,3 +302,29 @@ b.good{color:var(--good)}b.bad{color:var(--bad)}
 .g-bk b.bad{color:var(--bad)}.g-bk b.good{color:var(--good)}.g-bk b.warn{color:var(--signal)}
 .g-books .g-hint b{color:var(--ink)}
 .ib-col{flex-direction:column}
+/* the budget meeting (MB-27) */
+.g-board h2{margin:.2em 0 .4em}
+.bd-strip{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+.bd-strip i{width:22px;height:22px;border-radius:4px;display:block}
+.bd-strip i.bd-players,.bd-row.bd-players .bd-pot b::before{background:var(--bd-players)}
+.bd-strip i.bd-wages,.bd-row.bd-wages .bd-pot b::before{background:var(--bd-wages)}
+.bd-strip i.bd-build,.bd-row.bd-build .bd-pot b::before{background:var(--bd-build)}
+.bd-strip i.bd-bank,.bd-row.bd-bank .bd-pot b::before{background:var(--bd-bank)}
+:root{--bd-players:#2f6fd6;--bd-wages:#d08a1e;--bd-build:#3c9a5f;--bd-bank:#8a8f98}
+.bd-row{padding:10px 0;border-top:1px solid var(--line,rgba(127,127,127,.25))}
+.bd-row:first-child{border-top:0;padding-top:0}
+.bd-ctl{display:flex;align-items:center;gap:8px}
+.bd-pot{flex:1;display:flex;flex-direction:column}
+.bd-pot b::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.bd-pot small{color:var(--muted);font-size:.75rem;margin-left:4px}
+.bd-b{min-width:44px;min-height:44px;border-radius:10px;border:1px solid var(--line,rgba(127,127,127,.4));background:var(--card,transparent);color:inherit;font-size:1.3rem;font-weight:800;cursor:pointer}
+.bd-b:disabled{opacity:.35;cursor:default}
+.bd-rest{font-size:.8rem;color:var(--muted)}
+.bd-ask{margin:.3em 0 0;font-size:.82rem;font-weight:700}
+.bd-ask.good{color:var(--good,#2e8b57)}.bd-ask.bad{color:var(--bad,#c0392b)}
+.bd-left{list-style:none;padding:0;margin:10px 0 0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.bd-left li{display:flex;flex-direction:column;font-size:.75rem}
+.bd-left small{color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-size:.66rem;font-weight:700}
+.bd-left b{font-size:.95rem}.bd-left span{color:var(--muted)}
+.g-steps{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:1fr}
+.bd-b{flex:none;width:44px}

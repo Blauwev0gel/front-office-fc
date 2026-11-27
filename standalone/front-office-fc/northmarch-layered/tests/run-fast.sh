@@ -21,6 +21,7 @@ run node tests/l3-s32-test.js
 run node tests/l3-people-test.js
 run node tests/player-data-test.js
 run node tests/money-test.js
+run node tests/budget-test.js
 run node tests/layer-isolation-test.js
 run node tests/base-isolation-test.js
 run node tests/sim-test.js 20261121 20

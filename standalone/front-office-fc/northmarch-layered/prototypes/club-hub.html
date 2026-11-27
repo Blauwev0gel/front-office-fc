@@ -1,0 +1,338 @@
+<title>Northmarch Club Hub</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Figtree:wght@400;500;600;700;800&family=Chivo+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: the club as a place — club band with four gauges on top, one place per tab (this week, dressing room, the ground, the league), floodlit pitch greens with the club's gold */
+:root{
+  --club:#0f4a32; --club2:#0b3726; --gold:#e3b23c; --onclub:#f3f7f2;
+  --bg:#eef2ee; --card:#ffffff; --ink:#132019; --muted:#5d6e64; --line:#d6dfd8; --chip:#e6ece7;
+  --grass:#2f7d4f; --grass2:#2a7047; --chalk:rgba(255,255,255,.85);
+  --good:#1d8a52; --bad:#c2412d; --warn:#b67a10;
+  --f-disp:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
+  --f-num:"Chivo Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --club:#0d3d2a; --club2:#082a1d; --gold:#f0c45a; --onclub:#eef5ef;
+  --bg:#0a120e; --card:#121d17; --ink:#e6efe8; --muted:#93a89b; --line:#23342a; --chip:#1a2a21;
+  --grass:#24603d; --grass2:#1f5636; --chalk:rgba(255,255,255,.7);
+  --good:#4fcf8a; --bad:#f07a62; --warn:#f0b54a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --club:#0d3d2a; --club2:#082a1d; --gold:#f0c45a; --onclub:#eef5ef;
+  --bg:#0a120e; --card:#121d17; --ink:#e6efe8; --muted:#93a89b; --line:#23342a; --chip:#1a2a21;
+  --grass:#24603d; --grass2:#1f5636; --chalk:rgba(255,255,255,.7);
+  --good:#4fcf8a; --bad:#f07a62; --warn:#f0b54a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.app{max-width:520px;margin:0 auto;min-height:100vh;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+
+/* the club band */
+.band{background:linear-gradient(160deg,var(--club),var(--club2));color:var(--onclub);padding-block:14px 12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));position:relative;overflow:hidden}
+.band::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 38px,rgba(255,255,255,.035) 38px 76px);pointer-events:none}
+.idrow{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.idrow h1{font-family:var(--f-disp);font-weight:900;font-size:2rem;line-height:.95;margin:0;letter-spacing:.01em;text-transform:uppercase}
+.idrow p{margin:2px 0 0;font-size:.82rem;opacity:.85}
+.gauges{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px;position:relative;z-index:1}
+.g{background:rgba(0,0,0,.22);border-radius:10px;padding:7px 8px;display:flex;flex-direction:column;gap:3px;min-width:0;transition:box-shadow .4s}
+.g small{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.g b{font-family:var(--f-num);font-size:1rem;font-weight:700;white-space:nowrap}
+.g .meter{height:5px;border-radius:3px;background:rgba(255,255,255,.18);position:relative;overflow:hidden}
+.g .meter i{position:absolute;inset:0 auto 0 0;background:var(--gold);border-radius:3px;transition:width .8s ease}
+.g .meter em{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--onclub);opacity:.8}
+.g.flash-up{box-shadow:0 0 0 2px var(--good) inset}.g.flash-down{box-shadow:0 0 0 2px var(--bad) inset}
+
+main{padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:14px}
+.view[hidden]{display:none!important}
+.k{font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+h2{font-family:var(--f-disp);font-weight:800;text-transform:uppercase;font-size:1.6rem;line-height:1;margin:0;text-wrap:balance}
+h3{margin:0;font-size:1rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px}
+
+/* the decision of the week: a person at your door */
+.from{display:flex;gap:10px;align-items:center}
+.face{width:42px;height:42px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:800;color:var(--onclub);background:var(--club)}
+.from small{display:block;font-size:.72rem;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.quote{font-size:1.02rem;margin:0}
+.opts{display:grid;gap:8px}
+.opt{display:grid;gap:6px;text-align:left;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;min-height:44px}
+.opt:hover{border-color:var(--club)}
+.opt.on{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 10%,var(--card))}
+.opt[disabled]:not(.on){opacity:.45;cursor:default}
+.fx{display:flex;flex-wrap:wrap;gap:5px}
+.fx span{font-size:.72rem;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--chip)}
+.fx .up{color:var(--good)}.fx .down{color:var(--bad)}
+.after{font-size:.9rem;color:var(--muted);margin:0}
+
+/* matchday poster */
+.poster{border-radius:16px;overflow:hidden;background:var(--grass);color:#fff;position:relative}
+.poster .stripes{position:absolute;inset:0;background:repeating-linear-gradient(0deg,var(--grass) 0 26px,var(--grass2) 26px 52px)}
+.poster .in{position:relative;padding:14px;display:grid;gap:10px}
+.poster .tag{justify-self:start;background:var(--bad);color:#fff;font-weight:900;font-family:var(--f-disp);letter-spacing:.06em;padding:2px 10px;border-radius:6px;font-size:1rem}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center}
+.vs b{font-family:var(--f-disp);font-size:1.25rem;line-height:1;text-transform:uppercase;display:block;margin-top:6px}
+.score{font-family:var(--f-disp);font-size:2.6rem;font-weight:900;line-height:1;min-width:92px;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.score small{display:block;font-family:var(--f-num);font-size:.75rem;font-weight:500;opacity:.85;margin-top:4px;text-shadow:none}
+.meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:.8rem;opacity:.92}
+.odds{height:8px;border-radius:4px;display:flex;overflow:hidden;background:rgba(0,0,0,.25)}
+.odds i{display:block;height:100%}
+.go{min-height:48px;border:0;border-radius:12px;background:var(--gold);color:#1b1404;font-weight:900;font-size:1.05rem;letter-spacing:.02em;cursor:pointer}
+.go[disabled]{opacity:.5;cursor:default}
+.feed{list-style:none;margin:0;padding:0;display:grid;gap:4px;max-height:190px;overflow:auto}
+.feed li{display:grid;grid-template-columns:38px 1fr;gap:6px;font-size:.88rem;background:rgba(0,0,0,.2);border-radius:8px;padding:6px 8px}
+.feed li b{font-family:var(--f-num)}
+.feed li.goal{background:rgba(227,178,60,.35)}
+
+/* why it went like this */
+.chain{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.chain li{display:grid;grid-template-columns:22px 1fr;gap:10px;padding-bottom:12px;position:relative}
+.chain li::before{content:"";position:absolute;left:10px;top:18px;bottom:0;width:2px;background:var(--line)}
+.chain li:last-child::before{display:none}
+.chain li i{width:22px;height:22px;border-radius:50%;background:var(--club);color:var(--onclub);display:grid;place-items:center;font-style:normal;font-size:.7rem;font-weight:800;z-index:1}
+.chain li p{margin:0}
+.paper{border-top:3px solid var(--ink);padding-top:8px}
+.paper h3{font-family:var(--f-disp);font-size:1.5rem;text-transform:uppercase;line-height:1}
+
+/* dressing room: the pitch */
+.pitchwrap{border-radius:16px;overflow:hidden;background:var(--grass)}
+.pitchwrap svg{display:block;width:100%;height:auto}
+.pl{cursor:pointer}
+.pl:focus{outline:none}.pl:focus-visible circle.shirt{stroke:var(--gold);stroke-width:3}
+.sheet{display:grid;gap:8px}
+.bars{display:flex;gap:4px;align-items:flex-end;height:46px}
+.bars i{flex:1;border-radius:3px 3px 0 0;background:var(--club);display:block}
+.row{display:flex;justify-content:space-between;gap:8px;font-size:.9rem;border-top:1px solid var(--line);padding-top:6px}
+
+/* the ground map */
+.mapwrap{border-radius:16px;overflow:hidden;background:var(--chip);border:1px solid var(--line)}
+.mapwrap svg{display:block;width:100%;height:auto}
+.bld{cursor:pointer}
+.bld:focus{outline:none}.bld:focus-visible rect{stroke:var(--gold);stroke-width:4}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.pill{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:999px;border:1px solid currentColor}
+.pill.ahead{color:var(--good)}.pill.behind{color:var(--bad)}.pill.level{color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.act{min-height:48px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;padding:8px;text-align:left;display:grid;gap:2px}
+.act b{font-size:.9rem}.act small{font-size:.75rem;color:var(--muted)}
+.act[disabled]{opacity:.45;cursor:default}
+
+/* league */
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{padding:7px 5px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td:nth-child(2),th:nth-child(2){text-align:left;white-space:normal}
+td:first-child{color:var(--muted)}
+tr.me td{background:color-mix(in srgb,var(--gold) 16%,transparent);font-weight:800}
+tr.zone-up td:first-child{box-shadow:inset 3px 0 var(--good)}
+tr.zone-down td:first-child{box-shadow:inset 3px 0 var(--bad)}
+.form{display:inline-flex;gap:2px}
+.form i{width:16px;height:16px;border-radius:3px;font-style:normal;font-size:.6rem;font-weight:800;display:grid;place-items:center;color:#fff}
+.form .W{background:var(--good)}.form .D{background:var(--muted)}.form .L{background:var(--bad)}
+.rival{font-size:.6rem;font-weight:900;color:var(--bad);margin-left:4px;letter-spacing:.05em}
+
+/* bottom navigation: places */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);z-index:5}
+nav.tabs .in{display:grid;grid-template-columns:repeat(4,1fr);width:100%;max-width:520px}
+nav.tabs button{min-height:60px;border:0;background:none;display:grid;place-items:center;gap:2px;font-size:.72rem;font-weight:700;color:var(--muted);cursor:pointer;padding:6px 2px}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button[aria-current="page"]{color:var(--club)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) nav.tabs button[aria-current="page"]{color:var(--gold)}}
+:root[data-theme="dark"] nav.tabs button[aria-current="page"]{color:var(--gold)}
+.proto{font-size:.75rem;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app">
+  <header class="band">
+    <div class="idrow">
+      <svg width="52" height="60" viewBox="0 0 52 60" aria-hidden="true"><defs><clipPath id="sh"><path d="M26 2 L49 9 V30 C49 45 38 53 26 58 C14 53 3 45 3 30 V9 Z"/></clipPath></defs><g clip-path="url(#sh)"><rect width="52" height="60" fill="#f3f7f2"/><rect x="0" width="13" height="60" fill="#0f4a32"/><rect x="26" width="13" height="60" fill="#0f4a32"/><rect y="0" width="52" height="16" fill="#e3b23c"/></g><path d="M26 2 L49 9 V30 C49 45 38 53 26 58 C14 53 3 45 3 30 V9 Z" fill="none" stroke="#e3b23c" stroke-width="2.5"/><text x="26" y="13" text-anchor="middle" font-family="Big Shoulders Display,Impact,sans-serif" font-weight="900" font-size="11" fill="#0f4a32">PELL</text></svg>
+      <div><h1>Pell United</h1><p>Northmarch One · <span id="posTxt">4th</span> · The Brickfield</p></div>
+    </div>
+    <div class="gauges" aria-label="The club in four numbers">
+      <div class="g" id="gCash"><small>Money</small><b class="num" id="vCash">£70k</b><div class="meter"><i id="mCash"></i></div></div>
+      <div class="g" id="gMem"><small>Members</small><b class="num" id="vMem">58%</b><div class="meter"><i id="mMem"></i><em style="left:50%" title="Below 50% at the AGM and you are out"></em></div></div>
+      <div class="g" id="gTeam"><small>Team</small><b class="num" id="vTeam">9.8</b><div class="meter"><i id="mTeam"></i><em id="eTeam" title="League average"></em></div></div>
+      <div class="g" id="gWeek"><small>Season</small><b class="num" id="vWeek">Wk 7</b><div class="meter"><i id="mWeek"></i></div></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- THIS WEEK: one decision, then Saturday -->
+    <section class="view" id="v-week" aria-label="This week">
+      <div class="card" id="decision">
+        <span class="k">Monday · your office · the decision of the week</span>
+        <div class="from"><span class="face">DU</span><div><small>Dawn Usher · director of football</small><b>Ashford City want Ryan Cole</b></div></div>
+        <p class="quote">“They bid £120k for him. He scored 14 for us last season and the derby is on Saturday. Your call, chairman.”</p>
+        <div class="opts" id="opts"></div>
+        <p class="after" id="after" hidden></p>
+      </div>
+
+      <div class="poster" id="poster">
+        <div class="stripes"></div>
+        <div class="in">
+          <span class="tag">DERBY DAY</span>
+          <div class="vs">
+            <div><svg width="44" height="50" viewBox="0 0 52 60" aria-hidden="true"><path d="M26 2 L49 9 V30 C49 45 38 53 26 58 C14 53 3 45 3 30 V9 Z" fill="#f3f7f2" stroke="#e3b23c" stroke-width="3"/><path d="M13 6 V52 M39 6 V52" stroke="#0f4a32" stroke-width="12"/></svg><b>Pell United</b></div>
+            <div class="score" id="score">15:00<small id="clock">Saturday</small></div>
+            <div><svg width="44" height="50" viewBox="0 0 52 60" aria-hidden="true"><path d="M26 2 L49 9 V30 C49 45 38 53 26 58 C14 53 3 45 3 30 V9 Z" fill="#7a1f2b" stroke="#f3f7f2" stroke-width="3"/><path d="M3 24 H49" stroke="#f3f7f2" stroke-width="8"/></svg><b>Corden Town</b></div>
+          </div>
+          <div class="meta"><span>The Brickfield · 2,300 of 2,500 expected</span><span>Last derby: 0–2</span></div>
+          <div class="odds" aria-label="Chances" id="odds"></div>
+          <div class="meta" id="oddsTxt"></div>
+          <ol class="feed" id="feed" hidden></ol>
+          <button class="go" id="play" disabled>Decide first, then kick off</button>
+        </div>
+      </div>
+
+      <div class="card" id="why" hidden>
+        <span class="k">Why it went like this</span>
+        <ol class="chain" id="chain"></ol>
+        <div class="paper"><span class="k">Sunday · The Northmarch Echo</span><h3 id="headline"></h3></div>
+      </div>
+    </section>
+
+    <!-- THE DRESSING ROOM -->
+    <section class="view" id="v-squad" hidden aria-label="Dressing room">
+      <div><span class="k">The dressing room · coach picks a 4-4-2</span><h2>Saturday's eleven</h2></div>
+      <div class="pitchwrap"><svg id="pitch" viewBox="0 0 340 440" role="img" aria-label="The starting eleven on the pitch"></svg></div>
+      <div class="card sheet" id="psheet"><span class="k">Tap a player</span><p class="after">Every shirt is a person with form, a price and a contract.</p></div>
+    </section>
+
+    <!-- THE GROUND -->
+    <section class="view" id="v-ground" hidden aria-label="The ground">
+      <div><span class="k">The Brickfield and the club grounds</span><h2>Your club, as a place</h2></div>
+      <div class="mapwrap"><svg id="map" viewBox="0 0 340 360" role="img" aria-label="Map of the stadium and the club buildings"></svg></div>
+      <div class="legend"><span style="--c:var(--good)">Ahead of the division</span><span style="--c:var(--muted)">Level</span><span style="--c:var(--bad)">Behind</span></div>
+      <div class="card" id="dsheet"><span class="k">Tap a building</span><p class="after">Each building is a department: a head, their people and the building itself.</p></div>
+    </section>
+
+    <!-- THE LEAGUE -->
+    <section class="view" id="v-league" hidden aria-label="League">
+      <div><span class="k">Northmarch One · top two go up, bottom two go down</span><h2>The table</h2></div>
+      <div class="card tablewrap"><table><thead><tr><th>#</th><th>Club</th><th>P</th><th>GD</th><th>Pts</th><th>Form</th></tr></thead><tbody id="tbody"></tbody></table></div>
+    </section>
+    <p class="proto">Prototype of the new presentation · example data · nothing here is saved</p>
+  </main>
+
+  <nav class="tabs" aria-label="Places"><div class="in">
+    <button data-v="week" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>This week</button>
+    <button data-v="squad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3l-5 3 2 5 2-1v11h10V10l2 1 2-5-5-3c-1 2-2 3-4 3s-3-1-4-3z"/></svg>Dressing room</button>
+    <button data-v="ground"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="3"/><rect x="7" y="9" width="10" height="6"/><path d="M12 9v6"/></svg>The ground</button>
+    <button data-v="league"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/><path d="M8 4v16"/></svg>League</button>
+  </div></nav>
+</div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+const S={cash:70,mem:58,team:9.8,avg:9.4,week:7,choice:null,played:false,pts:{},sold:false};
+const fmtCash=v=>(v<0?'−':'')+'£'+Math.abs(Math.round(v))+'k';
+
+/* ---------- gauges: the four currencies every screen feeds ---------- */
+function gauges(flash){
+  $('#vCash').textContent=fmtCash(S.cash);$('#mCash').style.width=Math.max(4,Math.min(100,S.cash/250*100))+'%';
+  $('#vMem').textContent=Math.round(S.mem)+'%';$('#mMem').style.width=S.mem+'%';
+  $('#vTeam').textContent=S.team.toFixed(1);$('#mTeam').style.width=((S.team-7)/5*100)+'%';$('#eTeam').style.left=((S.avg-7)/5*100)+'%';
+  $('#vWeek').textContent='Wk '+S.week;$('#mWeek').style.width=(S.week/30*100)+'%';
+  if(flash)for(const [id,d] of Object.entries(flash)){if(!d)continue;const el=$(id);el.classList.remove('flash-up','flash-down');void el.offsetWidth;el.classList.add(d>0?'flash-up':'flash-down');setTimeout(()=>el.classList.remove('flash-up','flash-down'),1400)}
+}
+function move(fx){const f={};if(fx.cash){S.cash+=fx.cash;f['#gCash']=fx.cash}if(fx.mem){S.mem=Math.max(0,Math.min(100,S.mem+fx.mem));f['#gMem']=fx.mem}if(fx.team){S.team=+(S.team+fx.team).toFixed(1);f['#gTeam']=fx.team}gauges(f)}
+const chip=(t,d)=>`<span class="${d>0?'up':d<0?'down':''}">${t}</span>`;
+const fxChips=fx=>[fx.cash?chip(`${fx.cash>0?'+':'−'}£${Math.abs(fx.cash)}k money`,fx.cash):'',fx.team?chip(`${fx.team>0?'+':'−'}${Math.abs(fx.team).toFixed(1)} team`,fx.team):'',fx.mem?chip(`${fx.mem>0?'+':'−'}${Math.abs(fx.mem)}% members`,fx.mem):''].join('')+(fx.note?`<span>${fx.note}</span>`:'');
+
+/* ---------- the decision of the week ---------- */
+const OPTS=[
+  {k:'keep',t:'Keep him. Tell Ashford no.',fx:{mem:2,note:'Ultras: keep the icons'},after:'Cole hears the news in the canteen and grins. “Saturday, then.”'},
+  {k:'sell',t:'Sell him for £120k.',fx:{cash:120,team:-.4,mem:-4,note:'No real striker left'},after:'Cole is gone by lunchtime. Jake Pike, 18, will start up front on Saturday.'},
+  {k:'ask',t:'Ask £150k and see if they blink.',fx:{team:-.2,mem:1,note:'Cole unsettled'},after:'Ashford walk away. Cole read about it online and is not happy.'}];
+function renderOpts(){$('#opts').innerHTML=OPTS.map(o=>`<button class="opt ${S.choice===o.k?'on':''}" data-k="${o.k}" ${S.choice?'disabled':''}><b>${o.t}</b><span class="fx">${fxChips(o.fx)}</span></button>`).join('')}
+$('#opts').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b||S.choice)return;const o=OPTS.find(x=>x.k===b.dataset.k);S.choice=o.k;S.sold=o.k==='sell';move(o.fx);renderOpts();
+  const a=$('#after');a.hidden=false;a.textContent=o.after;$('#play').disabled=false;$('#play').textContent='▶ Kick off the derby';odds();squad();});
+
+/* ---------- Saturday ---------- */
+function odds(){const d=S.team-9.6,w=Math.round(Math.max(15,Math.min(70,40+d*40))),l=Math.round(Math.max(12,Math.min(60,30-d*35))),dr=100-w-l;
+  $('#odds').innerHTML=`<i style="width:${w}%;background:var(--gold)"></i><i style="width:${dr}%;background:rgba(255,255,255,.55)"></i><i style="width:${l}%;background:#7a1f2b"></i>`;
+  $('#oddsTxt').innerHTML=`<span>Win ${w}%</span><span>Draw ${dr}%</span><span>Corden ${l}%</span>`}
+const MATCH={
+  keep:{h:2,a:1,ev:[[9,'Kick-off. The Brickfield End is full and loud.'],[23,'Corden press high. Pell can’t get out.'],[31,'GOAL Corden. A header from a corner. 0–1.','goal'],[45,'Half-time. 0–1.'],[54,'Cole drops deep and starts to find space.'],[58,'GOAL Pell! Okonjo bundles it in after Cole’s flick. 1–1.','goal'],[67,'GOAL PELL! Ryan Cole curls one in from 20 yards. 2–1.','goal'],[90,'Full time. Pell United 2–1 Corden Town.']],gate:14,mem:4},
+  sell:{h:0,a:1,ev:[[9,'Kick-off. A few boos when Pike’s name is read out.'],[27,'Pike through on goal. Shoots straight at the keeper.'],[45,'Half-time. 0–0. Eleven shots, none on target that worried anyone.'],[71,'GOAL Corden. On the break, while Pell push. 0–1.','goal'],[84,'“Where’s your striker?” from the away end.'],[90,'Full time. Pell United 0–1 Corden Town.']],gate:13,mem:-5},
+  ask:{h:1,a:1,ev:[[9,'Kick-off.'],[38,'GOAL Pell! Okonjo heads in. 1–0.','goal'],[45,'Half-time. 1–0.'],[62,'GOAL Corden. A deflection. 1–1.','goal'],[81,'Penalty to Pell! Cole steps up… and puts it over the bar.'],[90,'Full time. Pell United 1–1 Corden Town.']],gate:14,mem:-1}};
+let timer=null;
+$('#play').addEventListener('click',()=>{if(!S.choice||S.played)return;S.played=true;const M=MATCH[S.choice],feed=$('#feed');feed.hidden=false;feed.innerHTML='';$('#play').disabled=true;$('#play').textContent='Playing…';
+  let i=0,h=0,a=0;const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches,step=reduce?60:900;
+  const tick=()=>{const [m,t,cls]=M.ev[i];if(cls==='goal'){if(/GOAL Pell|GOAL PELL/.test(t))h++;else a++}
+    $('#score').innerHTML=`${h}–${a}<small>${m===90?'FULL TIME':m+"'"}</small>`;
+    feed.insertAdjacentHTML('afterbegin',`<li class="${cls||''}"><b>${m}'</b><span>${t}</span></li>`);i++;
+    if(i<M.ev.length)timer=setTimeout(tick,step);else finish()};tick();});
+function finish(){const M=MATCH[S.choice];S.week++;move({cash:M.gate,mem:M.mem});
+  const res=M.h>M.a?'W':M.h<M.a?'L':'D';S.pts=res;$('#play').textContent=res==='W'?'Derby won':res==='L'?'Derby lost':'Derby drawn';
+  const C={
+    keep:['You kept Ryan Cole and turned down £120k.','Cole stayed sharp and played with a point to prove.','67′: Cole’s curler wins the derby.',`Gate +£${M.gate}k · members +${M.mem}%: the Brickfield End sings your name.`],
+    sell:['You sold Ryan Cole for £120k.','Jake Pike, 18, started up front: team strength down 0.4.','Eleven shots, nothing on target. Corden score on the break.',`Gate +£${M.gate}k · members ${M.mem}%: “sold before the derby” will follow you to the AGM.`],
+    ask:['You asked Ashford for £150k. They walked away.','Cole read about it online: unsettled, team strength down 0.2.','81′: Cole skies a penalty that would have won it.',`Gate +£${M.gate}k · members ${M.mem}%: a point, and a striker who wonders if he is wanted.`]}[S.choice];
+  $('#chain').innerHTML=C.map((t,i)=>`<li><i>${['You','→','⚽','='][i]}</i><p>${t}</p></li>`).join('');
+  $('#headline').textContent={keep:'Cole says no to Ashford, yes to the Brickfield',sell:'Sold on Monday, beaten on Saturday',ask:'Cole’s miss and the £150k question'}[S.choice];
+  $('#why').hidden=false;table();$('#why').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})}
+
+/* ---------- the dressing room ---------- */
+function squad(){
+  const XI=[['GK',1,'Tom Adey',6.8,[6.5,7,6.6,7.1,6.8],'£35k','2 yrs'],['RB',2,'Noah Fenton',6.6,[6.4,6.9,6.2,6.8,6.7],'£28k','1 yr'],['CB',5,'Liam Okonjo',7.0,[7,7.2,6.8,7.1,6.9],'£52k','3 yrs'],['CB',6,'Sam Rudd',6.5,[6.3,6.6,6.4,6.9,6.3],'£24k','1 yr'],['LB',3,'Ashley Lockwood',6.9,[6.6,7.1,7,6.8,7.0],'£40k','4 yrs'],
+    ['RM',7,'Kai Brennan',6.7,[6.8,6.5,6.6,7,6.6],'£30k','2 yrs'],['CM',4,'Jasper Veldman',7.2,[7.1,7.4,7,7.3,7.2],'£60k','3 yrs'],['CM',8,'Tyler Barraclough',6.6,[6.5,6.7,6.4,6.9,6.5],'£22k','1 yr'],['LM',11,'Ollie Shaw',6.8,[6.9,6.6,7,6.7,6.8],'£33k','2 yrs'],
+    S.sold?['ST',19,'Jake Pike',6.1,[5.9,6.2,0,0,6.1],'£8k','academy']:['ST',9,'Ryan Cole',7.4,[7.6,7.2,7.8,7.1,7.4],'£120k bid','1 yr'],['ST',10,'Dean Moss',6.7,[6.6,6.9,6.5,6.8,6.7],'£31k','2 yrs']];
+  const P={GK:[[170,405]],RB:[[290,320]],CB:[[222,335],[118,335]],LB:[[50,320]],RM:[[295,215]],CM:[[222,230],[118,230]],LM:[[45,215]],ST:[[222,105],[118,105]]},used={};
+  let g=`<rect width="340" height="440" fill="var(--grass)"/>${[0,1,2,3,4,5,6,7].map(i=>`<rect y="${i*55}" width="340" height="27.5" fill="var(--grass2)"/>`).join('')}
+  <g fill="none" stroke="var(--chalk)" stroke-width="2"><rect x="12" y="12" width="316" height="416"/><line x1="12" y1="220" x2="328" y2="220"/><circle cx="170" cy="220" r="42"/><rect x="85" y="12" width="170" height="62"/><rect x="85" y="366" width="170" height="62"/><rect x="132" y="12" width="76" height="22"/><rect x="132" y="406" width="76" height="22"/></g>`;
+  XI.forEach((p,i)=>{const k=p[0];used[k]=(used[k]||0);const [x,y]=P[k][used[k]++];const r=p[3],col=r>=7?'var(--gold)':r<6.4?'#e07b6a':'#f3f7f2';
+    g+=`<g class="pl" tabindex="0" role="button" aria-label="${p[2]}, rating ${r}" data-i="${i}" transform="translate(${x} ${y})"><circle class="shirt" r="17" fill="${k==='GK'?'#e3b23c':'#0f4a32'}" stroke="#f3f7f2" stroke-width="2"/><text y="5" text-anchor="middle" font-family="Chivo Mono,monospace" font-weight="700" font-size="13" fill="${k==='GK'?'#0f4a32':'#f3f7f2'}">${p[1]}</text>
+    <rect x="-36" y="21" width="72" height="17" rx="4" fill="rgba(0,0,0,.45)"/><text y="33" text-anchor="middle" font-family="Figtree,sans-serif" font-weight="700" font-size="10" fill="#fff">${p[2].split(' ').slice(-1)[0]}</text>
+    <rect x="12" y="-22" width="26" height="15" rx="4" fill="${col}"/><text x="25" y="-11" text-anchor="middle" font-family="Chivo Mono,monospace" font-weight="700" font-size="9.5" fill="#132019">${r.toFixed(1)}</text></g>`});
+  const svg=$('#pitch');svg.innerHTML=g;svg.onclick=svg.onkeydown=e=>{if(e.type==='keydown'&&e.key!=='Enter'&&e.key!==' ')return;const n=e.target.closest('.pl');if(!n)return;const p=XI[+n.dataset.i];
+    $('#psheet').innerHTML=`<span class="k">${p[0]} · #${p[1]}</span><h3>${p[2]}</h3><div class="bars" aria-label="Last five ratings">${p[4].map(v=>`<i style="height:${v?Math.max(8,(v-5)/3*100):4}%;${v?'':'background:var(--line)'}"></i>`).join('')}</div><div class="row"><span>Rating this season</span><b class="num">${p[3].toFixed(1)}</b></div><div class="row"><span>Value</span><b class="num">${p[5]}</b></div><div class="row"><span>Contract</span><b>${p[6]}</b></div>${p[2]==='Ryan Cole'?'<p class="after">Ashford City bid for him on Monday. This week’s decision is about him.</p>':''}`}}
+
+/* ---------- the ground ---------- */
+const B=[
+  {k:'training',n:'Training ground',x:14,y:14,w:96,h:58,st:'level',head:'Nina Lowe',role:'Head of training',q:'Basic pitches. Our young lads grow, but slowly.',people:{c:'+£90/wk',fx:{cash:-3,team:.1}},build:{c:'£38k once',fx:{cash:-38,team:.2},wk:'14 weeks'}},
+  {k:'medical',n:'Medical room',x:122,y:14,w:96,h:58,st:'behind',head:'Vic Yates',role:'Head of medical',q:'We lost 19 weeks to injury already. The division average is 12.',people:{c:'+£80/wk',fx:{cash:-3,team:.1}},build:{c:'£64k once',fx:{cash:-64,team:.3},wk:'20 weeks'}},
+  {k:'academy',n:'Academy',x:230,y:14,w:96,h:58,st:'behind',head:'Gus Unwin',role:'Academy manager',q:'No building of our own. The good kids go to Corden.',people:{c:'+£70/wk',fx:{cash:-2}},build:{c:'£55k once',fx:{cash:-55,mem:2},wk:'18 weeks'}},
+  {k:'clubhouse',n:'Clubhouse',x:14,y:288,w:96,h:58,st:'level',head:'Dee Bramley',role:'Membership secretary',q:'850 paying members. A bar that opens on Fridays would bring more.',people:{c:'+£60/wk',fx:{cash:-2,mem:1}},build:{c:'£30k once',fx:{cash:-30,mem:3},wk:'10 weeks'}},
+  {k:'shop',n:'Club shop',x:122,y:288,w:96,h:58,st:'ahead',head:'Toni Okafor',role:'Commercial manager',q:'Shirt sales are up. We out-sell most of the division.',people:{c:'+£70/wk',fx:{cash:-2}},build:{c:'£25k once',fx:{cash:-25},wk:'8 weeks'}},
+  {k:'parking',n:'Car park',x:230,y:288,w:96,h:58,st:'level',head:'Nat Crewe',role:'Matchday manager',q:'Gates open at 13:30. Queues on derby day go round the block.',people:{c:'+£50/wk',fx:{cash:-2,mem:1}},build:{c:'£20k once',fx:{cash:-20,mem:1},wk:'6 weeks'}}];
+const STC={ahead:'var(--good)',behind:'var(--bad)',level:'var(--muted)'};
+function ground(){let g=`<rect width="340" height="360" fill="var(--chip)"/>
+  <g><rect x="70" y="96" width="200" height="168" rx="18" fill="var(--club)"/>
+  <rect x="96" y="120" width="148" height="120" fill="var(--grass)"/><g fill="none" stroke="var(--chalk)" stroke-width="1.5"><rect x="100" y="124" width="140" height="112"/><line x1="170" y1="124" x2="170" y2="236"/><circle cx="170" cy="180" r="16"/></g>
+  <text x="170" y="112" text-anchor="middle" font-size="9" font-weight="800" fill="#f3f7f2" font-family="Figtree,sans-serif">MILL STAND · SEATS 600</text>
+  <text x="170" y="256" text-anchor="middle" font-size="9" font-weight="800" fill="#f3f7f2" font-family="Figtree,sans-serif">BRICKFIELD END · TERRACE 900</text>
+  <text x="83" y="180" text-anchor="middle" font-size="8" font-weight="800" fill="#f3f7f2" font-family="Figtree,sans-serif" transform="rotate(-90 83 180)">EAST · 500</text>
+  <text x="257" y="180" text-anchor="middle" font-size="8" font-weight="800" fill="#f3f7f2" font-family="Figtree,sans-serif" transform="rotate(90 257 180)">WEST · 500</text></g>
+  <text x="170" y="86" text-anchor="middle" font-size="10" font-weight="800" fill="var(--muted)" font-family="Figtree,sans-serif">THE BRICKFIELD · 2,500</text>`;
+  for(const b of B)g+=`<g class="bld" tabindex="0" role="button" aria-label="${b.n}, ${b.st} of the division" data-k="${b.k}"><rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="10" fill="var(--card)" stroke="${STC[b.st]}" stroke-width="3"/><circle cx="${b.x+b.w-12}" cy="${b.y+12}" r="5" fill="${STC[b.st]}"/>
+   <text x="${b.x+10}" y="${b.y+26}" font-size="11" font-weight="800" fill="var(--ink)" font-family="Figtree,sans-serif">${b.n}</text><text x="${b.x+10}" y="${b.y+44}" font-size="9" font-weight="700" fill="${STC[b.st]}" font-family="Figtree,sans-serif">${b.st.toUpperCase()}</text></g>`;
+  const svg=$('#map');svg.innerHTML=g;svg.onclick=svg.onkeydown=e=>{if(e.type==='keydown'&&e.key!=='Enter'&&e.key!==' ')return;const n=e.target.closest('.bld');if(n)dept(n.dataset.k)}}
+function dept(k){const b=B.find(x=>x.k===k);
+  $('#dsheet').innerHTML=`<div class="from"><span class="face">${b.head.split(' ').map(w=>w[0]).join('')}</span><div><small>${b.head} · ${b.role}</small><b>${b.n}</b></div><span class="pill ${b.st}" style="margin-left:auto">${b.st}</span></div>
+  <p class="quote">“${b.q}”</p>
+  <div class="two"><button class="act" data-a="people" ${b.done?'disabled':''}><b>Hire more people</b><small>${b.people.c} · works in 3 weeks</small><span class="fx">${fxChips(b.people.fx)}</span></button>
+  <button class="act" data-a="build" ${b.done||S.cash<-b.build.fx.cash?'disabled':''}><b>Build it bigger</b><small>${b.build.c} · ${b.build.wk}</small><span class="fx">${fxChips(b.build.fx)}</span></button></div>
+  ${b.done?`<p class="after">${b.done}</p>`:''}`;
+  $('#dsheet').onclick=e=>{const a=e.target.closest('.act');if(!a||b.done)return;const o=b[a.dataset.a];move(o.fx);b.done=a.dataset.a==='build'?`Work starts on Monday. Ready in ${o.wk}. You will see it on the map.`:`Recruiting. The new staff start in three weeks.`;if(b.st==='behind')b.st='level';else if(b.st==='level')b.st='ahead';ground();dept(k)}}
+
+/* ---------- the league ---------- */
+const T=[['Harrowgate',7,9,16,'WWDWL'],['Ashford City',7,6,15,'WDWWW'],['Corden Town',7,4,13,'WWLDW',1],['Pell United',7,3,12,'DWWLW',0,1],['Selby Rovers',7,2,11,'LWDWW'],['Marsh Athletic',7,1,10,'DLWWD'],['Kettlewick',7,0,9,'WLLDW'],['Bramfield',7,-1,8,'LDWLD'],['Oakhurst',7,-3,7,'LLWDL'],['Fenby Town',7,-4,6,'DLLWL'],['Tollbridge',7,-7,4,'LLDLL'],['Stanmoor',7,-10,3,'LLLDL']];
+function table(){const rows=T.map(r=>[...r]);const me=rows.find(r=>r[6]),cd=rows.find(r=>r[5]);
+  if(S.played){me[1]++;cd[1]++;const res=S.pts;const gd={W:1,L:-1,D:0}[res];me[2]+=gd;cd[2]-=gd;me[3]+=res==='W'?3:res==='D'?1:0;cd[3]+=res==='L'?3:res==='D'?1:0;me[4]=(me[4]+res).slice(-5);cd[4]=(cd[4]+({W:'L',L:'W',D:'D'}[res])).slice(-5);
+    for(const r of rows)if(!r[5]&&!r[6]&&r!==me){r[1]++}}
+  rows.sort((a,b)=>b[3]-a[3]||b[2]-a[2]);const pos=rows.indexOf(me)+1;$('#posTxt').textContent=['1st','2nd','3rd'][pos-1]||pos+'th';
+  $('#tbody').innerHTML=rows.map((r,i)=>`<tr class="${r[6]?'me':''} ${i<2?'zone-up':i>=rows.length-2?'zone-down':''}"><td class="num">${i+1}</td><td>${r[0]}${r[5]?'<span class="rival">RIVAL</span>':''}</td><td class="num">${r[1]}</td><td class="num">${r[2]>0?'+':''}${r[2]}</td><td class="num"><b>${r[3]}</b></td><td><span class="form">${[...r[4]].map(c=>`<i class="${c}">${c}</i>`).join('')}</span></td></tr>`).join('')}
+
+/* ---------- navigation between places ---------- */
+document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('nav.tabs button').forEach(x=>x.removeAttribute('aria-current'));b.setAttribute('aria-current','page');
+  document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!=='v-'+b.dataset.v);window.scrollTo(0,0)}));
+
+renderOpts();odds();gauges();squad();ground();table();
+})();
+</script>

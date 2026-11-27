@@ -220,3 +220,10 @@ function forcedSale(id){
 }
 defCommand('ReleasePlayer',{who:['player','td'],check:(id,a)=>{const p=S.squads[id].find(x=>x.id===a.pid);if(!p)return'Not in the squad';if(p.loan)return'He is here on loan';if(S.squads[id].length<=SQUAD_MIN)return`The squad needs at least ${SQUAD_MIN} players`;return null},
   run:(id,a)=>{const p=S.squads[id].find(x=>x.id===a.pid);const pay=releaseCost(p);release(id,p,'released by the club');return pay}});
+
+/* loans in (MB-34): young players a club above or level does not play, for a season; the parent club pays half his wages */
+function loanPool(id,pos){const t=CL(id).tier,out=[];for(const c of allIds()){if(c===id||CL(c).tier>t)continue;const sq=S.squads[c],xi=new Set(pickXI(sq).map(x=>x.p.id));
+  for(const p of sq)if(p.pos===pos&&!p.loan&&p.age<=24&&!xi.has(p.id)&&canSpare(sq,p,false))out.push({p,from:c,loan:true})}
+  return out.sort((a,b)=>b.p.q-a.p.q).slice(0,6)}
+function loanInto(p,from,to){const sq=S.squads[from],i=sq.indexOf(p);if(i>=0)sq.splice(i,1);p.loan={from,s:S.season};p.wageFull=p.wage;p.wage=Math.round(p.wage*.5/5)*5;S.squads[to].push(p);
+  emit('Loan',from,`${p.name} joins ${CL(to).name} on loan for the season.`,{c2:to,pid:p.id})}

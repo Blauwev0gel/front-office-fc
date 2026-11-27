@@ -70,6 +70,10 @@ function newWorld(seed){
   staffPoolInit();
   for(const id of ids)commercialInit(id);
   S.qref=worldQuality();
+  /* every club starts inside its wage limit: squads are drawn on quality, and a top-flight squad drawn that way cost about twice
+     what the club can pay, so AI clubs sold their stars in the first weeks and the player's club started its summer locked.
+     Scale a club's contracts down to 92% of its limit when they are above it (no random draws). */
+  for(const id of ids){const cap=wageCapK(id),bill=wageBillK(id);if(bill>cap*.92&&bill>0){const f=cap*.92/bill;for(const p of S.squads[id])p.wage=Math.max(30,Math.round(p.wage*f/5)*5)}}
   faInit();
   enrichLegacyWorld(); /* a new world gets the same fields a loaded one is given, so a save continues exactly like the original */
   startSeason();

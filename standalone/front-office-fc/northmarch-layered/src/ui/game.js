@@ -170,7 +170,8 @@
      return`<button class="dp-row" data-act="dept" data-arg="${k}">${faceSVG(deptHead(id,k),{size:40,kit:clubKit(S.my).a})}
      <span class="dp-main"><b>${esc(DEPT[k].n)}</b><small>${esc(x.kp.label)}: ${esc(x.kp.text)}</small>
      <span class="dp-chips"><i>People ${'●'.repeat(x.d.staff)}${'○'.repeat(5-x.d.staff)}</i>${x.building?`<i>${x.lv?esc(LV_NAME[x.lv])+' '+esc(x.building.toLowerCase()):'No '+esc(x.building.toLowerCase())}</i>`:''}${x.d.hiring?'<i>Hiring…</i>':''}${x.fac&&x.fac.busy?'<i>Building…</i>':''}</span></span>
-     <span class="dp-v ${cls}">${esc(word.split(' ')[0])}</span></button>`}).join('')}`).join('')}</section>`}
+     <span class="dp-v ${cls}">${esc(word.split(' ')[0])}</span><span class="dp-next">${esc(deptNextStep(id,k))}</span></button>`}).join('')}`).join('')}</section>`}
+ function deptNextStep(id,k){const d=G(id).depts[k],fac=deptFacility(id,k);if(d.hiring)return'Recruiting staff…';if(fac&&fac.busy)return'Building under way…';const o=fac&&fac.opt,up=d.staff<5?deptWeekCost(id,k,d.staff+1)-deptWeekCost(id,k):null;return['Next:',o?`build £${o.cost}k`:null,up!=null?`hire +£${n0(up*1000)}/w`:null].filter(Boolean).join(' ')}
  /* ----- CLUB COLOURS AND THE HOME SCENE (MB-30): every club has a kit and a crest; the home screen shows your own
     ground and town, drawn from the real ground (stands, roofs, floodlights), lit for the time of the season ----- */
  const KITS=[['#0f4a32','#e3b23c'],['#7a1f2b','#f3f1ea'],['#173e8c','#ffffff'],['#c4252e','#ffffff'],['#151515','#f2c200'],['#5b2a86','#f3f1ea'],['#e0661c','#151515'],['#6aaee0','#13294b'],['#f3f1ea','#151515'],['#0a6b5a','#f3f1ea'],['#8b1a1a','#8fc9ec'],['#1f3a5f','#e3b23c']];
@@ -372,12 +373,27 @@
    :R.kind==='tour'?`Youth tournament: ${R.found.length} fifteen-year-olds seen. Invite them under Running.`
    :R.found&&R.found.length?`${R.kind==='data'?'The analyst':'Your trip to '+R.region} found ${R.found.map(g=>g.name).join(', ')}. Recommend them under Running.`:`${R.kind==='data'?'The analyst':'Your trip'} found nobody worth the money.`)}
  function weekRecap(){const t=weekDone(scNow()-1);if(!t.length)return'';return`<section class="g-card g-recap"><small class="g-k">YOUR WEEK</small>${t.map(x=>`<p>${esc(x)}</p>`).join('')}</section>`}
+ /* ----- THE WEEK (MB-35): one skeleton. Where and when → your desk → your week (where you spend your time) → Saturday
+    → the club in a few lines → the news. The chairman's verbs: decide, travel, be seen, back or warn people, invest. ----- */
+ function seasonDate(w){const d=new Date(Date.UTC(2026,7,8+7*(w-1)+(w>WINTER_WEEK-3?14:0)));return d.toUTCString().slice(0,11).replace(',','')}
+ function weekHead(id){const w=S.week+1,pos=posOf(id),t=S.tbl[id]||{pts:0,form:[]},mem=agmForecastPct(id),f=F(id),form=(t.form||[]).slice(-5);
+   return`<section class="rt">${rtBar(`MATCHWEEK ${w} OF ${SEASON_WEEKS}`,esc(seasonDate(w)))}
+   <div class="wk-strip"><div><small>TABLE</small><b>${S.week?ord(pos):'—'}</b><span>${t.pts||0} pts</span></div><div><small>FORM</small><b class="wk-form">${form.map(r=>`<i class="f${r}">${r}</i>`).join('')||'—'}</b></div><div><small>CASH</small><b class="${f.cash<0?'bad':''}">${k1(f.cash)}</b></div><div><small>MEMBERS</small><b class="${mem<50?'bad':''}">${mem}%</b><i class="bar"><i style="width:${mem}%"></i></i></div></div>
+   <div class="rt-quote">${esc(weekTopic(id).t)}</div></section>`}
+ function clubRows(id){const b=books(id),m=M(id),gp=(m.goals||[]).map(g=>goalProgress(id,g)),met=gp.filter(x=>x.met).length,td=tdOf(id),co=coachOf(id),proj=G(id).projects.filter(x=>x.phase!=='done');
+   const mood=p=>p?((p.loy??50)>=60?'content':(p.loy??50)>=40?'steady':'restless'):'—';
+   return`<section class="rt">${rtBar('THE CLUB','AT A GLANCE')}
+   <button class="rt-row rt-file" data-act="tab" data-arg="money"><span class="rt-a">MONEY</span><span class="rt-b">${b.tight?`<b class="bad">Tight: ${k1(b.low)} around week ${b.lowW}</b>`:`End of season around ${k1(b.end)}`}<small>wages ${b.wr}% of turnover</small></span><span class="rt-c">›</span></button>
+   <button class="rt-row rt-file" data-act="tab" data-arg="club"><span class="rt-a">GOALS</span><span class="rt-b">${met} of ${gp.length} on track<small>${esc((m.goals||[]).map(g=>g.text).slice(0,1).join(''))}</small></span><span class="rt-c">›</span></button>
+   <button class="rt-row rt-file" data-act="ctab" data-arg="football"><span class="rt-a">PEOPLE</span><span class="rt-b">Director ${esc(mood(td))} · coach ${esc(mood(co))}<small>${esc(td?td.name:'')}${co?' · '+esc(co.name):''}</small></span><span class="rt-c">›</span></button>
+   <button class="rt-row rt-file" data-act="tab" data-arg="club"><span class="rt-a">BUILD</span><span class="rt-b">${proj.length?esc(proj.map(p=>`${p.label} · ${p.phase==='permit'?'permit':p.left+' wk'}`).join(' · ')):'Nothing being built'}<small>£${investRoom(id)}k to invest</small></span><span class="rt-c">›</span></button></section>`}
+ function weekNews(id){const it=tickerItems(id).slice(0,6);if(!it.length)return'';return`<section class="rt">${rtBar('AROUND THE LEAGUE','')}<ul class="rt-news">${it.map(t=>`<li><b>·</b><span>${esc(t)}</span></li>`).join('')}</ul></section>`}
  function weekScreen(){
    const id=S.my;
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
    if(S.week===0)return preSeasonScreen(id,msg);
    if(seasonOver())return`<div class="g-week">${msg}${topicBanner(id)}${agmView(id)}</div>`;
-   return`<div class="g-week">${clubScene(id)}${newsTicker(id)}${msg}${topicBanner(id)}${nextMatch(id)}${inboxCard(id)}${winterCard(id)}${booksCard(id)}${growthCard(id)}${runningCard(id)}${peopleCard(id)}${clubGlance(id)}</div>`;
+   return`<div class="g-week rt-season">${msg}${weekHead(id)}${inboxCard(id)}${winterCard(id)}${yourWeek(id)}${nextMatch(id)}${clubRows(id)}${/Nothing running yet/.test(runningCard(id))?'':runningCard(id)}${weekNews(id)}</div>`;
  }
 
 
@@ -443,7 +459,7 @@
      const name=who?`<button class="pp-link" data-act="player" data-arg="${esc(who.pid)}">${esc(who.name)}</button> <small>${who.age} · ${who.from?esc(nm(who.from)):'free agent'}${who.est?` · ~${who.est}`:''}${who.chair?' · your find':''}</small>`:`<small>${esc(POS_ONE[pos]||pos)}</small>`;
      const flash=who&&who.stage==='signed'&&who.sday!=null&&who.sday>=day-1;
      return`<div class="tc-need s-${cls}${flash?' flash':''}"><span class="tc-np">${esc(pos)}</span>${flash?'<i class="tc-stamp2">SIGNED</i>':''}<span class="tc-nb">${name}<em>${esc(st)}${fails.length?` <i>· ${fails.length} failed</i>`:''}</em></span></div>`};
-   const outs=[...P_.sold.map(x=>rtRow('OUT',`${esc(x.name)} <small>to ${esc(nm(x.to))}</small>`,`£${x.fee}k`,'s-good')),...(P_.list||[]).map(pid=>{const p=S.squads[id].find(x=>x.id===pid);return p?rtRow('LIST',`${esc(p.name)} <small>available · ~£${Math.round(askingFee(p,id))}k</small>`,'','s-short'):''})].join('');
+   const outs=[...P_.sold.map(x=>rtRow('OUT',`${esc(x.name)} <small>${x.to?'to '+esc(nm(x.to)):'released'}</small>`,x.fee?`£${x.fee}k`:'free','s-good')),...(P_.outPlan||[]).filter(o=>!o.done).map(o=>rtRow('SELL',`${esc(o.name)} <small>${esc(o.why)}</small>`,'on the list','s-short')),...(P_.list||[]).map(pid=>{const p=S.squads[id].find(x=>x.id===pid);return p?rtRow('LIST',`${esc(p.name)} <small>available · ~£${Math.round(askingFee(p,id))}k</small>`,'','s-short'):''})].join('');
    /* the director's line, from the state of the deals */
    const needs=preTargets(id),live=P_.deals.filter(d=>['bid','countered'].includes(d.stage)),done=P_.deals.filter(d=>d.stage==='signed');
    const say=closed?`${done.length?done.length+' signed. ':''}The window is shut; we go with this squad.`:!day&&!done.length?`I go for ${needs.length?needs.slice(0,2).map(n=>an(POS_ONE[n.pos])).join(' and '):'upgrades'} first. Free agents early, bids where we must.`:`${live.length?`Waiting on ${live.map(d=>d.name).join(' and ')}. `:''}${needs.length?`Still need ${needs.slice(0,2).map(n=>an(POS_ONE[n.pos])).join(' and ')} who would start.`:'Every need is covered.'}`;
@@ -705,12 +721,12 @@
    if(chairBusy())return res;
    if(UI.pickRegion)return`<section class="g-card"><small class="g-k">WHERE DO YOU GO?</small><div class="g-regions">${Object.entries(REGIONS).map(([k,r])=>{const v=SC().visits[k]||0;return`<button class="g-opt" data-act="chairtrip" data-arg="${k}"><b>${esc(r.n)}${v?` <small class="muted">· visited ${v}×</small>`:''}</b><span>${esc(r.d)} £${r.cost}k travel.</span></button>`}).join('')}</div><button class="btn ghost" data-act="chairback">Back</button></section>`;
    const act=(k,a,ic,t,sub)=>{const why=chairWhyNot(k);return`<button class="g-act" data-act="${a}" ${why?'disabled aria-disabled="true"':''}><span aria-hidden="true">${ic}</span><b>${t}</b><small>${esc(why||sub)}</small></button>`};
-   return`${res}<section class="g-card g-yw"><small class="g-k">YOUR WEEK · WHERE DO YOU SPEND YOUR TIME?</small><div class="g-acts">
+   return`${res}<section class="rt g-yw">${rtBar('YOUR WEEK','WHERE DO YOU SPEND IT?')}<div class="g-acts">
    ${act('trip','chairpick','✈','Scouting trip','With your head scout, to a region. Takes the week.')}
    ${act('trip','chairtour','★','Youth tournament','Fifteen-year-olds for the academy. Takes the week.')}
    ${act('data','chairdata','▤','Data day','Who plays above their price? Once a week.')}
    ${act('home','chairhome','⌂','At the club','Be seen by members and staff. The whole week.')}</div>
-   <p class="g-hint">You never sign anyone. You find players and recommend them; the director decides within their mandate.</p></section>`;
+   <p class="rt-note">Trips find players for the director; a week at the club lifts the unhappiest members. One trip a week.</p></section>`;
  }
  function tripResult(R){
    if(R.kind==='home')return`<section class="g-quiet"><b>${R.group?`A week with ${esc(R.group)}.`:'A week at the club.'}</b> ${R.group?`Their mood: ${R.before} → ${R.after}.`:''} The members noticed.</section>`;

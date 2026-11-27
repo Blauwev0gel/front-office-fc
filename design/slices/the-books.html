@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Books</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="slices.css">
+<style>:root{--club:#5b3a12}</style>
+</head><body>
+<div class="wrap">
+  <div class="bar"><b id="barClub">Northmarch</b><span id="barDiv"></span><span id="barCash" class="num"></span><span class="clock" id="barClock"></span></div>
+  <a class="back" href="./">← All slices</a>
+  <main id="app" class="stack" style="margin-top:14px"><p class="muted">Building the world…</p></main>
+</div>
+<script src="engine.js"></script>
+<script src="proto.js"></script>
+<script>
+/* Slice: the money (bible §4a, werkveld Geld). June: the budget is signed on a forecast. The season shows whether it held.
+   December: the half-year figures. January: close the gap or back the squad. May: the accounts and the AGM.
+   Every number comes from the engine's ledger; every decision is an engine command. */
+const app=document.getElementById('app');let seed=Y.seed(),id,V,plan;
+const HEADS=['matchday','commercial','media','wages','costs'];
+function perSeason(){const h=weekLines(id,true,{}),a=weekLines(id,false,{}),out={};for(const k of new Set([...Object.keys(h),...Object.keys(a)])){const hd=(LINE[k]||[])[1];if(!hd)continue;out[hd]=(out[hd]||0)+((h[k]||0)+(a[k]||0))*SEASON_WEEKS/2}return out}
+function start(){
+  id=Y.boot(seed,seats=>seats.sort((a,b)=>wageBillK(b)*SEASON_WEEKS/estSeasonIncome(b)-wageBillK(a)*SEASON_WEEKS/estSeasonIncome(a))[0]);
+  const P0=F(id).prices.season;
+  V={screen:'june',course:F(id).policy&&F(id).policy.course||'balanced',price:P0,fund:'none',promise:1,jan:{}};
+  render();
+}
+function treasurer(){return deptHeadName(id,'finance')}
+function floorK(){return budFloor(id)}
+function forecastLine(){const f=cashForecast(id);return [{w:0,v:F(id).cash}].concat(f.mid.map((v,i)=>({w:i+1,v})))}
+
+function sign(){
+  const cur=F(id).prices.season;
+  const r=[];
+  r.push(cmd('SetSquadPolicy',id,{course:V.course}));
+  if(V.price!==cur)r.push(cmd('SetPrice',id,{kind:'season',delta:Math.round((V.price-cur)/5)}));
+  const L=loanSizes();
+  if(V.fund==='loan')r.push(cmd('TakeLoan',id,{amount:L.loan,years:5}));
+  if(V.fund==='bond')r.push(cmd('IssueBond',id,{amount:L.bond}));
+  r.push(cmd('SetManifest',id,{k:'money',lv:V.promise}));
+  r.push(cmd('SealManifest',id,{}));
+  const bad=r.filter(x=>x&&x.ok===false);
+  Y.note(`Budget signed: ${COURSE[V.course].n.toLowerCase()} course, season ticket £${V.price}${V.fund==='loan'?`, bank loan ${Y.k(L.loan)}`:V.fund==='bond'?`, members' bond ${Y.k(L.bond)}`:''}.`);
+  plan={line:forecastLine(),heads:perSeason(),income:estSeasonIncome(id),wages:wageBillK(id)*SEASON_WEEKS,cash:F(id).cash};
+  if(bad.length)Y.note('Refused: '+bad.map(b=>b.err).join('; '));
+  Y.fresh();
+  advanceWeek();Y.cash.push({w:S.week,v:F(id).cash}); /* the window closes and matchday 1 is played */
+  V.summer=Y.fresh();V.screen='summer';render();
+}
+function loanSizes(){const gap=Math.max(0,Math.round(floorK()-Math.min(...cashForecast(id).low)));const loan=Math.min(maxNewLoan(id),Math.max(25,Math.ceil((gap||estSeasonIncome(id)*.1)/5)*5));return{gap,loan,bond:Math.min(bondCap(id),Math.max(5,Math.ceil(gap/5)*5||bondCap(id))),rate:loanRate(id,loan)}}
+
+function cont(){const r=Y.playMonth(w=>w>=14&&!V.dec?'december':null);V.last=r;
+  if(seasonOver()&&!S.moment){V.h=closeSeason();Y.fresh();V.screen='agm'}
+  else if(r.why==='december'){V.dec=true;V.screen='december'}
+  else V.screen='month';
+  render();scrollTo(0,0)}
+
+function halfYear(){const t=seasonTotals(id),act=t.head||{},w=S.week;
+  return HEADS.map(h=>{const p=(plan.heads[h]||0)*w/SEASON_WEEKS,a=act[h]||0;return[h,p,a]})}
+
+/* ---------- render ---------- */
+function render(){
+  Y.bar();
+  if(S.moment&&V.screen!=='june'){app.innerHTML=`${Y.momentHtml()}<div class="sec"><h3>Lately</h3>${Y.newsHtml()}</div>`;return}
+  if(V.screen==='june') return renderJune();
+  if(V.screen==='summer'){
+    const moves=V.summer.filter(e=>/Transfer|Loan|Release|Sign/.test(e.t));
+    app.innerHTML=`<p class="kicker">July · what your director did</p><h1>The window is shut</h1>
+     <p class="lead">${Y.esc(tdOf(id).name)} worked inside the course you set. You did not sign anyone yourself.</p>
+     ${moves.length?Y.newsHtml(moves,12):'<p class="muted">No moves in or out.</p>'}
+     ${Y.rows([['Wage bill per season, at the budget',Y.k(plan.wages)],['Wage bill per season, now',Y.k(wageBillK(id)*SEASON_WEEKS),wageBillK(id)*SEASON_WEEKS>plan.wages*1.03?'bad':''],['Wages as share of income',Math.round(wageBillK(id)*SEASON_WEEKS/estSeasonIncome(id)*100)+'%']])}
+     <div class="sec"><h3>Matchday 1</h3>${Y.newsHtml(V.summer.filter(e=>e.t==='Match'),2)}</div>
+     <button class="btn primary" data-act="cont">Continue to ${Y.monthOf(Y.nextStop(S.week))}</button>${design()}`;
+    return}
+  if(V.screen==='month'){
+    const t=seasonTotals(id).head||{},planNow=(plan.line.find(p=>p.w===S.week)||plan.line[plan.line.length-1]).v,diff=F(id).cash-planNow;
+    const dev=HEADS.map(h=>[h,(t[h]||0)-(plan.heads[h]||0)*S.week/SEASON_WEEKS]).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]))[0];
+    app.innerHTML=`<p class="kicker">${Y.monthOf(S.week)} · the treasurer's note</p>
+     ${Y.who(treasurer(),'Treasurer',`${Y.k(Math.abs(diff))} ${diff>=0?'above':'below'} the June forecast. The biggest difference is ${HEAD[dev[0]].toLowerCase()}: ${Y.k(dev[1])} against plan.`)}
+     ${Y.chart(plan.line,Y.cash,floorK())}
+     ${Y.rows([['Cash',Y.k(F(id).cash)],['Debt',Y.k(debt(id))],['League',`${ord(posOf(id))} after ${S.week}`],['Members\' confidence',Math.round(M(id).conf)+'%']])}
+     <div class="sec"><h3>At the club this month</h3>${Y.newsHtml(V.last.news,10)}</div>
+     <button class="btn primary" data-act="cont">${S.week>=SEASON_WEEKS?'To the AGM':'Continue to '+Y.monthOf(Y.nextStop(S.week))}</button>${design()}`;
+    return}
+  if(V.screen==='december') return renderDecember();
+  if(V.screen==='agm'){
+    const s=V.h.agm.s,t=seasonTotals(id,s).head||{};
+    app.innerHTML=`<p class="kicker">May · the accounts</p><h1>Season ${s} in money</h1>
+     <div class="tablewrap"><table class="t"><tr><th></th><th>Line</th><th>June plan</th><th>Actual</th></tr>
+      ${HEADS.concat(['transfers','financing']).map(h=>`<tr><td></td><td>${HEAD[h]}</td><td>${plan.heads[h]!=null?Y.k(plan.heads[h]):'—'}</td><td class="${(t[h]||0)<(plan.heads[h]||0)-5?'bad':''}">${Y.k(t[h]||0)}</td></tr>`).join('')}</table></div>
+     ${Y.rows([['Operating result',Y.k(operatingResult(seasonTotals(id,s).lines)),operatingResult(seasonTotals(id,s).lines)<0?'bad':'good'],['Cash in June → now',`${Y.k(plan.cash)} → ${Y.k(F(id).cash)}`],['Debt',Y.k(debt(id))]])}
+     ${Y.chart(plan.line,Y.cash,floorK())}
+     ${Y.agmHtml(V.h)}
+     <div class="sec"><h3>What you decided</h3>${Y.logHtml()}</div>
+     <div class="btns"><button class="btn primary" data-act="again">Another club <small>new world</small></button><button class="btn" data-act="replay">Replay world #${seed}</button></div>${design()}`;
+  }
+}
+function renderJune(){
+  const inc=estSeasonIncome(id),wages=wageBillK(id)*SEASON_WEEKS,run=budRunWeek(id)*SEASON_WEEKS-wages,fc=cashForecast(id),low=Math.min(...fc.low),lowW=fc.low.indexOf(low)+1,fl=floorK(),heads=perSeason(),L=loanSizes(),ref=PRICE_DEF[CL(id).tier].season,cur=F(id).prices.season;
+  const short=low<fl;
+  const prices=[...new Set([Math.round(ref*.85/5)*5,cur,cur+10,cur+20])].sort((a,b)=>a-b);
+  const goals=M(id).goals||[];
+  app.innerHTML=`<p class="kicker">3 June · the budget meeting</p><h1>The books</h1>
+   <p class="lead">You chair ${Y.esc(CL(id).name)}. Before a ball is kicked you sign a budget on a forecast. Then you live with it.</p>
+   ${Y.who(treasurer(),'Treasurer',short?`On the cautious forecast we drop below four weeks of wages around ${Y.monthOf(lowW)}. That gap is ${Y.k(fl-low)}. Something has to give: sales, a loan, or prices.`:`We can carry the season on the cautious forecast. The question is what you use the room for.`)+(wages/inc>.67?` Wages are ${Math.round(wages/inc*100)}% of income. That is the first number the bank looks at.`:'')}
+   ${Y.rows([['Cash in the bank',Y.k(F(id).cash)],['Expected income this season',Y.k(inc)],['Player wages this season',`${Y.k(wages)} · ${Math.round(wages/inc*100)}% of income`,wages/inc>.67?'bad':''],['Other running costs',Y.k(run)],['Lowest point, cautious forecast',`${Y.k(low)} in ${Y.monthOf(lowW)}`,short?'bad':''],['Four weeks of wages (the floor)',Y.k(fl)],['Debt',Y.k(debt(id))]])}
+   <div class="sec"><h3>Where the money comes from</h3>${Y.rows(['matchday','commercial','media'].map(h=>[HEAD[h],Y.k(heads[h]||0)]))}</div>
+
+   <div class="sec"><h3>1 · The course for your director</h3><p class="muted">${Y.esc(tdOf(id).name)} runs the market inside it. You don't pick players.</p>
+    <div class="btns">${Object.entries(COURSE).map(([k,c])=>`<button class="btn" data-act="course" data-k="${k}" aria-pressed="${V.course===k}">${V.course===k?'✓ ':''}${c.n}<small>${Y.esc(c.fx)}</small></button>`).join('')}</div></div>
+
+   <div class="sec"><h3>2 · Season-ticket price</h3><p class="muted">Set once a year and paid up front in the summer, so it is cash before the season starts. The division's usual price is £${ref}. Members judge prices against it.</p>
+    <div class="btns">${prices.map(p=>`<button class="btn" data-act="price" data-p="${p}" aria-pressed="${V.price===p}">${V.price===p?'✓ ':''}£${p}<small>${p<ref?'below the usual':p===cur?'as last year':p>ref*1.15?'well above the usual':'above the usual'}</small></button>`).join('')}</div></div>
+
+   <div class="sec"><h3>3 · Cover the gap</h3><div class="btns">
+    <button class="btn" data-act="fund" data-k="none" aria-pressed="${V.fund==='none'}">${V.fund==='none'?'✓ ':''}No borrowing<small>live within the forecast</small></button>
+    <button class="btn" data-act="fund" data-k="loan" aria-pressed="${V.fund==='loan'}" ${L.loan>0?'':'disabled'}>${V.fund==='loan'?'✓ ':''}Bank loan ${Y.k(L.loan)}, 5 years<small>${(L.rate*100).toFixed(1)}% · ${Y.k(mkLoan(L.loan,5,L.rate).pay*SEASON_WEEKS)} a season</small></button>
+    <button class="btn" data-act="fund" data-k="bond" aria-pressed="${V.fund==='bond'}" ${L.bond>0?'':'disabled'}>${V.fund==='bond'?'✓ ':''}Members' bond ${Y.k(L.bond)}<small>the fans lend it; they will want it back</small></button></div></div>
+
+   <div class="sec"><h3>4 · What you promise the members about money</h3><p class="muted">It goes into your manifest and is judged at the AGM in May.</p>
+    <div class="btns">${[0,1,2].map(lv=>`<button class="btn" data-act="promise" data-lv="${lv}" aria-pressed="${V.promise===lv}">${V.promise===lv?'✓ ':''}${['Safe','Steady','Bold'][lv]}<small>${['the bar you can clear','the usual bar','a high bar, more credit if you clear it'][lv]}</small></button>`).join('')}</div>
+    ${goals.length?`<p class="muted">Your other promises: ${goals.filter(g=>g.k!=='money').map(g=>Y.esc(g.text)).join(' · ')}.</p>`:''}</div>
+
+   <button class="btn primary" data-act="sign">Sign the budget</button>
+   <p class="muted" style="font-size:12px">World #${seed}. The real Northmarch engine runs underneath: 80 clubs, every result, every pound.</p>${design()}`;
+}
+function renderDecember(){
+  const hy=halfYear(),fc=cashForecast(id,SEASON_WEEKS-S.week),endMid=fc.mid[fc.mid.length-1],low=Math.min(...fc.low),fl=floorK(),y=fundraiseYield(id),L=Math.min(maxNewLoan(id),Math.max(25,Math.ceil(Math.max(0,fl-low)/5)*5));
+  const short=low<fl;
+  const opt=(k,label,small,dis)=>`<button class="btn" data-act="jan" data-k="${k}" aria-pressed="${!!V.jan[k]}" ${dis?'disabled':''}>${V.jan[k]?'✓ ':''}${label}<small>${small}</small></button>`;
+  app.innerHTML=`<p class="kicker">December · half-year figures</p><h1>Halfway</h1>
+   ${Y.who(treasurer(),'Treasurer',short?`On the cautious line we go below the floor before May: ${Y.k(low)}. The January window is the last place to fix it.`:`We are on course. You could spend some of the room on the run-in, or keep it.`)}
+   <div class="tablewrap"><table class="t"><tr><th></th><th>Line</th><th>Plan to date</th><th>Actual</th></tr>
+    ${hy.map(([h,p,a])=>`<tr><td></td><td>${HEAD[h]}</td><td>${Y.k(p)}</td><td class="${a<p-3?'bad':a>p+3?'good':''}">${Y.k(a)}</td></tr>`).join('')}</table></div>
+   ${Y.chart(plan.line,Y.cash,fl)}
+   ${Y.rows([['League',`${ord(posOf(id))} · target ${ord(coachTarget(id))}`],['Cash in May, expected',Y.k(endMid),endMid<fl?'bad':''],['Members\' confidence',Math.round(M(id).conf)+'%']])}
+   <div class="sec"><h3>For January</h3><div class="btns">
+    ${opt('sell','Tell the director to cut the wage bill','he sells or loans out in January; the squad gets weaker',V.jan.back)}
+    ${opt('back','Back the squad for the run-in','he may spend; wages go up',V.jan.sell)}
+    ${opt('loan',`Bank loan ${Y.k(L)}, 3 years`,`${(loanRate(id,L)*100).toFixed(1)}% · cash now, repayments for three seasons`,L<=0)}
+    ${opt('appeal',`Members' appeal, about ${Y.k(y)}`,'once a season; donors tire if you ask every year',F(id).fundLast===S.season)}
+   </div></div>
+   <button class="btn primary" data-act="janGo">Into January</button>${design()}`;
+  V.janLoan=L;
+}
+function janGo(){
+  const done=[];
+  if(V.jan.sell){cmd('SetSquadPolicy',id,{course:'frugal'});done.push('director told to cut the wage bill')}
+  if(V.jan.back){cmd('SetSquadPolicy',id,{course:'win'});done.push('the squad backed for the run-in')}
+  if(V.jan.loan){const r=cmd('TakeLoan',id,{amount:V.janLoan,years:3});if(r.ok!==false)done.push(`bank loan ${Y.k(V.janLoan)}`)}
+  if(V.jan.appeal){const r=cmd('Fundraise',id,{});if(r.ok!==false)done.push('a members\' appeal')}
+  Y.note(done.length?`January: ${done.join(', ')}.`:'January: no change.');
+  cont();
+}
+function design(){return`<details class="design"><summary>Ontwerpnotitie (voor de eigenaar)</summary><p>Werkveld <b>Geld</b> uit §4a, door de jaarcyclus: juni vastleggen (koers, seizoenkaartprijs, financiering, geldbelofte), de TD voert uit, december de halfjaarcijfers tegen het plan, januari bijsturen, mei de jaarrekening en de ALV. Alles komt uit de echte engine (grootboek, prognose, commando's, momenten, ALV); dit bestand voegt geen regels toe. Niet in de engine en dus niet hier: begrote transferinkomsten als eigen post en de licentie.</p></details>`}
+
+app.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act;
+  if(a==='course')V.course=b.dataset.k;
+  if(a==='price')V.price=+b.dataset.p;
+  if(a==='fund')V.fund=b.dataset.k;
+  if(a==='promise')V.promise=+b.dataset.lv;
+  if(a==='sign'){sign();scrollTo(0,0);return}
+  if(a==='cont'){if(S.week>=SEASON_WEEKS&&!S.moment){V.h=closeSeason();Y.fresh();V.screen='agm';render();scrollTo(0,0);return}cont();return}
+  if(a==='moment'){Y.chooseMoment(+b.dataset.i);V.screen=V.screen==='june'?'june':'month';V.last={news:Y.news.slice(0,6)};render();return}
+  if(a==='jan'){V.jan[b.dataset.k]=!V.jan[b.dataset.k]}
+  if(a==='janGo'){janGo();return}
+  if(a==='again'){seed=1+Math.floor(Math.random()*99998);location.hash='seed'+seed;start();scrollTo(0,0);return}
+  if(a==='replay'){start();scrollTo(0,0);return}
+  render();});
+setTimeout(start,30);
+</script>
+</body></html>

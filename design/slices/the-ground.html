@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Ground</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="slices.css">
+<style>:root{--club:#2f5d2a}
+.prog{height:8px;background:var(--panel);border:1px solid var(--line);border-radius:2px;overflow:hidden}.prog i{display:block;height:100%;background:var(--accent)}
+</style>
+</head><body>
+<div class="wrap">
+  <div class="bar"><b id="barClub">Northmarch</b><span id="barDiv"></span><span id="barCash" class="num"></span><span class="clock" id="barClock"></span></div>
+  <a class="back" href="./">← All slices</a>
+  <main id="app" class="stack" style="margin-top:14px"><p class="muted">Building the world…</p></main>
+</div>
+<script src="engine.js"></script>
+<script src="proto.js"></script>
+<script>
+/* Slice: the ground (bible §4a, werkveld De toekomst). Decisions of years: what to maintain, what to build, how to pay.
+   Each June the chairman sets the grounds budget, the repairs, at most one project and its funding. Permits, overruns,
+   wear and safety closures come from the engine; so do the gates. The year repeats: next June you see what it did. */
+const app=document.getElementById('app');let seed=Y.seed(),id,V;
+function pickClub(seats){const fill=s=>{const o=Object.keys(S.clubs).find(c=>c!==s);return attendance(s,o).fill};return seats.sort((a,b)=>fill(b)-fill(a))[0]}
+function start(){id=Y.boot(seed,pickClub);V={screen:'june',history:[]};fresh();render()}
+function fresh(){Object.assign(V,{screen:'june',repair:'worst',budget:G(id).depts.grounds.budget,project:null,fund:'cash',seen:0})}
+function head(){return deptHeadName(id,'grounds')}
+function opp(){return Object.keys(S.clubs).find(c=>c!==id&&CL(c).tier===CL(id).tier)}
+function repairsFor(k){const l=repairList(id);return k==='worst'?l.slice(0,3):k==='all'?l.filter(r=>r.cond<70):[]}
+function options(){const cat=projectCatalog(id).filter(c=>!c.busy);const pick=[];
+  const cap=cat.filter(c=>/:ring$/.test(c.key)).sort((a,b)=>a.cost-b.cost)[0];if(cap)pick.push(cap);
+  const roof=cat.find(c=>/:roof$/.test(c.key));if(roof)pick.push(roof);
+  const conv=cat.find(c=>/convert to seats/.test(c.label));if(conv)pick.push(conv);
+  const plot=cat.filter(c=>c.key.startsWith('plot:')&&/academy|medical|commercial/.test(c.key)).slice(0,2);pick.push(...plot);
+  const st=['compact','standard'].map(z=>({key:'stadium:'+z,size:z,label:STADIUM_SIZE[z].n,...stadiumPlan(id,z)}));
+  return pick.map(c=>({key:c.key,label:c.label,cost:c.cost,weeks:c.weeks,permit:c.permit,effect:c.effect})).concat(st.map(s=>({key:s.key,size:s.size,label:s.label,cost:s.cost,weeks:STADIUM_SIZE[s.size].weeks,permit:true,effect:`${(s.cap||0).toLocaleString('en-GB')} capacity; the old ground is sold`,deposit:s.deposit})))}
+function projCost(){const o=V.project&&options().find(x=>x.key===V.project);return o?(o.deposit??o.cost):0}
+function cushion(){return budFloor(id)}
+function plan(){const rep=repairsFor(V.repair).reduce((a,r)=>a+r.cost,0),pc=projCost(),need=rep+pc,cash=F(id).cash,short=Math.max(0,need-(cash-cushion()));return{rep,pc,need,short}}
+
+function sign(){
+  const p=plan(),done=[];
+  if(V.budget!==G(id).depts.grounds.budget){cmd('SetDeptBudget',id,{dept:'grounds',level:V.budget});done.push(`grounds budget ${V.budget}`)}
+  for(const r of repairsFor(V.repair)){const x=cmd('Repair',id,{key:r.key});if(x.ok!==false)done.push(`repaired ${r.label.toLowerCase()}`)}
+  if(V.fund==='loan'&&p.short>0){const amt=Math.min(maxNewLoan(id),Math.ceil(p.short/5)*5);const x=cmd('TakeLoan',id,{amount:amt,years:10});done.push(x.ok===false?`loan refused: ${x.err}`:`bank loan ${Y.k(amt)} over 10 years`)}
+  if(V.fund==='bond'&&p.short>0){const amt=Math.min(bondCap(id),Math.ceil(p.short/5)*5);const x=cmd('IssueBond',id,{amount:amt});done.push(x.ok===false?`bond refused: ${x.err}`:`members' bond ${Y.k(amt)}`)}
+  if(V.fund==='sell'){const x=cmd('SellGround',id,{});done.push(x.ok===false?`sale refused: ${x.err}`:`sold the ground and leased it back`)}
+  if(V.project){const o=options().find(x=>x.key===V.project);const x=o.size?cmd('StartStadium',id,{size:o.size}):cmd('StartProject',id,{key:o.key,offer:'standard'});done.push(x.ok===false?`${o.label} refused: ${x.err}`:`started: ${o.label}`)}
+  Y.note(done.length?done.join('; ')+'.':'No work on the ground this summer.');
+  V.snap={s:S.season,cap:groundSignals(id).capacity,cash:F(id).cash};
+  Y.fresh();advanceWeek();Y.cash.push({w:S.week,v:F(id).cash});V.last={news:Y.fresh()};V.screen='month';render();scrollTo(0,0)}
+function stop(){const ev=eventsSince(Y.mark).filter(e=>e.c===S.my&&['ProjectCompleted','SafetyClosure','GroundSold'].includes(e.t));if(ev.length>V.seen){V.seen=ev.length;return'ground'}return null}
+function cont(){V.seen=0;const r=Y.playMonth(stop);V.last=r;if(seasonOver()&&!S.moment){endSeason();return}V.screen='month';render();scrollTo(0,0)}
+function endSeason(){const s=S.season,t=seasonTotals(id).head||{};V.history.push({s,cap:groundSignals(id).capacity,matchday:t.matchday||0,costs:t.costs||0,worst:groundCondWorst(id).c});V.h=closeSeason();Y.fresh();V.screen='agm';render();scrollTo(0,0)}
+
+function groundTable(){const g=G(id);return`<div class="tablewrap"><table class="t"><tr><th></th><th>Part</th><th>Places</th><th>Roof</th><th>State</th></tr>
+  ${Object.entries(g.sides).map(([k,s])=>`<tr><td></td><td>${SIDE_NAME[k]} <span class="muted">${s.type}</span></td><td>${sideCap(s).toLocaleString('en-GB')}</td><td>${['none','part','full'][s.roof]||s.roof}</td><td class="${s.cond<40?'bad':s.cond<60?'gold':''}">${Math.round(s.cond)}%</td></tr>`).join('')}
+  </table></div>`}
+function works(){const ps=G(id).projects.filter(p=>p.phase!=='done');return ps.length?ps.map(p=>`<div class="choice"><b>${Y.esc(p.label)}</b><div class="prog"><i style="width:${Math.round(p.paid/Math.max(1,p.cost*(1+p.over/100))*100)}%"></i></div><p class="price">${p.phase==='permit'?'Waiting for the permit':`${p.left} weeks to go`} · paid ${Y.k(p.paid)} of ${Y.k(Math.round(p.cost*(1+p.over/100)))}${p.over?` · <span class="bad">${p.over}% over</span>`:''}</p></div>`).join(''):'<p class="muted">Nothing being built.</p>'}
+
+function render(){
+  Y.bar();
+  if(S.moment&&V.screen!=='june'){app.innerHTML=`${Y.momentHtml()}<div class="sec"><h3>On site</h3>${works()}</div>`;return}
+  const s=V.screen;
+  if(s==='june'){
+    const sg=groundSignals(id),att=attendance(id,opp()),p=plan(),opts=options(),sold=F(id).groundSold,worst=groundCondWorst(id),gv=typeof groundValue==='function'?groundValue(id):0;
+    const B=['tight','normal','generous'];
+    app.innerHTML=`<p class="kicker">June · season ${S.season} · the ground</p><h1>${Y.esc(CL(id).ground||'The ground')}</h1>
+     <p class="lead">Grounds are decisions of years. What you build now pays back, or costs you, long after this season.</p>
+     ${Y.who(head(),'Head of grounds',`${att.full?`On a normal Saturday we expect ${att.total.toLocaleString('en-GB')} in a ${sg.capacity.toLocaleString('en-GB')} ground. We turn people away on the big days.`:`We expect ${att.total.toLocaleString('en-GB')} in a ${sg.capacity.toLocaleString('en-GB')} ground.`} The worst part is the ${Y.esc(worst.n.toLowerCase())}, at ${Math.round(worst.c)}%. Below 30% the inspector closes half a stand.`)}
+     ${groundTable()}
+     ${V.history.length?`<div class="sec"><h3>What last year did</h3>${Y.rows(V.history.slice(-2).map(h=>[`Season ${h.s}`,`capacity ${h.cap.toLocaleString('en-GB')} · matchday ${Y.k(h.matchday)} · worst part ${Math.round(h.worst)}%`]))}</div>`:''}
+     ${Y.rows([['Cash',Y.k(F(id).cash)],['Keep in the bank (four weeks of wages)',Y.k(cushion())],['Debt',Y.k(debt(id))],['The bank lends at most',Y.k(maxNewLoan(id))],['Members would lend',Y.k(bondCap(id))],sold?['The ground','sold; rent '+Y.k(sold.rent*SEASON_WEEKS)+' a season','bad']:['The ground is worth',Y.k(gv)]])}
+
+     <div class="sec"><h3>1 · Upkeep: the grounds staff budget</h3><p class="muted">Every week the stands wear. A bigger budget slows it; it costs every week, win or lose.</p>
+      <div class="btns">${B.map(b=>`<button class="btn" data-act="budget" data-b="${b}" aria-pressed="${V.budget===b}">${V.budget===b?'✓ ':''}${b[0].toUpperCase()+b.slice(1)}<small>${Y.k(deptWeekCost(id,'grounds',null,b)*SEASON_WEEKS)} a season</small></button>`).join('')}</div></div>
+
+     <div class="sec"><h3>2 · Repairs this summer</h3><div class="btns">
+      ${[['worst','The worst three'],['all','Everything below 70%'],['none','Nothing this year']].map(([k,l])=>{const r=repairsFor(k);return`<button class="btn" data-act="repair" data-k="${k}" aria-pressed="${V.repair===k}">${V.repair===k?'✓ ':''}${l}<small>${r.length?`${Y.k(r.reduce((a,x)=>a+x.cost,0))} · ${r.map(x=>x.label).slice(0,3).join(', ')}${r.length>3?'…':''}`:'£0'}</small></button>`}).join('')}</div></div>
+
+     <div class="sec"><h3>3 · One project</h3><div class="btns">
+      <button class="btn" data-act="project" data-k="" aria-pressed="${!V.project}">${!V.project?'✓ ':''}No project this year<small>keep the money</small></button>
+      ${opts.map(o=>`<button class="btn" data-act="project" data-k="${o.key}" aria-pressed="${V.project===o.key}">${V.project===o.key?'✓ ':''}${Y.esc(o.label)}<small>${o.deposit!=null?`${Y.k(o.deposit)} deposit, ${Y.k(o.cost)} in all`:Y.k(o.cost)} · ${o.weeks} weeks${o.permit?' after a permit':''} · ${Y.esc(o.effect)}</small></button>`).join('')}</div></div>
+
+     <div class="sec"><h3>4 · Paying for it</h3><p class="${p.short>0?'bad':'muted'}">This summer costs ${Y.k(p.need)}. ${p.short>0?`That is ${Y.k(p.short)} more than you can spend and keep four weeks of wages in the bank.`:'You can pay it from cash.'}</p>
+      <div class="btns">
+       <button class="btn" data-act="fund" data-k="cash" aria-pressed="${V.fund==='cash'}">${V.fund==='cash'?'✓ ':''}From cash<small>${p.short>0?'the bank balance runs thin':'no strings'}</small></button>
+       <button class="btn" data-act="fund" data-k="loan" aria-pressed="${V.fund==='loan'}" ${p.short>0&&maxNewLoan(id)>0?'':'disabled'}>${V.fund==='loan'?'✓ ':''}Bank loan over 10 years<small>${(loanRate(id,p.short)*100).toFixed(1)}% · repayments every week</small></button>
+       <button class="btn" data-act="fund" data-k="bond" aria-pressed="${V.fund==='bond'}" ${p.short>0&&bondCap(id)>0&&F(id).bondSeason!==S.season?'':'disabled'}>${V.fund==='bond'?'✓ ':''}Members' bond<small>up to ${Y.k(bondCap(id))}; the fans lend, the fans watch</small></button>
+       <button class="btn" data-act="fund" data-k="sell" aria-pressed="${V.fund==='sell'}" ${sold?'disabled':''}>${V.fund==='sell'?'✓ ':''}Sell the ground and lease it back<small>+${Y.k(gv)} now · ${Y.k(gv*.075)} rent a season · members −15</small></button>
+      </div></div>
+     <button class="btn primary" data-act="sign">Sign off the summer works</button>
+     <p class="muted" style="font-size:12px">World #${seed}. The real Northmarch engine runs underneath.</p>${design()}`;
+    return}
+  if(s==='month'){const t=seasonTotals(id).head||{};
+    app.innerHTML=`<p class="kicker">${Y.monthOf(S.week)} · on site</p>${works()}
+     ${groundTable()}
+     ${Y.rows([['Matchday income so far',Y.k(t.matchday||0)],['Capacity',groundSignals(id).capacity.toLocaleString('en-GB')],['Cash',Y.k(F(id).cash)],['Debt',Y.k(debt(id))],['League',`${ord(posOf(id))} after ${S.week}`],['Members\' confidence',Math.round(M(id).conf)+'%']])}
+     <div class="sec"><h3>At the club this month</h3>${Y.newsHtml(V.last.news,10)}</div>
+     <button class="btn primary" data-act="cont">${S.week>=SEASON_WEEKS?'To the AGM':'Continue to '+Y.monthOf(Y.nextStop(S.week))}</button>${design()}`;
+    return}
+  if(s==='agm'){const out=V.h.agm&&V.h.agm.out;
+    app.innerHTML=`<p class="kicker">May · the verdict</p><h1>Season ${V.h.agm.s}</h1>
+     ${Y.rows(V.history.map(h=>[`Season ${h.s}`,`capacity ${h.cap.toLocaleString('en-GB')} · matchday ${Y.k(h.matchday)} · worst part ${Math.round(h.worst)}%`]))}
+     ${Y.agmHtml(V.h)}
+     <div class="sec"><h3>What you decided</h3>${Y.logHtml()}</div>
+     <div class="btns">${out?'':`<button class="btn primary" data-act="next">June: the next season</button>`}<button class="btn ${out?'primary':''}" data-act="again">Another club <small>new world</small></button><button class="btn" data-act="replay">Replay world #${seed}</button></div>${design()}`}
+}
+function design(){return`<details class="design"><summary>Ontwerpnotitie (voor de eigenaar)</summary><p>Werkveld <b>De toekomst</b> uit §4a: besluiten van jaren. Elke juni: het onderhoudsbudget (slijtage elke week), reparaties, hooguit één project en de financiering (kas, lening, obligatie bij de leden, de grond verkopen en terughuren). Vergunning, bezwaren van buren, overschrijding, slijtage en sluiting door de veiligheidsinspectie komen uit de engine; net als de recettes. Het jaar herhaalt zich, zodat je in de volgende juni ziet wat het deed. Niet in de engine en dus niet hier: de gemeente als partij en de instemming van de ALV voor grote investeringen (alleen de verkoop van de grond vraagt die via de statuten).</p></details>`}
+
+app.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act;
+  if(a==='budget')V.budget=b.dataset.b;
+  if(a==='repair')V.repair=b.dataset.k;
+  if(a==='project')V.project=b.dataset.k||null;
+  if(a==='fund')V.fund=b.dataset.k;
+  if(a==='sign'){sign();return}
+  if(a==='cont'){if(S.week>=SEASON_WEEKS&&!S.moment){endSeason();return}cont();return}
+  if(a==='moment'){Y.chooseMoment(+b.dataset.i);V.last={news:Y.news.slice(0,6)};V.screen='month'}
+  if(a==='next'){Y.log=[];fresh();scrollTo(0,0)}
+  if(a==='again'){seed=1+Math.floor(Math.random()*99998);location.hash='seed'+seed;start();scrollTo(0,0);return}
+  if(a==='replay'){start();scrollTo(0,0);return}
+  render();});
+setTimeout(start,30);
+</script>
+</body></html>

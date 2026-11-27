@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The People</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="slices.css">
+<style>:root{--club:#24405e}
+.heat{display:flex;gap:3px;align-items:flex-end;height:44px}
+.heat i{flex:1;background:var(--line);min-height:2px;border-radius:1px}
+.heat i.press{background:var(--gold)}.heat i.brink{background:var(--bad)}
+.stage{font:800 30px/1 var(--display);text-transform:uppercase}
+</style>
+</head><body>
+<div class="wrap">
+  <div class="bar"><b id="barClub">Northmarch</b><span id="barDiv"></span><span id="barCash" class="num"></span><span class="clock" id="barClock"></span></div>
+  <a class="back" href="./">← All slices</a>
+  <main id="app" class="stack" style="margin-top:14px"><p class="muted">Building the world…</p></main>
+</div>
+<script src="engine.js"></script>
+<script src="proto.js"></script>
+<script>
+/* Slice: the people (bible §4a, werkveld Mensen). The chairman's biggest lever is who runs the football and what he asks of them.
+   June: the promise that becomes the coach's target, keep or replace the coach, the director's signing limit.
+   The season judges the coach every week (the engine's coach's seat). The chairman backs, waits or sacks; a vacancy brings a shortlist.
+   March: contracts. May: the AGM. Every decision is an engine command or an engine moment. */
+const app=document.getElementById('app');let seed=Y.seed(),id,V;
+function pickClub(seats){const sc=s=>{const t=CL(s).tier,q=STAFF_Q[t],c=coachOf(s);return (8-(CL(s).expect||8))/4-((c&&c.pro?c.pro.q:q[0])-q[0])/(q[1]-q[0]+1)};return seats.sort((a,b)=>sc(b)-sc(a))[0]}
+function start(){id=Y.boot(seed,pickClub);V={screen:'june',promise:1,replace:null,deals:mandateOf(id).deals,stageSeen:'safe',record:[],renewSeen:false};render()}
+const STY=p=>(COACH_STYLE[p.pro.spec]||{n:p.pro.spec}).n;
+const TDSPEC={eye:'An eye for a player',negotiator:'A hard negotiator',youth:'Trusts young players'};
+function stars(n){return'★'.repeat(n)+'☆'.repeat(5-n)}
+function personCard(p,role){if(!p)return'';const pr=p.pro,st=staffStars(staffEstimate(p.id)),mem=(p.mem||[]).slice(-2).map(m=>m.t);
+  return`${Y.who(p.name,`${role} · ${p.age}`,'')}${Y.rows([[role==='Head coach'?'Way of working':'Strength',Y.esc(role==='Head coach'?STY(p):TDSPEC[pr.spec]||pr.spec)],['Level',stars(st)],['Contract',pr.caretaker?'caretaker':`${pr.contract} season${pr.contract===1?'':'s'} left`],['Wage',`£${pr.wage} a week`],['How they see you',(p.loy??50)>=60?'loyal':(p.loy??50)<40?'wary':'neutral'],mem.length?['Remembers',Y.esc(mem.join('; '))]:null,pr.record&&pr.record.length?['Record',pr.record.slice(-3).map(r=>`${ord(r.pos)} in ${TIER_NAME[r.tier].replace('Northmarch ','')}`).join(', ')]:null])}`}
+function trackWeek(w){const f=(S.tbl[id]&&S.tbl[id].form)||[],c=coachOf(id);V.record.push({w,r:f[f.length-1],coach:c?c.name:'',care:!!(c&&c.pro&&c.pro.caretaker)});
+  const h=coachHeat(id),st=heatStage(h),order=['safe','watch','press','brink'];
+  if(coachVacant(id)&&!V.vacSeen){V.vacSeen=true;return'vacancy'}
+  if(st&&order.indexOf(st.k)>order.indexOf(V.stageSeen)&&order.indexOf(st.k)>=2){V.stageSeen=st.k;return'pressure'}
+  if(st&&order.indexOf(st.k)<order.indexOf(V.stageSeen))V.stageSeen=st.k;
+  if(w===RENEW_WEEK-1&&!V.renewSeen){V.renewSeen=true;return'renew'}
+  return null}
+function cont(){const r=Y.playMonth(trackWeek);V.last=r;
+  if(r.why==='vacancy'||r.why==='pressure'||r.why==='renew')V.screen=r.why;
+  else if(seasonOver()&&!S.moment){V.h=closeSeason();Y.fresh();V.screen='agm'}
+  else V.screen='month';render();scrollTo(0,0)}
+function sign(){
+  cmd('SetManifest',id,{k:'league',lv:V.promise});
+  if(V.deals!==mandateOf(id).deals)cmd('SetMandate',id,{deals:V.deals});
+  if(V.replace){const old=coachOf(id).name,set=settlement(coachOf(id).id);cmd('SackStaff',id,{role:'coach'});const r=cmd('HireStaff',id,{role:'coach',pid:V.replace});
+    Y.note(r.ok===false?`Replacing ${old} failed: ${r.err}`:`Replaced ${old} (${Y.k(set)} settlement) with ${coachOf(id).name}.`)}
+  else Y.note(`Kept ${coachOf(id).name} as head coach.`);
+  cmd('SealManifest',id,{});
+  Y.note(`Promised the members: ${Y.esc(((M(id).goals||[]).find(g=>g.k==='league')||{}).text||'')}. The director's limit: ${MANDATE_DEALS[mandateOf(id).deals].n.toLowerCase()}.`);
+  Y.fresh();advanceWeek();Y.cash.push({w:S.week,v:F(id).cash});trackWeek(S.week);V.last={news:Y.fresh()};V.screen='month';render();scrollTo(0,0)}
+function heatBars(){const hist=(S.heat&&S.heat.hist)||[];return`<div class="heat" aria-label="Pressure on the coach, week by week">${hist.map(x=>{const st=heatStage(x.h).k;return`<i class="${st}" style="height:${Math.max(4,x.h)}%"></i>`}).join('')}</div>`}
+function seat(){const c=coachOf(id);if(!c)return'';if(coachVacant(id)){const r=caretakerRecord(id);return`<p class="stage gold">Caretaker</p><p>${Y.esc(c.name)} has the team${r?`: ${r.w}W ${r.d}D ${r.l}L since he took over`:''}.</p>`}
+  const h=coachHeat(id),st=heatStage(h);return`<p class="stage ${st&&st.k==='brink'?'bad':st&&st.k==='press'?'gold':''}">${st?st.word:'—'}</p><p>${Y.esc(heatWhy(id))}</p>${heatBars()}`}
+
+function render(){
+  Y.bar();
+  if(S.moment&&V.screen!=='june'){app.innerHTML=`${Y.momentHtml()}<div class="sec"><h3>The coach's seat</h3>${seat()}</div>`;return}
+  const s=V.screen;
+  if(s==='june'){
+    const c=coachOf(id),t=tdOf(id),goals=M(id).goals||[],lg=goals.find(g=>g.k==='league');
+    const short=coachShortlist(id),set=settlement(c.id);
+    app.innerHTML=`<p class="kicker">4 June · your people</p><h1>The people</h1>
+     <p class="lead">${Y.esc(CL(id).name)} expect to finish around ${ord(CL(id).expect||8)}. You don't pick the team or the players. You pick who does, what you ask of them, and how long you give them.</p>
+     <div class="sec"><h3>Head coach</h3>${personCard(c,'Head coach')}</div>
+     <div class="sec"><h3>Director of football</h3>${personCard(t,'Director of football')}</div>
+
+     <div class="sec"><h3>1 · What you promise the members</h3><p class="muted">Your league promise is the target the club will judge the coach on, every week.</p>
+      <div class="btns">${[0,1,2].map(lv=>`<button class="btn" data-act="promise" data-lv="${lv}" aria-pressed="${V.promise===lv}">${V.promise===lv?'✓ ':''}${['Safe','Steady','Bold'][lv]}<small>${V.promise===lv&&lg?Y.esc(lg.text.replace(/ in Northmarch.*/,'')):''}</small></button>`).join('')}</div></div>
+
+     <div class="sec"><h3>2 · Keep ${Y.esc(c.name)} or bring in your own coach</h3><p class="muted">Letting the coach go now costs ${Y.k(set)} in settlement. A new coach gets a honeymoon; the club judges him from his first game.</p>
+      <div class="btns"><button class="btn" data-act="keep" aria-pressed="${!V.replace}">${!V.replace?'✓ ':''}Keep the coach<small>${STY(c)}, ${stars(staffStars(staffEstimate(c.id)))}</small></button>
+      ${short.map(x=>`<button class="btn" data-act="pick" data-pid="${x.pid}" aria-pressed="${V.replace===x.pid}">${V.replace===x.pid?'✓ ':''}${Y.esc(x.name)}, ${x.age}<small>${Y.esc(x.style)} · ${stars(x.stars)} · £${x.wage}/w${x.comp?` · ${Y.k(x.comp)} compensation`:''}${x.cheer?` · ${Y.esc(x.cheer)} would cheer`:''}</small></button>`).join('')}</div></div>
+
+     <div class="sec"><h3>3 · How much ${Y.esc(t.name)} may sign without you</h3>
+      <div class="btns">${Object.entries(MANDATE_DEALS).map(([k,d])=>`<button class="btn" data-act="deals" data-k="${k}" aria-pressed="${V.deals===k}">${V.deals===k?'✓ ':''}${d.n}<small>${Y.esc(d.d)}</small></button>`).join('')}</div></div>
+     <button class="btn primary" data-act="sign">Sign off and start the season</button>
+     <p class="muted" style="font-size:12px">World #${seed}. The real Northmarch engine runs underneath.</p>${design()}`;
+    return}
+  if(s==='month'){
+    app.innerHTML=`<p class="kicker">${Y.monthOf(S.week)} · the coach's seat</p>${seat()}
+     ${Y.rows([['League',`${ord(posOf(id))} · target ${ord(coachTarget(id))}`],['Form',((S.tbl[id]&&S.tbl[id].form)||[]).slice(-5).join(' ')||'—'],['Members\' confidence',Math.round(M(id).conf)+'%'],['Head coach',Y.esc(coachOf(id).name)],['Director',Y.esc(tdOf(id).name)]])}
+     <div class="sec"><h3>At the club this month</h3>${Y.newsHtml(V.last.news,10)}</div>
+     <button class="btn primary" data-act="cont">${S.week>=SEASON_WEEKS?'To the AGM':'Continue to '+Y.monthOf(Y.nextStop(S.week))}</button>${design()}`;
+    return}
+  if(s==='pressure'){const c=coachOf(id),set=settlement(c.id),r=V.record.filter(x=>x.coach===c.name);
+    app.innerHTML=`<p class="kicker">${Y.monthOf(S.week)} · the clock stops</p><h1>${Y.esc(c.name)} under pressure</h1>${seat()}
+     ${Y.rows([['Record this season',`${r.filter(x=>x.r==='W').length}W ${r.filter(x=>x.r==='D').length}D ${r.filter(x=>x.r==='L').length}L`],['Sacking costs',Y.k(set)+' settlement'],['Then',`a caretaker, and you choose from a shortlist`]])}
+     <div class="btns"><button class="btn" data-act="wait">Wait. Turning it round is the coach's job.<small>the pressure may build into a vote of confidence</small></button>
+     <button class="btn" data-act="sack">Sack the coach now<small>${Y.k(set)} · a caretaker takes the team</small></button></div>`;
+    return}
+  if(s==='vacancy'){const c=coachOf(id),r=caretakerRecord(id),short=coachShortlist(id);
+    app.innerHTML=`<p class="kicker">${Y.monthOf(S.week)} · a vacancy</p><h1>Who runs the team?</h1>
+     ${Y.who(c.name,'Caretaker',`I'll keep it ticking over. ${r&&r.n?`${r.w}W ${r.d}D ${r.l}L so far.`:''}`)}
+     <div class="btns">${short.map(x=>`<button class="btn" data-act="hire" data-pid="${x.pid}">${Y.esc(x.name)}, ${x.age}<small>${Y.esc(x.style)} · ${stars(x.stars)} · £${x.wage}/w${x.comp?` · ${Y.k(x.comp)} compensation to ${Y.esc(x.from&&CL(x.from)?CL(x.from).name:'the club')}`:' · free'}${x.cheer?` · ${Y.esc(x.cheer)} would cheer`:''}</small></button>`).join('')}
+      <button class="btn" data-act="caretaker">Give ${Y.esc(c.name)} the job until the summer<small>cheap, usually weaker</small></button></div>`;
+    return}
+  if(s==='renew'){const rows=['coach','td'].map(role=>{const p=P(CL(id).cast[role]);return{role,p}}).filter(x=>x.p&&x.p.pro&&!x.p.pro.caretaker&&x.p.pro.contract<=1);
+    if(!rows.length){V.screen='month';return render()}
+    app.innerHTML=`<p class="kicker">March · contracts</p><h1>Who stays?</h1><p class="lead">These contracts end in the summer. If you do nothing, they leave and a caretaker starts next season.</p>
+     ${rows.map(({role,p})=>`<div class="sec">${personCard(p,role==='coach'?'Head coach':'Director of football')}${role==='coach'?`<p>${Y.esc(heatWhy(id))}</p>`:''}
+      <div class="btns"><button class="btn" data-act="renew" data-role="${role}" ${V['ren_'+role]?'disabled':''}>${V['ren_'+role]?'✓ Renewed':'Two more seasons'}<small>£${Math.round(p.pro.wage*1.1/5)*5} a week (+10%)</small></button></div></div>`).join('')}
+     <button class="btn primary" data-act="cont">Continue to ${Y.monthOf(Y.nextStop(S.week))}</button>`;
+    return}
+  if(s==='agm'){const coaches=[...new Set(V.record.map(x=>x.coach))];
+    app.innerHTML=`<p class="kicker">May · the verdict</p><h1>Season ${V.h.agm.s}</h1>
+     <div class="sec"><h3>Who ran the team</h3>${Y.rows(coaches.map(n=>{const r=V.record.filter(x=>x.coach===n);return[Y.esc(n)+(r.some(x=>x.care)?' <span class="muted">(caretaker)</span>':''),`${r.length} games · ${r.filter(x=>x.r==='W').length}W ${r.filter(x=>x.r==='D').length}D ${r.filter(x=>x.r==='L').length}L`]}))}</div>
+     ${Y.agmHtml(V.h)}
+     <div class="sec"><h3>What you decided</h3>${Y.logHtml()}</div>
+     <div class="btns"><button class="btn primary" data-act="again">Another club <small>new world</small></button><button class="btn" data-act="replay">Replay world #${seed}</button></div>${design()}`}
+}
+function design(){return`<details class="design"><summary>Ontwerpnotitie (voor de eigenaar)</summary><p>Werkveld <b>Mensen</b> uit §4a: de grootste hefboom van de voorzitter is wie hij aanstelt, wat hij vraagt en hoe lang hij iemand de tijd geeft. Juni: de competitiebelofte wordt het doel van de trainer, houden of vervangen (met afkoopsom), de tekenbevoegdheid van de TD. Daarna weegt de engine de positie van de trainer elke week (MB-38); de klok stopt bij oplopende druk, een vacature en de contracten in maart. Momenten (vertrouwensvraag, een club die je staf wil, ruzie tussen trainer en TD) komen uit de engine. Geen opstelling, geen spelers.</p></details>`}
+
+app.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act;
+  if(a==='promise'){V.promise=+b.dataset.lv;cmd('SetManifest',id,{k:'league',lv:V.promise})}
+  if(a==='keep')V.replace=null;
+  if(a==='pick')V.replace=b.dataset.pid;
+  if(a==='deals')V.deals=b.dataset.k;
+  if(a==='sign'){sign();return}
+  if(a==='cont'){if(S.week>=SEASON_WEEKS&&!S.moment){V.h=closeSeason();Y.fresh();V.screen='agm';render();scrollTo(0,0);return}cont();return}
+  if(a==='moment'){Y.chooseMoment(+b.dataset.i);V.last={news:Y.news.slice(0,6)};V.screen=coachVacant(id)&&!V.vacSeen?(V.vacSeen=true,'vacancy'):'month'}
+  if(a==='wait'){Y.note(`${Y.monthOf(S.week)}: kept faith with ${coachOf(id).name} under pressure.`);V.screen='month'}
+  if(a==='sack'){const n=coachOf(id).name,set=settlement(coachOf(id).id);cmd('SackStaff',id,{role:'coach'});Y.note(`Sacked ${n} (${Y.k(set)}).`);V.vacSeen=true;Y.fresh();V.screen='vacancy'}
+  if(a==='hire'){const r=cmd('HireStaff',id,{role:'coach',pid:b.dataset.pid});Y.note(r.ok===false?`Hiring failed: ${r.err}`:`Appointed ${coachOf(id).name} as head coach.`);V.stageSeen='safe';V.last={news:Y.fresh()};V.screen='month'}
+  if(a==='caretaker'){cmd('KeepCaretaker',id,{});Y.note(`Gave ${coachOf(id).name} the job until the summer.`);V.stageSeen='safe';V.last={news:Y.fresh()};V.screen='month'}
+  if(a==='renew'){const role=b.dataset.role,r=cmd('RenewStaff',id,{role});if(r.ok!==false){V['ren_'+role]=true;Y.note(`Renewed ${P(CL(id).cast[role]).name} for two seasons.`)}}
+  if(a==='again'){seed=1+Math.floor(Math.random()*99998);location.hash='seed'+seed;start();scrollTo(0,0);return}
+  if(a==='replay'){start();scrollTo(0,0);return}
+  render();});
+setTimeout(start,30);
+</script>
+</body></html>

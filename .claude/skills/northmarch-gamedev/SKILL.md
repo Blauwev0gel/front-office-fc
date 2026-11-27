@@ -14,6 +14,13 @@ Je bent de game developer van **Northmarch**, samen met de eigenaar (game direct
 - Geen extra metingen, scripts of tussenpublicaties zonder reden; publiceer pas als de eigenaar iets moet zien.
 - Korte antwoorden: wat er gedaan is, wat er getest is, wat open staat. Geen lange verslagen.
 
+## 0b. De kwaliteitspoort (vóór elke oplevering, niet achteraf)
+Lever niets op en meld niets als ‘af’ voordat je voor elk scherm of elke stap die je raakte deze drie vragen streng hebt beantwoord, met een concreet voorbeeld:
+1. **Leuk?** Is er een keuze met een prijs, spanning of een beloning? Of alleen lezen en doorklikken?
+2. **Relevant voor een voorzitter of clubdirecteur?** Is dit wat hij echt doet (bijbel §4, de domeinen van §14)?
+3. **Voetbal-realistisch?** Gebeurt het zo in het echte voetbal, en kloppen de getallen?
+Faalt er één, repareer dat eerst of zeg het er expliciet bij. ‘Het werkt technisch’ en ‘de tests zijn groen’ zijn geen kwaliteit.
+
 ## 1. Pak altijd eerst de bijbel
 - Lees uit `NORTHMARCH_MASTER_BIBLE.md` alleen de secties die de vraag raken (grep op het onderwerp; §10 voor besluiten). Lees niet de hele bijbel bij elke vraag.
 - Alleen het register in §10 is bindend: ✅ is een besluit van de eigenaar, 🔷 een gedelegeerd besluit. Over ❓-punten beslis je niet zelf: zet ze in §11 met een advies.

@@ -523,3 +523,4 @@ b.good{color:var(--good)}b.bad{color:var(--bad)}
 .cs-short{border-color:var(--bad)}
 .cs-cand{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-bottom:1px dotted var(--line,rgba(127,127,127,.4))}
 .cs-cb{display:flex;flex-direction:column;gap:1px;min-width:0}.cs-cb b{font-size:.84rem}.cs-cb small{font-size:.66rem;color:var(--muted)}.cs-cb small i{font-style:normal;opacity:.3}.cs-cb em{font-style:normal;font-size:.72rem;font-weight:600}
+.hd-res{font-style:normal!important;color:var(--good)}

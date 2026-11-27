@@ -25,7 +25,8 @@
    const stage=UI.v183Stage||'preview',over=seasonOver(),pre=S.week===0;
    let play='';
    const P_=pre?PRE():null;
-   if(UI.tab==='week'&&stage==='preview'&&P_&&preStep()==='promise')play=`<button class="btn g-play" data-act="sealmanifest">✍ Sign the manifest</button>`;
+   if(UI.tab==='week'&&stage==='preview'&&P_&&preStep()==='handover')play=S.handover&&S.handover.text?`<button class="btn g-play" data-act="handoverdone">To your mandate ›</button>`:`<button class="btn g-play" disabled>Decide first ↑</button>`;
+   else if(UI.tab==='week'&&stage==='preview'&&P_&&preStep()==='promise')play=`<button class="btn g-play" data-act="sealmanifest">✍ Sign the manifest</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&P_&&preStep()==='budget')play=`<button class="btn g-play" data-act="budgetsign">✍ Sign the budget</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&P_&&!P_.brief)play=`<button class="btn g-play" data-act="briefsign">✍ Agree the plan · open the market</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.brief&&tcPlaying())play=`<button class="btn g-play" data-act="tcskip">Skip to the end of the week ›</button>`;
@@ -429,6 +430,13 @@
  const an=w=>/^[aeiou]/i.test(w)?'an '+w:'a '+w;
  const firstDay=()=>!S.welcomed&&S.career.length===1&&S.season===S.career[0]?.from;
  /* the first day: election night and the next morning in one page, then the manifest under it */
+ /* the first morning (MB-40): the club in three lines, then the first real decision */
+ function handoverCard(id){const c=C(),m=handoverMatter(id),H=S.handover,q=squadRank(id),kit=clubKit(id).a;
+   return`<section class="rt">${rtBar('YOUR FIRST MORNING',esc(c.ground))}
+   <div class="d-job">${jobTag(id)}<span>${esc(jobLine(id))}</span></div>
+   <div class="wk-strip"><div><small>SQUAD</small><b>${q.r}/${q.n}</b></div><div><small>CASH</small><b>${k1(F(id).cash)}</b></div><div><small>DEBT</small><b>${k1(debt(id))}</b></div><div><small>TRUST</small><b>${Math.round(M(id).conf)}%</b></div></div>
+   ${m?`<div class="rt-h">THE FIRST DECISION</div><div class="ag-row on"><div class="ag-head">${faceSVG(m.who,{size:40,kit})}<span><small>${esc(m.role.toUpperCase())}</small><b>${esc(m.title)}</b></span></div>
+   <div class="ag-body"><p>“${esc(m.line)}” <small>— ${esc(m.who)}</small></p>${H.text?`<p class="hd-res"><b>✓</b> ${esc(H.text)}</p>`:m.opts.map(o=>`<button class="ag-opt" data-act="handover" data-arg="${esc(o.k)}"><b>${esc(o.t)}</b><span>${esc(o.fx)}</span></button>`).join('')}</div></div>`:''}</section>`}
  function firstDayCard(id){const c=C(),d=tdOf(id),co=coachOf(id),vote=Math.round(M(id).conf),m=summerMeeting(id),kit=clubKit(id).a;
    return`<section class="rt">${rtBar('YOUR FIRST DAY',esc(c.ground))}
    <div class="fd-vote"><b>${vote}%</b><div><i class="bar big"><i style="width:${vote}%"></i><em style="left:50%"></em></i><span>of the members trust you today · the first AGM judges you; under 50% and you are out</span></div></div>
@@ -502,8 +510,8 @@
    <div class="rt-h">MARKET NEWS</div><ul class="tc-news" aria-live="polite">${news||'<li><b>'+esc(preDayLabel(P_,0))+'</b><span>The window opens today.</span></li>'}</ul>${groups.length>2&&!UI.tcAll?`<button class="rt-more" data-act="tcall">All market news · ${items.length} ›</button>`:''}
    </section></div>`}
  /* the pre-season as steps: welcome (first season) → the plan → the market → the season ahead */
- function preStep(){const P_=PRE();if(!P_)return null;if(!P_.brief&&!manifestSealed(S.my))return'promise';if(!P_.brief)return'plan';if(P_.wk<=winWeeks(P_)||tcPlaying())return'market';return'ahead'}
- function preSteps(st){const L=[['promise',firstDay()?'First day':'Manifest'],['plan','TD meeting'],['market','Market'],['ahead','Season']];const k=L.findIndex(x=>x[0]===st);return`<ol class="g-steps">${L.map(([,t],i)=>`<li class="${i===k?'on':i<k?'done':''}">${t}</li>`).join('')}</ol>`}
+ function preStep(){const P_=PRE();if(!P_)return null;if(firstDay()&&!(S.handover&&S.handover.done))return'handover';if(!P_.brief&&!manifestSealed(S.my))return'promise';if(!P_.brief)return'plan';if(P_.wk<=winWeeks(P_)||tcPlaying())return'market';return'ahead'}
+ function preSteps(st){const L=[...(S.career.length===1&&S.season===S.career[0]?.from?[['handover','First day']]:[]),['promise','Mandate'],['plan','TD meeting'],['market','Window'],['ahead','Season']];const k=L.findIndex(x=>x[0]===st);return`<ol class="g-steps">${L.map(([,t],i)=>`<li class="${i===k?'on':i<k?'done':''}">${t}</li>`).join('')}</ol>`}
  /* election night and the first morning: the club's own people, from the world the engine made (MB-02, §7.1) */
  function welcomeCard(id){const c=C(),d=tdOf(id),co=coachOf(id),fan=c.cast.fan&&P(c.cast.fan),g=c.groups.slice().sort((a,b)=>b.share-a.share)[0],grp=g&&ARCH[g.k];
    const vote=clamp(Math.round(24+.75*M(id).conf+6),51,90),m=summerMeeting(id),r=c.rival&&CL(c.rival);
@@ -552,7 +560,8 @@
    return`<ul class="bd-left"><li><small>Players</small><b>£${pl}k</b><span>of £${a.players}k</span></li><li><small>Wages</small><b>+£${Math.round(a.wages/SEASON_WEEKS*1000).toLocaleString('en-GB')}</b><span>a week</span></li><li><small>Building</small><b>£${bl}k</b><span>of £${a.build}k</span></li><li><small>Kept back</small><b>£${a.bank}k</b><span>${S.bud.loan?`+ £${S.bud.loan}k loan`:'in July'}</span></li></ul>`}
  function preSeasonScreen(id,msg){
    const st=preStep(),P_=PRE();
-   if(st==='promise')return`<div class="g-week">${msg}${preSteps(st)}${firstDay()?firstDayCard(id):''}<section class="rt rt-wrap">${rtBar('YOUR MANIFEST','SAFE · STEADY · BOLD')}${promiseScreen(id)}</section></div>`;
+   if(st==='handover')return`<div class="g-week">${msg}${preSteps(st)}${handoverCard(id)}</div>`;
+   if(st==='promise')return`<div class="g-week">${msg}${preSteps(st)}<section class="rt rt-wrap">${rtBar('YOUR MANIFEST','SAFE · STEADY · BOLD')}${promiseScreen(id)}</section></div>`;
    if(st==='budget')return`<div class="g-week">${msg}${preSteps(st)}${budgetScreen(id)}</div>`;
    if(st==='plan')return`<div class="g-week">${msg}${preSteps(st)}${meetingCard(id)}</div>`;
    if(st==='market')return`<div class="g-week">${msg}${preSteps(st)}${momentCard()}${preSeason(id)}</div>`;
@@ -916,6 +925,8 @@
    if(a==='briefgoal'&&S&&S.my){const b=briefPick(S.my);const i=b.goals.indexOf(arg);if(i>=0)b.goals.splice(i,1);else if(b.max===1)b.goals=[arg];else if(b.goals.length<b.max)b.goals.push(arg);else UI.msg={err:true,text:'Three goals at most: untick one first.'};render();return}
    if(a==='keepcaretaker'&&S&&S.my){const r=cmd('KeepCaretaker',S.my,{});UI.msg=r.ok===false?{err:true,text:r.err}:{text:`${coachOf(S.my).name} has the job until the summer.`};save();render();return}
    if(a==='hirecoach'&&S&&S.my){const r=cmd('HireStaff',S.my,{role:'coach',pid:arg});UI.msg=r.ok===false?{err:true,text:r.err}:{text:`${P(arg).name} is your new head coach. The dressing room lifts.`};save();render();return}
+   if(a==='handover'&&S&&S.my){const r=cmd('Handover',S.my,{opt:arg});if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}
+   if(a==='handoverdone'&&S&&S.my){S.handover.done=true;S.welcomed=true;save();render();if(HAS_DOM)window.scrollTo(0,0);return}
    if(a==='agopen'){UI.agOpen=UI.agOpen===arg?null:arg;render();return}
    if(a==='agmeet'&&S&&S.my){const [topic,opt]=arg.split('|'),r=cmd('Meet',S.my,{topic,opt});UI.agOpen=null;if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}
    if(a==='agseat'&&S&&S.my){const r=cmd('Seat',S.my,{seat:arg});if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}

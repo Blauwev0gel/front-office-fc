@@ -21,7 +21,7 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     await tap('[data-act=seat] >> nth=1');await wide('club file');
     ok((await page.locator('body').innerText()).toUpperCase().includes('THREE NAMES'),`${scheme}: the file names three players`);
     await tap('[data-act=seatback]');ok(await count('[data-act=seat]')>=3,`${scheme}: back from a file to the open chairs`);
-    await tap('[data-act=seat] >> nth=1');await tap('[data-act=choose]');
+    await tap('[data-act=seat] >> nth=1');await tap('[data-act=choose]');await tap('[data-act=pitch] >> nth=0');if(await count('[data-act=lostback]')){await tap('[data-act=lostback]');await tap('[data-act=seat] >> nth=0');await tap('[data-act=choose]');await tap('[data-act=pitch] >> nth=1')}if(await count('[data-act=takechair]'))await tap('[data-act=takechair]');
     await page.evaluate(()=>{S.agmOff=true;M(S.my).conf=90}); /* this run tests the screens, not the members' vote */
     const steps=[];
     for(let i=0;i<28&&!await count('[data-act=play]');i++){const b=page.locator('.g-play').first();if(!await b.count())break;if(/Pause/.test(await b.innerText())){await page.waitForTimeout(800);i--;continue}steps.push((await b.innerText()).trim());

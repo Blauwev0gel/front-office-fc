@@ -429,7 +429,7 @@
  const an=w=>/^[aeiou]/i.test(w)?'an '+w:'a '+w;
  const firstDay=()=>!S.welcomed&&S.career.length===1&&S.season===S.career[0]?.from;
  /* the first day: election night and the next morning in one page, then the manifest under it */
- function firstDayCard(id){const c=C(),d=tdOf(id),co=coachOf(id),vote=clamp(Math.round(24+.75*M(id).conf+6),51,90),m=summerMeeting(id),kit=clubKit(id).a;
+ function firstDayCard(id){const c=C(),d=tdOf(id),co=coachOf(id),vote=S.elect&&S.elect.club===id?S.elect.pct:clamp(Math.round(24+.75*M(id).conf+6),51,90),m=summerMeeting(id),kit=clubKit(id).a;
    return`<section class="rt">${rtBar('ELECTION NIGHT',esc(c.ground))}
    <div class="fd-vote"><b>${vote}%</b><div><i class="bar big"><i style="width:${vote}%"></i><em style="left:50%"></em></i><span>voted for you · under 50% at an AGM and you are out</span></div></div>
    <div class="d-job">${jobTag(id)}<span>${esc(jobLine(id))}</span></div>

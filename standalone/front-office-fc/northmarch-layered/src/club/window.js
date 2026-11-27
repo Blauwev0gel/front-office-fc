@@ -60,7 +60,7 @@ function briefOptions(id){
   const out=preTargets(id).map(n=>{const w=weakestAt(id,n.pos);return{k:'sign:'+n.pos,t:`Sign a starting ${POS_ONE[n.pos]}`,why:w.name?`Better than ${w.name} (${w.q}) · ${n.why}`:n.why}});
   out.push({k:'keep3',t:'Keep our three best players',why:topThree(id).map(p=>p.name).join(', ')});
   out.push({k:'young',t:'Sign players aged 23 or younger',why:'Buy for growth and a resale value'});
-  out.push({k:'sales',t:`Raise £${Math.max(15,Math.round(squadSaleValue(id)*.8/5)*5)}k from sales`,why:'Sell what we do not need'});
+  out.push({k:'sales',t:`Raise £${Math.max(10,Math.round(Math.min(squadSaleValue(id)*.5,Math.max(15,estSeasonIncome(id)*.08))/5)*5)}k from sales`,why:'Sell what we do not need'}); /* a target the club can reach: half the spare players' value, at most a twelfth of the season's income */
   out.push({k:'cap',t:`Spend no more than £${Math.max(10,Math.round(budgetFor(id)*.6/5)*5)}k`,why:'Protect the cash for the season'});
   return out;
 }

@@ -9,7 +9,7 @@ const g=game();
 g.newWorld(1804);g.chooseClub(g.getS().seats[0]);g.UI.title=false;g.UI.v183Stage='preview';g.UI.tab='week';
 const home=g.weekView();
 /* the V19 home with thirteen tiles was replaced by the week screen (game shell): the club opens there, on election night */
-assert(home.includes('g-week')&&home.includes('is yours'),'The club opens on the week screen');
+assert(home.includes('g-week')&&home.includes('FIRST DAY'),'The club opens on the first day');
 assert(!home.includes('nm86-upgrade-cta'),'No generic upgrade CTA on home');
 assert(!home.includes('nm86-cash'),'Cashflow belongs in Finances');
 for(const k of ['training','medical','academy','scouting','commercial','community','matchday']){

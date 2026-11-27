@@ -392,3 +392,42 @@ b.good{color:var(--good)}b.bad{color:var(--bad)}
 .g-ticker .g-tk-track span{text-shadow:0 0 6px rgba(255,190,60,.55)}
 .g-tk-label{background:#c4252e}
 .ib-msg summary .face{margin-right:2px}
+/* ---- text-led retro football pages (§8): the opening and the transfer summer ---- */
+:root{--f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace}
+.rt{font-family:var(--f-mono);background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:6px;overflow:hidden;font-size:.84rem;line-height:1.4}
+.rt+.rt,.rt+section,.tc2>*+*{margin-top:12px}
+.rt-bar{display:flex;justify-content:space-between;gap:8px;align-items:center;background:var(--navy);color:var(--onnavy);padding:7px 10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.76rem}
+.rt-bar b{font-weight:700}
+.rt-sub{padding:7px 10px;border-bottom:1px dashed var(--line,rgba(127,127,127,.4));font-weight:600}
+.rt-h{padding:12px 10px 4px;font-weight:700;letter-spacing:.1em;font-size:.7rem;color:var(--signal,#c4561b);text-transform:uppercase}
+.rt-row{display:grid;grid-template-columns:3.6em 1fr auto;gap:8px;align-items:center;padding:8px 10px;min-height:44px;border-bottom:1px dotted var(--line,rgba(127,127,127,.4));text-align:left;width:100%;background:none;color:inherit;font:inherit;border-left:0;border-right:0;border-top:0}
+.rt-a{font-weight:700;color:var(--muted);font-size:.74rem}
+.rt-b{min-width:0}.rt-b small{display:block;color:var(--muted);font-size:.74rem}
+.rt-c{font-weight:700;text-align:right;white-space:nowrap}
+.rt-file{cursor:pointer}.rt-file:hover{background:var(--chip)}.rt-file .rt-job{color:var(--ink);margin-top:2px}
+.rt-big{padding:10px;border-bottom:1px dashed var(--line,rgba(127,127,127,.4));display:flex;flex-direction:column;gap:2px}
+.rt-big b{font-size:1.5rem;font-weight:700;color:var(--signal,#c4561b)}
+.rt-quote{padding:10px;font-style:italic;border-bottom:1px dotted var(--line,rgba(127,127,127,.4))}
+.rt-quote small{font-style:normal;color:var(--muted)}
+.rt-note{padding:8px 10px;margin:0;color:var(--muted);font-size:.76rem}
+.rt-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px}
+.rt-btns>:only-child{grid-column:1/-1}
+.rt-btn{font-family:var(--f-mono);min-height:44px;border:1.5px solid var(--ink);border-radius:4px;background:transparent;color:inherit;font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;padding:6px}
+.rt-btn.on{background:var(--ink);color:var(--card)}
+.rt-mini{font-family:var(--f-mono);min-height:44px;min-width:44px;border:1.5px solid var(--ink);border-radius:4px;background:transparent;color:inherit;font-weight:700;font-size:.68rem;cursor:pointer;padding:4px 8px}
+.rt-mini.on{background:var(--good);border-color:var(--good);color:#fff}
+.rt-row.s-good .rt-c{color:var(--good)}.rt-row.s-out{opacity:.6}.rt-row.s-out .rt-c{text-decoration:line-through}.rt-row.s-warn .rt-c{color:var(--bad)}.rt-row.s-live .rt-c{color:var(--signal,#c4561b)}.rt-row.s-short .rt-c{color:var(--muted);font-weight:600}
+.rt-row.warn .rt-c{color:var(--bad)}
+.rt-news{list-style:none;margin:0;padding:0 10px 10px}
+.rt-news li{display:grid;grid-template-columns:4.2em 1fr;gap:8px;padding:5px 0;border-bottom:1px dotted var(--line,rgba(127,127,127,.3));font-size:.78rem}
+.rt-news li b{color:var(--muted)}.rt-news li.tk-good span{color:var(--good)}.rt-news li.tk-bad span{color:var(--bad)}.rt-news li.tk-warn span{color:var(--bad);font-weight:700}
+.rt-older summary{padding:10px;min-height:44px;cursor:pointer;color:var(--muted)}
+.rt-head{font-family:var(--f-display);text-transform:uppercase;font-size:1.6rem;line-height:1.05;padding:10px;margin:0}
+.rt .g-goals,.rt .g-seg,.rt>.g-opt,.rt .g-close{margin:0 10px 6px}
+.rt>.g-opt{width:calc(100% - 20px)}
+.rt .pp-link{font-family:var(--f-mono);font-weight:700}
+.rt-wrap .g-card,.rt-season .g-promise{border:0;box-shadow:none;background:none;border-radius:0;font-family:var(--f-mono)}
+.rt-wrap .g-card>.g-k:first-child{display:none}
+.rt-wrap .g-card{padding:10px}
+.rt-season .g-promise{border:2px solid var(--ink);border-radius:6px;background:var(--card)}
+.rt-row.s-good .rt-a{color:var(--good)}

@@ -49,22 +49,24 @@ function clubChallenge(id){
   return sport+(mw==='In the red'||mw==='Stretched'?` Money is tight${d?` and there is £${Math.round(d)}k debt`:''}.`:d?` There is £${Math.round(d)}k debt.`:'');
 }
 function clubVoice(id){const c=CL(id),g=c.groups.slice().sort((a,b)=>b.share-a.share)[0],a=g&&ARCH[g.k];return g?`${groupName(id,g)} are the loudest voice (${g.share}%): “${a?a.wants:''}”`:''}
+/* the opening (§7.1): open chairs as files, a text page per club (§8: text-led retro football presentation) */
 function chooseView(){
   if(UI.seat&&S.seats.includes(UI.seat))return dossierView(UI.seat);
   const again=S.career.length>0,last=again?S.career[S.career.length-1]:null;
-  return`<main class="scene" style="padding-top:28px"><p class="eyebrow">${again?`Season ${S.season} · after ${esc(CL(last.club).name)}`:`${S.seats.length} open chairs`}</p><h2>${again?`${S.seats.length} clubs want you`:'Where do you stand for election?'}</h2>
-  <p class="muted">${again?`${esc(last.why||'Your term ended')}. The world kept turning; pick your next club.`:'Every club has its own story and its own problem. Open a file to read it.'}</p>
-  <div class="stack">${S.seats.map(id=>{const c=CL(id);return`<button class="deal" data-act="seat" data-arg="${id}"><span class="dt">${esc(c.name)}</span><span class="small muted">${esc(TIER_NAME[c.tier])} · ${esc(TOWNS[c.town].n)} · founded ${c.founded}</span><span class="small">${esc(clubChallenge(id))}</span><span class="small muted">Read the file ›</span></button>`}).join('')}</div></main>`;
+  return`<main class="scene" style="padding-top:20px"><section class="rt"><div class="rt-bar"><b>${again?'CLUBS WANT YOU':'OPEN CHAIRS'}</b><span>${again?'SEASON '+S.season:'SUMMER · ELECTIONS'}</span></div>
+  <div class="rt-sub">${again?`${esc(last.why||'Your term ended')}. The world kept turning; pick your next club.`:`${S.seats.length} member clubs elect a new chairman this summer. Open a file.`}</div>
+  ${S.seats.map(id=>{const c=CL(id);return`<button class="rt-row rt-file" data-act="seat" data-arg="${id}"><span class="rt-a">${esc(['PREM','ONE','TWO','THREE','FOUR'][c.tier]||'')}</span><span class="rt-b"><b>${esc(c.name)}</b><small>${esc(TOWNS[c.town].n)} · founded ${c.founded} · ${esc(c.ground)}</small><small class="rt-job">${esc(clubChallenge(id))}</small></span><span class="rt-c">${k1(F(id).cash)} ›</span></button>`}).join('')}
+  <p class="rt-note">Every club has its own story and its own problem. The members vote; you live with the result.</p></section></main>`;
 }
 function dossierView(id){
-  const c=CL(id),sg=groundSignals(id),f=F(id),ks=keyPlayers(id),r=c.rival&&CL(c.rival);
-  return`<main class="scene" style="padding-top:28px"><p class="eyebrow">The file · ${esc(TIER_NAME[c.tier])}</p><h2>${esc(c.name)}</h2>
-  <p class="muted">${esc(TOWNS[c.town].n)} · founded ${c.founded} · ${esc(c.ground)}</p>
-  <section class="g-card"><small class="g-k">THE JOB</small><p>${esc(clubChallenge(id))}</p></section>
-  <section class="g-card"><small class="g-k">WHO THEY ARE</small><p>${esc(clubVoice(id))}</p><p class="small muted">Legend: ${esc(c.legend)}. The scar: ${esc(c.scar)}.${r?` Rivals: ${esc(r.name)}, since ${esc(c.rivalWhy)}.`:''}</p></section>
-  <section class="g-card"><small class="g-k">THREE NAMES TO KNOW</small><ul class="g-list">${ks.map(k=>`<li><b>${esc(k.p.name)}</b> · ${esc(k.role)} <span class="small muted">(${esc(POS_ONE[k.p.pos])}, ${k.p.age})</span></li>`).join('')}</ul></section>
-  <section class="g-card"><small class="g-k">MONEY AND SUPPORT</small><ul class="g-list"><li><b>Bank:</b> ${k1(f.cash)}${debt(id)?` · ${k1(debt(id))} debt`:''}</li><li><b>Support:</b> ${n0(c.support)} · the ground holds ${n0(sg.capacity)}</li><li><b>Squad:</b> ${esc(strWord(id).toLowerCase())} in the division</li></ul></section>
-  <div class="stack"><button class="btn" data-act="choose" data-arg="${id}">Stand for election here</button><button class="btn ghost" data-act="seatback">Back to the open chairs</button></div></main>`;
+  const c=CL(id),sg=groundSignals(id),f=F(id),ks=keyPlayers(id),r=c.rival&&CL(c.rival),row=(a,b,x)=>`<div class="rt-row"><span class="rt-a">${a}</span><span class="rt-b">${b}</span><span class="rt-c">${x||''}</span></div>`;
+  return`<main class="scene" style="padding-top:20px"><section class="rt"><div class="rt-bar"><b>THE FILE · ${esc(c.name.toUpperCase())}</b><span>${esc(TIER_NAME[c.tier])}</span></div>
+  <div class="rt-sub">${esc(TOWNS[c.town].n)} · founded ${c.founded} · ${esc(c.ground)}</div>
+  <div class="rt-big"><b>THE JOB</b><span>${esc(clubChallenge(id))}</span></div>
+  <div class="rt-h">WHO THEY ARE</div>${row('VOICE',esc(clubVoice(id)))}${row('LEGEND',esc(c.legend))}${row('SCAR',esc(c.scar))}${r?row('RIVAL',`${esc(r.name)}, since ${esc(c.rivalWhy)}`):''}
+  <div class="rt-h">THREE NAMES TO KNOW</div>${ks.map(k=>row(esc(k.p.pos),`<b>${esc(k.p.name)}</b> · ${esc(k.role)}`,String(k.p.age))).join('')}
+  <div class="rt-h">MONEY AND SUPPORT</div>${row('BANK','Cash'+(debt(id)?` · ${k1(debt(id))} debt`:''),k1(f.cash))}${row('CROWD',`Support ${n0(c.support)} · ground holds ${n0(sg.capacity)}`,'')}${row('SQUAD',esc(strWord(id))+' in the division','')}
+  <div class="rt-btns"><button class="rt-btn on" data-act="choose" data-arg="${id}">Stand for election here</button><button class="rt-btn" data-act="seatback">Back to the open chairs</button></div></section></main>`;
 }
 
 /* ----- the week ----- */

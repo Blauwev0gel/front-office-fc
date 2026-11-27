@@ -26,7 +26,10 @@ function faSummer(){
 function isCore(id,p){const xi=pickXI(S.squads[id]);return xi.some(x=>x.p===p)}
 function marketClubName(id){return S.clubs[id]?.name||S.foreign?.clubs?.[id]?.name||id}
 function foreignSeller(id){return !!(S.foreign&&S.foreign.clubs[id])}
-function moveWage(p,toId){return Math.round(wageFor(p.q)*(0.95+rnd()*.25)/5)*5}
+/* richer divisions pay more for the same player (NM-012): the market sets the wage, and the market is the division */
+const DIV_WAGE=[1.35,1.1,1,.92,.85];
+function clubWageF(id){const c=S.clubs[id];return c?DIV_WAGE[c.tier]??1:1}
+function moveWage(p,toId){return Math.round(wageFor(p.q)*clubWageF(toId)*(0.95+rnd()*.25)/5)*5}
 function transfer(p,from,to,fee,why,premium){
   const sq=S.squads[from];playerCloseStint(p,from);sq.splice(sq.indexOf(p),1);if(from===S.my)youthLeft(p,'sold',to,fee);
   if(fee){book(to,'feesOut',-fee);book(from,'feesIn',fee)}
@@ -122,7 +125,8 @@ function shopFor(id,pos,minQ,o={}){
     const cheap=wageFor(11.5+(tierBaseStr(2)-50)/4-1)/1000,coverOk=bill+wage<=cap||wage<=cheap; /* emergency cover: within the wage limit, or a cheap basic contract. A strict ceiling alone leaves a club on its limit with no way to field a squad */
     let reason=seen<minQ?'Below target':fee>budget?'Outside transfer budget':fee>capDeal&&!o.mustHave?'Above my mandate':bill+wage>cap&&(!o.mustHave||!coverOk)?'Outside wage limit':c.from&&!sellerAgrees(p,c.from,fee,id)?'Selling club unwilling':'Considered';
     if(reason==='Considered'){
-      const v0=o.mustHave?-wage*1000-fee:recruitValue(id,p,seen,fee,wage,sl),v=sl&&sl.chair&&!o.mustHave?v0+Math.abs(v0)*.25:v0; /* the director trusts what has been watched; a player the chairman recommended gets a quarter more weight */
+      const st=(F(id).policy||{}).recruit,ageB=st==='youth'?(26-p.age)*40:st==='experience'?(p.age-26)*40:0; /* even the cheapest cover follows the director's profile: a youth-minded director takes the younger of two cheap players */
+      const v0=o.mustHave?-wage*1000-fee+ageB:recruitValue(id,p,seen,fee,wage,sl),v=sl&&sl.chair&&!o.mustHave?v0+Math.abs(v0)*.25:v0; /* the director trusts what has been watched; a player the chairman recommended gets a quarter more weight */
       if(v>bv){bv=v;best={...c,fee,seen};}
     }
     if(id===S.my)evaluated.push({pid:p.id,name:p.name,pos:p.pos,age:p.age,from:c.from?marketClubName(c.from):'Free agent',estimate:r1(seen),fee,reason});
@@ -201,7 +205,7 @@ function renewals(id){
     const want=(p.q>=med-.3||(p.age<=23&&p.pa>med-.3)||short)&&p.age<34;
     if(!want||p.loan)continue;
     // contract talks: the player names his price; the director offers what the wage limit allows
-    const demand=wageDemand(p,med),room=(wageCapK(id)*1.05-wageBillK(id))*1000+p.wage,offer=Math.min(demand,Math.round(room/5)*5);
+    const demand=Math.round(wageDemand(p,med)*clubWageF(id)/5)*5,room=(wageCapK(id)*1.05-wageBillK(id))*1000+p.wage,offer=Math.min(demand,Math.round(room/5)*5);
     if(p.wantsOut||offer<demand*.9){p.morale=clamp(p.morale-10,0,100);if(id===S.my)emit('RefusedContract',id,`${p.name} turns down a new contract${p.wantsOut?': he wants to leave':` (he asked £${demand} a week, the wage limit allows £${Math.max(0,offer)})`}. He can leave in the summer.`,{pid:p.id,demand});continue}
     p.wage=offer;p.contract=ri(2,3);p.morale=clamp(p.morale+8,0,100);if(id===S.my)emit('Renewed',id,`${p.name} signs a new ${p.contract}-year contract (£${p.wage} a week).`,{pid:p.id})
   }

@@ -22,14 +22,17 @@ const SQUAD_MIN=20,SQUAD_MAX=27;
 function pname(){return `${pick(PFIRST)} ${pick(PLAST)}`}
 /* weekly wage in £ for a player of quality q: semi-professional at the bottom, full-time at the top */
 /* wages follow the market: quality relative to the world's level (S.qref), so a richer, better world does not inflate wages forever */
-function wageFor(q){return Math.max(30,Math.round(150*Math.pow(1.65,q-Math.max(11.7,(S&&S.qref)||11.7)+2.2)/5)*5)} /* never below the calibration level, also for saves made while the reference was still too low */
+/* the wage curve: a better player costs disproportionately more, as in real football, where a top-flight regular earns a
+   multiple of a lower-league one; this is what makes money bind at the top (NM-012). Lower divisions pay less than before. */
+const WAGE_STEEP=1.9,WAGE_KNEE=5,WAGE_TOP=1.3; /* steep up to a top-flight regular, then flatter: stars cost more, not without limit */
+function wageFor(q){const x=q-Math.max(11.7,(S&&S.qref)||11.7)+2.2,f=x<=WAGE_KNEE?Math.pow(WAGE_STEEP,x):Math.pow(WAGE_STEEP,WAGE_KNEE)*Math.pow(WAGE_TOP,x-WAGE_KNEE);return Math.max(30,Math.round(150*f/5)*5)} /* never below the calibration level, also for saves made while the reference was still too low */
 /* the wage scale is calibrated on the top three divisions (48 clubs). Lower divisions sit below that reference; counting them would pull it down and make every contract dearer */
 function worldQuality(){const ids=Object.keys(S.squads).filter(i=>S.clubs[i]&&S.clubs[i].tier<=2);return r2(ids.reduce((a,i)=>a+squadQuality(S.squads[i]),0)/Math.max(1,ids.length))}
 function newPlayer(pos,o={}){
   const age=o.age??ri(18,33),q=r1(o.q??(9+rnd()*5));
   const head=o.pa!=null?0:age<=19?1.5+rnd()*4:age<=22?rnd()*2.5:age<=24?rnd():0;
   const p={id:'pl'+(S.pc++),name:o.name||pname(),nationality:o.nationality||(o.club&&o.club.startsWith('f_')?o.club.split('_')[1]:'nmr'),pos,age,q,pa:r1(o.pa??(q+head)),contract:o.contract??ri(1,3),
-    wage:Math.round(wageFor(q)*(0.85+rnd()*.3)/5)*5,form:ri(55,75),inj:0,trait:o.trait||pick(PTRAITS),academy:!!o.academy,
+    wage:Math.round(wageFor(q)*(o.club&&typeof clubWageF==='function'?clubWageF(o.club):1)*(0.85+rnd()*.3)/5)*5,form:ri(55,75),inj:0,trait:o.trait||pick(PTRAITS),academy:!!o.academy,
     apps:0,goals:0,sApps:0,sGoals:0,joined:S.season,club:o.club||null,originClub:o.academy?o.club||null:null,career:[],grown:0,
     devPath:o.devPath||pick(DEV_PATHS),peakAge:o.peakAge??ri(26,31),history:[],
     cupApps:0,cupGoals:0,style:o.style||pick(PLAYER_STYLES[pos]),ambition:o.ambition??ri(30,90),

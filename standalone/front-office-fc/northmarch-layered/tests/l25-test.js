@@ -24,7 +24,7 @@ if(!linked()){while(!E.seasonOver())E.advanceWeek();S.members[S.my].conf=90;E.cl
 ok(linked(),'needs show who arrived for them (filled by, or the latest signing)');
 // 5. the strategy changes whom the director picks (same world, one different frame)
 const snap=world=>{};E.newWorld(71100);const S2=E.__get();E.chooseClub('pell');S2.agmOff=true;const base=E.serialize();
-const ages=st=>{const a=[];for(let k=0;k<3;k++){E.deserialize(base);const s=E.__get();s.rs=(s.rs+k*7919)|0;E.cmd('SetSquadPolicy',s.my,{recruit:st});E.playSeason();E.advanceWeek();a.push(...s.ops.signings.filter(x=>x.need!=='Emergency cover').map(x=>x.age))}return avg(a)};
+const ages=st=>{const a=[];for(let k=0;k<3;k++){E.deserialize(base);const s=E.__get();s.rs=(s.rs+k*7919)|0;s.fin[s.my].cash+=400; /* money to shop with: the strategy decides whom the director buys, not whom he can afford */E.cmd('SetSquadPolicy',s.my,{recruit:st});E.playSeason();E.advanceWeek();a.push(...s.ops.signings.filter(x=>x.need!=='Emergency cover').map(x=>x.age))}return avg(a)};
 const ay=ages('youth'),ae=ages('experience');console.log(`average age of signings: youth strategy ${ay.toFixed(1)} · experience strategy ${ae.toFixed(1)}`);
 ok(ay<ae,'a youth strategy signs younger players than an experience strategy');
 // 6. the cycle survives save and load

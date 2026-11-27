@@ -104,11 +104,13 @@ function preRivals(id){
 function preCandidates(id,n){
   const P_=preState(),base=weakestAt(id,n.pos).q,minQ=preMinQ(id,n),budget=budgetFor(id),fav=P_.fav&&P_.fav[n.pos];
   const seen=new Set(),pool=[...shortlistCandidates(id,n.pos),...scoutPool(id,n.pos,undefined,true)].filter(c=>c&&c.p&&!seen.has(c.p.id)&&seen.add(c.p.id));
+  const room=wageCapK(id)*1.02-wageBillK(id);
   const out=[];for(const c of pool){const p=c.p;if(P_.tried&&P_.tried.includes(p.id))continue;const fee=c.from?askingFee(p,c.from):0;if(fee>Math.max(3,budget*1.3))continue;
+    if(wageFor(p.q)*clubWageF(id)/1000>Math.max(room,wageFor(9)/1000))continue; /* the director only goes for players whose wages fit the wage limit */
     if(c.from&&!foreignSeller(c.from)&&!sellerAgrees(p,c.from,fee,id))continue;if(c.from&&foreignSeller(c.from)&&!playerAcceptsMove(p,c.from,id))continue;
     const sl=shortlistEntry(p.id),est=r1(sl&&sl.obs?sl.est:p.q+(rnd()+rnd()-1)*1.2*scoutNoise(id)),doubt=sl&&sl.obs?scoutRange(id,sl.obs):r1(1.2*scoutNoise(id));if(est<minQ-(p.age<=23&&p.pa>=base?1.5:0))continue;
     const starter=est>=base+.2,ceil=r1(Math.max(est,p.pa+(rnd()+rnd()-1)*1.5*scoutNoise(id)));
-    out.push({pid:p.id,name:p.name,age:p.age,pos:n.pos,from:c.from,fee,wage:Math.round(wageFor(p.q)),est,doubt,ceil,starter,base,chair:!!(sl&&sl.chair),premium:c.premium})}
+    out.push({pid:p.id,name:p.name,age:p.age,pos:n.pos,from:c.from,fee,wage:Math.round(wageFor(p.q)*clubWageF(id)),est,doubt,ceil,starter,base,chair:!!(sl&&sl.chair),premium:c.premium})}
   /* three profiles, so the choice means something: ready now, for the future, a bargain */
   const now=out.slice().sort((a,b)=>b.est-a.est)[0],fut=out.filter(x=>x.age<=23&&x!==now).sort((a,b)=>b.ceil-a.ceil)[0],bar=out.filter(x=>x!==now&&x!==fut).sort((a,b)=>(b.est-base+3)/(b.fee+5)-(a.est-base+3)/(a.fee+5))[0];
   const picks=[now&&{...now,type:'Ready now'},fut&&{...fut,type:'For the future'},bar&&{...bar,type:'Bargain'}].filter(Boolean);

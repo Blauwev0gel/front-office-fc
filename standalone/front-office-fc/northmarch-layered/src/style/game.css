@@ -292,3 +292,13 @@ b.good{color:var(--good)}b.bad{color:var(--bad)}
 .g-ticker:hover .g-tk-track,.g-ticker:focus-within .g-tk-track{animation-play-state:paused}
 @keyframes gtick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){.g-tk-view{overflow-x:auto}.g-tk-track{animation:none}.g-tk-dup{display:none}}
+
+/* ---- the books ---- */
+.g-books.tight{border-color:var(--bad)}
+.g-bk{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.g-bk span{background:var(--chip);border-radius:8px;padding:6px 4px;text-align:center;min-width:0}
+.g-bk small{display:block;font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.g-bk b{font-family:var(--f-display);font-weight:800;font-size:1.05rem;font-variant-numeric:tabular-nums}
+.g-bk b.bad{color:var(--bad)}.g-bk b.good{color:var(--good)}.g-bk b.warn{color:var(--signal)}
+.g-books .g-hint b{color:var(--ink)}
+.ib-col{flex-direction:column}

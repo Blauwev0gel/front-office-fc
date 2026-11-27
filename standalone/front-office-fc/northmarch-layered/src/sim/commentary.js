@@ -44,7 +44,7 @@ function matchStory(m){
   for(const e of S.ev)if(e.t==='Injury'&&e.s===S.season&&e.w===S.week&&(e.c===m.h||e.c===m.a)){const f=findPlayer(e.pid);if(f&&(xi.h.some(p=>p.id===e.pid)||xi.a.some(p=>p.id===e.pid)))push({min:minute(12,80),t:'injury',side:e.c===m.h?'h':'a',pid:e.pid,p:f.p.name,weeks:e.weeks,xg:0,x:50,y:50})}
   ev.sort((x,y)=>x.min-y.min||x.o-y.o);
   /* expected goals: scaled so the match total is the engine's own number */
-  for(const side of ['h','a']){const es=ev.filter(e=>e.side===side&&e.xg),sum=es.reduce((a,e)=>a+e.xg,0),l=side==='h'?m.lh:m.la,k=sum?clamp(l/sum,.3,12):1;for(const e of es)e.xg=e.xg*k}
+  for(const side of ['h','a']){const es=ev.filter(e=>e.side===side&&e.xg),sum=es.reduce((a,e)=>a+e.xg,0),l=side==='h'?m.lh:m.la,k=sum?clamp(l/sum,.02,12):1; /* a side with few chances that still scores: its chances shrink to the engine's total */for(const e of es)e.xg=e.xg*k}
   /* the text, with the running score */
   let sh=0,sa=0;const out=[];
   out.push({min:0,t:'start',side:null,text:`Kick-off at ${CL(m.h).ground||'the ground'}. ${names.h} against ${names.a}.`,x:50,y:50,xg:0});

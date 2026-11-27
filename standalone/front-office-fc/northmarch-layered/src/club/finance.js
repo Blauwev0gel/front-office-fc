@@ -17,7 +17,7 @@ const LINE={
 };
 const HEAD={matchday:'Matchday',commercial:'Commercial',media:'League & cup',transfers:'Transfers',wages:'Wages',costs:'Other costs',financing:'Loans',capital:'The ground'};
 const PRICE_DEF=[{terrace:11,seated:16,business:35,season:140},{terrace:9,seated:13,business:30,season:110},{terrace:7,seated:10,business:22,season:85},{terrace:6,seated:9,business:18,season:65},{terrace:5,seated:8,business:15,season:50}];
-const TV=[4.6,2.2,.8,.35,.15],SPONSOR=[3.4,1.9,.9,.45,.25],PRIZE=[[80,4],[40,2],[15,.6],[8,.3],[4,.15]];
+const TV=[2.6,1.6,.8,.35,.15],SPONSOR=[3.4,1.9,.9,.45,.25],PRIZE=[[55,3],[40,2],[15,.6],[8,.3],[4,.15]];
 const WAGE_RATIO={tight:.65,normal:.76,ambitious:.88,allin:.98};
 /* club courses: a simple way to set the direction. Each bundles the existing policy settings (nothing new is simulated). */
 const COURSE={
@@ -135,9 +135,16 @@ function solvency(id){
     forcedSale(id);
     if(f.od>=3&&(!f.admin||f.admin<S.season)){f.admin=S.season;S.tbl[id].pts-=6;S.tbl[id].ded+=6;
       const amt=Math.ceil(-f.cash+lim*.5);f.loans.push(mkLoan(amt,5,.09,'Administration loan'));book(id,'loanIn',amt);f.policy.wage='tight';
-      emit('Administration',id,`${CL(id).name} go into administration: six points deducted and a £${amt}k rescue loan at 9%.`)}
+      emit('Administration',id,`${CL(id).name} go into administration: six points deducted and a £${amt}k rescue loan at 9%.`);adminCut(id)}
   }else f.od=0;
 }
+/* administration voids the contracts the club cannot pay: the best-paid players are sold cheaply or leave for nothing until the
+   wage bill fits again, then the squad is topped up with cheap cover. Without this a club borrowed again every season (NM-012). */
+function adminCut(id){const sq=S.squads[id],cap=wageCapK(id);let guard=30;
+  while(guard-->0&&wageBillK(id)>cap*1.1&&sq.length>SQUAD_MIN-4){const p=sq.filter(x=>!x.loan).sort((a,b)=>b.wage-a.wage)[0];if(!p)break;
+    const fee=Math.round(playerValue(p)*.5),buyers=Object.keys(S.clubs).filter(i=>i!==id&&F(i).cash>fee+wageBillK(i)*4&&S.squads[i].length<SQUAD_MAX&&wageBillK(i)+wageFor(p.q)/1000<=wageCapK(i));
+    if(buyers.length)transfer(p,id,pick(buyers),fee,'administration');else{playerCloseStint(p,id);sq.splice(sq.indexOf(p),1);faAdd(p,'released in administration',id);if(id===S.my)emit('Released',id,`${p.name} leaves: the administrators cannot pay him.`,{pid:p.id})}}
+  coverAll(id);while(sq.length<SQUAD_MIN){if(!shopFor(id,pick(POS),0,{mustHave:true,budget:0}))break}}
 /* close the books for the season: league prize money, archive the lines */
 function financeSeasonEnd(id,pos,tier){
   const [top,step]=PRIZE[tier];book(id,'prize',top-(pos-1)*step);

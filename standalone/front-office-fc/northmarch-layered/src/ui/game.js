@@ -148,6 +148,22 @@
    return`<section class="g-card g-heads"><small class="g-k">YOUR DEPARTMENT HEADS · £${investRoom(id)}k TO INVEST</small>${Object.keys(HEAD_ROLE).map(k=>{const a=asks.find(x=>x.k===k),fac=deptFacility(id,k),lv=fac&&fac.have?fac.have.lv:0,busy=fac&&fac.busy;
      return`<div class="g-head"><div class="g-ph"><span class="g-face" aria-hidden="true">${esc(deptHead(id,k).split(' ').map(w=>w[0]).join(''))}</span><div><b>${esc(deptHead(id,k))}</b><small>${esc(HEAD_ROLE[k])} · ${esc(COMPLEX[DEPT[k].fac].n)}: ${lv?LV_NAME[lv]:'not built'}</small></div><button class="btn ghost g-mini" data-act="dept" data-arg="${k}">Open</button></div>
      ${busy?`<p class="g-hint">Building work under way.</p>`:a?askButton(id,a,true):'<p class="g-hint">Nothing more to build here.</p>'}</div>`}).join('')}</section>`}
+ /* ----- THE BOOKS: money as a chairman feels it. Cash, the season so far, wages against turnover, where it ends ----- */
+ function books(id){const f=F(id),inc=estSeasonIncome(id),wr=Math.round(wageBillK(id)*SEASON_WEEKS/Math.max(1,inc)*100),op=operatingResult(f.season||{}),fc=cashForecast(id,Math.max(1,SEASON_WEEKS-S.week)),end=fc.mid[fc.mid.length-1]??f.cash,lim=creditLimit(id);
+   return{cash:Math.round(f.cash),op:Math.round(op),wr,end:Math.round(end),low:Math.round(fc.minV),lowW:S.week+fc.minW,lim,tight:fc.minV<-lim*.5||f.cash<0}}
+ function booksCard(id){const b=books(id),tr=deptHead(id,'finance'),line=b.tight?`We dip to ${k1(b.low)} around week ${b.lowW}. The bank allows ${k1(-b.lim)}.`:b.wr>75?`Wages are ${b.wr}% of turnover. That is where clubs get into trouble.`:b.end<b.cash?`We spend more than we earn: ${k1(b.end)} by the end of the season.`:`We end the season around ${k1(b.end)}. There is room, not much.`;
+   return`<section class="g-card g-books ${b.tight?'tight':''}"><small class="g-k">THE BOOKS</small><div class="g-bk"><span><small>Cash</small><b class="${b.cash<0?'bad':''}">${k1(b.cash)}</b></span><span><small>Season so far</small><b class="${b.op<0?'bad':'good'}">${signed(b.op)}</b></span><span><small>Wages / turnover</small><b class="${b.wr>75?'bad':b.wr>65?'warn':''}">${b.wr}%</b></span><span><small>End of season</small><b class="${b.end<0?'bad':''}">${k1(b.end)}</b></span></div><p class="g-hint"><b>${esc(tr)}, treasurer:</b> “${esc(line)}”</p></section>`}
+ /* the treasurer comes to you when the money runs out: the chairman's levers, each with its price */
+ function bankMsg(id){const b=books(id);if(!b.tight||snoozed('bank'))return null;const need=Math.max(10,Math.min(maxNewLoan(id),Math.ceil((-b.low+b.lim*.5)/5)*5)),dep=Object.keys(G(id).depts).filter(k=>G(id).depts[k].budget!=='tight').length;
+   const sell=S.squads[id].filter(p=>!p.loan&&!topThree(id).includes(p)).sort((a,b)=>playerValue(b)-playerValue(a))[0];
+   return{kind:'decision',from:deptHead(id,'finance'),role:'Treasurer',subject:b.cash<0?'We are overdrawn':'The money runs out this season',open:true,
+     body:`On this course we reach ${k1(b.low)} around week ${b.lowW}; the bank allows ${k1(-b.lim)}. Beyond that the bank sells players for us, and administration costs six points.`,
+     html:`<div class="ib-acts ib-col">${maxNewLoan(id)>=10?`<button class="g-opt" data-act="bankloan" data-arg="${need}"><b>Borrow £${need}k over five years</b><span>The hole is filled; interest every week for five years.</span></button>`:''}
+     <button class="g-opt" data-act="bankprices"><b>Raise ticket prices by £1</b><span>More at the gate; the members will notice.</span></button>
+     ${dep?`<button class="g-opt" data-act="bankcut"><b>Put ${dep} department${dep>1?'s':''} on a tight budget</b><span>Saves money every week; they deliver less.</span></button>`:''}
+     ${sell?`<button class="g-opt" data-act="banksell" data-arg="${esc(sell.id)}"><b>Sell ${esc(sell.name)} in the winter window</b><span>Worth about ${k1(playerValue(sell))}; the director lists him.</span></button>`:''}
+     <button class="g-opt g-leave" data-act="snooze" data-arg="bank"><b>Not yet</b><span>The treasurer asks again in a few weeks.</span></button></div>`}}
+ globalThis.bankMsg=bankMsg;globalThis.books=books; /* the treasurer's logic, reachable for tests (tests/money-test.js) */
  /* ----- THE INBOX: people who talk to you. Decisions that are yours, advice from your staff, reports. No routine approvals
     (D-G1): the staff handle routine; and never only an inbox (MB-03): you can always start something yourself below it. ----- */
  const ini2=n=>String(n||'?').split(' ').map(w=>w[0]).join('').slice(0,2);
@@ -157,6 +173,7 @@
  const ibBtn=(label,act,arg,ghost)=>`<button class="btn${ghost?' ghost':''}" data-act="${act}"${arg!=null?` data-arg="${esc(arg)}"`:''}>${esc(label)}</button>`;
  function inboxItems(id){const out=[],td=tdOf(id),co=coachOf(id),dn=td?td.name:'The director',now=S.season*100+S.week;
    /* decisions: the moments, the debrief and window calls, each already a full card with its options */
+   const bank=bankMsg(id);if(bank)out.push(bank);
    const dec=escalation();if(dec)out.push({kind:'decision',from:S.moment?S.moment.who:'Your desk',role:S.moment?S.moment.role:'Waiting for you',subject:S.moment?S.moment.title:'A decision is waiting',html:dec,open:true});
    /* reports: what your week turned up, the director's watch list, the coach after Saturday */
    const fresh=(S.scout?S.scout.gems:[]).filter(g=>g.status==='found'&&g.s===S.season&&now-(g.s*100+g.w)<=2);
@@ -232,7 +249,7 @@
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
    if(S.week===0)return preSeasonScreen(id,msg);
    if(seasonOver())return`<div class="g-week">${msg}${topicBanner(id)}${agmView(id)}</div>`;
-   return`<div class="g-week">${newsTicker(id)}${msg}${topicBanner(id)}${nextMatch(id)}${inboxCard(id)}${winterCard(id)}${growthCard(id)}${runningCard(id)}${peopleCard(id)}${clubGlance(id)}</div>`;
+   return`<div class="g-week">${newsTicker(id)}${msg}${topicBanner(id)}${nextMatch(id)}${inboxCard(id)}${winterCard(id)}${booksCard(id)}${growthCard(id)}${runningCard(id)}${peopleCard(id)}${clubGlance(id)}</div>`;
  }
 
 
@@ -614,7 +631,11 @@
    if(a==='prenew'&&S&&S.my){const r=cmd('RenewStaff',S.my,{role:arg});const p=P(CL(S.my).cast[arg]);if(r.ok!==false&&p){p.loy=clamp((p.loy??50)+8,0,100);(p.mem=p.mem||[]).push({s:S.season,t:'given a new contract'})}UI.msg=r.ok===false?{err:true,text:r.err}:{text:`${p.name} signs for two more seasons.`};save();render();return}
    if(a==='preplace'){UI.replace=arg||null;render();return}
    if(a==='phire'&&S&&S.my){const [role,pid]=String(arg).split(':');const old=P(CL(S.my).cast[role]),r=cmd('HireStaff',S.my,{role,pid});UI.replace=null;if(r.ok!==false){const n=P(pid);(n.mem=n.mem||[]).push({s:S.season,t:'appointed by you'});n.loy=Math.max(n.loy??50,60)}UI.msg=r.ok===false?{err:true,text:r.err}:{text:`${P(pid).name} is your new ${role==='coach'?'head coach':'director of football'}${old&&!old.pro.caretaker?`; ${old.name} leaves`:''}.`};save();render();return}
-   if(a==='snooze'&&S&&S.my){(S.inboxSnooze=S.inboxSnooze||{})[arg]=S.season*100+S.week+(String(arg).startsWith('ask:')?4:1);save();render();return}
+   if(a==='bankloan'&&S&&S.my){const r=cmd('TakeLoan',S.my,{amount:+arg,years:5});if(r.ok!==false)(S.inboxSnooze=S.inboxSnooze||{}).bank=S.season*100+S.week+4;UI.msg=r.ok===false?{err:true,text:r.err}:{text:`£${arg}k borrowed over five years.`};save();render();return}
+   if(a==='bankprices'&&S&&S.my){let ok=0;for(const k of ['terrace','seated'])if(cmd('SetPrice',S.my,{kind:k,delta:1}).ok!==false)ok++;(S.inboxSnooze=S.inboxSnooze||{}).bank=S.season*100+S.week+4;UI.msg={text:ok?'Ticket prices up by £1. The members grumble.':'Prices are already at their limit.',err:!ok};save();render();return}
+   if(a==='bankcut'&&S&&S.my){for(const k in G(S.my).depts)cmd('SetDeptBudget',S.my,{dept:k,level:'tight'});(S.inboxSnooze=S.inboxSnooze||{}).bank=S.season*100+S.week+4;UI.msg={text:'Every department is on a tight budget.'};save();render();return}
+   if(a==='banksell'&&S&&S.my){const p=S.squads[S.my].find(x=>x.id===arg);if(p){(S.sellNext=S.sellNext||[]).push(p.id);if(S.win&&S.win.s===S.season&&S.win.list)S.win.list.push(p.id)}(S.inboxSnooze=S.inboxSnooze||{}).bank=S.season*100+S.week+4;UI.msg={text:p?`${p.name} goes on the list for the winter window.`:'He has gone.'};save();render();return}
+   if(a==='snooze'&&S&&S.my){(S.inboxSnooze=S.inboxSnooze||{})[arg]=S.season*100+S.week+(String(arg).startsWith('ask:')?4:arg==='bank'?3:1);save();render();return}
    if(a==='invest'&&S&&S.my){const o=projectCatalog(S.my).find(x=>x.key===arg),r=cmd('StartProject',S.my,{key:arg,offer:'standard'});UI.msg=r.ok===false?{err:true,text:r.err}:{text:`Work starts: ${o?o.label:'the project'}. Follow it under Running.`};save();render();return}
    if(a==='sqsort'){UI.sqSort=arg;render();return}
    if(a==='briefedit'){UI.briefEdit=true;render();return}

@@ -37,7 +37,7 @@ const DEPT={
 const STAFF_COST=[0,.5,.75,1,1.4,1.9],STAFF_DEF=[3,2,1,1,1],HIRE_WEEKS=3;
 const STAFF_WORD=['','Skeleton','Part-time','Full team','Strong','Elite'];
 const BUDGET_F={tight:.7,normal:1,generous:1.3};
-const DEPT_COST=[.3,.2,.11,.07,.04]; // £k per department per week at staff level 3 and a normal budget, by division
+const DEPT_COST=[.6,.32,.12,.07,.04]; // £k per department per week at staff level 3 and a normal budget, by division
 const OFFER={cheap:{n:'Cheap builder',p:.85,over:.35,delay:.3},standard:{n:'Standard builder',p:1,over:.15,delay:.15},premium:{n:'Premium builder',p:1.2,over:.05,delay:.05}};
 const lvCost=(base,lv)=>Math.round(base*Math.pow(1.6,lv-1));
 
@@ -106,6 +106,7 @@ function groundSignals(id){
 }
 
 /* ----- what can be built ----- */
+const BUILD_SCALE=[2.6,1.6,1,.7,.5];
 function projectCatalog(id){
   const g=G(id),out=[],sg=groundSignals(id),raw=Object.values(g.sides).reduce((a,s)=>a+sideCap(s),0),capped=raw>=1400+g.fac.access.lv*700+g.fac.safety.lv*500;
   for(const k in g.sides){const s=g.sides[k];
@@ -121,6 +122,8 @@ function projectCatalog(id){
     else if(p.lv<8)out.push({key:'plot:'+i+':up',target:'plot:'+i,group:'Club complex',label:`${COMPLEX[p.kind].n} (to ${LV_NAME[p.lv+1]})`,cost:['commercial','training','medical','academy'].includes(p.kind)?Math.round(COMPLEX[p.kind].c*Math.pow(p.kind==='commercial'?1.28:p.kind==='academy'?1.22:1.32,p.lv)):lvCost(COMPLEX[p.kind].c,p.lv+1),weeks:Math.round(COMPLEX[p.kind].w*.7),effect:COMPLEX[p.kind].sig});
   });
   for(const o of out){o.busy=!!building(id,o.target);const [type,a,b]=o.key.split(':');if(type==='plot'){const p=g.plots[+a],kind=b==='up'?p.kind:b,lv=b==='up'?p.lv+1:1;o.cost=Math.round(COMPLEX[kind].c*Math.pow(1.85,lv-1));o.annual=facilityAnnual(kind,lv,id);o.annualIncrease=o.annual-facilityAnnual(kind,lv-1,id);o.effect+=' · Full operation £'+o.annual+'k/year';}else if(type==='fac'||type==='pitch'){o.cost=Math.round(o.cost*1.25);}else if(type==='side'&&b==='ring'){o.cost=Math.round(o.cost*Math.pow(1.18,Math.max(0,g.sides[a].rings-1)));}}
+  /* building costs scale with the division (NM-012): a top-flight academy costs a multiple of a lower-league one */
+  const bs=BUILD_SCALE[CL(id).tier]??1;for(const o of out)o.cost=Math.max(1,Math.round(o.cost*bs));
   return out;
 }
 function startProject(id,key,offer){
@@ -166,11 +169,13 @@ function groundSeasonEnd(id){
   for(const k in g.sides){const s=g.sides[k];if(s.cond<30)gLog(id,`Safety inspection: the ${SIDE_NAME[k]} is in poor shape (${Math.round(s.cond)}%). Half of it stays closed until repaired.`,'SafetyClosure')}
 }
 function repairCost(o,base){return Math.max(1,Math.round(base*(100-o.cond)/100*.6))}
+/* repairs scale with the division: a lower-league club patches its own stand with volunteers (NM-012) */
+const REPAIR_SCALE=[1,.9,.7,.5,.35];
 function repairList(id){
-  const g=G(id),out=[];
-  for(const k in g.sides){const s=g.sides[k];if(s.cond<90)out.push({key:'side:'+k,label:SIDE_NAME[k],cond:s.cond,cost:repairCost(s,s.rings*(s.type==='terrace'?45:60))})}
-  for(const k in g.fac){const f=g.fac[k];if(f.cond<90)out.push({key:'fac:'+k,label:FAC[k].n,cond:f.cond,cost:repairCost(f,lvCost(FAC[k].c,f.lv)*2)})}
-  g.plots.forEach((p,i)=>{if(p.kind&&p.cond<90)out.push({key:'plot:'+i,label:COMPLEX[p.kind].n,cond:p.cond,cost:repairCost(p,lvCost(COMPLEX[p.kind].c,p.lv)*2)})});
+  const g=G(id),out=[],rs=REPAIR_SCALE[CL(id).tier]??1;
+  for(const k in g.sides){const s=g.sides[k];if(s.cond<90)out.push({key:'side:'+k,label:SIDE_NAME[k],cond:s.cond,cost:r1(repairCost(s,s.rings*(s.type==='terrace'?45:60))*rs)})}
+  for(const k in g.fac){const f=g.fac[k];if(f.cond<90)out.push({key:'fac:'+k,label:FAC[k].n,cond:f.cond,cost:r1(repairCost(f,lvCost(FAC[k].c,f.lv)*2)*rs)})}
+  g.plots.forEach((p,i)=>{if(p.kind&&p.cond<90)out.push({key:'plot:'+i,label:COMPLEX[p.kind].n,cond:p.cond,cost:r1(repairCost(p,lvCost(COMPLEX[p.kind].c,p.lv)*2)*rs)})});
   return out.sort((a,b)=>a.cond-b.cond);
 }
 function repair(id,key){

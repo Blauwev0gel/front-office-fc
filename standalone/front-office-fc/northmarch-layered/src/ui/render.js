@@ -54,26 +54,7 @@ function squadRank(id){const ids=tierIds(CL(id).tier).sort((a,b)=>teamStrength(b
 function jobTag(id){const t=clubChallenge(id).split(':')[0].toUpperCase(),cls=/WIN|GO UP/.test(t)?'up':/STAY|CLIMB/.test(t)?'down':'mid';return`<i class="jt jt-${cls}">${esc(t)}</i>`}
 function jobLine(id){const s=clubChallenge(id),i=s.indexOf(':');return i>0?s.slice(i+1).trim():s}
 const statTile=(k,v,sub,cls)=>`<div class="st ${cls||''}"><small>${k}</small><b>${v}</b>${sub?`<span>${sub}</span>`:''}</div>`;
-/* the election (MB-39): one campaign message, then the count, group by group. You can lose. */
-const PITCH={glory:{n:'Bring back the glory',d:'Ambition on the pitch. Spend to win.',fit:{ultras:1,workers:1,students:1,business:-1,retirees:-1}},
-  books:{n:'Sound books, no adventures',d:'Live within our means. Build slowly.',fit:{business:1,oldguard:1,retirees:1,ultras:-1,students:-1}},
-  local:{n:'Our town, our kids',d:'Local players, fair prices, a club for families.',fit:{families:1,volunteers:1,workers:1,newcomers:1,business:-1}}};
-function electionCount(id,pitch){const c=CL(id),P0=PITCH[pitch],r=ARNG(id+':vote:'+pitch),base=50+r()*12;
-  const rows=c.groups.map(g=>{const f=P0.fit[g.k]||0;return{k:g.k,n:groupName(id,g),share:g.share,fit:f,pct:Math.round(clamp(base+(g.mood-50)*.3+f*14+(r()-.5)*6,8,94))}});
-  const pct=Math.round(rows.reduce((a,x)=>a+x.share*x.pct,0)/Math.max(1,rows.reduce((a,x)=>a+x.share,0)));return{pitch,pct,rows}}
-function electionTakeOffice(id,res){if(!res)return;const fx={};for(const x of res.rows)fx[x.k]=x.fit*4;agmMood(id,fx,'The election campaign');S.elect={club:id,s:S.season,pct:res.pct,pitch:res.pitch}}
-function campaignView(){const id=UI.camp.id,c=CL(id),res=UI.camp.res;
-  if(!res)return`<main class="scene" style="padding-top:20px"><section class="rt">${'<div class="rt-bar"><b>ELECTION NIGHT · '+esc(c.name.toUpperCase())+'</b><span>THE MEMBERS VOTE</span></div>'}
-    <div class="rt-sub">One message for your campaign. Each group hears it differently.</div>
-    ${Object.entries(PITCH).map(([k,P0])=>{const gs=c.groups.filter(g=>P0.fit[g.k]);return`<button class="rt-file2" data-act="pitch" data-arg="${k}"><span class="f-top"><b>“${esc(P0.n)}”</b></span><span class="rt-b"><small>${esc(P0.d)}</small></span><span class="f-chips">${gs.map(g=>`<i class="${P0.fit[g.k]>0?'up':'down'}">${P0.fit[g.k]>0?'+':'−'} ${esc(groupName(id,g))} ${g.share}%</i>`).join('')}</span></button>`}).join('')}
-    <div class="rt-btns"><button class="rt-btn" data-act="seatback">Back to the open chairs</button></div></section></main>`;
-  const won=res.pct>=50;
-  return`<main class="scene" style="padding-top:20px"><section class="rt"><div class="rt-bar"><b>THE COUNT · ${esc(c.name.toUpperCase())}</b><span>“${esc(PITCH[res.pitch].n.toUpperCase())}”</span></div>
-    ${res.rows.slice().sort((a,b)=>b.share-a.share).map(x=>`<div class="rt-row"><span class="rt-a">${x.share}%</span><span class="rt-b">${esc(x.n)}<i class="bar"><i style="width:${x.pct}%"></i></i></span><span class="rt-c ${x.pct>=50?'good':'bad'}">${x.pct}%</span></div>`).join('')}
-    <div class="fd-vote"><b class="${won?'good':'bad'}">${res.pct}%</b><div><i class="bar big"><i class="vote-anim" style="width:${res.pct}%"></i><em style="left:50%"></em></i><span>${won?'You are elected chairman.':'Not enough. The members chose the other candidate.'}</span></div></div>
-    <div class="rt-btns">${won?'<button class="rt-btn on" data-act="takechair">Take the chair</button>':'<button class="rt-btn on" data-act="lostback">Try another club</button>'}</div></section></main>`}
 function chooseView(){
-  if(UI.camp)return campaignView();
   if(UI.seat&&S.seats.includes(UI.seat))return dossierView(UI.seat);
   const again=S.career.length>0,last=again?S.career[S.career.length-1]:null;
   return`<main class="scene" style="padding-top:20px"><section class="rt"><div class="rt-bar"><b>${again?'CLUBS WANT YOU':'OPEN CHAIRS'}</b><span>${again?'SEASON '+S.season:'ELECTION SUMMER'}</span></div>

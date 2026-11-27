@@ -6,10 +6,7 @@ function act(a,arg){
     case'new':newWorld((Date.now()%2147483647)|0);UI.title=false;UI.tab='week';UI.review=null;break;
     case'cont':if(load()){UI.title=false;UI.review=null}break;
     case'quit':save();UI.title=true;UI.over=null;break;
-    case'choose':UI.camp={id:arg};break;
-    case'pitch':UI.camp.res=electionCount(UI.camp.id,arg);break;
-    case'takechair':{const C0=UI.camp;chooseClub(C0.id);electionTakeOffice(C0.id,C0.res);UI.camp=null;UI.tier=null;break}
-    case'lostback':S.seats=S.seats.filter(x=>x!==UI.camp.id);UI.camp=null;UI.seat=null;break;
+    case'choose':chooseClub(arg);UI.tier=null;break;
     case'boardjump':UI.tab='club';UI.ct={members:'members',staff:'football',departments:'depts'}[arg]||'overview';UI.over=null;break; // kept for old links
     case'buildgroup':UI.buildGroup=arg;UI.buildChoice=null;break;
     case'buildpick':UI.buildChoice=UI.buildChoice===arg?null:arg;break;

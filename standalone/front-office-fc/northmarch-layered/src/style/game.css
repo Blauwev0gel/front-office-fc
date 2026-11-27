@@ -498,3 +498,17 @@ b.good{color:var(--good)}b.bad{color:var(--bad)}
 .g-yw .g-act b{font-size:.78rem}.g-yw .g-act small{font-size:.66rem;color:var(--muted)}.g-yw .g-act[disabled]{opacity:.45}
 .rt-season .g-card{border:2px solid var(--ink);border-radius:6px}
 .dp-next{grid-column:2/-1;font-size:.68rem;color:var(--signal,#c4561b);font-weight:700;margin-top:-4px}
+/* the chairman's week (MB-36) */
+.ag-row{border-bottom:1px dotted var(--line,rgba(127,127,127,.4))}
+.ag-row.urgent .ag-head b{color:var(--bad)}
+.ag-head{display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;width:100%;padding:8px 10px;min-height:56px;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.ag-head span{display:flex;flex-direction:column;min-width:0}.ag-head small{font-size:.6rem;color:var(--muted);letter-spacing:.06em}.ag-head b{font-size:.82rem}
+.ag-tag{font-style:normal;font-size:.6rem;font-weight:700;letter-spacing:.08em;color:var(--bad);border:1.5px solid var(--bad);border-radius:3px;padding:2px 5px}
+.ag-arrow{font-style:normal;color:var(--muted)}
+.ag-row.on{background:var(--chip)}
+.ag-body{padding:0 10px 10px;display:flex;flex-direction:column;gap:6px}.ag-body p{margin:0 0 4px;font-style:italic;font-size:.8rem}.ag-body p small{font-style:normal;color:var(--muted)}
+.ag-opt,.ag-seat{font-family:var(--f-mono);text-align:left;border:1.5px solid var(--ink);border-radius:4px;background:var(--card);color:inherit;padding:8px 10px;min-height:48px;display:flex;flex-direction:column;gap:2px;cursor:pointer}
+.ag-opt b,.ag-seat b{font-size:.8rem}.ag-opt span,.ag-seat span{font-size:.68rem;color:var(--muted)}
+.ag-seats{display:flex;flex-direction:column;gap:6px;padding:0 10px 10px}
+.ag-done{display:flex;gap:10px;align-items:center;padding:8px 10px;border-bottom:1px dotted var(--line,rgba(127,127,127,.4))}.ag-done span{display:flex;flex-direction:column}.ag-done small{font-size:.6rem;color:var(--good);letter-spacing:.06em}.ag-done b{font-size:.8rem}.ag-done em{font-size:.72rem;color:var(--muted);font-style:normal}
+.rt-h small{font-weight:400;color:var(--muted);letter-spacing:0;text-transform:none;margin-left:6px}

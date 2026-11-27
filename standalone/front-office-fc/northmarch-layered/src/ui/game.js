@@ -376,6 +376,16 @@
  /* ----- THE WEEK (MB-35): one skeleton. Where and when → your desk → your week (where you spend your time) → Saturday
     → the club in a few lines → the news. The chairman's verbs: decide, travel, be seen, back or warn people, invest. ----- */
  function seasonDate(w){const d=new Date(Date.UTC(2026,7,8+7*(w-1)+(w>WINTER_WEEK-3?14:0)));return d.toUTCString().slice(0,11).replace(',','')}
+ /* ----- THE CHAIRMAN'S WEEK (MB-36): who you see midweek, where you sit on Saturday ----- */
+ function agendaCard(id){const A=AG(),ts=agendaTopics(id),seats=agendaSeats(id),kit=clubKit(id).a,open=UI.agOpen;
+   const met=A.met?`<div class="ag-done">${faceSVG(A.met.who,{size:36,kit})}<span><small>MIDWEEK · DONE</small><b>${esc(A.met.who)}: ${esc(A.met.title)}</b><em>${esc(A.met.opt)}</em></span></div>`:'';
+   const rows=A.met?'':ts.map(t=>{const on=open===t.k;return`<div class="ag-row ${on?'on':''} ${t.urgent?'urgent':''}"><button class="ag-head" data-act="agopen" data-arg="${esc(t.k)}" aria-expanded="${on}">${faceSVG(t.who,{size:40,kit:t.k==='fans'?'#6b7d74':kit})}<span><small>${esc(t.role.toUpperCase())}</small><b>${esc(t.title)}</b></span>${t.urgent?'<i class="ag-tag">URGENT</i>':'<i class="ag-arrow">›</i>'}</button>
+     ${on?`<div class="ag-body"><p>“${esc(t.line)}” <small>— ${esc(t.who)}</small></p>${t.opts.map(o=>`<button class="ag-opt" data-act="agmeet" data-arg="${esc(t.k)}|${esc(o.k)}"><b>${esc(o.t)}</b><span>${esc(o.fx)}</span></button>`).join('')}</div>`:''}</div>`}).join('');
+   const seat=A.seat?`<div class="ag-done"><span><small>SATURDAY · YOUR SEAT</small><b>${esc(A.seat.t)}</b></span></div>`:seats.length?`<div class="ag-seats">${seats.map(x=>`<button class="ag-seat" data-act="agseat" data-arg="${esc(x.k)}"><b>${esc(x.t)}</b><span>${esc(x.fx)}</span></button>`).join('')}</div>`:'<p class="rt-note">No match this Saturday.</p>';
+   return`<section class="rt ag">${rtBar('YOUR WEEK',A.met&&A.seat?'ALL SET':'TWO CHOICES')}
+   <div class="rt-h">MIDWEEK · WHO DO YOU SEE? ${A.met?'':`<small>${ts.length} waiting · you see one</small>`}</div>${met}${rows}
+   <div class="rt-h">SATURDAY · WHERE DO YOU SIT?</div>${seat}
+   ${A.today&&A.today.length?`<ul class="rt-news">${A.today.map(t=>`<li><b>✓</b><span>${esc(t)}</span></li>`).join('')}</ul>`:''}</section>`}
  function weekHead(id){const w=S.week+1,pos=posOf(id),t=S.tbl[id]||{pts:0,form:[]},mem=agmForecastPct(id),f=F(id),form=(t.form||[]).slice(-5);
    return`<section class="rt">${rtBar(`MATCHWEEK ${w} OF ${SEASON_WEEKS}`,esc(seasonDate(w)))}
    <div class="wk-strip"><div><small>TABLE</small><b>${S.week?ord(pos):'—'}</b><span>${t.pts||0} pts</span></div><div><small>FORM</small><b class="wk-form">${form.map(r=>`<i class="f${r}">${r}</i>`).join('')||'—'}</b></div><div><small>CASH</small><b class="${f.cash<0?'bad':''}">${k1(f.cash)}</b></div><div><small>MEMBERS</small><b class="${mem<50?'bad':''}">${mem}%</b><i class="bar"><i style="width:${mem}%"></i></i></div></div>
@@ -393,7 +403,7 @@
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
    if(S.week===0)return preSeasonScreen(id,msg);
    if(seasonOver())return`<div class="g-week">${msg}${topicBanner(id)}${agmView(id)}</div>`;
-   return`<div class="g-week rt-season">${msg}${weekHead(id)}${inboxCard(id)}${winterCard(id)}${yourWeek(id)}${nextMatch(id)}${clubRows(id)}${/Nothing running yet/.test(runningCard(id))?'':runningCard(id)}${weekNews(id)}</div>`;
+   return`<div class="g-week rt-season">${msg}${weekHead(id)}${agendaCard(id)}${inboxCard(id)}${winterCard(id)}${nextMatch(id)}${clubRows(id)}${/Nothing running yet/.test(runningCard(id))?'':runningCard(id)}${weekNews(id)}</div>`;
  }
 
 
@@ -644,7 +654,7 @@
    <small class="g-k">FULL TIME · WEEK ${is.w}</small><p class="g-res">${word}</p>
    ${m?`<div class="g-score"><span>${esc(m.home)}</span><b>${m.hg}–${m.ag}</b><span>${esc(m.away)}</span></div><h2>${esc(m.headline)}</h2>`:'<h2>No match for us this week</h2>'}
    <section class="g-delta"><div><small>Table</small><b>${now?ord(now):'—'}</b><span>${move>0?'▲ up '+move:move<0?'▼ down '+(-move):'No change'}</span></div><div><small>This week</small><b class="${is.net<0?'bad':'good'}">${signed(is.net)}</b><span>net</span></div><div><small>Cash</small><b>${k1(is.cash)}</b><span>in the bank</span></div></section>
-   ${ftScorers(id)}${weekRecap()}${builtCard(UI.gEv||[])}${dealsCard(UI.gEv||[])}${news?`<section class="g-card"><h3>At the club</h3><ul class="g-news">${news}</ul></section>`:''}
+   ${ftScorers(id)}${(()=>{const r=agendaRecap();return r.length?`<section class="rt">${rtBar('YOUR WEEK','WHAT IT DID')}<ul class="rt-news">${r.map(t=>`<li><b>✓</b><span>${esc(t)}</span></li>`).join('')}</ul></section>`:''})()}${weekRecap()}${builtCard(UI.gEv||[])}${dealsCard(UI.gEv||[])}${news?`<section class="g-card"><h3>At the club</h3><ul class="g-news">${news}</ul></section>`:''}
    <div class="g-more">${m?'<button class="btn ghost" data-act="watch" data-arg="0">▶ Watch the match</button>':''}<button class="btn ghost" data-act="v183paper" data-arg="${esc(is.key)}">Read the Echo</button></div></div>`;
  }
 
@@ -895,6 +905,9 @@
    if(a==='sqsort'){UI.sqSort=arg;render();return}
    if(a==='briefedit'){UI.briefEdit=true;render();return}
    if(a==='briefgoal'&&S&&S.my){const b=briefPick(S.my);const i=b.goals.indexOf(arg);if(i>=0)b.goals.splice(i,1);else if(b.max===1)b.goals=[arg];else if(b.goals.length<b.max)b.goals.push(arg);else UI.msg={err:true,text:'Three goals at most: untick one first.'};render();return}
+   if(a==='agopen'){UI.agOpen=UI.agOpen===arg?null:arg;render();return}
+   if(a==='agmeet'&&S&&S.my){const [topic,opt]=arg.split('|'),r=cmd('Meet',S.my,{topic,opt});UI.agOpen=null;if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}
+   if(a==='agseat'&&S&&S.my){const r=cmd('Seat',S.my,{seat:arg});if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}
    if(a==='acadt'){UI.acadT=arg;UI.acadKid=null;render();return}
    if(a==='acadkid'){UI.acadKid=arg||null;render();if(HAS_DOM){const o=document.querySelector('.overlay .inner');if(o)o.scrollTop=0}return}
    if(a==='acadpick'&&S&&S.my){const r=cmd('AcademyPick',S.my,{kid:arg});if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}

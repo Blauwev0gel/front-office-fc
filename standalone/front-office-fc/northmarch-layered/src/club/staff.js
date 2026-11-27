@@ -54,7 +54,7 @@ function appoint(id,role,pid,why){
 function sackStaff(id,role,why){
   const c=CL(id),old=c.cast[role],p=P(old),set=settlement(old);if(set)book(id,'staffpay',-set);
   emit('StaffSacked',id,`${c.name} sack ${role==='coach'?'head coach':'director'} ${p.name}${why?` ${why}`:''}${set?` (£${set}k settlement)`:''}.`,{pid:old,role});
-  toPool(old);c.cast[role]=caretaker(id,role);
+  toPool(old);c.cast[role]=caretaker(id,role);if(id===S.my&&role==='coach')S.heat={pid:c.cast[role],stage:null,hist:[],vacW:S.week};
 }
 /* candidates for a club: the free pool, plus people at clubs in the same or a lower division */
 /* ambitious people do not join a club below their level: the ceiling is the division's best plus three */

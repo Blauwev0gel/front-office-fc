@@ -394,7 +394,8 @@
    return`<section class="rt cs-short">${rtBar('VACANCY · HEAD COACH','A CARETAKER HAS THE TEAM')}
    <div class="rt-quote">“The players need to know who is in charge before long.” <small>— ${esc(tdOf(id)?.name||'Your director')}</small></div>
    ${L.map(c=>`<div class="cs-cand">${faceSVG(c.name,{size:44,kit})}<span class="cs-cb"><b>${esc(c.name)}</b><small>${c.age} · ${c.from?esc(nm(c.from)):'out of work'} · ${'★'.repeat(c.stars)}<i>${'★'.repeat(5-c.stars)}</i></small><em>${esc(c.style)}${c.cheer?` · ${esc(c.cheer)} would cheer`:''}</em><small>£${n0(c.wage)}/w${c.comp?` · £${c.comp}k compensation to ${esc(nm(c.from))}`:''}</small></span><button class="rt-mini" data-act="hirecoach" data-arg="${esc(c.pid)}">Appoint</button></div>`).join('')||'<p class="rt-note">Nobody suitable is available yet.</p>'}
-   <p class="rt-note">Leave it and the caretaker stays in charge: cheaper, and weaker.</p></section>`}
+   ${(()=>{const r=caretakerRecord(id),c=coachOf(id);return`<div class="cs-cand">${faceSVG(c.name,{size:44,kit:clubKit(id).a})}<span class="cs-cb"><b>${esc(c.name)} · caretaker</b><small>${c.age} · ${'★'.repeat(staffStars(staffEstimate(c.id)))}</small><em>${r&&r.n?`In charge: ${r.w}W ${r.d}D ${r.l}L`:'Takes the team on Saturday'}</em><small>£${n0(c.pro.wage)}/w · no compensation</small></span><button class="rt-mini" data-act="keepcaretaker">Until summer</button></div>`})()}
+   <p class="rt-note">Every week without a choice, the caretaker keeps the team.</p></section>`}
  function weekHead(id){const w=S.week+1,pos=posOf(id),t=S.tbl[id]||{pts:0,form:[]},mem=agmForecastPct(id),f=F(id),form=(t.form||[]).slice(-5);
    return`<section class="rt">${rtBar(`MATCHWEEK ${w} OF ${SEASON_WEEKS}`,esc(seasonDate(w)))}
    <div class="wk-strip"><div><small>TABLE</small><b>${S.week?ord(pos):'—'}</b><span>${t.pts||0} pts</span></div><div><small>FORM</small><b class="wk-form">${form.map(r=>`<i class="f${r}">${r}</i>`).join('')||'—'}</b></div><div><small>CASH</small><b class="${f.cash<0?'bad':''}">${k1(f.cash)}</b></div><div><small>MEMBERS</small><b class="${mem<50?'bad':''}">${mem}%</b><i class="bar"><i style="width:${mem}%"></i></i></div></div>
@@ -914,6 +915,7 @@
    if(a==='sqsort'){UI.sqSort=arg;render();return}
    if(a==='briefedit'){UI.briefEdit=true;render();return}
    if(a==='briefgoal'&&S&&S.my){const b=briefPick(S.my);const i=b.goals.indexOf(arg);if(i>=0)b.goals.splice(i,1);else if(b.max===1)b.goals=[arg];else if(b.goals.length<b.max)b.goals.push(arg);else UI.msg={err:true,text:'Three goals at most: untick one first.'};render();return}
+   if(a==='keepcaretaker'&&S&&S.my){const r=cmd('KeepCaretaker',S.my,{});UI.msg=r.ok===false?{err:true,text:r.err}:{text:`${coachOf(S.my).name} has the job until the summer.`};save();render();return}
    if(a==='hirecoach'&&S&&S.my){const r=cmd('HireStaff',S.my,{role:'coach',pid:arg});UI.msg=r.ok===false?{err:true,text:r.err}:{text:`${P(arg).name} is your new head coach. The dressing room lifts.`};save();render();return}
    if(a==='agopen'){UI.agOpen=UI.agOpen===arg?null:arg;render();return}
    if(a==='agmeet'&&S&&S.my){const [topic,opt]=arg.split('|'),r=cmd('Meet',S.my,{topic,opt});UI.agOpen=null;if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}

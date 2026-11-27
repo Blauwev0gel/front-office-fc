@@ -14,7 +14,7 @@ S.tbl[id].form=['L','L','D','L','L'];const bad=g.coachHeat(id);
 assert(bad>good+25,`losses raise the pressure (${good} → ${bad})`);
 assert(g.heatStage(10).word==='Safe'&&g.heatStage(80).word==='On the brink','four words from safe to the brink');
 ok(`results move the pressure: five wins ${good} (${g.heatStage(good).word}), five defeats ${bad} (${g.heatStage(bad).word})`);
-M=S.members[id];S.members[id].conf=20;CL=S.clubs[id];S.clubs[id].expect=1;const brink=g.coachHeat(id);assert(brink>=75,'bottom of expectations, angry members: on the brink');
+S.members[id].conf=20;S.clubs[id].expect=1;const lg=(S.members[id].goals||[]).find(x=>x.k==='league');if(lg)lg.target=1;const brink=g.coachHeat(id);assert(brink>=75,'bottom of expectations, angry members: on the brink');
 assert(g.MOMENTS.coach.when(id),'on the brink the vote of confidence comes to the chairman');
 ok(`on the brink (${brink}) the vote of confidence comes to the chairman`);
 const t=g.agendaTopics(id).find(x=>x.k==='coach');assert(t&&t.urgent&&t.opts.some(o=>o.k==='sack'),'under pressure the chairman can also sack him from the week');
@@ -26,4 +26,8 @@ const m0=S.squads[id].reduce((a,p)=>a+(p.morale??60),0);assert(g.cmd('HireStaff'
 assert(S.squads[id].reduce((a,p)=>a+(p.morale??60),0)>m0,'a new coach lifts the dressing room');
 assert(g.coachHeat(id)<brink-30,'and has a honeymoon, judged on his own games');
 ok(`${L[0].name} appointed: the dressing room lifts and the pressure resets (${g.coachHeat(id)})`);
+/* the caretaker can be given the job until the summer */
+{const h=vm.runInNewContext(js+';({newWorld,chooseClub,getS:()=>S,cmd,coachVacant,coachHeat,advanceWeek})');h.newWorld(5152);const T=h.getS();h.chooseClub(T.seats[1]);T.agmOff=true;for(let i=0;i<3;i++)h.advanceWeek();
+ assert(h.cmd('SackStaff',T.my,{role:'coach'}).ok&&h.coachVacant(T.my),'vacant');assert(h.cmd('KeepCaretaker',T.my,{}).ok&&!h.coachVacant(T.my)&&h.coachHeat(T.my)!=null,'the caretaker keeps the job and is judged from now on');
+ ok('the caretaker can be given the job until the summer, and is judged from then on')}
 console.log('coachseat-test: all checks passed');

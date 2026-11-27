@@ -512,3 +512,14 @@ b.good{color:var(--good)}b.bad{color:var(--bad)}
 .ag-seats{display:flex;flex-direction:column;gap:6px;padding:0 10px 10px}
 .ag-done{display:flex;gap:10px;align-items:center;padding:8px 10px;border-bottom:1px dotted var(--line,rgba(127,127,127,.4))}.ag-done span{display:flex;flex-direction:column}.ag-done small{font-size:.6rem;color:var(--good);letter-spacing:.06em}.ag-done b{font-size:.8rem}.ag-done em{font-size:.72rem;color:var(--muted);font-style:normal}
 .rt-h small{font-weight:400;color:var(--muted);letter-spacing:0;text-transform:none;margin-left:6px}
+/* the coach's seat (MB-38) */
+.cs-row{display:grid;grid-template-columns:36px 1fr 84px;gap:10px;align-items:center;padding:8px 10px;border-bottom:1px dashed var(--line,rgba(127,127,127,.4))}
+.cs-row span{display:flex;flex-direction:column;min-width:0}.cs-row small{font-size:.58rem;color:var(--muted);letter-spacing:.06em}.cs-row b{font-size:.86rem}.cs-row em{font-style:normal;font-size:.68rem;color:var(--muted)}
+.cs-meter{display:flex;flex-direction:column;gap:2px}.cs-meter>i{display:block;height:6px;border-radius:3px;background:var(--good)}.cs-meter svg{width:80px;height:20px;color:var(--muted)}
+.cs-watch .cs-meter>i{background:var(--signal,#c4561b)}.cs-watch b{color:var(--signal,#c4561b)}
+.cs-press .cs-meter>i,.cs-brink .cs-meter>i{background:var(--bad)}.cs-press b,.cs-brink b{color:var(--bad)}
+.cs-brink{background:color-mix(in srgb,var(--bad) 10%,transparent)}
+.cs-vac{grid-template-columns:1fr auto}.cs-vac b{color:var(--bad)}
+.cs-short{border-color:var(--bad)}
+.cs-cand{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-bottom:1px dotted var(--line,rgba(127,127,127,.4))}
+.cs-cb{display:flex;flex-direction:column;gap:1px;min-width:0}.cs-cb b{font-size:.84rem}.cs-cb small{font-size:.66rem;color:var(--muted)}.cs-cb small i{font-style:normal;opacity:.3}.cs-cb em{font-style:normal;font-size:.72rem;font-weight:600}

@@ -16,10 +16,12 @@ function unhappiestGroup(id){return CL(id).groups.slice().sort((a,b)=>a.mood-b.m
 function agendaTopics(id){
   const A=AG(),r=ARNG(id+':ag:'+S.season+':'+S.week),out=[],co=coachOf(id),td=tdOf(id),form=lastResults(id),losses=form.filter(x=>x==='L').length,sq=S.squads[id];
   /* the head coach */
-  if(co){if(S.week>=2&&losses>=2)out.push({k:'coach',who:co.name,role:'Head coach',urgent:true,title:`${losses} defeats in three`,line:'The dressing room is quiet. I need to know where you stand.',opts:[
+  const heat=typeof coachHeat==='function'?coachHeat(id):null,hs=heat!=null?heatStage(heat):null;
+  if(co&&!co.pro?.caretaker){if(S.week>=2&&(losses>=2||heat>=55))out.push({k:'coach',who:co.name,role:'Head coach',urgent:true,title:hs&&heat>=55?`${hs.word}: ${losses} defeat${losses===1?'':'s'} in three`:`${losses} defeats in three`,line:'The dressing room is quiet. I need to know where you stand.',opts:[
       {k:'back',t:'Back the coach in public',fx:'Squad morale +4 · coach loyalty +8 · members −1 if it goes on',run:()=>{squadMorale(id,4);co.loy=clamp((co.loy??50)+8,0,100);confLog(id,-1,'The chairman backs a losing coach');agLog(`You backed ${co.name} in public after ${losses} defeats: the squad responded.`)}},
       {k:'demand',t:'Demand a reaction',fx:'Squad morale +2 now · coach loyalty −8',run:()=>{squadMorale(id,2);co.loy=clamp((co.loy??50)-8,0,100);agLog(`You told ${co.name} you expect a reaction. The training ground got louder.`)}},
-      {k:'quiet',t:'Say nothing',fx:'Nothing changes',run:()=>agLog(`You left ${co.name} to it.`)}]});
+      {k:'quiet',t:'Say nothing',fx:'Nothing changes',run:()=>agLog(`You left ${co.name} to it.`)},
+      ...(heat>=55?[{k:'sack',t:'Sack him',fx:`£${settlement(co.id)}k settlement · a caretaker takes over · you choose the next man`,run:()=>{const r=cmd('SackStaff',id,{role:'coach'});agLog(r.ok===false?r.err:`You sacked ${co.name}. A caretaker takes the team on Saturday.`)}}]:[])]});
     else out.push({k:'coach',who:co.name,role:'Head coach',title:'The squad',line:form.length&&form.every(x=>x==='W')?'They are flying. A word from you would keep it going.':'Give the young lads a chance, or keep it tight?',opts:[
       {k:'visit',t:'Visit the training ground',fx:'Squad morale +3',run:()=>{squadMorale(id,3);agLog('You spent a morning at the training ground. The players noticed.')}},
       {k:'kids',t:'Ask for minutes for the young players',fx:'Young players’ morale +6 · coach loyalty −3',run:()=>{for(const p of sq)if(p.age<=21)p.morale=clamp((p.morale??60)+6,0,100);co.loy=clamp((co.loy??50)-3,0,100);agLog(`You asked ${co.name} to give the youngsters minutes.`)}}]})}

@@ -17,6 +17,9 @@ Je bent de game developer van **Northmarch**, samen met de eigenaar (game direct
 2. **De sim-fanaat:** hoe lossen goede spellen in het genre dit op? Vergelijk mechanieken en wat ze bij de speler doen. Leen het principe, kopieer nooit een spel (geen namen, look of content).
 3. **De game developer:** hoe bouwen we het klein, causaal en testbaar in de bestaande code, met één bron van waarheid?
 
+## 2b. Het denkkader (MB-37, bindend)
+Toets elk voorstel aan bijbel §14: eerst de bijbel (E1–E5, de rol van de voorzitter in §4, het ritme in §6), dan de zes domeinen van de clubdirecteur (sportief, selectie en markt, geld, inkomsten, mensen buiten de club, infrastructuur) × vier momenten (jaar, window, week, gebeurtenis), dan de sim (klok, oorzaak, onzekerheid, seizoensspanning). Benoem welke cel je vult, wat er nu ✓/~/✗ staat en wat het na je werk wordt. Werk de toets in §16 bij na elke stap. Denk niet los per feature.
+
 ## 3. De speltoets: stel deze vragen bij elk scherm of elke feature
 - **Plek en moment:** waar zijn we en wanneer? (Clubhuis, verkiezingsavond, 22:14 op deadline day.)
 - **Mensen:** wie praat er, en wat wil die persoon? Een TD, trainer, aanvoerder, supportersgroep of rivaal met een eigen belang.

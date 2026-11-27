@@ -386,10 +386,19 @@
    <div class="rt-h">MIDWEEK · WHO DO YOU SEE? ${A.met?'':`<small>${ts.length} waiting · you see one</small>`}</div>${met}${rows}
    <div class="rt-h">SATURDAY · WHERE DO YOU SIT?</div>${seat}
    ${A.today&&A.today.length?`<ul class="rt-news">${A.today.map(t=>`<li><b>✓</b><span>${esc(t)}</span></li>`).join('')}</ul>`:''}</section>`}
+ /* ----- THE COACH'S SEAT (MB-38): the coach's position every week, and the shortlist when the job is open ----- */
+ function coachSeatRow(id){const c=coachOf(id);if(!c)return'';if(coachVacant(id))return`<div class="cs-row cs-vac"><span><small>HEAD COACH</small><b>Caretaker in charge</b></span><em>Choose a new coach below</em></div>`;
+   const h=coachHeat(id),st=heatStage(h),hist=(S.heat&&S.heat.hist||[]).slice(-8);
+   return`<div class="cs-row cs-${st.k}">${faceSVG(c.name,{size:36,kit:clubKit(id).a})}<span><small>HEAD COACH · ${esc(c.name.toUpperCase())}</small><b>${esc(st.word)}</b><em>${esc(heatWhy(id))}</em></span><span class="cs-meter" aria-label="Pressure ${h} of 100"><i style="width:${h}%"></i>${hist.length>1?`<svg viewBox="0 0 80 20" aria-hidden="true"><polyline fill="none" stroke="currentColor" stroke-width="1.5" points="${hist.map((x,i)=>`${Math.round(i*80/(hist.length-1))},${Math.round(20-x.h/5)}`).join(' ')}"/></svg>`:''}</span></div>`}
+ function vacancyCard(id){if(!coachVacant(id))return'';const L=coachShortlist(id),kit='#6b7d74';
+   return`<section class="rt cs-short">${rtBar('VACANCY · HEAD COACH','A CARETAKER HAS THE TEAM')}
+   <div class="rt-quote">“The players need to know who is in charge before long.” <small>— ${esc(tdOf(id)?.name||'Your director')}</small></div>
+   ${L.map(c=>`<div class="cs-cand">${faceSVG(c.name,{size:44,kit})}<span class="cs-cb"><b>${esc(c.name)}</b><small>${c.age} · ${c.from?esc(nm(c.from)):'out of work'} · ${'★'.repeat(c.stars)}<i>${'★'.repeat(5-c.stars)}</i></small><em>${esc(c.style)}${c.cheer?` · ${esc(c.cheer)} would cheer`:''}</em><small>£${n0(c.wage)}/w${c.comp?` · £${c.comp}k compensation to ${esc(nm(c.from))}`:''}</small></span><button class="rt-mini" data-act="hirecoach" data-arg="${esc(c.pid)}">Appoint</button></div>`).join('')||'<p class="rt-note">Nobody suitable is available yet.</p>'}
+   <p class="rt-note">Leave it and the caretaker stays in charge: cheaper, and weaker.</p></section>`}
  function weekHead(id){const w=S.week+1,pos=posOf(id),t=S.tbl[id]||{pts:0,form:[]},mem=agmForecastPct(id),f=F(id),form=(t.form||[]).slice(-5);
    return`<section class="rt">${rtBar(`MATCHWEEK ${w} OF ${SEASON_WEEKS}`,esc(seasonDate(w)))}
    <div class="wk-strip"><div><small>TABLE</small><b>${S.week?ord(pos):'—'}</b><span>${t.pts||0} pts</span></div><div><small>FORM</small><b class="wk-form">${form.map(r=>`<i class="f${r}">${r}</i>`).join('')||'—'}</b></div><div><small>CASH</small><b class="${f.cash<0?'bad':''}">${k1(f.cash)}</b></div><div><small>MEMBERS</small><b class="${mem<50?'bad':''}">${mem}%</b><i class="bar"><i style="width:${mem}%"></i></i></div></div>
-   <div class="rt-quote">${esc(weekTopic(id).t)}</div></section>`}
+   ${coachSeatRow(id)}<div class="rt-quote">${esc(weekTopic(id).t)}</div></section>`}
  function clubRows(id){const b=books(id),m=M(id),gp=(m.goals||[]).map(g=>goalProgress(id,g)),met=gp.filter(x=>x.met).length,td=tdOf(id),co=coachOf(id),proj=G(id).projects.filter(x=>x.phase!=='done');
    const mood=p=>p?((p.loy??50)>=60?'content':(p.loy??50)>=40?'steady':'restless'):'—';
    return`<section class="rt">${rtBar('THE CLUB','AT A GLANCE')}
@@ -403,7 +412,7 @@
    const msg=UI.msg?`<p class="g-msg ${UI.msg.err?'err':''}" role="status">${esc(UI.msg.text)}</p>`:'';UI.msg=null;
    if(S.week===0)return preSeasonScreen(id,msg);
    if(seasonOver())return`<div class="g-week">${msg}${topicBanner(id)}${agmView(id)}</div>`;
-   return`<div class="g-week rt-season">${msg}${weekHead(id)}${agendaCard(id)}${inboxCard(id)}${winterCard(id)}${nextMatch(id)}${clubRows(id)}${/Nothing running yet/.test(runningCard(id))?'':runningCard(id)}${weekNews(id)}</div>`;
+   return`<div class="g-week rt-season">${msg}${weekHead(id)}${vacancyCard(id)}${agendaCard(id)}${inboxCard(id)}${winterCard(id)}${nextMatch(id)}${clubRows(id)}${/Nothing running yet/.test(runningCard(id))?'':runningCard(id)}${weekNews(id)}</div>`;
  }
 
 
@@ -905,6 +914,7 @@
    if(a==='sqsort'){UI.sqSort=arg;render();return}
    if(a==='briefedit'){UI.briefEdit=true;render();return}
    if(a==='briefgoal'&&S&&S.my){const b=briefPick(S.my);const i=b.goals.indexOf(arg);if(i>=0)b.goals.splice(i,1);else if(b.max===1)b.goals=[arg];else if(b.goals.length<b.max)b.goals.push(arg);else UI.msg={err:true,text:'Three goals at most: untick one first.'};render();return}
+   if(a==='hirecoach'&&S&&S.my){const r=cmd('HireStaff',S.my,{role:'coach',pid:arg});UI.msg=r.ok===false?{err:true,text:r.err}:{text:`${P(arg).name} is your new head coach. The dressing room lifts.`};save();render();return}
    if(a==='agopen'){UI.agOpen=UI.agOpen===arg?null:arg;render();return}
    if(a==='agmeet'&&S&&S.my){const [topic,opt]=arg.split('|'),r=cmd('Meet',S.my,{topic,opt});UI.agOpen=null;if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}
    if(a==='agseat'&&S&&S.my){const r=cmd('Seat',S.my,{seat:arg});if(r.ok===false)UI.msg={err:true,text:r.err};save();render();return}

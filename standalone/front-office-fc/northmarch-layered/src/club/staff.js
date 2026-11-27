@@ -48,7 +48,7 @@ function appoint(id,role,pid,why){
   S.staffPool=S.staffPool.filter(x=>x!==pid);
   if(from){CL(from).cast[role]=caretaker(from,role);emit('StaffPoached',from,`${p.name} leaves ${CL(from).name} for ${c.name}. A caretaker steps in.`,{c2:id});if(aiRuns(from))aiHire(from,role,true)}
   p.club=id;p.role=role;p.career.push(id);p.pro.since=S.season;p.pro.caretaker=false;if(!p.pro.contract)p.pro.contract=2;p.pro.wage=Math.max(p.pro.wage,staffWage(role,p.pro.q));
-  c.cast[role]=pid;
+  c.cast[role]=pid;if(role==='coach'&&typeof coachArrives==='function')coachArrives(id,pid);
   emit('StaffHired',id,`${c.name} appoint ${p.name} as ${role==='coach'?'head coach':'director of football'}${why?` (${why})`:''}.`,{pid,role,comp});
 }
 function sackStaff(id,role,why){

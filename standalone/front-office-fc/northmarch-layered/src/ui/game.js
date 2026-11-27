@@ -149,6 +149,58 @@
    return`<section class="g-card g-heads"><small class="g-k">YOUR DEPARTMENT HEADS · £${investRoom(id)}k TO INVEST</small>${Object.keys(HEAD_ROLE).map(k=>{const a=asks.find(x=>x.k===k),fac=deptFacility(id,k),lv=fac&&fac.have?fac.have.lv:0,busy=fac&&fac.busy;
      return`<div class="g-head"><div class="g-ph"><span class="g-face" aria-hidden="true">${esc(deptHead(id,k).split(' ').map(w=>w[0]).join(''))}</span><div><b>${esc(deptHead(id,k))}</b><small>${esc(HEAD_ROLE[k])} · ${esc(COMPLEX[DEPT[k].fac].n)}: ${lv?LV_NAME[lv]:'not built'}</small></div><button class="btn ghost g-mini" data-act="dept" data-arg="${k}">Open</button></div>
      ${busy?`<p class="g-hint">Building work under way.</p>`:a?askButton(id,a,true):'<p class="g-hint">Nothing more to build here.</p>'}</div>`}).join('')}</section>`}
+ /* ----- THE DEPARTMENTS (27-11): each one is a person, their people and their building. One question per department:
+    is it ahead of or behind the division, and what does the next step cost (a week, or once from the building pot)? ----- */
+ const ROOMS=[['On the pitch','Makes the team stronger',['training','medical','academy','scouting']],['On matchday','The ground and the crowd',['matchday','grounds']],['The business','Income and members',['commercial','community']]];
+ const roleOf=k=>HEAD_ROLE[k]||(k==='grounds'?'Head groundsman':'Head of department');
+ const verdict=g=>g===true?['ahead','Ahead of the division']:g===false?['behind','Behind the division']:['level','Level with the division'];
+ /* what the wage limit would be with another staff level (the running costs come out of the same turnover) */
+ function capWithStaff(id,k,n){const d=G(id).depts[k],s0=d.staff;d.staff=n;const c=wageCapK(id);d.staff=s0;return c}
+ /* strength: what the people and the building can do together (the building only works as far as the people can run it) */
+ function deptPower(id,k){const d=G(id).depts[k],f=DEPT[k].fac,pl=f&&G(id).plots.find(p=>p.kind===f);return d.staff*.45*BUDGET_F[d.budget]+(pl?operatingLevel(id,pl):0)}
+ function deptKpiNow(id,k){const kp=deptKpi(id,k);if(S.week>=6&&kp.good!=null)return kp;
+   const me=deptPower(id,k),ids=tierIds(CL(id).tier).filter(i=>i!==id),avg=ids.reduce((a,i)=>a+deptPower(i,k),0)/Math.max(1,ids.length);
+   return{label:'Strength (people and building)',text:`${me.toFixed(1)} · division ${avg.toFixed(1)}`,good:Math.abs(me-avg)<.25?null:me>avg}}
+ function deptState(id,k){const d=G(id).depts[k],fac=deptFacility(id,k),kp=deptKpiNow(id,k),have=fac&&fac.have;
+   return{d,fac,kp,lv:have?have.lv:0,run:have?operatingLevel(id,have):0,building:DEPT[k].fac?COMPLEX[DEPT[k].fac].n:null}}
+ function deptsCard(id){const room=investRoom(id);
+   return`<section class="g-card g-depts2"><small class="g-k">YOUR DEPARTMENTS · £${n0(deptCost(id)*1000)} A WEEK</small>
+   <p class="g-hint">Each department is a head, their people (paid every week) and a building (paid once, from the building pot: £${room}k left).</p>
+   ${ROOMS.map(([t,sub,ks])=>`<h3 class="dp-room">${esc(t)} <small>${esc(sub)}</small></h3>${ks.map(k=>{const x=deptState(id,k),[cls,word]=verdict(x.kp.good);
+     return`<button class="dp-row" data-act="dept" data-arg="${k}"><span class="g-face" aria-hidden="true">${esc(deptHead(id,k).split(' ').map(w=>w[0]).join(''))}</span>
+     <span class="dp-main"><b>${esc(DEPT[k].n)}</b><small>${esc(x.kp.label)}: ${esc(x.kp.text)}</small>
+     <span class="dp-chips"><i>People ${'●'.repeat(x.d.staff)}${'○'.repeat(5-x.d.staff)}</i>${x.building?`<i>${x.lv?esc(LV_NAME[x.lv])+' '+esc(x.building.toLowerCase()):'No '+esc(x.building.toLowerCase())}</i>`:''}${x.d.hiring?'<i>Hiring…</i>':''}${x.fac&&x.fac.busy?'<i>Building…</i>':''}</span></span>
+     <span class="dp-v ${cls}">${esc(word.split(' ')[0])}</span></button>`}).join('')}`).join('')}</section>`}
+ deptSheet=function(k){
+   const id=S.my,D=DEPT[k],x=deptState(id,k),d=x.d,fac=x.fac,[cls,word]=verdict(x.kp.good),head=deptHead(id,k),wkv=v=>'£'+n0(Math.abs(v)*1000);
+   const quote=x.kp.good===false?`We are behind the division. ${HEAD_ASK[k]||'More hands would make the difference.'}`:x.kp.good===true?'We are ahead of the division. Keep us there and it shows on Saturdays.':'We are where the division is. One step either way shows.';
+   const cap0=wageCapK(id);
+   /* people: one level up or down, priced per week, with what it does to the wage limit */
+   let people='',cut='';
+   if(d.hiring)people=`<p class="g-hint">Recruiting to ${esc(STAFF_WORD[d.hiring.to].toLowerCase())}: ${d.hiring.left} week${d.hiring.left>1?'s':''} to go.</p>`;
+   else{const up=d.staff<5?d.staff+1:null,dn=d.staff>1?d.staff-1:null;
+     const dw=up?deptWeekCost(id,k,up)-deptWeekCost(id,k):0,capUp=up?cap0-capWithStaff(id,k,up):0;
+     people=up?`<div class="dp-opt"><small class="g-k">PEOPLE · ${esc(STAFF_WORD[d.staff].toUpperCase())} → ${esc(STAFF_WORD[up].toUpperCase())}</small><p><b>+${wkv(dw)} a week</b>${capUp>.005?` · your wage limit drops ${wkv(capUp)} a week`:''}. A fee of ${wkv(deptWeekCost(id,k,up)*2)} and ${HIRE_WEEKS} weeks to recruit.</p><button class="btn" data-act="dstaff" data-arg="${k}:${up}">Hire more people</button></div>`:`<p class="g-hint">The people are elite already.</p>`;
+     if(dn)cut=`<button class="g-opt g-leave" data-act="dstaff" data-arg="${k}:${dn}"><b>Cut to ${esc(STAFF_WORD[dn].toLowerCase())}</b><span>Saves ${wkv(deptWeekCost(id,k)-deptWeekCost(id,k,dn))} a week after four weeks' severance. The department gets weaker.</span></button>`}
+   /* the building: once, from the building pot; and whether the people can run all of it */
+   let bld='';
+   if(fac){const o=fac.opt,room=investRoom(id);
+     const runs=x.lv&&x.run<x.lv?`<p class="dp-warn">The ${esc(x.building.toLowerCase())} works at level ${x.run} of ${x.lv}: there are not enough people to run all of it.</p>`:'';
+     if(fac.busy)bld=`<p class="g-hint">Building work under way. Follow it under Running on the week screen.</p>`;
+     else if(o)bld=`<div class="dp-opt"><small class="g-k">BUILDING · ${x.lv?esc(LV_NAME[x.lv].toUpperCase())+' → '+esc((LV_NAME[x.lv+1]||'').toUpperCase()):'NOT BUILT YET'}</small><p><b>£${o.cost}k once</b>, from the building pot (£${room}k left). ${o.weeks} weeks${o.permit?' after the permit':''}${o.annual?`, then £${o.annual}k a season to run`:''}. ${esc(COMPLEX[D.fac].sig)}.</p>
+       <button class="btn" data-act="invest" data-arg="${esc(o.key)}" ${room>=o.cost?'':'disabled aria-disabled="true"'}>${room>=o.cost?'Build it':`Needs £${o.cost-room}k more in the building pot`}</button></div>`;
+     else bld=`<p class="g-hint">${fac.noPlot?'No free plot for another building.':'The building is as big as it gets.'}</p>`;
+     bld=runs+bld}
+   const tight=d.budget==='tight'?`<div class="dp-opt"><small class="g-k">RUNNING BUDGET · CUT BY THE TREASURER</small><p>The department works with 70% of its equipment and travel money.</p><button class="btn ghost" data-act="gdept" data-arg="${k}:normal">Restore it · +${wkv(deptWeekCost(id,k,null,'normal')-deptWeekCost(id,k))} a week</button></div>`:'';
+   const course=`<h3>The way of working</h3><div class="g-goals">${D.courses.map(c=>{const on=(d.pending||d.course)===c;return`<button class="g-opt ${on?'on':''}" data-act="gcourse" data-arg="${k}:${c}" aria-pressed="${on}"><b>${on?'✓ ':''}${esc(c[0].toUpperCase()+c.slice(1))}</b><span>${esc(D.cd[c])}</span></button>`}).join('')}</div><p class="g-hint">${d.pending?`Switching to ${esc(d.pending)}: ${d.settle} weeks to settle.`:'A change costs nothing, but takes a season to settle.'}</p>`;
+   const extra=departmentPipeline(k);
+   return overlayShell(D.n,`<div class="g-voice"><span class="g-face" aria-hidden="true">${esc(head.split(' ').map(w=>w[0]).join(''))}</span><div><small>${esc(head)} · ${esc(roleOf(k))}</small><q>${esc(quote)}</q></div></div>
+   <section class="dp-kpi ${cls}"><small>${esc(x.kp.label)}</small><b>${esc(x.kp.text)}</b><span>${esc(word)}</span></section>
+   <p class="g-hint">${esc(D.does)}</p>
+   <h3>Make it stronger</h3>${people}${bld}${tight}
+   ${cut?`<h3>Save money</h3>${cut}`:''}
+   ${course}${extra?`<details class="g-close"><summary>Inside the department</summary>${extra}</details>`:''}`);
+ };
  /* ----- THE BOOKS: money as a chairman feels it. Cash, the season so far, wages against turnover, where it ends ----- */
  function books(id){const f=F(id),inc=estSeasonIncome(id),wr=Math.round(wageBillK(id)*SEASON_WEEKS/Math.max(1,inc)*100),op=operatingResult(f.season||{}),fc=cashForecast(id,Math.max(1,SEASON_WEEKS-S.week)),end=fc.mid[fc.mid.length-1]??f.cash,lim=creditLimit(id);
    return{cash:Math.round(f.cash),op:Math.round(op),wr,end:Math.round(end),low:Math.round(fc.minV),lowW:S.week+fc.minW,lim,tight:fc.minV<-lim*.5||f.cash<0}}
@@ -461,8 +513,7 @@
    const dots=n=>'●'.repeat(n)+'○'.repeat(5-n);
    const depts=Object.keys(DEPT).map(k=>{const d=g.depts[k];return`<button class="g-dept" data-act="dept" data-arg="${k}"><b>${esc(DEPT[k].n)}</b><small class="g-does">${esc(DEPT[k].does.split('. ').slice(1).join('. ').replace(/\.$/,'')||DEPT[k].does)}</small><span class="g-dots" aria-label="${d.staff} of 5 staff">${dots(d.staff)}</span><small>${d.hiring?'Hiring…':esc(d.budget)+' budget'}</small></button>`}).join('');
    const link=(t,sub,a,arg,i)=>`<button class="g-link" data-act="${a}" data-arg="${arg}"><span class="g-ic" aria-hidden="true">${i}</span><span><b>${t}</b><small>${sub}</small></span><em aria-hidden="true">›</em></button>`;
-   return`<div class="g-week">${money}${growthCard(id)}${headsCard(id)}
-   <details class="g-close"><summary>Department dials · staff, budget, focus</summary><p class="g-hint">Each department has three dials: staff (●), budget and a focus. Tap one to change them and to see what it delivers.</p><div class="g-depts">${depts}</div></details>
+   return`<div class="g-week">${money}${growthCard(id)}${deptsCard(id)}
    <section class="g-links">${link('Football','Head coach, director, playing style','ctab','football','⚽')}${link('Scouting & Moneyball','Your finds, transfers in and out, hit rate','ctab','dossier','✈')}${link('Transfers','Needs, shortlist, window','ctab','window','⇄')}${link('Stadium & facilities','Build, repair, capacity','ctab','ground','▥')}${link('Members & board','Confidence, prices, goals','ctab','members','♜')}${link('Family & legacy','Your family, heir, era, legends','ctab','legacy','★')}${link('History & growth','Season by season, records, money','ctab','development','⌛')}</section></div>`;
  }
 

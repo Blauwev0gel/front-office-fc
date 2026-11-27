@@ -50,8 +50,14 @@ function groundInit(id){
   const start=am?['training','clubhouse','parking']:pro?['training','clubhouse','parking','commercial','medical']:['training','clubhouse','parking','commercial'];
   for(let i=0;i<6;i++)g.plots.push(start[i]?{kind:start[i],lv:start[i]==='training'?(pro?3:2):1,cond:ri(55,85)}:{kind:null});
   for(const k in DEPT)g.depts[k]=deptInit(k,c.tier);
+  deptProfile(id,g);
   return g;
 }
+/* every club has a face: one department it is proud of (+1 staff) and one it neglects (−1), and its own ways of working.
+   Derived from a hash of the club id, so the world's random stream is untouched. */
+function deptProfile(id,g){let h=7;for(const ch of String(id))h=(h*31+ch.charCodeAt(0))>>>0;const ks=Object.keys(DEPT),pride=ks[h%ks.length],low=ks[(h>>>5)%ks.length];
+  g.depts[pride].staff=Math.min(5,g.depts[pride].staff+1);if(low!==pride)g.depts[low].staff=Math.max(1,g.depts[low].staff-1);
+  ks.forEach((k,i)=>{if((h>>>(i+9))&1)g.depts[k].course=DEPT[k].courses[1]});g.pride=pride}
 function deptInit(k,tier){return{budget:'normal',course:DEPT[k].courses[0],pending:null,settle:0,staff:STAFF_DEF[tier],hiring:null}}
 function G(id){return S.grounds[id]}
 /* how hard a department works: people × money (1.0 = a full team on a normal budget) */

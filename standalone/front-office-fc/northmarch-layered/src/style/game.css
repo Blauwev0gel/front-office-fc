@@ -328,3 +328,15 @@ b.good{color:var(--good)}b.bad{color:var(--bad)}
 .bd-left b{font-size:.95rem}.bd-left span{color:var(--muted)}
 .g-steps{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:1fr}
 .bd-b{flex:none;width:44px}
+/* departments as people (27-11) */
+.dp-room{margin:14px 0 4px;font-size:1rem}.dp-room small{font-weight:400;color:var(--muted);font-size:.8rem;margin-left:4px}
+.dp-row{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;padding:10px 0;min-height:56px;background:none;border:0;border-top:1px solid var(--line,rgba(127,127,127,.25));color:inherit;font:inherit;cursor:pointer}
+.dp-main{display:flex;flex-direction:column;min-width:0}.dp-main small{color:var(--muted);font-size:.78rem}
+.dp-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.dp-chips i{font-style:normal;font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--chip);color:var(--muted)}
+.dp-v{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:4px 8px;border-radius:8px;border:1px solid currentColor}
+.dp-v.ahead,.dp-kpi.ahead span{color:var(--good)}.dp-v.behind,.dp-kpi.behind span{color:var(--bad)}.dp-v.level,.dp-kpi.level span{color:var(--muted)}
+.dp-kpi{display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:12px;background:var(--chip);margin:10px 0}
+.dp-kpi small{font-size:.75rem;color:var(--muted)}.dp-kpi b{font-size:1.15rem}.dp-kpi span{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.dp-opt{border:1px solid var(--line,rgba(127,127,127,.3));border-radius:12px;padding:12px;margin:8px 0;display:flex;flex-direction:column;gap:6px}
+.dp-opt p{margin:0}.dp-opt .btn{min-height:44px;align-self:flex-start}
+.dp-warn{color:var(--bad);font-weight:700;font-size:.85rem}

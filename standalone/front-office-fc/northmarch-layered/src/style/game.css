@@ -528,3 +528,5 @@ b.good{color:var(--good)}b.bad{color:var(--bad)}
 .pm-means{display:block;font-style:normal;font-size:.72rem;color:var(--signal,#c4561b);margin-top:3px}
 .f-prob{display:flex;justify-content:space-between;gap:8px;font-size:.74rem;align-items:baseline}.f-prob b{color:var(--signal,#c4561b);font-size:.64rem;letter-spacing:.06em}
 .f-diff{font-style:normal;color:#d9a420;white-space:nowrap}.f-diff s{text-decoration:none;opacity:.25}
+.rt-pad{padding:4px 10px}.rt-file2.on{background:var(--chip);box-shadow:inset 3px 0 var(--signal,#c4561b)}
+.d-story{display:flex;flex-direction:column;gap:2px;padding:10px;border-bottom:1px dashed var(--line,rgba(127,127,127,.4))}.d-story b{color:var(--signal,#c4561b);font-size:.72rem;letter-spacing:.08em}.d-story span{font-size:.84rem}.d-story small{font-size:.72rem;color:var(--muted)}

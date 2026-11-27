@@ -50,6 +50,11 @@ function clubChallenge(id){
 }
 function clubVoice(id){const c=CL(id),g=c.groups.slice().sort((a,b)=>b.share-a.share)[0],a=g&&ARCH[g.k];return g?`${groupName(id,g)} are the loudest voice (${g.share}%): “${a?a.wants:''}”`:''}
 /* the opening (§7.1, MB-33): information as numbers, chips and bars; one sentence a block at most */
+/* the club as one story a football fan recognises (MB-43) */
+function clubStory(id){const c=CL(id),q=squadRank(id),d=debt(id),b=books(id),n=q.n;
+  const kind=q.r<=3?(c.tier===0?'Title contenders':'Promotion candidates'):q.r>n-4?(c.tier===4?'Bottom of the pyramid':'Relegation fighters'):d>0||b.tight?'A club in the red':'A mid-table project';
+  const line=q.r<=3?`The squad can go ${c.tier===0?'for the title':'up'}${d||b.tight?'; the money cannot':''}.`:q.r>n-4?`The squad is among the weakest in ${TIER_NAME[c.tier]}.`:d>0?`£${Math.round(d)}k in debt, a squad in the middle.`:'A squad in the middle, and room to build.';
+  return{kind,line,scar:c.scar}}
 function squadRank(id){const ids=tierIds(CL(id).tier).sort((a,b)=>teamStrength(b)-teamStrength(a));return{r:ids.indexOf(id)+1,n:ids.length}}
 function jobTag(id){const t=clubChallenge(id).split(':')[0].toUpperCase(),cls=/WIN|GO UP/.test(t)?'up':/STAY|CLIMB/.test(t)?'down':'mid';return`<i class="jt jt-${cls}">${esc(t)}</i>`}
 function jobLine(id){const s=clubChallenge(id),i=s.indexOf(':');return i>0?s.slice(i+1).trim():s}
@@ -60,14 +65,14 @@ function chooseView(){
   return`<main class="scene" style="padding-top:20px"><section class="rt"><div class="rt-bar"><b>${again?'CLUBS WANT YOU':'CLUBS LOOKING FOR A CHAIRMAN'}</b><span>${again?'SEASON '+S.season:'SUMMER'}</span></div>
   ${again?`<div class="rt-sub">${esc(last.why||'Your term ended')}.</div>`:''}
   ${S.seats.map(id=>{const c=CL(id),q=squadRank(id),sg=groundSignals(id);return`<button class="rt-file2" data-act="seat" data-arg="${id}"><span class="f-top"><b>${esc(c.name)}</b>${jobTag(id)}</span>
-    <span class="f-prob">${(()=>{const m=handoverCompute(id);return m?`<b>ON DAY ONE:</b> ${esc(m.title)}`:''})()}<i class="f-diff" title="How hard the job is">${'★'.repeat(jobStars(id))}<s>${'★'.repeat(3-jobStars(id))}</s></i></span><span class="f-chips"><i>${esc(['PREMIER','ONE','TWO','THREE','FOUR'][c.tier]||'')}</i><i>${k1(F(id).cash)}${debt(id)?' · debt '+k1(debt(id)):''}</i><i>squad ${q.r}/${q.n}</i><i>${n0(c.support)} fans</i></span></button>`}).join('')}
+    <span class="f-prob">${(()=>{const st=clubStory(id);return`<b>${esc(st.kind.toUpperCase())}</b> ${esc(st.line)}`})()}<i class="f-diff" title="How hard the job is">${'★'.repeat(jobStars(id))}<s>${'★'.repeat(3-jobStars(id))}</s></i></span><span class="f-chips"><i>${esc(['PREMIER','ONE','TWO','THREE','FOUR'][c.tier]||'')}</i><i>${k1(F(id).cash)}${debt(id)?' · debt '+k1(debt(id)):''}</i><i>squad ${q.r}/${q.n}</i><i>${n0(c.support)} fans</i></span></button>`}).join('')}
   </section></main>`;
 }
 function dossierView(id){
   const c=CL(id),sg=groundSignals(id),f=F(id),ks=keyPlayers(id),r=c.rival&&CL(c.rival),q=squadRank(id),g=c.groups.slice().sort((a,b)=>b.share-a.share)[0],fill=Math.min(100,Math.round(c.support/Math.max(1,sg.capacity)*100));
   return`<main class="scene" style="padding-top:20px"><section class="rt"><div class="rt-bar"><b>${esc(c.name.toUpperCase())}</b><span>${esc(TIER_NAME[c.tier])}</span></div>
   <div class="d-job">${jobTag(id)}<span>${esc(jobLine(id))}</span></div>
-  ${(()=>{const m=handoverCompute(id);return m?`<div class="d-voice"><b>DAY 1</b><span>${esc(m.title)}. ${esc(m.line)}</span></div>`:''})()}
+  ${(()=>{const st=clubStory(id);return`<div class="d-story"><b>${esc(st.kind.toUpperCase())}</b><span>${esc(st.line)}</span></div>`})()}
   <div class="st-grid">${statTile('Cash',k1(f.cash),debt(id)?'debt '+k1(debt(id)):'no debt',f.cash<0?'bad':'')}${statTile('Squad',`${q.r}<small>/${q.n}</small>`,'in the division',q.r>q.n-4?'bad':q.r<=3?'good':'')}${statTile('Crowd',n0(c.support),`<i class="bar"><i style="width:${fill}%"></i></i>of ${n0(sg.capacity)}`)}${statTile('Founded',c.founded,esc(TOWNS[c.town].n.toLowerCase()))}</div>
   ${g&&ARCH[g.k]?`<div class="d-voice"><b>${g.share}%</b><span>${esc(groupName(id,g))}: “${esc(ARCH[g.k].wants)}”</span></div>`:''}
   <div class="rt-h">THREE NAMES</div><div class="d-names">${ks.map(k=>`<span><i>${esc(k.p.pos)}</i><b>${esc(k.p.name)}</b><small>${k.p.age} · ${esc(k.role.replace('the ',''))}</small></span>`).join('')}</div>

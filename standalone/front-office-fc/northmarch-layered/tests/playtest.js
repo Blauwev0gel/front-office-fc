@@ -24,12 +24,12 @@ const url='file://'+path.join(__dirname,'..','dist','northmarch-layered.html');
     await tap('[data-act=seat] >> nth=1');await tap('[data-act=choose]');
     await page.evaluate(()=>{S.agmOff=true;M(S.my).conf=90}); /* this run tests the screens, not the members' vote */
     const steps=[];
-    for(let i=0;i<28&&!await count('[data-act=play]');i++){const b=page.locator('.g-play').first();if(!await b.count())break;steps.push((await b.innerText()).trim());
+    for(let i=0;i<28&&!await count('[data-act=play]');i++){const b=page.locator('.g-play').first();if(!await b.count())break;if(/Pause/.test(await b.innerText())){await page.waitForTimeout(800);i--;continue}steps.push((await b.innerText()).trim());
       if(/Agree the plan/i.test(steps[steps.length-1])&&await count('.rt-bar')){ok((await page.locator('body').innerText()).includes('TD MEETING'),`${scheme}: the TD meeting is a text page with the holes, the money and the plan`)}
       const bb=await b.boundingBox();if(i===0)ok(bb&&bb.height>=44,`${scheme}: the main button is at least 44px tall (${bb?Math.round(bb.height):'-'}px)`);
       await b.click();await wide('pre-season step '+(i+1))}
     ok(steps.some(t=>/manifest/i.test(t))&&steps.findIndex(t=>/manifest/i.test(t))<steps.findIndex(t=>/plan/i.test(t)),`${scheme}: the manifest is signed before the director's plan (${steps.join(' → ')})`);
-    ok(steps.filter(t=>/Advance market week|Deadline day/i.test(t)).length===4&&!steps.some(t=>/Skip to the end/i.test(t)),`${scheme}: the market is four taps, one per week, with no playback to skip`);
+    ok(steps.some(t=>/Open the window/i.test(t))&&steps.some(t=>/deadline day/i.test(t))&&!steps.some(t=>/Skip to the end/i.test(t)),`${scheme}: the market clock runs by itself and stops for deadline day (${steps.length} taps)`);
     ok(await page.evaluate(()=>S.pre&&S.pre.ticker.some(t=>t.d>=10)),`${scheme}: the summer has a deadline day`);
     ok(await page.evaluate(()=>M(S.my).sealed===S.season),`${scheme}: the manifest is signed`);
     ok(await count('[data-act=play]')>=1,`${scheme}: one clear way to start the season`);

@@ -431,3 +431,27 @@ b.good{color:var(--good)}b.bad{color:var(--bad)}
 .rt-wrap .g-card{padding:10px}
 .rt-season .g-promise{border:2px solid var(--ink);border-radius:6px;background:var(--card)}
 .rt-row.s-good .rt-a{color:var(--good)}
+/* the Transfer Centre clock (MB-32) */
+.tc-cal{list-style:none;margin:0;padding:10px 10px 4px;display:grid;grid-template-columns:repeat(14,1fr);gap:3px}
+.tc-cal li{height:16px;border-radius:2px;background:var(--chip);position:relative}
+.tc-cal li b{position:absolute;top:-1px;left:2px;font-size:.52rem;font-weight:700;color:var(--muted);white-space:nowrap;line-height:1}
+.tc-cal li.past{background:var(--navy);opacity:.55}.tc-cal li.past b{color:var(--onnavy)}
+.tc-cal li.now{background:var(--signal,#c4561b);opacity:1;animation:tcnow 1s ease-in-out infinite alternate}
+.tc-cal li.dl{outline:2px solid var(--bad);outline-offset:-2px}
+@keyframes tcnow{from{opacity:1}to{opacity:.55}}
+.tc-mon{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line,rgba(127,127,127,.3));border-top:1px dashed var(--line,rgba(127,127,127,.4));border-bottom:1px dashed var(--line,rgba(127,127,127,.4))}
+.tc-mon span{background:var(--card);padding:6px 8px;display:flex;flex-direction:column}
+.tc-mon small{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.tc-mon b{font-size:.9rem}
+.tc-need{display:grid;grid-template-columns:3em 1fr;gap:8px;padding:8px 10px;border-bottom:1px dotted var(--line,rgba(127,127,127,.4));min-height:52px;align-items:center}
+.tc-np{font-weight:700;font-size:.8rem;text-align:center;border:1.5px solid currentColor;border-radius:4px;padding:3px 0}
+.tc-nb{min-width:0;display:flex;flex-direction:column;gap:2px}.tc-nb small{color:var(--muted);font-size:.72rem}
+.tc-nb em{font-style:normal;font-weight:700;font-size:.78rem}.tc-nb em i{font-style:normal;font-weight:400;color:var(--muted)}
+.tc-need.s-good .tc-np,.tc-need.s-good em{color:var(--good)}.tc-need.s-live .tc-np,.tc-need.s-live em{color:var(--signal,#c4561b)}.tc-need.s-warn em,.tc-need.s-warn .tc-np{color:var(--bad)}.tc-need.s-short .tc-np,.tc-need.s-short em{color:var(--muted)}
+.tc-news{list-style:none;margin:0;padding:0 10px 10px}
+.tc-news li{display:flex;flex-direction:column;gap:3px;padding:7px 0;border-bottom:1px dotted var(--line,rgba(127,127,127,.3));font-size:.78rem}
+.tc-news li b{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.tc-news li.fresh b{color:var(--signal,#c4561b)}
+.tc-news .tk-good{color:var(--good)}.tc-news .tk-bad{color:var(--bad)}.tc-news .tk-warn{color:var(--bad);font-weight:700}.tc-news .tk-us{font-weight:600}
+.rt-more{display:block;width:calc(100% - 20px);margin:0 10px 10px;min-height:44px;font-family:var(--f-mono);background:none;border:1px dashed var(--line,rgba(127,127,127,.5));border-radius:4px;color:inherit;cursor:pointer}
+.tc-pause{background:var(--signal,#c4561b)!important}
+.rt-btn[disabled]{opacity:.4;cursor:default}

@@ -29,8 +29,9 @@
    else if(UI.tab==='week'&&stage==='preview'&&P_&&preStep()==='budget')play=`<button class="btn g-play" data-act="budgetsign">✍ Sign the budget</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&P_&&!P_.brief)play=`<button class="btn g-play" data-act="briefsign">✍ Agree the plan · open the market</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.brief&&tcPlaying())play=`<button class="btn g-play" data-act="tcskip">Skip to the end of the week ›</button>`;
-   else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.wk<=PRE_WEEKS&&(P_.offer||P_.record))play=`<button class="btn g-play" data-act="prenext">Let it lapse · advance the market ›</button>`;
-   else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.wk<=PRE_WEEKS)play=`<button class="btn g-play" data-act="prenext">${P_.wk===PRE_WEEKS?'▶ Deadline day':'▶ Advance market week '+P_.wk+' of '+PRE_WEEKS}</button>`;
+   else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.brief&&P_.wk<=PRE_WEEKS&&UI.tcRun)play=`<button class="btn g-play tc-pause" data-act="tcpause">⏸ Pause the clock</button>`;
+   else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.wk<=PRE_WEEKS&&(P_.offer||P_.record))play=`<button class="btn g-play" data-act="prenext">Let it lapse · carry on ›</button>`;
+   else if(UI.tab==='week'&&stage==='preview'&&P_&&P_.wk<=PRE_WEEKS)play=`<button class="btn g-play" data-act="prenext">${!P_.day?'▶ Open the window':preDeadlineNow(P_)?'▶ Play deadline day':'▶ Continue'}</button>`;
    else if(UI.tab==='week'&&stage==='preview'&&over){const st=UI.agmStep||0;play=`<button class="btn g-play" data-act="${st>=3?'close':'agmnext'}">${['Go to the floor ›','To your speech ›','To the vote ›','Call the vote'][st]}</button>`}
    else if(UI.tab==='week'&&stage==='preview')play=`<button class="btn g-play" data-act="${over?'close':'play'}">${over?'Finish the season ›':pre?'▶ Start the season':(()=>{const fx=fixtureOf(S.my,S.week+1);return fx?`▶ Saturday: ${fx.home?'vs':'at'} ${CL(fx.opp).name}`:'▶ Play week '+(S.week+1)})()}</button>`;
    else if(UI.tab==='week'&&stage!=='preview')play=`<button class="btn g-play" data-act="v183ready">Next week ›</button>`;
@@ -424,39 +425,52 @@
    ${edit}${winter?'<div class="rt-btns"><button class="rt-btn on" data-act="briefsign">✍ Agree the winter plan</button></div>':''}</section>`;
  }
  /* the Transfer Centre: the director's board as a text page; one tap a market week */
- const DEAL_TXT=d=>({bid:`Offer £${d.fee}k`,countered:`Negotiating £${d.fee}k`,record:'Needs your word',signed:d.fee?`Signed £${d.fee}k`:'Signed (free)',walked:'Walked away',hijacked:`Hijacked${d.rival?' by '+nm(d.rival):''}`,gone:'Gone elsewhere'})[d.stage]||d.stage;
+ /* the Transfer Centre (MB-32): a calendar that runs, the plan as one line per need, the money, the news.
+    The clock runs by itself and stops when the chairman is needed: a bid for one of the best players, a club record,
+    the morning of deadline day, or when the window shuts. */
+ const DEAL_TXT=d=>({bid:`Bid £${d.fee}k`,countered:`Talks · £${d.fee}k`,record:'Needs your word',signed:d.fee?`Signed · £${d.fee}k`:'Signed · free',walked:'Walked away',hijacked:`Hijacked${d.rival?' by '+nm(d.rival):''}`,gone:'Gone elsewhere'})[d.stage]||d.stage;
  const DEAL_CLS=d=>d.stage==='signed'?'good':['walked','hijacked','gone'].includes(d.stage)?'out':d.stage==='record'?'warn':'live';
- function tcScreen(P_,id,esc2){const W=winWeeks(P_),played=P_.wk-1,closed=P_.wk>W,dlNext=P_.wk===W,dir=P_.brief.dirName||'The director',needs=preTargets(id),T=P_.targets||{};
-   const prio=needs.map(n=>n.pos),plan=prio.length?`${prio.slice(0,2).map(x=>POS_ONE[x]).join(', then ')}`:'every need is covered';
-   const res=briefJudge(id,P_),met=res.filter(r=>r.met).length;
-   /* one line per position: the live or finished deals, then what is only on the shortlist */
-   const rows=[];const posSeen=new Set();
-   for(const d of P_.deals.slice().reverse()){posSeen.add(d.pos);rows.push(rtRow(esc(d.pos),`<button class="pp-link" data-act="player" data-arg="${esc(d.pid)}">${esc(d.name)}</button> <small>${d.age} · ${d.from?esc(nm(d.from)):'free agent'}${d.chair?' · your find':''}</small>`,esc(DEAL_TXT(d)),'s-'+DEAL_CLS(d)))}
-   for(const n of needs){if(P_.deals.some(d=>d.pos===n.pos&&['bid','countered','record','signed'].includes(d.stage)))continue;const c=(T[n.pos]||[])[0];
-     rows.push(c?rtRow(esc(n.pos),`<button class="pp-link" data-act="player" data-arg="${esc(c.pid)}">${esc(c.name)}</button> <small>${c.age} · ${c.from?esc(nm(c.from)):'free agent'} · ~${c.est}±${c.doubt}</small>`,'Shortlisted','s-short'):rtRow(esc(n.pos),`<small>${esc(POS_ONE[n.pos])}: the director is still looking</small>`,played?'No deal':'Searching','s-short'))}
-   /* the week's market news */
-   const wkItems=played?P_.ticker.filter(t=>t.wk===played&&t.d>=0).sort((a,b)=>a.d-b.d):[],older=P_.ticker.filter(t=>t.wk<played&&t.d>=0);
-   const news=wkItems.map(t=>`<li class="tk-${esc(t.kind||'news')}"><b>${esc(tcDay(t))}</b><span>${esc(t.t)}</span></li>`).join('');
-   const live=P_.deals.filter(d=>['bid','countered'].includes(d.stage)),done=P_.deals.filter(d=>d.stage==='signed');
-   const sgn=done.map(d=>d.name+(d.starter?'':' (cover)')),need=needs.map(n=>an(POS_ONE[n.pos]));
-   const say=!played?`The window opens Monday. I go for ${need.length?need.join(' and '):'upgrades'} first.`:`${sgn.length?sgn.join(', ')+' signed. ':''}${live.length?`Still talking about ${live.map(d=>d.name).join(' and ')}. `:''}${need.length?`We still need ${need.slice(0,2).join(' and ')} who would start.`:'Every need is covered.'}`;
-   /* the chairman's levers (§7.2): priorities and profile, recommend, funding, make space */
+ function tcScreen(P_,id,esc2){const W=winWeeks(P_),N=winDays(P_),day=Math.min(preDayOf(P_),N-1),closed=P_.wk>W,dir=P_.brief.dirName||'The director',T=P_.targets||{},run=!!UI.tcRun;
+   const left=N-1-day,dl=preDeadlineNow(P_)&&!closed;
+   /* the calendar: every day of the window, past days filled, deadline day marked */
+   const cal=`<ol class="tc-cal" aria-label="Day ${day+1} of ${N}">${Array.from({length:N},(_,i)=>`<li class="${i<day||closed?'past':''}${i===day&&!closed?' now':''}${i===N-1?' dl':''}">${i%7===0?`<b>${preDayLabel(P_,i).split(' ')[1]}</b>`:''}</li>`).join('')}</ol>`;
+   const when=closed?'The window has shut':dl?`DEADLINE DAY · ${P_.round==null?'09:00':['09:00','15:00','22:00'][P_.round]||'23:00'}`:`${preDayLabel(P_,day)} · deadline in ${left} day${left===1?'':'s'}`;
+   const spent=P_.deals.filter(d=>d.stage==='signed').reduce((a,d)=>a+d.fee,0),raised=P_.sold.reduce((a,x)=>a+x.fee,0);
+   const money=`<div class="tc-mon"><span><small>Available</small><b>${k1(budgetFor(id))}</b></span><span><small>Wage room</small><b>£${n0(Math.max(0,(wageCapK(id)-wageBillK(id))*1000))}/w</b></span><span><small>Spent</small><b>£${spent}k</b></span><span><small>Raised</small><b>£${raised}k</b></span></div>`;
+   /* the plan: one line per need, with where it stands */
+   const posList=[...new Set([...(P_.needs0||[]),...preTargets(id).map(n=>n.pos),...P_.deals.map(d=>d.pos)])];
+   const needRow=pos=>{const ds=P_.deals.filter(d=>d.pos===pos),liveD=ds.find(d=>['bid','countered','record'].includes(d.stage)),sig=ds.filter(d=>d.stage==='signed'),fails=ds.filter(d=>['walked','hijacked','gone'].includes(d.stage)),open=preTargets(id).some(n=>n.pos===pos),c=(T[pos]||[])[0];
+     let st,cls,who;
+     if(liveD){st=DEAL_TXT(liveD)+(liveD.due!=null&&liveD.stage!=='record'&&!dl?` · answer ${preDayLabel(P_,Math.min(N-1,liveD.due)).split(' ')[0]}`:'');cls=DEAL_CLS(liveD);who=liveD}
+     else if(sig.length&&!open){st=DEAL_TXT(sig[sig.length-1]);cls='good';who=sig[sig.length-1]}
+     else if(sig.length){st=`${DEAL_TXT(sig[sig.length-1])} (cover) · still looking`;cls='live';who=sig[sig.length-1]}
+     else if(!open){st='Covered';cls='good';who=null}
+     else if(c&&day>0){st='On the shortlist';cls='short';who=c}
+     else{st=day?'No one found yet':'Searching';cls='short';who=null}
+     const name=who?`<button class="pp-link" data-act="player" data-arg="${esc(who.pid)}">${esc(who.name)}</button> <small>${who.age} · ${who.from?esc(nm(who.from)):'free agent'}${who.est?` · ~${who.est}`:''}${who.chair?' · your find':''}</small>`:`<small>${esc(POS_ONE[pos]||pos)}</small>`;
+     return`<div class="tc-need s-${cls}"><span class="tc-np">${esc(pos)}</span><span class="tc-nb">${name}<em>${esc(st)}${fails.length?` <i>· ${fails.length} failed</i>`:''}</em></span></div>`};
+   const outs=[...P_.sold.map(x=>rtRow('OUT',`${esc(x.name)} <small>to ${esc(nm(x.to))}</small>`,`£${x.fee}k`,'s-good')),...(P_.list||[]).map(pid=>{const p=S.squads[id].find(x=>x.id===pid);return p?rtRow('LIST',`${esc(p.name)} <small>available · ~£${Math.round(askingFee(p,id))}k</small>`,'','s-short'):''})].join('');
+   /* the director's line, from the state of the deals */
+   const needs=preTargets(id),live=P_.deals.filter(d=>['bid','countered'].includes(d.stage)),done=P_.deals.filter(d=>d.stage==='signed');
+   const say=closed?`${done.length?done.length+' signed. ':''}The window is shut; we go with this squad.`:!day&&!done.length?`I go for ${needs.length?needs.slice(0,2).map(n=>an(POS_ONE[n.pos])).join(' and '):'upgrades'} first. Free agents early, bids where we must.`:`${live.length?`Waiting on ${live.map(d=>d.name).join(' and ')}. `:''}${needs.length?`Still need ${needs.slice(0,2).map(n=>an(POS_ONE[n.pos])).join(' and ')} who would start.`:'Every need is covered.'}`;
+   /* the chairman's levers */
    const pan=UI.tcPanel;let panel='';
-   if(pan==='prio')panel=`<div class="rt-h">REVIEW PRIORITIES</div>${needs.map(n=>`<button class="g-opt ${P_.prio===n.pos?'on':''}" data-act="preprio" data-arg="${esc(n.pos)}" aria-pressed="${P_.prio===n.pos}"><b>${P_.prio===n.pos?'✓ ':''}The ${esc(POS_ONE[n.pos])} comes first</b><span>The director makes it the priority from this week.</span></button>`).join('')||'<p class="rt-note">No open needs.</p>'}
-     <div class="rt-h">RECRUITMENT PROFILE</div><div class="g-seg" role="group" aria-label="Recruitment profile">${Object.keys(RECRUIT).map(k=>`<button class="${recruitStrategy(id)===k?'on':''}" data-act="prerecruit" data-arg="${k}" aria-pressed="${recruitStrategy(id)===k}">${esc(RECRUIT[k].n)}</button>`).join('')}</div>`;
-   if(pan==='rec'){const cs=needs.flatMap(n=>(T[n.pos]||[]).map(c=>({...c,need:n.pos}))).filter(c=>{const f=findPlayer(c.pid);return f&&f.club!==id&&!P_.deals.some(d=>d.pid===c.pid&&['signed','walked','hijacked','gone'].includes(d.stage))});panel=`<div class="rt-h">RECOMMEND · THE DIRECTOR'S SHORTLIST</div>${cs.length?cs.map(c=>`<div class="rt-row"><span class="rt-a">${esc(c.need)}</span><span class="rt-b"><button class="pp-link" data-act="player" data-arg="${esc(c.pid)}">${esc(c.name)}</button> <small>${c.age} · ~${c.est}±${c.doubt} · ${esc(c.type||'')} · £${c.fee}k</small></span><span class="rt-c"><button class="rt-mini ${P_.fav&&P_.fav[c.need]===c.pid?'on':''}" data-act="prefav" data-arg="${esc(c.pid)}">${P_.fav&&P_.fav[c.need]===c.pid?'✓ Rated':'Rate him'}</button></span></div>`).join(''):'<p class="rt-note">The shortlist fills after the first market week.</p>'}<p class="rt-note">A recommendation is weight, not a signing: the director may still choose otherwise.</p>`}
-   if(pan==='fund')panel=`<div class="rt-h">REVIEW FUNDING</div>${rtRow('SPENT','Fees this window',`£${done.reduce((a,d)=>a+d.fee,0)}k`)}${rtRow('RAISED','Sales this window',`£${P_.sold.reduce((a,x)=>a+x.fee,0)}k`)}${rtRow('LEFT','For transfers',k1(budgetFor(id)))}
-     <div class="rt-btns"><button class="rt-btn" data-act="prebudget">Free 10% more of the cash</button>${dlNext&&!P_.loan?'<button class="rt-btn" data-act="preloan">Deadline money (a loan)</button>':''}</div>`;
+   if(pan==='prio')panel=`<div class="rt-h">PRIORITY</div>${needs.map(n=>`<button class="g-opt ${P_.prio===n.pos?'on':''}" data-act="preprio" data-arg="${esc(n.pos)}" aria-pressed="${P_.prio===n.pos}"><b>${P_.prio===n.pos?'✓ ':''}The ${esc(POS_ONE[n.pos])} comes first</b><span>The director goes there first from tomorrow.</span></button>`).join('')||'<p class="rt-note">No open needs.</p>'}
+     <div class="rt-h">PROFILE</div><div class="g-seg" role="group" aria-label="Recruitment profile">${Object.keys(RECRUIT).map(k=>`<button class="${recruitStrategy(id)===k?'on':''}" data-act="prerecruit" data-arg="${k}" aria-pressed="${recruitStrategy(id)===k}">${esc(RECRUIT[k].n)}</button>`).join('')}</div>`;
+   if(pan==='rec'){const cs=needs.flatMap(n=>(T[n.pos]||[]).map(c=>({...c,need:n.pos}))).filter(c=>{const f=findPlayer(c.pid);return f&&f.club!==id&&!P_.deals.some(d=>d.pid===c.pid&&['signed','walked','hijacked','gone'].includes(d.stage))});panel=`<div class="rt-h">THE SHORTLIST · RATE A PLAYER</div>${cs.length?cs.map(c=>`<div class="rt-row"><span class="rt-a">${esc(c.need)}</span><span class="rt-b"><button class="pp-link" data-act="player" data-arg="${esc(c.pid)}">${esc(c.name)}</button> <small>${c.age} · ~${c.est}±${c.doubt} · ${esc(c.type||'')} · £${c.fee}k</small></span><span class="rt-c"><button class="rt-mini ${P_.fav&&P_.fav[c.need]===c.pid?'on':''}" data-act="prefav" data-arg="${esc(c.pid)}">${P_.fav&&P_.fav[c.need]===c.pid?'✓ Rated':'Rate'}</button></span></div>`).join(''):'<p class="rt-note">The shortlist fills once the window is open.</p>'}<p class="rt-note">Weight, not a signing: the director may still choose otherwise.</p>`}
+   if(pan==='fund')panel=`<div class="rt-h">FUNDING</div><div class="rt-btns"><button class="rt-btn" data-act="prebudget">Free 10% more of the cash</button>${dl&&!P_.loan?'<button class="rt-btn" data-act="preloan">Deadline money (a loan)</button>':''}</div><p class="rt-note">Now ${k1(budgetFor(id))} for transfers. More money makes the books promise harder.</p>`;
    if(pan==='list')panel=listCard(P_,id).replace('<details class="g-close">','<details class="g-close" open>');
-   const lever=(k,t)=>`<button class="rt-btn ${pan===k?'on':''}" data-act="tcpanel" data-arg="${k}" aria-pressed="${pan===k}">${t}</button>`;
+   const lever=(k,t)=>`<button class="rt-btn ${pan===k?'on':''}" data-act="tcpanel" data-arg="${k}" aria-pressed="${pan===k}" ${run?'disabled':''}>${t}</button>`;
+   /* the news: newest first, grouped by date */
+   const items=P_.ticker.filter(t=>t.d>=0&&t.day!=null).slice().reverse(),groups=[];for(const t of items){const g=groups[groups.length-1],k=t.d>=10?'Deadline · '+DAYS[t.d]:preDayLabel(P_,t.day);if(g&&g.k===k)g.t.push(t);else groups.push({k,t:[t],fresh:t.day===day-1||t.day===day})}
+   const news=groups.slice(0,UI.tcAll?99:5).map(g=>`<li class="${g.fresh?'fresh':''}"><b>${esc(g.k)}</b>${g.t.map(t=>`<span class="tk-${esc(t.kind||'news')}">${esc(t.t)}</span>`).join('')}</li>`).join('');
    return`<div class="tc2">${esc2}${interestCard(P_)}
-   <section class="rt">${rtBar('TRANSFER CENTRE',dlNext?'DEADLINE DAY NEXT':`WEEK ${Math.min(P_.wk,W)}/${W}`)}
-   <div class="rt-sub">${esc(money2(id))}</div><div class="rt-sub">TD plan: ${esc(plan)} · brief ${met}/${res.length}</div>
-   <div class="rt-quote">“${esc(say)}” <small>— ${esc(dir)}</small></div>
-   ${rows.join('')}
-   <div class="rt-btns">${lever('prio','Review priorities')}${lever('rec','Recommend')}${lever('fund','Review funding')}${lever('list','Make space')}</div>${panel}
-   <div class="rt-h">MARKET NEWS${played?` · WEEK ${played}`:''}</div><ul class="rt-news">${news||'<li><b></b><span>The window opens on Monday.</span></li>'}</ul>
-   ${older.length?`<details class="rt-older"><summary>Earlier weeks · ${older.length} items</summary><ul class="rt-news">${older.slice().reverse().map(t=>`<li><b>W${t.wk} ${esc(tcDay(t))}</b><span>${esc(t.t)}</span></li>`).join('')}</ul></details>`:''}
+   <section class="rt tc3">${rtBar('TRANSFER CENTRE',esc(when))}${cal}${money}
+   <div class="rt-quote">“${esc(say)}” <small>— ${esc(dir)}, director</small></div>
+   <div class="rt-h">THE PLAN</div>${posList.map(needRow).join('')||'<p class="rt-note">No needs.</p>'}
+   ${outs?`<div class="rt-h">OUTGOING</div>${outs}`:''}
+   <div class="rt-btns">${lever('prio','Priority')}${lever('rec','Shortlist')}${lever('fund','Funding')}${lever('list','Transfer list')}</div>${panel}
+   <div class="rt-h">MARKET NEWS</div><ul class="tc-news" aria-live="polite">${news||'<li><b>'+esc(preDayLabel(P_,0))+'</b><span>The window opens today.</span></li>'}</ul>${groups.length>5&&!UI.tcAll?'<button class="rt-more" data-act="tcall">All market news ›</button>':''}
    </section></div>`}
  /* the pre-season as steps: welcome (first season) → the plan → the market → the season ahead */
  function preStep(){const P_=PRE();if(!P_)return null;if(!P_.brief&&!manifestSealed(S.my))return'promise';if(!P_.brief)return'plan';if(P_.wk<=winWeeks(P_)||tcPlaying())return'market';return'ahead'}
@@ -796,6 +810,20 @@
  };
 
  /* the ticker plays back the week that was just simulated: one line at a time, then the board */
+ /* the market clock: one day a beat; it stops when the chairman is needed */
+ function tcStop(){UI.tcRun=false;clearTimeout(UI.tcTimer);UI.tcTimer=null}
+ function tcStep(){const P_=PRE();if(!P_||!P_.brief||P_.wk>winWeeks(P_)){tcStop();return'closed'}
+   /* deciding the bid or the record is the chairman's: lapse it only when Continue is pressed */
+   const r=preDay();if(r.ok===false){tcStop();UI.msg={err:true,text:r.err};return'error'}
+   if(r.closed){tcStop();return'closed'}
+   if(P_.offer||P_.record){tcStop();return'decision'}
+   if(preDeadlineNow(P_)&&P_.round==null&&!P_.dlStop){P_.dlStop=true;tcStop();UI.msg={text:'Deadline day. The window shuts at 23:00: anything you want to change, change it now.'};return'deadline'}
+   return'go'}
+ function tcGo(){const P_=PRE();if(!P_)return;UI.tcPanel=null;
+   if(P_.offer||P_.record){/* Continue lets a waiting decision lapse */if(P_.offer){preTick(`You let the bid for ${P_.offer.name} lapse.`,'us');P_.offer=null}if(P_.record){const d=P_.deals.find(x=>x.pid===P_.record.pid);if(d)d.stage='walked';preTick(`The record deal for ${P_.record.name} falls through.`,'bad');P_.record=null}}
+   const reduce=HAS_DOM&&window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+   if(!HAS_DOM||reduce){let x='go',n=0;while(x==='go'&&n++<40)x=tcStep();save();render();return}
+   UI.tcRun=true;const beat=()=>{if(!UI.tcRun)return;const x=tcStep();save();render();if(x==='go')UI.tcTimer=setTimeout(beat,preDeadlineNow(PRE()||{})?900:380);else if(HAS_DOM&&x==='closed')window.scrollTo(0,0)};beat()}
  function tcStart(wk){const P_=S.pre;if(!P_||!HAS_DOM)return;const n=P_.ticker.filter(t=>t.wk===wk&&t.d>=0).length;UI.tcPlay={s:S.season,wk,shown:Math.min(1,n),total:n};clearTimeout(UI.tcTimer);
    const fast=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
    const tick=()=>{const p=UI.tcPlay;if(!p||p.shown>=p.total||!S||S.week!==0)return;p.shown++;render();UI.tcTimer=setTimeout(tick,fast?60:(wk===winWeeks(P_)?1300:950))};UI.tcTimer=setTimeout(tick,250)}
@@ -870,7 +898,10 @@
    if(a==='prefav'&&S&&S.my){const r=preFavour(arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
    if(a==='prelist'&&S&&S.my){const r=preListToggle(arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.on?'Available: the director will sell for a fair bid.':'Taken off the list.'};save();render();return}
    if(a==='preloan'&&S&&S.my){const r=preDeadlineLoan();UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
-   if(a==='prenext'&&S&&S.my){const wk=PRE()&&PRE().wk,r=preWeek();if(r.ok===false)UI.msg={err:true,text:r.err};else{UI.tcPanel=null};save();render();if(HAS_DOM)window.scrollTo(0,0);return}
+   if(a==='prenext'&&S&&S.my){tcGo();return}
+   if(a==='tcpause'){tcStop();render();return}
+   if(a==='tcall'){UI.tcAll=true;render();return}
+   if(false){if(HAS_DOM)window.scrollTo(0,0);return}
    if(a==='tcskip'){if(UI.tcPlay)UI.tcPlay.shown=UI.tcPlay.total;render();return}
    if(a==='preoffer'&&S&&S.my){const r=preOffer(arg);UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}
    if(a==='prerecord'&&S&&S.my){const r=preRecord(arg==='yes');UI.msg=r.ok===false?{err:true,text:r.err}:{text:r.text};save();render();return}

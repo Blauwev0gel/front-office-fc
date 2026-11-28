@@ -1180,39 +1180,6 @@ A.nextSeason=()=>{
   S.phase='day1';render();window.scrollTo({top:0});
 };
 
-
-/* ---------- chairman mandates: persistent policy and autonomous follow-through ---------- */
-function boardPolicy(){
-  return S.policy||(S.policy={coach:S.course==='build'?'youth':'results',td:'balanced',treasurer:'reserve',commercial:'local',last:{},activity:[]});
-}
-const POLICY={
- coach:{title:'Football direction',choices:{results:'Results first',youth:'Develop academy players'},desc:'The coach still picks the XI. Youth direction adds a selection preference.'},
- td:{title:'Recruitment mandate',choices:{balanced:'Best available',youth:'Under 25',value:'Value first'},desc:'Applies to future candidates, not deals already on your desk.'},
- treasurer:{title:'Cash reserve',choices:{reserve:'Protect four weeks of costs',flex:'Allow two weeks of costs'},desc:'Sets the minimum reserve for delegated projects and transfers.'},
- commercial:{title:'Commercial mandate',choices:{local:'Local partners',growth:'Grow revenue'},desc:'Commercial manager pursues small sponsorships within this policy.'}
-};
-function boardLog(role,subject,body){const p=boardPolicy();p.activity.unshift({role,subject,body,when:stepLabel()});p.activity=p.activity.slice(0,12);msg(role,subject,body)}
-A.policy=(role,key)=>{if(!POLICY[role]||!POLICY[role].choices[key]||S.phase!=='inbox')return;const p=boardPolicy();if(p[role]===key||p.last[role]===S.ti+':'+S.year)return;p[role]=key;p.last[role]=S.ti+':'+S.year;mod(role,'Received a new mandate',3,6);boardLog(role,'Mandate received',POLICY[role].choices[key]+'. '+POLICY[role].desc);render()};
-function reserveCash(){return Math.max(0,costW()*(boardPolicy().treasurer==='reserve'?4:2))}
-function delegatedAffordable(fee,wage=0){return S.cl.cash-fee>=reserveCash()&&wageBill()+wage<=S.budget.wage*1.05}
-function boardTick(st){
- if(st.t==='plan')return;
- const p=boardPolicy();p.ticks=(p.ticks||0)+1;
- if(p.ticks%3===0){
-   const k=Object.keys(DEPTS).filter(k=>S.cl[k]<4&&!S.cl.builds[k]&&S.cl.cash-upCost(k)>=reserveCash()+costW()*2).sort((a,b)=>S.cl[a]-S.cl[b])[0];
-   if(k&&p.projects){const result=startBuild(k);boardLog(DEPTS[k].head,'Delegated project started',DEPTS[k].n+': '+result)}
- }
- if(p.ticks%4===0&&p.commercial==='growth'&&(!p.sideUntil||p.sideUntil<=p.ticks)){
-   const amount=Math.round(T().spons*.2*10)/10; p.sideUntil=p.ticks+4;p.sideIncome=amount;boardLog('commercial','New local advertising contract',fw(amount)+' for four operating weeks.');
- }
- if(p.sideUntil&&p.ticks>=p.sideUntil)p.sideIncome=0;
- if(p.ticks%3===0)boardLog('treasurer','Board monitoring report','Cash '+fm(S.cl.cash)+'. Reserve target '+fm(reserveCash())+'. Weekly forecast '+fw(incomeW()-costW())+'.');
-}
-A.delegateProjects=()=>{const p=boardPolicy();p.projects=!p.projects;boardLog('treasurer','Capital authority changed',p.projects?'Department heads may start affordable projects while protecting the reserve.':'All capital projects require your approval.');render()};
-A.meet=role=>{const c=CH(role),p=boardPolicy();if(!c||p.last['meet:'+role]===S.year+':'+S.ti)return;p.last['meet:'+role]=S.year+':'+S.ti;mod(role,'Chairman made time for a meeting',3,4);let body='We discussed the club and agreed to keep in touch.';if(role==='coach')body=coachStatus().facts;if(role==='td')body='Remaining transfer budget '+fm(S.budget.transfer)+'. '+S.plan.map(x=>POSN[x.pos]+': '+x.status).join('; ');if(role==='treasurer')body='Cash '+fm(S.cl.cash)+', weekly forecast '+fw(incomeW()-costW());if(role==='supporters')body='Members trust '+S.trust+'%. We discussed the manifesto.';boardLog(role,'Meeting with the chairman',body);render()};
-A.coachReview=()=>{const p=boardPolicy();if(p.last.review===S.year+':'+S.ti||CH('coach').interim)return;p.last.review=S.year+':'+S.ti;boardLog('board','Chairman called a coaching review',coachStatus().facts);msg('board','Your coaching review','You called this meeting. '+coachStatus().facts,[{n:'Retain the coach',fx:'Coach +5',f:()=>{mod('coach','Retained after review',5,8);return 'Coach retained.'}},{n:'Dismiss the coach',fx:()=> 'Compensation '+fm(CH('coach').wage*20),f:()=>sackCoach()}],null);S.view='inbox';render()};
-function policyView(){const p=boardPolicy();return sec('YOUR MANDATES',Object.entries(POLICY).map(([role,d])=>'<div class="dept"><b>'+d.title+'</b><p class="dim small">'+d.desc+'</p><div class="row2">'+Object.entries(d.choices).map(([key,label])=>'<button class="btn sm '+(p[role]===key?'':'ghost')+'" '+(p[role]===key||p.last[role]===S.ti+':'+S.year?'disabled':'')+' onclick="A.policy(\''+role+'\',\''+key+'\')">'+label+'</button>').join('')+'</div></div>').join('')+'<div class="dept"><b>Capital authority</b><p class="dim small">Delegated projects require the reserve plus two extra weeks of costs.</p><button class="btn sm" onclick="A.delegateProjects()">'+(p.projects?'Revoke delegated projects':'Delegate affordable projects')+'</button></div>')+sec('RECENT STAFF ACTIVITY',p.activity.length?p.activity.map(a=>'<p class="small"><b>'+esc(a.subject)+'</b> · '+esc(a.when)+'<br>'+esc(a.body)+'</p>').join(''):'<p class="dim">No activity yet.</p>')}
-
 /* ---------- views ---------- */
 const fxH=s=>{if(!s)return'';s=typeof s==='function'?s():s;return`<div class="fx">${s.split(' · ').map(t=>`<span class="${/[+]/.test(t)&&!/−/.test(t)?'g':/−/.test(t)&&!/[+]/.test(t)?'b':''}">${esc(t)}</span>`).join('')}</div>`};
 const sec=(t,b,cls='')=>`<section class="blk ${cls}"><h3 class="bh">${t}</h3><div class="bb">${b}</div></section>`;

@@ -208,13 +208,13 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--hd);outline-off
 .mhead{padding:12px;border-bottom:3px solid var(--edge)}.msubj2{font-family:var(--display);font-size:28px;line-height:1.05;margin-top:4px}
 .mnav .btn{flex:0 0 auto;min-width:0}
 .inbox .bh{margin:0}
-.ticker{border-bottom:3px solid var(--edge);background:#111;color:#fff;overflow:hidden;position:relative}
-.ticker-head{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:6px 10px;background:var(--gold);color:#111;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.inbox-ticker{display:grid;grid-template-columns:14px minmax(0,1fr);gap:8px;align-items:center;min-height:52px;padding:4px 12px;border-bottom:1px dashed var(--line);background:var(--panel2);overflow:hidden}
+.inbox-ticker>.mdot{background:var(--gold);border-color:var(--gold);margin-top:0}
 .ticker-window{overflow:hidden;white-space:nowrap}
 .ticker-track{display:inline-flex;align-items:stretch;min-width:max-content;animation:ticker-move var(--ticker-speed,36s) linear infinite}
-.ticker:hover .ticker-track,.ticker:focus-within .ticker-track{animation-play-state:paused}
-.ticker-item{display:inline-flex;align-items:center;gap:8px;max-width:440px;min-height:44px;padding:8px 16px;background:#111;color:#fff;border:0;border-right:1px solid #555;text-align:left;white-space:nowrap}
-.ticker-item:hover,.ticker-item:focus{background:#292929}.ticker-item b{color:var(--gold);overflow:hidden;text-overflow:ellipsis}.ticker-item span{color:#ccc;font-size:12px;overflow:hidden;text-overflow:ellipsis}
+.inbox-ticker:hover .ticker-track,.inbox-ticker:focus-within .ticker-track{animation-play-state:paused}
+.ticker-item{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 18px 6px 0;background:none;color:var(--ink);border:0;border-right:1px solid var(--line);margin-right:18px;text-align:left;white-space:nowrap}
+.ticker-item:hover,.ticker-item:focus{color:var(--gold)}.ticker-item b{font-weight:700}.ticker-item span{color:var(--dim);font-size:13px}
 @keyframes ticker-move{to{transform:translateX(-50%)}}
 .capbar{height:12px;border:2px solid var(--edge);background:var(--bg);display:flex;margin:4px 0}.capbar i{display:block;height:100%}.capbar .cr{background:var(--dim)}.capbar .ci{background:var(--gold)}
 .objrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:6px 0;border-bottom:1px dashed var(--line)}.objrow .num{margin-left:auto}
@@ -1356,7 +1356,7 @@ function nextLabel(){const st=S.tl[S.ti];if(st.t==='plan')return'Continue: open 
 const msgTag=m=>m.kind==='transfer'?(m.dir==='in'?'<span class="st ok">IN</span>':'<span class="st bad">OUT</span>'):!m.done&&m.kind==='decision'?'<span class="st warn">YOUR CALL</span>':m.kind==='news'?'<span class="st">NEWS</span>':m.dossier?'<span class="st">DOSSIER</span>':'';
 const msgCat=m=>!m.done&&m.kind==='decision'?'call':m.kind==='transfer'?'transfers':m.kind==='news'?'news':'reports';
 A.filter=f=>{S.inboxFilter=f;render()};
-function newsTicker(items){if(!items.length)return'';const one=(m,copy)=>`<button class="ticker-item ${m.read?'':'unread'}" ${copy?'tabindex="-1" aria-hidden="true"':''} onclick="A.mopen('${m.id}')"><b>${msgTag(m)} ${esc(m.subject)}</b><span>${esc(fromLabel(m.from).split(' · ')[0])} · ${esc(m.when)}</span></button>`,set=items.map(m=>one(m,false)).join(''),copy=items.map(m=>one(m,true)).join('');return`<div class="ticker"><div class="ticker-head"><span>Club wire · non-urgent</span><span>Tap a story to read</span></div><div class="ticker-window"><div class="ticker-track" style="--ticker-speed:${Math.max(24,items.length*7)}s"><span>${set}</span><span class="ticker-copy" aria-hidden="true">${copy}</span></div></div></div>`}
+function newsTicker(items){if(!items.length)return'';const one=(m,copy)=>{const text=(m.done&&m.result?m.result:m.body).replace(/\s+/g,' ').trim();return`<button class="ticker-item ${m.read?'':'unread'}" ${copy?'tabindex="-1" aria-hidden="true"':''} onclick="A.mopen('${m.id}')"><b>${esc(fromLabel(m.from).split(' · ')[0])}: ${esc(m.subject)}</b><span>— ${esc(text)}</span></button>`},set=items.map(m=>one(m,false)).join(''),copy=items.map(m=>one(m,true)).join('');return`<div class="inbox-ticker" aria-label="Non-urgent inbox updates"><span class="mdot"></span><div class="ticker-window"><div class="ticker-track" style="--ticker-speed:${Math.max(28,items.reduce((n,m)=>n+m.subject.length+m.body.length,0)/9)}s"><span>${set}</span><span class="ticker-copy" aria-hidden="true">${copy}</span></div></div></div>`}
 function inboxView(){
   const f=S.inboxFilter||'all',calls=S.inbox.filter(m=>msgCat(m)==='call'),cats=[['all','All',S.inbox.length],['call','Your call',calls.length],['transfers','Transfers',S.inbox.filter(m=>m.kind==='transfer').length],['reports','Reports',S.inbox.filter(m=>msgCat(m)==='reports').length],['news','News',S.inbox.filter(m=>m.kind==='news').length]];
   const passive=S.inbox.filter(m=>msgCat(m)!=='call').slice(0,12),list=(f==='all'?calls:S.inbox.filter(m=>msgCat(m)===f)).sort((a,b)=>(msgCat(b)==='call')-(msgCat(a)==='call'));
@@ -1364,9 +1364,8 @@ function inboxView(){
   const row=m=>`<button class="mrow ${m.read?'':'unread'} ${msgCat(m)==='call'?'call':''}" onclick="A.mopen('${m.id}')"><span class="mdot"></span><span class="mmain"><span class="mtop"><span class="mfrom">${esc(fromLabel(m.from).split(' · ')[0])}</span><span class="mwhen">${esc(m.when)}</span></span><span class="msubj">${msgTag(m)} ${esc(m.subject)}</span><span class="mprev">${esc((m.done&&m.result?'› '+m.result:m.body).slice(0,90))}${(m.done&&m.result?m.result:m.body).length>90?'…':''}</span></span></button>`;
   return`<div class="page">${briefCard()}${st.t==='plan'||st.t==='win'?transferCentre(st):''}${fx?`<div class="strip"><span><b>Saturday</b> ${fx.home?'v':'at'} ${esc(team(fx.opp).name)}${team(fx.opp).rival?' · DERBY':''}</span><span class="cs-${cs.word.replace(/ /g,'').toLowerCase()}">Coach: ${cs.word}</span></div>`:''}
     <section class="blk inbox"><h3 class="bh">INBOX${calls.length?` · ${calls.length} need you`:''}</h3>
-      ${f==='all'?newsTicker(passive):''}
       <div class="ifilter">${cats.map(([k,n,c])=>`<button class="${f===k?'on':''}" onclick="A.filter('${k}')">${n}${c?` <span class="num">${c}</span>`:''}</button>`).join('')}</div>
-      <div class="mlist">${list.length?list.slice(0,40).map(row).join(''):`<p class="dim" style="padding:12px">${f==='all'||f==='call'?'Nothing needs you this week. Non-urgent updates continue above.':'No messages here.'}</p>`}</div></section>
+      <div class="mlist">${f==='all'?newsTicker(passive):''}${list.length?list.slice(0,40).map(row).join(''):`<p class="dim" style="padding:12px">${f==='all'||f==='call'?'Nothing needs you this week. Routine emails continue in the inbox line above.':'No messages here.'}</p>`}</div></section>
     ${running.length?sec('RUNNING',`<ul class="lst">${running.map(p=>`<li>${esc(p.n)} · ${DEPT[p.dept].n} · ${p.left} week${p.left>1?'s':''} to go${p.capex?` · ${fm(p.cost)}`:''}</li>`).join('')}</ul>`,'dimblk'):''}
     ${sec('START SOMETHING YOURSELF',`<div class="row2">${Object.keys(DEPT).map(k=>`<button class="btn ghost sm" onclick="A.view('dept:${k}')">${DEPT[k].n}</button>`).join('')}</div>`,'dimblk')}</div>`;
 }

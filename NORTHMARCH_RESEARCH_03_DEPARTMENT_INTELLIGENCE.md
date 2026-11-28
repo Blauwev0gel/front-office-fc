@@ -1,0 +1,25 @@
+# Research 03 — Department Intelligence
+Advisory v1; baseline dbabc15; MB-46/47 binding. Depends on Research 01 capacity and 02 finance.
+## Evidence
+Brentford sporting director Phil Giles describes planning by age, contract, attributes and expected departures, scouts returning alternatives, coaches giving feedback, and director synthesising a plan: https://www.brentfordfc.com/en/news/the-long-read-brentford-director-of-football-phil-giles-transfers
+Premier League explains continuity across coach changes and academy alignment: https://www.premierleague.com/en/news/3991780/who-are-sporting-directors-and-why-are-they-taking-over-english-football
+2015 Brentford co-director appointment covered staff and player recruitment: https://www.brentfordfc.com/en/news/brentford-appoint-rasmus-ankersen-and-phil-giles-to-co-director-of-football-role_71071
+FC United committee terms https://fc-utd.co.uk/committees and UEFA youth programme (Research 01 S17) support delegation and multi-year planning. Cases are not representative of amateur workload.
+## Four operating models
+| Dept | observes | plans | executes | measures |
+|---|---|---|---|---|
+| Football | squad age, contracts, role gaps, injuries, coach fit | succession, recruitment, renewals, medical support | scouting, negotiations, coach appointment within authority | coverage, availability, wage commitment, sporting trajectory |
+| Academy | intake, coaches, slots, progression, local partnerships | pathway, coaching capacity, retention | partnerships, training, assessment | progression cohorts, retention, first-team transitions |
+| Commercial | renewal dates, leads, demand, inventory, reputation | prospecting, pricing, retention, events | pitches, negotiations, delivery | contracted recurring margin, renewals, utilisation |
+| Finance | dated obligations, cash, actual vs budget, debt | scenarios, control, financing, efficiency | collection, reporting, routine payment | minimum cash, variance, debt service |
+## Algorithm
+On each week, observe shared snapshot; create needs with evidence, severity, duration, owner and expiry. Generate feasible options including defer. Score expected goal contribution, urgency, risk, opportunity cost and philosophy, normalised to 0–1. Hard filters: mandate, cash/commitments, eligibility, capacity, dependencies. Never score infeasible options into execution. Reserve resources atomically, execute with seeded uncertainty, update state and dossier. Escalate when authority missing or goals conflict; no manufactured weekly tasks. Persist plan, not reroll every week. One project/meeting constraints in MB-47 remain.
+Illustrative scoring fixture (not measured): benefit .35, urgency .25, goal fit .20, cost .10, risk .10; subtract cost and risk; sensitivity required. Heads differ by weights, competence affects estimates not magical outcome bonuses.
+## Work templates and dependencies
+D01 squad gap → internal promotion/scout/loan/defer; academy readiness and finance. D02 renewal → extend/replace/sell; coach feedback. D03 medical pressure → workload review/contract physio/hire; finance. D04 intake bottleneck → school partnership/coaching support/limit intake. D05 youth transition → pathway meeting/loan partnerships; football. D06 sponsor expiry → renewal/new prospect/alternative category. D07 unsold inventory → price/package/market research. D08 cash trough → collect/refinance/rephase/cut. D09 recurring variance → investigate and revise forecast. D10 shared facility conflict → negotiate schedule or project. Each stores expected result, confidence, cost, effort, next milestone and actual result. Chairman never selects individual lineup or does outreach manually.
+## Example
+Sponsor expires in 12 weeks. Commercial has two warm leads, no spare capacity. It compares renewal with lower margin, new lead with uncertain return, temporary support, and defer. Finance rejects unaffordable support, chairman approves revised ethical category mandate only if needed. Agent follows up after 3 weeks; actual signed terms enter ledger and member reaction depends on category. Failure triggers reconsideration only with new information.
+## Current gaps and slice
+deptLoop threshold decisions, scripted meetings/research and staffExtra exist; general plan/options/portfolio and shared feasible checks absent in reviewed baseline. Implement first commercial renewal and finance cash review end to end alongside existing mechanics, then football succession and academy pathway. No extra departments.
+## Acceptance
+Paired seeds: change philosophy, capacity or cash and verify different plans for same need; no double spend; refusal persists until material change; no endless duplicated proposals; employees act without chairman; explain why choice and outcome occurred. 10-season local metrics: autonomous completions, rejection reasons, idle weeks, delays, goal attainment, intervention count. No tests performed here. No representative productivity dataset; weights illustrative. Next block chairman agency.

@@ -169,6 +169,20 @@ h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:.02em;text-wr
 .tp:disabled{opacity:.35;cursor:not-allowed}
 .offers{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
 
+.ten.yr{font-size:84px;letter-spacing:-.02em;line-height:1}
+.settings{display:flex;flex-wrap:wrap;gap:18px 28px}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px}
+.ghost.on{border-color:var(--flood);color:var(--flood)}
+.ghost:disabled{opacity:.4;cursor:not-allowed}
+.desk{display:flex;flex-direction:column}
+.drow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+.drow>div{min-width:0}
+.drow b{font-family:var(--display);font-size:17px;font-weight:600}
+.drow small{display:block;color:var(--muted);font-size:12px}
+.drow .ghost{white-space:nowrap;flex-shrink:0}
+.lvl{color:var(--flood);letter-spacing:2px;font-size:11px}
+.modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:18px}
+@media (max-width:620px){.ten.yr{font-size:60px}.modes{grid-template-columns:minmax(0,1fr)}.drow{flex-direction:column;align-items:stretch}}
 @media (max-width:1000px){ .game{grid-template-columns:minmax(0,1fr)} .stats{grid-template-columns:repeat(3,minmax(0,1fr))} }
 @media (max-width:620px){
   .band{grid-template-columns:minmax(0,1fr)} .tenwrap{flex-direction:row;justify-content:flex-start;gap:14px}
@@ -286,7 +300,7 @@ function compat(c){
   }
   if(has('arrogant'))out.push(['Vindt je arrogant',-10]);
   if(has('bescheiden')&&c.role!=='journalist')out.push(['Waardeert je bescheidenheid',5]);
-  if(has('leider')&&['aanvoerder','maatje'].includes(c.role))out.push(['Volgt jouw voorbeeld',8]);
+  if(has('leider')&&['aanvoerder','maatje','sterspeler'].includes(c.role))out.push(['Volgt jouw voorbeeld',8]);
   if(has('feestbeest')&&c.role==='maatje')out.push(['Gezellig in de groep',6]);
   if(c.role==='trainer'){const st=COACH[c.style];
     for(const t of st.likes)if(has(t))out.push([`${st.n}: waardeert ${TRAITS[t].n.toLowerCase()}`,12]);
@@ -442,12 +456,12 @@ A.train=k=>{
   render();
 };
 A.social=(role,k)=>{
-  if(S.social)return;const c=C(role),s=SOCIAL.find(x=>x.k===k);
+  if(S.social)return;const c=C(role),s=(isChair()?SOCIAL_C:SOCIAL).find(x=>x.k===k);
   if(s.cost){if(P.money<s.cost){flash('Daar heb je het geld niet voor.','b');return render()}P.money-=s.cost}
   S.social=true;const[m,t]=s.f(c);flash(m,t);render();
 };
 A.choose=i=>{
-  const e=EVENTS.find(x=>x.id===S.event),c=e.ch[i];if(c.req&&!c.req())return;
+  const e=(isChair()?EVENTS_C:EVENTS).find(x=>x.id===S.event),c=e.ch[i];if(c.req&&!c.req())return;
   S.seenEv[e.id]=S.abs;const msg=c.f();flash(msg,'y');S.event=null;render();
 };
 A.tab=t=>{S.tab=t;render()};
@@ -613,6 +627,7 @@ function render(){
   const app=document.getElementById('app');
   if(!S){app.innerHTML=startView();return}
   P=S.p;
+  if(isChair()){renderChair(app);save();return}
   if(S.phase==='retired'){app.innerHTML=topbar()+retiredView();save();return}
   app.innerHTML=topbar()+band()+(S.phase==='season'?seasonView():`<div class="game"><div class="stack">${S.phase==='match'?matchView():weekView()}</div><aside class="panel">${sideView()}</aside></div>`);
   const lg=document.getElementById('log');if(lg)lg.scrollTop=lg.scrollHeight;
@@ -620,7 +635,7 @@ function render(){
 }
 function topbar(){
   const t=team(S.club),yy=`${S.year}/${String((S.year+1)%100).padStart(2,'0')}`;
-  return`<header class="top"><div class="brand">DE <span>SPEL</span>MAKER</div><div class="meta">${esc(t.name)} · ${yy} · Ronde ${Math.min(S.week+1,14)}/14 <button class="linkbtn" onclick="A.reset()">Nieuwe carrière</button></div></header>`;
+  return`<header class="top"><div class="brand">DE <span>SPEL</span>MAKER</div><div class="meta">${esc(t.name)} · ${isChair()?TIERS[S.cl.tier].n+' · ':''}${yy} · Ronde ${Math.min(S.week+1,14)}/14 <button class="linkbtn" onclick="A.reset()">Opnieuw beginnen</button></div></header>`;
 }
 function band(){
   const [tl,tc]=TIER[tier()];
@@ -682,9 +697,9 @@ function matchView(){
   return h;
 }
 function sideView(){
-  const tabs=[['mensen','Mensen'],['stand','Stand'],['speler','Speler'],['kroniek','Kroniek']];
+  const tabs=[['mensen','Mensen'],['stand','Stand'],isChair()?['club','Club']:['speler','Speler'],['kroniek','Kroniek']];
   let h=`<div class="tabs">${tabs.map(([k,n])=>`<button class="tab ${S.tab===k?'on':''}" onclick="A.tab('${k}')">${n}</button>`).join('')}</div>`;
-  if(S.tab==='mensen')h+=peopleView();else if(S.tab==='stand')h+=tableView();else if(S.tab==='speler')h+=playerView();else h+=chronView();
+  if(S.tab==='mensen')h+=peopleView();else if(S.tab==='stand')h+=tableView();else if(S.tab==='speler')h+=playerView();else if(S.tab==='club')h+=clubView();else h+=chronView();
   return h;
 }
 function peopleView(){
@@ -694,10 +709,10 @@ function peopleView(){
     let extra='';
     if(S.open===c.id){
       const parts=opinionParts(c).filter(p=>p[1]!==0);
-      const acts=SOCIAL.filter(s=>!s.roles||s.roles.includes(c.role));
+      const acts=(isChair()?SOCIAL_C:SOCIAL).filter(s=>!s.roles||s.roles.includes(c.role));
       extra=`<div class="breakdown">${parts.map(([t,v])=>`<div><span>${esc(t)}</span><b class="num ${v>0?'good':'bad'}">${v>0?'+':''}${v}</b></div>`).join('')||'<div class="muted">Geen uitgesproken mening.</div>'}</div>
       ${c.role==='concurrent'?`<div class="muted num" style="font-size:13px;margin-top:6px">Niveau ${c.ovr} · vertrouwen ${c.conf} · vorm ${c.form.length?avg(c.form.slice(-5)).toFixed(1):'–'}</div>`:''}
-      ${c.role==='trainer'?`<div class="muted" style="font-size:13px;margin-top:6px">Stijl: ${COACH[c.style].n}. Waardeert ${COACH[c.style].likes.map(t=>TRAITS[t].n.toLowerCase()).join(', ')}.</div>`:''}
+      ${c.role==='trainer'?`<div class="muted" style="font-size:13px;margin-top:6px">Stijl: ${COACH[c.style].n}. Waardeert ${COACH[c.style].likes.map(t=>TRAITS[t].n.toLowerCase()).join(', ')}.${c.q?` Kwaliteit ${c.q}/10.`:''}</div>`:''}
       <div class="acts">${acts.map(s=>`<button class="ghost" ${S.social||S.phase!=='week'?'disabled':''} onclick="A.social('${c.role}','${s.k}')">${s.n}</button>`).join('')}</div>`;
     }
     return`<div class="person"><button class="phead" onclick="A.open('${c.id}')" aria-expanded="${S.open===c.id}"><span><span class="role">${ROLES[c.role]}${c.role==='trainer'?' · '+COACH[c.style].n:''}</span><br><span class="nm">${esc(c.name)}</span> <span class="muted" style="font-size:13px">${c.age}</span></span><span class="op" style="color:${col}">${op>0?'+':''}${op}</span></button>
@@ -742,35 +757,332 @@ function retiredView(){
     ${best?`<p>Beste seizoen: ${best.yy} bij ${esc(best.club)}, gemiddeld ${best.avg}.</p>`:''}
     ${S.trophies.length?S.trophies.map(t=>`<div class="gold" style="font-family:var(--display);font-size:22px;font-weight:700">${esc(t)}</div>`).join(''):'<p class="muted">Geen prijzen. Wel een paar avonden die niemand vergeet.</p>'}
     <div style="max-width:620px;margin-top:20px"><div class="eyebrow" style="margin-bottom:6px">Kroniek</div>${chronView()}</div>
-    <button class="go" style="max-width:420px;margin-top:24px" onclick="A.reset()">Nieuwe carrière</button></section>`;
+    <div class="panel" style="max-width:620px;margin-top:24px"><div class="eyebrow">Het volgende hoofdstuk</div><h3 style="font-size:26px;margin:4px 0 6px">Word voorzitter van je geboorteclub</h3><p class="muted" style="margin:0 0 10px">Je neemt je naam, je karakter en ${Math.round(P.money*.6)}k van je spaargeld mee naar een amateurclub in de Regiodivisie. Je kroniek loopt door.</p>
+    <div class="field" style="margin-bottom:10px"><label class="eyebrow" for="hometown">Naam van de club</label><input id="hometown" value="VV ${esc(pick(TOWNS))}" maxlength="28"></div>
+    <button class="go" onclick="A.succeed()">Word voorzitter</button></div>
+    <button class="ghost" style="margin-top:14px" onclick="A.reset()">Of begin een nieuw verhaal</button></section>`;
 }
 
 /* ===================== start screen ===================== */
-let draft={name:nm(),club:1,traits:[]};
+let draft=null;
 function startView(){
   const saved=loadSaved();
-  return`<section class="hero"><div class="eyebrow">Een voetbalcarrière in weken, mensen en momenten</div>
+  return`<section class="hero"><div class="eyebrow">Een voetballeven in weken, mensen en momenten</div>
     <h1>DE <em>SPEL</em>MAKER</h1>
-    <p>Je bent negentien en je krijgt het rugnummer 10. Elke week kies je wat je traint, met wie je praat en hoe je reageert als het misgaat in de kleedkamer. In de wedstrijd krijg je de bal op de momenten die ertoe doen. Je vertrouwen bepaalt wat je durft.</p>
+    <p>Begin als negentienjarige met het rugnummer 10, of neem meteen de voorzittershamer over van een amateurclub. Elke week kies je wat je doet, met wie je praat en hoe je reageert als het misgaat. Iedereen om je heen heeft een mening over je, en die mening telt.</p>
     ${saved?`<button class="ghost" onclick="A.resume()">Ga verder met ${esc(saved.p.name)} (${esc(saved.teams[saved.club].name)}, ${saved.year})</button>`:''}
   </section>
-  <section class="panel"><div class="field"><label class="eyebrow" for="pname">Naam</label><input id="pname" value="${esc(draft.name)}" maxlength="28" oninput="draft.name=this.value"></div>
-    <div class="eyebrow" style="margin-bottom:8px">Je eerste club</div>
-    <div class="clubs">${START_CLUBS.map((c,i)=>{const t=TEAMS0[c.i];return`<button class="club ${draft.club===i?'on':''}" onclick="draft.club=${i};render()"><span class="eyebrow">${c.tag} · sterkte ${t[2]}</span><b><span class="dot" style="background:${t[3]}"></span>${esc(t[0])}</b><small>${c.d}</small></button>`}).join('')}</div>
+  <section class="panel"><div class="eyebrow" style="margin-bottom:8px">Waar begin je?</div>
+    <div class="modes"><button class="club ${draft.mode==='player'?'on':''}" onclick="draft.mode='player';render()"><span class="eyebrow">Op het veld</span><b>Speler, rugnummer 10</b><small>Vecht voor je plek, bouw vertrouwen op, beslis de wedstrijd. Na je afscheid kun je voorzitter worden van je geboorteclub.</small></button>
+    <button class="club ${draft.mode==='chair'?'on':''}" onclick="draft.mode='chair';render()"><span class="eyebrow">In de bestuurskamer</span><b>Voorzitter van een amateurclub</b><small>Kantine, tribune, trainer, sponsors en de gemeente. Van de Regiodivisie naar de top, zolang het bestuur je laat zitten.</small></button></div>
+    <div class="field"><label class="eyebrow" for="pname">Naam</label><input id="pname" value="${esc(draft.name)}" maxlength="28" oninput="draft.name=this.value"></div>
+    ${draft.mode==='chair'?`<div class="field"><label class="eyebrow" for="cname">Naam van je club</label><input id="cname" value="${esc(draft.clubName)}" maxlength="28" oninput="draft.clubName=this.value"></div>`:`<div class="eyebrow" style="margin-bottom:8px">Je eerste club</div>
+    <div class="clubs">${START_CLUBS.map((c,i)=>{const t=TEAMS0[c.i];return`<button class="club ${draft.club===i?'on':''}" onclick="draft.club=${i};render()"><span class="eyebrow">${c.tag} · sterkte ${t[2]}</span><b><span class="dot" style="background:${t[3]}"></span>${esc(t[0])}</b><small>${c.d}</small></button>`}).join('')}</div>`}
     <div class="eyebrow" style="margin:18px 0 8px">Je karakter · kies er twee (${draft.traits.length}/2)</div>
     <div class="traitpick">${Object.entries(TRAITS).map(([k,t])=>{const on=draft.traits.includes(k);const blocked=!on&&(draft.traits.length>=2||draft.traits.some(x=>TRAITS[x].opp===k));return`<button class="tp ${on?'on':''}" ${blocked?'disabled':''} onclick="A.trait('${k}')"><b>${t.n}</b><small>${t.d}</small></button>`}).join('')}</div>
-    <button class="go" style="margin-top:20px" ${draft.traits.length<2?'disabled':''} onclick="A.begin()">${draft.traits.length<2?'Kies twee karaktertrekken':'Begin je carrière'}</button>
+    <button class="go" style="margin-top:20px" ${draft.traits.length<2?'disabled':''} onclick="A.begin()">${draft.traits.length<2?'Kies twee karaktertrekken':draft.mode==='chair'?'Neem de voorzittershamer':'Begin je carrière'}</button>
   </section>`;
 }
 A.trait=k=>{const i=draft.traits.indexOf(k);if(i>=0)draft.traits.splice(i,1);else if(draft.traits.length<2)draft.traits.push(k);render()};
-A.begin=()=>{const name=(draft.name||'').trim()||nm();newGame(name,START_CLUBS[draft.club].i,draft.traits.slice());render();window.scrollTo({top:0})};
+A.begin=()=>{const name=(draft.name||'').trim()||nm();if(draft.mode==='chair'){chairNew(name,(draft.clubName||'').trim()||'VV '+pick(TOWNS),draft.traits.slice());render();window.scrollTo({top:0});return}newGame(name,START_CLUBS[draft.club].i,draft.traits.slice());render();window.scrollTo({top:0})};
 A.resume=()=>{const s=loadSaved();if(s){S=s;P=S.p;if(S.phase==='match'&&S.match&&!S.match.done&&!S.match.pending){} render()}};
-A.reset=()=>{try{localStorage.removeItem(SAVE_KEY)}catch(e){}S=null;P=null;draft={name:nm(),club:1,traits:[]};render();window.scrollTo({top:0})};
+A.reset=()=>{try{localStorage.removeItem(SAVE_KEY)}catch(e){}S=null;P=null;draft={name:nm(),club:1,traits:[],mode:'player',clubName:'VV '+pick(TOWNS)};render();window.scrollTo({top:0})};
 
 function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
 function loadSaved(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return s&&s.v===1?s:null}catch(e){return null}}
 
+/* =====================================================================
+   VOORZITTER — run your own club (hometown club / chairman layer)
+   ===================================================================== */
+const TIERS={1:{n:'Topdivisie',base:72,fair:30,spons:110,fee:300},2:{n:'Divisie 2',base:61,fair:18,spons:40,fee:80},3:{n:'Divisie 3',base:51,fair:12,spons:15,fee:25},4:{n:'Regiodivisie',base:42,fair:8,spons:6,fee:6}};
+const TOWNS=['Ommerdijk','Heerveen','Brakelburg','Wolderland','Oudmeer','Ravensloot','Dijkhuizen','Velsum','Lindewaard','Maarsveen','Holtrop','Zandwijk','Bergerveen','Kortmeer','Westerhaar','Nieuwkerk','Ellenbroek','Steenwold','Grevenmeer','Achterveld','Molenrade','Uithoorn-Zuid'];
+const PREF=['VV','SV','FC','SC','RKVV'];
+const COLS=['#4a86e8','#e0533f','#f2f2f2','#9b72e6','#2fbf85','#f0a03a','#4cc3dc','#c8cc4a','#e66fa8','#8fbf4a'];
+const FAC={stadion:{n:'Stadion',d:'Meer toeschouwers, meer kaartverkoop.'},training:{n:'Trainingscomplex',d:'De selectie wordt elke week iets beter.'},jeugd:{n:'Jeugdopleiding',d:'Kans op eigen talenten.'},kantine:{n:'Kantine & clubhuis',d:'Inkomsten op wedstrijddagen, betere sfeer.'}};
+const CAP=[0,600,1500,4000,9000,20000],FCOST=[0,0,25,90,350,1200],FWEEKS=[0,0,3,5,8,12];
+const WAGE={zuinig:['Zuinig',.8],normaal:['Normaal',1],ambitieus:['Ambitieus',1.3]};
+const POS=['Spits','Centrale verdediger','Keeper','Vleugelspeler','Controleur','Rechtsback'];
+Object.assign(ROLES,{sterspeler:'Sterspeler',bestuurslid:'Bestuurslid, wil jouw stoel',sponsor:'Hoofdsponsor',wethouder:'Wethouder sport',supporters:'Supportersvereniging'});
+const isChair=()=>S&&S.mode==='chair';
+const wages=()=>Math.round(Math.pow(team(0).str/22,3)*WAGE[S.cl.wage][1]*10)/10;
+const upkeep=()=>Math.round(Object.values(S.cl.fac).reduce((s,x)=>s+x,0)*.4*10)/10;
+const priceF=()=>clamp(1.5-.5*S.cl.ticket/TIERS[S.cl.tier].fair,.3,1.3);
+const k=v=>{const r=Math.round(v*10)/10;return`${r<0?'−':''}€${Math.abs(r).toLocaleString('nl-NL')}k`};
+
+function genOpps(tier,keep){
+  const used=new Set([team(0)?.name]);const out=[];
+  while(out.length<7){const n=pick(PREF)+' '+pick(TOWNS);if(used.has(n))continue;used.add(n);
+    out.push({id:out.length+1,name:n,short:n.split(' ').pop().slice(0,3).toUpperCase(),str:TIERS[tier].base+ri(-6,6),col:pick(COLS)})}
+  return out;
+}
+function chairChars(){return[
+  mkChar('trainer',{age:ri(38,62),style:pick(Object.keys(COACH)),q:ri(3,6)}),
+  mkChar('sterspeler',{age:ri(24,31),base:5}),
+  mkChar('bestuurslid',{age:ri(45,68),base:-5}),
+  mkChar('sponsor',{age:ri(40,65),base:5}),
+  mkChar('wethouder',{age:ri(35,60)}),
+  mkChar('supporters',{age:ri(30,60),base:10}),
+  mkChar('journalist',{age:ri(25,55)}),
+]}
+function chairNew(name,clubName,traits,carry){
+  const legacy=!!carry;
+  S={v:1,mode:'chair',phase:'week',season:1,year:carry?.year||2026,week:0,abs:0,tab:'mensen',open:null,flash:[],chron:carry?.chron||[],trophies:carry?.trophies||[],seasons:[],seenEv:{},event:null,decided:false,social:false,result:null,club:0,legacy,
+    playerSeasons:carry?.seasons||null,
+    p:{name,age:carry?.age||ri(38,52),traits,money:carry?Math.max(20,Math.round(carry.money*.6)):60,fame:carry?.fame||5,st:null,form:[],car:carry?.car||null},
+    cl:{founded:ri(1898,1962),tier:4,budget:30,fac:{stadion:1,training:1,jeugd:1,kantine:1},build:null,ticket:8,wage:'normaal',fansBase:legacy?700+Math.round((carry.fame||0)*12):650,mood:legacy?68:55,mandate:legacy?72:60,goal:4,sponsorF:1,targets:[],coaches:[],promoted:false,lastNet:0,lastAtt:0,best:4}};
+  P=S.p;
+  S.teams=[{id:0,name:clubName,short:clubName.split(' ').pop().slice(0,3).toUpperCase(),str:TIERS[4].base-2,col:pick(COLS)}];
+  S.teams.push(...genOpps(4));
+  S.chars=chairChars();
+  newSeasonSetup();setGoal();
+  chron(legacy?`${name} keert terug naar ${clubName}, nu als voorzitter.`:`${name} wordt voorzitter van ${clubName}.`);
+  startWeekChair();
+  flash(legacy?`De hele dorpskern weet wie je bent. De supporters verwachten veel.`:`De clubkas: ${k(S.cl.budget)}. Het bestuur wil ${goalTxt()}.`,'y');
+}
+function setGoal(){const rank=[...S.teams].sort((a,b)=>b.str-a.str).findIndex(t=>t.id===0)+1;S.cl.goal=S.cl.promoted?7:clamp(rank+1,1,7)}
+const goalTxt=()=>S.cl.goal>=7?'handhaving (niet laatste worden)':S.cl.goal===1?'het kampioenschap':`een plek bij de eerste ${S.cl.goal}`;
+function genMarket(){
+  const t=TIERS[S.cl.tier];
+  S.cl.targets=[0,1].map(()=>{const b=ri(1,3);return{name:nm(),pos:pick(POS),age:ri(19,32),boost:b,fee:Math.round(b*t.fee*(0.8+R()*.5)*10)/10}});
+  S.cl.coaches=[0,1].map(()=>{const q=ri(3,9);return{name:nm(),style:pick(Object.keys(COACH)),q,fee:Math.round(q*t.fee*.5*10)/10}});
+}
+function startWeekChair(){
+  S.decided=false;S.social=false;S.flash=[];S.event=null;S.result=null;genMarket();
+  if(R()<.6){const el=EVENTS_C.filter(e=>(!e.cond||e.cond())&&(S.seenEv[e.id]===undefined||S.abs-S.seenEv[e.id]>9));if(el.length)S.event=pick(el).id}
+}
+function mandate(d){S.cl.mandate=clamp(Math.round(S.cl.mandate+d),0,100);return d}
+function mood(d){S.cl.mood=clamp(Math.round(S.cl.mood+d),0,100)}
+function newStar(){const old=C('sterspeler');S.chars=S.chars.filter(c=>c!==old);S.chars.splice(1,0,mkChar('sterspeler',{age:ri(23,30),base:0}))}
+
+/* chairman events */
+const EVENTS_C=[
+ {id:'naamrecht',title:'Naamrecht op het stadion',text:()=>`${C('sponsor').name} wil het stadion naar zijn bedrijf vernoemen. Het sportpark heet al sinds de oprichting hetzelfde.`,ch:[
+   {n:'Akkoord, het geld is nodig',f:()=>{S.cl.sponsorF+=.3;mood(-8);mod('supporters','Verkocht de naam van het park',-15,16);mod('sponsor','Kreeg het naamrecht',15,16);chron('Het sportpark krijgt een sponsornaam.');return'Sponsorinkomsten +30%. Op de tribune hangt een spandoek met de oude naam.'}},
+   {n:'Laat de leden stemmen',req:()=>opinion(C('supporters'))>=15,rl:'Supportersvereniging 15+',f:()=>{S.cl.sponsorF+=.2;mood(2);mod('supporters','Liet de leden beslissen',10,12);return'De leden stemmen in, met een eigen naam voor de oude tribune.'}},
+   {n:'Nee. De naam is heilig.',f:()=>{mood(6);mod('sponsor','Wees zijn voorstel af',-10,12);mod('supporters','Hield de naam in ere',8,12);return'De supporters zingen je naam. De sponsor belt niet terug.'}}]},
+ {id:'stervertrek',title:'Een bod op je sterspeler',cond:()=>S.week>=3,text:()=>`Een grotere club biedt ${k(TIERS[S.cl.tier].fee*4)} voor ${C('sterspeler').name}.`,ch:[
+   {n:'Verkopen',f:()=>{const f=TIERS[S.cl.tier].fee*4,n=C('sterspeler').name;S.cl.budget+=f;team(0).str-=3;mood(-6);chron(`${n} verkocht voor ${k(f)}.`);newStar();return`Kas +${k(f)}. De selectie is wel een stuk zwakker.`}},
+   {n:'Weigeren',f:()=>{const s=C('sterspeler');mod('sterspeler','Mocht niet vertrekken',s.traits.includes('ambitieus')?-20:-6,14);mood(4);return'Hij blijft. Hoe blij hij daarmee is, zie je vanaf de tribune.'}},
+   {n:'Nieuw, beter contract',f:()=>{const f=TIERS[S.cl.tier].fee;S.cl.budget-=f;mod('sterspeler','Kreeg een beter contract',15,20);return`Kosten ${k(f)}. Hij tekent met een glimlach.`}}]},
+ {id:'grond',title:'De gemeente wil grond terug',text:()=>`Wethouder ${C('wethouder').name} wil een stuk van het sportpark voor woningbouw. "Jullie krijgen er een mooie vergoeding voor."`,ch:[
+   {n:'Ga de strijd aan via de krant',f:()=>{mod('journalist','Kreeg het verhaal van het jaar',10,10);mod('wethouder','Werd publiekelijk aangevallen',-20,20);mood(8);return'Het hele dorp staat achter de club. Op het gemeentehuis ben je even niet welkom.'}},
+   {n:'Onderhandel: grond tegen een vergunning',req:()=>opinion(C('wethouder'))>=10,rl:'Wethouder 10+',f:()=>{mod('wethouder','Dacht constructief mee',15,20);S.cl.budget+=15;return'Je levert een strook in en krijgt een vergunning plus €15k.'}},
+   {n:'Neem de vergoeding',f:()=>{S.cl.budget+=40;mood(-12);mod('supporters','Verkocht een stuk van het park',-15,14);mod('wethouder','Werkte mee',10,12);return'Kas +€40k. Het oude bijveld verdwijnt.'}}]},
+ {id:'vrijwilligers',title:'Vrijwilligers dreigen te stoppen',text:()=>'De kantinevrijwilligers zijn het zat: altijd dezelfde mensen, nooit een bedankje.',ch:[
+   {n:'Ze krijgen een vergoeding (€5k)',f:()=>{S.cl.budget-=5;mood(2);return'Ze blijven. De kas voelt het.'}},
+   {n:'Ga persoonlijk langs met taart',f:()=>{mod('supporters','Toonde zich betrokken',10,12);mood(4);return'Een avond aan de bar met de vrijwilligers. Ze blijven, voor jou.'}},
+   {n:'Niemand is onmisbaar',f:()=>{mood(-6);S.cl.fac.kantine=Math.max(1,S.cl.fac.kantine-(R()<.3?1:0));mod('supporters','Liet de vrijwilligers vallen',-10,10);return'Zaterdag staat er een rij van twintig minuten voor de koffie.'}}]},
+ {id:'talent',title:'Een talent uit eigen jeugd',cond:()=>S.cl.fac.jeugd>=2,text:()=>'De jeugdtrainer belt opgewonden. Een zestienjarige laat iedereen op de training dansen.',ch:[
+   {n:'Laat hem debuteren',f:()=>{team(0).str+=1;mood(6);chron('Een eigen jeugdspeler debuteert in het eerste.');return'Selectie +1. Het hele dorp wil hem zien.'}},
+   {n:'Verkoop hem aan een topclub',f:()=>{const f=TIERS[S.cl.tier].fee*2*S.cl.fac.jeugd;S.cl.budget+=f;mood(-3);return`Kas +${k(f)}. Over vijf jaar zie je hem op tv.`}}]},
+ {id:'lek',title:'Een lek naar de krant',cond:()=>opinion(C('bestuurslid'))<-10,text:()=>`De lokale krant schrijft over "zorgen over de financiën". De bron is duidelijk: ${C('bestuurslid').name}.`,ch:[
+   {n:'Confronteer hem in de bestuurskamer',f:()=>{mod('bestuurslid','Werd ten overstaan van iedereen aangesproken',-15,16);mandate(S.cl.budget>0?4:-4);return S.cl.budget>0?'De cijfers zijn goed. Hij staat voor gek.':'De cijfers zijn slecht. Je hebt hem eigenlijk gelijk gegeven.'}},
+   {n:'Geef hem een portefeuille',f:()=>{mod('bestuurslid','Kreeg meer macht',20,16);mandate(-3);return'Hij krijgt sponsorzaken. Voorlopig is hij stil.'}},
+   {n:'Ga zelf naar de krant',f:()=>{mod('journalist','Kreeg een exclusief interview',8,10);mandate(S.cl.budget>0?6:-6);return'Je legt de cijfers op tafel.'}}]},
+ {id:'trainerbod',title:'Je trainer is in trek',cond:()=>S.week>=5&&myPos()<=2,text:()=>`Een club uit een hogere divisie wil ${C('trainer').name}.`,ch:[
+   {n:'Laat hem gaan',f:()=>{const o=C('trainer');S.cl.budget+=TIERS[S.cl.tier].fee;S.chars=S.chars.filter(c=>c!==o);const n=mkChar('trainer',{age:ri(38,60),style:pick(Object.keys(COACH)),q:ri(3,7)});S.chars.unshift(n);chron(`Trainer ${o.name} vertrekt. ${n.name} neemt het over.`);return`Een afkoopsom voor de kas. ${n.name} is de nieuwe trainer.`}},
+   {n:'Salarisverhoging (2x de afkoopsom)',f:()=>{S.cl.budget-=TIERS[S.cl.tier].fee*2;mod('trainer','Kreeg opslag om te blijven',15,20);return'Hij blijft. Duur, maar hij blijft.'}},
+   {n:'Doe een beroep op zijn loyaliteit',req:()=>opinion(C('trainer'))>=25,rl:'Trainer 25+',f:()=>{mod('trainer','Blijft uit loyaliteit',10,20);return'"Ik ben hier nog niet klaar." Hij blijft.'}}]},
+ {id:'inspraak',title:'Een supporter in het bestuur?',text:()=>`${C('supporters').name} wil dat de supportersvereniging een zetel krijgt in het bestuur.`,ch:[
+   {n:'Ja, het is hún club',f:()=>{mod('supporters','Kreeg een bestuurszetel',20,24);mod('bestuurslid','Moest zijn macht delen',-15,16);mood(5);return'Een nieuwe stoel aan de bestuurstafel.'}},
+   {n:'Nee, maar wel een maandelijks overleg',f:()=>{mod('supporters','Kreeg alleen een overleg',-4,8);return'Een compromis waar niemand warm van wordt.'}},
+   {n:'Nee',f:()=>{mod('supporters','Werd buitengesloten',-15,14);mod('bestuurslid','Hield het bestuur gesloten',8,10);return'Dat valt slecht op de tribune.'}}]},
+ {id:'investeerder',title:'Een investeerder meldt zich',cond:()=>S.cl.tier<=3,text:()=>`Een zakenman uit de stad biedt ${k(TIERS[S.cl.tier].fee*8)} voor 49% van de aandelen.`,ch:[
+   {n:'Accepteren',f:()=>{S.cl.budget+=TIERS[S.cl.tier].fee*8;mandate(8);mod('supporters','Verkocht de ziel van de club',-20,24);mood(-10);chron('Een investeerder koopt 49% van de club.');return'De kas is gevuld. Op de tribune heerst wantrouwen.'}},
+   {n:'Weigeren',f:()=>{mod('supporters','Hield de club in eigen handen',10,14);mood(4);return'"Deze club is niet te koop." De tribune applaudisseert.'}}]},
+ {id:'derby',title:'De derby wordt verplaatst',text:()=>`De politie wil de derby naar zondag 12:00. ${C('wethouder').name} vraagt je mee te werken.`,ch:[
+   {n:'Meewerken',f:()=>{mod('wethouder','Werkte mee',10,10);mood(-4);return'Een derby met een ontbijtkoek-sfeer.'}},
+   {n:'Weigeren, de derby is van de supporters',f:()=>{mod('wethouder','Werkte niet mee',-12,12);mood(4);mod('supporters','Vocht voor de derby',6,8);return'De gemeente onthoudt dit.'}}]},
+ {id:'veld',title:'Het hoofdveld is op',text:()=>'Na een natte winter ligt het hoofdveld er beroerd bij. Er komt een offerte voor nieuw gras.',ch:[
+   {n:'Hybride gras aanleggen (€20k)',req:()=>S.cl.budget>=20,rl:'€20k in kas',f:()=>{S.cl.budget-=20;team(0).str+=1;mod('trainer','Kreeg een goed veld',8,12);return'Selectie +1. De trainer is blij.'}},
+   {n:'Doormodderen',f:()=>{mod('trainer','Moest op een modderveld werken',-6,8);return'Het blijft een aardappelveld.'}}]},
+];
+
+/* chairman conversations */
+const SOCIAL_C=[
+ {k:'praat',n:'Praatje maken',roles:null,f:c=>{if(R()<.5+P.fame/200){mod(c.role,'Goed gesprek',8,6);return[`Goed gesprek met ${c.name}.`,'g']}return[`${c.name} had er weinig zin in.`,'']}},
+ {k:'eten',n:'Uit eten (€1k eigen geld)',roles:null,cost:1,f:c=>{mod(c.role,'Samen uit eten',14,10);return[`Een lange avond met ${c.name}.`,'g']}},
+ {k:'steun',n:'Vertrouwen uitspreken',roles:['trainer'],f:c=>{mod('trainer','Kreeg publiek vertrouwen',12,10);mandate(-1);return['Hij weet dat je achter hem staat. Het bestuur ziet het ook.','g']}},
+ {k:'band',n:'De band beloven',roles:['sterspeler'],f:c=>{mod('sterspeler','Kreeg de band beloofd',12,14);mod('trainer','Werd gepasseerd bij de aanvoerderskeuze',-6,8);return['Hij straalt. De trainer minder.','y']}},
+ {k:'porte',n:'Portefeuille geven',roles:['bestuurslid'],f:c=>{mod('bestuurslid','Kreeg meer verantwoordelijkheid',18,14);mandate(-2);return['Hij is tevreden, en een stukje machtiger.','y']}},
+ {k:'isoleer',n:'Bestuur achter je krijgen',roles:['bestuurslid'],f:c=>{if(R()<.45+P.fame/250){mod('bestuurslid','Werd buitenspel gezet',-12,14);mandate(6);return['De rest van het bestuur kiest jouw kant.','g']}mandate(-6);mod('bestuurslid','Ontdekte je manoeuvre',-10,12);return['Het lekt uit. Hij heeft nu een verhaal.','b']}},
+ {k:'deal',n:'Deal openbreken',roles:['sponsor'],f:c=>{if(opinion(c)>20){S.cl.sponsorF+=.15;mod('sponsor','Moest meer betalen',-5,8);return['Sponsorinkomsten +15%.','g']}mod('sponsor','Voelde zich uitgeknepen',-10,10);return['"We hebben een contract." Einde gesprek.','b']}},
+ {k:'lobby',n:'Lobbyen',roles:['wethouder'],f:c=>{if(R()<.5+P.fame/200){mod('wethouder','Gelobbyd op de borrel',12,10);return['Hij belooft "ernaar te kijken". Dat is veel.','g']}mod('wethouder','Voelde zich bewerkt',-4,6);return['Hij ziet je aankomen.','']}},
+ {k:'fanavond',n:'Fanavond (€1k club)',roles:['supporters'],f:c=>{S.cl.budget-=1;mood(6);mod('supporters','Organiseerde een fanavond',10,10);return['Een volle kantine, bitterballen en eerlijke vragen.','g']}},
+ {k:'interview',n:'Interview geven',roles:['journalist'],f:c=>{fame(3);if(R()<.2){mandate(-4);return['Eén zin over het bestuur gaat een eigen leven leiden.','b']}mod('journalist','Mooi interview',6,8);return['Een mooi stuk met foto op de voorpagina.','g']}},
+];
+
+/* desk: one big decision per week */
+A.ticket=d=>{S.cl.ticket=clamp(S.cl.ticket+d,2,80);render()};
+A.wage=w=>{S.cl.wage=w;render()};
+A.desk=(kind,arg)=>{
+  if(S.decided)return;const cl=S.cl,t=TIERS[cl.tier];
+  if(kind==='build'){const lv=cl.fac[arg]+1,cost=FCOST[lv];if(cl.build||lv>5||cl.budget<cost)return;
+    if(arg==='stadion'&&lv>=3&&opinion(C('wethouder'))<0){flash('Geen vergunning. De wethouder moet eerst positief over je zijn.','b');return render()}
+    cl.budget-=cost;cl.build={k:arg,w:FWEEKS[lv]};flash(`Bouw gestart: ${FAC[arg].n} naar niveau ${lv}. Klaar over ${FWEEKS[lv]} weken.`,'y')}
+  if(kind==='sign'){const p=cl.targets[arg];if(!p||cl.budget<p.fee)return;cl.budget-=p.fee;team(0).str+=p.boost;mood(2);chron(`${p.name} (${p.pos}, ${p.age}) komt over voor ${k(p.fee)}.`);flash(`${p.name} tekent. Selectie +${p.boost}.`,'g');cl.targets.splice(arg,1)}
+  if(kind==='hire'){const c=cl.coaches[arg],old=C('trainer'),pay=Math.round(old.q*t.fee*.3*10)/10;if(cl.budget<c.fee+pay)return;
+    cl.budget-=c.fee+pay;S.chars=S.chars.filter(x=>x!==old);S.chars.unshift(mkChar('trainer',{name:c.name,style:c.style,q:c.q,age:ri(38,62)}));
+    mandate(old.q>=c.q?-4:2);chron(`Trainer ${old.name} ontslagen. ${c.name} volgt hem op.`);flash(`${c.name} is je nieuwe trainer (${COACH[c.style].n}, kwaliteit ${c.q}).`,'y')}
+  if(kind==='invest'){if(P.money<25)return;P.money-=25;cl.budget+=25;mandate(5);mod('bestuurslid','Stak eigen geld in de club',5,8);flash('€25k uit eigen zak naar de club. Het bestuur is onder de indruk.','g')}
+  if(kind==='community'){if(cl.budget<4)return;cl.budget-=4;mood(6);cl.fansBase+=40;mod('wethouder','Investeerde in de wijk',8,10);flash('Gratis voetbalkamp voor de wijk. De club staat weer op de kaart.','g')}
+  S.decided=true;render();
+};
+
+/* matchday */
+A.chairMatch=()=>{
+  if(S.event)return;
+  const cl=S.cl,fx=myFixture(),me=team(0),opp=team(fx.opp),tr=C('trainer'),t=TIERS[cl.tier];
+  const my=Math.max(20,me.str+(tr.q-5)*.8),os=opp.str;
+  const us=poisson(1.3*Math.pow(my/os,2)*(fx.home?1.12:.9)),them=poisson(1.3*Math.pow(os/my,2)*(fx.home?.9:1.12));
+  const[h,a,hg,ag]=fx.home?[0,opp.id,us,them]:[opp.id,0,them,us];applyResult(h,a,hg,ag);
+  for(const[x,y]of S.fixtures[S.week]){if(x===0||y===0)continue;const sx=team(x).str,sy=team(y).str;applyResult(x,y,poisson(1.3*Math.pow(sx/sy,2)*1.1),poisson(1.3*Math.pow(sy/sx,2)*.92))}
+  const cap=CAP[cl.fac.stadion];
+  const att=fx.home?Math.round(Math.min(cap,cl.fansBase*(.55+cl.mood/110)*priceF())):0;
+  const fin={tickets:att*cl.ticket/1000,kantine:fx.home?cl.fac.kantine*(.6+att/1000):.2*cl.fac.kantine,sponsor:t.spons*cl.sponsorF*(.8+P.fame/250),wages:-wages(),upkeep:-upkeep()};
+  const net=Object.values(fin).reduce((s,x)=>s+x,0);cl.budget=Math.round((cl.budget+net)*10)/10;cl.lastNet=net;if(fx.home)cl.lastAtt=att;
+  const res=us>them?'w':us<them?'l':'d',m0=cl.mandate,mo0=cl.mood;
+  mandate(res==='w'?3:res==='l'?-3:0);if(cl.budget<0)mandate(-4);if(cl.mood<30)mandate(-2);if(opinion(C('bestuurslid'))<-30)mandate(-1);
+  mood(res==='w'?3:res==='l'?-3:0);if(cl.ticket>t.fair*1.25)mood(-2);else if(cl.ticket<t.fair*.8)mood(1);
+  const lines=[];
+  if(fx.home&&att>=cap)lines.push('Uitverkocht. Er stonden mensen buiten het hek.');
+  if(us>=3)lines.push(`${C('sterspeler').name} was niet te houden.`);
+  if(cl.budget<0)lines.push('De clubkas staat rood. Het bestuur wordt onrustig.');
+  if(res==='l'&&myPos()>=6)lines.push('Na afloop klinkt er gefluit richting de bestuurskamer.');
+  S.result={us,them,home:fx.home,opp:opp.id,att,cap,fin,net,dMand:cl.mandate-m0,dMood:cl.mood-mo0,res,lines};
+  S.phase='match';render();
+};
+A.chairNext=()=>{
+  const cl=S.cl;S.result=null;S.week++;S.abs++;
+  for(const c of S.chars){c.mods.forEach(m=>m.w--);c.mods=c.mods.filter(m=>m.w>0)}
+  const me=team(0);me.str=Math.round((me.str+(WAGE[cl.wage][1]-1)*.6+(cl.fac.training-1)*.08-.05)*100)/100;
+  cl.mood=clamp(Math.round(cl.mood+(50-cl.mood)*.05),0,100);cl.fansBase=Math.round(cl.fansBase*(1+(cl.mood-50)/5000));
+  if(cl.build){cl.build.w--;if(cl.build.w<=0){cl.fac[cl.build.k]++;chron(`${FAC[cl.build.k].n} opgeleverd: niveau ${cl.fac[cl.build.k]}.`);flash(`${FAC[cl.build.k].n} is klaar.`,'g');cl.build=null}}
+  if(cl.mandate<=0){chairOusted();return render()}
+  if(S.week>=14){chairSeasonEnd();return render()}
+  S.phase='week';const keep=S.flash.slice();startWeekChair();S.flash=keep.concat(S.flash);render();window.scrollTo({top:0,behavior:REDUCED?'auto':'smooth'});
+};
+function chairOusted(){S.phase='ousted';const b=C('bestuurslid');chron(`Motie van wantrouwen. ${P.name} moet weg. ${b.name} neemt het voorzitterschap over.`)}
+function chairSeasonEnd(){
+  const cl=S.cl,pos=myPos(),t=TIERS[cl.tier],yy=`${S.year}/${String((S.year+1)%100).padStart(2,'0')}`;
+  let move=0;
+  if(pos===1){if(cl.tier===1){S.trophies.push(`Landskampioen ${yy}, ${team(0).name}`);chron(`${team(0).name} is LANDSKAMPIOEN!`)}else{S.trophies.push(`Kampioen ${t.n} ${yy}`);chron(`Kampioen! ${team(0).name} promoveert.`);move=-1}}
+  else if(pos===8&&cl.tier<4){chron(`${team(0).name} degradeert.`);move=1}
+  const met=pos<=cl.goal;mandate(met?15:-15);if(move<0)mandate(10);
+  cl.fansBase=Math.round(cl.fansBase*(1+(8-pos)*.03+(move<0?.25:0)-(move>0?.15:0)));
+  if(cl.fac.jeugd>=2&&R()<.2*cl.fac.jeugd){team(0).str+=1;chron('De jeugdopleiding levert een basisspeler af.')}
+  S.seasons.push({yy,club:team(0).name,tier:t.n,pos,att:cl.lastAtt,budget:cl.budget});
+  S.offers={pos,met,move};
+  if(cl.mandate<25){chairOusted();return}
+  S.phase='season';
+}
+A.chairSeason=()=>{
+  const cl=S.cl,o=S.offers;P.age++;S.season++;S.year++;
+  const me=team(0);
+  if(o.move){cl.tier+=o.move;cl.best=Math.min(cl.best,cl.tier);cl.promoted=o.move<0;S.teams=[me,...genOpps(cl.tier)]}
+  else{cl.promoted=false;for(const x of S.teams)if(x.id)x.str=clamp(x.str+ri(-3,3),30,90)}
+  me.str=Math.round(me.str+(TIERS[cl.tier].base-me.str)*.12);
+  newSeasonSetup();setGoal();S.offers=null;S.phase='week';startWeekChair();
+  flash(`Nieuw seizoen in de ${TIERS[cl.tier].n}. Het bestuur wil ${goalTxt()}.`,'y');render();window.scrollTo({top:0});
+};
+A.chairRetire=()=>{S.phase='chairEnd';chron(`${P.name} treedt af als voorzitter.`);render()};
+A.succeed=()=>{
+  const el=document.getElementById('hometown');const club=(el&&el.value.trim())||('VV '+pick(TOWNS));
+  const carry={money:P.money,fame:P.fame,age:P.age+1,year:S.year+1,chron:S.chron,trophies:S.trophies,seasons:S.seasons,car:{...P.car}};
+  chairNew(P.name,club,P.traits,carry);render();window.scrollTo({top:0});
+};
+
+/* chairman views */
+function chairBand(){
+  const cl=S.cl,m=cl.mandate,col=m<25?'var(--bad)':m<50?'var(--chalk)':m<80?'var(--flood)':'var(--gold)',lbl=m<25?'Wankel':m<50?'Onder druk':m<80?'Stevig':'Onaantastbaar';
+  return`<section class="band">
+    <div class="tenwrap"><div class="ten yr" style="--c:${m}%;--tc:${col}" aria-label="Mandaat ${m} van 100">${cl.founded}</div><div class="tier" style="color:${col}">Mandaat · ${lbl} · ${m}</div></div>
+    <div class="who"><div class="eyebrow">Voorzitter · ${TIERS[cl.tier].n} · opgericht ${cl.founded}</div>
+      <h2><span class="dot" style="background:${team(0).col};width:14px;height:14px"></span>${esc(team(0).name)}</h2><div class="sub">${esc(P.name)}, ${P.age} jaar · eigen vermogen ${k(P.money)}${S.legacy?' · clubicoon':''}</div>
+      <div class="chips">${P.traits.map(t=>`<span class="chip me" title="${esc(TRAITS[t].d)}">${TRAITS[t].n}</span>`).join('')}</div>
+      <div class="stats">
+        <div class="stat"><b class="${cl.budget<0?'bad':''}">${k(cl.budget)}</b><small>Clubkas</small></div>
+        <div class="stat"><b class="${cl.lastNet<0?'bad':'good'}">${cl.lastNet>=0?'+':''}${k(cl.lastNet)}</b><small>Vorige week</small></div>
+        <div class="stat"><b>${Math.round(team(0).str)}</b><small>Selectie</small></div>
+        <div class="stat"><b>${cl.fansBase.toLocaleString('nl-NL')}</b><small>Achterban</small></div>
+        <div class="stat"><b>${cl.mood}</b><small>Stemming</small></div>
+        <div class="stat"><b>${CAP[cl.fac.stadion].toLocaleString('nl-NL')}</b><small>Capaciteit</small></div>
+      </div></div></section>`;
+}
+function chairWeekView(){
+  const cl=S.cl,fx=myFixture(),o=team(fx.opp),t=TIERS[cl.tier],tr=C('trainer');
+  let h=`<section class="panel"><div class="eyebrow">Volgende wedstrijd · ronde ${S.week+1}</div>
+    <div class="fixture"><div class="vs"><span class="dot" style="background:${o.col}"></span>${fx.home?'Thuis':'Uit'}<span class="at">tegen</span>${esc(o.name)}</div><div class="muted num">Sterkte ${Math.round(o.str)} · stand ${sortedTable().findIndex(x=>x.id===o.id)+1}e</div></div>
+    <div class="sel"><span class="pill ${myPos()<=cl.goal?'start':S.week<3?'sub':'bench'}">Doel</span><span>Het bestuur wil ${goalTxt()}. Nu ${myPos()}e.</span><span class="muted num" style="margin-left:auto">Jij ${Math.round(team(0).str)}+trainer ${tr.q-5>=0?'+':''}${tr.q-5}</span></div></section>`;
+  if(S.event){const e=EVENTS_C.find(x=>x.id===S.event);
+    h+=`<section class="event"><div class="eyebrow">Op je bureau</div><h3>${esc(e.title)}</h3><p>${esc(e.text())}</p><div class="choices">${e.ch.map((c,i)=>{const ok=!c.req||c.req();return`<button class="choice" ${ok?'':'disabled'} onclick="A.choose(${i})">${esc(c.n)}${c.rl?`<small>${ok?'':'Vereist: '}${esc(c.rl)}</small>`:''}</button>`}).join('')}</div></section>`}
+  const dis=S.decided?'disabled':'';
+  h+=`<section class="panel"><h3>Bestuurskamer</h3>
+    <div class="settings">
+      <div><div class="eyebrow">Kaartprijs</div><div class="row"><button class="ghost" onclick="A.ticket(-1)" aria-label="Lager">−</button><b class="num" style="font-size:22px;font-family:var(--display)">€${cl.ticket}</b><button class="ghost" onclick="A.ticket(1)" aria-label="Hoger">+</button><small class="muted">gangbaar €${t.fair}</small></div></div>
+      <div><div class="eyebrow">Salarisbeleid · ${k(wages())}/wk</div><div class="row">${Object.entries(WAGE).map(([w,[n]])=>`<button class="ghost ${cl.wage===w?'on':''}" onclick="A.wage('${w}')">${n}</button>`).join('')}</div></div>
+    </div>
+    <div class="eyebrow" style="margin:14px 0 6px">Eén grote beslissing per week${S.decided?' · genomen':''}</div>
+    <div class="desk">
+      ${Object.entries(FAC).map(([f,d])=>{const lv=cl.fac[f],nx=lv+1,c=FCOST[nx],busy=cl.build&&cl.build.k===f;return`<div class="drow"><div><b>${d.n}</b> <span class="lvl">${'●'.repeat(lv)}${'○'.repeat(5-lv)}</span><small>${busy?`In aanbouw, nog ${cl.build.w} wk`:d.d}${f==='stadion'?` Nu ${CAP[lv].toLocaleString('nl-NL')} plaatsen.`:''}</small></div>${lv<5&&!busy?`<button class="ghost" ${dis} ${cl.build||cl.budget<c?'disabled':''} onclick="A.desk('build','${f}')">${k(c)} · ${FWEEKS[nx]} wk</button>`:''}</div>`}).join('')}
+      ${cl.targets.map((p,i)=>`<div class="drow"><div><b>${esc(p.name)}</b> <span class="muted">${p.pos}, ${p.age}</span><small>Selectie +${p.boost}. Salarissen stijgen mee.</small></div><button class="ghost" ${dis} ${cl.budget<p.fee?'disabled':''} onclick="A.desk('sign',${i})">Halen · ${k(p.fee)}</button></div>`).join('')}
+      ${cl.coaches.map((c,i)=>{const pay=Math.round(tr.q*t.fee*.3*10)/10;return`<div class="drow"><div><b>Trainer ${esc(c.name)}</b> <span class="muted">${COACH[c.style].n}, kwaliteit ${c.q}/10</span><small>Vervangt ${esc(tr.name)} (kwaliteit ${tr.q}). Incl. afkoop ${k(pay)}.</small></div><button class="ghost" ${dis} ${cl.budget<c.fee+pay?'disabled':''} onclick="A.desk('hire',${i})">Aanstellen · ${k(c.fee+pay)}</button></div>`}).join('')}
+      <div class="drow"><div><b>Eigen geld in de club</b><small>€25k uit je vermogen. Het bestuur ziet het graag.</small></div><button class="ghost" ${dis} ${P.money<25?'disabled':''} onclick="A.desk('invest')">€25k storten</button></div>
+      <div class="drow"><div><b>Voetbalkamp voor de wijk</b><small>Stemming en achterban omhoog, de gemeente kijkt mee.</small></div><button class="ghost" ${dis} ${cl.budget<4?'disabled':''} onclick="A.desk('community')">€4k</button></div>
+    </div>
+    <p class="muted" style="font-size:13px;margin:10px 0 0">${S.social?'Je hebt deze week al met iemand gepraat.':'Eén gesprek per week: open iemand in het paneel <b>Mensen</b>.'}</p></section>`;
+  if(S.flash.length)h+=`<section class="panel"><div class="eyebrow" style="margin-bottom:6px">Deze week</div><div class="feed">${S.flash.map(f=>`<div class="${f.tone}">${esc(f.m)}</div>`).join('')}</div></section>`;
+  h+=`<button class="go" ${S.event?'disabled':''} onclick="A.chairMatch()">${S.event?'Handel eerst je bureau af':'Naar de wedstrijd'}</button>`;
+  return h;
+}
+function chairMatchView(){
+  const r=S.result,me=team(0),op=team(r.opp),[L,Rt,ls,rs]=r.home?[me,op,r.us,r.them]:[op,me,r.them,r.us],f=r.fin;
+  const row=(n,v)=>`<div><span>${n}</span><b class="num ${v<0?'bad':v>0?'good':''}">${v>0?'+':''}${k(v)}</b></div>`;
+  return`<section class="panel"><div class="board"><div class="team"><span class="dot" style="background:${L.col}"></span>${esc(L.name)}</div><div><div class="score">${ls}–${rs}</div><div class="clock">EINDE</div></div><div class="team r">${esc(Rt.name)}<span class="dot" style="background:${Rt.col};margin:0 0 0 6px"></span></div></div>
+    <div class="mstrip"><span>${r.home?`Toeschouwers <b class="num">${r.att.toLocaleString('nl-NL')}</b> / ${r.cap.toLocaleString('nl-NL')}`:'Uitwedstrijd, geen recette'}</span><span>Mandaat <b class="${r.dMand>=0?'good':'bad'}">${r.dMand>=0?'+':''}${r.dMand}</b> · Stemming <b class="${r.dMood>=0?'good':'bad'}">${r.dMood>=0?'+':''}${r.dMood}</b></span></div>
+    ${r.lines.map(l=>`<p style="margin:4px 0">${esc(l)}</p>`).join('')}
+  </section>
+  <section class="panel"><h3>Weekafrekening</h3><div class="breakdown" style="font-size:15px">${row('Kaartverkoop',f.tickets)}${row('Kantine',f.kantine)}${row('Sponsoring',f.sponsor)}${row('Salarissen',f.wages)}${row('Onderhoud',f.upkeep)}<div style="border-top:1px solid var(--line);padding-top:4px;margin-top:4px"><span><b>Netto</b></span><b class="num ${r.net<0?'bad':'good'}">${r.net>=0?'+':''}${k(r.net)}</b></div></div>
+    <button class="go" style="margin-top:14px" onclick="A.chairNext()">${S.week>=13?'Seizoen afsluiten':'Volgende week'}</button></section>`;
+}
+function clubView(){
+  const cl=S.cl,t=TIERS[cl.tier];
+  return`<div class="eyebrow" style="margin-bottom:6px">Accommodatie</div>
+  ${Object.entries(FAC).map(([f,d])=>`<div class="attr"><span>${d.n.split(' ')[0]}</span><span class="bar"><i style="width:${cl.fac[f]*20}%"></i>${cl.build&&cl.build.k===f?`<u style="width:${100-cl.build.w*8}%"></u>`:''}</span><b>${cl.fac[f]}</b></div>`).join('')}
+  <div class="eyebrow" style="margin:14px 0 6px">Geldstromen per week (schatting)</div>
+  <div class="breakdown"><div><span>Sponsoring (factor ${cl.sponsorF.toFixed(2)})</span><b class="num good">+${k(t.spons*cl.sponsorF*(.8+P.fame/250))}</b></div>
+  <div><span>Salarissen (${WAGE[cl.wage][0].toLowerCase()})</span><b class="num bad">−${k(wages())}</b></div>
+  <div><span>Onderhoud</span><b class="num bad">−${k(upkeep())}</b></div>
+  <div><span>Kaartverkoop bij thuiswedstrijd</span><b class="num good">+${k(Math.min(CAP[cl.fac.stadion],cl.fansBase*(.55+cl.mood/110)*priceF())*cl.ticket/1000)}</b></div></div>
+  <div class="eyebrow" style="margin:14px 0 6px">Historie</div>
+  ${S.seasons.length?S.seasons.map(s=>`<div class="num">${s.yy} · ${s.tier} · ${s.pos}e</div>`).join(''):'<div class="muted">Eerste seizoen.</div>'}
+  ${S.trophies.length?`<div class="eyebrow" style="margin:14px 0 6px">Prijzenkast</div>${S.trophies.map(t=>`<div class="gold">${esc(t)}</div>`).join('')}`:''}`;
+}
+function chairSeasonView(){
+  const o=S.offers,cl=S.cl,last=S.seasons[S.seasons.length-1];
+  return`<section class="panel"><div class="eyebrow">Einde seizoen ${last.yy} · ${last.tier}</div><h2 style="font-size:40px">${esc(team(0).name)} eindigt als ${o.pos}e</h2>
+    <p style="font-size:17px">${o.move<0?'<b class="gold">Promotie!</b> Volgend jaar een divisie hoger.':o.move>0?'<b class="bad">Degradatie.</b> Volgend jaar een divisie lager.':'Volgend jaar in dezelfde divisie.'}
+    Doel van het bestuur: ${o.met?'<b class="good">gehaald</b>':'<b class="bad">niet gehaald</b>'}. Mandaat nu ${cl.mandate}.</p>
+    <p class="muted num">Clubkas ${k(cl.budget)} · achterban ${cl.fansBase.toLocaleString('nl-NL')} · selectie ${Math.round(team(0).str)}</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="go" style="flex:2;min-width:220px" onclick="A.chairSeason()">Volgend seizoen</button><button class="ghost" style="flex:1;min-width:140px" onclick="A.chairRetire()">Aftreden</button></div></section>`;
+}
+function chairEndView(){
+  const cl=S.cl,ousted=S.phase==='ousted';
+  return`<section class="hero"><div class="eyebrow">${ousted?'Weggestemd':'Afscheid als voorzitter'}</div><h1>${esc(team(0).name)}</h1>
+    <p style="font-size:19px">${ousted?`Het bestuur verloor het vertrouwen. ${esc(C('bestuurslid').name)} neemt jouw stoel over.`:`${esc(P.name)} geeft de hamer door.`} Hoogste niveau: ${TIERS[cl.best].n}. ${S.seasons.length} seizoen(en) als voorzitter.</p>
+    ${S.playerSeasons?`<p class="muted">Eerder: ${S.playerSeasons.length} seizoenen als speler${S.p.car?`, ${S.p.car.goals} goals`:''}.</p>`:''}
+    ${S.trophies.length?S.trophies.map(t=>`<div class="gold" style="font-family:var(--display);font-size:22px;font-weight:700">${esc(t)}</div>`).join(''):''}
+    <div style="max-width:620px;margin-top:20px"><div class="eyebrow" style="margin-bottom:6px">Kroniek</div>${chronView()}</div>
+    <button class="go" style="max-width:420px;margin-top:24px" onclick="A.reset()">Nieuw verhaal</button></section>`;
+}
+function renderChair(app){
+  if(S.phase==='ousted'||S.phase==='chairEnd'){app.innerHTML=topbar()+chairEndView();return}
+  const main=S.phase==='season'?chairSeasonView():S.phase==='match'?chairMatchView():chairWeekView();
+  app.innerHTML=topbar()+chairBand()+(S.phase==='season'?main:`<div class="game"><div class="stack">${main}</div><aside class="panel">${sideView()}</aside></div>`);
+}
+
 /* boot */
+draft={name:nm(),club:1,traits:[],mode:'player',clubName:'VV '+pick(TOWNS)};
 function start(data){if(data&&data.S){S=data.S;P=S.p}render()}
 try{window.claude?.hot?.snapshot?.(()=>({S}))}catch(e){}
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});

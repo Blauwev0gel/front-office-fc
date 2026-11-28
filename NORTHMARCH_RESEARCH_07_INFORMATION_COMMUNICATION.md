@@ -1,0 +1,16 @@
+# Research 07 — Information & Communication
+Advisory v1. MB-46 one-tap Continue, default handling, contextual inbox.
+## Evidence
+AFC Wimbledon 2021 governance summary https://thedonstrust.org/files/DT-AFCW-Governance-Summary-June-2021.pdf describes monthly executive reporting; 2024 accounts https://find-and-update.company-information.service.gov.uk/company/04764827/filing-history/MzQ0ODU5NzU1M2FkaXF6a2N4/document describes day-to-day risk management and escalation, quarterly supporter dialogue. FC United committee secretary role https://fc-utd.co.uk/news-story/be-part-of-fc-uniteds-football-committee--secretary-role-available contains minutes/action follow-up. These are examples, not ideal game cadence.
+## Architecture
+Source events (typed facts) → state projections → persistent dossier → inbox/news/department summaries. Inbox is communication, not database. Dossier has ID, topic, owner, status, evidence, options, decision, default, deadline, dependencies, commitments, milestone history, actual outcome, next review. Event includes week, actor, subject, cause ID, visibility, materiality. Save plain data, not closures.
+## Message types
+Update (no action), decision (default and expiry), exception (material risk), invitation (optional), result (links past decision), weekly newspaper (matches/world/club finance). One dossier can emit multiple milestone updates; deduplicate by dossier+milestone. No fixed message quotas. TD transfer-window stop remains as canon.
+## Meeting and reporting
+Agenda comes from active needs and chair initiative; show prior commitments and dissent; decisions write structured actions. Reports distinguish observed facts, forecast and opinion, include date and uncertainty; no omniscient knowledge. Finance shows actual vs forecast, football trajectory, academy cohorts, commercial pipeline, facility milestones. Highlight change, not all unchanged fields.
+## Example
+Week 2 research commissioned; week 5 findings conditional; week 8 council request; week 11 funding expires; week 14 member decision; week 20 construction progress; week 30 commissioning; week 52 realised usage. Inbox links same dossier, no disconnected popup. Continue applies documented default exactly once; unresolved long-term item stays open.
+## UI
+Existing department tiles contain actionable information and dossier links. Club hub shows material changes. Newspaper readable without requiring decisions. No new mandatory tabs; route through existing UI as possible.
+## Gap and tests
+weekMessages and A.cnext present, some decisions null defaults; closures observed in baseline, save persistence not verified. Introduce serialisable action registry and migration, then one dossier end-to-end. Tests: save/load mid-decision and mid-project; default parity; duplicate suppression; deadline ordering; no action after expiry; no leak of private information; cause trace from result to decision; idle week Continue. Measure missed material events and repeated messages in local runs/playtests, not arbitrary message count targets.

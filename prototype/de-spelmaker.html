@@ -187,6 +187,10 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--hd);outline-off
 .seat{margin-bottom:8px}
 .msg.transfer .mh b{font-weight:700}
 .rel{font-family:var(--display);font-size:22px}.rel.g{color:var(--g)}.rel.b{color:var(--b)}
+.sticky-ctl{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:6px 0 8px;margin:0}
+.log.ticket{max-height:50vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border:3px dashed var(--edge);background:var(--paper);color:var(--paper-ink);padding:10px 12px;box-shadow:6px 6px 0 var(--edge);gap:6px}
+.log.ticket .m{color:#555}
+.log.ticket .goal{color:#0b7a37}.log.ticket .against{color:#c8102e}.log.ticket .you{color:#9a6b00}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -1489,9 +1493,10 @@ function cMatchView(){
   const cur=evs.filter(e=>e.t==='goal'),u=cur.filter(e=>e.side===0).length,t=cur.filter(e=>e.side===1).length,min=evs.length?evs[evs.length-1].min:0;
   const L=m.home?S.cl.name:m.opp,Rn=m.home?m.opp:S.cl.name,ls=m.home?u:t,rs=m.home?t:u;
   if(!done&&!mvTimer){mvTimer=setTimeout(()=>{mvTimer=null;if(S.view==='match'&&S.mv&&S.mv.id===m.id){S.mv.shown++;render()}},REDUCED?60:900)}
+  setTimeout(()=>{const l=document.getElementById('mlog');if(l)l.scrollTop=l.scrollHeight},0);
   return`<div class="page"><div class="board"><div class="team">${esc(L)}</div><div><div class="score">${ls}–${rs}</div><div class="clock">${done?'FULL TIME':min+"'"}</div></div><div class="team r">${esc(Rn)}</div></div>
-    ${sec(`${m.derby?'DERBY · ':''}WEEK ${m.round} · ${m.date}`,`<div class="log" id="mlog">${evs.map(e=>`<div><span class="m">${e.min}'</span><span class="${e.t==='goal'?(e.side===0?'goal':'against'):e.t==='inj'||e.t==='card'?'you':e.t==='ft'||e.t==='ht'||e.t==='ko'?'':'miss'}">${esc(e.txt)}</span></div>`).join('')}</div>
-      <div class="row2" style="margin-top:10px">${done?'':'<button class="btn" onclick="A.skip()">Skip to full time</button>'}<button class="btn ghost" onclick="A.view(\'inbox\')">${done?'Back to the inbox':'Watch later'}</button></div>
+    ${sec(`${m.derby?'DERBY · ':''}WEEK ${m.round} · ${m.date}`,`<div class="row2 sticky-ctl">${done?'':'<button class="btn" onclick="A.skip()">Skip to full time</button>'}<button class="btn ghost" onclick="A.view(\'inbox\')">${done?'Back to the inbox':'Watch later'}</button></div>
+      <div class="log ticket" id="mlog">${evs.map(e=>`<div><span class="m">${e.min}'</span><span class="${e.t==='goal'?(e.side===0?'goal':'against'):e.t==='inj'||e.t==='card'?'you':e.t==='ft'||e.t==='ht'||e.t==='ko'?'':'miss'}">${esc(e.txt)}</span></div>`).join('')}</div>
       <p class="small dim"><button class="linkbtn" onclick="A.autoWatch()">${S.autoWatch===false?'Matches open live after Continue: off':'Matches open live after Continue: on'}</button></p>`)}
     ${done?sec('MATCH FACTS',`<table class="tt num"><tr><td>Shots (on target)</td><td class="r">${m.st.sh[0]} (${m.st.ot[0]})</td><td class="r">${m.st.sh[1]} (${m.st.ot[1]})</td></tr><tr><td>Possession</td><td class="r">${m.poss}%</td><td class="r">${100-m.poss}%</td></tr>${m.att?`<tr><td>Attendance</td><td class="r" colspan="2">${m.att.toLocaleString('en-GB')}</td></tr>`:''}</table>
       <h4 class="sub4">Our ratings</h4><table class="tt num">${m.rat.slice().sort((a,b)=>'GKDFMFFW'.indexOf(a.pos)-'GKDFMFFW'.indexOf(b.pos)).map(p=>`<tr><td>${p.pos}</td><td>${S.squad.some(x=>x.id===p.id)?pLink(p.id,p.name):esc(p.name)}${p.name===m.motm?' <span class="tag">MOTM</span>':''}</td><td class="r ${p.r>=7.5?'g':p.r<6?'b':''}">${p.r.toFixed(1)}</td></tr>`).join('')}</table><p class="small"><b>Why:</b> ${esc(m.cause)}</p>`):''}</div>`;

@@ -191,6 +191,23 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--hd);outline-off
 .log.ticket{max-height:50vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border:3px dashed var(--edge);background:var(--paper);color:var(--paper-ink);padding:10px 12px;box-shadow:6px 6px 0 var(--edge);gap:6px}
 .log.ticket .m{color:#555}
 .log.ticket .goal{color:#0b7a37}.log.ticket .against{color:#c8102e}.log.ticket .you{color:#9a6b00}
+.actionbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--bg);border-top:3px solid var(--edge);padding:8px max(12px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.abin{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:4px}.abin .btn{margin:0}.abnote{font-size:12px;color:var(--dim)}
+.abspace{height:110px}
+.strip{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;border:3px solid var(--edge);background:#000;color:#fff;padding:8px 12px;font-size:14px}
+.strip .cs-safe{color:#3ee07f}.strip .cs-underpressure{color:#ffd400}.strip .cs-onthebrink{color:#ff5b4b;background:none}
+.ifilter{display:flex;gap:6px;overflow-x:auto;padding:8px 10px;border-bottom:2px solid var(--line)}
+.ifilter button{flex:0 0 auto;background:var(--btn2);color:#111;border:2px solid var(--edge);padding:6px 10px;font-weight:700;font-size:12px;text-transform:uppercase;min-height:36px}
+.ifilter button.on{background:var(--hd);color:var(--hd-ink)}
+.mlist{display:flex;flex-direction:column}
+.mrow{display:grid;grid-template-columns:14px minmax(0,1fr);gap:8px;width:100%;text-align:left;background:none;border:0;border-bottom:1px dashed var(--line);padding:10px 12px;min-height:64px;color:inherit}
+.mrow:hover{background:var(--panel2)}.mrow.call{background:color-mix(in srgb,var(--gold) 12%,transparent)}
+.mdot{width:9px;height:9px;border-radius:50%;margin-top:6px;background:transparent;border:2px solid var(--line)}.mrow.unread .mdot{background:var(--gold);border-color:var(--gold)}
+.mmain{display:flex;flex-direction:column;gap:2px;min-width:0}.mtop{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--dim);text-transform:uppercase}
+.msubj{font-weight:500}.mrow.unread .msubj{font-weight:700}.mprev{font-size:13px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mhead{padding:12px;border-bottom:3px solid var(--edge)}.msubj2{font-family:var(--display);font-size:28px;line-height:1.05;margin-top:4px}
+.mnav .btn{flex:0 0 auto;min-width:0}
+.inbox .bh{margin:0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -920,7 +937,7 @@ function msg(from,subject,body,opts,def,kind,dossier){
   S.inbox.unshift(m);const open=S.inbox.filter(x=>!x.done),closed=S.inbox.filter(x=>x.done).slice(0,70);S.inbox=S.inbox.filter(x=>!x.done||closed.includes(x));
   if(dossier){const d=S.dossiers.find(x=>x.id===dossier);if(d)d.msgs.push(m.id)}return m}
 const fromLabel=f=>f==='board'?'The Board':f==='echo'?`The ${S.cl.town} Echo`:`${CH(f)?CH(f).name:'?'} · ${ROLE_EN[f]}`;
-A.mopen=id=>{const m=S.inbox.find(x=>x.id===id);if(!m)return;m.read=true;S.openMsg=S.openMsg===id?null:id;render()};
+A.mopen=id=>{const m=S.inbox.find(x=>x.id===id);if(!m)return;m.read=true;S.view='msg:'+id;render();window.scrollTo({top:0})};
 function resolve(m,j,byDefault){if(!m||m.done)return;const o=m.opts[j];const r=runOpt(o);m.done=true;m.chosen=j;m.read=true;m.result=(byDefault?`No answer, so: ${o.n.toLowerCase()}. `:'')+(r||'');if(m.dossier){const d=S.dossiers.find(x=>x.id===m.dossier);if(d)d.history.push({when:stepLabel(),t:`${byDefault?'Default':'Chairman'}: ${o.n}. ${r||''}`})}}
 A.answer=(id,j)=>{resolve(S.inbox.find(x=>x.id===id),j,false);render()};
 
@@ -1216,8 +1233,8 @@ A.meet=k=>{const d=hd(k);if(S.abs-d.meetAt<4)return;d.meetAt=S.abs;const co=CH('
     opts=[{n:`Raise the reserve by ${fm(step())}`,fx:'Safer · less to spend',e:[['cmd','reserveAdd',step()],['cu','prudence',4],['mod','treasurer','Reserve raised',5,12]]},
       {n:'Commission an audit',fx:'In-house · free · 3 weeks',e:[['cmd','research','finance','audit',true]]},
       {n:'Raise membership dues £10',fx:`+${fw(S.cl.members*10/52/1000)} · members −4`,e:[['cmd','dues',10],['trust',-4]]}]}
-  msg(DEPT[k].head,`Meeting: ${DEPT[k].n}`,`Agenda: ${agenda.join(' ')}`,opts,null,'decision');S.inbox[0].meeting=true;S.view='inbox';S.openMsg=S.inbox[0].id;render();window.scrollTo({top:0})};
-A.coachReview=()=>{const co=CH('coach');if(S.flags.review===S.ti+':'+S.year)return;S.flags.review=S.ti+':'+S.year;const cs=coachStatus();msg('td',`Coaching review: ${co.name}`,`You asked for a review. ${cs.facts}. ${CSTYLES[co.style]}.`,[{n:'Retain him',fx:'Coach +5',e:[['mod','coach','Retained after a review',5,10]],r:'Coach retained.'},{n:'Retain, with a target: 4 points from 3',fx:'Coach −3 · miss it and members −6',e:[['mod','coach','Was given a target',-3,10],['cmd','backing']]},{n:'Ask the TD to replace him',fx:`Compensation ${fm(co.wage*20)}`,e:[['cmd','replaceCoach','after a review']]}],null);S.view='inbox';S.openMsg=S.inbox[0].id;render();window.scrollTo({top:0})};
+  msg(DEPT[k].head,`Meeting: ${DEPT[k].n}`,`Agenda: ${agenda.join(' ')}`,opts,null,'decision');S.inbox[0].meeting=true;S.inbox[0].read=true;S.view='msg:'+S.inbox[0].id;render();window.scrollTo({top:0})};
+A.coachReview=()=>{const co=CH('coach');if(S.flags.review===S.ti+':'+S.year)return;S.flags.review=S.ti+':'+S.year;const cs=coachStatus();msg('td',`Coaching review: ${co.name}`,`You asked for a review. ${cs.facts}. ${CSTYLES[co.style]}.`,[{n:'Retain him',fx:'Coach +5',e:[['mod','coach','Retained after a review',5,10]],r:'Coach retained.'},{n:'Retain, with a target: 4 points from 3',fx:'Coach −3 · miss it and members −6',e:[['mod','coach','Was given a target',-3,10],['cmd','backing']]},{n:'Ask the TD to replace him',fx:`Compensation ${fm(co.wage*20)}`,e:[['cmd','replaceCoach','after a review']]}],null);S.inbox[0].read=true;S.view='msg:'+S.inbox[0].id;render();window.scrollTo({top:0})};
 A.mandate=(k,m)=>{const d=hd(k),old=d.mandate;d.mandate=m;const order=['low','med','high'];if(order.indexOf(m)<order.indexOf(old))mod(DEPT[k].head,'Mandate reduced',-6,16);else if(m!==old)mod(DEPT[k].head,'Given more trust',5,16);render()};
 A.replace=k=>{S.replacing=k;S.newCands=candidates(k);S.view='dept:'+k;render()};
 A.hireNew=(i)=>{const k=S.replacing,old=head(k),c=S.newCands[i],comp=r1(old.wage*10);book('out','Compensation',comp);S.chars=S.chars.filter(x=>x!==old);S.chars.push(c);S.dept[k].style=c.style;S.dept[k].replacedIn=S.season;chron(`${old.name} replaced by ${c.name} (${DEPT[k].styles[c.style][0]}).`);msg(DEPT[k].head,`${c.name} starts`,`${DEPT[k].styles[c.style][1]}`);if(c.style==='elite'||c.style==='growth'||c.style==='fund')cuD('innovation',3);if(c.style==='protect')cuD('prudence',4);S.replacing=null;render()};
@@ -1297,16 +1314,33 @@ function bar(){const c=S.cl;return`<header class="tbar"><div class="tb-l"><span 
 function nav(){const unread=S.inbox.filter(m=>!m.read).length;return`<nav class="tnav">${[['inbox',`Inbox${unread?' ('+unread+')':''}`],['club','Club'],['books','Books'],['squad','Squad'],['people','People'],['echo','Echo']].map(([k,n])=>`<button class="${S.view===k||S.view.startsWith(k+':')||(k==='club'&&S.view.startsWith('dept:'))?'on':''}" onclick="A.view('${k}')">${n}</button>`).join('')}</nav>`}
 A.view=v=>{S.view=v;S.replacing=null;render();window.scrollTo({top:0})};
 function nextLabel(){const st=S.tl[S.ti];if(st.t==='plan')return'Continue: open the window';if(st.t==='win')return st.w===st.of?'Continue: deadline day':'Continue: next market week';if(st.t==='match'){const fx=myFixture(),o=team(fx.opp);return`Play week ${st.r+1}: ${fx.home?'v':'at'} ${o.name}${o.rival?' (derby)':''}`}return'Continue'}
+const msgTag=m=>m.kind==='transfer'?(m.dir==='in'?'<span class="st ok">IN</span>':'<span class="st bad">OUT</span>'):!m.done&&m.kind==='decision'?'<span class="st warn">YOUR CALL</span>':m.kind==='news'?'<span class="st">NEWS</span>':m.dossier?'<span class="st">DOSSIER</span>':'';
+const msgCat=m=>!m.done&&m.kind==='decision'?'call':m.kind==='transfer'?'transfers':m.kind==='news'?'news':'reports';
+A.filter=f=>{S.inboxFilter=f;render()};
 function inboxView(){
-  const open=S.inbox.filter(m=>!m.done),rest=S.inbox.filter(m=>m.done);
-  const item=m=>{const isOpen=S.openMsg===m.id||(!m.done&&m.kind==='decision');return`<div class="msg ${m.read?'':'unread'} ${m.kind}"><button class="mh" onclick="A.mopen('${m.id}')"><span class="mfrom">${m.kind==='transfer'?(m.dir==='in'?'<span class="st ok">IN</span> ':'<span class="st bad">OUT</span> '):''}${m.kind==='decision'&&!m.done?'<span class="st warn">Your call</span> ':''}${m.dossier?'<span class="st">DOSSIER</span> ':''}${esc(fromLabel(m.from))}</span><b>${esc(m.subject)}</b><span class="mwhen">${esc(m.when)}</span></button>${isOpen?`<div class="mb"><p>${esc(m.body)}</p>${m.dossier?`<button class="btn sm ghost" onclick="A.dossier('${m.dossier}')">Open the dossier</button>`:''}${m.match&&(S.matches||[]).some(x=>x.id===m.match)?`<button class="btn sm" onclick="A.match('${m.match}')">Watch the match</button>`:''}${!m.done?m.opts.map((o,j)=>`<div class="optrow"><button class="btn" onclick="A.answer('${m.id}',${j})">${esc(o.n)}</button>${fxH(o.fx)}</div>`).join('')+(m.def!==null&&m.def!==undefined?`<p class="dim small">If you don't answer: ${esc(m.opts[m.def].n.toLowerCase())}.</p>`:''):m.result?`<p class="res">› ${esc(m.result)}</p>`:''}</div>`:''}</div>`};
-  const st=S.tl[S.ti],fx=st.t==='match'?myFixture():null,cs=coachStatus(),running=S.projects;
-  return`<div class="page">${st.t==='plan'||st.t==='win'?transferCentre(st):''}${fx?`<div class="fix"><div class="fx-t">${esc(fx.home?S.cl.name:team(fx.opp).name)}</div><div class="fx-v">v</div><div class="fx-t">${esc(fx.home?team(fx.opp).name:S.cl.name)}</div></div><div class="cstat cs-${cs.word.replace(/ /g,'').toLowerCase()}"><b>HEAD COACH: ${cs.word.toUpperCase()}</b><span class="num">${esc(CH('coach').name)} · ${cs.facts}</span></div>`:''}
-    ${sec(`INBOX${open.length?` · ${open.filter(m=>m.kind==='decision').length} need you`:''}`,(open.length?open.map(item).join(''):'<p class="dim">Nothing needs you this week.</p>')+(rest.length?`<div class="older">${rest.slice(0,14).map(item).join('')}</div>`:''))}
+  const f=S.inboxFilter||'all',calls=S.inbox.filter(m=>msgCat(m)==='call'),cats=[['all','All',S.inbox.length],['call','Your call',calls.length],['transfers','Transfers',S.inbox.filter(m=>m.kind==='transfer').length],['reports','Reports',S.inbox.filter(m=>msgCat(m)==='reports').length],['news','News',S.inbox.filter(m=>m.kind==='news').length]];
+  const list=S.inbox.filter(m=>f==='all'||msgCat(m)===f).sort((a,b)=>(msgCat(b)==='call')-(msgCat(a)==='call'));
+  const st=S.tl[S.ti],fx=st.t==='match'?myFixture():null,cs=coachStatus(),running=S.projects,unread=S.inbox.filter(m=>!m.read).length;
+  const row=m=>`<button class="mrow ${m.read?'':'unread'} ${msgCat(m)==='call'?'call':''}" onclick="A.mopen('${m.id}')"><span class="mdot"></span><span class="mmain"><span class="mtop"><span class="mfrom">${esc(fromLabel(m.from).split(' · ')[0])}</span><span class="mwhen">${esc(m.when)}</span></span><span class="msubj">${msgTag(m)} ${esc(m.subject)}</span><span class="mprev">${esc((m.done&&m.result?'› '+m.result:m.body).slice(0,90))}${(m.done&&m.result?m.result:m.body).length>90?'…':''}</span></span></button>`;
+  return`<div class="page">${st.t==='plan'||st.t==='win'?transferCentre(st):''}${fx?`<div class="strip"><span><b>Saturday</b> ${fx.home?'v':'at'} ${esc(team(fx.opp).name)}${team(fx.opp).rival?' · DERBY':''}</span><span class="cs-${cs.word.replace(/ /g,'').toLowerCase()}">Coach: ${cs.word}</span></div>`:''}
+    <section class="blk inbox"><h3 class="bh">INBOX${unread?` · ${unread} unread`:''}${calls.length?` · ${calls.length} need you`:''}</h3>
+      <div class="ifilter">${cats.map(([k,n,c])=>`<button class="${f===k?'on':''}" onclick="A.filter('${k}')">${n}${c?` <span class="num">${c}</span>`:''}</button>`).join('')}</div>
+      <div class="mlist">${list.length?list.slice(0,40).map(row).join(''):`<p class="dim" style="padding:12px">${f==='call'?'Nothing needs you this week.':'No messages here.'}</p>`}</div></section>
     ${running.length?sec('RUNNING',`<ul class="lst">${running.map(p=>`<li>${esc(p.n)} · ${DEPT[p.dept].n} · ${p.left} week${p.left>1?'s':''} to go${p.capex?` · ${fm(p.cost)}`:''}</li>`).join('')}</ul>`,'dimblk'):''}
-    ${sec('START SOMETHING YOURSELF',`<p class="dim small">Meet a department head, commission research, set mandates or invest: open a department.</p><div class="row2">${Object.keys(DEPT).map(k=>`<button class="btn ghost sm" onclick="A.view('dept:${k}')">${DEPT[k].n}</button>`).join('')}</div>`,'dimblk')}
-    ${st.t==='plan'?`<button class="btn wide" onclick="A.cnextPlan()">Continue: open the window</button>`:`<button class="btn wide" onclick="A.cnext()">${nextLabel()}</button>`}</div>`;
+    ${sec('START SOMETHING YOURSELF',`<div class="row2">${Object.keys(DEPT).map(k=>`<button class="btn ghost sm" onclick="A.view('dept:${k}')">${DEPT[k].n}</button>`).join('')}</div>`,'dimblk')}</div>`;
 }
+function msgView(id){
+  const m=S.inbox.find(x=>x.id===id);if(!m)return`<div class="page">${sec('MESSAGE','<p>This message is no longer in the inbox.</p>')}<button class="btn ghost wide" onclick="A.view('inbox')">Back to the inbox</button></div>`;
+  const idx=S.inbox.indexOf(m),prev=S.inbox[idx-1],next=S.inbox[idx+1];
+  return`<div class="page"><div class="row2 mnav"><button class="btn sm ghost" onclick="A.view('inbox')">‹ Inbox</button>${prev?`<button class="btn sm ghost" onclick="A.mopen('${prev.id}')">Newer</button>`:''}${next?`<button class="btn sm ghost" onclick="A.mopen('${next.id}')">Older</button>`:''}</div>
+    <section class="blk mail"><div class="mhead"><div class="dim small">${esc(fromLabel(m.from))}</div><div class="dim small">${esc(m.when)}</div><h2 class="msubj2">${msgTag(m)} ${esc(m.subject)}</h2></div>
+    <div class="bb"><p>${esc(m.body)}</p>
+      ${m.dossier?`<button class="btn sm ghost" onclick="A.dossier('${m.dossier}')">Open the dossier</button> `:''}${m.match&&(S.matches||[]).some(x=>x.id===m.match)?`<button class="btn sm" onclick="A.match('${m.match}')">Watch the match</button>`:''}
+      ${!m.done?m.opts.map((o,j)=>`<div class="optrow"><button class="btn" onclick="A.answer('${m.id}',${j})">${esc(o.n)}</button>${fxH(o.fx)}</div>`).join('')+(m.def!==null&&m.def!==undefined?`<p class="dim small">If you don't answer before Continue: ${esc(m.opts[m.def].n.toLowerCase())}.</p>`:'<p class="dim small">If you don\'t answer, nothing changes.</p>'):m.result?`<p class="res">› ${esc(m.result)}</p>`:''}
+    </div></section></div>`;
+}
+function actionBar(){const st=S.tl[S.ti];if(!st||S.phase!=='inbox')return'';const pend=S.inbox.filter(m=>!m.done&&m.kind==='decision').length;
+  return`<div class="actionbar"><div class="abin">${pend?`<span class="abnote">${pend} decision${pend>1?'s':''} open · <button class="linkbtn" onclick="S.inboxFilter='call';A.view('inbox')">review</button> or the default applies</span>`:''}${st.t==='plan'?`<button class="btn wide" onclick="A.cnextPlan()">Continue: open the window</button>`:`<button class="btn wide" onclick="A.cnext()">${nextLabel()}</button>`}</div></div><div class="abspace"></div>`}
 function clubView(){const c=S.cl;return`<div class="page">${sec('YOUR ORGANISATION',`<div class="tiles">${Object.entries(DEPT).map(([k,D])=>{const d=hd(k),h=head(k),busy=S.projects.find(p=>p.dept===k);return`<button class="tile" onclick="A.view('dept:${k}')"><span class="th">${D.n}</span><span>${esc(h.name)} ${'★'.repeat(h.stars)}</span><span class="dim small">${D.styles[d.style][0]} · mandate ${d.mandate}</span><span class="dim small">Budget ${fm(d.spent)} / ${fm(d.budget)}</span><span class="small ${busy?'gold':'dim'}">${busy?`Busy: ${esc(busy.n)}`:'Free'}</span><span class="rel ${relCls(relWord(h))}">${relWord(h)}</span></button>`}).join('')}</div>`)}
   ${sec('CLUB DNA',`<p class="dim small">Founded ${c.founded} in ${esc(c.town)}. Traits: ${c.dna.map(k=>DNA.find(d=>d.k===k).n).join(', ')||'none'}. Identity and culture change through what you keep doing.</p><h4 class="sub4">Identity</h4>${bars(c.id,{youth:'Youth',community:'Community',commercial:'Commercial',results:'Results'})}<h4 class="sub4">Culture</h4>${bars(c.cu,{prudence:'Prudence',ambition:'Ambition',innovation:'Innovation'})}`)}
   ${sec('PROMISES',`<ul class="lst">${S.promises.map(p=>`<li>${promiseKept(p)?'<span class="g">on track</span>':'<span class="b">off track</span>'} · ${esc(p.txt)}</li>`).join('')}</ul><p class="num">Members ${c.members} · trust ${S.trust}% (50% needed in May).</p>`)}</div>`}
@@ -1377,7 +1411,7 @@ function renderChair(app){
   if(S.phase==='day1'){app.innerHTML=bar()+day1View();return}
   if(S.phase==='budget'){app.innerHTML=bar()+budgetView();return}
   if(S.phase==='agm'){app.innerHTML=bar()+agmView();return}
-  const v=S.view;app.innerHTML=bar()+nav()+(v==='match'?cMatchView():v.startsWith('player:')?playerProfile(v.slice(7)):v.startsWith('dossier:')?dossierView(v.slice(8)):v.startsWith('dept:')?deptView(v.slice(5)):({inbox:inboxView,club:clubView,books:booksView,squad:squadView,people:cPeopleView,echo:echoArchive}[v]||inboxView)());
+  const v=S.view;app.innerHTML=bar()+nav()+(v==='match'?cMatchView():v.startsWith('msg:')?msgView(v.slice(4)):v.startsWith('player:')?playerProfile(v.slice(7)):v.startsWith('dossier:')?dossierView(v.slice(8)):v.startsWith('dept:')?deptView(v.slice(5)):({inbox:inboxView,club:clubView,books:booksView,squad:squadView,people:cPeopleView,echo:echoArchive}[v]||inboxView)())+actionBar();
 }
 A.succeed=()=>{draft.name=P.name;draft.traits=P.traits;chairNew();render();window.scrollTo({top:0})};
 

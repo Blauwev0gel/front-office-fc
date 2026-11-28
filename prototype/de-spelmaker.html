@@ -208,6 +208,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--hd);outline-off
 .mhead{padding:12px;border-bottom:3px solid var(--edge)}.msubj2{font-family:var(--display);font-size:28px;line-height:1.05;margin-top:4px}
 .mnav .btn{flex:0 0 auto;min-width:0}
 .inbox .bh{margin:0}
+.capbar{height:12px;border:2px solid var(--edge);background:var(--bg);display:flex;margin:4px 0}.capbar i{display:block;height:100%}.capbar .cr{background:var(--dim)}.capbar .ci{background:var(--gold)}
+.objrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:6px 0;border-bottom:1px dashed var(--line)}.objrow .num{margin-left:auto}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -882,7 +884,7 @@ const MANDF={low:.4,med:.8,high:1};
 const mandAmt=(k,m)=>{m=m||hd(k).mandate;return k==='football'?Math.max(5*tm(),Math.round(hd(k).budget*MANDF[m])):MANDATE[m][0]*tm()};
 const budLeft=k=>r1(hd(k).budget-hd(k).spent);
 const projActive=k=>S.projects.some(p=>p.k===k);
-const deptBusy=k=>S.projects.some(p=>p.dept===k&&!p.capex&&!p.ext);
+const deptBusy=(k,need)=>capFree(k)<(need||3);
 
 /* ---------- money ---------- */
 function attendance(derby){const form=(S.teams[0].form||[]).slice(-3).filter(r=>r==='W').length;return Math.min(S.cl.cap,Math.round(S.cl.fans*(.45+S.trust/140+form*.03+S.cl.id.community/400)*clamp(1.25-.25*S.cl.price,.6,1.1)*(derby?1.3:1)))}
@@ -938,7 +940,7 @@ function msg(from,subject,body,opts,def,kind,dossier){
   if(dossier){const d=S.dossiers.find(x=>x.id===dossier);if(d)d.msgs.push(m.id)}return m}
 const fromLabel=f=>f==='board'?'The Board':f==='echo'?`The ${S.cl.town} Echo`:`${CH(f)?CH(f).name:'?'} · ${ROLE_EN[f]}`;
 A.mopen=id=>{const m=S.inbox.find(x=>x.id===id);if(!m)return;m.read=true;S.view='msg:'+id;render();window.scrollTo({top:0})};
-function resolve(m,j,byDefault){if(!m||m.done)return;const o=m.opts[j];const r=runOpt(o);m.done=true;m.chosen=j;m.read=true;m.result=(byDefault?`No answer, so: ${o.n.toLowerCase()}. `:'')+(r||'');if(m.dossier){const d=S.dossiers.find(x=>x.id===m.dossier);if(d)d.history.push({when:stepLabel(),t:`${byDefault?'Default':'Chairman'}: ${o.n}. ${r||''}`})}}
+function resolve(m,j,byDefault){if(!m||m.done)return;const o=m.opts[j];const r=runOpt(o);m.done=true;m.chosen=j;m.read=true;m.result=(byDefault?`No answer, so: ${o.n.toLowerCase()}. `:'')+(r||'');if(m.dossier){const d=S.dossiers.find(x=>x.id===m.dossier);if(d){d.history.push({when:stepLabel(),t:`${byDefault?'Default':'Chairman'}: ${o.n}. ${r||''}`});if(!d.sponsor&&d.status!=='closed'){d.status='closed';d.outcome=`${o.n}. ${r||''}`.trim()}}}}
 A.answer=(id,j)=>{resolve(S.inbox.find(x=>x.id===id),j,false);render()};
 
 /* ---------- dossiers (P1): one persistent record from evidence to outcome ---------- */
@@ -955,7 +957,7 @@ const CMD={
   addFootballBudget:(x)=>{S.dept.football.budget=r1(S.dept.football.budget+x);return`Football budget +${fm(x)}.`},
   sellId:(pid,mult,why,club)=>{const p=S.squad.find(x=>x.id===pid);return p?sellPlayer(p,mult,why,club):'He has already gone.'},
   unsettle:pid=>{const p=S.squad.find(x=>x.id===pid);if(p)p.unsettled=true;return'You refused.'},
-  doProject:(k,title,cost,weeks,onDone,raise)=>{const f=feas(cost,k,{ignoreBusy:false});if(f.hard)return`Could not start: ${f.reasons.join('; ')}.`;if(raise&&budLeft(k)<cost)S.dept[k].budget=r1(S.dept[k].budget+cost-budLeft(k));S.dept[k].spent=r1(S.dept[k].spent+cost);book('out','Department spending',cost);S.projects.push({id:uid(),dept:k,k:onDone,n:title,cost,paid:cost,weeks,left:weeks});return`${title}: started, ${weeks} weeks.`},
+  doProject:(k,title,cost,weeks,onDone,raise)=>{const f=feas(cost,k,{ignoreBusy:false});if(f.hard)return`Could not start: ${f.reasons.join('; ')}.`;if(raise&&budLeft(k)<cost)S.dept[k].budget=r1(S.dept[k].budget+cost-budLeft(k));S.dept[k].spent=r1(S.dept[k].spent+cost);book('out','Department spending',cost);S.projects.push({id:uid(),dept:k,k:onDone,n:title,cost,paid:cost,weeks,left:weeks,capU:3});return`${title}: started, ${weeks} weeks.`},
   hireStaff:(n,pw,dept,spec)=>{S.cl.staffExtra.push({n,pw,dept});if(spec)S.cl.specialists++;return`${n} hired (${fw(pw)}).`},
   loan:(amount,why)=>{takeLoan(amount,why);return`Borrowed ${fm(amount)}.`},
   freeze:()=>{for(const k in S.dept){const d=S.dept[k];d.budget=r1(d.spent+Math.max(0,d.budget-d.spent)/2)}return'Unspent budgets halved.'},
@@ -1021,7 +1023,7 @@ A.found=()=>{
 function mkPlayer(pos,r,age,tier,youth){const p={id:uid(),name:nmE(),pos,age,r:clamp(Math.round(r),25,92),youth:!!youth,contract:youth?3:ri(1,3),apps:0,goals:0,inj:0,joined:S.year};p.pot=p.r+(age<20?ri(8,18):age<23?ri(3,10):age<26?ri(0,4):0);p.wage=youth?r1(wageFor(p.r,tier)*.4):wageFor(p.r,tier);return p}
 function genSquad(tier,str){const POS=['GK','GK','DF','DF','DF','DF','DF','DF','MF','MF','MF','MF','MF','MF','FW','FW','FW','FW'];const sq=POS.map(p=>mkPlayer(p,str+ri(-6,4),ri(19,33),tier));for(let i=0;i<2;i++){const p=sq[ri(0,sq.length-1)];p.r+=ri(4,7);p.wage=wageFor(p.r,tier)}return sq}
 function genLeague(tier,our,rival){const used=new Set([our.name.split(' ')[0],rival.name.split(' ')[0]]);const out=[];while(out.length<6){const n=`${pick(TOWNS)} ${pick(SUFFIX)}`;if(used.has(n.split(' ')[0]))continue;used.add(n.split(' ')[0]);out.push({name:n,str:DIV[tier].base+ri(-6,5),col:pick(COLS),form:[]})}rival.str=DIV[tier].base+ri(-3,3);rival.form=[];out.splice(ri(0,6),0,rival);return[{...our,id:0,form:[]},...out.map((t,i)=>({...t,id:i+1}))]}
-function pickXI(){const av=S.squad.filter(p=>!p.inj),c=CH('coach'),yb=p=>p.youth?(c&&c.style==='young'?3:0)+(hd('football').style==='youth'?2:0)+(S.youthCommit?4:0):0;const by=pos=>av.filter(p=>p.pos===pos).sort((a,b)=>(b.r+yb(b))-(a.r+yb(a)));let xi=[...by('GK').slice(0,1),...by('DF').slice(0,4),...by('MF').slice(0,4),...by('FW').slice(0,2)];if(xi.length<11)xi=xi.concat(av.filter(p=>!xi.includes(p)).sort((a,b)=>b.r-a.r).slice(0,11-xi.length));return xi}
+function pickXI(){const av=S.squad.filter(p=>!p.inj),c=CH('coach'),yb=p=>p.youth?(c&&c.style==='young'?3:0)+(hd('football').style==='youth'?2:0)+(S.youthCommit?4:0)+(S.objectives&&S.objectives.some(o=>o.type==='pathway')?5:0):0;const by=pos=>av.filter(p=>p.pos===pos).sort((a,b)=>(b.r+yb(b))-(a.r+yb(a)));let xi=[...by('GK').slice(0,1),...by('DF').slice(0,4),...by('MF').slice(0,4),...by('FW').slice(0,2)];if(xi.length<11)xi=xi.concat(av.filter(p=>!xi.includes(p)).sort((a,b)=>b.r-a.r).slice(0,11-xi.length));return xi}
 const xiAvg=()=>r1(avg(pickXI().map(p=>p.r)));
 function setExpected(){const m=xiAvg();S.expected=S.teams.filter(t=>t.id!==0&&t.str>m).length+1}
 function seasonSetup(){S.winKey=`${S.season}-summer`;S.transfers=S.transfers||[];S.fixtures=makeFixtures();S.week=0;S.table=S.teams.map(()=>({p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}));S.squad.forEach(p=>{p.apps=0;p.goals=0});S.youthApps={};S.cl.startCash=S.cl.cash;S.cl.startDebt=debt();S.led={open:S.cl.cash,inc:{},out:{},capex:{},fin:{}};S.decDone=false;S.youthCommit=false;
@@ -1037,7 +1039,7 @@ function coursePromises(k){
   const youth=k==='survive'?1:k==='build'?2:0;
   return[{k:'league',v:league,txt:league<=2?(top?'Win the league':'Win promotion (top 2)'):`Finish ${ord(league)} or higher`},{k:'money',...money},{k:'youth',v:youth,txt:youth?`${youth} academy player${youth>1?'s':''} play at least 3 games`:'No youth promise: win now'}];
 }
-A.course=k=>{S.course=k;S.promises=coursePromises(k);chron(`Manifest: ${COURSES[k].n}.`);cuD('ambition',k==='go'?8:k==='survive'?-5:2);S.phase='budget';
+A.course=k=>{S.course=k;S.promises=coursePromises(k);S.objectives=S.objectives||[];if(!S.objectives.length)S.objectives.push({id:uid(),type:k==='go'?'promotion':k==='build'?'pathway':'resilience',target:(OBJ[k==='go'?'promotion':k==='build'?'pathway':'resilience']).def(),set:'June',priority:1});chron(`Manifest: ${COURSES[k].n}.`);cuD('ambition',k==='go'?8:k==='survive'?-5:2);S.phase='budget';
   const avail=Math.max(0,S.cl.cash-S.cl.reserve),fin=hd('finance').style,keepBack=fin==='protect'?.5:.25,pot=avail*(1-keepBack);
   const split=k==='go'?{football:.6,academy:.15,commercial:.15,finance:.1}:k==='build'?{football:.35,academy:.35,commercial:.2,finance:.1}:{football:.35,academy:.25,commercial:.25,finance:.15};
   for(const d in S.dept)S.dept[d].budget=Math.round(pot*split[d]);
@@ -1108,7 +1110,7 @@ function sponsorOptions(x){
   if(cm.style==='growth'&&!S.cl.noBetting&&!/Bet|Odds|Cash/.test(x.name))opts.push({k:'bet',n:`Offer the slot to a betting firm (~${fw(x.pw*2)})`,pw:r1(x.pw*2),cost:0,risk:.15,local:false,why:'Most money, but members will object.'});
   opts.push({k:'defer',n:'Wait for a better moment',pw:0,cost:0,risk:x.weeks<=3?.6:.1,why:x.weeks<=3?'Little time left: they may walk.':'Time to see results first.'});
   const w=cm.style==='growth'?{renew:.5,lead:.7,bet:.8,defer:.2}:{renew:.8,lead:.5,bet:0,defer:.3};
-  opts.forEach(o=>{o.score=r1(w[o.k]*(1-o.risk)+(o.pw/Math.max(.1,x.pw))*.2-o.cost/Math.max(1,budLeft('commercial')+1)*.1)});
+  opts.forEach(o=>{o.score=r1(w[o.k]*(1-o.risk)+(o.pw/Math.max(.1,x.pw))*.2-o.cost/Math.max(1,budLeft('commercial')+1)*.1+(hasObj('sponsors')&&o.pw?(o.pw/x.pw-1)*.5:0)+(hasObj('spread')&&o.k==='lead'&&sponsorW()&&x.pw/sponsorW()>.5?.3:0))});
   return opts;
 }
 function sponsorLoop(){
@@ -1122,7 +1124,9 @@ function sponsorReview(d){
   const opts=sponsorOptions(x).sort((a,b)=>b.score-a.score),best=opts[0],h=head('commercial');
   dossierNote(d,`${h.name} compared: ${opts.map(o=>`${o.n} (score ${o.score})`).join('; ')}. Prefers: ${best.n}.`);
   const needsYou=best.k==='bet'||best.cost>mandAmt('commercial')||best.pw>0&&Math.abs(best.pw-x.pw)/x.pw>.4||x.weeks<=4;
-  if(!needsYou&&best.k!=='defer'){msg('commercial',`${d.topic}: I am acting`,`${best.why} Within my mandate I chose: ${best.n}. You can still overrule me now.`,opts.map(o=>({n:o.n,fx:`${o.pw?fw(o.pw):'no income'}${o.cost?` · cost ${fm(o.cost)}`:''} · risk ${Math.round(o.risk*100)}%${o.k==='bet'?' · members −6':''}`,e:[['cmd','sponsorDecide',d.id,o]]})),opts.indexOf(best),'decision',d.id);d.status='decide'}
+  const routine=best.k==='renew'&&Math.abs(best.pw-x.pw)/x.pw<=.25&&best.risk<=.2&&!needsYou;
+  if(routine){const r=sponsorExecute(d.id,best);dossierNote(d,'Routine renewal within the mandate: executed by the head of commercial.');msg('commercial',`${d.topic}: renewed (routine)`,`${best.why} ${r} This was within my mandate, so I did it.`,null,null,'report',d.id);return}
+  if(!needsYou&&best.k!=='defer'){msg('commercial',`${d.topic}: consultation`,`${best.why} I plan to: ${best.n}. I will go ahead at Continue unless you choose otherwise.`,opts.map(o=>({n:o.n,fx:`${o.pw?fw(o.pw):'no income'}${o.cost?` · cost ${fm(o.cost)}`:''} · risk ${Math.round(o.risk*100)}%${o.k==='bet'?' · members −6':''}`,e:[['cmd','sponsorDecide',d.id,o]]})),opts.indexOf(best),'decision',d.id);d.status='decide'}
   else{msg('commercial',`${d.topic}: your call`,`${x.name} ends in ${x.weeks} weeks (${fw(x.pw)}). ${opts.map(o=>`${o.n}: ${o.why}`).join(' ')} I would choose: ${best.n}.`,opts.map(o=>({n:o.n,fx:`${o.pw?fw(o.pw):'no income'}${o.cost?` · cost ${fm(o.cost)}`:''} · risk ${Math.round(o.risk*100)}%${o.k==='bet'?' · members −6':''}`,e:[['cmd','sponsorDecide',d.id,o]]})),opts.indexOf(best),'decision',d.id);d.status='decide'}
 }
 function sponsorExecute(did,o){
@@ -1133,7 +1137,7 @@ function sponsorExecute(did,o){
   if(o.k==='bet'){const name=pick(['LuckyLine Bet','SpinBet','QuickOdds'].filter(n=>!S.cl.sponsors.some(s=>s.name===n)))||'NorthBet';trustD(-6);remember('supporters','Put a betting firm on the boards',-12);idD('commercial',4);S.cl.sponsors=S.cl.sponsors.filter(s=>s!==x);S.cl.sponsors.push({name,pw:o.pw,weeks:30,local:false,sat:55});dossierClose(d,`${name} replaces ${x.name}: ${fw(o.pw)} for 30 weeks. Members are unhappy.`);return`${name} signed.`}
   if(o.k==='lead'){const f=feas(o.cost,'commercial');if(f.hard){dossierNote(d,`Could not start the search: ${f.reasons.join('; ')}.`);d.status='waiting';d.nextReview=S.abs+2;return`Not possible now: ${f.reasons.join('; ')}.`}
     if(budLeft('commercial')<o.cost)S.dept.commercial.budget=r1(S.dept.commercial.budget+o.cost-budLeft('commercial'));S.dept.commercial.spent=r1(S.dept.commercial.spent+o.cost);book('out','Department spending',o.cost);
-    S.projects.push({id:uid(),dept:'commercial',k:'leadSearch',n:`Sponsor search (${d.topic})`,cost:o.cost,paid:o.cost,weeks:3,left:3,did,opt:o});const l=S.cl.leads.find(l=>!l.used&&l.pw===o.pw);if(l)l.used=true;d.status='working';dossierNote(d,`Search started (${fm(o.cost)}, 3 weeks). ${x.name} stays until week end of deal.`);return'Search started.'}
+    S.projects.push({id:uid(),dept:'commercial',k:'leadSearch',n:`Sponsor search (${d.topic})`,cost:o.cost,paid:o.cost,weeks:3,left:3,did,opt:o,capU:3});const l=S.cl.leads.find(l=>!l.used&&l.pw===o.pw);if(l)l.used=true;d.status='working';dossierNote(d,`Search started (${fm(o.cost)}, 3 weeks). ${x.name} stays until week end of deal.`);return'Search started.'}
 }
 function leadDone(p){const d=S.dossiers.find(x=>x.id===p.did),x=d&&S.cl.sponsors.find(s=>s.name===d.sponsor),o=p.opt,h=head('commercial');if(!d||d.status==='closed')return;
   const ok=R()>o.risk-(h.stars-3)*.08;
@@ -1155,9 +1159,10 @@ function deptLoop(){
   const cd=(key,w)=>{if(S.flags[key]&&S.abs-S.flags[key]<w)return false;S.flags[key]=S.abs;return true};
   const ac=hd('academy');
   if(!deptBusy('academy')){
-    if(ac.style==='local'&&S.cl.network<3+S.cl.academyB*2&&cd('acnet',3))deptAct('academy','School partnership',r1(1.5*tm()),4,`Our network has ${S.cl.network} school${S.cl.network===1?'':'s'}. One more means more youngsters at the trial day.`,'school');
+    if((ac.style==='local'||hasObj('schools'))&&S.cl.network<(hasObj('schools')?S.objectives.find(o=>o.type==='schools').target:3+S.cl.academyB*2)&&cd('acnet',3))deptAct('academy','School partnership',r1(1.5*tm()),4,`Our network has ${S.cl.network} school${S.cl.network===1?'':'s'}. One more means more youngsters at the trial day.`,'school');
     else if(ac.style==='elite'&&S.cl.specialists<1+S.cl.academyB&&cd('acspec',6)){const pw=r1(.4*tm());msg('academy','Proposal: a specialist coach',`Elite development needs specialists. One coach costs ${fw(pw)} on a two-year contract (${fm(pw*76)} committed).`,[{n:'Hire him',fx:`Staff wages +${fw(pw)} · next intake quality up`,e:[['cmd','hireStaff','Specialist youth coach',pw,'academy',true],['cu','innovation',4],['mod','academy','Got his specialist',8,16]]},{n:'Not now',fx:'Academy manager −5',e:[['mod','academy','Specialist refused',-5,12]],r:'Not now.'}],1)}
   }
+  academyConflict();
   const slots=2+(S.cl.cap>=2000?1:0)+(S.cl.tier<=3?1:0);
   if(!deptBusy('commercial')&&S.cl.sponsors.length<slots&&cd('cmspon',3))deptAct('commercial','Find a new sponsor',r1(.8*tm()),3,`We have ${S.cl.sponsors.length} of ${slots} sponsor slots filled.`,'sponsor');
   sponsorLoop();
@@ -1263,13 +1268,14 @@ function weekTick(){
 
 /* ---------- continue: defaults exactly once, one clock ---------- */
 A.cnext=()=>{
+  snapBrief();
   for(const m of S.inbox.slice())if(!m.done&&m.kind==='decision'){if(m.def!==null&&m.def!==undefined)resolve(m,m.def,true);else{m.done=true;m.result='No answer.'}}
   const st=S.tl[S.ti];
   if(st.t==='win'){if(st.w===1){S.win={};S.winKey=`${S.season}-${st.k}`;if(st.k==='winter')buildPlan(1)}payWeek(false,false);marketWeek(st);deptLoop();weekTick()}
   if(st.t==='match'){playMatch();deptLoop();weekTick();if(S.autoWatch!==false){S.view='match'}}
   S.ti++;const nx=S.tl[S.ti];
   if(!nx||nx.t==='agm'){agm();render();return window.scrollTo({top:0})}
-  if(nx.t==='match')weekMessages(nx.r);
+  if(nx.t==='match'){weekMessages(nx.r);monthlyReport(nx.r)}
   S.openMsg=null;if(S.view!=='match')S.view='inbox';render();window.scrollTo({top:0});
 };
 A.cnextPlan=()=>{S.ti++;render()};
@@ -1322,7 +1328,7 @@ function inboxView(){
   const list=S.inbox.filter(m=>f==='all'||msgCat(m)===f).sort((a,b)=>(msgCat(b)==='call')-(msgCat(a)==='call'));
   const st=S.tl[S.ti],fx=st.t==='match'?myFixture():null,cs=coachStatus(),running=S.projects,unread=S.inbox.filter(m=>!m.read).length;
   const row=m=>`<button class="mrow ${m.read?'':'unread'} ${msgCat(m)==='call'?'call':''}" onclick="A.mopen('${m.id}')"><span class="mdot"></span><span class="mmain"><span class="mtop"><span class="mfrom">${esc(fromLabel(m.from).split(' · ')[0])}</span><span class="mwhen">${esc(m.when)}</span></span><span class="msubj">${msgTag(m)} ${esc(m.subject)}</span><span class="mprev">${esc((m.done&&m.result?'› '+m.result:m.body).slice(0,90))}${(m.done&&m.result?m.result:m.body).length>90?'…':''}</span></span></button>`;
-  return`<div class="page">${st.t==='plan'||st.t==='win'?transferCentre(st):''}${fx?`<div class="strip"><span><b>Saturday</b> ${fx.home?'v':'at'} ${esc(team(fx.opp).name)}${team(fx.opp).rival?' · DERBY':''}</span><span class="cs-${cs.word.replace(/ /g,'').toLowerCase()}">Coach: ${cs.word}</span></div>`:''}
+  return`<div class="page">${briefCard()}${st.t==='plan'||st.t==='win'?transferCentre(st):''}${fx?`<div class="strip"><span><b>Saturday</b> ${fx.home?'v':'at'} ${esc(team(fx.opp).name)}${team(fx.opp).rival?' · DERBY':''}</span><span class="cs-${cs.word.replace(/ /g,'').toLowerCase()}">Coach: ${cs.word}</span></div>`:''}
     <section class="blk inbox"><h3 class="bh">INBOX${unread?` · ${unread} unread`:''}${calls.length?` · ${calls.length} need you`:''}</h3>
       <div class="ifilter">${cats.map(([k,n,c])=>`<button class="${f===k?'on':''}" onclick="A.filter('${k}')">${n}${c?` <span class="num">${c}</span>`:''}</button>`).join('')}</div>
       <div class="mlist">${list.length?list.slice(0,40).map(row).join(''):`<p class="dim" style="padding:12px">${f==='call'?'Nothing needs you this week.':'No messages here.'}</p>`}</div></section>
@@ -1344,7 +1350,7 @@ function matchLive(){const m=curMatch();return S.view==='match'&&m&&(S.mv.shown|
 function actionBar(){const st=S.tl[S.ti];if(!st||S.phase!=='inbox')return'';
   if(S.view==='match'&&curMatch()){const live=matchLive(),n=S.inbox.filter(m=>!m.read).length;return`<div class="actionbar"><div class="abin">${live?`<span class="abnote">Week ${curMatch().round} is being played · <button class="linkbtn" onclick="A.view('inbox')">watch later</button></span><button class="btn wide" onclick="A.skip()">Skip to full time</button>`:`<button class="btn wide" onclick="A.view('inbox')">To the inbox${n?` · ${n} unread`:''}</button>`}</div></div><div class="abspace"></div>`}const pend=S.inbox.filter(m=>!m.done&&m.kind==='decision').length;
   return`<div class="actionbar"><div class="abin">${pend?`<span class="abnote">${pend} decision${pend>1?'s':''} open · <button class="linkbtn" onclick="S.inboxFilter='call';A.view('inbox')">review</button> or the default applies</span>`:''}${st.t==='plan'?`<button class="btn wide" onclick="A.cnextPlan()">Continue: open the window</button>`:`<button class="btn wide" onclick="A.cnext()">${nextLabel()}</button>`}</div></div><div class="abspace"></div>`}
-function clubView(){const c=S.cl;return`<div class="page">${sec('YOUR ORGANISATION',`<div class="tiles">${Object.entries(DEPT).map(([k,D])=>{const d=hd(k),h=head(k),busy=S.projects.find(p=>p.dept===k);return`<button class="tile" onclick="A.view('dept:${k}')"><span class="th">${D.n}</span><span>${esc(h.name)} ${'★'.repeat(h.stars)}</span><span class="dim small">${D.styles[d.style][0]} · mandate ${d.mandate}</span><span class="dim small">Budget ${fm(d.spent)} / ${fm(d.budget)}</span><span class="small ${busy?'gold':'dim'}">${busy?`Busy: ${esc(busy.n)}`:'Free'}</span><span class="rel ${relCls(relWord(h))}">${relWord(h)}</span></button>`}).join('')}</div>`)}
+function clubView(){const c=S.cl,os=S.objectives||[];return`<div class="page">${sec('CLUB OBJECTIVES',`<p class="dim small">Up to three. Department heads plan towards them; you see target against actual.</p>${os.map(o=>{const O=OBJ[o.type],a=objActual(o);return`<div class="objrow"><b>${O.n}</b> <span class="dim small">${DEPT[O.owner].n}</span><span class="num ${objOk(o)?'g':'b'}">${O.fmt(a)} / ${O.fmt(o.target)}</span><button class="btn sm ghost" onclick="A.dropObj('${o.id}')">Drop</button></div>`}).join('')||'<p class="dim">No objectives yet.</p>'}${os.length<3?`<div class="row2" style="margin-top:8px">${Object.entries(OBJ).filter(([t])=>!hasObj(t)).map(([t,O])=>`<button class="btn sm ghost" onclick="A.addObj('${t}')">+ ${O.n}</button>`).join('')}</div>`:''}`)}${sec('YOUR ORGANISATION',`<div class="tiles">${Object.entries(DEPT).map(([k,D])=>{const d=hd(k),h=head(k),busy=S.projects.find(p=>p.dept===k);const ob=(S.objectives||[]).find(o=>OBJ[o.type].owner===k),cf=capFree(k);return`<button class="tile" onclick="A.view('dept:${k}')"><span class="th">${D.n}</span>${ob?`<span class="small ${objOk(ob)?'g':'b'}">${OBJ[ob.type].n}: ${OBJ[ob.type].fmt(objActual(ob))}</span>`:''}<span class="small ${cf<3?'b':'dim'}">Capacity: ${Math.max(0,cf)} of ${capTotal(k)} free</span><span>${esc(h.name)} ${'★'.repeat(h.stars)}</span><span class="dim small">${D.styles[d.style][0]} · mandate ${d.mandate}</span><span class="dim small">Budget ${fm(d.spent)} / ${fm(d.budget)}</span><span class="small ${busy?'gold':'dim'}">${busy?`Busy: ${esc(busy.n)}`:'Free'}</span><span class="rel ${relCls(relWord(h))}">${relWord(h)}</span></button>`}).join('')}</div>`)}
   ${sec('CLUB DNA',`<p class="dim small">Founded ${c.founded} in ${esc(c.town)}. Traits: ${c.dna.map(k=>DNA.find(d=>d.k===k).n).join(', ')||'none'}. Identity and culture change through what you keep doing.</p><h4 class="sub4">Identity</h4>${bars(c.id,{youth:'Youth',community:'Community',commercial:'Commercial',results:'Results'})}<h4 class="sub4">Culture</h4>${bars(c.cu,{prudence:'Prudence',ambition:'Ambition',innovation:'Innovation'})}`)}
   ${sec('PROMISES',`<ul class="lst">${S.promises.map(p=>`<li>${promiseKept(p)?'<span class="g">on track</span>':'<span class="b">off track</span>'} · ${esc(p.txt)}</li>`).join('')}</ul><p class="num">Members ${c.members} · trust ${S.trust}% (50% needed in May).</p>`)}</div>`}
 function deptView(k){
@@ -1353,16 +1359,19 @@ function deptView(k){
   const canMeet=S.abs-d.meetAt>=4,mem=h.mods.filter(m=>m.mem).slice(-3);
   let info='';
   if(k==='football'){info=`<dl class="kv"><dt>Coach</dt><dd>${esc(CH('coach').name)} · ${CSTYLES[CH('coach').style]} · ${'★'.repeat(CH('coach').q)}</dd><dt>Squad</dt><dd>${S.squad.length} players · eleven rated ${xiAvg()}</dd><dt>Wages</dt><dd class="num">${fw(playerWages())} (budget ${fw(S.budget.wage)})</dd><dt>Training</dt><dd>${['Hired school pitch','Basic training ground','Full training centre'][S.cl.training]}</dd><dt>Staff</dt><dd>${esc(head('football').name)} (TD), ${esc(CH('coach').name)} (coach)${S.cl.staffExtra.filter(x=>x.dept==='football').map(x=>', '+x.n).join('')}</dd></dl>${(()=>{const xi=pickXI();return['GK','DF','MF','FW'].map(pos=>`<h4 class="sub4">${POSN[pos]}s</h4><p class="small">${S.squad.filter(p=>p.pos===pos).sort((a,b)=>b.r-a.r).map(p=>`${xi.includes(p)?'<b>':''}${pLink(p.id,p.name)} ${p.r}${xi.includes(p)?'</b>':''}${p.loan?' (loan)':''}${p.inj?' (inj)':''}`).join(' · ')||'–'}</p>`).join('')+`<h4 class="sub4">Contracts ending this season</h4><p class="small">${S.squad.filter(p=>p.contract<=1&&!p.loan).map(p=>`${pLink(p.id,p.name)} (${p.age}, ${p.r})`).join(' · ')||'none'}</p>`})()}`}
-  if(k==='academy'){const ys=S.squad.filter(p=>p.youth);info=`<dl class="kv"><dt>Schools</dt><dd>${S.cl.network}${S.cl.schools&&S.cl.schools.length?': '+esc(S.cl.schools.join(', ')):''}</dd><dt>Specialists</dt><dd>${S.cl.specialists}</dd><dt>Building</dt><dd>${S.cl.academyB?'Academy building':'Shared changing rooms'}</dd><dt>Next intake</dt><dd>${intakeCount()} × around ${intakeQ()}</dd><dt>Graduates in the first-team squad</dt><dd>${ys.map(p=>`${pLink(p.id,p.name)} (${p.age}, ${p.r}, ${p.apps} apps)`).join(', ')||'–'}</dd><dt>Staff</dt><dd>${esc(head('academy').name)}${S.cl.specialists?` + ${S.cl.specialists} specialist coach${S.cl.specialists>1?'es':''}`:''}</dd></dl><h4 class="sub4">The pipeline</h4>${academyPanel()}`}
+  if(k==='academy'){const ys=S.squad.filter(p=>p.youth);info=`<dl class="kv"><dt>Schools</dt><dd>${S.cl.network}${S.cl.schools&&S.cl.schools.length?': '+esc(S.cl.schools.join(', ')):''}</dd><dt>Specialists</dt><dd>${S.cl.specialists}</dd><dt>Building</dt><dd>${S.cl.academyB?'Academy building':'Shared changing rooms'}</dd><dt>Next intake</dt><dd>${intakeCount()} × around ${intakeQ()}</dd><dt>Graduates in the first-team squad</dt><dd>${ys.map(p=>`${pLink(p.id,p.name)} (${p.age}, ${p.r}, ${p.apps} apps)`).join(', ')||'–'}</dd><dt>Staff</dt><dd>${esc(head('academy').name)}${S.cl.specialists?` + ${S.cl.specialists} specialist coach${S.cl.specialists>1?'es':''}`:''}</dd></dl>`}
   if(k==='commercial'){info=`<dl class="kv"><dt>Sponsors</dt><dd>${S.cl.sponsors.map(x=>`${esc(x.name)} ${fw(x.pw)} · ${x.weeks} wk left · satisfaction ${sponsorSat(x)}`).join('<br>')||'–'}</dd><dt>Ground</dt><dd class="num">${S.cl.cap.toLocaleString('en-GB')} seats · ${S.cl.lastAtt.length?Math.round(avg(S.cl.lastAtt)*100)+'% full':'no home games yet'} · ticket £${ticket()}</dd><dt>Hospitality</dt><dd class="num">${fm(S.cl.hosp)} per home game</dd><dt>Policy</dt><dd>${S.cl.noBetting?'No betting or payday sponsors':'None'}</dd><dt>Leads</dt><dd>${S.cl.leads.filter(l=>!l.used).map(l=>`${esc(l.name)} ~${fw(l.pw)}`).join(', ')||'none'}</dd><dt>Members</dt><dd class="num">${S.cl.members} · dues £${S.cl.dues} a year</dd></dl><h4 class="sub4">Recent home crowds</h4><table class="tt num">${(S.cl.attHist||[]).slice(0,6).map(a=>`<tr><td>${a.date} v ${esc(a.opp)}${a.derby?' (derby)':''}</td><td class="r ${a.att>=a.cap?'g':''}">${a.att.toLocaleString('en-GB')} / ${a.cap.toLocaleString('en-GB')}</td></tr>`).join('')||'<tr><td class="dim">No home games yet</td></tr>'}</table>${dossierList('commercial')}`}
   if(k==='finance'){info=`<dl class="kv"><dt>Cash</dt><dd class="num">${fm(S.cl.cash)} · reserve ${fm(S.cl.reserve)} · free ${fm(available())}</dd><dt>Debt</dt><dd class="num">${fm(debt())}${S.cl.loans.length?` · ${fw(repayW())}`:''}</dd><dt>Lowest point</dt><dd class="num">${fm(forecastLow())} before May</dd></dl><button class="btn ghost sm" onclick="A.view('books')">Open the books</button>`}
   const res=RESEARCH[k].filter(r=>!r.req||r.req());
   return`<div class="page">${sec(`${D.n.toUpperCase()}`,`<div class="say"><b>${esc(h.name)}</b> <span class="dim">${ROLE_EN[D.head]} · ${'★'.repeat(h.stars)} · ${h.traits.map(t=>TR_EN[t]).join(', ')} · ambition ${h.amb}</span><p>${D.styles[d.style][0]}: ${D.styles[d.style][1]}</p><p class="small">Relationship: <span class="${relCls(relWord(h))}">${relWord(h)}</span>${mem.length?` · remembers: ${mem.map(m=>esc(m.t.toLowerCase())).join('; ')}`:''}</p></div>${info}`)}
+    ${sec('OBJECTIVES & WORK',`${deptObjectives(k)}<h4 class="sub4">Workload</h4>${capBar(k)}<ul class="lst">${S.projects.filter(p=>p.dept===k&&!p.capex).map(p=>`<li>${esc(p.n)} · ${p.left} wk left · ${p.ext?'consultants':'capacity '+(p.capU||3)}</li>`).join('')||'<li class="dim">Only routine work.</li>'}</ul><h4 class="sub4">Assessment</h4><p class="small">${esc(assess(k))}</p>`)}
+    ${k==='academy'?sec('THE PIPELINE',academyPanel()):''}
     ${sec('MANDATE & BUDGET',`<p class="dim small">Philosophy is how he works. Mandate is what he may decide alone. Budget is what he can spend.</p><div class="row2">${Object.entries(MANDATE).map(([m,[a,n]])=>`<button class="btn sm ${d.mandate===m?'':'ghost'}" onclick="A.mandate('${k}','${m}')">${m.toUpperCase()} · ${fm(mandAmt(k,m))}</button>`).join('')}</div><p class="small dim">${k==='football'?`Per deal he may spend alone: ${fm(mandAmt(k))} (${Math.round(MANDF[d.mandate]*100)}% of his budget). Club records and bids for our best three always come to you.`:MANDATE[d.mandate][1]+'.'}</p><p class="num">Budget ${fm(d.budget)} · spent ${fm(d.spent)} · left ${fm(budLeft(k))}</p>`)}
     ${sec('YOUR ACTIONS',`${busy?`<p class="gold">Busy: ${esc(busy.n)}, ${busy.left} week${busy.left>1?'s':''} to go. New research waits until then.</p>`:''}
       <div class="optrow"><button class="btn" ${canMeet?'':'disabled'} onclick="A.meet('${k}')">Meet ${esc(h.name.split(' ')[0])}</button>${fxH(canMeet?'Agenda from the current situation · commitments with follow-up':`Next free slot in his diary: ${4-(S.abs-d.meetAt)} week(s)`)}</div>
       ${k==='football'?`<div class="optrow"><button class="btn ghost" ${S.flags.review===S.ti+':'+S.year?'disabled':''} onclick="A.coachReview()">Review the coach</button>${fxH('Retain, set a target or replace · the TD carries it out')}</div>`:''}
       ${res.map(r=>{const cost=r1(r.cost*tm()),f=feas(cost,k,{ignoreBusy:true}),w2=Math.max(1,Math.ceil(r.weeks/2));return`<div class="optrow"><b class="small">${r.n}</b><span class="small dim">${r.d}</span><div class="row2"><button class="btn sm" ${busy?'disabled':''} onclick="A.research('${k}','${r.k}',0,'house')">In-house · free · ${r.weeks} wk</button><button class="btn sm ghost" ${f.hard||f.short?'disabled':''} onclick="A.research('${k}','${r.k}',0,'ext')">Consultants · ${fm(cost)} · ${w2} wk</button>${f.short&&!f.hard?`<button class="btn sm ghost" onclick="A.research('${k}','${r.k}',1,'ext')">Raise budget ${fm(f.short)} + consultants</button>`:''}</div>${fxH(`In-house keeps ${DEPT[k].n.toLowerCase()} busy · consultants cost money, department stays free`)}</div>`}).join('')}${S.flags.lastRes?`<p class="small gold">${esc(S.flags.lastRes)}</p>`:''}
+      <div class="optrow"><button class="btn ghost" onclick="A.addStaff('${k}')">Add a ${STAFFOPT[k][0].toLowerCase()}</button>${fxH(`+3 capacity · wages +${fw(STAFFOPT[k][1]*tm())}`)}</div>
       <div class="optrow"><button class="btn ghost" ${d.replacedIn===S.season?'disabled':''} onclick="A.replace('${k}')">Replace ${esc(h.name.split(' ')[0])}</button>${fxH(d.replacedIn===S.season?'Already changed this season':`Compensation ${fm(h.wage*10)} · two candidates with different philosophies`)}</div>`)}</div>`;
 }
 function booksView(){
@@ -1510,7 +1519,7 @@ function academySummer(){
 /* ---------- research: in-house costs time, consultants cost money ---------- */
 function startResearch(k,rk,fromMsg,raise,mode){
   const R0=RESEARCH[k].find(x=>x.k===rk);mode=mode||'house';
-  if(mode==='house'){if(deptBusy(k))return`${DEPT[k].n} is busy with other work.`;S.projects.push({id:uid(),dept:k,k:'research',rk,n:R0.n,cost:0,paid:0,weeks:R0.weeks,left:R0.weeks});cuD('innovation',1);if(!fromMsg)msg(DEPT[k].head,`In-house: ${R0.n}`,`${R0.d} My department takes it on: ${R0.weeks} weeks, no extra cost. We do nothing else new until then.`);return`${R0.n}: in-house, ${R0.weeks} weeks.`}
+  if(mode==='house'){if(deptBusy(k))return`${DEPT[k].n} is busy with other work.`;S.projects.push({id:uid(),dept:k,k:'research',rk,n:R0.n,cost:0,paid:0,weeks:R0.weeks,left:R0.weeks,capU:3});cuD('innovation',1);if(!fromMsg)msg(DEPT[k].head,`In-house: ${R0.n}`,`${R0.d} My department takes it on: ${R0.weeks} weeks, no extra cost. We do nothing else new until then.`);return`${R0.n}: in-house, ${R0.weeks} weeks.`}
   const cost=r1(R0.cost*tm()),f=feas(cost,k,{ignoreBusy:true});
   if(f.hard)return`Not possible: ${f.reasons.join('; ')}.`;if(f.short&&!raise)return`The ${DEPT[k].n} budget is ${fm(f.short)} short.`;
   const d=hd(k);if(f.short)d.budget=r1(d.budget+f.short);const w=Math.max(1,Math.ceil(R0.weeks/2));
@@ -1553,6 +1562,73 @@ function academyPanel(){
   if(!S.academy)academyInit();const U=S.u18;
   return['U18','U16','U14','U12'].map(t=>{const ks=S.academy.filter(k=>acTeam(k.age)===t).sort((a,b)=>b.pot-a.pot);return`<h4 class="sub4">${t} · ${ks.length} player${ks.length===1?'':'s'}</h4>${ks.length?`<table class="tt num"><tbody>${ks.map(k=>{const e=potEst(k);return`<tr><td>${k.pos}</td><td>${pLink(k.id,k.name)}<br><span class="dim small">${esc(k.school)}</span></td><td class="r">${k.age}</td><td class="r">${Math.round(k.r)}</td><td class="r dim">${e[0]}–${e[1]}</td></tr>`}).join('')}</tbody></table>`:'<p class="dim small">Empty.</p>'}`}).join('')+`<p class="small dim">Columns: age · ability now · potential estimate. Graduates at 18 join the first-team squad if good enough.</p><h4 class="sub4">U18 league</h4><p class="num">P${U.p} W${U.w} D${U.d} L${U.l} · ${U.gf}–${U.ga}</p><ul class="lst">${U.last.map(x=>`<li>${esc(x)}</li>`).join('')||'<li class="dim">No games yet.</li>'}</ul>`;
 }
+
+/* =====================================================================
+   P1.5 — The Living Organisation (design/WEEKLY_FLOW_DEPARTMENT_ARCHITECTURE_V2.md)
+   objectives, capacity, real delegation, one cross-department tradeoff,
+   weekly briefing and monthly management report
+   ===================================================================== */
+const OBJ={
+  promotion:{n:'Promotion challenge',owner:'football',metric:()=>myPos(),fmt:v=>ord(v),good:(v,t)=>v<=t,def:()=>2,tl:t=>`finish ${ord(t)} or higher`},
+  pathway:{n:'Academy pathway',owner:'academy',contrib:['football'],metric:()=>S.squad.filter(p=>p.youth).reduce((s,p)=>s+p.apps,0),fmt:v=>`${v} youth apps`,good:(v,t)=>v>=t,def:()=>Math.max(4,S.squad.filter(p=>p.youth).length*3),tl:t=>`${t} first-team appearances by academy players`},
+  schools:{n:'Grow the schools network',owner:'academy',metric:()=>S.cl.network,fmt:v=>`${v} schools`,good:(v,t)=>v>=t,def:()=>S.cl.network+2,tl:t=>`${t} partner schools`},
+  sponsors:{n:'Grow sponsor income',owner:'commercial',metric:()=>sponsorW(),fmt:v=>fw(v),good:(v,t)=>v>=t,def:()=>r1(Math.max(1,sponsorW())*1.3),tl:t=>`${fw(t)} in sponsorship`},
+  spread:{n:'Reduce dependence on one sponsor',owner:'commercial',metric:()=>{const t=sponsorW();return t?Math.round(Math.max(...S.cl.sponsors.map(x=>x.pw))/t*100):100},fmt:v=>`largest ${v}%`,good:(v,t)=>v<=t,def:()=>50,tl:t=>`no sponsor above ${t}% of sponsor income`},
+  crowds:{n:'Fill the ground',owner:'commercial',metric:()=>S.cl.lastAtt.length?Math.round(avg(S.cl.lastAtt)*100):0,fmt:v=>`${v}% full`,good:(v,t)=>v>=t,def:()=>90,tl:t=>`home games ${t}% full`},
+  resilience:{n:'Financial resilience',owner:'finance',metric:()=>forecastLow(),fmt:v=>`lowest ${fm(v)}`,good:(v,t)=>v>=t,def:()=>S.cl.reserve,tl:t=>`cash never below ${fm(t)} before May`}};
+const objActual=o=>OBJ[o.type].metric(),objOk=o=>OBJ[o.type].good(objActual(o),o.target);
+const hasObj=t=>(S.objectives||[]).some(o=>o.type===t);
+A.addObj=t=>{S.objectives=S.objectives||[];if(hasObj(t)||S.objectives.length>=3)return;const O=OBJ[t];if(t==='pathway'&&CH('coach').style!=='young')mod('coach','Asked to give academy players minutes',-4,16);S.objectives.push({id:uid(),type:t,target:O.def(),set:stepLabel(),priority:S.objectives.length+1});mod(O.owner,'Given a clear objective',4,10);msg(O.owner,`New objective: ${O.n}`,`Target: ${O.tl(S.objectives[S.objectives.length-1].target)} by May. ${objPlanLine(t)}`);render()};
+A.dropObj=id=>{S.objectives=(S.objectives||[]).filter(o=>o.id!==id);render()};
+function objPlanLine(t){const h=head(OBJ[t].owner),st=hd(OBJ[t].owner).style;
+  return({promotion:`${h.name}: "${st==='results'?'I will buy experience and ask the coach for results first.':'Young players need minutes; promotion this year would be a bonus.'}"`,
+    pathway:`${h.name}: "I will press the coach for minutes and keep the U18s close to the first team."${CH('coach').style==='young'?'':` ${CH('coach').name} plays ${CSTYLES[CH('coach').style].toLowerCase()}, so this will need your backing.`}`,
+    schools:`${h.name}: "${st==='local'?'Partnerships are my strength; coaching capacity is the limit.':'I would rather have one specialist than five schools, but I will try."'}"`,
+    sponsors:`${h.name}: "${st==='growth'?'Bigger regional deals.':'More local partners; it takes longer.'}" Renewals will aim higher.`,
+    spread:`${h.name}: "I will look for new categories instead of relying on one name." Renewals will favour new partners.`,
+    crowds:`${h.name}: "Results, prices and the local community fill the ground."`,
+    resilience:`${h.name}: "I will hold discretionary spending back when the forecast dips below the reserve."`})[t]}
+/* ---------- capacity (abstract units, synthetic until calibrated) ---------- */
+const CAP0={football:10,academy:8,commercial:8,finance:8};
+const capTotal=k=>CAP0[k]+S.cl.staffExtra.filter(x=>x.dept===k).reduce((s,x)=>s+(x.cap||3),0);
+const capRoutine=k=>k==='football'?4+Math.round(S.squad.length/6):k==='academy'?2+Math.round((S.academy||[]).length/5):k==='commercial'?2+S.cl.sponsors.length:3+S.cl.loans.length+(S.projects.some(p=>p.capex)?1:0);
+const capInit=k=>S.projects.filter(p=>p.dept===k&&!p.capex).reduce((s,p)=>s+(p.ext?1:(p.capU||3)),0);
+const capFree=k=>capTotal(k)-capRoutine(k)-capInit(k);
+const STAFFOPT={football:['Assistant coach',.35],academy:['Part-time youth coach',.25],commercial:['Commercial assistant',.25],finance:['Bookkeeper',.2]};
+A.addStaff=k=>{const[n,base]=STAFFOPT[k],pw=r1(base*tm());S.cl.staffExtra.push({n,pw,dept:k,cap:3});mod(DEPT[k].head,'Got extra staff',6,14);msg(DEPT[k].head,`${n} hired`,`+3 capacity for ${DEPT[k].n.toLowerCase()}. Wages +${fw(pw)}, a rolling contract.`);render()};
+function capBar(k){const t=capTotal(k),r=capRoutine(k),i=capInit(k),f=Math.max(0,t-r-i);const pc=v=>Math.round(v/t*100);
+  return`<div class="capbar"><i class="cr" style="width:${pc(Math.min(r,t))}%"></i><i class="ci" style="width:${pc(Math.min(i,Math.max(0,t-r)))}%"></i></div><p class="small num">Capacity ${t}: routine ${r} · initiatives ${i} · free <b class="${f<3?'b':'g'}">${f}</b>${t-r-i<0?' <span class="b">(overloaded)</span>':''}</p>`}
+/* ---------- head's assessment, derived from state ---------- */
+function assess(k){const f=capFree(k),out=[];
+  if(k==='academy'){const u18=(S.academy||[]).filter(x=>x.age>=17);out.push(`${S.cl.network} schools, ${(S.academy||[]).length} players in the pipeline, ${u18.length} in their last year.`);if(f<3)out.push('Coaching is the bottleneck: strengthen coaching before expanding.');else if(hasObj('schools')&&S.cl.network<(S.objectives.find(o=>o.type==='schools')||{}).target)out.push('Room to add a school partnership.')}
+  if(k==='football'){const exp=S.squad.filter(p=>p.contract<=1&&!p.loan).length,inj=S.squad.filter(p=>p.inj).length;out.push(`${ord(myPos())}, expected ${ord(S.expected)}. ${exp} contract${exp===1?'':'s'} ending, ${inj} injured.`);if(hasObj('pathway')&&CH('coach').style!=='young')out.push(`The coach prefers ${CSTYLES[CH('coach').style].toLowerCase()}; the pathway objective pulls the other way.`)}
+  if(k==='commercial'){const nx=S.cl.sponsors.slice().sort((a,b)=>a.weeks-b.weeks)[0];out.push(`${S.cl.sponsors.length} sponsors, ${fw(sponsorW())}.${nx?` Next renewal: ${nx.name} in ${nx.weeks} weeks.`:''}`);if(S.cl.lastAtt.length&&avg(S.cl.lastAtt)>.95)out.push('Demand exceeds capacity.')}
+  if(k==='finance'){const low=forecastLow();out.push(`Lowest point before May ${fm(low)} against a ${fm(S.cl.reserve)} reserve.`);if(low<S.cl.reserve)out.push('Discretionary spending should wait unless you accept the risk.')}
+  if(f<0)out.push('The department is overloaded; work will slip.');
+  return out.join(' ')}
+function deptObjectives(k){const os=(S.objectives||[]).filter(o=>OBJ[o.type].owner===k||(OBJ[o.type].contrib||[]).includes(k));return os.length?os.map(o=>{const a=objActual(o),ok=objOk(o);return`<div class="objrow"><b>${OBJ[o.type].n}</b>${OBJ[o.type].owner!==k?' <span class="dim small">(contributes)</span>':''}<span class="num ${ok?'g':'b'}">${OBJ[o.type].fmt(a)} / target ${OBJ[o.type].fmt(o.target)}</span></div>`}).join(''):'<p class="dim small">No club objective for this department. Set one under Club.</p>'}
+/* ---------- the cross-department tradeoff: academy expansion vs coaching capacity ---------- */
+function academyConflict(){
+  if(S.flags.acConflict===S.season)return;const want=hasObj('schools')||hasObj('pathway')||hd('academy').style==='local';
+  if(!want||capFree('academy')>=3)return;
+  S.flags.acConflict=S.season;const pw=r1(STAFFOPT.academy[1]*tm()),low=forecastLow(pw*20),cut=Math.round(Math.min(budLeft('football'),8*tm()));
+  const d=dossierOpen('Academy expansion vs coaching load','academy',`${head('academy').name} wants to grow the academy, but coaching capacity is full (free ${capFree('academy')} of ${capTotal('academy')}). Finance: the forecast low with an extra coach is ${fm(low)} (reserve ${fm(S.cl.reserve)}).`,{});
+  msg('academy','Academy expansion: we need to choose',`Coaching capacity is full. ${head('finance').name} (finance): "An extra coach takes the lowest point to ${fm(low)}." ${head('commercial').name} (commercial): "I could look for a local academy sponsor, if I have room." ${head('football').name} (football): "Do not take it from my recruitment budget."`,[
+    {n:'Delay the expansion',fx:'No cost · the academy grows later · academy manager −4',e:[['mod','academy','Expansion delayed',-4,12]],r:'Delayed until capacity frees up.'},
+    {n:`Hire a part-time youth coach (${fw(pw)})`,fx:`+3 academy capacity · wages +${fw(pw)}${low<S.cl.reserve?' · forecast dips below reserve':''}`,e:[['cmd','hireStaff','Part-time youth coach',pw,'academy',false],['mod','academy','Got a coach',6,14]]},
+    {n:'Ask Commercial to find an academy sponsor',fx:capFree('commercial')>=3?'Commercial works on it for 3 weeks · if it lands, it pays for a coach':'Commercial has no free capacity right now',e:[['cmd','acSponsor']]},
+    {n:`Move ${fm(cut)} from recruitment to the academy`,fx:`Football budget −${fm(cut)} · academy +${fm(cut)} · TD −8`,e:[['budget','football',-cut],['budget','academy',cut],['mod','td','Lost recruitment money to the academy',-8,16],['cmd','hireStaff','Part-time youth coach',pw,'academy',false]]}],0,'decision',d.id);
+}
+CMD.acSponsor=()=>{if(capFree('commercial')<3)return'Commercial has no capacity; nothing happens.';S.projects.push({id:uid(),dept:'commercial',k:'acSponsor',n:'Academy sponsor search',cost:0,paid:0,weeks:3,left:3,capU:3});return'Commercial is looking for an academy sponsor.'};
+const _projDone0=projDone;
+projDone=function(p){if(p.k!=='acSponsor')return _projDone0(p);if(R()<.55+(head('commercial').stars-3)*.1){const name=`${pick(['Bakery','Builders','Opticians','Dental'])} ${pick(LN)} Youth Fund`,pw=r1(STAFFOPT.academy[1]*tm()*1.1);S.cl.sponsors.push({name,pw,weeks:30,local:true,sat:60});S.cl.staffExtra.push({n:'Part-time youth coach',pw:r1(STAFFOPT.academy[1]*tm()),dept:'academy',cap:3});idD('community',3);msg('commercial',`Academy sponsor: ${name}`,`${fw(pw)} for 30 weeks, enough to fund a part-time youth coach (+3 academy capacity).`)}else msg('commercial','No academy sponsor found','Nobody local wanted to fund the academy right now. We can try again later.')};
+/* ---------- weekly briefing and monthly report ---------- */
+function snapBrief(){S.brief0={cash:S.cl.cash,pos:S.week?myPos():null,trust:S.trust,label:stepLabel(),projects:S.projects.map(p=>p.id),inboxIds:S.inbox.map(m=>m.id)}}
+function briefCard(){const b=S.brief0;if(!b)return'';const dc=r1(S.cl.cash-b.cash),pos=S.week?myPos():null,newMsgs=S.inbox.filter(m=>!b.inboxIds.includes(m.id)),done=newMsgs.filter(m=>/^(Started|Result|New sponsor|New partner|Findings|.*hired|Academy sponsor)/.test(m.subject)).length,calls=S.inbox.filter(m=>!m.done&&m.kind==='decision').length;
+  const lm=(S.matches||[])[0],nexts=[...S.cl.sponsors.filter(x=>x.weeks<=8).map(x=>`${x.name} renewal (${x.weeks} wk)`),...S.projects.filter(p=>p.left<=2).map(p=>`${p.n} (${p.left} wk)`)].slice(0,3);
+  return sec(`THIS WEEK · SINCE ${esc(b.label).toUpperCase()}`,`<dl class="kv"><dt>Result</dt><dd>${lm&&lm.date===CAL[Math.max(0,S.week-1)]?`<button class="linkbtn" onclick="A.match('${lm.id}')">${esc(lm.score)}</button>`:'No match'}</dd><dt>Cash</dt><dd class="num">${fm(S.cl.cash)} (${dc>=0?'+':''}${fm(dc)})</dd>${pos?`<dt>League</dt><dd>${ord(pos)}${b.pos&&b.pos!==pos?` (was ${ord(b.pos)})`:''}</dd>`:''}<dt>Members</dt><dd class="num">${S.trust}%${b.trust!==S.trust?` (${S.trust-b.trust>0?'+':''}${S.trust-b.trust})`:''}</dd><dt>Club</dt><dd>${newMsgs.length} new message${newMsgs.length===1?'':'s'}${done?`, ${done} outcome${done>1?'s':''}`:''}${calls?` · <b class="gold">${calls} need you</b>`:''}</dd>${nexts.length?`<dt>Coming up</dt><dd>${esc(nexts.join(' · '))}</dd>`:''}${(S.objectives||[]).length?`<dt>Objectives</dt><dd>${S.objectives.map(o=>`<span class="${objOk(o)?'g':'b'}">■</span> ${OBJ[o.type].n}`).join('<br>')}</dd>`:''}</dl>`,'brief')}
+function monthlyReport(r){if(r%4!==3||!(S.objectives||[]).length)return;
+  msg('board','Monthly management report',S.objectives.map(o=>{const a=objActual(o),ok=objOk(o),O=OBJ[o.type];return`${O.n}: ${O.fmt(a)} against ${O.fmt(o.target)} (${ok?'on track':'behind'}). ${head(O.owner).name}: ${ok?'"Keep going."':capFree(O.owner)<3?'"We lack capacity."':'"We need more time or resources."'}`}).join(' ')+` Capacity: ${Object.keys(DEPT).map(k=>`${DEPT[k].n} ${Math.max(0,capFree(k))} free`).join(', ')}.`)}
 
 /* boot */
 draft={name:nmE(),club:1,traits:[],mode:'chair'};

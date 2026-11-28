@@ -1,0 +1,12 @@
+# System architecture V2
+Target single-file prototype/de-spelmaker.html. Logical boundaries first; no rewrite. Static baseline blob 68f490368b067eb8533dc70d1073f4b3db6efaf1; refetch before coding.
+## Contracts
+State {version, clock, rng, clubs, people, contracts, finance, plans, assets, governance, dossiers, events}. Illustrative schema; migrate existing S incrementally, do not duplicate authoritative data. Stable IDs, integer money, explicit units.
+Command {id,type,actorId,subjectId,payload,expectedVersion}; validate → feasibility → atomic commit → events → projection. Reject stale/duplicate command. Defaults use same command path. No closures persisted. Event {id,week,day,type,actorId,subjectId,causeId,payload,visibility}; bounded history plus durable milestones. Dossier {id,ownerId,needId,status,options,decisionId,commitmentIds,milestones,nextReview,historyIds}.
+Finance API: forecast(horizon,scenario), assess(commitments), reserve, settle, release; no double booking. Capacity API: available(role,week), reserve, release. Department API: observe, propose, plan, execute, review. Clock is only time mutator; seeded RNG only randomness source for new logic. UI dispatches commands and renders projections.
+## Reuse audit
+Preserve foundView/hireView/day1View/budgetView, match simulation, transfer flow, A.cnext, department tiles, AGM and relationship display where compatible. Adapt deptLoop/deptAct to feasibility and persistent plans; replace flat forecastLow; route startResearch/startBuild through explicit commitments and financing; convert decision callbacks to typed commands. Inspect all direct cash writes and random calls before migration. Existing save JSON may lose closures; reproduce before fixing. No claim all modules audited.
+## Migration
+P0 capture save fixtures and behavior, map mutation call sites. Add versioned migration and command adapter. P1 ledger in parallel shadow calculation only until reconciliation; switch authority once verified, remove duplicate writes. P2 one dossier/plan through gateway; migrate other routes incrementally. Preserve existing valid commitments. Backup old save or reject unsupported version visibly. No hidden reset.
+## Tests
+Local Node smoke harness, deterministic seed, save/load mid-decision, duplicate command, resource conservation, default parity, no time advance from render. Browser/manual test mobile and desktop at phase gate. No heavy CI. Performance measure before increasing world fidelity.
